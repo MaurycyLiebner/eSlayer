@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings name="Zeus textfile." indexWithCounts="true">
+    <group id="1">
+        <string id="0">Single player</string>
+        <string id="1">Settings</string>
+        <string id="2">Exit game</string>
+    </group>
+    <group id="2">
+        <string id="0">Exit</string>
+        <string id="1">Ok</string>
+        <string id="2">Character name</string>
+        <string id="3">Hardcore</string>
+    </group>
+    <group id="3">
+        <string id="0">Exit</string>
+        <string id="1">Ok</string>
+        <string id="2">Create new character</string>
+        <string id="3">Delete character</string>
+    </group>
+</strings>
