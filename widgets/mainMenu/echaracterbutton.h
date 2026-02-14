@@ -1,17 +1,15 @@
 #ifndef ECHARACTERBUTTON_H
 #define ECHARACTERBUTTON_H
 
-#include "../echeckablebutton.h"
+#include "../echeckbutton.h"
 
 class eCharacter;
 
-class eCharacterButton : public eCheckableButton {
+class eCharacterButton : public eCheckButton {
 public:
-    using eCheckableButton::eCheckableButton;
+    using eCheckButton::eCheckButton;
 
     void initialize(const eCharacter& c);
-protected:
-    void paintEvent(ePainter& p) override;
 };
 
 #endif // ECHARACTERBUTTON_H

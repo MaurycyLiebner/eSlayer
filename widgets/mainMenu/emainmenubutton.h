@@ -7,7 +7,6 @@ class eMainMenuButton : public eButtonBase {
 public:
     eMainMenuButton(const std::string& text,
                     eMainWindow* const window);
-
 protected:
     void paintEvent(ePainter& p) override;
 };

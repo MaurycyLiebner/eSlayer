@@ -13,6 +13,7 @@ public:
     void showCreateCharacterMenu();
     void showChooseCharacterMenu();
     void showGame(const eCharacter& c);
+    void showSettings();
 private:
     void loadCharacters();
 

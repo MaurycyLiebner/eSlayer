@@ -4,6 +4,7 @@
 #include "../emainwindow.h"
 #include "ecreatecharactermenu.h"
 #include "echoosecharactermenu.h"
+#include "esettingsmenu.h"
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
@@ -24,7 +25,7 @@ void eScreenHandler::showMainMenu() {
     };
 
     const auto settings = [this]() {
-
+        showSettings();
     };
 
     const auto exitGame = [this]() {
@@ -92,6 +93,27 @@ void eScreenHandler::showChooseCharacterMenu() {
 
 void eScreenHandler::showGame(const eCharacter& c) {
 
+}
+
+void eScreenHandler::showSettings() {
+    const auto ini = mWindow->settings();
+    const auto w = new eSettingsMenu(ini, mWindow);
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    w->resize(width, height);
+
+    const auto applyAction = [this](const eWindowSettings& sett) {
+        mWindow->setResolution(sett.fRes);
+        showMainMenu();
+    };
+
+    const auto fullscreenA = [this](const bool fullscreen) {
+        mWindow->setFullscreen(fullscreen);
+        showSettings();
+    };
+
+    w->initialize(applyAction, fullscreenA);
+    mWindow->setWidget(w);
 }
 
 void eScreenHandler::loadCharacters() {

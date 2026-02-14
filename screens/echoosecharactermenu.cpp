@@ -2,6 +2,7 @@
 
 #include "../widgets/mainMenu/emainmenubutton.h"
 #include "../widgets/mainMenu/echoosecharacterwidget.h"
+#include "../widgets/escrollwidget.h"
 
 #include "../elanguage.h"
 
@@ -26,11 +27,17 @@ void eChooseCharacterMenu::initialize(
     const auto cw = new eWidget(window());
     cw->setNoPadding();
 
+    const int buttHeight = height()/8;
+    const auto sw = new eScrollWidget(window());
+    sw->setScrollStep(buttHeight);
+
     const auto c = new eChooseCharacterWidget(window());
     c->setNoPadding();
     c->resize(width()/2, height()/2);
-    c->initialize(chars);
-    cw->addWidget(c);
+    sw->resize(width()/2, height()/2);
+    c->initialize(width()/2, buttHeight, chars);
+    cw->addWidget(sw);
+    sw->setScrollArea(c);
 
     const auto cwb = new eWidget(window());
     cwb->setNoPadding();

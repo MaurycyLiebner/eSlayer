@@ -17,4 +17,9 @@
         <string id="2">Create new character</string>
         <string id="3">Delete character</string>
     </group>
+    <group id="4">
+        <string id="0">Ok</string>
+        <string id="1">Windowed</string>
+        <string id="2">Fullscreen</string>
+    </group>
 </strings>

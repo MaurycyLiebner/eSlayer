@@ -11,7 +11,9 @@ class eChooseCharacterWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const eCharacters& chars);
+    void initialize(const int width,
+                    const int buttHeight,
+                    const eCharacters& chars);
 
     const std::string& current() const { return mCurrent; }
 private:

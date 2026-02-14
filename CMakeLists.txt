@@ -91,7 +91,10 @@ add_executable(eSlayer main.cpp
     echaracters.h echaracters.cpp
     echaracter.h echaracter.cpp
     widgets/echeckbox.h widgets/echeckbox.cpp
-    widgets/mainMenu/echaracterbutton.h widgets/mainMenu/echaracterbutton.cpp)
+    widgets/mainMenu/echaracterbutton.h widgets/mainMenu/echaracterbutton.cpp
+    widgets/escrollwidget.h widgets/escrollwidget.cpp
+    screens/esettingsmenu.h screens/esettingsmenu.cpp
+    widgets/echeckbutton.h widgets/echeckbutton.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS eSlayer

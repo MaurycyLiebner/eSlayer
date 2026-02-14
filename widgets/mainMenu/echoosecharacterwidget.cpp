@@ -4,14 +4,15 @@
 #include "echaracterbutton.h"
 
 void eChooseCharacterWidget::initialize(
+    const int totWidth,
+    const int buttHeight,
     const eCharacters& chars) {
     const auto& chars2 = chars.get();
 
     const auto res = resolution();
-    const int p = res.largePadding();
 
-    const int w1 = width()/2 - p;
-    const int w2 = width() - w1 - p;
+    const int w1 = totWidth/2;
+    const int w2 = totWidth - w1;
 
     eWidget* row = nullptr;
     const int iMax = chars2.size();
@@ -36,6 +37,7 @@ void eChooseCharacterWidget::initialize(
         const auto& c = chars2[i];
         b->initialize(c);
         b->setWidth(i % 2 ? w1 : w2);
+        b->setHeight(buttHeight);
         const auto name = c.name();
         b->setCheckAction([setCurrent, b](const bool c) {
             if(!c) {
@@ -46,12 +48,12 @@ void eChooseCharacterWidget::initialize(
         });
         row->addWidget(b);
 
-        row->stackHorizontally(p);
+        row->stackHorizontally();
         row->fitContent();
 
         if(i == 0) setCurrent(b);
     }
 
-    stackVertically(p);
+    stackVertically();
     fitHeight();
 }
