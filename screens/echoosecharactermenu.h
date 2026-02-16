@@ -1,11 +1,11 @@
 #ifndef ECHOOSECHARACTERMENU_H
 #define ECHOOSECHARACTERMENU_H
 
-#include "../widgets/elabel.h"
+#include "escreenbase.h"
 
 class eCharacters;
 
-class eChooseCharacterMenu : public eLabel {
+class eChooseCharacterMenu : public eScreenBase {
 public:
     eChooseCharacterMenu(eMainWindow* const window);
 

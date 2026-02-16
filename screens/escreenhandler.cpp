@@ -102,6 +102,10 @@ void eScreenHandler::showSettings() {
     const int height = mWindow->height();
     w->resize(width, height);
 
+    const auto exitAction = [this]() {
+        showMainMenu();
+    };
+
     const auto applyAction = [this](const eWindowSettings& sett) {
         mWindow->setResolution(sett.fRes);
         showMainMenu();
@@ -112,7 +116,7 @@ void eScreenHandler::showSettings() {
         showSettings();
     };
 
-    w->initialize(applyAction, fullscreenA);
+    w->initialize(exitAction, applyAction, fullscreenA);
     mWindow->setWidget(w);
 }
 

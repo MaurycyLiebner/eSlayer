@@ -1,9 +1,9 @@
 #ifndef EMAINMENU_H
 #define EMAINMENU_H
 
-#include "../widgets/elabel.h"
+#include "escreenbase.h"
 
-class eMainMenu : public eLabel {
+class eMainMenu : public eScreenBase {
 public:
     eMainMenu(eMainWindow* const window);
 

@@ -1,7 +1,7 @@
 #ifndef ESETTINGSMENU_H
 #define ESETTINGSMENU_H
 
-#include "../widgets/ewidget.h"
+#include "escreenbase.h"
 
 #include "../ewindowsettings.h"
 
@@ -12,14 +12,15 @@ inline bool operator==(const eWindowSettings& s0,
     return true;
 }
 
-class eSettingsMenu : public eWidget {
+class eSettingsMenu : public eScreenBase {
 public:
     eSettingsMenu(const eWindowSettings& iniSettings,
                   eMainWindow* const window);
 
     using eApplyAction = std::function<void(const eWindowSettings&)>;
     using eFullscreenA = std::function<void(const bool)>;
-    void initialize(const eApplyAction& settingsA,
+    void initialize(const eAction& exitA,
+                    const eApplyAction& settingsA,
                     const eFullscreenA& fullscreenA);
 
 private:

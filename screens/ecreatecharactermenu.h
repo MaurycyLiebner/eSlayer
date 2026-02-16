@@ -1,9 +1,9 @@
 #ifndef ECREATECHARACTERMENU_H
 #define ECREATECHARACTERMENU_H
 
-#include "../widgets/elabel.h"
+#include "escreenbase.h"
 
-class eCreateCharacterMenu : public eLabel {
+class eCreateCharacterMenu : public eScreenBase {
 public:
     eCreateCharacterMenu(eMainWindow* const window);
 

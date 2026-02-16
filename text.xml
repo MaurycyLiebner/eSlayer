@@ -19,7 +19,8 @@
     </group>
     <group id="4">
         <string id="0">Ok</string>
-        <string id="1">Windowed</string>
-        <string id="2">Fullscreen</string>
+        <string id="1">Exit</string>
+        <string id="2">Windowed</string>
+        <string id="3">Fullscreen</string>
     </group>
 </strings>

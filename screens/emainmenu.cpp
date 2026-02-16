@@ -5,12 +5,14 @@
 #include "../elanguage.h"
 
 eMainMenu::eMainMenu(eMainWindow * const window) :
-    eLabel(window) {}
+    eScreenBase(window) {}
 
 void eMainMenu::initialize(const eAction& singlePlayer,
                            const eAction& settings,
                            const eAction& exitGame) {
     const auto res = resolution();
+
+    const auto inner = eScreenBase::addInner();
 
     const auto w = new eWidget(window());
 
@@ -37,6 +39,6 @@ void eMainMenu::initialize(const eAction& singlePlayer,
     s->align(eAlignment::hcenter);
     eg->align(eAlignment::hcenter);
 
-    addWidget(w);
+    inner->addWidget(w);
     w->align(eAlignment::center);
 }

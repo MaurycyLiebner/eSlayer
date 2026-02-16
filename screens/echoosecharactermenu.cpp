@@ -7,7 +7,7 @@
 #include "../elanguage.h"
 
 eChooseCharacterMenu::eChooseCharacterMenu(eMainWindow* const window) :
-    eLabel(window) {}
+    eScreenBase(window) {}
 
 void eChooseCharacterMenu::initialize(
     const eAction& exit,
@@ -17,12 +17,13 @@ void eChooseCharacterMenu::initialize(
     const eCharacters& chars) {
     const auto res = resolution();
 
-    const auto w = new eWidget(window());
+    const auto inner = eScreenBase::addInner();
 
     const auto e = new eMainMenuButton(
         eLanguage::text(3, 0), window());
     e->setPressAction(exit);
-    w->addWidget(e);
+    inner->addWidget(e);
+    e->align(eAlignment::bottom);
 
     const auto cw = new eWidget(window());
     cw->setNoPadding();
@@ -68,7 +69,7 @@ void eChooseCharacterMenu::initialize(
     cw->stackVertically(pp);
     cw->fitContent();
     cwb->align(eAlignment::hcenter);
-    w->addWidget(cw);
+    inner->addWidget(cw);
 
     const auto o = new eMainMenuButton(
         eLanguage::text(3, 1), window());
@@ -77,16 +78,9 @@ void eChooseCharacterMenu::initialize(
         if(cc.empty()) return;
         ok(cc);
     });
-    w->addWidget(o);
+    inner->addWidget(o);
     o->setEnabled(false);
-
-    const int p = res.hugePadding();
-    w->resize(width() - 2*p, height() - 2*p);
-    w->layoutHorizontallyWithoutSpaces();
-
-    e->align(eAlignment::bottom);
     o->align(eAlignment::bottom);
 
-    addWidget(w);
-    w->align(eAlignment::center);
+    inner->layoutHorizontallyWithoutSpaces();
 }

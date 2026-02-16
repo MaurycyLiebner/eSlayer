@@ -6,31 +6,19 @@
 
 eSettingsMenu::eSettingsMenu(const eWindowSettings& iniSettings,
                              eMainWindow* const window) :
-    eWidget(window),
+    eScreenBase(window),
     mIniSettings(iniSettings),
     mSettings(iniSettings) {
 
 }
 
-void eSettingsMenu::initialize(const eApplyAction& settingsA,
+void eSettingsMenu::initialize(const eAction& exitA,
+                               const eApplyAction& settingsA,
                                const eFullscreenA& fullscreenA) {
-    const auto frame = new eWidget(window());
-    addWidget(frame);
+    const auto inner = eScreenBase::addInner();
 
     const auto res = resolution();
-
     const int p = res.largePadding();
-    const int cww = res.centralWidgetLargeWidth();
-    const int cwh = res.centralWidgetLargeHeight();
-    frame->resize(cww, cwh);
-
-    frame->align(eAlignment::center);
-
-    const auto inner = new eWidget(window());
-    inner->setNoPadding();
-    frame->addWidget(inner);
-    inner->move(2*p, 2*p);
-    inner->resize(frame->width() - 4*p, frame->height() - 4*p);
 
     const int colm = 2*p;
     const int colw = (inner->width() - 2*colm)/3;
@@ -98,8 +86,8 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
 
     {
         const auto text = mSettings.fFullscreen ?
-                              eLanguage::text(4, 1) : // windowed screen
-                              eLanguage::text(4, 2); // full screen
+                              eLanguage::text(4, 2) : // windowed screen
+                              eLanguage::text(4, 3); // full screen
         const auto fs = new eMainMenuButton(text, window());
         fs->fitContent();
         col1->addWidget(fs);
@@ -108,8 +96,8 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
             const bool f = !mSettings.fFullscreen;
             mSettings.fFullscreen = f;
             fullscreenA(f);
-            fs->setText(f ? eLanguage::text(4, 1) : // windowed screen
-                            eLanguage::text(4, 2)); // full screen
+            fs->setText(f ? eLanguage::text(4, 2) : // windowed screen
+                            eLanguage::text(4, 3)); // full screen
             fs->fitContent();
             fs->align(eAlignment::hcenter);
         });
@@ -119,13 +107,18 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
     col1->layoutVertically();
 
     {
-        const auto b = new eMainMenuButton(
+        const auto e = new eMainMenuButton(
+            eLanguage::text(4, 1), window());
+        inner->addWidget(e);
+        e->setPressAction(exitA);
+        e->align(eAlignment::bottom | eAlignment::left);
+
+        const auto o = new eMainMenuButton(
             eLanguage::text(4, 0), window());
-        frame->addWidget(b);
-        b->setPressAction([this, settingsA]() {
+        inner->addWidget(o);
+        o->setPressAction([this, settingsA]() {
             settingsA(mSettings);
         });
-        b->align(eAlignment::bottom | eAlignment::right);
-        b->move(b->x() - 2*p, b->y() - 2*p);
+        o->align(eAlignment::bottom | eAlignment::right);
     }
 }
