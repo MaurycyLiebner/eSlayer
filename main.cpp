@@ -5,6 +5,7 @@
 #include "ewindowsettings.h"
 #include "elanguage.h"
 #include "screens/escreenhandler.h"
+#include "textures/echarstextures.h"
 
 #include <vector>
 
@@ -110,6 +111,8 @@ int main(int argc, char* argv[]) {
 
         const bool l = eLanguage::load();
         if(!l) return 1;
+
+        eCharsTextures::load();
 
         eMainWindow w;
         eScreenHandler sh(&w);

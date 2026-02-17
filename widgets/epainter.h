@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "etexture.h"
+#include "../textures/etexture.h"
 
 class ePainter {
     struct ePainterSave {

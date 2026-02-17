@@ -54,6 +54,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(tinyxml2)
 
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
+
+FetchContent_Declare(
+    rapidcsv
+    GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
+    GIT_TAG v8.90
+)
+
+FetchContent_MakeAvailable(rapidcsv)
 
 add_executable(eSlayer main.cpp
     erand.cpp erand.h
@@ -67,7 +82,7 @@ add_executable(eSlayer main.cpp
     emainwindow.cpp emainwindow.h
     widgets/ewidget.cpp widgets/ewidget.h
     widgets/epainter.cpp widgets/epainter.h
-    widgets/etexture.cpp widgets/etexture.h
+    textures/etexture.cpp textures/etexture.h
     widgets/emouseevent.cpp widgets/emouseevent.h
     widgets/efontcolor.cpp widgets/efontcolor.h
     widgets/efonts.cpp widgets/efonts.h
@@ -95,7 +110,15 @@ add_executable(eSlayer main.cpp
     widgets/escrollwidget.h widgets/escrollwidget.cpp
     screens/esettingsmenu.h screens/esettingsmenu.cpp
     widgets/echeckbutton.h widgets/echeckbutton.cpp
-    screens/escreenbase.h screens/escreenbase.cpp)
+    screens/escreenbase.h screens/escreenbase.cpp
+
+    textures/etexturecollection.cpp textures/etexturecollection.h
+    textures/espriteloader.h textures/espriteloader.cpp
+    textures/echartextures.h textures/echartextures.cpp
+    textures/echarmodel.h textures/echarmodel.cpp
+    textures/echarstextures.h textures/echarstextures.cpp
+    textures/echarunitmodel.h textures/echarunitmodel.cpp
+)
 
 include(GNUInstallDirs)
 install(TARGETS eSlayer
@@ -108,3 +131,5 @@ target_link_libraries(eSlayer PRIVATE SDL3_ttf::SDL3_ttf)
 target_link_libraries(eSlayer PRIVATE SDL3_image::SDL3_image)
 target_link_libraries(eSlayer PRIVATE SDL3_mixer::SDL3_mixer)
 target_link_libraries(eSlayer PRIVATE tinyxml2::tinyxml2)
+target_link_libraries(eSlayer PRIVATE nlohmann_json::nlohmann_json)
+target_include_directories(eSlayer PRIVATE ${rapidcsv_SOURCE_DIR}/src)

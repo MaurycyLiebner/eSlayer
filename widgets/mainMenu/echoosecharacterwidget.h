@@ -13,7 +13,8 @@ public:
 
     void initialize(const int width,
                     const int buttHeight,
-                    const eCharacters& chars);
+                    const eCharacters& chars,
+                    const eAction &changeAction);
 
     const std::string& current() const { return mCurrent; }
 private:

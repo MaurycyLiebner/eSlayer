@@ -1,0 +1,34 @@
+#ifndef ESPRITELOADER_H
+#define ESPRITELOADER_H
+
+#include "etexture.h"
+
+#include <SDL3/SDL_rect.h>
+
+#include <string>
+#include <vector>
+
+class eTextureCollection;
+
+class eSpriteLoader {
+public:
+    eSpriteLoader(const std::string& path,
+                  SDL_Renderer* const r,
+                  const bool colorKey = false);
+
+    std::shared_ptr<eTexture> load(const int i);
+    std::shared_ptr<eTexture> load(const int i,
+                                   eTextureCollection& coll);
+private:
+    void initialize();
+
+    const std::string mPath;
+    SDL_Renderer* const mRenderer;
+    const bool mColorKey = false;
+    bool mInitialized = false;
+    std::shared_ptr<eTexture> mAtlas;
+    std::vector<SDL_Rect> mSpriteCoords;
+    std::vector<SDL_Point> mSpriteOffsets;
+};
+
+#endif // ESPRITELOADER_H

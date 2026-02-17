@@ -21,7 +21,12 @@ bool eTexture::create(SDL_Renderer* const r,
     mTex = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA8888,
                              SDL_TEXTUREACCESS_TARGET, width, height);
     if(!mTex) return false;
+    SDL_SetRenderTarget(r, mTex);
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 0);
+    SDL_RenderFillRect(r, nullptr);
     SDL_SetTextureBlendMode(mTex, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(r, nullptr);
     mWidth = width;
     mHeight = height;
     return true;
@@ -31,7 +36,9 @@ void eTexture::setAsRenderTarget(SDL_Renderer* const r) {
     SDL_SetRenderTarget(r, mTex);
 }
 
-bool eTexture::load(SDL_Renderer* const r, const std::string& path) {
+bool eTexture::load(SDL_Renderer* const r,
+                    const std::string& path,
+                    const bool colorKey) {
     reset();
     const auto surf = IMG_Load(path.c_str());
     if(!surf) {
@@ -39,12 +46,19 @@ bool eTexture::load(SDL_Renderer* const r, const std::string& path) {
                path.c_str(), SDL_GetError());
         return false;
     }
-    return load(r, surf);
+    return load(r, surf, colorKey);
 }
 
 bool eTexture::load(SDL_Renderer* const r,
-                    SDL_Surface* const surf) {
+                    SDL_Surface* const surf,
+                    const bool colorKey) {
     reset();
+    if(colorKey) {
+        const auto details = SDL_GetPixelFormatDetails(surf->format);
+        const auto palette = SDL_GetSurfacePalette(surf);
+        const Uint32 key = SDL_MapRGB(details, palette, 168, 168, 168);
+        SDL_SetSurfaceColorKey(surf, true, key);
+    }
     mTex = SDL_CreateTextureFromSurface(r, surf);
     mWidth = surf->w;
     mHeight = surf->h;

@@ -7,9 +7,9 @@
 #include <string>
 #include <memory>
 
-#include "efonts.h"
+#include "../widgets/efonts.h"
 
-#include "efontcolor.h"
+#include "../widgets/efontcolor.h"
 
 enum class eAlignment {
     none = 0x0000,
@@ -41,10 +41,13 @@ public:
     bool create(SDL_Renderer* const r,
                 const int width, const int height);
     void setAsRenderTarget(SDL_Renderer* const r);
+
     bool load(SDL_Renderer* const r,
-              const std::string& path);
+              const std::string& path,
+              const bool colorKey = false);
     bool load(SDL_Renderer* const r,
-              SDL_Surface* const surf);
+              SDL_Surface* const surf,
+              const bool colorKey = false);
     bool loadText(SDL_Renderer* const r,
                   const std::string& text,
                   const eFontColor color,

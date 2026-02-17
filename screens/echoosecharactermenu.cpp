@@ -28,15 +28,30 @@ void eChooseCharacterMenu::initialize(
     const auto cw = new eWidget(window());
     cw->setNoPadding();
 
-    const int buttHeight = height()/8;
+    const int buttHeight = height()/6;
     const auto sw = new eScrollWidget(window());
     sw->setScrollStep(buttHeight);
 
+    const auto dc = new eMainMenuButton(
+        eLanguage::text(3, 3), window());
+    dc->setEnabled(false);
+    const auto o = new eMainMenuButton(
+        eLanguage::text(3, 1), window());
+    o->setEnabled(false);
+
     const auto c = new eChooseCharacterWidget(window());
+
+    const auto changedAction = [dc, o, c]() {
+        const auto& current = c->current();
+        const bool enabled = !current.empty();
+        dc->setEnabled(enabled);
+        o->setEnabled(enabled);
+    };
+
     c->setNoPadding();
     c->resize(width()/2, height()/2);
     sw->resize(width()/2, height()/2);
-    c->initialize(width()/2, buttHeight, chars);
+    c->initialize(width()/2, buttHeight, chars, changedAction);
     cw->addWidget(sw);
     sw->setScrollArea(c);
 
@@ -48,8 +63,6 @@ void eChooseCharacterMenu::initialize(
     cnc->setPressAction(createCharacter);
     cwb->addWidget(cnc);
 
-    const auto dc = new eMainMenuButton(
-        eLanguage::text(3, 3), window());
     dc->setPressAction([deleteCharacter, c]() {
         const auto cc = c->current();
         if(cc.empty()) return;
@@ -71,15 +84,12 @@ void eChooseCharacterMenu::initialize(
     cwb->align(eAlignment::hcenter);
     inner->addWidget(cw);
 
-    const auto o = new eMainMenuButton(
-        eLanguage::text(3, 1), window());
     o->setPressAction([ok, c]() {
         const auto cc = c->current();
         if(cc.empty()) return;
         ok(cc);
     });
     inner->addWidget(o);
-    o->setEnabled(false);
     o->align(eAlignment::bottom);
 
     inner->layoutHorizontallyWithoutSpaces();
