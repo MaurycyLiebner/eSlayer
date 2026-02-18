@@ -1,7 +1,5 @@
 ﻿#include "emusic.h"
 
-#include "../egamedir.h"
-
 eMusic* eMusic::sInstance = nullptr;
 
 eMusic::eMusic(MIX_Mixer * const mixer) :
@@ -63,12 +61,11 @@ void eMusic::playMenuMusicImpl() {
 void eMusic::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
-    const std::string dir{eGameDir::path("Audio/Music/")};
 }
 
 void eMusic::loadMenuImpl() {
     if(mMenuLoaded) return;
     mMenuLoaded = true;
-    const std::string dir{eGameDir::path("Audio/Music/")};
+    const std::string dir = "Music/";
     mIntroMusic.addPath(mMixer, dir + "intro.mp3");
 }

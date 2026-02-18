@@ -70,6 +70,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(rapidcsv)
 
+FetchContent_Declare(
+    libzip
+    GIT_REPOSITORY https://github.com/nih-at/libzip.git
+    GIT_TAG v1.11.4
+)
+
+FetchContent_MakeAvailable(libzip)
+
 add_executable(eSlayer main.cpp
     erand.cpp erand.h
     evectorhelpers.cpp evectorhelpers.h
@@ -118,6 +126,9 @@ add_executable(eSlayer main.cpp
     textures/echarmodel.h textures/echarmodel.cpp
     textures/echarstextures.h textures/echarstextures.cpp
     textures/echarunitmodel.h textures/echarunitmodel.cpp
+    eziploader.h eziploader.cpp
+    efileloader.h efileloader.cpp
+    audio/eaudiovector.h audio/eaudiovector.cpp
 )
 
 include(GNUInstallDirs)
@@ -133,3 +144,4 @@ target_link_libraries(eSlayer PRIVATE SDL3_mixer::SDL3_mixer)
 target_link_libraries(eSlayer PRIVATE tinyxml2::tinyxml2)
 target_link_libraries(eSlayer PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(eSlayer PRIVATE ${rapidcsv_SOURCE_DIR}/src)
+target_link_libraries(eSlayer PRIVATE libzip::zip)

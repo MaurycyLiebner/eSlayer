@@ -1,7 +1,5 @@
 ﻿#include "esounds.h"
 
-#include "../egamedir.h"
-
 eSounds* eSounds::sInstance = nullptr;
 
 eSounds::eSounds(MIX_Mixer * const mixer) :
@@ -10,7 +8,7 @@ eSounds::eSounds(MIX_Mixer * const mixer) :
 }
 
 void eSounds::loadButtonSound() {
-    const std::string wavsDir{eGameDir::path("Audio/Wavs/")};
+    const std::string wavsDir = "Wavs/";
     sInstance->mButton.addPath(sInstance->mMixer, wavsDir + "button.wav");
 }
 

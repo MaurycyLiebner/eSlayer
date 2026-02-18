@@ -6,6 +6,10 @@
 #include <map>
 #include <string>
 
+#include <nlohmann/json.hpp>
+
+using namespace nlohmann;
+
 class eCharTextures {
 public:
     eCharTextures();
@@ -14,7 +18,7 @@ public:
     eCharModel generateModel(const eModelParts& modelParts,
                              SDL_Renderer* const r);
 
-    void load(const std::string& path);
+    void load(json& jdata);
 private:
     int mDirs;
     std::map<std::string, int> mAnimFrames;

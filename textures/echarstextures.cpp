@@ -1,10 +1,6 @@
 #include "echarstextures.h"
 
-#include "../egamedir.h"
-
-#include <filesystem>
-
-namespace fs = std::filesystem;
+#include "../efileloader.h"
 
 eCharsTextures eCharsTextures::sInstance;
 
@@ -21,23 +17,16 @@ void eCharsTextures::load() {
 void eCharsTextures::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
-    const fs::path targetDir = eGameDir::path("Textures/chars/");
 
-    try {
-        if(fs::exists(targetDir) && fs::is_directory(targetDir)) {
-            for(const auto& entry : fs::directory_iterator(targetDir)) {
-                if(entry.is_directory()) {
-                    const auto path = entry.path();
-                    const auto name = path.filename().string();
-                    auto& texs = mChars[name];
-                    const auto charDir = eGameDir::path("Textures/chars/" + name + "/");
-                    const auto charJsonPath = charDir + name + ".json";
-                    texs.load(charJsonPath);
-                }
-            }
-        }
-    } catch (const fs::filesystem_error& e) {
-        printf("Filesystem error %s.\n", e.what());
+    const auto dir = "Textures";
+
+    const auto jdata = eFileLoader::parse(dir, "chars/chars.json");
+    const auto chars = jdata.get<std::vector<std::string>>();
+
+    for(const auto& name : chars) {
+        auto& texs = mChars[name];
+        auto jdata = eFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
+        texs.load(jdata);
     }
 }
 

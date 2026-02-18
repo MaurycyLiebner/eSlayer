@@ -2,20 +2,22 @@
 
 #include "etexturecollection.h"
 
-#include <rapidcsv.h>
+#include "../efileloader.h"
 
-eSpriteLoader::eSpriteLoader(const std::string& path,
+eSpriteLoader::eSpriteLoader(const std::string& dir,
+                             const std::string& path,
                              SDL_Renderer* const r,
                              const bool colorKey) :
-    mPath(path), mRenderer(r), mColorKey(colorKey) {
+    mDir(dir), mPath(path),
+    mRenderer(r), mColorKey(colorKey) {
 
 }
 
 std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     initialize();
     if(mSpriteCoords.size() <= i) {
-        printf("Texture %i out of range %s.\n",
-               i, mPath.c_str());
+        printf("Texture %i out of range %s/%s.\n",
+               i, mDir.c_str(), mPath.c_str());
         return nullptr;
     }
     const auto tex = std::make_shared<eTexture>();
@@ -37,11 +39,10 @@ void eSpriteLoader::initialize() {
     if(mInitialized) return;
     mInitialized = true;
 
-    mAtlas = std::make_shared<eTexture>();
-    mAtlas->load(mRenderer, mPath + ".png", mColorKey);
+    mAtlas = eFileLoader::readTexture(mRenderer, mDir, mPath + ".png", mColorKey);
 
     const auto csvPath = mPath + ".csv";
-    rapidcsv::Document doc(csvPath, rapidcsv::LabelParams(-1, -1));
+    const auto doc = eFileLoader::readCsv(mDir, csvPath);
     const int nrows = doc.GetRowCount();
     mSpriteCoords.reserve(nrows);
     for(int i = 0; i < nrows; i++) {

@@ -6,6 +6,7 @@
 #include "elanguage.h"
 #include "screens/escreenhandler.h"
 #include "textures/echarstextures.h"
+#include "efileloader.h"
 
 #include <vector>
 
@@ -100,6 +101,8 @@ int main(int argc, char* argv[]) {
 
     int r = 0;
     {
+        eFileLoader loder(false);
+
         eMusic music(mixer);
         const bool m = music.initialize();
         if(!m) return 1;

@@ -12,7 +12,8 @@ class eTextureCollection;
 
 class eSpriteLoader {
 public:
-    eSpriteLoader(const std::string& path,
+    eSpriteLoader(const std::string& dir,
+                  const std::string& path,
                   SDL_Renderer* const r,
                   const bool colorKey = false);
 
@@ -22,6 +23,7 @@ public:
 private:
     void initialize();
 
+    const std::string mDir;
     const std::string mPath;
     SDL_Renderer* const mRenderer;
     const bool mColorKey = false;
