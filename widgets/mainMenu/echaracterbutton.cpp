@@ -5,14 +5,18 @@
 
 void eCharacterButton::initialize(const eCharacter& c) {
     mCharName = c.name();
+    // const eCharTextures::eModelParts modelParts {
+    //     {"hd", "bare"},
+    //     {"la", "bare"},
+    //     {"lg", "bare"},
+    //     {"ra", "bare"},
+    //     {"tr", "bare"}
+    // };
+    // const auto texs = eCharsTextures::get("char");
     const eCharTextures::eModelParts modelParts {
-        {"hd", "bare"},
-        {"la", "bare"},
-        {"lg", "bare"},
-        {"ra", "bare"},
-        {"tr", "bare"}
+        {"whole", "light"}
     };
-    const auto texs = eCharsTextures::get("char");
+    const auto texs = eCharsTextures::get("pal");
     const auto r = renderer();
     const auto model = texs->generateModel(modelParts, r);
     mModel.setCharModel(model);

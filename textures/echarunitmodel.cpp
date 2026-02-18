@@ -11,7 +11,7 @@ void eCharUnitModel::setCharModel(const eCharModel& model) {
 }
 
 void eCharUnitModel::draw(ePainter& p, const int frame) {
-    const int fMax = mModel.nFrames(0);
+    const int fMax = mModel.nFrames(mAnim);
     const int gMax = mModel.nGroups();
 
     SDL_Rect texRect{0, 0, 0, 0};
