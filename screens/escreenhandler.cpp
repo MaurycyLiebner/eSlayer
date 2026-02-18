@@ -109,6 +109,7 @@ void eScreenHandler::showSettings() {
 
     const auto applyAction = [this](const eWindowSettings& sett) {
         mWindow->setResolution(sett.fRes);
+        sett.write();
         showMainMenu();
     };
 
