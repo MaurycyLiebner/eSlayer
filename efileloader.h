@@ -31,7 +31,7 @@ public:
         SDL_Renderer * const r,
         const std::string& dir,
         const std::string& path,
-        const bool colorKey = false);
+        const SDL_Color& colorKey = {0, 0, 0, 0});
     static MIX_Audio* loadAudio(MIX_Mixer * const mixer,
                                 const std::string& dir,
                                 const std::string& path);
@@ -46,7 +46,7 @@ private:
         SDL_Renderer * const r,
         const std::string& dir,
         const std::string& path,
-        const bool colorKey = false);
+        const SDL_Color& colorKey = {0, 0, 0, 0});
     MIX_Audio* loadAudioImpl(MIX_Mixer * const mixer,
                              const std::string& dir,
                              const std::string& path);

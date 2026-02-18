@@ -44,10 +44,10 @@ public:
 
     bool load(SDL_Renderer* const r,
               const std::string& path,
-              const bool colorKey = false);
+              const SDL_Color& colorKey = {0, 0, 0, 0});
     bool load(SDL_Renderer* const r,
               SDL_Surface* const surf,
-              const bool colorKey = false);
+              const SDL_Color& colorKey = {0, 0, 0, 0});
     bool loadText(SDL_Renderer* const r,
                   const std::string& text,
                   const eFontColor color,

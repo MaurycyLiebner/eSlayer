@@ -45,7 +45,7 @@ std::shared_ptr<eTexture> eFileLoader::readTexture(
     SDL_Renderer * const r,
     const std::string& dir,
     const std::string& path,
-    const bool colorKey) {
+    const SDL_Color& colorKey) {
     if(!sInstance) {
         throw std::runtime_error("No available file loader.");
     }
@@ -115,7 +115,7 @@ std::shared_ptr<eTexture> eFileLoader::readTextureImpl(
     SDL_Renderer* const r,
     const std::string& dir,
     const std::string& path,
-    const bool colorKey) {
+    const SDL_Color& colorKey) {
     const auto tex = std::make_shared<eTexture>();
     if(mUseZip) {
         const auto data = load(dir, path);

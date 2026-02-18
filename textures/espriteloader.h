@@ -15,7 +15,7 @@ public:
     eSpriteLoader(const std::string& dir,
                   const std::string& path,
                   SDL_Renderer* const r,
-                  const bool colorKey = false);
+                  const SDL_Color &colorKey = {0, 0, 0, 0});
 
     std::shared_ptr<eTexture> load(const int i);
     std::shared_ptr<eTexture> load(const int i,
@@ -26,7 +26,7 @@ private:
     const std::string mDir;
     const std::string mPath;
     SDL_Renderer* const mRenderer;
-    const bool mColorKey = false;
+    const SDL_Color mColorKey = {0, 0, 0, 0};
     bool mInitialized = false;
     std::shared_ptr<eTexture> mAtlas;
     std::vector<SDL_Rect> mSpriteCoords;

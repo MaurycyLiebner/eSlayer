@@ -29,7 +29,7 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
                 const auto it = mTexMap.find(partPath);
                 if(it == mTexMap.end()) {
                     auto& partMap = mTexMap[partPath];
-                    eSpriteLoader loader(dir, partPath, r, true);
+                    eSpriteLoader loader(dir, partPath, r, SDL_Color{168, 168, 168, 255});
                     for(int i = 0; i < mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>(r);
                         for(int f = 0; f < anim.second; f++) {

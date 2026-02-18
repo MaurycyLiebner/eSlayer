@@ -7,7 +7,7 @@
 eSpriteLoader::eSpriteLoader(const std::string& dir,
                              const std::string& path,
                              SDL_Renderer* const r,
-                             const bool colorKey) :
+                             const SDL_Color& colorKey) :
     mDir(dir), mPath(path),
     mRenderer(r), mColorKey(colorKey) {
 

@@ -38,7 +38,7 @@ void eTexture::setAsRenderTarget(SDL_Renderer* const r) {
 
 bool eTexture::load(SDL_Renderer* const r,
                     const std::string& path,
-                    const bool colorKey) {
+                    const SDL_Color& colorKey) {
     reset();
     const auto surf = IMG_Load(path.c_str());
     if(!surf) {
@@ -51,12 +51,13 @@ bool eTexture::load(SDL_Renderer* const r,
 
 bool eTexture::load(SDL_Renderer* const r,
                     SDL_Surface* const surf,
-                    const bool colorKey) {
+                    const SDL_Color& colorKey) {
     reset();
-    if(colorKey) {
+    if(colorKey.a) {
+        SDL_Color col;
         const auto details = SDL_GetPixelFormatDetails(surf->format);
         const auto palette = SDL_GetSurfacePalette(surf);
-        const Uint32 key = SDL_MapRGB(details, palette, 168, 168, 168);
+        const Uint32 key = SDL_MapRGB(details, palette, colorKey.r, colorKey.g, colorKey.b);
         SDL_SetSurfaceColorKey(surf, true, key);
     }
     mTex = SDL_CreateTextureFromSurface(r, surf);
