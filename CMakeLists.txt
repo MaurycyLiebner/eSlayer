@@ -129,6 +129,8 @@ add_executable(eSlayer main.cpp
     eziploader.h eziploader.cpp
     efileloader.h efileloader.cpp
     audio/eaudiovector.h audio/eaudiovector.cpp
+    widgets/eprogressbar.h widgets/eprogressbar.cpp
+    screens/eloadingscreen.h screens/eloadingscreen.cpp
 )
 
 include(GNUInstallDirs)

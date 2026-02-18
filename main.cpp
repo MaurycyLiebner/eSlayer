@@ -101,27 +101,43 @@ int main(int argc, char* argv[]) {
 
     int r = 0;
     {
-        eFileLoader loder(false);
-
-        eMusic music(mixer);
-        const bool m = music.initialize();
-        if(!m) return 1;
-        eMusic::loadMenu();
-        music.playMenuMusic();
-
-        eSounds sounds(mixer);
-        eSounds::loadButtonSound();
-
-        const bool l = eLanguage::load();
-        if(!l) return 1;
-
-        eCharsTextures::load();
-
         eMainWindow w;
         eScreenHandler sh(&w);
         const bool i = w.initialize(settings);
         if(!i) return 1;
-        sh.showMainMenu();
+
+        eMusic music(mixer);
+        const bool m = music.initialize();
+        if(!m) return 1;
+        eSounds sounds(mixer);
+
+        eFileLoader loder(false);
+
+        const auto showMainMenu = [&]() {
+            sh.showMainMenu();
+        };
+
+        std::vector<eAction> loadings;
+
+        loadings.emplace_back([&]() {
+            eMusic::loadMenu();
+            music.playMenuMusic();
+        });
+
+        loadings.emplace_back([&]() {
+            eSounds::loadButtonSound();
+        });
+
+        loadings.emplace_back([&]() {
+            eLanguage::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eCharsTextures::load();
+        });
+
+        sh.showLoadingScreen(loadings, showMainMenu);
+
         r = w.exec();
     }
 

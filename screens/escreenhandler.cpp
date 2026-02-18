@@ -5,6 +5,7 @@
 #include "ecreatecharactermenu.h"
 #include "echoosecharactermenu.h"
 #include "esettingsmenu.h"
+#include "eloadingscreen.h"
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
@@ -117,6 +118,17 @@ void eScreenHandler::showSettings() {
     };
 
     w->initialize(exitAction, applyAction, fullscreenA);
+    mWindow->setWidget(w);
+}
+
+void eScreenHandler::showLoadingScreen(
+    const std::vector<eAction>& loading,
+    const eAction& finish) {
+    const auto w = new eLoadingScreen(mWindow);
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    w->resize(width, height);
+    w->initialize(loading, finish);
     mWindow->setWidget(w);
 }
 

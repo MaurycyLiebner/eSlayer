@@ -3,7 +3,11 @@
 
 #include "../echaracters.h"
 
+#include <functional>
+
 class eMainWindow;
+
+using eAction = std::function<void()>;
 
 class eScreenHandler {
 public:
@@ -14,6 +18,8 @@ public:
     void showChooseCharacterMenu();
     void showGame(const eCharacter& c);
     void showSettings();
+    void showLoadingScreen(const std::vector<eAction>& loading,
+                           const eAction& finish);
 private:
     void loadCharacters();
 
