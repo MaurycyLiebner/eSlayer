@@ -25,6 +25,7 @@ void eCharsTextures::loadImpl() {
 
     for(const auto& name : chars) {
         auto& texs = mChars[name];
+        texs.setName(name);
         auto jdata = eFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
         texs.load(jdata);
     }

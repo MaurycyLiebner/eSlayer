@@ -1,6 +1,5 @@
 #include "echartextures.h"
 
-#include "../egamedir.h"
 #include "espriteloader.h"
 
 eCharTextures::eCharTextures() {}
@@ -8,7 +7,7 @@ eCharTextures::eCharTextures() {}
 eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
                                         SDL_Renderer * const r) {
     const auto dir = "Textures";
-    const auto path = "chars/char/";
+    const auto path = "chars/" + mName + "/";
     eCharModel result;
     result.mNAnims = mAnimFrames.size();
     result.mNGroups = mGroups.size();

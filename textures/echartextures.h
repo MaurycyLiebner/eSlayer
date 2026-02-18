@@ -19,7 +19,10 @@ public:
                              SDL_Renderer* const r);
 
     void load(json& jdata);
+
+    void setName(const std::string& name) { mName = name; }
 private:
+    std::string mName;
     int mDirs;
     std::map<std::string, int> mAnimFrames;
     std::vector<std::map<std::string, std::vector<std::string>>> mGroups;
