@@ -16,24 +16,29 @@ void eTexture::reset() {
 }
 
 bool eTexture::create(SDL_Renderer* const r,
-                      const int width, const int height) {
+                      const int width, const int height,
+                      const SDL_Color& col) {
     reset();
     mTex = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA8888,
                              SDL_TEXTUREACCESS_TARGET, width, height);
     if(!mTex) return false;
-    SDL_SetRenderTarget(r, mTex);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
-    SDL_SetRenderDrawColor(r, 0, 0, 0, 0);
-    SDL_RenderFillRect(r, nullptr);
+    fill(r, col);
     SDL_SetTextureBlendMode(mTex, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(r, nullptr);
     mWidth = width;
     mHeight = height;
     return true;
 }
 
-void eTexture::setAsRenderTarget(SDL_Renderer* const r) {
-    SDL_SetRenderTarget(r, mTex);
+void eTexture::fill(SDL_Renderer* const r,
+                    const SDL_Color& col) {
+    const auto holder = createTargetHolder(r);
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(r, col.r, col.g, col.b, col.a);
+    SDL_RenderFillRect(r, nullptr);
+}
+
+eRenderTargetHolder eTexture::createTargetHolder(SDL_Renderer * const r) {
+    return eRenderTargetHolder(r, mTex);
 }
 
 bool eTexture::load(SDL_Renderer* const r,
@@ -143,7 +148,7 @@ bool eTexture::loadText(SDL_Renderer* const r,
         return false;
     }
     {
-        SDL_SetRenderTarget(r, mTex);
+        const auto holder = createTargetHolder(r);
         const auto bm = SDL_ComposeCustomBlendMode(
                             SDL_BLENDFACTOR_ONE,
                             SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
@@ -165,8 +170,6 @@ bool eTexture::loadText(SDL_Renderer* const r,
 
         SDL_DestroyTexture(tex2);
         SDL_DestroyTexture(tex1);
-
-        SDL_SetRenderTarget(r, nullptr);
     }
     return true;
 }
@@ -186,33 +189,40 @@ void eTexture::render(SDL_Renderer* const r,
                       const SDL_Rect& srcRect,
                       const SDL_Rect& dstRect,
                       const bool flipped) const {
+    SDL_FRect fSrcRect;
+    SDL_RectToFRect(&srcRect, &fSrcRect);
+    SDL_FRect fDstRect;
+    SDL_RectToFRect(&dstRect, &fDstRect);
+    render(r, fSrcRect, fDstRect, flipped);
+}
+
+void eTexture::render(SDL_Renderer * const r,
+                      const SDL_FRect& srcRect,
+                      const SDL_FRect& dstRect,
+                      const bool flipped) const {
     if(mFlipTex) {
         mFlipTex->render(r, srcRect, dstRect, true);
     } else if(mParentTex) {
         mParentTex->render(r, srcRect, dstRect, flipped);
     } else if(mTex) {
-        SDL_FRect fSrcRect;
-        SDL_RectToFRect(&srcRect, &fSrcRect);
-        SDL_FRect fDstRect;
-        SDL_RectToFRect(&dstRect, &fDstRect);
         if(flipped) {
-            SDL_RenderTextureRotated(r, mTex, &fSrcRect, &fDstRect, 0, nullptr,
+            SDL_RenderTextureRotated(r, mTex, &srcRect, &dstRect, 0, nullptr,
                                      SDL_FlipMode::SDL_FLIP_HORIZONTAL);
         } else {
-            SDL_RenderTexture(r, mTex, &fSrcRect, &fDstRect);
+            SDL_RenderTexture(r, mTex, &srcRect, &dstRect);
         }
     }
 }
 
 void eTexture::render(SDL_Renderer* const r,
-                      const int x, const int y,
+                      const float x, const float y,
                       const bool flipped) const {
-    const int sx = mFlipTex ? mFlipTex->x() : mX;
-    const int sy = mFlipTex ? mFlipTex->y() : mY;
-    const int width = mFlipTex ? mFlipTex->width() : mWidth;
-    const int height = mFlipTex ? mFlipTex->height() : mHeight;
-    const SDL_Rect srcRect{sx, sy, width, height};
-    const SDL_Rect dstRect{x, y, width, height};
+    const float sx = mFlipTex ? mFlipTex->x() : mX;
+    const float sy = mFlipTex ? mFlipTex->y() : mY;
+    const float width = mFlipTex ? mFlipTex->width() : mWidth;
+    const float height = mFlipTex ? mFlipTex->height() : mHeight;
+    const SDL_FRect srcRect{sx, sy, width, height};
+    const SDL_FRect dstRect{x, y, width, height};
     render(r, srcRect, dstRect, flipped);
 }
 
@@ -290,6 +300,12 @@ void eTexture::setColorMod(const Uint8 r, const Uint8 g, const Uint8 b) {
 
 void eTexture::clearColorMod() {
     setColorMod(255, 255, 255);
+}
+
+void eTexture::setBlendMode(const SDL_BlendMode mode) {
+    if(mFlipTex) mFlipTex->setBlendMode(mode);
+    else if(mParentTex) mParentTex->setBlendMode(mode);
+    else SDL_SetTextureBlendMode(mTex, mode);
 }
 
 void eTexture::setFlipTex(const std::shared_ptr<eTexture>& tex) {

@@ -11,6 +11,8 @@
 
 #include "../widgets/efontcolor.h"
 
+#include "erendertargetholder.h"
+
 enum class eAlignment {
     none = 0x0000,
     left = 0x0001,
@@ -39,8 +41,12 @@ public:
 
     void reset();
     bool create(SDL_Renderer* const r,
-                const int width, const int height);
-    void setAsRenderTarget(SDL_Renderer* const r);
+                const int width, const int height,
+                const SDL_Color& col = {0, 0, 0, 0});
+    void fill(SDL_Renderer * const r,
+              const SDL_Color& col);
+
+    eRenderTargetHolder createTargetHolder(SDL_Renderer* const r);
 
     bool load(SDL_Renderer* const r,
               const std::string& path,
@@ -73,7 +79,11 @@ public:
                 const SDL_Rect &dstRect,
                 const bool flipped = false) const;
     void render(SDL_Renderer* const r,
-                const int x, const int y,
+                const SDL_FRect &srcRect,
+                const SDL_FRect &dstRect,
+                const bool flipped = false) const;
+    void render(SDL_Renderer* const r,
+                const float x, const float y,
                 const bool flipped = false) const;
 
     int x() const { return mX; }
@@ -93,6 +103,8 @@ public:
     void clearAlphaMod();
     void setColorMod(const Uint8 r, const Uint8 g, const Uint8 b);
     void clearColorMod();
+
+    void setBlendMode(const SDL_BlendMode mode);
 
     void setFlipTex(const std::shared_ptr<eTexture>& tex);
     void setParentTexture(const SDL_Rect& rect,

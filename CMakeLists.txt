@@ -131,6 +131,13 @@ add_executable(eSlayer main.cpp
     audio/eaudiovector.h audio/eaudiovector.cpp
     widgets/eprogressbar.h widgets/eprogressbar.cpp
     screens/eloadingscreen.h screens/eloadingscreen.cpp
+    textures/eterrstextures.h textures/eterrstextures.cpp
+    textures/eterrtextures.h textures/eterrtextures.cpp
+    screens/egamescreen.h screens/egamescreen.cpp
+    textures/elightingtexture.h textures/elightingtexture.cpp
+    textures/eeffectstextures.h textures/eeffectstextures.cpp
+    textures/eeffecttextures.h textures/eeffecttextures.cpp
+    textures/erendertargetholder.h textures/erendertargetholder.cpp
 )
 
 include(GNUInstallDirs)

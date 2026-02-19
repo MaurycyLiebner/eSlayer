@@ -20,6 +20,7 @@ public:
     std::shared_ptr<eTexture> load(const int i);
     std::shared_ptr<eTexture> load(const int i,
                                    eTextureCollection& coll);
+    int loadAll(eTextureCollection& coll);
 private:
     void initialize();
 

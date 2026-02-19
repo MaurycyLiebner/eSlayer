@@ -33,20 +33,22 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
         }
     }
 
+    const auto r = p.renderer();
     const auto shadow = std::make_shared<eTexture>();
-    shadow->create(p.renderer(), texRect.w, texRect.h);
-
-    ePainter sp(p.renderer());
+    shadow->create(r, texRect.w, texRect.h);
+    ePainter sp(r);
     sp.translate(-texRect.x, -texRect.y);
-    shadow->setAsRenderTarget(sp.renderer());
-    for(int g = 0; g < gMax; g++) {
-        const int ppMax = mModel.nParts(g);
-        for(int pp = 0; pp < ppMax; pp++) {
-            const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
-            sp.drawTexture(tex->offsetX(), tex->offsetY(), tex);
+
+    {
+        const auto holder = shadow->createTargetHolder(r);
+        for(int g = 0; g < gMax; g++) {
+            const int ppMax = mModel.nParts(g);
+            for(int pp = 0; pp < ppMax; pp++) {
+                const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
+                sp.drawTexture(tex->offsetX(), tex->offsetY(), tex);
+            }
         }
     }
-    SDL_SetRenderTarget(p.renderer(), nullptr);
 
     {
         float skew = 0.5f;

@@ -6,6 +6,10 @@
 #include "echoosecharactermenu.h"
 #include "esettingsmenu.h"
 #include "eloadingscreen.h"
+#include "egamescreen.h"
+
+#include "../textures/eterrstextures.h"
+#include "../textures/eeffectstextures.h"
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
@@ -93,7 +97,27 @@ void eScreenHandler::showChooseCharacterMenu() {
 }
 
 void eScreenHandler::showGame(const eCharacter& c) {
+    const auto finish = [this]() {
+        const auto w = new eGameScreen(mWindow);
+        const int width = mWindow->width();
+        const int height = mWindow->height();
+        w->resize(width, height);
+        w->initialize();
+        mWindow->setWidget(w);
+    };
 
+    std::vector<eAction> loading;
+    const auto r = mWindow->renderer();
+    loading.emplace_back([r]() {
+        const auto townFloor = eTerrsTextures::get("town_floor");
+        townFloor->load(r);
+    });
+    loading.emplace_back([r]() {
+        const auto lighting = eEffectsTextures::get("lighting");
+        lighting->load(r);
+    });
+
+    showLoadingScreen(loading, finish);
 }
 
 void eScreenHandler::showSettings() {

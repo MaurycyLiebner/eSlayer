@@ -35,6 +35,15 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i,
     return tex;
 }
 
+int eSpriteLoader::loadAll(eTextureCollection& coll) {
+    initialize();
+    const int n = mSpriteCoords.size();
+    for(int i = 0; i < n; i++) {
+        load(i, coll);
+    }
+    return n;
+}
+
 void eSpriteLoader::initialize() {
     if(mInitialized) return;
     mInitialized = true;

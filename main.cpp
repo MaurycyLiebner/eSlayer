@@ -6,6 +6,8 @@
 #include "elanguage.h"
 #include "screens/escreenhandler.h"
 #include "textures/echarstextures.h"
+#include "textures/eterrstextures.h"
+#include "textures/eeffectstextures.h"
 #include "efileloader.h"
 
 #include <vector>
@@ -134,6 +136,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eCharsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eTerrsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eEffectsTextures::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);
