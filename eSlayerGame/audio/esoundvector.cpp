@@ -1,6 +1,6 @@
 #include "esoundvector.h"
 
-#include "../erand.h"
+#include <eSlayerHelpers/erand.h>
 
 void eSoundVector::play(MIX_Mixer * const mixer,
                         const int id,

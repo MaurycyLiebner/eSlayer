@@ -20,35 +20,46 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
     mModel.setDirection(0);
 }
 
+ePointF eGameScreen::pixelToTilePos(
+    const ePointF& pixel) {
+    ePointF result;
+    result.fY = mPosY +
+                (pixel.fY - height()/2.f)/mTileH +
+                (width()/2.f - pixel.fX)/mTileW;
+    result.fX = mPosX +
+                (pixel.fX - width()/2.)/mTileW +
+                (pixel.fY - height()/2.)/mTileH;
+    return result;
+}
+
+void eGameScreen::setTargetPos(const ePointF& pos) {
+
+}
+
 void eGameScreen::paintEvent(ePainter& p) {
     const auto r = renderer();
     {
         const auto holder = mBaseTex->createTargetHolder(r);
 
         const auto& terrTypes = mMap->terrainTypes();
-        const int tileW = 160;
-        const int tileH = 79;
-        const double yMin = mPosY - height()/2./(tileH) + width()/2./(tileW);
-        const double xMin = mPosX - width()/2./(tileW) - height()/2./(tileH);
-        // const double yMax = mPosY + height()/2./(tileH) - width()/2./(tileW);
-        // const double xMax = mPosX + width()/2./(tileW) + height()/2./(tileH);
+        const auto min = pixelToTilePos({0.f, 0.f});
         const int iMax = terrTypes.size() - 1;
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
             const auto floor = eTerrsTextures::get(terrType.fName);
-            const int dxMax = width()/tileW + 1;
-            const int dyMax = 2*height()/tileH + 1;
+            const int dxMax = width()/mTileW + 1;
+            const int dyMax = 2*height()/mTileH + 1;
             for(int dy = 0; dy < dyMax; dy++) {
-                const int py = dy*(tileH + 1)/2;
+                const int py = dy*(mTileH + 1)/2;
                 for(int dx = 0; dx < dxMax; dx++) {
-                    const int y = yMin - dx + dy/2;
+                    const int y = min.fY - dx + dy/2;
                     if(y < 0 || y >= mMap->height()) continue;
-                    const int x = xMin + dx + dy % 2 + dy/2;
+                    const int x = min.fX + dx + dy % 2 + dy/2;
                     if(x < 0 || x >= mMap->width()) continue;
                     const auto& tile = mMap->tile(x, y);
                     if(tile.fTerrainType != i) continue;
                     const auto tex = floor->getTexture(tile.fTileType);
-                    const int px = (dy % 2) * tileW/2 + dx*tileW - tileW/2;
+                    const int px = (dy % 2) * mTileW/2 + dx*mTileW - mTileW/2;
                     p.drawTexture(px, py, tex);
                 }
             }
@@ -78,6 +89,26 @@ void eGameScreen::paintEvent(ePainter& p) {
     }
 
     eLabel::paintEvent(p);
+}
+
+bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
+    return true;
+}
+
+bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
+    return true;
+}
+
+bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
+    const auto buttons = e.buttons();
+    const bool leftPressed = static_cast<bool>(
+        buttons & eMouseButton::left);
+    if(leftPressed) {
+        ePointF pos;
+        pixelToTilePos(ePointF{double(e.x()), double(e.y())});
+        setTargetPos(pos);
+    }
+    return true;
 }
 
 void eGameScreen::initializeTextures() {

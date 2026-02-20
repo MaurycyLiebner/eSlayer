@@ -10,6 +10,8 @@
 
 using eMap = eSlayerMapGenerator::eMap;
 
+#include <eSlayerHelpers/epoint.h>
+
 class eGameScreen : public eScreenBase {
 public:
     using eScreenBase::eScreenBase;
@@ -17,8 +19,14 @@ public:
     void initialize(const std::shared_ptr<eMap>& map);
 protected:
     void paintEvent(ePainter& p) override;
+    bool mousePressEvent(const eMouseEvent& e) override;
+    bool mouseReleaseEvent(const eMouseEvent& e) override;
+    bool mouseMoveEvent(const eMouseEvent& e) override;
 private:
     void initializeTextures();
+
+    ePointF pixelToTilePos(const ePointF& pixel);
+    void setTargetPos(const ePointF& pos);
 
     std::shared_ptr<eTexture> mBaseTex;
     std::shared_ptr<eLightingTexture> mLightingTex;
@@ -28,8 +36,11 @@ private:
     std::shared_ptr<eMap> mMap;
     int mFrame = 0;
 
-    double mPosX = 0.;
-    double mPosY = 0.;
+    const int mTileW = 160;
+    const int mTileH = 79;
+
+    float mPosX = 0.f;
+    float mPosY = 0.f;
 };
 
 #endif // EGAMESCREEN_H

@@ -1,4 +1,4 @@
-#include "erand.h"
+#include "../include/eSlayerHelpers/erand.h"
 
 #if (defined (_WIN32) || defined (_WIN64))
     #define __INT_MAX__ INT_MAX

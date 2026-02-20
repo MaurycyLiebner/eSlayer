@@ -1,10 +1,12 @@
 #ifndef ERAND_H
 #define ERAND_H
 
+#include "eslayerhelpersexport.h"
+
 #include <algorithm>
 #include <random>
 
-class eRand {
+class ESLAYERHELPERS_API eRand {
 public:
     static int rand();
     template <typename T>

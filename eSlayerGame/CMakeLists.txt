@@ -77,7 +77,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(libzip)
 
 add_executable(eSlayerGame main.cpp
-    erand.cpp erand.h
     evectorhelpers.cpp evectorhelpers.h
 
     audio/emusic.cpp audio/emusic.h
@@ -155,3 +154,4 @@ target_link_libraries(eSlayerGame PRIVATE libzip::zip)
 
 target_link_libraries(eSlayerGame PRIVATE eSlayerServer)
 target_link_libraries(eSlayerGame PRIVATE eSlayerMapGenerator)
+target_link_libraries(eSlayerGame PRIVATE eSlayerHelpers)
