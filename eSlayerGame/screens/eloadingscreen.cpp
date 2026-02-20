@@ -20,11 +20,11 @@ void eLoadingScreen::initialize(
     inner->addWidget(pb);
     pb->align(eAlignment::center);
 
-    w->addLoad(finish);
     for(const auto& l : loading) {
         w->addLoad([l, pb]() {
             pb->setValue(pb->value() + 1);
             l();
         });
     }
+    w->addLoad(finish);
 }

@@ -205,8 +205,8 @@ int eMainWindow::exec() {
         mSlots.clear();
 
         if(!mLoading.empty()) {
-            const auto l = mLoading.back();
-            mLoading.pop_back();
+            const auto l = mLoading.front();
+            mLoading.pop();
             l();
         }
 
@@ -238,6 +238,6 @@ void eMainWindow::addSlot(const eSlot &slot) {
 }
 
 void eMainWindow::addLoad(const eAction& l) {
-    mLoading.push_back(l);
+    mLoading.push(l);
 }
 

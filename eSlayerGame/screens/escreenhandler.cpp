@@ -114,6 +114,16 @@ void eScreenHandler::showGame(const eCharacter& c) {
 
     std::vector<eAction> loading;
     const auto r = mWindow->renderer();
+    loading.emplace_back([server]() {
+        *server = eSlayerServer::generate("single_player");
+    });
+    loading.emplace_back([server, map]() {
+        *map = (*server)->requestMap("town");
+    });
+    loading.emplace_back([r]() {
+        const auto lighting = eEffectsTextures::get("lighting");
+        lighting->load(r);
+    });
     loading.emplace_back([r, map]() {
         const auto& terrTypes = (*map)->terrainTypes();
         for(const auto& terrType : terrTypes) {
@@ -121,17 +131,6 @@ void eScreenHandler::showGame(const eCharacter& c) {
             texs->load(r);
         }
     });
-    loading.emplace_back([r]() {
-        const auto lighting = eEffectsTextures::get("lighting");
-        lighting->load(r);
-    });
-    loading.emplace_back([server, map]() {
-        *map = (*server)->requestMap("town");
-    });
-    loading.emplace_back([server]() {
-        *server = eSlayerServer::generate("single_player");
-    });
-
     showLoadingScreen(loading, finish);
 }
 

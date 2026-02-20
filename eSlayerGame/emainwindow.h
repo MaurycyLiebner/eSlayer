@@ -5,6 +5,8 @@
 #include "eresolution.h"
 #include "ewindowsettings.h"
 
+#include <queue>
+
 using eSlot = std::function<void()>;
 
 class eMainWindow {
@@ -43,7 +45,7 @@ private:
     bool mFirstResolutionSetting = true;
 
     std::vector<eSlot> mSlots;
-    std::vector<eAction> mLoading;
+    std::queue<eAction> mLoading;
 
     int mShiftPressed = 0;
     int mCtrlPressed = 0;
