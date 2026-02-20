@@ -11,6 +11,9 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/eeffectstextures.h"
 
+#include <eSlayerServer/eserver.h>
+using eServer = eSlayerServer::eServer;
+
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
 
@@ -97,24 +100,36 @@ void eScreenHandler::showChooseCharacterMenu() {
 }
 
 void eScreenHandler::showGame(const eCharacter& c) {
-    const auto finish = [this]() {
+    const auto server = std::make_shared<std::shared_ptr<eServer>>();
+    const auto map = std::make_shared<std::shared_ptr<eMap>>();
+
+    const auto finish = [this, map]() {
         const auto w = new eGameScreen(mWindow);
         const int width = mWindow->width();
         const int height = mWindow->height();
         w->resize(width, height);
-        w->initialize();
+        w->initialize(*map);
         mWindow->setWidget(w);
     };
 
     std::vector<eAction> loading;
     const auto r = mWindow->renderer();
-    loading.emplace_back([r]() {
-        const auto townFloor = eTerrsTextures::get("town_floor");
-        townFloor->load(r);
+    loading.emplace_back([r, map]() {
+        const auto& terrTypes = (*map)->terrainTypes();
+        for(const auto& terrType : terrTypes) {
+            const auto texs = eTerrsTextures::get(terrType.fName);
+            texs->load(r);
+        }
     });
     loading.emplace_back([r]() {
         const auto lighting = eEffectsTextures::get("lighting");
         lighting->load(r);
+    });
+    loading.emplace_back([server, map]() {
+        *map = (*server)->requestMap("town");
+    });
+    loading.emplace_back([server]() {
+        *server = eSlayerServer::generate("single_player");
     });
 
     showLoadingScreen(loading, finish);

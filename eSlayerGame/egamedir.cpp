@@ -3,7 +3,7 @@
 #include <SDL3/SDL_filesystem.h>
 
 std::string eGameDir::path(const std::string& path) {
-    return exeDir() + "../" + path;
+    return exeDir() + "../../" + path;
 }
 
 std::string eGameDir::windowSettingsPath() {

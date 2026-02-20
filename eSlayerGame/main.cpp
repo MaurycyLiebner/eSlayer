@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     settings.read();
 
     int r = 0;
-    {
+    try {
         eMainWindow w;
         eScreenHandler sh(&w);
         const bool i = w.initialize(settings);
@@ -149,6 +149,8 @@ int main(int argc, char* argv[]) {
         sh.showLoadingScreen(loadings, showMainMenu);
 
         r = w.exec();
+    } catch(const std::exception& e) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", e.what(), nullptr);
     }
 
     close();
