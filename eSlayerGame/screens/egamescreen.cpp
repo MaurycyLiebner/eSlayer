@@ -3,6 +3,8 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/echarstextures.h"
 
+#include <eSlayerHelpers/evec2.h>
+
 void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
     initializeTextures();
 
@@ -23,20 +25,29 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) {
     ePointF result;
-    result.fY = mPosY +
+    result.fY = mPos.fY +
                 (pixel.fY - height()/2.f)/mTileH +
                 (width()/2.f - pixel.fX)/mTileW;
-    result.fX = mPosX +
+    result.fX = mPos.fX +
                 (pixel.fX - width()/2.)/mTileW +
                 (pixel.fY - height()/2.)/mTileH;
     return result;
 }
 
-void eGameScreen::setTargetPos(const ePointF& pos) {
+void eGameScreen::updateTargetPos() {
+    const auto pos = pixelToTilePos(mMousePos);
+    setTargetPos(pos);
+}
 
+void eGameScreen::setTargetPos(const ePointF& pos) {
+    const eVec2d vec(pos.fX - mPos.fX, pos.fY - mPos.fY);
+    const auto angle = vec.angle();
+    mModel.setAngle(angle);
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
+    if(mMousePressed) updateTargetPos();
+
     const auto r = renderer();
     {
         const auto holder = mBaseTex->createTargetHolder(r);
@@ -92,21 +103,34 @@ void eGameScreen::paintEvent(ePainter& p) {
 }
 
 bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
+    const auto button = e.button();
+    const bool leftPressed = static_cast<bool>(
+        button & eMouseButton::left);
+    if(leftPressed) {
+        mMousePressed = true;
+        mMousePos = ePointF{double(e.x()), double(e.y())};
+        updateTargetPos();
+    }
     return true;
 }
 
 bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
+    const auto button = e.button();
+    const bool leftReleased = static_cast<bool>(
+        button & eMouseButton::left);
+    if(leftReleased) {
+        mMousePressed = false;
+    }
     return true;
 }
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
+    mMousePos = ePointF{double(e.x()), double(e.y())};
     const auto buttons = e.buttons();
     const bool leftPressed = static_cast<bool>(
         buttons & eMouseButton::left);
     if(leftPressed) {
-        ePointF pos;
-        pixelToTilePos(ePointF{double(e.x()), double(e.y())});
-        setTargetPos(pos);
+        updateTargetPos();
     }
     return true;
 }

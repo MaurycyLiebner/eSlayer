@@ -15,6 +15,7 @@ public:
 
     void setAnimation(const int a) { mAnim = a; }
     void setDirection(const int d) { mDir = d; }
+    void setAngle(const double a);
 private:
     int mAnim;
     int mDir;

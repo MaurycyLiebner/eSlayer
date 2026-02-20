@@ -4,6 +4,8 @@
 
 #include "../widgets/epainter.h"
 
+#include <cmath>
+
 eCharUnitModel::eCharUnitModel() {}
 
 void eCharUnitModel::setCharModel(const eCharModel& model) {
@@ -97,4 +99,11 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
             p.drawTexture(tex->offsetX(), tex->offsetY(), tex);
         }
     }
+}
+
+void eCharUnitModel::setAngle(const double a) {
+    const int dirs = mModel.nDirs();
+    const double ainc = 360./dirs;
+    const int dir = std::round(a/ainc) - 2;
+    setDirection((dirs + dir) % dirs);
 }

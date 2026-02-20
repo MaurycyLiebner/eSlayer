@@ -8,10 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_library(eSlayerHelpers SHARED
-    include/eSlayerHelpers/erand.h src/erand.cpp
     include/eSlayerHelpers/eslayerhelpersexport.h
-    src/epoint.cpp
-    include/eSlayerHelpers/epoint.h
+    include/eSlayerHelpers/erand.h src/erand.cpp
+    include/eSlayerHelpers/epoint.h src/epoint.cpp
+    include/eSlayerHelpers/evec2.h
 )
 
 target_include_directories(eSlayerHelpers

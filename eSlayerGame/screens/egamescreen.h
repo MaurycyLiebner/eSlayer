@@ -26,6 +26,7 @@ private:
     void initializeTextures();
 
     ePointF pixelToTilePos(const ePointF& pixel);
+    void updateTargetPos();
     void setTargetPos(const ePointF& pos);
 
     std::shared_ptr<eTexture> mBaseTex;
@@ -39,8 +40,9 @@ private:
     const int mTileW = 160;
     const int mTileH = 79;
 
-    float mPosX = 0.f;
-    float mPosY = 0.f;
+    ePointF mPos{0., 0.};
+    bool mMousePressed = false;
+    ePointF mMousePos{0., 0.};
 };
 
 #endif // EGAMESCREEN_H
