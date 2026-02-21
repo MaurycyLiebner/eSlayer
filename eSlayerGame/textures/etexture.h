@@ -54,18 +54,6 @@ public:
     bool load(SDL_Renderer* const r,
               SDL_Surface* const surf,
               const SDL_Color& colorKey = {0, 0, 0, 0});
-    bool loadText(SDL_Renderer* const r,
-                  const std::string& text,
-                  const eFontColor color,
-                  TTF_Font& font,
-                  const int width = 0,
-                  const eAlignment align = eAlignment::left);
-    bool loadText(SDL_Renderer* const r,
-                  const std::string& text,
-                  const eFontColor color,
-                  const eFont& font,
-                  const int width = 0,
-                  const eAlignment align = eAlignment::left);
 
     void renderRelPortion(SDL_Renderer* const r,
                           const int dstX,

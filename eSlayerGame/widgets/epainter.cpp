@@ -1,5 +1,7 @@
 #include "epainter.h"
 
+#include "../textures/etextgenerator.h"
+
 ePainter::ePainter(SDL_Renderer* const renderer) :
     mRenderer(renderer) {
 
@@ -27,7 +29,7 @@ void ePainter::translate(const int x, const int y) {
     mY += y;
 }
 
-void ePainter::setFont(TTF_Font* const font) {
+void ePainter::setFont(const eFont& font) {
     mFont = font;
 }
 
@@ -120,10 +122,8 @@ void ePainter::drawText(const int x, const int y,
                         const std::string& text,
                         const eFontColor color,
                         const eAlignment align) const {
-    if(!mFont) return;
-
-    const auto tex = std::make_shared<eTexture>();
-    tex->loadText(mRenderer, text, color, *mFont);
+    const eTextGenerator textGenerator(mRenderer, color, mFont, 0);
+    const auto tex = textGenerator.generate(text);
 
     drawTexture(x, y, tex, align);
 }
@@ -132,10 +132,8 @@ void ePainter::drawText(const SDL_Rect& rect,
                         const std::string& text,
                         const eFontColor color,
                         const eAlignment align) const {
-    if(!mFont) return;
-
-    const auto tex = std::make_shared<eTexture>();
-    tex->loadText(mRenderer, text, color, *mFont);
+    const eTextGenerator textGenerator(mRenderer, color, mFont, 0);
+    const auto tex = textGenerator.generate(text);
 
     drawTexture(rect, tex, align);
 }

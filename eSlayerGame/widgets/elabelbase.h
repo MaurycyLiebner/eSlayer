@@ -30,14 +30,11 @@ public:
     eAlignment textAlignment() { return mTextAlign; }
     void setTextAlignment(const eAlignment a) { mTextAlign = a; }
 
-    void setWrapAlignment(const eAlignment a) { mWrapAlign = a; }
-
     int lineWidth() const;
 
     void textureSize(int& w, int& h) const;
 protected:
     const std::shared_ptr<eTexture>& texture();
-    bool setFont(TTF_Font* const font);
     bool updateTexture();
 private:
     const eResolution& res() const;
@@ -45,13 +42,12 @@ private:
 
     int mWidth = 0;
     eMainWindow* const mWindow;
-    TTF_Font* mFont = nullptr;
+    eFont mFont;
     std::string mText;
     std::shared_ptr<eTexture> mTexture;
     bool mUpdateTextTextureFailed = false;
     eFontColor mFontColor = eFontColor::white;
     eAlignment mTextAlign = eAlignment::center;
-    eAlignment mWrapAlign = eAlignment::left;
 };
 
 #endif // ELABELBASE_H

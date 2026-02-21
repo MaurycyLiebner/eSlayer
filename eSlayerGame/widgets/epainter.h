@@ -12,7 +12,7 @@ class ePainter {
     struct ePainterSave {
         int fX;
         int fY;
-        TTF_Font* fFont;
+        eFont fFont;
     };
 public:
     ePainter(SDL_Renderer* const renderer);
@@ -24,7 +24,7 @@ public:
 
     void translate(const int x, const int y);
 
-    void setFont(TTF_Font* const font);
+    void setFont(const eFont& font);
 
     void drawTexture(const int x, const int y,
                      const std::shared_ptr<eTexture>& tex,
@@ -62,7 +62,7 @@ private:
     int mX = 0;
     int mY = 0;
 
-    TTF_Font* mFont = nullptr;
+    eFont mFont;
 
     SDL_Renderer* mRenderer;
 };

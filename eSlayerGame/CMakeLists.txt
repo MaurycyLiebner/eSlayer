@@ -135,6 +135,7 @@ add_executable(eSlayerGame main.cpp
     textures/eeffectstextures.h textures/eeffectstextures.cpp
     textures/eeffecttextures.h textures/eeffecttextures.cpp
     textures/erendertargetholder.h textures/erendertargetholder.cpp
+    textures/etextgenerator.h textures/etextgenerator.cpp
 )
 
 include(GNUInstallDirs)

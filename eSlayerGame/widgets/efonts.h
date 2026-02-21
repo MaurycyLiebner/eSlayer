@@ -21,12 +21,13 @@ inline bool operator<(const eFont& p0, const eFont& p1) {
 
 class eFonts {
 public:
-    static TTF_Font* requestFont(const eFont& font);
-    static TTF_Font* defaultFont(const eResolution res);
-    static TTF_Font* defaultFont(const int fs);
-private:
-    static TTF_Font* loadFont(const eFont& font);
+    static TTF_Font* requestTTFFont(const eFont& font);
+    static TTF_Font* defaultTTFFont(const eResolution res);
+    static TTF_Font* defaultTTFFont(const int fs);
 
+    static eFont defaultFont(const eResolution res);
+    static eFont defaultFont(const int fs);
+private:
     static std::map<eFont, TTF_Font*> sFonts;
 };
 

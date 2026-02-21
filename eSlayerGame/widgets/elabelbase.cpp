@@ -2,16 +2,14 @@
 
 #include "../emainwindow.h"
 
+#include "../textures/etextgenerator.h"
+
 #include <algorithm>
 
 eLabelBase::eLabelBase(eMainWindow* const window) :
     mWindow(window) {
-
-}
-
-bool eLabelBase::setFont(const eFont& font) {
-    const auto ttf = eFonts::requestFont(font);
-    return setFont(ttf);
+    const auto res = eLabelBase::res();
+    mFont = eFonts::defaultFont(res);
 }
 
 bool eLabelBase::setTinyFontSize() {
@@ -35,11 +33,11 @@ bool eLabelBase::setHugeFontSize() {
 }
 
 bool eLabelBase::setFontSize(const int s) {
-    const auto font = eFonts::defaultFont(s);
-    return setFont(font);
+    mFont.fPtSize = s;
+    return updateTextTexture();
 }
 
-bool eLabelBase::setFont(TTF_Font* const font) {
+bool eLabelBase::setFont(const eFont& font) {
     mFont = font;
     return updateTextTexture();
 }
@@ -71,8 +69,7 @@ bool eLabelBase::setFontColor(const eFontColor color) {
 }
 
 int eLabelBase::fontSize() const {
-    if(!mFont) return 0;
-    return TTF_GetFontHeight(mFont);
+    return mFont.fPtSize;
 }
 
 void eLabelBase::setWrapWidth(const int w) {
@@ -85,14 +82,13 @@ bool eLabelBase::updateTextTexture() {
         mTexture.reset();
         return true;
     }
-    if(!mFont) return false;
-    mTexture = std::make_shared<eTexture>();
     const auto r = mWindow->renderer();
-    const bool v = mTexture->loadText(r, mText, mFontColor, *mFont,
-                                      mWidth, mWrapAlign);
-    if(!v) {
+    const eTextGenerator textGenerator(r, mFontColor, mFont, mWidth);
+    mTexture = textGenerator.generate(mText);
+    if(!mTexture) {
         mTexture.reset();
         mUpdateTextTextureFailed = true;
+        return false;
     }
     return true;
 }
