@@ -7,9 +7,6 @@
 #include "../textures/elightingtexture.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
-
-using eMap = eSlayerMapGenerator::eMap;
-
 #include <eSlayerHelpers/epoint.h>
 
 class eGameScreen : public eScreenBase {

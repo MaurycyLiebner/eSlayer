@@ -4,24 +4,23 @@ class eMapGenerator {
 public:
     eMapGenerator() {}
 
-    std::shared_ptr<eSlayerMapGenerator::eMap>
+    std::shared_ptr<eMap>
     generate(const std::string& name) const;
 };
 
-std::shared_ptr<eSlayerMapGenerator::eMap>
+std::shared_ptr<eMap>
 eSlayerMapGenerator::generate(const std::string& name) {
     eMapGenerator g;
     return g.generate(name);
 }
 
-const eSlayerMapGenerator::eTile&
-eSlayerMapGenerator::eMap::tile(const int x, const int y) const {
+const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
-std::shared_ptr<eSlayerMapGenerator::eMap>
+std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
-    const auto result = std::make_shared<eSlayerMapGenerator::eMap>();
+    const auto result = std::make_shared<eMap>();
     if(name == "town") {
         auto& terrType = result->mTerrainTypes.emplace_back();
         terrType.fName = "town_floor";
@@ -31,7 +30,7 @@ eMapGenerator::generate(const std::string& name) const {
             auto& row = result->mTiles.emplace_back();
             row.reserve(w);
             for(int x = 0; x < w; x++) {
-                row.emplace_back(eSlayerMapGenerator::eTile{0, 0});
+                row.emplace_back(eTile{0, 0});
             }
         }
         result->mWidth = w;

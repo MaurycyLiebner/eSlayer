@@ -7,14 +7,14 @@
 
 #include <memory>
 
-namespace eSlayerServer {
-    class ESLAYERSERVER_API eServer {
-    public:
-        virtual std::shared_ptr<eSlayerMapGenerator::eMap>
-        requestMap(const std::string& name) = 0;
-    private:
-    };
+class ESLAYERSERVER_API eServer {
+  public:
+    virtual std::shared_ptr<eMap>
+    requestMap(const std::string& name) = 0;
+  private:
+};
 
+namespace eSlayerServer {
     ESLAYERSERVER_API std::shared_ptr<eServer>
     generate(const std::string& name);
 }

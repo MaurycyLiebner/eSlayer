@@ -12,7 +12,6 @@
 #include "../textures/eeffectstextures.h"
 
 #include <eSlayerServer/eserver.h>
-using eServer = eSlayerServer::eServer;
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
