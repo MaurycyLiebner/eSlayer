@@ -1,0 +1,52 @@
+# .clang-format
+
+BasedOnStyle: LLVM
+
+Language:        Cpp
+Standard:        Latest
+
+# Indentation
+IndentWidth:     4
+TabWidth:        4
+UseTab:          Never
+
+# Pointer and reference alignment (LEFT)
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Braces (attach to surrounding context)
+BreakBeforeBraces: Attach
+
+# Includes
+SortIncludes:     true
+IncludeBlocks:    Regroup
+
+# Line length
+ColumnLimit:      100
+
+# Spacing
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+
+# Functions
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# Constructors / Initializers
+ConstructorInitializerIndentWidth: 4
+BreakConstructorInitializers: BeforeComma
+
+# Templates
+AlwaysBreakTemplateDeclarations: Yes
+
+# Namespace
+NamespaceIndentation: All
+
+# Misc
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+ReflowComments: true
+SortUsingDeclarations: true
