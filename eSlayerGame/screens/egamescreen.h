@@ -41,6 +41,7 @@ private:
     ePointF mPos{0., 0.};
     bool mMousePressed = false;
     ePointF mMousePos{0., 0.};
+    int mTileMoveSubdivision = 2;
     int mPathFindMargin = 40;
     ePathFinderPath mPath;
 };

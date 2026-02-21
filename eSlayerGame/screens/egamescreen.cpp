@@ -42,6 +42,7 @@ void eGameScreen::updateTargetPos() {
 void eGameScreen::setTargetPos(const ePointF& pos) {
     ePathFinder finder;
     const int margin = mPathFindMargin;
+    const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(dim, dim);
     for(int x = 0; x < dim; x++) {
@@ -52,35 +53,60 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
     finder.setMap(map);
     bool found;
     const ePoint from{margin, margin};
-    const auto iPos = mPos.round();
-    const auto ipos = pos.round();
-    const ePoint to{margin + ipos.fX - iPos.fX,
-                    margin + ipos.fY - iPos.fY};
+    const auto iPos = (mPos * subdivision).round();
+    const auto ipos = (pos * subdivision).round();
+    const ePoint to{margin + (ipos.fX - iPos.fX),
+                    margin + (ipos.fY - iPos.fY)};
     mPath = finder.findPath(from, to, found);
     for(auto& step : mPath) {
-        step.fSrc.fX += std::round(mPos.fX) - mPathFindMargin;
-        step.fSrc.fY += std::round(mPos.fY) - mPathFindMargin;
-        step.fDst.fX += std::round(mPos.fX) - mPathFindMargin;
-        step.fDst.fY += std::round(mPos.fY) - mPathFindMargin;
+        step.fSrc.fX -= margin;
+        step.fSrc.fY -= margin;
+        step.fDst.fX -= margin;
+        step.fDst.fY -= margin;
+        step.fSrc.fX /= subdivision;
+        step.fSrc.fY /= subdivision;
+        step.fDst.fX /= subdivision;
+        step.fDst.fY /= subdivision;
+        step.fSrc.fX += std::round(mPos.fX*subdivision)/subdivision;
+        step.fSrc.fY += std::round(mPos.fY*subdivision)/subdivision;
+        step.fDst.fX += std::round(mPos.fX*subdivision)/subdivision;
+        step.fDst.fY += std::round(mPos.fY*subdivision)/subdivision;
     }
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
-    if(mMousePressed) updateTargetPos();
-    if(!mPath.empty()) {
-        const auto to = mPath.front().fDst;
-        const double len = 0.1;
-        eVec2d vec(to.fX - mPos.fX, to.fY - mPos.fY);
-        if(vec.length() > len) {
-            vec.normalize(len);
-        } else {
-            mPath.erase(mPath.begin());
+    bool move = false;
+    const bool canMove = true;
+    eVec2d vec;
+    const double len = 0.1;
+    if(mMousePressed && canMove) {
+        const auto pos = pixelToTilePos(mMousePos);
+        vec = eVec2d(pos.fX - mPos.fX,
+                     pos.fY - mPos.fY);
+        vec.normalize(len);
+        move = true;
+    } else {
+        if(mMousePressed) updateTargetPos();
+        if(!mPath.empty()) {
+            const auto& to = mPath.front().fDst;
+            vec = eVec2d(to.fX - mPos.fX, to.fY - mPos.fY);
+            if(vec.length() > len) {
+                vec.normalize(len);
+            } else {
+                mPath.erase(mPath.begin());
+            }
+            move = true;
         }
+    }
+    if(move) {
         mPos.fX += vec.x;
         mPos.fY += vec.y;
 
         const auto angle = vec.angle();
         mModel.setAngle(angle);
+        mModel.setAnimation(1);
+    } else {
+        mModel.setAnimation(0);
     }
 
     const auto r = renderer();
@@ -98,7 +124,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             const int dxMax = width()/mTileW + 1;
             const int dyMax = 2*height()/mTileH + 1;
             for(int dy = 0; dy < dyMax; dy++) {
-                const int py = dy*(mTileH + 1)/2 -
+                const int py = (dy + 1)*(mTileH + 1)/2 -
                                std::round((pdx + pdy)*mTileH/2.);
                 for(int dx = 0; dx < dxMax; dx++) {
                     const int y = min.fY - dx + dy/2;
@@ -117,7 +143,7 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         p.save();
         p.translate(width()/2, height()/2);
-        mModel.draw(p, mFrame);
+        mModel.draw(p, mFrame++);
         p.restore();
     }
 
@@ -159,6 +185,7 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::left);
     if(leftReleased) {
         mMousePressed = false;
+        updateTargetPos();
     }
     return true;
 }

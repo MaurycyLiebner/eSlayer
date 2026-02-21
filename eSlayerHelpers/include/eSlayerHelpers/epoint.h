@@ -19,12 +19,28 @@ inline bool operator!=(const ePoint& p1, const ePoint& p2) {
 }
 
 struct ESLAYERHELPERS_API ePointF {
+    ePointF() {}
+    ePointF(const double x, const double y) :
+        fX(x), fY(y) {}
+    ePointF(const ePoint& p) :
+        fX(p.fX), fY(p.fY) {}
+
     double fX;
     double fY;
 
     ePoint round() const {
         return {int(std::round(fX)),
                 int(std::round(fY))};
+    }
+
+    ePointF operator*(const double mult) const {
+        return {mult*fX, mult*fY};
+    }
+
+    ePointF& operator*=(const double mult) {
+        fX *= mult;
+        fY *= mult;
+        return *this;
     }
 };
 

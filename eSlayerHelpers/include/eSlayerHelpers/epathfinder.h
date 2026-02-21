@@ -19,8 +19,8 @@ enum class eTileDirection {
 };
 
 struct ePathStep {
-    ePoint fSrc;
-    ePoint fDst;
+    ePointF fSrc;
+    ePointF fDst;
 };
 
 using ePathFinderPath = std::vector<ePathStep>;
