@@ -120,9 +120,9 @@ public:
 		y = ty;
 	}
 	
-    eVec2& normalize() {
+    eVec2& normalize(const double newLength = 1.0) {
         if(length() == 0) return *this;
-		*this *= (1.0 / length());
+        *this *= (newLength / length());
 		return *this;
 	}
 	

@@ -25,10 +25,10 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) {
     ePointF result;
-    result.fY = mPos.fY +
+    result.fY = int(mPos.fY) +
                 (pixel.fY - height()/2.f)/mTileH +
                 (width()/2.f - pixel.fX)/mTileW;
-    result.fX = mPos.fX +
+    result.fX = int(mPos.fX) +
                 (pixel.fX - width()/2.)/mTileW +
                 (pixel.fY - height()/2.)/mTileH;
     return result;
@@ -40,13 +40,48 @@ void eGameScreen::updateTargetPos() {
 }
 
 void eGameScreen::setTargetPos(const ePointF& pos) {
-    const eVec2d vec(pos.fX - mPos.fX, pos.fY - mPos.fY);
-    const auto angle = vec.angle();
-    mModel.setAngle(angle);
+    ePathFinder finder;
+    const int margin = mPathFindMargin;
+    const int dim = 2*margin + 1;
+    ePathFinderMap map(dim, dim);
+    for(int x = 0; x < dim; x++) {
+        for(int y = 0; y < dim; y++) {
+            map.set({x, y}, true);
+        }
+    }
+    finder.setMap(map);
+    bool found;
+    const ePoint from{margin, margin};
+    const auto iPos = mPos.round();
+    const auto ipos = pos.round();
+    const ePoint to{margin + ipos.fX - iPos.fX,
+                    margin + ipos.fY - iPos.fY};
+    mPath = finder.findPath(from, to, found);
+    for(auto& step : mPath) {
+        step.fSrc.fX += std::round(mPos.fX) - mPathFindMargin;
+        step.fSrc.fY += std::round(mPos.fY) - mPathFindMargin;
+        step.fDst.fX += std::round(mPos.fX) - mPathFindMargin;
+        step.fDst.fY += std::round(mPos.fY) - mPathFindMargin;
+    }
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
     if(mMousePressed) updateTargetPos();
+    if(!mPath.empty()) {
+        const auto to = mPath.front().fDst;
+        const double len = 0.1;
+        eVec2d vec(to.fX - mPos.fX, to.fY - mPos.fY);
+        if(vec.length() > len) {
+            vec.normalize(len);
+        } else {
+            mPath.erase(mPath.begin());
+        }
+        mPos.fX += vec.x;
+        mPos.fY += vec.y;
+
+        const auto angle = vec.angle();
+        mModel.setAngle(angle);
+    }
 
     const auto r = renderer();
     {
@@ -54,6 +89,8 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto& terrTypes = mMap->terrainTypes();
         const auto min = pixelToTilePos({0., 0.});
+        const double pdx = mPos.fX - int(mPos.fX);
+        const double pdy = mPos.fY - int(mPos.fY);
         const int iMax = terrTypes.size() - 1;
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
@@ -61,7 +98,8 @@ void eGameScreen::paintEvent(ePainter& p) {
             const int dxMax = width()/mTileW + 1;
             const int dyMax = 2*height()/mTileH + 1;
             for(int dy = 0; dy < dyMax; dy++) {
-                const int py = dy*(mTileH + 1)/2;
+                const int py = dy*(mTileH + 1)/2 -
+                               std::round((pdx + pdy)*mTileH/2.);
                 for(int dx = 0; dx < dxMax; dx++) {
                     const int y = min.fY - dx + dy/2;
                     if(y < 0 || y >= mMap->height()) continue;
@@ -70,7 +108,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                     const auto& tile = mMap->tile(x, y);
                     if(tile.fTerrainType != i) continue;
                     const auto tex = floor->getTexture(tile.fTileType);
-                    const int px = (dy % 2) * mTileW/2 + dx*mTileW - mTileW/2;
+                    const int px = (dy % 2) * mTileW/2 + dx*mTileW - mTileW/2 -
+                                   std::round((pdx - pdy)*mTileW/2.);
                     p.drawTexture(px, py, tex);
                 }
             }

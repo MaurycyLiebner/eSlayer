@@ -7,6 +7,7 @@
 #include "../textures/elightingtexture.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
+#include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
 
 class eGameScreen : public eScreenBase {
@@ -40,6 +41,8 @@ private:
     ePointF mPos{0., 0.};
     bool mMousePressed = false;
     ePointF mMousePos{0., 0.};
+    int mPathFindMargin = 40;
+    ePathFinderPath mPath;
 };
 
 #endif // EGAMESCREEN_H

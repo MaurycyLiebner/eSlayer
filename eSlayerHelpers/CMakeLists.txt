@@ -12,6 +12,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/erand.h src/erand.cpp
     include/eSlayerHelpers/epoint.h src/epoint.cpp
     include/eSlayerHelpers/evec2.h
+    include/eSlayerHelpers/epathfinder.h
+    src/epathfinder.cpp
 )
 
 target_include_directories(eSlayerHelpers

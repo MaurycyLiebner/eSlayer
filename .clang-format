@@ -10,6 +10,9 @@ IndentWidth:     4
 TabWidth:        4
 UseTab:          Never
 
+IndentAccessModifiers: false
+AccessModifierOffset: -4
+
 # Pointer and reference alignment (LEFT)
 PointerAlignment: Left
 ReferenceAlignment: Left
