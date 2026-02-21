@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <stack>
 
 #include "../textures/etexture.h"
 
@@ -57,7 +58,7 @@ public:
     int x() const { return mX; }
     int y() const { return mY; }
 private:
-    std::vector<ePainterSave> mSaves;
+    std::stack<ePainterSave> mSaves;
 
     int mX = 0;
     int mY = 0;

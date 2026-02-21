@@ -12,13 +12,13 @@ void ePainter::save() {
     save.fX = mX;
     save.fY = mY;
     save.fFont = mFont;
-    mSaves.emplace(mSaves.end(), save);
+    mSaves.push(save);
 }
 
 void ePainter::restore() {
     if(mSaves.empty()) return;
-    const auto save = mSaves.back();
-    mSaves.pop_back();
+    const auto save = mSaves.top();
+    mSaves.pop();
     mX = save.fX;
     mY = save.fY;
     mFont = save.fFont;
