@@ -14,6 +14,8 @@ using namespace rapidcsv;
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
+#include <SDL3_ttf/SDL_ttf.h>
+
 class eTexture;
 
 class eFileLoader {
@@ -35,6 +37,9 @@ public:
     static MIX_Audio* loadAudio(MIX_Mixer * const mixer,
                                 const std::string& dir,
                                 const std::string& path);
+    static TTF_Font* loadTTFFont(const int size,
+                                 const std::string& dir,
+                                 const std::string& path);
 private:
     std::vector<std::byte> loadImpl(const std::string& dir,
                                     const std::string& path);
@@ -50,6 +55,9 @@ private:
     MIX_Audio* loadAudioImpl(MIX_Mixer * const mixer,
                              const std::string& dir,
                              const std::string& path);
+    TTF_Font* loadTTFFontImpl(const int size,
+                              const std::string& dir,
+                              const std::string& path);
 
     static eFileLoader* sInstance;
     const bool mUseZip;

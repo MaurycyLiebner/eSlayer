@@ -59,7 +59,15 @@ MIX_Audio* eFileLoader::loadAudio(MIX_Mixer * const mixer,
         throw std::runtime_error("No available file loader.");
     }
     return sInstance->loadAudioImpl(mixer, dir, path);
+}
 
+TTF_Font* eFileLoader::loadTTFFont(const int size,
+                                   const std::string& dir,
+                                   const std::string& path) {
+    if(!sInstance) {
+        throw std::runtime_error("No available file loader.");
+    }
+    return sInstance->loadTTFFontImpl(size, dir, path);
 }
 
 std::string gFilePath(const std::string& dir,
@@ -161,4 +169,27 @@ MIX_Audio* eFileLoader::loadAudioImpl(
                path.c_str(), SDL_GetError());
     }
     return audio;
+}
+
+TTF_Font* eFileLoader::loadTTFFontImpl(const int size,
+                                       const std::string& dir,
+                                       const std::string& path) {
+    TTF_Font* result = nullptr;
+    if(mUseZip) {
+        const auto data = load(dir, path);
+        const auto io = SDL_IOFromConstMem(
+            reinterpret_cast<const void*>(data.data()),
+            data.size()
+            );
+        result = TTF_OpenFontIO(io, true, size);
+    } else {
+        const auto filePath = gFilePath(dir, path);
+        result = TTF_OpenFont(filePath.c_str(), size);
+    }
+    if(!result) {
+        printf("Failed to load font! "
+               "SDL_ttf Error: %s\n",
+               SDL_GetError());
+    }
+    return result;
 }

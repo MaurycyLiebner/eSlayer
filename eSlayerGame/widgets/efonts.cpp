@@ -1,22 +1,14 @@
 #include "efonts.h"
 
-#include "../egamedir.h"
+#include "../efileloader.h"
 
 std::map<eFont, TTF_Font*> eFonts::sFonts;
-
-TTF_Font* gLoadTTFFont(const eFont& font) {
-    const auto ttf = TTF_OpenFont(font.fPath.c_str(), font.fPtSize);
-    if(!ttf) {
-        printf("Failed to load font! SDL_ttf Error: %s\n",
-               SDL_GetError());
-    }
-    return ttf;
-}
 
 TTF_Font* eFonts::requestTTFFont(const eFont& font) {
     const auto it = sFonts.find(font);
     if(it != sFonts.end()) return it->second;
-    const auto ttf = gLoadTTFFont(font);
+    const auto ttf = eFileLoader::loadTTFFont(
+        font.fPtSize, "Fonts", font.fPath);
     if(ttf) sFonts.insert({font, ttf});
     return ttf;
 }
@@ -37,5 +29,5 @@ eFont eFonts::defaultFont(const eResolution res) {
 }
 
 eFont eFonts::defaultFont(const int fs) {
-    return {eGameDir::path("Fonts/light.ttf"), fs};
+    return {"light.ttf", fs};
 }
