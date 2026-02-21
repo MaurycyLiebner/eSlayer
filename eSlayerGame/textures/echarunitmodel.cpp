@@ -104,6 +104,6 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
 void eCharUnitModel::setAngle(const double a) {
     const int dirs = mModel.nDirs();
     const double ainc = 360./dirs;
-    const int dir = std::round(a/ainc) - 2;
+    const int dir = std::round(a/ainc) - 2*dirs/16;
     setDirection((dirs + dir) % dirs);
 }

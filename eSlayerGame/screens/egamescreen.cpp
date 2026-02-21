@@ -53,7 +53,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         const auto holder = mBaseTex->createTargetHolder(r);
 
         const auto& terrTypes = mMap->terrainTypes();
-        const auto min = pixelToTilePos({0.f, 0.f});
+        const auto min = pixelToTilePos({0., 0.});
         const int iMax = terrTypes.size() - 1;
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
