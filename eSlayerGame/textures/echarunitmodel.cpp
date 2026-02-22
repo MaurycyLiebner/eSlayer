@@ -37,11 +37,11 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
 
     const auto r = p.renderer();
     const auto shadow = std::make_shared<eTexture>();
-    shadow->create(r, texRect.w, texRect.h);
-    ePainter sp(r);
-    sp.translate(-texRect.x, -texRect.y);
 
     {
+        shadow->create(r, texRect.w, texRect.h);
+        ePainter sp(r);
+        sp.translate(-texRect.x, -texRect.y);
         const auto holder = shadow->createTargetHolder(r);
         for(int g = 0; g < gMax; g++) {
             const int ppMax = mModel.nParts(g);
@@ -52,6 +52,9 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
         }
     }
 
+    p.save();
+    const auto& offset = mModel.animOffset(mAnim);
+    p.translate(offset.fX, offset.fY);
     {
         float skew = 0.5f;
         float scaleY = 0.5f;
@@ -95,10 +98,11 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
     for(int g = 0; g < gMax; g++) {
         const int ppMax = mModel.nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
+            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
             p.drawTexture(tex->offsetX(), tex->offsetY(), tex);
         }
     }
+    p.restore();
 }
 
 void eCharUnitModel::setAngle(const double a) {

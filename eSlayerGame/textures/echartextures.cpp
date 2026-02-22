@@ -9,16 +9,17 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
     const auto dir = "Textures";
     const auto path = "chars/" + mName + "/";
     eCharModel result;
-    result.mNAnims = mAnimFrames.size();
+    result.mNAnims = mAnims.size();
     result.mNGroups = mGroups.size();
     result.mNDirs = mDirs;
     for(const auto& parts : mGroups) {
         result.mNParts.push_back(parts.size());
     }
-    for(const auto& anim : mAnimFrames) {
+    for(const auto& anim : mAnims) {
         const auto animPath = path + anim.first + "/";
         auto& ranim = result.mAnims.emplace_back();
-        ranim.fFrames = anim.second;
+        ranim.fFrames = anim.second.fFrames;
+        ranim.fOffset = anim.second.fOffset;
         for(const auto& parts : mGroups) {
             auto& rparts = ranim.fGroups.emplace_back();
             for(const auto& part : parts) {
@@ -32,8 +33,9 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
                     eSpriteLoader loader(dir, partPath, r, SDL_Color{168, 168, 168, 255});
                     for(int i = 0; i < mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>(r);
-                        for(int f = 0; f < anim.second; f++) {
-                            loader.load(i*anim.second + f, *coll);
+                        const int nFrames = anim.second.fFrames;
+                        for(int f = 0; f < nFrames; f++) {
+                            loader.load(i*nFrames + f, *coll);
                         }
                         partMap[i] = coll;
                         rpart.emplace_back(coll);
@@ -55,7 +57,10 @@ void eCharTextures::load(json& jdata) {
     const auto anims = jdata["animations"].items();
     for(auto& [name, animData] : anims) {
         const int frames = animData.value("frames", 0);
-        mAnimFrames[name] = frames;
+        const auto offset = animData.value("offset", std::vector<int>{0, 0});
+        auto& anim = mAnims[name];
+        anim.fFrames = frames;
+        anim.fOffset = eOffset{offset[0], offset[1]};
     }
 
     const auto groups = jdata["groups"];

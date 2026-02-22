@@ -10,8 +10,14 @@ using eCharTextureDirs = std::vector<std::shared_ptr<eTextureCollection>>;
 using eCharTextureParts = std::vector<eCharTextureDirs>;
 using eCharTextureGroups = std::vector<eCharTextureParts>;
 
+struct eOffset {
+    int fX;
+    int fY;
+};
+
 struct eCharTextureAnim {
     int fFrames;
+    eOffset fOffset;
     eCharTextureGroups fGroups;
 };
 
@@ -28,9 +34,11 @@ public:
 
     int nAnims() const { return mNAnims; }
     int nGroups() const { return mNGroups; }
-    int nParts(const int group) const { return mNParts[group]; }
+    int nParts(const int group) const;
     int nDirs() const { return mNDirs; }
-    int nFrames(const int anim) const { return mAnims[anim].fFrames; }
+    int nFrames(const int anim) const;
+
+    const eOffset& animOffset(const int anim) const;
 private:
     int mNAnims = 0;
     int mNGroups = 0;

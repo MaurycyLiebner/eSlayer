@@ -24,7 +24,13 @@ public:
 private:
     std::string mName;
     int mDirs;
-    std::map<std::string, int> mAnimFrames;
+
+    struct eAnimation {
+        int fFrames;
+        eOffset fOffset;
+    };
+
+    std::map<std::string, eAnimation> mAnims;
     std::vector<std::map<std::string, std::vector<std::string>>> mGroups;
     std::map<std::string, std::map<int, std::shared_ptr<eTextureCollection>>> mTexMap;
 };
