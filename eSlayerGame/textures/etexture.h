@@ -55,13 +55,6 @@ public:
               SDL_Surface* const surf,
               const SDL_Color& colorKey = {0, 0, 0, 0});
 
-    void renderRelPortion(SDL_Renderer* const r,
-                          const int dstX,
-                          const int dstY,
-                          const int srcX,
-                          const int w,
-                          const bool flipped) const;
-
     void render(SDL_Renderer* const r,
                 const SDL_Rect &srcRect,
                 const SDL_Rect &dstRect,

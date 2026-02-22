@@ -11,9 +11,21 @@ struct ESLAYERMAPGENERATOR_API eTerrainType {
     std::string fName;
 };
 
+struct ESLAYERMAPGENERATOR_API eObjectType {
+    std::string fName;
+};
+
 struct ESLAYERMAPGENERATOR_API eTile {
     int fTerrainType;
     int fTileType;
+};
+
+struct ESLAYERMAPGENERATOR_API eObject {
+    int fObjectType;
+    int fTileType;
+
+    int fTileX;
+    int fTileY;
 };
 
 class ESLAYERMAPGENERATOR_API eMap {
@@ -23,13 +35,24 @@ class ESLAYERMAPGENERATOR_API eMap {
     int height() const { return mHeight; }
 
     const eTile& tile(const int x, const int y) const;
+    const std::vector<int>& objects(const int x, const int y) const;
+    const eObject& object(const int id) const;
 
-    const std::vector<eTerrainType>& terrainTypes() const { return mTerrainTypes; }
+    const std::vector<eTerrainType>&
+    terrainTypes() const { return mTerrainTypes; }
+
+    const std::vector<eObjectType>&
+    objectTypes() const { return mObjectTypes; }
   private:
+    void updateObjectsMap();
+
     int mWidth = 0;
     int mHeight = 0;
     std::vector<std::vector<eTile>> mTiles;
+    std::vector<eObject> mObjects;
+    std::vector<std::vector<std::vector<int>>> mObjectsMap;
     std::vector<eTerrainType> mTerrainTypes;
+    std::vector<eObjectType> mObjectTypes;
 };
 
 namespace eSlayerMapGenerator {

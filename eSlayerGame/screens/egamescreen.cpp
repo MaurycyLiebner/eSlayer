@@ -2,6 +2,7 @@
 
 #include "../textures/echarstextures.h"
 #include "../textures/eterrstextures.h"
+#include "../textures/eobjstextures.h"
 
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../elanguage.h"
@@ -58,9 +59,19 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(dim, dim);
-    for(int x = 0; x < dim; x++) {
-        for(int y = 0; y < dim; y++) {
-            map.set({x, y}, true);
+    for(int sx = 0; sx < dim; sx++) {
+        for(int sy = 0; sy < dim; sy++) {
+            const int x = (sx - margin)/mTileMoveSubdivision;
+            const int y = (sy - margin)/mTileMoveSubdivision;
+            bool walkable = true;
+            if(x < 0 || x >= mMap->width() ||
+               y < 0 || y >= mMap->height()) {
+                walkable = false;
+            } else {
+                const auto& objs = mMap->objects(x, y);
+                walkable = objs.empty();
+            }
+            map.set({sx, sy}, walkable);
         }
     }
     bool found;
@@ -129,6 +140,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         const auto holder = mBaseTex->createTargetHolder(r);
 
         const auto& terrTypes = mMap->terrainTypes();
+        const auto& objTypes = mMap->objectTypes();
         const auto min = pixelToTilePos(mPos.floor(), {0., 0.}).floor();
         const double pdx = mPos.fX - int(mPos.fX);
         const double pdy = mPos.fY - int(mPos.fY);
@@ -139,7 +151,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             const int dxMax = width()/mTileW + 2;
             const int dyMax = 2*height()/mTileH + 3;
             for(int dy = -1; dy < dyMax; dy++) {
-                const int py = (dy - 1)*(mTileH + 1)/2 -
+                const int py = (dy + 1)*(mTileH + 1)/2 -
                                std::round((pdx + pdy)*mTileH/2.);
                 for(int dx = -1; dx < dxMax; dx++) {
                     const int y = min.fY - dx + dy/2;
@@ -149,9 +161,17 @@ void eGameScreen::paintEvent(ePainter& p) {
                     const auto& tile = mMap->tile(x, y);
                     if(tile.fTerrainType != i) continue;
                     const auto& tex = floor->getTexture(tile.fTileType);
-                    const int px = (dy % 2) * mTileW/2 + dx*mTileW - mTileW/2 -
+                    const int px = (dy % 2) * mTileW/2 + dx*mTileW -
                                    std::round((pdx - pdy)*mTileW/2.);
-                    p.drawTexture(px, py, tex);
+                    p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                    const auto iobjs = mMap->objects(x, y);
+                    for(const auto& iobj : iobjs) {
+                        const auto& obj = mMap->object(iobj);
+                        const auto& objType = objTypes[obj.fObjectType];
+                        const auto object = eObjsTextures::get(objType.fName);
+                        const auto& tex = object->getTexture(obj.fTileType);
+                        p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                    }
                 }
             }
         }

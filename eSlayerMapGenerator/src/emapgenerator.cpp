@@ -18,6 +18,32 @@ const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
+const std::vector<int>& eMap::objects(const int x, const int y) const {
+    return mObjectsMap[y][x];
+}
+
+const eObject& eMap::object(const int id) const {
+    return mObjects[id];
+}
+
+void eMap::updateObjectsMap() {
+    mObjectsMap.clear();
+
+    for(int y = 0; y < mHeight; y++) {
+        auto& row = mObjectsMap.emplace_back();
+        row.reserve(mWidth);
+        for(int x = 0; x < mWidth; x++) {
+            row.emplace_back();
+        }
+    }
+
+    const int iMax = mObjects.size();
+    for(int i = 0; i < iMax; i++) {
+        const auto& o = mObjects[i];
+        mObjectsMap[o.fTileY][o.fTileX].emplace_back(i);
+    }
+}
+
 std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
     const auto result = std::make_shared<eMap>();
@@ -38,6 +64,15 @@ eMapGenerator::generate(const std::string& name) const {
         result->mTiles[0][0].fTileType = 3;
         result->mTiles[0][1].fTileType = 2;
         result->mTiles[1][0].fTileType = 1;
+
+        auto& objType = result->mObjectTypes.emplace_back();
+        objType.fName = "town_fence";
+        auto& obj = result->mObjects.emplace_back();
+        obj.fObjectType = 0;
+        obj.fTileType = 29;
+        obj.fTileX = 5;
+        obj.fTileY = 5;
+        result->updateObjectsMap();
     }
     return result;
 }

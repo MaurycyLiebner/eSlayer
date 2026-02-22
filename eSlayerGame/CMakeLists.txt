@@ -129,7 +129,7 @@ add_executable(eSlayerGame main.cpp
     widgets/eprogressbar.h widgets/eprogressbar.cpp
     screens/eloadingscreen.h screens/eloadingscreen.cpp
     textures/eterrstextures.h textures/eterrstextures.cpp
-    textures/eterrtextures.h textures/eterrtextures.cpp
+
     screens/egamescreen.h screens/egamescreen.cpp
     textures/elightingtexture.h textures/elightingtexture.cpp
     textures/eeffectstextures.h textures/eeffectstextures.cpp
@@ -137,6 +137,10 @@ add_executable(eSlayerGame main.cpp
     textures/erendertargetholder.h textures/erendertargetholder.cpp
     textures/etextgenerator.h textures/etextgenerator.cpp
     widgets/gameScreen/eescmenubutton.h widgets/gameScreen/eescmenubutton.cpp
+    textures/eobjstextures.h textures/eobjstextures.cpp
+
+    textures/etiletextures.h textures/etiletextures.cpp
+    textures/etilestextures.h textures/etilestextures.cpp
 )
 
 include(GNUInstallDirs)

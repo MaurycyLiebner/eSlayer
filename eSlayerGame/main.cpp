@@ -7,6 +7,7 @@
 #include "screens/escreenhandler.h"
 #include "textures/echarstextures.h"
 #include "textures/eterrstextures.h"
+#include "textures/eobjstextures.h"
 #include "textures/eeffectstextures.h"
 #include "efileloader.h"
 
@@ -140,6 +141,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eTerrsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eObjsTextures::load();
         });
 
         loadings.emplace_back([&]() {

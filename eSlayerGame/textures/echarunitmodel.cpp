@@ -47,7 +47,7 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
             const int ppMax = mModel.nParts(g);
             for(int pp = 0; pp < ppMax; pp++) {
                 const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
-                sp.drawTexture(tex->offsetX(), tex->offsetY(), tex);
+                sp.drawTexture(0, 0, tex);
             }
         }
     }
@@ -99,7 +99,7 @@ void eCharUnitModel::draw(ePainter& p, const int frame) {
         const int ppMax = mModel.nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
             const auto& tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
-            p.drawTexture(tex->offsetX(), tex->offsetY(), tex);
+            p.drawTexture(0, 0, tex);
         }
     }
     p.restore();

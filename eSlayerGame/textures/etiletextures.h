@@ -1,24 +1,26 @@
-#ifndef ETERRTEXTURES_H
-#define ETERRTEXTURES_H
+#ifndef ETILETEXTURES_H
+#define ETILETEXTURES_H
 
 #include "../textures/etexturecollection.h"
 
 #include <string>
 
-class eTerrTextures {
+class eTileTextures  {
 public:
-    eTerrTextures();
+    eTileTextures();
 
     const std::shared_ptr<eTexture>& getTexture(const int id) const;
     int size() const;
 
     void load(SDL_Renderer * const r);
 
-    void setName(const std::string& name) { mName = name; }
+    void initialize(const std::string& dirName,
+                    const std::string& name);
 private:
     bool mLoaded = false;
+    std::string mDirName;
     std::string mName;
     std::shared_ptr<eTextureCollection> mColl;
 };
 
-#endif // ETERRTEXTURES_H
+#endif // ETILETEXTURES_H

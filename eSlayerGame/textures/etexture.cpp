@@ -1,7 +1,5 @@
 #include "etexture.h"
 
-#include <algorithm>
-
 eTexture::eTexture() {}
 
 eTexture::~eTexture() {
@@ -115,52 +113,7 @@ void eTexture::render(SDL_Renderer* const r,
     const float width = mFlipTex ? mFlipTex->width() : mWidth;
     const float height = mFlipTex ? mFlipTex->height() : mHeight;
     const SDL_FRect srcRect{sx, sy, width, height};
-    const SDL_FRect dstRect{x, y, width, height};
-    render(r, srcRect, dstRect, flipped);
-}
-
-void eTexture::renderRelPortion(SDL_Renderer* const r,
-                                const int dstX,
-                                const int dstY,
-                                const int srcX,
-                                const int w,
-                                const bool flipped) const {
-    const int sx = mFlipTex ? mFlipTex->x() : mX;
-    const int sy = mFlipTex ? mFlipTex->y() : mY;
-    const int width = mFlipTex ? mFlipTex->width() : mWidth;
-    const int height = mFlipTex ? mFlipTex->height() : mHeight;
-    const int ww = std::min(w + srcX, width) - srcX;
-    SDL_Rect srcRect{sx + srcX, sy, ww, height};
-    SDL_Rect dstRect{dstX, dstY, ww, height};
-    if(srcRect.x < sx) {
-        const int dx = sx - srcRect.x;
-        srcRect.x += dx;
-        dstRect.x += dx;
-        srcRect.w -= dx;
-        dstRect.w -= dx;
-    }
-    if(srcRect.y < sy) {
-        const int dy = sy - srcRect.y;
-        srcRect.y += dy;
-        dstRect.y += dy;
-        srcRect.h -= dy;
-        dstRect.h -= dy;
-    }
-    if(srcRect.x + srcRect.w > sx + width) {
-        const int dw = sx + width - srcRect.x - srcRect.w;
-        srcRect.w += dw;
-        dstRect.w += dw;
-    }
-    if(srcRect.y + srcRect.h > sy + height) {
-        const int dh = sy + height - srcRect.y - srcRect.h;
-        srcRect.h += dh;
-        dstRect.h += dh;
-    }
-    if(srcRect.w <= 0 || srcRect.h <= 0 ||
-       dstRect.w <= 0 || dstRect.h <= 0) return;
-    if(mFlipTex) {
-        srcRect.x = mFlipTex->width() - srcRect.x - srcRect.w;
-    }
+    const SDL_FRect dstRect{x + mOffsetX, y + mOffsetY, width, height};
     render(r, srcRect, dstRect, flipped);
 }
 

@@ -9,6 +9,7 @@
 #include "egamescreen.h"
 
 #include "../textures/eterrstextures.h"
+#include "../textures/eobjstextures.h"
 #include "../textures/eeffectstextures.h"
 
 #include <eSlayerServer/eserver.h>
@@ -130,6 +131,13 @@ void eScreenHandler::showGame(const eCharacter& c) {
         const auto& terrTypes = (*map)->terrainTypes();
         for(const auto& terrType : terrTypes) {
             const auto texs = eTerrsTextures::get(terrType.fName);
+            texs->load(r);
+        }
+    });
+    loading.emplace_back([r, map]() {
+        const auto& objTypes = (*map)->objectTypes();
+        for(const auto& objType : objTypes) {
+            const auto texs = eObjsTextures::get(objType.fName);
             texs->load(r);
         }
     });
