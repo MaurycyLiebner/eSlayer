@@ -1,0 +1,24 @@
+#ifndef EPATHFINDERPATH_H
+#define EPATHFINDERPATH_H
+
+#include "epoint.h"
+
+#include <vector>
+
+struct ePathStep {
+    ePointF fSrc;
+    ePointF fDst;
+};
+
+class ePathFinderPath : public std::vector<ePathStep> {
+public:
+    using std::vector<ePathStep>::vector;
+
+    ePointF posAtDist(const double dist,
+                      int& skipNodes) const;
+    ePointF posAtDist(const ePointF& start,
+                      const double dist,
+                      int& skipNodes) const;
+};
+
+#endif // EPATHFINDERPATH_H

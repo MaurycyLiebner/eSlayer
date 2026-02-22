@@ -1,8 +1,9 @@
 #include "egamescreen.h"
 
-#include "../textures/eterrstextures.h"
 #include "../textures/echarstextures.h"
+#include "../textures/eterrstextures.h"
 
+#include <eSlayerHelpers/epathsmoother.h>
 #include <eSlayerHelpers/evec2.h>
 
 void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
@@ -23,15 +24,21 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 ePointF eGameScreen::pixelToTilePos(
-    const ePointF& pixel) {
+    const ePointF& pos,
+    const ePointF& pixel) const {
     ePointF result;
-    result.fY = int(mPos.fY) +
+    result.fY = pos.fY +
                 (pixel.fY - height()/2.f)/mTileH +
                 (width()/2.f - pixel.fX)/mTileW;
-    result.fX = int(mPos.fX) +
+    result.fX = pos.fX +
                 (pixel.fX - width()/2.)/mTileW +
                 (pixel.fY - height()/2.)/mTileH;
     return result;
+}
+
+ePointF eGameScreen::pixelToTilePos(
+    const ePointF& pixel) const {
+    return pixelToTilePos(mPos, pixel);
 }
 
 void eGameScreen::updateTargetPos() {
@@ -40,7 +47,6 @@ void eGameScreen::updateTargetPos() {
 }
 
 void eGameScreen::setTargetPos(const ePointF& pos) {
-    ePathFinder finder;
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
@@ -50,14 +56,13 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
             map.set({x, y}, true);
         }
     }
-    finder.setMap(map);
     bool found;
     const ePoint from{margin, margin};
     const auto iPos = (mPos * subdivision).round();
     const auto ipos = (pos * subdivision).round();
     const ePoint to{margin + (ipos.fX - iPos.fX),
                     margin + (ipos.fY - iPos.fY)};
-    mPath = finder.findPath(from, to, found);
+    mPath = ePathFinder::findPath(map, from, to, found);
     for(auto& step : mPath) {
         step.fSrc.fX -= margin;
         step.fSrc.fY -= margin;
@@ -88,11 +93,11 @@ void eGameScreen::paintEvent(ePainter& p) {
     } else {
         if(mMousePressed) updateTargetPos();
         if(!mPath.empty()) {
-            const auto& to = mPath.front().fDst;
-            vec = eVec2d(to.fX - mPos.fX, to.fY - mPos.fY);
-            if(vec.length() > len) {
-                vec.normalize(len);
-            } else {
+            ePathFinderMap map;
+            int skipNodes;
+            vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
+            if(vec.length() > len) vec.normalize(len);
+            for(int i = 0; i < skipNodes; i++) {
                 mPath.erase(mPath.begin());
             }
             move = true;
@@ -114,26 +119,26 @@ void eGameScreen::paintEvent(ePainter& p) {
         const auto holder = mBaseTex->createTargetHolder(r);
 
         const auto& terrTypes = mMap->terrainTypes();
-        const auto min = pixelToTilePos({0., 0.});
+        const auto min = pixelToTilePos(mPos.floor(), {0., 0.}).floor();
         const double pdx = mPos.fX - int(mPos.fX);
         const double pdy = mPos.fY - int(mPos.fY);
         const int iMax = terrTypes.size() - 1;
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
             const auto floor = eTerrsTextures::get(terrType.fName);
-            const int dxMax = width()/mTileW + 1;
-            const int dyMax = 2*height()/mTileH + 1;
-            for(int dy = 0; dy < dyMax; dy++) {
-                const int py = (dy + 1)*(mTileH + 1)/2 -
+            const int dxMax = width()/mTileW + 2;
+            const int dyMax = 2*height()/mTileH + 3;
+            for(int dy = -1; dy < dyMax; dy++) {
+                const int py = (dy - 1)*(mTileH + 1)/2 -
                                std::round((pdx + pdy)*mTileH/2.);
-                for(int dx = 0; dx < dxMax; dx++) {
+                for(int dx = -1; dx < dxMax; dx++) {
                     const int y = min.fY - dx + dy/2;
                     if(y < 0 || y >= mMap->height()) continue;
                     const int x = min.fX + dx + dy % 2 + dy/2;
                     if(x < 0 || x >= mMap->width()) continue;
                     const auto& tile = mMap->tile(x, y);
                     if(tile.fTerrainType != i) continue;
-                    const auto tex = floor->getTexture(tile.fTileType);
+                    const auto& tex = floor->getTexture(tile.fTileType);
                     const int px = (dy % 2) * mTileW/2 + dx*mTileW - mTileW/2 -
                                    std::round((pdx - pdy)*mTileW/2.);
                     p.drawTexture(px, py, tex);

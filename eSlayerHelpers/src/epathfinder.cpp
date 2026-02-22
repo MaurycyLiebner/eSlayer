@@ -5,10 +5,6 @@
 #include <deque>
 #include <limits>
 
-void ePathFinder::setMap(const ePathFinderMap& map) {
-    mMap = map;
-}
-
 struct ePathFinderBoardTile {
     int fDist = std::numeric_limits<int>::max();
 };
@@ -38,8 +34,10 @@ private:
 };
 
 ePathFinderPath ePathFinder::findPath(
-    const ePoint& from, const ePoint& to,
-    bool& found) const {
+    const ePathFinderMap& map,
+    const ePoint& from,
+    const ePoint& to,
+    bool& found) {
     found = false;
 
     ePathFinderPath result;
@@ -48,14 +46,14 @@ ePathFinderPath ePathFinder::findPath(
         return result;
     }
 
-    const int w = mMap.width();
-    const int h = mMap.height();
+    const int w = map.width();
+    const int h = map.height();
     ePathFinderBoard board(w, h);
 
     const auto canWalk = [&](const ePoint& tile,
                              const int dx,
                              const int dy) {
-        if(!mMap.get(tile)) return false;
+        if(!map.get(tile)) return false;
         if(dx != 0 && dy != 0) {
             std::pair<ePoint, ePoint> surr;
             if(dx == -1 && dy == -1) {
@@ -71,8 +69,8 @@ ePathFinderPath ePathFinder::findPath(
                 surr.first = ePoint{tile.fX, tile.fY + 1};
                 surr.second = ePoint{tile.fX - 1, tile.fY};
             }
-            if(!mMap.get(surr.first)) return false;
-            if(!mMap.get(surr.second)) return false;
+            if(!map.get(surr.first)) return false;
+            if(!map.get(surr.second)) return false;
         }
         return true;
     };
@@ -148,24 +146,4 @@ ePathFinderPath ePathFinder::findPath(
     }
 
     return result;
-}
-
-ePathFinderMap::ePathFinderMap() {}
-
-ePathFinderMap::ePathFinderMap(const int w, const int h) :
-    mWidth(w), mHeight(h) {
-    resize(h);
-    for(int y = 0; y < h; y++) {
-        operator[](y).resize(w);
-    }
-}
-
-void ePathFinderMap::set(const ePoint& p, const bool v) {
-    operator[](p.fY)[p.fX] = v;
-}
-
-bool ePathFinderMap::get(const ePoint& p) const {
-    if(p.fX < 0 || p.fX >= mWidth) return false;
-    if(p.fY < 0 || p.fY >= mHeight) return false;
-    return operator[](p.fY)[p.fX];
 }

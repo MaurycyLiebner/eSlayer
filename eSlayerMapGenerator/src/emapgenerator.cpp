@@ -35,6 +35,9 @@ eMapGenerator::generate(const std::string& name) const {
         }
         result->mWidth = w;
         result->mHeight = h;
+        result->mTiles[0][0].fTileType = 3;
+        result->mTiles[0][1].fTileType = 2;
+        result->mTiles[1][0].fTileType = 1;
     }
     return result;
 }

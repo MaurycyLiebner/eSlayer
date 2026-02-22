@@ -23,7 +23,9 @@ protected:
 private:
     void initializeTextures();
 
-    ePointF pixelToTilePos(const ePointF& pixel);
+    ePointF pixelToTilePos(const ePointF& pos,
+                           const ePointF& pixel) const;
+    ePointF pixelToTilePos(const ePointF& pixel) const;
     void updateTargetPos();
     void setTargetPos(const ePointF& pos);
 

@@ -28,9 +28,16 @@ struct ESLAYERHELPERS_API ePointF {
     double fX;
     double fY;
 
+    static double distance(const ePointF& p1, const ePointF& p2);
+
     ePoint round() const {
         return {int(std::round(fX)),
                 int(std::round(fY))};
+    }
+
+    ePoint floor() const {
+        return {int(std::floor(fX)),
+                int(std::floor(fY))};
     }
 
     ePointF operator*(const double mult) const {
