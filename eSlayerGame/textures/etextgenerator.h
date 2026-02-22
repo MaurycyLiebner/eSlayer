@@ -15,6 +15,7 @@ class eTextGenerator {
     eTextGenerator(SDL_Renderer* const r,
                    const eFontColor color,
                    const eFont& font,
+                   const int shift = 1,
                    const int width = 0);
 
     std::shared_ptr<eTexture>
@@ -23,6 +24,7 @@ class eTextGenerator {
     SDL_Renderer* const mR;
     const eFontColor mColor;
     const eFont mFont;
+    const int mShift;
     const int mWidth;
 };
 

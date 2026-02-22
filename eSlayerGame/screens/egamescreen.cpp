@@ -3,8 +3,15 @@
 #include "../textures/echarstextures.h"
 #include "../textures/eterrstextures.h"
 
+#include "../widgets/gameScreen/eescmenubutton.h"
+#include "../elanguage.h"
+
 #include <eSlayerHelpers/epathsmoother.h>
 #include <eSlayerHelpers/evec2.h>
+
+void eGameScreen::setExitAction(const eAction& a) {
+    mExitAction = a;
+}
 
 void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
     initializeTextures();
@@ -80,38 +87,41 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
-    bool move = false;
-    const bool canMove = true;
-    eVec2d vec;
-    const double len = 0.1;
-    if(mMousePressed && canMove) {
-        const auto pos = pixelToTilePos(mMousePos);
-        vec = eVec2d(pos.fX - mPos.fX,
-                     pos.fY - mPos.fY);
-        vec.normalize(len);
-        move = true;
-    } else {
-        if(mMousePressed) updateTargetPos();
-        if(!mPath.empty()) {
-            ePathFinderMap map;
-            int skipNodes;
-            vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
-            if(vec.length() > len) vec.normalize(len);
-            for(int i = 0; i < skipNodes; i++) {
-                mPath.erase(mPath.begin());
-            }
+    if(!mESCMenu) {
+        bool move = false;
+        const bool canMove = true;
+        eVec2d vec;
+        const double len = 0.1;
+        if(mMousePressed && canMove) {
+            const auto pos = pixelToTilePos(mMousePos);
+            vec = eVec2d(pos.fX - mPos.fX,
+                         pos.fY - mPos.fY);
+            vec.normalize(len);
             move = true;
+        } else {
+            if(mMousePressed) updateTargetPos();
+            if(!mPath.empty()) {
+                ePathFinderMap map;
+                int skipNodes;
+                vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
+                if(vec.length() > len) vec.normalize(len);
+                for(int i = 0; i < skipNodes; i++) {
+                    mPath.erase(mPath.begin());
+                }
+                move = true;
+            }
         }
-    }
-    if(move) {
-        mPos.fX += vec.x;
-        mPos.fY += vec.y;
+        if(move) {
+            mPos.fX += vec.x;
+            mPos.fY += vec.y;
 
-        const auto angle = vec.angle();
-        mModel.setAngle(angle);
-        mModel.setAnimation(1);
-    } else {
-        mModel.setAnimation(0);
+            const auto angle = vec.angle();
+            mModel.setAngle(angle);
+            mModel.setAnimation(1);
+        } else {
+            mModel.setAnimation(0);
+        }
+        mFrame++;
     }
 
     const auto r = renderer();
@@ -148,7 +158,7 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         p.save();
         p.translate(width()/2, height()/2);
-        mModel.draw(p, mFrame++);
+        mModel.draw(p, mFrame);
         p.restore();
     }
 
@@ -206,6 +216,17 @@ bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
     return true;
 }
 
+bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
+    if(e.key() == SDL_SCANCODE_ESCAPE) {
+        if(mESCMenu) {
+            hideESCMenu();
+        } else {
+            showESCMenu();
+        }
+    }
+    return true;
+}
+
 void eGameScreen::initializeTextures() {
     const int w = width();
     const int h = height();
@@ -221,4 +242,41 @@ void eGameScreen::initializeTextures() {
     mDisplayTex->create(r, w, h, {0, 0, 0, 255});
 
     setTexture(mDisplayTex);
+}
+
+void eGameScreen::showESCMenu() {
+    mESCMenu = new eWidget(window());
+
+    const auto optionsB = new eESCMenuButton(
+        eLanguage::text(5, 0), window());
+    mESCMenu->addWidget(optionsB);
+
+    const auto exitB = new eESCMenuButton(
+        eLanguage::text(5, 1), window());
+    mESCMenu->addWidget(exitB);
+    exitB->setPressAction(mExitAction);
+
+    const auto returnB = new eESCMenuButton(
+        eLanguage::text(5, 2), window());
+    mESCMenu->addWidget(returnB);
+    returnB->setPressAction([this]() {
+        hideESCMenu();
+    });
+
+    const auto res = resolution();
+    const int p = res.hugePadding();
+    mESCMenu->stackVertically(p);
+    mESCMenu->fitContent();
+
+    optionsB->align(eAlignment::hcenter);
+    exitB->align(eAlignment::hcenter);
+    returnB->align(eAlignment::hcenter);
+
+    addWidget(mESCMenu);
+    mESCMenu->align(eAlignment::center);
+}
+
+void eGameScreen::hideESCMenu() {
+    mESCMenu->deleteLater();
+    mESCMenu = nullptr;
 }

@@ -14,14 +14,18 @@ class eGameScreen : public eScreenBase {
 public:
     using eScreenBase::eScreenBase;
 
+    void setExitAction(const eAction& a);
     void initialize(const std::shared_ptr<eMap>& map);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
     bool mouseReleaseEvent(const eMouseEvent& e) override;
     bool mouseMoveEvent(const eMouseEvent& e) override;
+    bool keyPressEvent(const eKeyPressEvent& e) override;
 private:
     void initializeTextures();
+    void showESCMenu();
+    void hideESCMenu();
 
     ePointF pixelToTilePos(const ePointF& pos,
                            const ePointF& pixel) const;
@@ -46,6 +50,9 @@ private:
     int mTileMoveSubdivision = 2;
     int mPathFindMargin = 40;
     ePathFinderPath mPath;
+
+    eAction mExitAction;
+    eWidget* mESCMenu = nullptr;
 };
 
 #endif // EGAMESCREEN_H

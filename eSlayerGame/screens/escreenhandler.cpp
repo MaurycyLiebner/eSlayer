@@ -107,6 +107,9 @@ void eScreenHandler::showGame(const eCharacter& c) {
         const int width = mWindow->width();
         const int height = mWindow->height();
         w->resize(width, height);
+        w->setExitAction([this]() {
+            showMainMenu();
+        });
         w->initialize(*map);
         mWindow->setWidget(w);
     };

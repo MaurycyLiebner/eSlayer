@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<strings name="Zeus textfile." indexWithCounts="true">
+<strings name="eSlayer textfile" indexWithCounts="true">
     <group id="1">
         <string id="0">Single player</string>
         <string id="1">Settings</string>
@@ -22,5 +22,10 @@
         <string id="1">Exit</string>
         <string id="2">Windowed</string>
         <string id="3">Fullscreen</string>
+    </group>
+    <group id="5">
+        <string id="0">Options</string>
+        <string id="1">Save and exit game</string>
+        <string id="2">Return to game</string>
     </group>
 </strings>

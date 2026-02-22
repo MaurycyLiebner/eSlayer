@@ -8,17 +8,17 @@
 eTextGenerator::eTextGenerator(SDL_Renderer* const r,
                                const eFontColor color,
                                const eFont& font,
+                               const int shift,
                                const int width) :
-    mR(r), mColor(color),
-    mFont(font), mWidth(width) {}
+    mR(r), mColor(color), mFont(font),
+    mShift(shift), mWidth(width) {}
 
 std::shared_ptr<eTexture>
 gGenerateTextTexture(SDL_Renderer* const r,
                      const std::string& text,
                      const SDL_Color& color,
                      TTF_Font& font,
-                     const int width,
-                     int& w, int& h) {
+                     const int width) {
     const auto surf = TTF_RenderText_Blended_Wrapped(
         &font, text.c_str(), text.size(), color, width);
     if(!surf) {
@@ -40,18 +40,19 @@ eTextGenerator::generate(const std::string& text) const {
     SDL_Color col2;
     eFontColorHelpers::colors(mColor, col1, col2);
 
-    int w;
-    int h;
     const auto tex1 = gGenerateTextTexture(mR, text, col1,
-                                           *ttf, mWidth, w, h);
+                                           *ttf, mWidth);
     if(!tex1) return nullptr;
     if(col2.a == 0) return tex1;
     const auto tex2 = gGenerateTextTexture(mR, text, col2,
-                                           *ttf, mWidth, w, h);
+                                           *ttf, mWidth);
     if(!tex2) return nullptr;
 
-    const int dx = 1;
-    const int dy = 1;
+    const int w = tex1->width();
+    const int h = tex1->height();
+
+    const int dx = mShift;
+    const int dy = mShift;
 
     const auto tex = std::make_shared<eTexture>();
     const bool r = tex->create(mR, w + dx, h + dy);

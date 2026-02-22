@@ -83,7 +83,9 @@ bool eLabelBase::updateTextTexture() {
         return true;
     }
     const auto r = mWindow->renderer();
-    const eTextGenerator textGenerator(r, mFontColor, mFont, mWidth);
+    const int lineWidth = eLabelBase::lineWidth();
+    const eTextGenerator textGenerator(r, mFontColor, mFont,
+                                       lineWidth, mWidth);
     mTexture = textGenerator.generate(mText);
     if(!mTexture) {
         mTexture.reset();
