@@ -140,7 +140,7 @@ ePathFinderPath ePathFinder::findPath(
                 }
             }
         }
-        assert(tile != minTile);
+        if(tile == minTile) return result;
         result.insert(result.begin(), {minTile, tile});
         tile = minTile;
     }

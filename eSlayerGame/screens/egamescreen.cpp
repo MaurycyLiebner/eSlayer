@@ -59,10 +59,11 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(dim, dim);
+    const auto iPos = (mPos * subdivision).round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
-            const int x = (sx - margin)/mTileMoveSubdivision;
-            const int y = (sy - margin)/mTileMoveSubdivision;
+            const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
+            const int y = (iPos.fY + sy - margin)/mTileMoveSubdivision;
             bool walkable = true;
             if(x < 0 || x >= mMap->width() ||
                y < 0 || y >= mMap->height()) {
@@ -76,7 +77,6 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
     }
     bool found;
     const ePoint from{margin, margin};
-    const auto iPos = (mPos * subdivision).round();
     const auto ipos = (pos * subdivision).round();
     const ePoint to{margin + (ipos.fX - iPos.fX),
                     margin + (ipos.fY - iPos.fY)};
@@ -100,16 +100,22 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
 void eGameScreen::paintEvent(ePainter& p) {
     if(!mESCMenu) {
         bool move = false;
-        const bool canMove = true;
         eVec2d vec;
         const double len = 0.1;
-        if(mMousePressed && canMove) {
+        if(mMousePressed) {
             const auto pos = pixelToTilePos(mMousePos);
             vec = eVec2d(pos.fX - mPos.fX,
                          pos.fY - mPos.fY);
             vec.normalize(len);
-            move = true;
-        } else {
+            const int x = std::floor(mPos.fX + vec.x);
+            const int y = std::floor(mPos.fY + vec.y);
+            if(x >= 0 && x < mMap->width() &&
+               y >= 0 && y < mMap->height()) {
+                const auto& objs = mMap->objects(x, y);
+                move = objs.empty();
+            }
+        }
+        if(!move) {
             if(mMousePressed) updateTargetPos();
             if(!mPath.empty()) {
                 ePathFinderMap map;
