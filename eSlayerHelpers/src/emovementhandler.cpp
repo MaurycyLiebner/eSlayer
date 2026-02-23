@@ -1,8 +1,10 @@
 #include "eSlayerHelpers/emovementhandler.h"
 
 #include "eSlayerHelpers/epathfinder.h"
-#include "eSlayerHelpers/evec2.h"
 #include "eSlayerHelpers/epathsmoother.h"
+#include "eSlayerHelpers/evec2.h"
+
+#include <cstdio>
 
 void eMovementHandler::setWalkable(const eWalkable& w) {
     mWalkable = w;
@@ -48,9 +50,24 @@ bool eMovementHandler::moveInDirection(const ePointF& pos) {
     eVec2d vec(pos.fX - mPos.fX,
                pos.fY - mPos.fY);
     vec.normalize(mSpeed);
-    const int x = std::floor(mPos.fX + vec.x);
-    const int y = std::floor(mPos.fY + vec.y);
-    const bool move = mWalkable(x, y);
+    bool move = false;
+    for(int i = 0; i < 90; i += 5) {
+        for(int j : {-1, 1}) {
+            if(i == 0 && j == 1) continue;
+            auto v = vec;
+            if(i != 0) v.rotate(i*j*5);
+            const int x = std::floor(mPos.fX + v.x);
+            const int y = std::floor(mPos.fY + v.y);
+            move = mWalkable(x, y);
+            if(move) {
+                vec = v;
+                break;
+            }
+        }
+        if(move) {
+            break;
+        }
+    }
     if(!move) return false;
     moveBy(vec);
     return true;
