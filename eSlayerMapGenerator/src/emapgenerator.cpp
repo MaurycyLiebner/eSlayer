@@ -67,11 +67,42 @@ eMapGenerator::generate(const std::string& name) const {
 
         auto& objType = result->mObjectTypes.emplace_back();
         objType.fName = "town_fence";
+
         auto& obj = result->mObjects.emplace_back();
         obj.fObjectType = 0;
         obj.fTileType = 29;
         obj.fTileX = 5;
         obj.fTileY = 5;
+
+        {
+            auto& obj = result->mObjects.emplace_back();
+            obj.fObjectType = 0;
+            obj.fTileType = 29;
+            obj.fTileX = 8;
+            obj.fTileY = 8;
+        }
+        {
+            auto& obj = result->mObjects.emplace_back();
+            obj.fObjectType = 0;
+            obj.fTileType = 29;
+            obj.fTileX = 9;
+            obj.fTileY = 9;
+        }
+        {
+            auto& obj = result->mObjects.emplace_back();
+            obj.fObjectType = 0;
+            obj.fTileType = 29;
+            obj.fTileX = 9;
+            obj.fTileY = 8;
+        }
+        {
+            auto& obj = result->mObjects.emplace_back();
+            obj.fObjectType = 0;
+            obj.fTileType = 29;
+            obj.fTileX = 8;
+            obj.fTileY = 9;
+        }
+
         result->updateObjectsMap();
     }
     return result;
