@@ -24,6 +24,7 @@ public:
 private:
     std::string mName;
     int mDirs;
+    SDL_Color mColorKey;
 
     struct eAnimation {
         int fFrames;

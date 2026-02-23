@@ -93,7 +93,7 @@ bool eMovementHandler::increment() {
     int skipNodes;
     const auto vec = ePathSmoother::moveDir(
         mPath, map, mPos, 1., mSpeed, skipNodes);
-    for(int i = 0; i < skipNodes; i++) {
+    for(int i = 0; i < skipNodes && !mPath.empty(); i++) {
         mPath.erase(mPath.begin());
     }
     moveBy(vec);

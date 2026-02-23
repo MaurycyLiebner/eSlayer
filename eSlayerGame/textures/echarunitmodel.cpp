@@ -12,7 +12,7 @@ void eCharUnitModel::setCharModel(const eCharModel& model) {
     mModel = model;
 }
 
-void eCharUnitModel::draw(ePainter& p, const int frame) {
+void eCharUnitModel::draw(ePainter& p, const int frame) const {
     const int fMax = mModel.nFrames(mAnim);
     const int gMax = mModel.nGroups();
 

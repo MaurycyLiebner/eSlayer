@@ -40,6 +40,21 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
             return objs.empty();
         }
     });
+
+    {
+        const eCharTextures::eModelParts modelParts {
+            {"mummy", "whole"}
+        };
+        const auto texs = eCharsTextures::get("mummy");
+        const auto unitModel = texs->generateModel(modelParts, r);
+        auto& unit = mUnits.emplace_back();
+        eCharUnitModel model;
+        model.setCharModel(unitModel);
+        model.setAnimation(0);
+        model.setDirection(0);
+        unit.setModel(model);
+        unit.setPos(ePointF{12., 12.});
+    }
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -51,8 +66,8 @@ ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
     ePointF result;
     result.fY = pos.fY +
-                (pixel.fY - height()/2.f)/mTileH +
-                (width()/2.f - pixel.fX)/mTileW;
+                (pixel.fY - height()/2.)/mTileH +
+                (width()/2. - pixel.fX)/mTileW;
     result.fX = pos.fX +
                 (pixel.fX - width()/2.)/mTileW +
                 (pixel.fY - height()/2.)/mTileH;
@@ -63,6 +78,14 @@ ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
     const auto& pos = mMovementHandler.pos();
     return pixelToTilePos(pos, pixel);
+}
+
+ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
+    const auto& charPos = mMovementHandler.pos();
+    ePointF result;
+    result.fY = height()/2. + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.;
+    result.fX = width()/2. + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.;
+    return result;
 }
 
 void eGameScreen::updateTargetPos() {
@@ -118,7 +141,20 @@ void eGameScreen::paintEvent(ePainter& p) {
             });
         }
 
-        const auto iPos = characterPos().floor();
+        const auto pos = characterPos();
+        std::vector<eUnit> units = mUnits;
+        auto& mainChar = units.emplace_back();
+        mainChar.setPos(pos);
+        mainChar.setModel(mModel);
+
+        std::sort(units.begin(), units.end(), [](const eUnit& u1, const eUnit& u2) {
+            const auto& p1 = u1.pos();
+            const auto& p2 = u2.pos();
+            if(p1.fY < p2.fY) return true;
+            return p1.fX < p2.fX;
+        });
+
+        int unitId = 0;
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
             const auto& iobjs = mMap->objects(x, y);
@@ -129,10 +165,17 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tex = object->getTexture(obj.fTileType);
                 p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
             }
-            if(x == iPos.fX && y == iPos.fY) {
+            for(; unitId < units.size(); unitId++) {
+                const auto& u = units[unitId];
+                const auto& pos = u.pos();
+                const auto iPos = pos.floor();
+                if(iPos.fY < y) break;
+                if(iPos.fX < x) break;
                 p.save();
-                p.translate(width()/2, height()/2);
-                mModel.draw(p, mFrame);
+                const auto displ = tilePosToPixel(pos);
+                const auto idispl = displ.round();
+                p.translate(idispl.fX, idispl.fY);
+                u.model().draw(p, mFrame);
                 p.restore();
             }
         });

@@ -11,6 +11,8 @@
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/emovementhandler.h>
 
+#include "../units/eunit.h"
+
 class eGameScreen : public eScreenBase {
 public:
     using eScreenBase::eScreenBase;
@@ -29,6 +31,7 @@ public:
     ePointF pixelToTilePos(const ePointF& pos,
                            const ePointF& pixel) const;
     ePointF pixelToTilePos(const ePointF& pixel) const;
+    ePointF tilePosToPixel(const ePointF& pos) const;
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -48,6 +51,7 @@ private:
     std::shared_ptr<eTexture> mDisplayTex;
 
     eCharUnitModel mModel;
+    std::vector<eUnit> mUnits;
     std::shared_ptr<eMap> mMap;
     int mFrame = 0;
 

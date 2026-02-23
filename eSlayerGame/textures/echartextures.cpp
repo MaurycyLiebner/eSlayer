@@ -30,7 +30,7 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
                 const auto it = mTexMap.find(partPath);
                 if(it == mTexMap.end()) {
                     auto& partMap = mTexMap[partPath];
-                    eSpriteLoader loader(dir, partPath, r, SDL_Color{168, 168, 168, 255});
+                    eSpriteLoader loader(dir, partPath, r, mColorKey);
                     for(int i = 0; i < mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>(r);
                         const int nFrames = anim.second.fFrames;
@@ -54,6 +54,8 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
 
 void eCharTextures::load(json& jdata) {
     mDirs = jdata["directions"];
+    const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0});
+    mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
     const auto anims = jdata["animations"].items();
     for(auto& [name, animData] : anims) {
         const int frames = animData.value("frames", 0);
