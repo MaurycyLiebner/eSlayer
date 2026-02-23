@@ -21,6 +21,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/epathfindermap.h
     src/epathfindermap.cpp
     src/epathfinderpath.cpp
+    include/eSlayerHelpers/emovementhandler.h
+    src/emovementhandler.cpp
 )
 
 target_include_directories(eSlayerHelpers

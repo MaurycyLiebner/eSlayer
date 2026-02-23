@@ -29,6 +29,16 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
     mModel.setCharModel(model);
     mModel.setAnimation(0);
     mModel.setDirection(0);
+
+    mMovementHandler.setWalkable([this](const int x, const int y) {
+        if(x < 0 || x >= mMap->width() ||
+           y < 0 || y >= mMap->height()) {
+            return false;
+        } else {
+            const auto& objs = mMap->objects(x, y);
+            return objs.empty();
+        }
+    });
 }
 
 ePointF eGameScreen::pixelToTilePos(
@@ -46,7 +56,8 @@ ePointF eGameScreen::pixelToTilePos(
 
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
-    return pixelToTilePos(mPos, pixel);
+    const auto& pos = mMovementHandler.pos();
+    return pixelToTilePos(pos, pixel);
 }
 
 void eGameScreen::updateTargetPos() {
@@ -55,85 +66,23 @@ void eGameScreen::updateTargetPos() {
 }
 
 void eGameScreen::setTargetPos(const ePointF& pos) {
-    const int margin = mPathFindMargin;
-    const double subdivision = mTileMoveSubdivision;
-    const int dim = 2*margin + 1;
-    ePathFinderMap map(dim, dim);
-    const auto iPos = (mPos * subdivision).round();
-    for(int sx = 0; sx < dim; sx++) {
-        for(int sy = 0; sy < dim; sy++) {
-            const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
-            const int y = (iPos.fY + sy - margin)/mTileMoveSubdivision;
-            bool walkable = true;
-            if(x < 0 || x >= mMap->width() ||
-               y < 0 || y >= mMap->height()) {
-                walkable = false;
-            } else {
-                const auto& objs = mMap->objects(x, y);
-                walkable = objs.empty();
-            }
-            map.set({sx, sy}, walkable);
-        }
-    }
-    bool found;
-    const ePoint from{margin, margin};
-    const auto ipos = (pos * subdivision).round();
-    const ePoint to{margin + (ipos.fX - iPos.fX),
-                    margin + (ipos.fY - iPos.fY)};
-    mPath = ePathFinder::findPath(map, from, to, found);
-    for(auto& step : mPath) {
-        step.fSrc.fX -= margin;
-        step.fSrc.fY -= margin;
-        step.fDst.fX -= margin;
-        step.fDst.fY -= margin;
-        step.fSrc.fX /= subdivision;
-        step.fSrc.fY /= subdivision;
-        step.fDst.fX /= subdivision;
-        step.fDst.fY /= subdivision;
-        step.fSrc.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fSrc.fY += std::round(mPos.fY*subdivision)/subdivision;
-        step.fDst.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fDst.fY += std::round(mPos.fY*subdivision)/subdivision;
-    }
+    mMovementHandler.moveTo(pos);
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
     if(!mESCMenu) {
         bool move = false;
         eVec2d vec;
-        const double len = 0.1;
+        const auto pos = pixelToTilePos(mMousePos);
         if(mMousePressed) {
-            const auto pos = pixelToTilePos(mMousePos);
-            vec = eVec2d(pos.fX - mPos.fX,
-                         pos.fY - mPos.fY);
-            vec.normalize(len);
-            const int x = std::floor(mPos.fX + vec.x);
-            const int y = std::floor(mPos.fY + vec.y);
-            if(x >= 0 && x < mMap->width() &&
-               y >= 0 && y < mMap->height()) {
-                const auto& objs = mMap->objects(x, y);
-                move = objs.empty();
-            }
+            move = mMovementHandler.moveInDirection(pos);
         }
         if(!move) {
-            if(mMousePressed) updateTargetPos();
-            if(!mPath.empty()) {
-                ePathFinderMap map;
-                int skipNodes;
-                vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
-                if(vec.length() > len) vec.normalize(len);
-                for(int i = 0; i < skipNodes; i++) {
-                    mPath.erase(mPath.begin());
-                }
-                move = true;
-            }
+            if(mMousePressed) setTargetPos(pos);
+            move = mMovementHandler.increment();
         }
         if(move) {
-            mPos.fX += vec.x;
-            mPos.fY += vec.y;
-
-            const auto angle = vec.angle();
-            mModel.setAngle(angle);
+            mModel.setAngle(mMovementHandler.angle());
             mModel.setAnimation(1);
         } else {
             mModel.setAnimation(0);
@@ -147,9 +96,10 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
-        const auto min = pixelToTilePos(mPos.floor(), {0., 0.}).floor();
-        const double pdx = mPos.fX - int(mPos.fX);
-        const double pdy = mPos.fY - int(mPos.fY);
+        const auto& pos = mMovementHandler.pos();
+        const auto min = pixelToTilePos(pos.floor(), {0., 0.}).floor();
+        const double pdx = pos.fX - int(pos.fX);
+        const double pdy = pos.fY - int(pos.fY);
         const int iMax = terrTypes.size() - 1;
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
@@ -215,7 +165,6 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
     if(leftPressed) {
         mMousePressed = true;
         mMousePos = ePointF{double(e.x()), double(e.y())};
-        updateTargetPos();
     }
     return true;
 }
@@ -233,12 +182,6 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
     mMousePos = ePointF{double(e.x()), double(e.y())};
-    const auto buttons = e.buttons();
-    const bool leftPressed = static_cast<bool>(
-        buttons & eMouseButton::left);
-    if(leftPressed) {
-        updateTargetPos();
-    }
     return true;
 }
 
@@ -303,6 +246,7 @@ void eGameScreen::showESCMenu() {
 }
 
 void eGameScreen::hideESCMenu() {
+    if(!mESCMenu) return;
     mESCMenu->deleteLater();
     mESCMenu = nullptr;
 }

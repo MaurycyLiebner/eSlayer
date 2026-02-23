@@ -9,6 +9,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/emovementhandler.h>
 
 class eGameScreen : public eScreenBase {
 public:
@@ -44,12 +45,10 @@ private:
     const int mTileW = 160;
     const int mTileH = 79;
 
-    ePointF mPos{0., 0.};
     bool mMousePressed = false;
     ePointF mMousePos{0., 0.};
-    int mTileMoveSubdivision = 2;
-    int mPathFindMargin = 40;
-    ePathFinderPath mPath;
+
+    eMovementHandler mMovementHandler;
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;

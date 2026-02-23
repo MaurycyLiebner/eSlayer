@@ -10,7 +10,7 @@ struct ePathStep {
     ePointF fDst;
 };
 
-class ePathFinderPath : public std::vector<ePathStep> {
+class ESLAYERHELPERS_API ePathFinderPath : public std::vector<ePathStep> {
 public:
     using std::vector<ePathStep>::vector;
 
