@@ -17,6 +17,18 @@ public:
 
     void setExitAction(const eAction& a);
     void initialize(const std::shared_ptr<eMap>& map);
+
+    int tileWidth() const { return mTileW; }
+    int tileHeight() const { return mTileH; }
+
+    int mapWidth() const { return mMap->width(); }
+    int mapHeight() const { return mMap->height(); }
+
+    const ePointF& characterPos() const;
+
+    ePointF pixelToTilePos(const ePointF& pos,
+                           const ePointF& pixel) const;
+    ePointF pixelToTilePos(const ePointF& pixel) const;
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -28,9 +40,6 @@ private:
     void showESCMenu();
     void hideESCMenu();
 
-    ePointF pixelToTilePos(const ePointF& pos,
-                           const ePointF& pixel) const;
-    ePointF pixelToTilePos(const ePointF& pixel) const;
     void updateTargetPos();
     void setTargetPos(const ePointF& pos);
 

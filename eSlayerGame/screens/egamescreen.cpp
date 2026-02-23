@@ -3,6 +3,7 @@
 #include "../textures/echarstextures.h"
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
+#include "../textures/etilesiterator.h"
 
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../elanguage.h"
@@ -39,6 +40,10 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
             return objs.empty();
         }
     });
+}
+
+const ePointF& eGameScreen::characterPos() const {
+    return mMovementHandler.pos();
 }
 
 ePointF eGameScreen::pixelToTilePos(
@@ -96,40 +101,28 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
-        const auto& pos = mMovementHandler.pos();
-        const auto min = pixelToTilePos(pos.floor(), {0., 0.}).floor();
-        const double pdx = pos.fX - int(pos.fX);
-        const double pdy = pos.fY - int(pos.fY);
         const int iMax = terrTypes.size() - 1;
+
+        eTilesIterator iterator;
+        iterator.initialize(this);
         for(int i = 0; i <= iMax; i++) {
             const auto& terrType = terrTypes[i];
             const auto floor = eTerrsTextures::get(terrType.fName);
-            const int dxMax = width()/mTileW + 2;
-            const int dyMax = 2*height()/mTileH + 3;
-            for(int dy = -1; dy < dyMax; dy++) {
-                const int py = (dy + 1)*(mTileH + 1)/2 -
-                               std::round((pdx + pdy)*mTileH/2.);
-                for(int dx = -1; dx < dxMax; dx++) {
-                    const int y = min.fY - dx + dy/2;
-                    if(y < 0 || y >= mMap->height()) continue;
-                    const int x = min.fX + dx + dy % 2 + dy/2;
-                    if(x < 0 || x >= mMap->width()) continue;
-                    const auto& tile = mMap->tile(x, y);
-                    if(tile.fTerrainType != i) continue;
-                    const auto& tex = floor->getTexture(tile.fTileType);
-                    const int px = (dy % 2) * mTileW/2 + dx*mTileW -
-                                   std::round((pdx - pdy)*mTileW/2.);
+            iterator.iterate([&](const int x, const int y,
+                                 const int px, const int py) {
+                const auto& tile = mMap->tile(x, y);
+                if(tile.fTerrainType != i) return;
+                const auto& tex = floor->getTexture(tile.fTileType);
+                p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                const auto iobjs = mMap->objects(x, y);
+                for(const auto& iobj : iobjs) {
+                    const auto& obj = mMap->object(iobj);
+                    const auto& objType = objTypes[obj.fObjectType];
+                    const auto object = eObjsTextures::get(objType.fName);
+                    const auto& tex = object->getTexture(obj.fTileType);
                     p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
-                    const auto iobjs = mMap->objects(x, y);
-                    for(const auto& iobj : iobjs) {
-                        const auto& obj = mMap->object(iobj);
-                        const auto& objType = objTypes[obj.fObjectType];
-                        const auto object = eObjsTextures::get(objType.fName);
-                        const auto& tex = object->getTexture(obj.fTileType);
-                        p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
-                    }
                 }
-            }
+            });
         }
 
         p.save();
