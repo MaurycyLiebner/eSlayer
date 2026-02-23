@@ -12,7 +12,7 @@ bool eMovementHandler::moveTo(const ePointF& pos) {
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
-    ePathFinderMap map(dim, dim);
+    ePathFinderMap map(0, 0, dim, dim);
     const auto iPos = (mPos * subdivision).round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
@@ -64,7 +64,15 @@ void eMovementHandler::moveBy(const eVec2d& vec) {
 
 bool eMovementHandler::increment() {
     if(mPath.empty()) return false;
-    ePathFinderMap map;
+    const auto iPos = mPos.floor();
+    const int margin = 2;
+    const int dim = 2*margin + 1;
+    ePathFinderMap map(iPos.fX - margin, iPos.fY - margin, dim, dim);
+    for(int x = iPos.fX - margin; x <= iPos.fX + margin; x++) {
+        for(int y = iPos.fY - margin; y <= iPos.fY + margin; y++) {
+            map.set({x, y}, mWalkable(x, y));
+        }
+    }
     int skipNodes;
     auto vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
     if(vec.length() > mSpeed) vec.normalize(mSpeed);

@@ -10,7 +10,8 @@
 class ESLAYERHELPERS_API ePathFinderMap : public std::vector<std::vector<bool>> {
 public:
     ePathFinderMap();
-    ePathFinderMap(const int w, const int h);
+    ePathFinderMap(const int x, const int y,
+                   const int w, const int h);
 
     void set(const ePoint& p, const bool v);
     bool get(const ePoint& p) const;
@@ -18,6 +19,8 @@ public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
 private:
+    int mX = 0;
+    int mY = 0;
     int mWidth = 0;
     int mHeight = 0;
 };

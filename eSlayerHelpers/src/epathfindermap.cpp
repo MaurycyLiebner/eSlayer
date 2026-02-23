@@ -2,8 +2,9 @@
 
 ePathFinderMap::ePathFinderMap() {}
 
-ePathFinderMap::ePathFinderMap(const int w, const int h) :
-    mWidth(w), mHeight(h) {
+ePathFinderMap::ePathFinderMap(const int x, const int y,
+                               const int w, const int h) :
+    mX(x), mY(y), mWidth(w), mHeight(h) {
     resize(h);
     for(int y = 0; y < h; y++) {
         operator[](y).resize(w);
@@ -11,11 +12,13 @@ ePathFinderMap::ePathFinderMap(const int w, const int h) :
 }
 
 void ePathFinderMap::set(const ePoint& p, const bool v) {
-    operator[](p.fY)[p.fX] = v;
+    operator[](p.fY - mY)[p.fX - mX] = v;
 }
 
 bool ePathFinderMap::get(const ePoint& p) const {
-    if(p.fX < 0 || p.fX >= mWidth) return false;
-    if(p.fY < 0 || p.fY >= mHeight) return false;
-    return operator[](p.fY)[p.fX];
+    const int x = p.fX - mX;
+    const int y = p.fY - mY;
+    if(x < 0 || x >= mWidth) return false;
+    if(y < 0 || y >= mHeight) return false;
+    return operator[](y)[x];
 }
