@@ -74,8 +74,8 @@ bool eMovementHandler::increment() {
         }
     }
     int skipNodes;
-    auto vec = ePathSmoother::moveDir(mPath, map, mPos, 1., skipNodes);
-    if(vec.length() > mSpeed) vec.normalize(mSpeed);
+    const auto vec = ePathSmoother::moveDir(
+        mPath, map, mPos, 1., mSpeed, skipNodes);
     for(int i = 0; i < skipNodes; i++) {
         mPath.erase(mPath.begin());
     }

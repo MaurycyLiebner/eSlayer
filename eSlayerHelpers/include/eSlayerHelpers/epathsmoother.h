@@ -11,6 +11,7 @@ namespace ePathSmoother {
                    const ePathFinderMap& map,
                    const ePointF& from,
                    const double maxDist,
+                   const double speed,
                    int& skipNodes);
 };
 

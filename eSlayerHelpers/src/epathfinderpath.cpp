@@ -3,35 +3,29 @@
 #include "../include/eSlayerHelpers/evec2.h"
 
 ePointF ePathFinderPath::posAtDist(
-    const double dist, int& skipNodes) const {
-    const auto& first = operator[](0);
-    const auto& pos = first.fSrc;
-    return posAtDist(pos, dist, skipNodes);
-}
-
-ePointF ePathFinderPath::posAtDist(
     const ePointF& start,
     const double dist,
     int& skipNodes) const {
     skipNodes = 0;
     if(empty()) return start;
-    double rem = dist;
-    int nodeId = -1;
-    const auto& first = operator[](++nodeId);
+    double remDist = dist;
+    int nodeId = 0;
+    const auto& first = operator[](nodeId++);
     auto pos = start;
     auto dst = first.fDst;
-    while(rem > 0) {
-        skipNodes = nodeId;
+    skipNodes = -1;
+    while(remDist > 0) {
+        skipNodes++;
         eVec2d vec(dst.fX - pos.fX, dst.fY - pos.fY);
-        const double newRem = rem - vec.length();
-        if(vec.length() > rem) vec.normalize(rem);
+        const double newRem = remDist - vec.length();
+        if(vec.length() > remDist) vec.normalize(remDist);
         else skipNodes++;
         pos.fX += vec.x;
         pos.fY += vec.y;
-        if(nodeId + 1 >= size()) break;
-        const auto& next = operator[](++nodeId);
+        if(nodeId >= size()) break;
+        const auto& next = operator[](nodeId++);
         dst = next.fDst;
-        rem = newRem;
+        remDist = newRem;
     }
     return pos;
 }

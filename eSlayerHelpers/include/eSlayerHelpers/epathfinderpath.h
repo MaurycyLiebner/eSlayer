@@ -14,8 +14,6 @@ class ESLAYERHELPERS_API ePathFinderPath : public std::vector<ePathStep> {
 public:
     using std::vector<ePathStep>::vector;
 
-    ePointF posAtDist(const double dist,
-                      int& skipNodes) const;
     ePointF posAtDist(const ePointF& start,
                       const double dist,
                       int& skipNodes) const;
