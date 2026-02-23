@@ -115,20 +115,27 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tex = floor->getTexture(tile.fTileType);
                 p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
                 const auto iobjs = mMap->objects(x, y);
-                for(const auto& iobj : iobjs) {
-                    const auto& obj = mMap->object(iobj);
-                    const auto& objType = objTypes[obj.fObjectType];
-                    const auto object = eObjsTextures::get(objType.fName);
-                    const auto& tex = object->getTexture(obj.fTileType);
-                    p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
-                }
             });
         }
 
-        p.save();
-        p.translate(width()/2, height()/2);
-        mModel.draw(p, mFrame);
-        p.restore();
+        const auto iPos = characterPos().floor();
+        iterator.iterate([&](const int x, const int y,
+                             const int px, const int py) {
+            const auto& iobjs = mMap->objects(x, y);
+            for(const auto& iobj : iobjs) {
+                const auto& obj = mMap->object(iobj);
+                const auto& objType = objTypes[obj.fObjectType];
+                const auto object = eObjsTextures::get(objType.fName);
+                const auto& tex = object->getTexture(obj.fTileType);
+                p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+            }
+            if(x == iPos.fX && y == iPos.fY) {
+                p.save();
+                p.translate(width()/2, height()/2);
+                mModel.draw(p, mFrame);
+                p.restore();
+            }
+        });
     }
 
     {
