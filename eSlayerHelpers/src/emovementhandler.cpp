@@ -10,6 +10,10 @@ void eMovementHandler::setWalkable(const eWalkable& w) {
     mWalkable = w;
 }
 
+void eMovementHandler::setObsticle(const eObsticle& o) {
+    mObsticle = o;
+}
+
 bool eMovementHandler::moveTo(const ePointF& pos) {
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
@@ -47,8 +51,11 @@ bool eMovementHandler::moveTo(const ePointF& pos) {
 }
 
 bool eMovementHandler::moveInDirection(const ePointF& pos) {
-    eVec2d vec(pos.fX - mPos.fX,
-               pos.fY - mPos.fY);
+    const eVec2d vec(pos.fX - mPos.fX, pos.fY - mPos.fY);
+    return tryMoveBy(vec);
+}
+
+bool eMovementHandler::tryMoveBy(eVec2d vec) {
     vec.normalize(mSpeed);
     bool move = false;
     for(int i = 0; i < 90; i += 5) {
@@ -56,12 +63,16 @@ bool eMovementHandler::moveInDirection(const ePointF& pos) {
             if(i == 0 && j == 1) continue;
             auto v = vec;
             if(i != 0) v.rotate(i*j*5);
-            const int x = std::floor(mPos.fX + v.x);
-            const int y = std::floor(mPos.fY + v.y);
-            move = mWalkable(x, y);
+            const ePointF newPos{mPos.fX + v.x,
+                                 mPos.fY + v.y};
+            const auto iNewPos = newPos.floor();
+            move = mWalkable(iNewPos.fX, iNewPos.fY);
             if(move) {
-                vec = v;
-                break;
+                move = !mObsticle(mCharId, newPos);
+                if(move) {
+                    vec = v;
+                    break;
+                }
             }
         }
         if(move) {
@@ -96,6 +107,5 @@ bool eMovementHandler::increment() {
     for(int i = 0; i < skipNodes && !mPath.empty(); i++) {
         mPath.erase(mPath.begin());
     }
-    moveBy(vec);
-    return true;
+    return tryMoveBy(vec);
 }

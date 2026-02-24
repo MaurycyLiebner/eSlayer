@@ -41,6 +41,15 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
         }
     });
 
+    mMovementHandler.setObsticle([this](const int charId, const ePointF& p) {
+        for(const auto& u : mUnits) {
+            const auto& pos = u->pos();
+            const auto dist = ePointF::distance(pos, p);
+            if(dist < 0.25) return true;
+        }
+        return false;
+    });
+
     for(int x = 12; x < 24; x++) {
         for(int y = 12; y < 24; y++) {
             const eCharTextures::eModelParts modelParts {
