@@ -51,7 +51,7 @@ private:
     std::shared_ptr<eTexture> mDisplayTex;
 
     eCharUnitModel mModel;
-    std::vector<eUnit> mUnits;
+    std::vector<std::shared_ptr<eUnit>> mUnits;
     std::shared_ptr<eMap> mMap;
     int mFrame = 0;
 

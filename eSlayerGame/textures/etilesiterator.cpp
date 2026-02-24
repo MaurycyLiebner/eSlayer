@@ -11,6 +11,7 @@ void eTilesIterator::initialize(eGameScreen* const game) {
     mTileH = game->tileHeight();
     const int width = game->width();
     const int height = game->height();
+    mTileMargin = 5;
     mDxMax = width/mTileW + 2;
     mDyMax = 2*height/mTileH + 3;
     mMapWidth = game->mapWidth();
@@ -18,10 +19,10 @@ void eTilesIterator::initialize(eGameScreen* const game) {
 }
 
 void eTilesIterator::iterate(const eVisibleTileFunc& func) const {
-    for(int dy = -1; dy < mDyMax; dy++) {
+    for(int dy = -1 - mTileMargin; dy < mDyMax + mTileMargin; dy++) {
         const int py = (dy + 1)*(mTileH + 1)/2 -
                        std::round((mPDX + mPDY)*mTileH/2.);
-        for(int dx = -1; dx < mDxMax; dx++) {
+        for(int dx = -1 - mTileMargin; dx < mDxMax + mTileMargin; dx++) {
             const int y = mMin.fY - dx + dy/2;
             if(y < 0 || y >= mMapHeight) continue;
             const int x = mMin.fX + dx + dy % 2 + dy/2;

@@ -21,6 +21,7 @@ private:
     double mPDY;
     int mTileW;
     int mTileH;
+    int mTileMargin;
     int mDxMax;
     int mDyMax;
     int mMapWidth;

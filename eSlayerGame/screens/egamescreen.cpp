@@ -41,19 +41,21 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
         }
     });
 
-    {
-        const eCharTextures::eModelParts modelParts {
-            {"mummy", "whole"}
-        };
-        const auto texs = eCharsTextures::get("mummy");
-        const auto unitModel = texs->generateModel(modelParts, r);
-        auto& unit = mUnits.emplace_back();
-        eCharUnitModel model;
-        model.setCharModel(unitModel);
-        model.setAnimation(0);
-        model.setDirection(0);
-        unit.setModel(model);
-        unit.setPos(ePointF{12., 12.});
+    for(int x = 12; x < 24; x++) {
+        for(int y = 12; y < 24; y++) {
+            const eCharTextures::eModelParts modelParts {
+                {"mummy", "whole"}
+            };
+            const auto texs = eCharsTextures::get("mummy");
+            const auto unitModel = texs->generateModel(modelParts, r);
+            auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
+            eCharUnitModel model;
+            model.setCharModel(unitModel);
+            model.setAnimation(0);
+            model.setDirection(0);
+            unit->setModel(model);
+            unit->setPos(ePointF{double(x), double(y)});
+        }
     }
 }
 
@@ -142,19 +144,33 @@ void eGameScreen::paintEvent(ePainter& p) {
         }
 
         const auto pos = characterPos();
-        std::vector<eUnit> units = mUnits;
-        auto& mainChar = units.emplace_back();
-        mainChar.setPos(pos);
-        mainChar.setModel(mModel);
+        std::vector<std::shared_ptr<eUnit>> units = mUnits;
+        auto& mainChar = units.emplace_back(std::make_shared<eUnit>());
+        mainChar->setPos(pos);
+        mainChar->setModel(mModel);
 
-        std::sort(units.begin(), units.end(), [](const eUnit& u1, const eUnit& u2) {
-            const auto& p1 = u1.pos();
-            const auto& p2 = u2.pos();
-            if(p1.fY < p2.fY) return true;
-            return p1.fX < p2.fX;
+        std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
+                                                  const std::shared_ptr<eUnit>& u2) {
+            const auto& p1 = u1->pos();
+            const auto& p2 = u2->pos();
+            const auto& ip1 = p1.floor();
+            const auto& ip2 = p2.floor();
+
+            const int ty1 = ip1.fX + ip1.fY;
+            const int tx1 = (ip1.fX + ip1.fY)/2 - ip1.fY;
+            const int ty2 = ip2.fX + ip2.fY;
+            const int tx2 = (ip2.fX + ip2.fY)/2 - ip2.fY;
+
+            if(ty1 != ty2) return ty1 < ty2;
+            if(tx1 != tx2) return tx1 < tx2;
+
+            const auto pd1 = tilePosToPixel(p1);
+            const auto pd2 = tilePosToPixel(p2);
+            if(pd1.fY != pd2.fY) return pd1.fY < pd2.fY;
+            return pd1.fX < pd2.fX;
         });
 
-        int unitId = 0;
+        int nextUnit = 0;
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
             const auto& iobjs = mMap->objects(x, y);
@@ -165,18 +181,19 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tex = object->getTexture(obj.fTileType);
                 p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
             }
-            for(; unitId < units.size(); unitId++) {
+            for(int unitId = nextUnit; unitId < units.size(); unitId++) {
                 const auto& u = units[unitId];
-                const auto& pos = u.pos();
+                const auto& pos = u->pos();
                 const auto iPos = pos.floor();
-                if(iPos.fY < y) break;
-                if(iPos.fX < x) break;
+                if(iPos.fY != y) continue;
+                if(iPos.fX != x) continue;
                 p.save();
                 const auto displ = tilePosToPixel(pos);
                 const auto idispl = displ.round();
                 p.translate(idispl.fX, idispl.fY);
-                u.model().draw(p, mFrame);
+                u->model().draw(p, mFrame);
                 p.restore();
+                nextUnit = unitId + 1;
             }
         });
     }
