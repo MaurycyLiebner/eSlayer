@@ -1,7 +1,7 @@
 #include "esingleplayerserver.h"
 
 int eSinglePlayerServer::connect() {
-    const int clientId = mNextClientId++;
+    const int clientId = eServerUnit::sNextCharId++;
     mClientHandlers[clientId] = std::make_shared<eServerClientHandler>();
     return clientId;
 }
@@ -25,6 +25,7 @@ std::shared_ptr<eMap> eSinglePlayerServer::requestMap(const int clientId, const 
     const auto map = eSlayerMapGenerator::generate(name);
     mMaps[name] = map;
     const auto area = std::make_shared<eServerArea>();
+    area->initialize(map);
     mAreas.push_back(area);
     h->setArea(area);
     return map;
@@ -41,6 +42,13 @@ int eSinglePlayerServer::receiveUnits(const int clientId,
     const auto h = clientHandler(clientId);
     if(!h) return -1;
     return h->receiveUnits(units);
+}
+
+bool eSinglePlayerServer::moveTo(
+    const int clientId, const ePointF& pos) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->moveTo(clientId, pos);
 }
 
 eServerClientHandler*

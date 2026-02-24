@@ -9,6 +9,7 @@
 struct ESLAYERSERVER_API eServerUnit {
     static int sNextCharId;
     int fCharId;
+    int fTeamId;
     ePointF fPos;
     eVec2d fDir;
     ePathFinderPath fPath;

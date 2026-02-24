@@ -6,6 +6,10 @@
 
 #include <cstdio>
 
+void eMovementHandler::intialize(const int charId) {
+    mCharId = charId;
+}
+
 void eMovementHandler::setWalkable(const eWalkable& w) {
     mWalkable = w;
 }

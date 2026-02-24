@@ -43,13 +43,7 @@ void eGameScreen::initialize(const int clientId,
     mModel.setDirection(0);
 
     mMovementHandler.setWalkable([this](const int x, const int y) {
-        if(x < 0 || x >= mMap->width() ||
-           y < 0 || y >= mMap->height()) {
-            return false;
-        } else {
-            const auto& objs = mMap->objects(x, y);
-            return objs.empty();
-        }
+        return mMap->walkable(x, y);
     });
 
     mMovementHandler.setObsticle([this](const int charId, const ePointF& p) {
@@ -110,6 +104,7 @@ void eGameScreen::paintEvent(ePainter& p) {
     if(delay != -1) {
         for(const auto& u : units) {
             const int charId = u->fCharId;
+            if(charId == mClientId) continue;
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
                 const eCharTextures::eModelParts modelParts {
@@ -121,7 +116,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 auto& unit = mUnits.emplace_back(std::make_shared<eUnit>(charId));
                 eCharUnitModel model;
                 model.setCharModel(unitModel);
-                model.setAnimation(0);
+                model.setAnimation(1);
                 model.setDirection(0);
                 unit->setModel(model);
                 unit->setPos(u->fPos);
@@ -129,10 +124,25 @@ void eGameScreen::paintEvent(ePainter& p) {
             } else {
                 const int id = it->second;
                 const auto& uu = mUnits[id];
-                uu->setPos(u->fPos);
+                auto& model = uu->model();
+                const auto& dir = u->fDir;
+                if(dir.length() == 0) {
+                    model.setAnimation(0);
+                } else {
+                    // const double speed = 0.1;
+                    // const double elapsedFrames = delay*25./1000.;
+                    // const double traveledDist = elapsedFrames*speed;
+                    // auto move = dir;
+                    // move.normalize(traveledDist);
+                    // uu->setPos(u->fPos + move);
+                    uu->setPos(u->fPos);
+                    model.setAngle(dir.angle());
+                    model.setAnimation(1);
+                }
             }
         }
     }
+    mServer->moveTo(mClientId, characterPos());
 
     if(!mESCMenu) {
         bool move = false;

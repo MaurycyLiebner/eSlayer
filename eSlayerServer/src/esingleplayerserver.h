@@ -24,10 +24,11 @@ public:
     int receiveUnits(const int clientId,
                      std::vector<std::shared_ptr<eServerUnit>>& units) override;
 
+    bool moveTo(const int clientId,
+                const ePointF& pos) override;
 public:
     eServerClientHandler* clientHandler(const int clientId);
 
-    int mNextClientId = 0;
     std::vector<std::shared_ptr<eServerArea>> mAreas;
     std::map<std::string, std::shared_ptr<eMap>> mMaps;
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

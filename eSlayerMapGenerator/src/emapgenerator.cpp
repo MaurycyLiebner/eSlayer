@@ -26,6 +26,16 @@ const eObject& eMap::object(const int id) const {
     return mObjects[id];
 }
 
+bool eMap::walkable(const int x, const int y) const {
+    if(x < 0 || x >= mWidth ||
+       y < 0 || y >= mHeight) {
+        return false;
+    } else {
+        const auto& objs = objects(x, y);
+        return objs.empty();
+    }
+}
+
 void eMap::updateObjectsMap() {
     mObjectsMap.clear();
 

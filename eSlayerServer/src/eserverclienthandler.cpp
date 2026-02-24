@@ -31,3 +31,11 @@ int eServerClientHandler::receiveUnits(std::vector<std::shared_ptr<eServerUnit>>
     }
     return -1;
 }
+
+bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
+    if(!mArea) return false;
+    const auto unit = mArea->unit(clientId);
+    if(unit) unit->fPos = pos;
+    else mArea->addClient(clientId, pos);
+    return true;
+}

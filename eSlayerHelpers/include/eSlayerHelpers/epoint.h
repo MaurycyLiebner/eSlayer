@@ -3,6 +3,8 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "evec2.h"
+
 #include <cmath>
 
 struct ESLAYERHELPERS_API ePoint {
@@ -38,6 +40,10 @@ struct ESLAYERHELPERS_API ePointF {
     ePoint floor() const {
         return {int(std::floor(fX)),
                 int(std::floor(fY))};
+    }
+
+    ePointF operator+(const eVec2d& vec) const {
+        return {fX + vec.x, fY + vec.y};
     }
 
     ePointF operator*(const double mult) const {

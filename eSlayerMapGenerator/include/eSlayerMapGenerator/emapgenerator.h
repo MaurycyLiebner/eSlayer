@@ -43,6 +43,8 @@ class ESLAYERMAPGENERATOR_API eMap {
 
     const std::vector<eObjectType>&
     objectTypes() const { return mObjectTypes; }
+
+    bool walkable(const int x, const int y) const;
   private:
     void updateObjectsMap();
 

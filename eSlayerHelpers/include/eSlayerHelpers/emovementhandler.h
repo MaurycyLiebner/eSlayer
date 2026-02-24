@@ -12,6 +12,10 @@ using eObsticle = std::function<bool(const int charId, const ePointF& p)>;
 
 class ESLAYERHELPERS_API eMovementHandler {
 public:
+    void intialize(const int charId);
+
+    void setPathFindMargin(const int m)
+    { mPathFindMargin = m; }
 
     const ePointF& pos() const { return mPos; }
     void setPos(const ePointF& pos) { mPos = pos; }

@@ -20,6 +20,8 @@ public:
     int receiveUnits(std::vector<std::shared_ptr<eServerUnit>>& units);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
+
+    bool moveTo(const int clientId, const ePointF& pos);
 private:
     int mDelay = 100;
     std::shared_ptr<eServerArea> mArea;

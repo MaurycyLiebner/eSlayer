@@ -26,6 +26,10 @@ public:
     virtual int
     receiveUnits(const int clientId,
                  std::vector<std::shared_ptr<eServerUnit>>& units) = 0;
+
+    virtual bool
+    moveTo(const int clientId,
+           const ePointF& pos) = 0;
 private:
 };
 
