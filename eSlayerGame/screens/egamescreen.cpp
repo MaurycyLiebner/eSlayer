@@ -11,11 +11,22 @@
 #include <eSlayerHelpers/epathsmoother.h>
 #include <eSlayerHelpers/evec2.h>
 
+eGameScreen::~eGameScreen() {
+    if(mServer) {
+        mServer->disconnect(mClientId);
+    }
+}
+
 void eGameScreen::setExitAction(const eAction& a) {
     mExitAction = a;
 }
 
-void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
+void eGameScreen::initialize(const int clientId,
+                             const std::shared_ptr<eServer>& server,
+                             const std::shared_ptr<eMap>& map) {
+    mClientId = clientId;
+    mServer = server;
+
     initializeTextures();
 
     mMap = map;
@@ -49,23 +60,6 @@ void eGameScreen::initialize(const std::shared_ptr<eMap>& map) {
         }
         return false;
     });
-
-    for(int x = 12; x < 24; x++) {
-        for(int y = 12; y < 24; y++) {
-            const eCharTextures::eModelParts modelParts {
-                {"mummy", "whole"}
-            };
-            const auto texs = eCharsTextures::get("mummy");
-            const auto unitModel = texs->generateModel(modelParts, r);
-            auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
-            eCharUnitModel model;
-            model.setCharModel(unitModel);
-            model.setAnimation(0);
-            model.setDirection(0);
-            unit->setModel(model);
-            unit->setPos(ePointF{double(x), double(y)});
-        }
-    }
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -109,6 +103,37 @@ void eGameScreen::setTargetPos(const ePointF& pos) {
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
+    mServer->increment();
+    mServer->requestUnits(mClientId);
+    std::vector<std::shared_ptr<eServerUnit>> units;
+    const int delay = mServer->receiveUnits(mClientId, units);
+    if(delay != -1) {
+        for(const auto& u : units) {
+            const int charId = u->fCharId;
+            const auto it = mUnitIndexMap.find(charId);
+            if(it == mUnitIndexMap.end()) {
+                const eCharTextures::eModelParts modelParts {
+                    {"mummy", "whole"}
+                };
+                const auto r = renderer();
+                const auto texs = eCharsTextures::get("mummy");
+                const auto unitModel = texs->generateModel(modelParts, r);
+                auto& unit = mUnits.emplace_back(std::make_shared<eUnit>(charId));
+                eCharUnitModel model;
+                model.setCharModel(unitModel);
+                model.setAnimation(0);
+                model.setDirection(0);
+                unit->setModel(model);
+                unit->setPos(u->fPos);
+                mUnitIndexMap[charId] = mUnits.size() - 1;
+            } else {
+                const int id = it->second;
+                const auto& uu = mUnits[id];
+                uu->setPos(u->fPos);
+            }
+        }
+    }
+
     if(!mESCMenu) {
         bool move = false;
         eVec2d vec;
@@ -154,7 +179,7 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto pos = characterPos();
         std::vector<std::shared_ptr<eUnit>> units = mUnits;
-        auto& mainChar = units.emplace_back(std::make_shared<eUnit>());
+        auto& mainChar = units.emplace_back(std::make_shared<eUnit>(-1));
         mainChar->setPos(pos);
         mainChar->setModel(mModel);
 
@@ -292,7 +317,13 @@ void eGameScreen::showESCMenu() {
     const auto exitB = new eESCMenuButton(
         eLanguage::text(5, 1), window());
     mESCMenu->addWidget(exitB);
-    exitB->setPressAction(mExitAction);
+    exitB->setPressAction([this]() {
+        if(mServer) {
+            mServer->disconnect(mClientId);
+            mServer = nullptr;
+        }
+        mExitAction();
+    });
 
     const auto returnB = new eESCMenuButton(
         eLanguage::text(5, 2), window());

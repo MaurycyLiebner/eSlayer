@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(eSlayerMapGenerator LANGUAGES CXX)
+project(eSlayerServer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,6 +10,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_library(eSlayerServer SHARED
     include/eSlayerServer/eserver.h src/eserver.cpp
     include/eSlayerServer/eslayerserverexport.h
+    include/eSlayerServer/eserverunit.h
+    src/esingleplayerserver.h src/esingleplayerserver.cpp
+    src/eserverclienthandler.h src/eserverclienthandler.cpp
+    src/eserverarea.h src/eserverarea.cpp
+    src/eserverunit.cpp
 )
 
 target_include_directories(eSlayerServer
@@ -20,4 +25,5 @@ target_compile_definitions(eSlayerServer
     PRIVATE ESLAYERSERVER_EXPORTS
 )
 
+target_link_libraries(eSlayerServer PUBLIC eSlayerHelpers)
 target_link_libraries(eSlayerServer PUBLIC eSlayerMapGenerator)

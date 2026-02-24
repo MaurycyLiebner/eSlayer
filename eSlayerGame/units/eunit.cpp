@@ -1,3 +1,4 @@
 #include "eunit.h"
 
-eUnit::eUnit() {}
+eUnit::eUnit(const int id) :
+    mCharId(id) {}

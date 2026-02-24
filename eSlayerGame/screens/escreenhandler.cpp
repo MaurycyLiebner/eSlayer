@@ -102,8 +102,9 @@ void eScreenHandler::showChooseCharacterMenu() {
 void eScreenHandler::showGame(const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
     const auto map = std::make_shared<std::shared_ptr<eMap>>();
+    const auto clientId = std::make_shared<int>();
 
-    const auto finish = [this, map]() {
+    const auto finish = [this, map, server, clientId]() {
         const auto w = new eGameScreen(mWindow);
         const int width = mWindow->width();
         const int height = mWindow->height();
@@ -111,7 +112,7 @@ void eScreenHandler::showGame(const eCharacter& c) {
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*map);
+        w->initialize(*clientId, *server, *map);
         mWindow->setWidget(w);
     };
 
@@ -120,8 +121,11 @@ void eScreenHandler::showGame(const eCharacter& c) {
     loading.emplace_back([server]() {
         *server = eSlayerServer::generate("single_player");
     });
+    loading.emplace_back([server, clientId]() {
+        *clientId = (*server)->connect();
+    });
     loading.emplace_back([server, map]() {
-        *map = (*server)->requestMap("town");
+        *map = (*server)->requestMap(0, "town");
     });
     loading.emplace_back([r]() {
         const auto lighting = eEffectsTextures::get("lighting");

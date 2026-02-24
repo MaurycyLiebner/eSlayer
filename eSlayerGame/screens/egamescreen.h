@@ -10,15 +10,19 @@
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerServer/eserver.h>
 
 #include "../units/eunit.h"
 
 class eGameScreen : public eScreenBase {
 public:
     using eScreenBase::eScreenBase;
+    ~eGameScreen();
 
     void setExitAction(const eAction& a);
-    void initialize(const std::shared_ptr<eMap>& map);
+    void initialize(const int clientId,
+                    const std::shared_ptr<eServer>& server,
+                    const std::shared_ptr<eMap>& map);
 
     int tileWidth() const { return mTileW; }
     int tileHeight() const { return mTileH; }
@@ -50,8 +54,12 @@ private:
     std::shared_ptr<eLightingTexture> mLightingTex;
     std::shared_ptr<eTexture> mDisplayTex;
 
+    int mClientId = -1;
+    std::shared_ptr<eServer> mServer;
+
     eCharUnitModel mModel;
     std::vector<std::shared_ptr<eUnit>> mUnits;
+    std::map<int, int> mUnitIndexMap;
     std::shared_ptr<eMap> mMap;
     int mFrame = 0;
 

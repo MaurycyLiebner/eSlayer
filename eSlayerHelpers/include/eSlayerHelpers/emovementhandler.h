@@ -14,6 +14,7 @@ class ESLAYERHELPERS_API eMovementHandler {
 public:
 
     const ePointF& pos() const { return mPos; }
+    void setPos(const ePointF& pos) { mPos = pos; }
     double angle() const { return mAngle; }
     void setWalkable(const eWalkable& w);
     void setObsticle(const eObsticle& o);

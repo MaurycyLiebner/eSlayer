@@ -7,7 +7,9 @@
 
 class eUnit {
 public:
-    eUnit();
+    eUnit(const int id);
+
+    int charId() const { return mCharId; }
 
     void setPos(const ePointF& pos) { mPos = pos; }
     const ePointF& pos() const { return mPos; }
@@ -16,6 +18,7 @@ public:
     const eCharUnitModel& model() const { return mModel; }
     void setModel(const eCharUnitModel& model) { mModel = model; }
 private:
+    const int mCharId;
     ePointF mPos;
     eCharUnitModel mModel;
 };
