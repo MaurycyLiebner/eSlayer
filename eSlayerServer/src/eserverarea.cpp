@@ -17,12 +17,12 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             mUnits.emplace_back(u);
 
             const auto m = std::make_shared<eMovementHandler>();
-            m->intialize(charId);
-            m->setPos(pos);
-            m->setWalkable([this](const int x, const int y) {
+            m->setDelay(3);
+
+            const auto w = [this](const int x, const int y) {
                 return mMap->walkable(x, y);
-            });
-            m->setObsticle([this](const int charId, const ePointF& p) {
+            };
+            const auto o = [this](const int charId, const ePointF& p) {
                 for(const auto& u : mUnits) {
                     if(charId == u->fCharId) continue;
                     const auto& pos = u->fPos;
@@ -30,7 +30,9 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     if(dist < 0.4) return true;
                 }
                 return false;
-            });
+            };
+            m->intialize(w, o, charId);
+            m->setPos(pos);
             mMovementHandlers.emplace_back(m);
         }
     }
@@ -41,11 +43,11 @@ void eServerArea::increment() {
     for(int i = 0; i < iMax; i++) {
         const auto& m = mMovementHandlers[i];
         if(!m) continue;
-        m->increment(1.);
+        const bool r = m->increment(1.);
+        if(!r) m->stopMoving();
         const auto& u = mUnits[i];
         const auto newPos = m->pos();
-        u->fDir = eVec2d{newPos.fX - u->fPos.fX,
-                         newPos.fY - u->fPos.fY};
+        u->fPlanned = m->planned();
         u->fPos = newPos;
 
         if(eRand::rand() % 11 == 10) {

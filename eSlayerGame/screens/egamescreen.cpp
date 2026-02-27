@@ -42,18 +42,10 @@ void eGameScreen::initialize(const int clientId,
     mModel.setAnimation(0);
     mModel.setDirection(0);
 
-    mMovementHandler.setWalkable([this](const int x, const int y) {
-        return mMap->walkable(x, y);
-    });
-
-    mMovementHandler.setObsticle([this](const int charId, const ePointF& p) {
-        for(const auto& u : mUnits) {
-            const auto& pos = u->pos();
-            const auto dist = ePointF::distance(pos, p);
-            if(dist < 0.4) return true;
-        }
-        return false;
-    });
+    const auto w = walkable();
+    const auto o = obsticle();
+    mMovementHandler.intialize(w, o, clientId);
+    mMovementHandler.setDivergeAngle(90.);
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -87,10 +79,6 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
     return result;
 }
 
-void eGameScreen::updateTargetPos() {
-
-}
-
 void eGameScreen::paintEvent(ePainter& p) {
     mServer->increment();
     mServer->requestUnits(mClientId);
@@ -108,10 +96,11 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto r = renderer();
                 const auto texs = eCharsTextures::get("mummy");
                 const auto unitModel = texs->generateModel(modelParts, r);
-                auto& unit = mUnits.emplace_back(std::make_shared<eUnit>(charId));
+                auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
+                initialize(charId, *unit);
                 eCharUnitModel model;
                 model.setCharModel(unitModel);
-                model.setAnimation(1);
+                model.setAnimation(0);
                 model.setDirection(0);
                 unit->setModel(model);
                 unit->setPos(u->fPos);
@@ -120,20 +109,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const int id = it->second;
                 const auto& uu = mUnits[id];
                 auto& model = uu->model();
-                const auto& dir = u->fDir;
-                if(dir.length() == 0) {
-                    model.setAnimation(0);
-                } else {
-                    // const double speed = 0.1;
-                    // const double elapsedFrames = delay*25./1000.;
-                    // const double traveledDist = elapsedFrames*speed;
-                    // auto move = dir;
-                    // move.normalize(traveledDist);
-                    // uu->setPos(u->fPos + move);
-                    uu->setPos(u->fPos);
-                    model.setAngle(dir.angle());
-                    model.setAnimation(1);
-                }
+                const auto& planned = u->fPlanned;
+                uu->pushPlanned(planned);
             }
         }
     }
@@ -186,9 +163,13 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto pos = characterPos();
         std::vector<std::shared_ptr<eUnit>> units = mUnits;
-        auto& mainChar = units.emplace_back(std::make_shared<eUnit>(-1));
+        auto& mainChar = units.emplace_back(std::make_shared<eUnit>());
         mainChar->setPos(pos);
         mainChar->setModel(mModel);
+
+        for(const auto& u : mUnits) {
+            u->increment(1.);
+        }
 
         std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
                                                   const std::shared_ptr<eUnit>& u2) {
@@ -357,4 +338,33 @@ void eGameScreen::hideESCMenu() {
     if(!mESCMenu) return;
     mESCMenu->deleteLater();
     mESCMenu = nullptr;
+}
+
+eWalkable eGameScreen::walkable() const {
+    return [this](const int x, const int y) {
+        return mMap->walkable(x, y);
+    };
+}
+
+eObsticle eGameScreen::obsticle() const {
+    return [this](const int charId, const ePointF& p) {
+        for(const auto& u : mUnits) {
+            if(u->charId() == charId) continue;
+            const auto& pos = u->pos();
+            const auto dist = ePointF::distance(pos, p);
+            if(dist < 0.4) return true;
+        }
+        if(charId != mClientId) {
+            const auto& pos = mMovementHandler.pos();
+            const auto dist = ePointF::distance(pos, p);
+            if(dist < 0.4) return true;
+        }
+        return false;
+    };
+}
+
+void eGameScreen::initialize(const int charId, eUnit& u) {
+    const auto w = walkable();
+    const auto o = obsticle();
+    u.intialize(w, o, charId);
 }

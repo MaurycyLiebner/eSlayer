@@ -32,6 +32,8 @@ struct ESLAYERHELPERS_API ePointF {
 
     static double distance(const ePointF& p1, const ePointF& p2);
 
+    static eVec2d vector(const ePointF& to, const ePointF& from);
+
     ePoint round() const {
         return {int(std::round(fX)),
                 int(std::round(fY))};

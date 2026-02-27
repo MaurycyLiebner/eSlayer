@@ -5,16 +5,12 @@
 
 #include <cstdio>
 
-void eMovementHandler::intialize(const int charId) {
+void eMovementHandler::intialize(const eWalkable& w,
+                                 const eObsticle& o,
+                                 const int charId) {
     mCharId = charId;
-}
-
-void eMovementHandler::setWalkable(const eWalkable& w) {
     mWalkable = w;
     mGoal.setWalkable(w);
-}
-
-void eMovementHandler::setObsticle(const eObsticle& o) {
     mObsticle = o;
 }
 
@@ -60,18 +56,23 @@ void eMovementHandler::moveInDirection(const ePointF& pos) {
     mGoal.moveInDir(pos);
 }
 
+void eMovementHandler::pushPlanned(std::queue<eIdPointF> planned) {
+    while(!planned.empty()) {
+        const auto& p = planned.front();
+        if(p.fId >= mNextPlannedId) {
+            mPlanned.push(p);
+            mNextPlannedId = p.fId + 1;
+        }
+        planned.pop();
+    }
+}
+
 void eMovementHandler::planMovement(const ePointF& to) {
-    mPlanned.push(to);
+    mPlanned.push({to, mNextPlannedId++});
 }
 
 bool eMovementHandler::incMovement(const double by) {
-    if(!mGoal.moving()) return false;
     bool moved = false;
-    // const auto& next = mPlanned.front();
-    // const eVec2d vec{next.fX - mPos.fX, next.fY - mPos.fY};
-    // mPlanned.pop();
-    // tryMoveBy(vec);
-    // moved = true;
     const double inc = mSpeed*by;
     double rem = inc;
     while(rem > 0 && mPlanned.size() > mDelay) {
@@ -85,23 +86,25 @@ bool eMovementHandler::incMovement(const double by) {
             rem -= len;
             mPlanned.pop();
         }
-        moved = moved || tryMoveBy(vec);
+        moved = tryMoveBy(vec) || moved;
     }
     return moved;
 }
 
 void eMovementHandler::clearPlanned() {
-    std::queue<ePointF> tmp;
+    std::queue<eIdPointF> tmp;
     std::swap(mPlanned, tmp);
 }
 
-bool eMovementHandler::tryMoveBy(eVec2d vec) {
+bool eMovementHandler::tryMove(eVec2d& vec) {
     bool move = false;
-    for(int i = 0; i < 90; i += 5) {
+    const double angleInc = 5.;
+    const int iMax = std::ceil(mMaxDivergeAngle/angleInc);
+    for(int i = 0; i <= iMax; i++) {
         for(int j : {-1, 1}) {
             if(i == 0 && j == 1) continue;
             auto v = vec;
-            if(i != 0) v.rotate(i*j*5);
+            if(i != 0) v.rotate(i*angleInc*j*5);
             const ePointF newPos{mPos.fX + v.x,
                                  mPos.fY + v.y};
             const auto iNewPos = newPos.floor();
@@ -119,8 +122,13 @@ bool eMovementHandler::tryMoveBy(eVec2d vec) {
         }
     }
     if(!move) return false;
-    moveBy(vec);
     return true;
+}
+
+bool eMovementHandler::tryMoveBy(eVec2d vec) {
+    const bool r = tryMove(vec);
+    if(r) moveBy(vec);
+    return r;
 }
 
 void eMovementHandler::moveBy(const eVec2d& vec) {
@@ -130,16 +138,22 @@ void eMovementHandler::moveBy(const eVec2d& vec) {
 }
 
 bool eMovementHandler::increment(const double by) {
+    bool result = false;
     if(mPlanned.size() <= mDelay && mGoal.moving()) {
         const double dist = mSpeed*by;
         const ePointF pos = mPlanned.empty() ? mPos : mPlanned.back();
         ePointF to;
         const bool move = mGoal.increment(pos, to, dist);
         if(move) {
+            result = true;
             planMovement(to);
         }
     }
-    return incMovement(by);
+    return incMovement(by) || result;
+}
+
+void eMovementHandler::setDivergeAngle(const double a) {
+    mMaxDivergeAngle = a;
 }
 
 void eMovementHandler::stopMoving() {

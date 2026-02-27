@@ -4,6 +4,20 @@
 
 #include <cstdio>
 
+void eMovementGoalData::moveInDir(const ePointF& dir) {
+    mType = eMovementGoalType::dir;
+    mDir = dir;
+}
+
+void eMovementGoalData::moveOnPath(const ePathFinderPath& path) {
+    mType = eMovementGoalType::path;
+    mPath = path;
+}
+
+void eMovementGoalData::stopMoving() {
+    mType = eMovementGoalType::none;
+}
+
 bool eMovementGoal::increment(const ePointF& from,
                               ePointF& to,
                               const double dist) {
@@ -46,24 +60,9 @@ bool eMovementGoal::increment(const ePointF& from,
     }
     to = ePointF{from.fX + vec.x,
                  from.fY + vec.y};
-
     return true;
 }
 
 void eMovementGoal::setWalkable(const eWalkable& w) {
     mWalkable = w;
-}
-
-void eMovementGoal::moveInDir(const ePointF& dir) {
-    mType = eMovementGoalType::dir;
-    mDir = dir;
-}
-
-void eMovementGoal::moveOnPath(const ePathFinderPath& path) {
-    mType = eMovementGoalType::path;
-    mPath = path;
-}
-
-void eMovementGoal::stopMoving() {
-    mType = eMovementGoalType::none;
 }

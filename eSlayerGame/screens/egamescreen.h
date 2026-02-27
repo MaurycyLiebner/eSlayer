@@ -47,7 +47,10 @@ private:
     void showESCMenu();
     void hideESCMenu();
 
-    void updateTargetPos();
+    eWalkable walkable() const;
+    eObsticle obsticle() const;
+
+    void initialize(const int charId, eUnit& u);
 
     std::shared_ptr<eTexture> mBaseTex;
     std::shared_ptr<eLightingTexture> mLightingTex;

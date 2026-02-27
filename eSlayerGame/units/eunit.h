@@ -4,22 +4,29 @@
 #include "../textures/echarunitmodel.h"
 
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/emovementhandler.h>
 
 class eUnit {
 public:
-    eUnit(const int id);
+    void intialize(const eWalkable& w,
+                   const eObsticle& o,
+                   const int charId);
 
     int charId() const { return mCharId; }
 
-    void setPos(const ePointF& pos) { mPos = pos; }
-    const ePointF& pos() const { return mPos; }
+    void setPos(const ePointF& pos) { mHandler.setPos(pos); }
+    const ePointF& pos() const { return mHandler.pos(); }
 
     eCharUnitModel& model() { return mModel; }
     const eCharUnitModel& model() const { return mModel; }
     void setModel(const eCharUnitModel& model) { mModel = model; }
+
+    void pushPlanned(const std::queue<eIdPointF>& planned);
+
+    void increment(const double by);
 private:
-    const int mCharId;
-    ePointF mPos;
+    int mCharId;
+    eMovementHandler mHandler;
     eCharUnitModel mModel;
 };
 

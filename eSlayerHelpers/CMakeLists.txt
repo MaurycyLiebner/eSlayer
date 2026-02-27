@@ -25,6 +25,7 @@ add_library(eSlayerHelpers SHARED
     src/emovementhandler.cpp
     include/eSlayerHelpers/emovementgoal.h
     src/emovementgoal.cpp
+    include/eSlayerHelpers/eidpointf.h
 )
 
 target_include_directories(eSlayerHelpers

@@ -1,5 +1,6 @@
 #include "../include/eSlayerHelpers/epathsmoother.h"
 
+#include <cstdio>
 #include <functional>
 
 using eChecker = std::function<bool(const ePoint&)>;
@@ -74,7 +75,7 @@ eVec2d ePathSmoother::moveDir(
     double checkDistMax = 4*smoothLen;
     while(checkDistMax - checkDistMin > 0.01) {
         const double middleDist = (checkDistMax + checkDistMin)/2;
-        to = path.posAtDist(from, middleDist, skipNodes);
+        to = path.posAtDist(from, middleDist);
         const double dist = ePointF::distance(from, to);
         if(dist > smoothLen) {
             checkDistMax = middleDist;
@@ -95,15 +96,30 @@ eVec2d ePathSmoother::moveDir(
     const bool r = gCheckLineTiles(from, to, checker);
     if(!r) {
         const auto& step = path.front();
-        to = step.fDst;
+        const auto& src = step.fSrc;
+        const auto& dst = step.fDst;
+
+        const auto AB = ePointF::vector(dst, src);
+        const auto AP = ePointF::vector(from, src);
+        const double lengthSqrAB = AB.x * AB.x + AB.y * AB.y;
+        double t = (AP.x * AB.x + AP.y * AB.y) / lengthSqrAB;
+        t = std::clamp(t, 0., 1.);
+        to = src + AB*t;
         vec = eVec2d{to.fX - from.fX, to.fY - from.fY};
-        if(vec.length() > dist) {
-            vec.normalize(dist);
-            skipNodes = 0;
-        } else {
-            skipNodes = 1;
+        if(vec.length() < 0.01) {
+            vec = eVec2d{dst.fX - from.fX, dst.fY - from.fY};
+            if(vec.length() > dist) {
+                vec.normalize(dist);
+            }
+            to = ePointF{from.fX + vec.x, from.fY + vec.y};
         }
-        return vec;
+    }
+
+    const auto& front = path.front();
+    const auto& src = front.fSrc;
+    const auto& dst = front.fDst;
+    if(ePointF::distance(to, dst) < ePointF::distance(to, src)) {
+        skipNodes = 1;
     }
 
     return vec;

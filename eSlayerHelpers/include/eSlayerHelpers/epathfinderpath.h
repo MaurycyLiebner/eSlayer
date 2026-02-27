@@ -15,8 +15,7 @@ public:
     using std::vector<ePathStep>::vector;
 
     ePointF posAtDist(const ePointF& start,
-                      const double dist,
-                      int& skipNodes) const;
+                      const double dist) const;
 };
 
 #endif // EPATHFINDERPATH_H
