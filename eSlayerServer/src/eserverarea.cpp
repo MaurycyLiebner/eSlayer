@@ -27,7 +27,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     if(charId == u->fCharId) continue;
                     const auto& pos = u->fPos;
                     const auto dist = ePointF::distance(pos, p);
-                    if(dist < 0.25) return true;
+                    if(dist < 0.4) return true;
                 }
                 return false;
             });
@@ -41,7 +41,7 @@ void eServerArea::increment() {
     for(int i = 0; i < iMax; i++) {
         const auto& m = mMovementHandlers[i];
         if(!m) continue;
-        m->increment();
+        m->increment(1.);
         const auto& u = mUnits[i];
         const auto newPos = m->pos();
         u->fDir = eVec2d{newPos.fX - u->fPos.fX,

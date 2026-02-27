@@ -65,18 +65,18 @@ eVec2d ePathSmoother::moveDir(
     const ePathFinderPath& path,
     const ePathFinderMap& map,
     const ePointF& from,
-    const double maxDist,
-    const double speed,
+    const double smoothLen,
+    const double dist,
     int& skipNodes) {
     skipNodes = 0;
     ePointF to = from;
     double checkDistMin = 0.;
-    double checkDistMax = 4*maxDist;
+    double checkDistMax = 4*smoothLen;
     while(checkDistMax - checkDistMin > 0.01) {
         const double middleDist = (checkDistMax + checkDistMin)/2;
         to = path.posAtDist(from, middleDist, skipNodes);
         const double dist = ePointF::distance(from, to);
-        if(dist > maxDist) {
+        if(dist > smoothLen) {
             checkDistMax = middleDist;
         } else {
             checkDistMin = middleDist;
@@ -84,8 +84,8 @@ eVec2d ePathSmoother::moveDir(
     }
 
     eVec2d vec{to.fX - from.fX, to.fY - from.fY};
-    if(vec.length() > speed) {
-        vec.normalize(speed);
+    if(vec.length() > dist) {
+        vec.normalize(dist);
         to = ePointF{from.fX + vec.x, from.fY + vec.y};
     }
 
@@ -97,8 +97,8 @@ eVec2d ePathSmoother::moveDir(
         const auto& step = path.front();
         to = step.fDst;
         vec = eVec2d{to.fX - from.fX, to.fY - from.fY};
-        if(vec.length() > speed) {
-            vec.normalize(speed);
+        if(vec.length() > dist) {
+            vec.normalize(dist);
             skipNodes = 0;
         } else {
             skipNodes = 1;

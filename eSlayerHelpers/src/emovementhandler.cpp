@@ -1,7 +1,6 @@
 #include "eSlayerHelpers/emovementhandler.h"
 
 #include "eSlayerHelpers/epathfinder.h"
-#include "eSlayerHelpers/epathsmoother.h"
 #include "eSlayerHelpers/evec2.h"
 
 #include <cstdio>
@@ -12,18 +11,20 @@ void eMovementHandler::intialize(const int charId) {
 
 void eMovementHandler::setWalkable(const eWalkable& w) {
     mWalkable = w;
+    mGoal.setWalkable(w);
 }
 
 void eMovementHandler::setObsticle(const eObsticle& o) {
     mObsticle = o;
 }
 
-bool eMovementHandler::moveTo(const ePointF& pos) {
+bool eMovementHandler::moveTo(const ePointF& dst) {
+    const ePointF pos = mPlanned.empty() ? mPos : mPlanned.back();
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(0, 0, dim, dim);
-    const auto iPos = (mPos * subdivision).round();
+    const auto iPos = (pos * subdivision).round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
             const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
@@ -33,11 +34,11 @@ bool eMovementHandler::moveTo(const ePointF& pos) {
     }
     bool found;
     const ePoint from{margin, margin};
-    const auto ipos = (pos * subdivision).round();
+    const auto ipos = (dst * subdivision).round();
     const ePoint to{margin + (ipos.fX - iPos.fX),
                     margin + (ipos.fY - iPos.fY)};
-    mPath = ePathFinder::findPath(map, from, to, found);
-    for(auto& step : mPath) {
+    auto path = ePathFinder::findPath(map, from, to, found);
+    for(auto& step : path) {
         step.fSrc.fX -= margin;
         step.fSrc.fY -= margin;
         step.fDst.fX -= margin;
@@ -46,21 +47,55 @@ bool eMovementHandler::moveTo(const ePointF& pos) {
         step.fSrc.fY /= subdivision;
         step.fDst.fX /= subdivision;
         step.fDst.fY /= subdivision;
-        step.fSrc.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fSrc.fY += std::round(mPos.fY*subdivision)/subdivision;
-        step.fDst.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fDst.fY += std::round(mPos.fY*subdivision)/subdivision;
+        step.fSrc.fX += std::round(pos.fX*subdivision)/subdivision;
+        step.fSrc.fY += std::round(pos.fY*subdivision)/subdivision;
+        step.fDst.fX += std::round(pos.fX*subdivision)/subdivision;
+        step.fDst.fY += std::round(pos.fY*subdivision)/subdivision;
     }
+    mGoal.moveOnPath(path);
     return found;
 }
 
-bool eMovementHandler::moveInDirection(const ePointF& pos) {
-    const eVec2d vec(pos.fX - mPos.fX, pos.fY - mPos.fY);
-    return tryMoveBy(vec);
+void eMovementHandler::moveInDirection(const ePointF& pos) {
+    mGoal.moveInDir(pos);
+}
+
+void eMovementHandler::planMovement(const ePointF& to) {
+    mPlanned.push(to);
+}
+
+bool eMovementHandler::incMovement(const double by) {
+    if(!mGoal.moving()) return false;
+    bool moved = false;
+    // const auto& next = mPlanned.front();
+    // const eVec2d vec{next.fX - mPos.fX, next.fY - mPos.fY};
+    // mPlanned.pop();
+    // tryMoveBy(vec);
+    // moved = true;
+    const double inc = mSpeed*by;
+    double rem = inc;
+    while(rem > 0 && mPlanned.size() > mDelay) {
+        const auto& next = mPlanned.front();
+        eVec2d vec{next.fX - mPos.fX, next.fY - mPos.fY};
+        const double len = vec.length();
+        if(len > rem && std::abs(len - rem) > 0.001) {
+            vec.normalize(rem);
+            rem = 0;
+        } else {
+            rem -= len;
+            mPlanned.pop();
+        }
+        moved = moved || tryMoveBy(vec);
+    }
+    return moved;
+}
+
+void eMovementHandler::clearPlanned() {
+    std::queue<ePointF> tmp;
+    std::swap(mPlanned, tmp);
 }
 
 bool eMovementHandler::tryMoveBy(eVec2d vec) {
-    vec.normalize(mSpeed);
     bool move = false;
     for(int i = 0; i < 90; i += 5) {
         for(int j : {-1, 1}) {
@@ -94,22 +129,20 @@ void eMovementHandler::moveBy(const eVec2d& vec) {
     mAngle = vec.angle();
 }
 
-bool eMovementHandler::increment() {
-    if(mPath.empty()) return false;
-    const auto iPos = mPos.floor();
-    const int margin = 2;
-    const int dim = 2*margin + 1;
-    ePathFinderMap map(iPos.fX - margin, iPos.fY - margin, dim, dim);
-    for(int x = iPos.fX - margin; x <= iPos.fX + margin; x++) {
-        for(int y = iPos.fY - margin; y <= iPos.fY + margin; y++) {
-            map.set({x, y}, mWalkable(x, y));
+bool eMovementHandler::increment(const double by) {
+    if(mPlanned.size() <= mDelay && mGoal.moving()) {
+        const double dist = mSpeed*by;
+        const ePointF pos = mPlanned.empty() ? mPos : mPlanned.back();
+        ePointF to;
+        const bool move = mGoal.increment(pos, to, dist);
+        if(move) {
+            planMovement(to);
         }
     }
-    int skipNodes;
-    const auto vec = ePathSmoother::moveDir(
-        mPath, map, mPos, 1., mSpeed, skipNodes);
-    for(int i = 0; i < skipNodes && !mPath.empty(); i++) {
-        mPath.erase(mPath.begin());
-    }
-    return tryMoveBy(vec);
+    return incMovement(by);
+}
+
+void eMovementHandler::stopMoving() {
+    clearPlanned();
+    mGoal.stopMoving();
 }

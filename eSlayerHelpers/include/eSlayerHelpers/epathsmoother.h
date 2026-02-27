@@ -10,8 +10,8 @@ namespace ePathSmoother {
     eVec2d moveDir(const ePathFinderPath& path,
                    const ePathFinderMap& map,
                    const ePointF& from,
-                   const double maxDist,
-                   const double speed,
+                   const double smoothLen,
+                   const double dist,
                    int& skipNodes);
 };
 

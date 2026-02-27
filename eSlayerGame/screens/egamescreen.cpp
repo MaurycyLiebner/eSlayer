@@ -50,7 +50,7 @@ void eGameScreen::initialize(const int clientId,
         for(const auto& u : mUnits) {
             const auto& pos = u->pos();
             const auto dist = ePointF::distance(pos, p);
-            if(dist < 0.25) return true;
+            if(dist < 0.4) return true;
         }
         return false;
     });
@@ -88,12 +88,7 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
 }
 
 void eGameScreen::updateTargetPos() {
-    const auto pos = pixelToTilePos(mMousePos);
-    setTargetPos(pos);
-}
 
-void eGameScreen::setTargetPos(const ePointF& pos) {
-    mMovementHandler.moveTo(pos);
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
@@ -148,12 +143,14 @@ void eGameScreen::paintEvent(ePainter& p) {
         bool move = false;
         eVec2d vec;
         const auto pos = pixelToTilePos(mMousePos);
+
         if(mMousePressed) {
-            move = mMovementHandler.moveInDirection(pos);
+            mMovementHandler.moveInDirection(pos);
+            move = mMovementHandler.increment(1.);
         }
         if(!move) {
-            if(mMousePressed) setTargetPos(pos);
-            move = mMovementHandler.increment();
+            if(mMousePressed) mMovementHandler.moveTo(pos);
+            move = mMovementHandler.increment(1.);
         }
         if(move) {
             mModel.setAngle(mMovementHandler.angle());
@@ -279,7 +276,8 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::left);
     if(leftReleased) {
         mMousePressed = false;
-        updateTargetPos();
+        const auto pos = pixelToTilePos(mMousePos);
+        mMovementHandler.moveTo(pos);
     }
     return true;
 }

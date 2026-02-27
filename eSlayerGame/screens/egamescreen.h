@@ -48,7 +48,6 @@ private:
     void hideESCMenu();
 
     void updateTargetPos();
-    void setTargetPos(const ePointF& pos);
 
     std::shared_ptr<eTexture> mBaseTex;
     std::shared_ptr<eLightingTexture> mLightingTex;
