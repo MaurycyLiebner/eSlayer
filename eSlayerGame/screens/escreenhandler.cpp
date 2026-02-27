@@ -124,8 +124,8 @@ void eScreenHandler::showGame(const eCharacter& c) {
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([server, map]() {
-        *map = (*server)->requestMap(0, "town");
+    loading.emplace_back([server, map, clientId]() {
+        *map = (*server)->requestMap(*clientId, "town");
     });
     loading.emplace_back([r]() {
         const auto lighting = eEffectsTextures::get("lighting");
