@@ -17,6 +17,7 @@ void eUnit::increment(const double by) {
         mModel.setAnimation(1);
         mModel.setAngle(mHandler.angle());
     } else {
+        mHandler.stopMoving();
         mModel.setAnimation(0);
     }
 }

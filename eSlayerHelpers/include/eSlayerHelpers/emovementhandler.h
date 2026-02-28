@@ -62,7 +62,7 @@ private:
     double mSpeed = 0.1;
     int mTileMoveSubdivision = 2;
     int mPathFindMargin = 40;
-    double mMaxDivergeAngle = 15.;
+    double mMaxDivergeAngle = 0.;
 };
 
 #endif // EMOVEMENTHANDLER_H
