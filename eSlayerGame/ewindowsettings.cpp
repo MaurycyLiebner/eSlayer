@@ -1,10 +1,11 @@
 #include "ewindowsettings.h"
 
-#include <fstream>
-#include <map>
-
 #include "egamedir.h"
 #include "eloadtexthelper.h"
+
+#include <filesystem>
+#include <fstream>
+#include <map>
 
 void eWindowSettings::write() const {
     const auto path = eGameDir::windowSettingsPath();
@@ -19,11 +20,13 @@ void eWindowSettings::write() const {
     file.close();
 }
 
-void eWindowSettings::read() {
+bool eWindowSettings::read() {
     const auto path = eGameDir::windowSettingsPath();
+    const bool e = std::filesystem::exists(path);
+    if(!e) return false;
     std::map<std::string, std::string> settings;
     const bool r = eLoadTextHelper::load(path, settings);
-    if(!r) return;
+    if(!r) return false;
     fFullscreen = settings["fullscreen"] == "true";
     const auto widthStr = settings["width"];
     const auto heightStr = settings["height"];
@@ -32,4 +35,5 @@ void eWindowSettings::read() {
         const int height = std::stoi(heightStr);
         fRes = eResolution(width, height);
     }
+    return true;
 }

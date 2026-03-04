@@ -8,7 +8,7 @@ struct eWindowSettings {
     eResolution fRes = eResolution(1280, 720);
 
     void write() const;
-    void read();
+    bool read();
 };
 
 #endif // EWINDOWSETTINGS_H

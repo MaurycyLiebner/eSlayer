@@ -1,5 +1,7 @@
 #include "etexture.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 eTexture::eTexture() {}
 
 eTexture::~eTexture() {
@@ -45,8 +47,9 @@ bool eTexture::load(SDL_Renderer* const r,
     reset();
     const auto surf = IMG_Load(path.c_str());
     if(!surf) {
-        printf("Unable to load image %s! SDL_image Error: %s\n",
-               path.c_str(), SDL_GetError());
+        eExceptions::logError(
+            "Unable to load image \"" + path + "\"!",
+            SDL_GetError());
         return false;
     }
     return load(r, surf, colorKey);
@@ -68,8 +71,9 @@ bool eTexture::load(SDL_Renderer* const r,
     mHeight = surf->h;
     SDL_DestroySurface(surf);
     if(!mTex) {
-        printf("Unable to create texture from surface!"
-               "SDL Error: %s\n", SDL_GetError());
+        eExceptions::logError(
+            "Unable to create texture from surface!",
+            SDL_GetError());
         return false;
     }
 

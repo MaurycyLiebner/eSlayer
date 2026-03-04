@@ -4,6 +4,8 @@
 
 #include "../efileloader.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 eSpriteLoader::eSpriteLoader(const std::string& dir,
                              const std::string& path,
                              SDL_Renderer* const r,
@@ -16,8 +18,9 @@ eSpriteLoader::eSpriteLoader(const std::string& dir,
 std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     initialize();
     if(mSpriteCoords.size() <= i) {
-        printf("Texture %i out of range %s/%s.\n",
-               i, mDir.c_str(), mPath.c_str());
+        eExceptions::logError(
+            "Texture " + std::to_string(i) + " out of range " +
+            mDir + "/" + mPath + ".");
         return nullptr;
     }
     const auto tex = std::make_shared<eTexture>();
@@ -59,8 +62,10 @@ void eSpriteLoader::initialize() {
         auto& offset = mSpriteOffsets.emplace_back();
         const auto row = doc.GetRow<int>(i);
         if(row.size() != 6) {
-            printf("Invalid atlas rect/offset at line %i in %s.\n",
-                   i + 1, csvPath.c_str());
+            eExceptions::logError(
+                "Invalid atlas rect/offset at line " +
+                std::to_string(i + 1) + " in " +
+                csvPath + ".");
             continue;
         }
         rect.x = row[0];

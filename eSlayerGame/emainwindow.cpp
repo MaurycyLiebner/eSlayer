@@ -1,10 +1,12 @@
 #include "emainwindow.h"
 
+#include "audio/emusic.h"
+
+#include <eSlayerHelpers/eexceptions.h>
+
 #include <chrono>
 #include <cmath>
 #include <thread>
-
-#include "audio/emusic.h"
 
 eMainWindow::eMainWindow() {}
 
@@ -22,14 +24,16 @@ bool eMainWindow::initialize(const eWindowSettings& settings) {
                                          w, h, 0);
 
     if(!window) {
-        printf("Window could not be created! SDL Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "Window could not be created!",
+            SDL_GetError());
         return false;
     }
     const auto renderer = SDL_CreateRenderer(window, nullptr);
     if(!renderer) {
-        printf("Renderer could not be created! SDL Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "Renderer could not be created!",
+            SDL_GetError());
         SDL_DestroyWindow(window);
         return false;
     }

@@ -11,30 +11,33 @@
 #include "textures/eeffectstextures.h"
 #include "efileloader.h"
 
-#include <vector>
+#include <eSlayerHelpers/eexceptions.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_mixer/SDL_mixer.h>
-#include <stdio.h>
+
+#include <vector>
 
 bool init() {
     if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-        printf("SDL could not initialize! SDL Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "SDL could not initialize!",
+            SDL_GetError());
         return false;
     }
 
-
     if(!MIX_Init()) {
-        printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "SDL_mixer could not initialize!",
+            SDL_GetError());
         return false;
     }
 
     if(!TTF_Init()) {
-        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "SDL_ttf could not initialize!",
+            SDL_GetError());
         return false;
     }
 
@@ -69,8 +72,20 @@ bool getDisplayResolutions(std::vector<SDL_DisplayMode>& resolutions) {
 }
 
 int main(int argc, char* argv[]) {
+    SDL_SetLogOutputFunction([](void *userdata, int category, SDL_LogPriority priority, const char *message) {
+        const auto def = SDL_GetDefaultLogOutputFunction();
+        def(userdata, category, priority, message);
+        if(category == SDL_LOG_CATEGORY_ERROR) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message, nullptr);
+        }
+    }, nullptr);
+
+    eExceptions::setLogger([](const std::string& msg) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s", msg.c_str());
+    });
+
     if(!init()) {
-        printf("Failed to initialize!\n");
+        eExceptions::logError("Failed to initialize!");
         close();
         return 1;
     }
@@ -93,14 +108,18 @@ int main(int argc, char* argv[]) {
 
     const auto mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
     if(!mixer) {
-        printf("SDL_mixer could not create mixer! SDL_mixer Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "SDL_mixer could not create mixer!",
+            SDL_GetError());
         close();
         return 1;
     }
 
     eWindowSettings settings;
-    settings.read();
+    {
+        const bool r = settings.read();
+        if(!r) settings.write();
+    }
 
     int r = 0;
     try {
@@ -155,7 +174,8 @@ int main(int argc, char* argv[]) {
 
         r = w.exec();
     } catch(const std::exception& e) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", e.what(), nullptr);
+        const auto msg = eExceptions::fullMsg(e);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", msg.c_str(), nullptr);
     }
 
     close();

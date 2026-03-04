@@ -3,6 +3,8 @@
 #include "egamedir.h"
 #include "textures/etexture.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 #include <filesystem>
 #include <fstream>
 
@@ -165,8 +167,9 @@ MIX_Audio* eFileLoader::loadAudioImpl(
         audio = MIX_LoadAudio(mixer, filePath.c_str(), false);
     }
     if(!audio) {
-        printf("Failed to load audio '%s'!\n SDL_mixer Error: %s\n",
-               path.c_str(), SDL_GetError());
+        eExceptions::logError(
+            "Failed to load audio '" + path + "'!",
+            SDL_GetError());
     }
     return audio;
 }
@@ -187,9 +190,9 @@ TTF_Font* eFileLoader::loadTTFFontImpl(const int size,
         result = TTF_OpenFont(filePath.c_str(), size);
     }
     if(!result) {
-        printf("Failed to load font! "
-               "SDL_ttf Error: %s\n",
-               SDL_GetError());
+        eExceptions::logError(
+            "Failed to load font '" + path + "'!",
+            SDL_GetError());
     }
     return result;
 }

@@ -2,6 +2,8 @@
 
 #include "etexture.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 #include <cstdio>
 #include <string>
 
@@ -22,8 +24,9 @@ gGenerateTextTexture(SDL_Renderer* const r,
     const auto surf = TTF_RenderText_Blended_Wrapped(
         &font, text.c_str(), text.size(), color, width);
     if(!surf) {
-        printf("Unable to render text! "
-               "SDL_ttf Error: %s\n", SDL_GetError());
+        eExceptions::logError(
+            "Unable to render text!",
+            SDL_GetError());
         return nullptr;
     }
     const auto tex = std::make_shared<eTexture>();
@@ -58,8 +61,9 @@ eTextGenerator::generate(const std::string& text) const {
     const bool r = tex->create(mR, w + dx, h + dy);
 
     if(!r) {
-        printf("Unable to create texture! "
-               "SDL Error: %s\n", SDL_GetError());
+        eExceptions::logError(
+            "Unable to create texture!",
+            SDL_GetError());
         return nullptr;
     }
     {
