@@ -25,8 +25,8 @@ public:
     static std::vector<std::byte> load(
         const std::string& dir,
         const std::string& path);
-    static json parse(const std::string& dir,
-                      const std::string& path);
+    static ordered_json parse(const std::string& dir,
+                              const std::string& path);
     static Document readCsv(const std::string& dir,
                             const std::string& path);
     static std::shared_ptr<eTexture> readTexture(
@@ -43,8 +43,8 @@ public:
 private:
     std::vector<std::byte> loadImpl(const std::string& dir,
                                     const std::string& path);
-    json parseImpl(const std::string& dir,
-                   const std::string& path);
+    ordered_json parseImpl(const std::string& dir,
+                           const std::string& path);
     Document readCsvImpl(const std::string& dir,
                          const std::string& path);
     std::shared_ptr<eTexture> readTextureImpl(

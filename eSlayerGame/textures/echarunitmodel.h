@@ -13,8 +13,8 @@ public:
 
     void draw(ePainter& p, const int frame) const;
 
-    void setAnimation(const int a) { mAnim = a; }
-    void setDirection(const int d) { mDir = d; }
+    void setAnimation(const int a);
+    void setDirection(const int d);
     void setAngle(const double a);
 private:
     int mAnim;

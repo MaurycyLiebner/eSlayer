@@ -27,8 +27,8 @@ std::vector<std::byte> eFileLoader::load(
     return sInstance->loadImpl(dir, path);
 }
 
-json eFileLoader::parse(const std::string& dir,
-                        const std::string& path) {
+ordered_json eFileLoader::parse(const std::string& dir,
+                                const std::string& path) {
     if(!sInstance) {
         throw std::runtime_error("No available file loader.");
     }
@@ -96,15 +96,15 @@ std::vector<std::byte> eFileLoader::loadImpl(
     }
 }
 
-json eFileLoader::parseImpl(const std::string& dir,
-                            const std::string& path) {
+ordered_json eFileLoader::parseImpl(const std::string& dir,
+                                    const std::string& path) {
     if(mUseZip) {
         const auto data = load(dir, path);
-        return json::parse(data.begin(), data.end());
+        return ordered_json::parse(data.begin(), data.end());
     } else {
         const auto filePath = gFilePath(dir, path);
         std::ifstream f(filePath);
-        return json::parse(f);
+        return ordered_json::parse(f);
     }
 }
 

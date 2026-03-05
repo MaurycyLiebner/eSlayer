@@ -18,7 +18,7 @@ public:
     eCharModel generateModel(const eModelParts& modelParts,
                              SDL_Renderer* const r);
 
-    void load(json& jdata);
+    void load(ordered_json& jdata);
 
     void setName(const std::string& name) { mName = name; }
 private:
@@ -31,7 +31,7 @@ private:
         eOffset fOffset;
     };
 
-    std::map<std::string, eAnimation> mAnims;
+    std::vector<std::pair<std::string, eAnimation>> mAnims;
     std::vector<std::map<std::string, std::vector<std::string>>> mGroups;
     std::map<std::string, std::map<int, std::shared_ptr<eTextureCollection>>> mTexMap;
 };

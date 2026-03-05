@@ -52,15 +52,19 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
     return result;
 }
 
-void eCharTextures::load(json& jdata) {
+void eCharTextures::load(ordered_json& jdata) {
     mDirs = jdata["directions"];
-    const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0});
-    mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
+    const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0, 0});
+    if(colorKey.size() == 3) {
+        mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
+    }
     const auto anims = jdata["animations"].items();
     for(auto& [name, animData] : anims) {
         const int frames = animData.value("frames", 0);
         const auto offset = animData.value("offset", std::vector<int>{0, 0});
-        auto& anim = mAnims[name];
+        auto& animP = mAnims.emplace_back();
+        animP.first = name;
+        auto& anim = animP.second;
         anim.fFrames = frames;
         anim.fOffset = eOffset{offset[0], offset[1]};
     }

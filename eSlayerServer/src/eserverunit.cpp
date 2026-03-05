@@ -12,6 +12,7 @@ void eServerUnit::increment(const double by) {
     if(r) {
         const auto newPos = mHandler.pos();
         fVel = ePointF::vector(newPos, fPos);
+        fAngle = fVel.angle();
         fPos = newPos;
     } else {
         mHandler.stopMoving();

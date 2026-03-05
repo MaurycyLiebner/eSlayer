@@ -44,6 +44,7 @@ bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
     const auto unit = mArea->unit(clientId);
     if(unit) {
         unit->fVel = ePointF::vector(pos, unit->fPos);
+        unit->fAngle = unit->fVel.angle();
         unit->fPos = pos;
     } else {
         mArea->addClient(clientId, pos);

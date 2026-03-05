@@ -117,7 +117,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 auto& model = unit->model();
                 unit->setPos(u.fPos);
                 if(u.fVel.length() == 0) {
-                    model.setAnimation(0);
+                    model.setAnimation(unit->fAnim);
                 } else {
                     model.setAngle(u.fVel.angle());
                     model.setAnimation(1);

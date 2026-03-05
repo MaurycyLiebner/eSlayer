@@ -1,13 +1,17 @@
 #ifndef EUNITBASEACTION_H
 #define EUNITBASEACTION_H
 
-#include "eunitaction.h"
+#include "ecomplexaction.h"
 
-class eUnitBaseAction : public eUnitAction {
+#include <eSlayerHelpers/epoint.h>
+
+class eUnitBaseAction : public eComplexAction {
 public:
-    using eUnitAction::eUnitAction;
+    using eComplexAction::eComplexAction;
 
-    void increment(const double by) override;
+    void decide() override;
+private:
+    void attack(const eServerUnit& u);
 };
 
 #endif // EUNITBASEACTION_H

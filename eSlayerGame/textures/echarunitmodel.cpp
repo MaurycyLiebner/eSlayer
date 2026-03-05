@@ -4,6 +4,8 @@
 
 #include "../widgets/epainter.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 #include <cmath>
 
 eCharUnitModel::eCharUnitModel() {}
@@ -103,6 +105,7 @@ void eCharUnitModel::draw(ePainter& p, const int frame) const {
         }
     }
     p.restore();
+    p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 
 void eCharUnitModel::setAngle(const double a) {
@@ -110,4 +113,24 @@ void eCharUnitModel::setAngle(const double a) {
     const double ainc = 360./dirs;
     const int dir = std::round(a/ainc) - 2*dirs/16;
     setDirection((dirs + dir) % dirs);
+}
+
+void eCharUnitModel::setAnimation(const int a) {
+    if(a >= mModel.nAnims()) {
+        eExceptions::logError("Animation id " +
+                              std::to_string(a) +
+                              " out of range!");
+        return;
+    }
+    mAnim = a;
+}
+
+void eCharUnitModel::setDirection(const int d) {
+    if(d >= mModel.nDirs()) {
+        eExceptions::logError("Direction id " +
+                              std::to_string(d) +
+                              " out of range!");
+        return;
+    }
+    mDir = d;
 }

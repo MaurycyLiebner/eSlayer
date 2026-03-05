@@ -7,13 +7,14 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 13; x < 24; x++) {
-        for(int y = 13; y < 24; y++) {
+    for(int x = 13; x < 14; x++) {
+        for(int y = 13; y < 14; y++) {
             const auto u = std::make_shared<eServerUnit>();
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
             u->fRadius = 0.4;
+            u->fAnim = 0;
             const ePointF pos{double(x), double(y)};
             u->fPos = pos;
             mUnitIdMap[charId] = mUnits.size();

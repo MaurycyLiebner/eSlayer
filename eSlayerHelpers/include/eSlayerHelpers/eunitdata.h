@@ -12,6 +12,8 @@ struct ESLAYERHELPERS_API eUnitData {
     double fRadius;
     ePointF fPos;
     eVec2d fVel;
+    int fAnim;
+    double fAngle;
 };
 
 #endif // EUNITDATA_H

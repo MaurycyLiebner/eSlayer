@@ -17,6 +17,9 @@ add_library(eSlayerServer SHARED
     src/eserverunit.cpp
     src/eunitaction.h src/eunitaction.cpp
     src/eunitbaseaction.h src/eunitbaseaction.cpp
+    src/emovetoenemyaction.h src/emovetoenemyaction.cpp
+    src/ecomplexaction.h src/ecomplexaction.cpp
+    src/eattackaction.h src/eattackaction.cpp
 )
 
 target_include_directories(eSlayerServer

@@ -33,6 +33,7 @@ public:
 
     bool increment(const double by);
 
+    bool moving() const { return mGoal.moving(); }
     void stopMoving();
     bool moveTo(const ePointF& pos);
     void moveInDirection(const ePointF& pos);
