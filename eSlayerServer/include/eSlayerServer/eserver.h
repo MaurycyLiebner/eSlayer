@@ -3,8 +3,7 @@
 
 #include "eslayerserverexport.h"
 
-#include "eserverunit.h"
-
+#include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerMapGenerator/emapgenerator.h>
 
 #include <memory>
@@ -25,7 +24,7 @@ public:
 
     virtual int
     receiveUnits(const int clientId,
-                 std::vector<std::shared_ptr<eServerUnit>>& units) = 0;
+                 std::vector<eUnitData>& units) = 0;
 
     virtual bool
     moveTo(const int clientId,

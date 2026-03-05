@@ -6,14 +6,21 @@ bool eServerClientHandler::requestUnits() {
         );
     if(mArea) {
         const auto& units = mArea->units();
-        mUnitRequests.emplace_back(eUnitsRequest{now, units});
+        std::vector<eUnitData> unitsData;
+        unitsData.reserve(units.size());
+        for(const auto& u : units) {
+            const eUnitData& uu =
+                reinterpret_cast<eUnitData&>(*u);
+            unitsData.emplace_back(uu);
+        }
+        mUnitRequests.emplace_back(eUnitsRequest{now, unitsData});
     } else {
         mUnitRequests.emplace_back(eUnitsRequest{now, {}});
     }
     return true;
 }
 
-int eServerClientHandler::receiveUnits(std::vector<std::shared_ptr<eServerUnit>>& units) {
+int eServerClientHandler::receiveUnits(std::vector<eUnitData>& units) {
     const auto now = duration_cast<milliseconds>(
         system_clock::now().time_since_epoch()
         );

@@ -86,11 +86,11 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
 void eGameScreen::paintEvent(ePainter& p) {
     mServer->increment();
     mServer->requestUnits(mClientId);
-    std::vector<std::shared_ptr<eServerUnit>> units;
+    std::vector<eUnitData> units;
     const int delay = mServer->receiveUnits(mClientId, units);
     if(delay != -1) {
         for(const auto& u : units) {
-            const int charId = u->fCharId;
+            const int charId = u.fCharId;
             if(charId == mClientId) continue;
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
@@ -101,27 +101,25 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto texs = eCharsTextures::get("mummy");
                 const auto unitModel = texs->generateModel(modelParts, r);
                 auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
-                reinterpret_cast<eUnitData&>(*unit) =
-                    reinterpret_cast<eUnitData&>(*u);
+                reinterpret_cast<eUnitData&>(*unit) = u;
                 initialize(charId, *unit);
                 eCharUnitModel model;
                 model.setCharModel(unitModel);
                 model.setAnimation(0);
                 model.setDirection(0);
                 unit->setModel(model);
-                unit->setPos(u->fPos);
+                unit->setPos(u.fPos);
                 mUnitIndexMap[charId] = mUnits.size() - 1;
             } else {
                 const int id = it->second;
                 const auto& unit = mUnits[id];
-                reinterpret_cast<eUnitData&>(*unit) =
-                    reinterpret_cast<eUnitData&>(*u);
+                reinterpret_cast<eUnitData&>(*unit) = u;
                 auto& model = unit->model();
-                unit->setPos(u->fPos);
-                if(u->fVel.length() == 0) {
+                unit->setPos(u.fPos);
+                if(u.fVel.length() == 0) {
                     model.setAnimation(0);
                 } else {
-                    model.setAngle(u->fVel.angle());
+                    model.setAngle(u.fVel.angle());
                     model.setAnimation(1);
                 }
             }

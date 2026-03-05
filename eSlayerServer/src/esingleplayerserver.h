@@ -21,8 +21,7 @@ public:
 
     bool requestUnits(const int clientId) override;
 
-    int receiveUnits(const int clientId,
-                     std::vector<std::shared_ptr<eServerUnit>>& units) override;
+    int receiveUnits(const int clientId, std::vector<eUnitData>& units) override;
 
     bool moveTo(const int clientId,
                 const ePointF& pos) override;

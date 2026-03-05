@@ -11,13 +11,13 @@ using namespace std::chrono;
 
 struct eUnitsRequest {
     milliseconds fRequestTime;
-    std::vector<std::shared_ptr<eServerUnit>> fUnits;
+    std::vector<eUnitData> fUnits;
 };
 
 class eServerClientHandler {
 public:
     bool requestUnits();
-    int receiveUnits(std::vector<std::shared_ptr<eServerUnit>>& units);
+    int receiveUnits(std::vector<eUnitData>& units);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 

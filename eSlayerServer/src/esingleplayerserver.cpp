@@ -38,7 +38,7 @@ bool eSinglePlayerServer::requestUnits(const int clientId) {
 }
 
 int eSinglePlayerServer::receiveUnits(const int clientId,
-                                      std::vector<std::shared_ptr<eServerUnit>>& units) {
+                                      std::vector<eUnitData>& units) {
     const auto h = clientHandler(clientId);
     if(!h) return -1;
     return h->receiveUnits(units);
