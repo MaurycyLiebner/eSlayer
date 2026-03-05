@@ -5,8 +5,8 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 12; x < 24; x++) {
-        for(int y = 12; y < 24; y++) {
+    for(int x = 13; x < 24; x++) {
+        for(int y = 13; y < 24; y++) {
             const auto u = std::make_shared<eServerUnit>();
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
@@ -30,6 +30,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 }
             };
             m->intialize(w, iter, charId);
+            m->setRadius(u->fRadius);
             m->setPos(pos);
             mMovementHandlers.emplace_back(m);
         }

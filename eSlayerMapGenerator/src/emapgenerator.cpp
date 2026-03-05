@@ -84,33 +84,24 @@ eMapGenerator::generate(const std::string& name) const {
         obj.fTileX = 5;
         obj.fTileY = 5;
 
-        {
-            auto& obj = result->mObjects.emplace_back();
-            obj.fObjectType = 0;
-            obj.fTileType = 29;
-            obj.fTileX = 8;
-            obj.fTileY = 8;
+        for(int x = 8; x <= 9; x++) {
+            for(int y = 8; y <= 9; y++) {
+                auto& obj = result->mObjects.emplace_back();
+                obj.fObjectType = 0;
+                obj.fTileType = 29;
+                obj.fTileX = x;
+                obj.fTileY = y;
+            }
         }
-        {
-            auto& obj = result->mObjects.emplace_back();
-            obj.fObjectType = 0;
-            obj.fTileType = 29;
-            obj.fTileX = 9;
-            obj.fTileY = 9;
-        }
-        {
-            auto& obj = result->mObjects.emplace_back();
-            obj.fObjectType = 0;
-            obj.fTileType = 29;
-            obj.fTileX = 9;
-            obj.fTileY = 8;
-        }
-        {
-            auto& obj = result->mObjects.emplace_back();
-            obj.fObjectType = 0;
-            obj.fTileType = 29;
-            obj.fTileX = 8;
-            obj.fTileY = 9;
+
+        for(int x = 11; x <= 12; x++) {
+            for(int y = 11; y <= 12; y++) {
+                auto& obj = result->mObjects.emplace_back();
+                obj.fObjectType = 0;
+                obj.fTileType = 29;
+                obj.fTileX = x;
+                obj.fTileY = y;
+            }
         }
 
         result->updateObjectsMap();

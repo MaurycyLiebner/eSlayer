@@ -29,6 +29,7 @@ public:
     void setPos(const ePointF& pos) { mPos = pos; }
     double angle() const { return mAngle; }
     void setSpeed(const double s) { mSpeed = s; }
+    void setRadius(const double r) { mRadius = r; }
 
     bool increment(const double by);
 

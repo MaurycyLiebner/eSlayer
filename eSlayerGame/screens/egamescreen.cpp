@@ -49,6 +49,7 @@ void eGameScreen::initialize(const int clientId,
         }
     };
     mMovementHandler.intialize(w, iter, clientId);
+    mMovementHandler.setRadius(0.4);
 }
 
 const ePointF& eGameScreen::characterPos() const {
