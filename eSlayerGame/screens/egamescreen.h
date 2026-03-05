@@ -48,7 +48,6 @@ private:
     void hideESCMenu();
 
     eWalkable walkable() const;
-    eObsticle obsticle() const;
 
     void initialize(const int charId, eUnit& u);
 

@@ -30,13 +30,8 @@ protected:
 
 class ESLAYERHELPERS_API eMovementGoal : public eMovementGoalData {
 public:
-    bool increment(const ePointF& from,
-                   ePointF& to,
-                   const double dist);
-
-    void setWalkable(const eWalkable& w);
-private:
-    eWalkable mWalkable;
+    bool goal(ePointF& to);
+    bool nextWaypoint();
 };
 
 #endif // EMOVEMENTGOAL_H

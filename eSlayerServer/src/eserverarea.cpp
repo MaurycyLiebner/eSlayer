@@ -11,27 +11,25 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
+            u->fRadius = 0.4;
             const ePointF pos{double(x), double(y)};
             u->fPos = pos;
             mUnitIdMap[charId] = mUnits.size();
             mUnits.emplace_back(u);
 
             const auto m = std::make_shared<eMovementHandler>();
-            m->setDelay(3);
+            m->setSpeed(0.025);
 
             const auto w = [this](const int x, const int y) {
                 return mMap->walkable(x, y);
             };
-            const auto o = [this](const int charId, const ePointF& p) {
+            const auto iter = [this, charId](const eOtherHandler& handler) {
                 for(const auto& u : mUnits) {
                     if(charId == u->fCharId) continue;
-                    const auto& pos = u->fPos;
-                    const auto dist = ePointF::distance(pos, p);
-                    if(dist < 0.4) return true;
+                    handler(*u);
                 }
-                return false;
             };
-            m->intialize(w, o, charId);
+            m->intialize(w, iter, charId);
             m->setPos(pos);
             mMovementHandlers.emplace_back(m);
         }
@@ -44,11 +42,15 @@ void eServerArea::increment() {
         const auto& m = mMovementHandlers[i];
         if(!m) continue;
         const bool r = m->increment(1.);
-        if(!r) m->stopMoving();
         const auto& u = mUnits[i];
-        const auto newPos = m->pos();
-        u->fPlanned = m->planned();
-        u->fPos = newPos;
+        if(r) {
+            const auto newPos = m->pos();
+            u->fVel = ePointF::vector(newPos, u->fPos);
+            u->fPos = newPos;
+        } else {
+            m->stopMoving();
+            u->fVel = eVec2d{0., 0.};
+        }
 
         if(eRand::rand() % 11 == 10) {
             for(const auto& uu : mUnits) {
@@ -68,6 +70,7 @@ void eServerArea::addClient(
     mUnitIdMap[clientId] = mUnits.size();
     const auto u = std::make_shared<eServerUnit>();
     u->fCharId = clientId;
+    u->fRadius = 0.4;
     u->fTeamId = 0;
     u->fPos = pos;
     mUnits.emplace_back(u);

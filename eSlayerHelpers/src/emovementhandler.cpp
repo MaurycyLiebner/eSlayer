@@ -1,26 +1,25 @@
 #include "eSlayerHelpers/emovementhandler.h"
 
 #include "eSlayerHelpers/epathfinder.h"
+#include "eSlayerHelpers/eunitdata.h"
 #include "eSlayerHelpers/evec2.h"
 
 #include <cstdio>
 
 void eMovementHandler::intialize(const eWalkable& w,
-                                 const eObsticle& o,
+                                 const eOtherIterator& iter,
                                  const int charId) {
     mCharId = charId;
     mWalkable = w;
-    mGoal.setWalkable(w);
-    mObsticle = o;
+    mOtherIterator = iter;
 }
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
-    const ePointF pos = mPlanned.empty() ? mPos : mPlanned.back();
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(0, 0, dim, dim);
-    const auto iPos = (pos * subdivision).round();
+    const auto iPos = (mPos * subdivision).round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
             const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
@@ -43,10 +42,10 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
         step.fSrc.fY /= subdivision;
         step.fDst.fX /= subdivision;
         step.fDst.fY /= subdivision;
-        step.fSrc.fX += std::round(pos.fX*subdivision)/subdivision;
-        step.fSrc.fY += std::round(pos.fY*subdivision)/subdivision;
-        step.fDst.fX += std::round(pos.fX*subdivision)/subdivision;
-        step.fDst.fY += std::round(pos.fY*subdivision)/subdivision;
+        step.fSrc.fX += std::round(mPos.fX*subdivision)/subdivision;
+        step.fSrc.fY += std::round(mPos.fY*subdivision)/subdivision;
+        step.fDst.fX += std::round(mPos.fX*subdivision)/subdivision;
+        step.fDst.fY += std::round(mPos.fY*subdivision)/subdivision;
     }
     mGoal.moveOnPath(path);
     return found;
@@ -56,107 +55,88 @@ void eMovementHandler::moveInDirection(const ePointF& pos) {
     mGoal.moveInDir(pos);
 }
 
-void eMovementHandler::pushPlanned(std::queue<eIdPointF> planned) {
-    while(!planned.empty()) {
-        const auto& p = planned.front();
-        if(p.fId >= mNextPlannedId) {
-            mPlanned.push(p);
-            mNextPlannedId = p.fId + 1;
-        }
-        planned.pop();
-    }
-}
-
-void eMovementHandler::planMovement(const ePointF& to) {
-    mPlanned.push({to, mNextPlannedId++});
-}
-
-bool eMovementHandler::incMovement(const double by) {
-    bool moved = false;
-    const double inc = mSpeed*by;
-    double rem = inc;
-    while(rem > 0 && mPlanned.size() > mDelay) {
-        const auto& next = mPlanned.front();
-        eVec2d vec{next.fX - mPos.fX, next.fY - mPos.fY};
-        const double len = vec.length();
-        if(len > rem && std::abs(len - rem) > 0.001) {
-            vec.normalize(rem);
-            rem = 0;
-        } else {
-            rem -= len;
-            mPlanned.pop();
-        }
-        moved = tryMoveBy(vec) || moved;
-    }
-    return moved;
-}
-
-void eMovementHandler::clearPlanned() {
-    std::queue<eIdPointF> tmp;
-    std::swap(mPlanned, tmp);
-}
-
-bool eMovementHandler::tryMove(eVec2d& vec) {
-    bool move = false;
-    const double angleInc = 5.;
-    const int iMax = std::ceil(mMaxDivergeAngle/angleInc);
-    for(int i = 0; i <= iMax; i++) {
-        for(int j : {-1, 1}) {
-            if(i == 0 && j == 1) continue;
-            auto v = vec;
-            if(i != 0) v.rotate(i*angleInc*j*5);
-            const ePointF newPos{mPos.fX + v.x,
-                                 mPos.fY + v.y};
-            const auto iNewPos = newPos.floor();
-            move = mWalkable(iNewPos.fX, iNewPos.fY);
-            if(move) {
-                move = !mObsticle(mCharId, newPos);
-                if(move) {
-                    vec = v;
-                    break;
-                }
-            }
-        }
-        if(move) {
-            break;
-        }
-    }
-    if(!move) return false;
-    return true;
-}
-
-bool eMovementHandler::tryMoveBy(eVec2d vec) {
-    const bool r = tryMove(vec);
-    if(r) moveBy(vec);
-    return r;
-}
-
 void eMovementHandler::moveBy(const eVec2d& vec) {
     mPos.fX += vec.x;
     mPos.fY += vec.y;
     mAngle = vec.angle();
 }
 
-bool eMovementHandler::increment(const double by) {
-    bool result = false;
-    if(mPlanned.size() <= mDelay && mGoal.moving()) {
-        const double dist = mSpeed*by;
-        const ePointF pos = mPlanned.empty() ? mPos : mPlanned.back();
-        ePointF to;
-        const bool move = mGoal.increment(pos, to, dist);
-        if(move) {
-            result = true;
-            planMovement(to);
-        }
-    }
-    return incMovement(by) || result;
+bool eMovementHandler::walkable(const ePointF& pos) const {
+    const auto ipos = pos.floor();
+    return mWalkable(ipos.fX, ipos.fY);
 }
 
-void eMovementHandler::setDivergeAngle(const double a) {
-    mMaxDivergeAngle = a;
+bool eMovementHandler::increment(const double by) {
+    ePointF to;
+    const bool r = mGoal.goal(to);
+    if(!r) return false;
+    switch(mGoal.type()) {
+    case eMovementGoalType::dir: {
+        if(ePointF::distance(mPos, to) < 0.01) {
+            mGoal.stopMoving();
+            return false;
+        }
+    } break;
+    case eMovementGoalType::path: {
+        if(ePointF::distance(mPos, to) < mWaypointReachDist) {
+            mGoal.nextWaypoint();
+        }
+    } break;
+    default:
+        return false;
+    }
+    auto desiredDir = ePointF::vector(to, mPos);
+    desiredDir.normalize();
+
+    eVec2d separation{0., 0.};
+    eVec2d avoid{0., 0.};
+
+    mOtherIterator([&](const eUnitData& other) {
+        if(other.fCharId == mCharId) return;
+        eVec2d diff = ePointF::vector(mPos, other.fPos);
+        const double dist = diff.length();
+        if(dist > mNearbyUnits) return;
+        diff.normalize();
+        {
+            const double minDist = mRadius + other.fRadius;
+            if(dist < minDist && dist > 0.0001) {
+                separation += diff*(minDist - dist);
+            }
+        }
+        {
+            const auto relPos = ePointF::vector(other.fPos, mPos);
+            auto normRelPos = relPos;
+            normRelPos.normalize();
+            const auto relVel = mVel - other.fVel;
+            if(eVec2d::dot(relPos, relVel) < 0) {
+                avoid -= normRelPos;
+            }
+        }
+    });
+
+    auto moveDir = desiredDir*1.0 +
+                   separation*1.5 +
+                   avoid*0.35 +
+                   eVec2d::random()*0.05;
+    if(moveDir.length() > 0) {
+        moveDir.normalize();
+    }
+    mVel = moveDir*mSpeed;
+    mAngle = mVel.angle();
+
+    const auto newPos = mPos + mVel*by;
+    if(walkable(newPos)) {
+        mPos = newPos;
+    } else {
+        const auto tryX = ePointF{newPos.fX, mPos.fY};
+        const auto tryY = ePointF{mPos.fX, newPos.fY};
+        if(walkable(tryX)) mPos.fX = tryX.fX;
+        if(walkable(tryY)) mPos.fY = tryY.fY;
+    }
+
+    return true;
 }
 
 void eMovementHandler::stopMoving() {
-    clearPlanned();
     mGoal.stopMoving();
 }

@@ -4,65 +4,59 @@
 #include "evec2.h"
 #include "eslayerhelpersexport.h"
 #include "emovementgoal.h"
-#include "eidpointf.h"
 
 #include <functional>
-#include <queue>
+
+class eUnitData;
 
 using eWalkable = std::function<bool(const int x, const int y)>;
-using eObsticle = std::function<bool(const int charId, const ePointF& p)>;
 
+using eOtherHandler = std::function<void(const eUnitData&)>;
+using eOtherIterator = std::function<void(const eOtherHandler&)>;
 
 class ESLAYERHELPERS_API eMovementHandler {
 public:
     void intialize(const eWalkable& w,
-                   const eObsticle& o,
+                   const eOtherIterator& iter,
                    const int charId);
 
     void setPathFindMargin(const int m)
     { mPathFindMargin = m; }
 
+    int charId() const { return mCharId; }
+
     const ePointF& pos() const { return mPos; }
     void setPos(const ePointF& pos) { mPos = pos; }
     double angle() const { return mAngle; }
     void setSpeed(const double s) { mSpeed = s; }
-    void setDelay(const int d) { mDelay = d; }
 
     bool increment(const double by);
-
-    void setDivergeAngle(const double a);
 
     void stopMoving();
     bool moveTo(const ePointF& pos);
     void moveInDirection(const ePointF& pos);
-
-    void pushPlanned(std::queue<eIdPointF> planned);
-    const std::queue<eIdPointF>& planned() const { return mPlanned; }
 private:
-    void planMovement(const ePointF& to);
-    bool incMovement(const double by);
-    void clearPlanned();
-
-    bool tryMove(eVec2d& vec);
-    bool tryMoveBy(eVec2d vec);
     void moveBy(const eVec2d& vec);
+    bool walkable(const ePointF& pos) const;
 
     int mCharId = 0;
     eWalkable mWalkable;
-    eObsticle mObsticle;
-
-    int mDelay = 0;
-    int mNextPlannedId = 0;
-    std::queue<eIdPointF> mPlanned;
+    eOtherIterator mOtherIterator;
 
     eMovementGoal mGoal;
 
     ePointF mPos{0., 0.};
-    double mAngle = 0.;
+    eVec2d mVel{0., 0.};
+
+    double mRadius = 0.4;
     double mSpeed = 0.1;
+    double mStuckTimer = 0.;
+
+    double mAngle = 0.;
     int mTileMoveSubdivision = 2;
     int mPathFindMargin = 40;
-    double mMaxDivergeAngle = 0.;
+    double mWaypointReachDist = 0.2;
+    double mNearbyUnits = 1.5;
 };
 
 #endif // EMOVEMENTHANDLER_H

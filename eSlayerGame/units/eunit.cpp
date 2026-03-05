@@ -1,14 +1,9 @@
 #include "eunit.h"
 
 void eUnit::intialize(const eWalkable& w,
-                      const eObsticle& o,
                       const int charId) {
     mCharId = charId;
-    mHandler.intialize(w, o, charId);
-}
-
-void eUnit::pushPlanned(const std::queue<eIdPointF>& planned) {
-    mHandler.pushPlanned(planned);
+    // mHandler.intialize(w, o, charId);
 }
 
 void eUnit::increment(const double by) {

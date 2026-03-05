@@ -3,13 +3,13 @@
 
 #include "../textures/echarunitmodel.h"
 
-#include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/epoint.h>
 
-class eUnit {
+class eUnit : public eUnitData {
 public:
     void intialize(const eWalkable& w,
-                   const eObsticle& o,
                    const int charId);
 
     int charId() const { return mCharId; }
@@ -20,8 +20,6 @@ public:
     eCharUnitModel& model() { return mModel; }
     const eCharUnitModel& model() const { return mModel; }
     void setModel(const eCharUnitModel& model) { mModel = model; }
-
-    void pushPlanned(const std::queue<eIdPointF>& planned);
 
     void increment(const double by);
 private:

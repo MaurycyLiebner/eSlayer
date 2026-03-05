@@ -3,16 +3,16 @@
 
 #include "epoint.h"
 
-#include <vector>
+#include <deque>
 
 struct ePathStep {
     ePointF fSrc;
     ePointF fDst;
 };
 
-class ESLAYERHELPERS_API ePathFinderPath : public std::vector<ePathStep> {
+class ESLAYERHELPERS_API ePathFinderPath : public std::deque<ePathStep> {
 public:
-    using std::vector<ePathStep>::vector;
+    using std::deque<ePathStep>::deque;
 
     ePointF posAtDist(const ePointF& start,
                       const double dist) const;

@@ -29,6 +29,7 @@ SOFTWARE.
 #define M_PI (3.14159265358979323846)
 #endif
 
+#include "erand.h"
 
 template <class T>
 class eVec2 {
@@ -159,6 +160,16 @@ public:
     static T cross(const eVec2& v1, const eVec2& v2) {
 		return (v1.x * v2.y) - (v1.y * v2.x);
 	}
+
+    static eVec2 random(const double len = 1.) {
+        eVec2 r{0, 0};
+        do {
+            r.x = eRand::randF();
+            r.y = eRand::randF();
+        } while(r.length() == 0);
+        r.normalize(len);
+        return r;
+    }
 };
 
 typedef eVec2<float> eVec2f;

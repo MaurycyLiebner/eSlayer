@@ -1,7 +1,5 @@
 #include "eSlayerHelpers/emovementgoal.h"
 
-#include "eSlayerHelpers/epathsmoother.h"
-
 #include <cstdio>
 
 void eMovementGoalData::moveInDir(const ePointF& dir) {
@@ -16,53 +14,28 @@ void eMovementGoalData::moveOnPath(const ePathFinderPath& path) {
 
 void eMovementGoalData::stopMoving() {
     mType = eMovementGoalType::none;
+    mPath.clear();
 }
 
-bool eMovementGoal::increment(const ePointF& from,
-                              ePointF& to,
-                              const double dist) {
-    eVec2d vec;
+bool eMovementGoal::goal(ePointF& to) {
     switch(mType) {
     case eMovementGoalType::none:
         return false;
     case eMovementGoalType::dir: {
-        vec = eVec2d{mDir.fX - from.fX,
-                     mDir.fY - from.fY};
-        if(vec.length() > dist) {
-            vec.normalize(dist);
-        }
+        to = mDir;
+        return true;
     } break;
     case eMovementGoalType::path: {
-        if(mPath.empty()) {
-            stopMoving();
-            return false;
-        }
-        const auto iPos = from.floor();
-        const int margin = 2;
-        const int dim = 2*margin + 1;
-        ePathFinderMap map(iPos.fX - margin, iPos.fY - margin, dim, dim);
-        for(int x = iPos.fX - margin; x <= iPos.fX + margin; x++) {
-            for(int y = iPos.fY - margin; y <= iPos.fY + margin; y++) {
-                map.set({x, y}, mWalkable(x, y));
-            }
-        }
-        int skipNodes;
-        vec = ePathSmoother::moveDir(
-            mPath, map, from, 1., dist, skipNodes);
-        for(int i = 0; i < skipNodes && !mPath.empty(); i++) {
-            mPath.erase(mPath.begin());
-        }
+        if(mPath.empty()) return false;
+        to = mPath.front().fDst;
+        return true;
     } break;
     }
-    if(vec.length() < 0.0001) {
-        stopMoving();
-        return false;
-    }
-    to = ePointF{from.fX + vec.x,
-                 from.fY + vec.y};
-    return true;
+    return false;
 }
 
-void eMovementGoal::setWalkable(const eWalkable& w) {
-    mWalkable = w;
+bool eMovementGoal::nextWaypoint() {
+    if(mPath.empty()) return false;
+    mPath.pop_front();
+    return true;
 }

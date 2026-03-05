@@ -11,3 +11,8 @@ std::uniform_int_distribution<int> eRand::sDist(0, __INT_MAX__);
 int eRand::rand() {
     return sDist(sRng);
 }
+
+double eRand::randF(const double min, const double max) {
+    const int margin = 100000;
+    return min + (max - min)*(rand() % (margin + 1))/margin;
+}

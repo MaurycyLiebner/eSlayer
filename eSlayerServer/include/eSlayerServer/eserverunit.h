@@ -3,18 +3,10 @@
 
 #include "eslayerserverexport.h"
 
-#include <eSlayerHelpers/epathfinderpath.h>
-#include <eSlayerHelpers/evec2.h>
-#include <eSlayerHelpers/eidpointf.h>
+#include <eSlayerHelpers/eunitdata.h>
 
-#include <queue>
-
-struct ESLAYERSERVER_API eServerUnit {
+struct ESLAYERSERVER_API eServerUnit : public eUnitData {
     static int sNextCharId;
-    int fCharId;
-    int fTeamId;
-    ePointF fPos;
-    std::queue<eIdPointF> fPlanned;
 };
 
 #endif // ESERVERUNIT_H
