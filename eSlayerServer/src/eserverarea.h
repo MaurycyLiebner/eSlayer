@@ -1,7 +1,7 @@
 #ifndef ESERVERAREA_H
 #define ESERVERAREA_H
 
-#include "eSlayerServer/eserverunit.h"
+#include "eserverunit.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
@@ -26,8 +26,6 @@ private:
     std::vector<std::shared_ptr<eServerUnit>>
     mUnits;
     std::map<int, int> mUnitIdMap;
-    std::vector<std::shared_ptr<eMovementHandler>>
-    mMovementHandlers;
 
     std::shared_ptr<eMap> mMap;
 };

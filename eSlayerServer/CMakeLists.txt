@@ -10,11 +10,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_library(eSlayerServer SHARED
     include/eSlayerServer/eserver.h src/eserver.cpp
     include/eSlayerServer/eslayerserverexport.h
-    include/eSlayerServer/eserverunit.h
+    src/eserverunit.h
     src/esingleplayerserver.h src/esingleplayerserver.cpp
     src/eserverclienthandler.h src/eserverclienthandler.cpp
     src/eserverarea.h src/eserverarea.cpp
     src/eserverunit.cpp
+    src/eunitaction.h src/eunitaction.cpp
+    src/eunitbaseaction.h src/eunitbaseaction.cpp
 )
 
 target_include_directories(eSlayerServer
