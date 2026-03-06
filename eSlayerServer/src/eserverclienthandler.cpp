@@ -1,10 +1,8 @@
 #include "eserverclienthandler.h"
 
 bool eServerClientHandler::requestUnits() {
-    const auto now = duration_cast<milliseconds>(
-        system_clock::now().time_since_epoch()
-        );
     if(mArea) {
+        const double time = mArea->time();
         const auto& units = mArea->units();
         std::vector<eUnitData> unitsData;
         unitsData.reserve(units.size());
@@ -13,30 +11,27 @@ bool eServerClientHandler::requestUnits() {
                 reinterpret_cast<eUnitData&>(*u);
             unitsData.emplace_back(uu);
         }
-        mUnitRequests.emplace_back(eUnitsRequest{now, unitsData});
+        mUnitRequests.emplace_back(eUnitsRequest{time, unitsData});
     } else {
-        mUnitRequests.emplace_back(eUnitsRequest{now, {}});
+        mUnitRequests.emplace_back(eUnitsRequest{0., {}});
     }
     return true;
 }
 
-int eServerClientHandler::receiveUnits(std::vector<eUnitData>& units) {
-    const auto now = duration_cast<milliseconds>(
-        system_clock::now().time_since_epoch()
-        );
+bool eServerClientHandler::receiveUnits(std::vector<eUnitData>& units,
+                                        double& resultTime,
+                                        const double clientTime) {
     const int iMax = mUnitRequests.size();
     for(int i = 0; i < iMax; i++) {
         auto& r = mUnitRequests[i];
-        const auto& requestTime = r.fRequestTime;
-        const auto d = std::chrono::duration_cast<milliseconds>(now - requestTime);
-        const int di = d.count();
-        if(di >= mDelay) {
+        resultTime = r.fTime;
+        if(clientTime >= resultTime) {
             std::swap(units, r.fUnits);
             mUnitRequests.erase(mUnitRequests.begin() + i);
-            return di;
+            return true;
         }
     }
-    return -1;
+    return false;
 }
 
 bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {

@@ -15,6 +15,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fTeamId = -1;
             u->fRadius = 0.4;
             u->fAnim = 0;
+            u->fAnimId = 0;
             const ePointF pos{double(x), double(y)};
             u->fPos = pos;
             mUnitIdMap[charId] = mUnits.size();
@@ -42,12 +43,13 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     }
 }
 
-void eServerArea::increment() {
+void eServerArea::increment(const double by) {
     const int iMax = mUnits.size();
     for(int i = 0; i < iMax; i++) {
         const auto& u = mUnits[i];
-        u->increment(1.);
+        u->increment(by);
     }
+    mTime += by;
 }
 
 void eServerArea::addClient(

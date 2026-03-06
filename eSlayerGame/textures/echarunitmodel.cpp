@@ -14,16 +14,28 @@ void eCharUnitModel::setCharModel(const eCharModel& model) {
     mModel = model;
 }
 
-void eCharUnitModel::draw(ePainter& p, const int frame) const {
+void eCharUnitModel::incFrame(const double by) {
+    mFrame += by;
+    if(mAnim != 0 && mAnim != 1) {
+        const int fMax = mModel.nFrames(mAnim);
+        if(int(std::round(mFrame)) >= fMax) {
+            setAnimation(0);
+        }
+    }
+}
+
+void eCharUnitModel::draw(ePainter& p) const {
     const int fMax = mModel.nFrames(mAnim);
     const int gMax = mModel.nGroups();
+
+    const int frame = int(std::round(mFrame)) % fMax;
 
     SDL_Rect texRect{0, 0, 0, 0};
 
     for(int g = 0; g < gMax; g++) {
         const int ppMax = mModel.nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
+            const auto tex = mModel.get(mAnim, g, pp, mDir, frame);
 
             const int newX = std::min(texRect.x, tex->offsetX());
             texRect.w += texRect.x - newX;
@@ -48,7 +60,7 @@ void eCharUnitModel::draw(ePainter& p, const int frame) const {
         for(int g = 0; g < gMax; g++) {
             const int ppMax = mModel.nParts(g);
             for(int pp = 0; pp < ppMax; pp++) {
-                const auto tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
+                const auto tex = mModel.get(mAnim, g, pp, mDir, frame);
                 sp.drawTexture(0, 0, tex);
             }
         }
@@ -100,7 +112,7 @@ void eCharUnitModel::draw(ePainter& p, const int frame) const {
     for(int g = 0; g < gMax; g++) {
         const int ppMax = mModel.nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame % fMax);
+            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
             p.drawTexture(0, 0, tex);
         }
     }
@@ -115,6 +127,12 @@ void eCharUnitModel::setAngle(const double a) {
     setDirection((dirs + dir) % dirs);
 }
 
+void eCharUnitModel::setAnimation(const int a, const int id) {
+    if(id <= mAnimId) return;
+    mAnimId = id;
+    setAnimation(a);
+}
+
 void eCharUnitModel::setAnimation(const int a) {
     if(a >= mModel.nAnims()) {
         eExceptions::logError("Animation id " +
@@ -122,7 +140,10 @@ void eCharUnitModel::setAnimation(const int a) {
                               " out of range!");
         return;
     }
-    mAnim = a;
+    if(mAnim != a) {
+        mAnim = a;
+        mFrame = 0.;
+    }
 }
 
 void eCharUnitModel::setDirection(const int d) {

@@ -9,7 +9,6 @@ void eMoveToEnemyAction::increment(const double by) {
         if(target) {
             const double dist = ePointF::distance(target->fPos, mUnit.fPos);
             if(dist < 0.5*(mUnit.fRadius + target->fRadius)) {
-                mUnit.fAnim = 0;
                 handler.stopMoving();
                 finishAction();
             } else {
@@ -32,7 +31,6 @@ void eMoveToEnemyAction::increment(const double by) {
             return;
         }
     }
-    mUnit.fAnim = 0;
     finishAction();
 }
 
@@ -42,4 +40,5 @@ void eMoveToEnemyAction::setTarget(const eServerUnit& u) {
     mTargetId = u.fCharId;
     mTargetPos = u.fPos;
     mUnit.fAnim = 1;
+    mUnit.fAnimId++;
 }

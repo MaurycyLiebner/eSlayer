@@ -22,8 +22,12 @@ public:
     void setModel(const eCharUnitModel& model) { mModel = model; }
 
     void increment(const double by);
+
+    double actionStartTime() const { return mActStartTime; }
+    void setActStartTime(const double t) { mActStartTime = t; }
 private:
     int mCharId;
+    double mActStartTime = 0.;
     eMovementHandler mHandler;
     eCharUnitModel mModel;
 };

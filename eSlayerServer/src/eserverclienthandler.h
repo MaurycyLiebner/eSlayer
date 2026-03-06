@@ -1,23 +1,21 @@
 #ifndef ESERVERCLIENTHANDLER_H
 #define ESERVERCLIENTHANDLER_H
 
-#include "eserverunit.h"
 #include "eserverarea.h"
-
-#include <chrono>
-using namespace std::chrono;
 
 #include <memory>
 
 struct eUnitsRequest {
-    milliseconds fRequestTime;
+    double fTime;
     std::vector<eUnitData> fUnits;
 };
 
 class eServerClientHandler {
 public:
     bool requestUnits();
-    int receiveUnits(std::vector<eUnitData>& units);
+    bool receiveUnits(std::vector<eUnitData>& units,
+                      double& resultTime,
+                      const double clientTime);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 

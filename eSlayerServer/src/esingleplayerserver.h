@@ -13,7 +13,7 @@ public:
     int connect() override;
     bool disconnect(const int clientId) override;
 
-    void increment() override;
+    void increment(const double by) override;
 
     std::shared_ptr<eMap>
     requestMap(const int clientId,
@@ -21,12 +21,16 @@ public:
 
     bool requestUnits(const int clientId) override;
 
-    int receiveUnits(const int clientId, std::vector<eUnitData>& units) override;
+    int receiveUnits(const int clientId,
+                     std::vector<eUnitData>& units,
+                     double& resultTime) override;
 
     bool moveTo(const int clientId,
                 const ePointF& pos) override;
 public:
     eServerClientHandler* clientHandler(const int clientId);
+
+    double mTime = 0.;
 
     std::vector<std::shared_ptr<eServerArea>> mAreas;
     std::map<std::string, std::shared_ptr<eMap>> mMaps;

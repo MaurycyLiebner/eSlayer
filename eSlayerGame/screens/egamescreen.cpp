@@ -38,9 +38,10 @@ void eGameScreen::initialize(const int clientId,
 
     const auto r = renderer();
     const auto model = texs->generateModel(modelParts, r);
-    mModel.setCharModel(model);
-    mModel.setAnimation(0);
-    mModel.setDirection(0);
+    eCharUnitModel umodel;
+    umodel.setCharModel(model);
+    umodel.setAnimation(0);
+    umodel.setDirection(0);
 
     const auto w = walkable();
     const auto iter = [this](const eOtherHandler& handler) {
@@ -50,6 +51,10 @@ void eGameScreen::initialize(const int clientId,
     };
     mMovementHandler.intialize(w, iter, clientId);
     mMovementHandler.setRadius(0.4);
+    mMovementHandler.setMoveRandom(0.);
+
+    mMainChar = std::make_shared<eUnit>();
+    mMainChar->setModel(umodel);
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -84,11 +89,13 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
-    mServer->increment();
+    mServer->increment(1.);
     mServer->requestUnits(mClientId);
     std::vector<eUnitData> units;
-    const int delay = mServer->receiveUnits(mClientId, units);
-    if(delay != -1) {
+    double resultTime;
+    const bool b = mServer->receiveUnits(
+        mClientId, units, resultTime);
+    if(b) {
         for(const auto& u : units) {
             const int charId = u.fCharId;
             if(charId == mClientId) continue;
@@ -116,12 +123,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                 reinterpret_cast<eUnitData&>(*unit) = u;
                 auto& model = unit->model();
                 unit->setPos(u.fPos);
-                if(u.fVel.length() == 0) {
-                    model.setAnimation(unit->fAnim);
-                } else {
-                    model.setAngle(u.fVel.angle());
-                    model.setAnimation(1);
-                }
+                model.setAngle(u.fAngle);
+                model.setAnimation(unit->fAnim, unit->fAnimId);
             }
         }
     }
@@ -140,11 +143,12 @@ void eGameScreen::paintEvent(ePainter& p) {
             if(mMousePressed) mMovementHandler.moveTo(pos);
             move = mMovementHandler.increment(1.);
         }
+        auto& model = mMainChar->model();
         if(move) {
-            mModel.setAngle(mMovementHandler.angle());
-            mModel.setAnimation(1);
+            model.setAngle(mMovementHandler.angle());
+            model.setAnimation(1);
         } else {
-            mModel.setAnimation(0);
+            model.setAnimation(0);
         }
         mFrame++;
     }
@@ -174,9 +178,8 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         const auto pos = characterPos();
         std::vector<std::shared_ptr<eUnit>> units = mUnits;
-        auto& mainChar = units.emplace_back(std::make_shared<eUnit>());
-        mainChar->setPos(pos);
-        mainChar->setModel(mModel);
+        units.emplace_back(mMainChar);
+        mMainChar->setPos(pos);
 
         std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
                                                   const std::shared_ptr<eUnit>& u2) {
@@ -220,7 +223,10 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto displ = tilePosToPixel(pos);
                 const auto idispl = displ.round();
                 p.translate(idispl.fX, idispl.fY);
-                u->model().draw(p, mFrame);
+                const int frame = std::round(resultTime - u->actionStartTime());
+                auto& model = u->model();
+                model.incFrame(1.);
+                model.draw(p);
                 p.restore();
                 nextUnit = unitId + 1;
             }

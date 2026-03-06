@@ -58,10 +58,13 @@ private:
     int mClientId = -1;
     std::shared_ptr<eServer> mServer;
 
-    eCharUnitModel mModel;
+    eMovementHandler mMovementHandler;
+    std::shared_ptr<eUnit> mMainChar;
+
     std::vector<std::shared_ptr<eUnit>> mUnits;
     std::map<int, int> mUnitIndexMap;
     std::shared_ptr<eMap> mMap;
+
     int mFrame = 0;
 
     const int mTileW = 160;
@@ -70,7 +73,6 @@ private:
     bool mMousePressed = false;
     ePointF mMousePos{0., 0.};
 
-    eMovementHandler mMovementHandler;
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;

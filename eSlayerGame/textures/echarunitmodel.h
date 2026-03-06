@@ -11,13 +11,17 @@ public:
 
     void setCharModel(const eCharModel& model);
 
-    void draw(ePainter& p, const int frame) const;
+    void incFrame(const double by);
+    void draw(ePainter& p) const;
 
+    void setAnimation(const int a, const int id);
     void setAnimation(const int a);
     void setDirection(const int d);
     void setAngle(const double a);
 private:
     int mAnim;
+    int mAnimId = -1;
+    double mFrame = 0.;
     int mDir;
     eCharModel mModel;
 };

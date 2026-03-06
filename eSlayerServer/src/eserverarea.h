@@ -13,7 +13,9 @@ class eServerArea {
 public:
     void initialize(const std::shared_ptr<eMap>& map);
 
-    void increment();
+    void increment(const double by = 1.);
+
+    double time() const { return mTime; }
 
     const std::vector<std::shared_ptr<eServerUnit>>&
     units() const { return mUnits; }
@@ -23,6 +25,8 @@ public:
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
 private:
+    double mTime = 0.;
+
     std::vector<std::shared_ptr<eServerUnit>>
     mUnits;
     std::map<int, int> mUnitIdMap;

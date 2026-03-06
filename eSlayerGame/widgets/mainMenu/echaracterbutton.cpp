@@ -33,7 +33,8 @@ void eCharacterButton::initialize(const eCharacter& c) {
 void eCharacterButton::paintEvent(ePainter& p) {
     p.save();
     p.translate(width()/5, 3*height()/4);
-    mModel.draw(p, mFrame);
+    mModel.incFrame(1.);
+    mModel.draw(p);
     p.restore();
     eCheckButton::paintEvent(p);
     mFrame++;

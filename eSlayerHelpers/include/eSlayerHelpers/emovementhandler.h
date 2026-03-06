@@ -30,6 +30,7 @@ public:
     double angle() const { return mAngle; }
     void setSpeed(const double s) { mSpeed = s; }
     void setRadius(const double r) { mRadius = r; }
+    void setMoveRandom(const double r) { mMoveRandom = r; }
 
     bool increment(const double by);
 
@@ -59,6 +60,8 @@ private:
     int mPathFindMargin = 40;
     double mWaypointReachDist = 0.2;
     double mNearbyUnits = 1.5;
+
+    double mMoveRandom = 0.05;
 };
 
 #endif // EMOVEMENTHANDLER_H

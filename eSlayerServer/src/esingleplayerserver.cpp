@@ -11,9 +11,10 @@ bool eSinglePlayerServer::disconnect(const int clientId) {
     return true;
 }
 
-void eSinglePlayerServer::increment() {
+void eSinglePlayerServer::increment(const double by) {
+    mTime += by;
     for(const auto& a : mAreas) {
-        a->increment();
+        a->increment(by);
     }
 }
 
@@ -38,10 +39,11 @@ bool eSinglePlayerServer::requestUnits(const int clientId) {
 }
 
 int eSinglePlayerServer::receiveUnits(const int clientId,
-                                      std::vector<eUnitData>& units) {
+                                      std::vector<eUnitData>& units,
+                                      double& resultTime) {
     const auto h = clientHandler(clientId);
     if(!h) return -1;
-    return h->receiveUnits(units);
+    return h->receiveUnits(units, resultTime, mTime);
 }
 
 bool eSinglePlayerServer::moveTo(

@@ -13,7 +13,7 @@ public:
     virtual int connect() = 0;
     virtual bool disconnect(const int clientId) = 0;
 
-    virtual void increment() = 0;
+    virtual void increment(const double by) = 0;
 
     virtual std::shared_ptr<eMap>
     requestMap(const int clientId,
@@ -24,7 +24,8 @@ public:
 
     virtual int
     receiveUnits(const int clientId,
-                 std::vector<eUnitData>& units) = 0;
+                 std::vector<eUnitData>& units,
+                 double& resultTime) = 0;
 
     virtual bool
     moveTo(const int clientId,

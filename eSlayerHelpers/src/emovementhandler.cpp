@@ -117,7 +117,7 @@ bool eMovementHandler::increment(const double by) {
     auto moveDir = desiredDir*1.0 +
                    separation*1.5 +
                    avoid*0.35 +
-                   eVec2d::random()*0.05;
+                   eVec2d::random()*mMoveRandom;
     if(moveDir.length() > 0) {
         moveDir.normalize();
     }
