@@ -42,10 +42,10 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
         step.fSrc.fY /= subdivision;
         step.fDst.fX /= subdivision;
         step.fDst.fY /= subdivision;
-        step.fSrc.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fSrc.fY += std::round(mPos.fY*subdivision)/subdivision;
-        step.fDst.fX += std::round(mPos.fX*subdivision)/subdivision;
-        step.fDst.fY += std::round(mPos.fY*subdivision)/subdivision;
+        step.fSrc.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
+        step.fSrc.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
+        step.fDst.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
+        step.fDst.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
     }
     mGoal.moveOnPath(path);
     return found;
