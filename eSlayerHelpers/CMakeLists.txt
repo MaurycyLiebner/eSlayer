@@ -16,8 +16,8 @@ add_library(eSlayerHelpers SHARED
     src/epathfinder.cpp
 
     include/eSlayerHelpers/epathfinderpath.h
-    include/eSlayerHelpers/epathsmoother.h
-    src/epathsmoother.cpp
+
+
     include/eSlayerHelpers/epathfindermap.h
     src/epathfindermap.cpp
     src/epathfinderpath.cpp

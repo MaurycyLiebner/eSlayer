@@ -8,7 +8,6 @@
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../elanguage.h"
 
-#include <eSlayerHelpers/epathsmoother.h>
 #include <eSlayerHelpers/evec2.h>
 
 eGameScreen::~eGameScreen() {
@@ -55,6 +54,22 @@ void eGameScreen::initialize(const int clientId,
 
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
+
+    // {
+    //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
+    //     for(const auto& entry : std::filesystem::directory_iterator(dir))
+    //         std::filesystem::remove_all(entry.path());
+    //     eCharModel unitModel;
+    //     const eCharTextures::eModelParts modelParts {
+    //         {"wendigo", "whole"}
+    //     };
+    //     const auto texs = eCharsTextures::get("wendigo");
+    //     unitModel = texs->generateModel(modelParts, r);
+    //     eCharUnitModel model;
+    //     model.setCharModel(unitModel);
+    //     model.setDirection(0);
+    //     model.generatePreview(r);
+    // }
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -93,6 +108,7 @@ void eGameScreen::paintEvent(ePainter& p) {
     mServer->requestUnits(mClientId);
     std::vector<eUnitData> units;
     double resultTime;
+    const auto r = renderer();
     const bool b = mServer->receiveUnits(
         mClientId, units, resultTime);
     if(b) {
@@ -101,13 +117,22 @@ void eGameScreen::paintEvent(ePainter& p) {
             if(charId == mClientId) continue;
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
-                const eCharTextures::eModelParts modelParts {
-                    {"mummy", "whole"}
-                };
-                const auto r = renderer();
-                const auto texs = eCharsTextures::get("mummy");
-                const auto unitModel = texs->generateModel(modelParts, r);
+                eCharModel unitModel;
+                if(u.fTypeId == 0) {
+                    const eCharTextures::eModelParts modelParts {
+                        {"mummy", "whole"}
+                    };
+                    const auto texs = eCharsTextures::get("mummy");
+                    unitModel = texs->generateModel(modelParts, r);
+                } else {
+                    const eCharTextures::eModelParts modelParts {
+                        {"wendigo", "whole"}
+                    };
+                    const auto texs = eCharsTextures::get("wendigo");
+                    unitModel = texs->generateModel(modelParts, r);
+                }
                 auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
+                unit->fRadius = u.fRadius;
                 reinterpret_cast<eUnitData&>(*unit) = u;
                 initialize(charId, *unit);
                 eCharUnitModel model;
@@ -153,7 +178,6 @@ void eGameScreen::paintEvent(ePainter& p) {
         mFrame++;
     }
 
-    const auto r = renderer();
     {
         const auto holder = mBaseTex->createTargetHolder(r);
 

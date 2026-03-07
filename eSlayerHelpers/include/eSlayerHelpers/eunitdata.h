@@ -10,6 +10,8 @@ struct ESLAYERHELPERS_API eUnitData {
     int fCharId;
     int fTeamId;
 
+    int fTypeId;
+
     double fRadius;
 
     ePointF fPos;

@@ -14,6 +14,12 @@ void eMovementHandler::intialize(const eWalkable& w,
     mOtherIterator = iter;
 }
 
+void eMovementHandler::setRadius(const double r) {
+    mRadius = r;
+    if(r > 0.5) mTileMoveSubdivision = 1;
+    else mTileMoveSubdivision = 2;
+}
+
 bool eMovementHandler::moveTo(const ePointF& dst) {
     const int margin = mPathFindMargin;
     const double subdivision = mTileMoveSubdivision;
@@ -55,10 +61,68 @@ void eMovementHandler::moveInDirection(const ePointF& pos) {
     mGoal.moveInDir(pos);
 }
 
-void eMovementHandler::moveBy(const eVec2d& vec) {
-    mPos.fX += vec.x;
-    mPos.fY += vec.y;
-    mAngle = vec.angle();
+bool eMovementHandler::walkable(const ePointF& from, const ePointF& to) const {
+    const double x0 = from.fX;
+    const double y0 = from.fY;
+    const double x1 = to.fX;
+    const double y1 = to.fY;
+
+    int x = (int)std::floor(x0);
+    int y = (int)std::floor(y0);
+
+    const int endX = (int)std::floor(x1);
+    const int endY = (int)std::floor(y1);
+
+    const double dx = x1 - x0;
+    const double dy = y1 - y0;
+
+    const int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+    const int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+
+    const double tDeltaX = (stepX != 0) ? std::abs(1.0 / dx) :
+                               std::numeric_limits<double>::infinity();
+    const double tDeltaY = (stepY != 0) ? std::abs(1.0 / dy) :
+                               std::numeric_limits<double>::infinity();
+
+    const double nextBoundaryX = (stepX > 0)
+                                     ? (std::floor(x0) + 1.0)
+                                     : std::floor(x0);
+
+    const double nextBoundaryY = (stepY > 0)
+                                     ? (std::floor(y0) + 1.0)
+                                     : std::floor(y0);
+
+    double tMaxX = (stepX != 0) ? (nextBoundaryX - x0) / dx :
+                       std::numeric_limits<double>::infinity();
+
+    double tMaxY = (stepY != 0) ? (nextBoundaryY - y0) / dy :
+                       std::numeric_limits<double>::infinity();
+
+    while(true) {
+        const bool r = mWalkable(x, y);
+        if(!r) return false;
+
+        if(x == endX && y == endY) {
+            break;
+        }
+
+        if(tMaxX < tMaxY) {
+            tMaxX += tDeltaX;
+            x += stepX;
+        } else {
+            tMaxY += tDeltaY;
+            y += stepY;
+        }
+    }
+    return true;
+}
+
+bool eMovementHandler::moveInDirectionIfClearPath(const ePointF& pos) {
+    const bool r = walkable(mPos, pos);
+    if(r) {
+        moveInDirection(pos);
+    }
+    return r;
 }
 
 bool eMovementHandler::walkable(const ePointF& pos) const {
@@ -98,12 +162,13 @@ bool eMovementHandler::increment(const double by) {
         if(dist > mNearbyUnits) return;
         diff.normalize();
         {
-            const double minDist = mRadius + other.fRadius;
+            double minDist = mRadius + other.fRadius;
+            if(other.fCharId == mTargetId) minDist *= 0.75;
             if(dist < minDist && dist > 0.0001) {
                 separation += diff*(minDist - dist);
             }
         }
-        {
+        if(other.fCharId != mTargetId) {
             const auto relPos = ePointF::vector(other.fPos, mPos);
             auto normRelPos = relPos;
             normRelPos.normalize();
@@ -122,6 +187,12 @@ bool eMovementHandler::increment(const double by) {
         moveDir.normalize();
     }
     mVel = moveDir*mSpeed;
+    const double progress = eVec2d::dot(mVel, desiredDir);
+    if(progress < 0.1) {
+        mStuckTimer += by;
+    } else {
+        mStuckTimer = 0.;
+    }
     mAngle = mVel.angle();
 
     const auto newPos = mPos + mVel*by;
@@ -134,9 +205,15 @@ bool eMovementHandler::increment(const double by) {
         if(walkable(tryY)) mPos.fY = tryY.fY;
     }
 
+    if(mStuckTimer > 1.) {
+        stopMoving();
+    }
+
     return true;
 }
 
 void eMovementHandler::stopMoving() {
+    mTargetId = -1;
+    mStuckTimer = 0.;
     mGoal.stopMoving();
 }

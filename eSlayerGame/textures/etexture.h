@@ -48,6 +48,8 @@ public:
 
     eRenderTargetHolder createTargetHolder(SDL_Renderer* const r);
 
+    bool save(SDL_Renderer* const r,
+              const std::string& path);
     bool load(SDL_Renderer* const r,
               const std::string& path,
               const SDL_Color& colorKey = {0, 0, 0, 0});

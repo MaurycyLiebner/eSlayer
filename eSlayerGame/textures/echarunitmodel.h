@@ -18,6 +18,8 @@ public:
     void setAnimation(const int a);
     void setDirection(const int d);
     void setAngle(const double a);
+
+    void generatePreview(SDL_Renderer* const r);
 private:
     int mAnim;
     int mAnimId = -1;

@@ -29,24 +29,30 @@ public:
     void setPos(const ePointF& pos) { mPos = pos; }
     double angle() const { return mAngle; }
     void setSpeed(const double s) { mSpeed = s; }
-    void setRadius(const double r) { mRadius = r; }
+    void setRadius(const double r);
     void setMoveRandom(const double r) { mMoveRandom = r; }
 
     bool increment(const double by);
 
     bool moving() const { return mGoal.moving(); }
+    eMovementGoalType goalType() const { return mGoal.type(); }
     void stopMoving();
     bool moveTo(const ePointF& pos);
     void moveInDirection(const ePointF& pos);
+    bool moveInDirectionIfClearPath(const ePointF& pos);
+
+    void setTargetId(const int id) { mTargetId = id; }
 private:
-    void moveBy(const eVec2d& vec);
     bool walkable(const ePointF& pos) const;
+    bool walkable(const ePointF& from, const ePointF& to) const;
 
     int mCharId = 0;
     eWalkable mWalkable;
     eOtherIterator mOtherIterator;
 
     eMovementGoal mGoal;
+
+    int mTargetId = -1;
 
     ePointF mPos{0., 0.};
     eVec2d mVel{0., 0.};

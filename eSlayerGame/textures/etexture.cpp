@@ -41,6 +41,18 @@ eRenderTargetHolder eTexture::createTargetHolder(SDL_Renderer * const r) {
     return eRenderTargetHolder(r, mTex);
 }
 
+bool eTexture::save(SDL_Renderer* const r,
+                    const std::string& path) {
+    if(!mTex) return false;
+    const auto holder = createTargetHolder(r);
+    SDL_SetRenderTarget(r, mTex);
+    const SDL_Rect rect{0, 0, mTex->w, mTex->h};
+    const auto surface = SDL_RenderReadPixels(r, &rect);
+    IMG_SavePNG(surface, path.c_str());
+    SDL_DestroySurface(surface);
+    return true;
+}
+
 bool eTexture::load(SDL_Renderer* const r,
                     const std::string& path,
                     const SDL_Color& colorKey) {
