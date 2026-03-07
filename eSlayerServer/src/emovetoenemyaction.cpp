@@ -36,7 +36,6 @@ void eMoveToEnemyAction::increment(const double by) {
 
 void eMoveToEnemyAction::setTarget(const eServerUnit& u) {
     auto& handler = mUnit.movementHandler();
-    handler.setTargetId(u.fCharId);
     const bool r = handler.moveInDirectionIfClearPath(u.fPos);
     if(!r) handler.moveTo(u.fPos);
     mTargetId = u.fCharId;

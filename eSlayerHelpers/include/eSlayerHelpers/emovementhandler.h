@@ -18,7 +18,8 @@ class ESLAYERHELPERS_API eMovementHandler {
 public:
     void intialize(const eWalkable& w,
                    const eOtherIterator& iter,
-                   const int charId);
+                   const int charId,
+                   const int teamId);
 
     void setPathFindMargin(const int m)
     { mPathFindMargin = m; }
@@ -40,19 +41,16 @@ public:
     bool moveTo(const ePointF& pos);
     void moveInDirection(const ePointF& pos);
     bool moveInDirectionIfClearPath(const ePointF& pos);
-
-    void setTargetId(const int id) { mTargetId = id; }
 private:
     bool walkable(const ePointF& pos) const;
     bool walkable(const ePointF& from, const ePointF& to) const;
 
     int mCharId = 0;
+    int mTeamId = 0;
     eWalkable mWalkable;
     eOtherIterator mOtherIterator;
 
     eMovementGoal mGoal;
-
-    int mTargetId = -1;
 
     ePointF mPos{0., 0.};
     eVec2d mVel{0., 0.};

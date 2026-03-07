@@ -8,8 +8,10 @@
 
 void eMovementHandler::intialize(const eWalkable& w,
                                  const eOtherIterator& iter,
-                                 const int charId) {
+                                 const int charId,
+                                 const int teamId) {
     mCharId = charId;
+    mTeamId = teamId;
     mWalkable = w;
     mOtherIterator = iter;
 }
@@ -126,6 +128,18 @@ bool eMovementHandler::moveInDirectionIfClearPath(const ePointF& pos) {
 }
 
 bool eMovementHandler::walkable(const ePointF& pos) const {
+    bool walkable = true;
+    mOtherIterator([&](const eUnitData& other) {
+        if(!walkable) return;
+        if(other.fCharId == mCharId) return;
+        if(other.fTeamId == mTeamId) return;
+        const eVec2d diff = ePointF::vector(pos, other.fPos);
+        const double dist = diff.length();
+        if(dist > mNearbyUnits) return;
+        const double minDist = 0.4*(mRadius + other.fRadius);
+        walkable = walkable && (dist > minDist || dist < 0.0001);
+    });
+    if(!walkable) return false;
     const auto ipos = pos.floor();
     return mWalkable(ipos.fX, ipos.fY);
 }
@@ -157,25 +171,23 @@ bool eMovementHandler::increment(const double by) {
 
     mOtherIterator([&](const eUnitData& other) {
         if(other.fCharId == mCharId) return;
+        if(other.fTeamId != mTeamId) return;
         eVec2d diff = ePointF::vector(mPos, other.fPos);
         const double dist = diff.length();
         if(dist > mNearbyUnits) return;
         diff.normalize();
-        {
-            double minDist = mRadius + other.fRadius;
-            if(other.fCharId == mTargetId) minDist *= 0.75;
-            if(dist < minDist && dist > 0.0001) {
-                separation += diff*(minDist - dist);
-            }
+
+        const double minDist = mRadius + other.fRadius;
+        if(dist < minDist && dist > 0.0001) {
+            separation += diff*(minDist - dist);
         }
-        if(other.fCharId != mTargetId) {
-            const auto relPos = ePointF::vector(other.fPos, mPos);
-            auto normRelPos = relPos;
-            normRelPos.normalize();
-            const auto relVel = mVel - other.fVel;
-            if(eVec2d::dot(relPos, relVel) < 0) {
-                avoid -= normRelPos;
-            }
+
+        const auto relPos = ePointF::vector(other.fPos, mPos);
+        auto normRelPos = relPos;
+        normRelPos.normalize();
+        const auto relVel = mVel - other.fVel;
+        if(eVec2d::dot(relPos, relVel) < 0) {
+            avoid -= normRelPos;
         }
     });
 
@@ -213,7 +225,6 @@ bool eMovementHandler::increment(const double by) {
 }
 
 void eMovementHandler::stopMoving() {
-    mTargetId = -1;
     mStuckTimer = 0.;
     mGoal.stopMoving();
 }

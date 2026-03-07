@@ -48,7 +48,7 @@ void eGameScreen::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMovementHandler.intialize(w, iter, clientId);
+    mMovementHandler.intialize(w, iter, clientId, 0);
     mMovementHandler.setRadius(0.4);
     mMovementHandler.setMoveRandom(0.);
 

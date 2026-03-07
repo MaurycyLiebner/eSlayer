@@ -34,7 +34,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     handler(*u);
                 }
             };
-            m.intialize(w, iter, charId);
+            m.intialize(w, iter, charId, -1);
             m.setRadius(u->fRadius);
             m.setPos(pos);
 
