@@ -27,13 +27,14 @@ void eLightingTexture::renderLight(
     const float x, const float y,
     const float radius,
     const SDL_Color& color) {
-    const float scale = radius/10;
+    const auto holder = createTargetHolder(r);
+    const float scale = radius/10.f;
     const float srcW = mLightingTex->width();
     const float srcH = mLightingTex->height();
     const float dstW = scale*srcW;
     const float dstH = scale*srcH;
-    const SDL_FRect dstRect{x - dstW/2,
-                            y - dstH/2,
+    const SDL_FRect dstRect{x - dstW/2.f,
+                            y - dstH/2.f,
                             dstW, dstH};
     const SDL_FRect srcRect{0.f, 0.f, srcW, srcH};
     mLightingTex->setColorMod(color.r, color.g, color.b);

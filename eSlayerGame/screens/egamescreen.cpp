@@ -10,6 +10,10 @@
 
 #include <eSlayerHelpers/evec2.h>
 
+eGameScreen::eGameScreen(eMainWindow* const window) :
+    eScreenBase(window),
+    mGamePainter(renderer()) {}
+
 eGameScreen::~eGameScreen() {
     if(mServer) {
         mServer->disconnect(mClientId);
@@ -179,7 +183,7 @@ void eGameScreen::paintEvent(ePainter& p) {
     }
 
     {
-        const auto holder = mBaseTex->createTargetHolder(r);
+        const auto holder = mGamePainter.switchToBase();
 
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
@@ -257,22 +261,10 @@ void eGameScreen::paintEvent(ePainter& p) {
         });
     }
 
-    {
-        const auto holder = mLightingTex->createTargetHolder(r);
-        mLightingTex->clear(r);
-        mLightingTex->renderLight(r, width()/2.f, height()/2.f,
-                                  10.f, SDL_Color{255, 255, 255, 255});
-    }
-
-    {
-        const auto holder = mDisplayTex->createTargetHolder(r);
-        mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
-        mBaseTex->render(r, 0, 0);
-        mLightingTex->render(r, 0, 0);
-        mBaseTex->fill(r, SDL_Color{255, 255, 255, 115});
-        mBaseTex->setBlendMode(SDL_BLENDMODE_MUL);
-        mBaseTex->render(r, 0, 0);
-    }
+    mGamePainter.clear();
+    mGamePainter.renderLight(r, width()/2.f, height()/2.f,
+                             10.f, SDL_Color{255, 255, 255, 255});
+    mGamePainter.finish();
 
     eLabel::paintEvent(p);
 }
@@ -319,18 +311,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
 void eGameScreen::initializeTextures() {
     const int w = width();
     const int h = height();
-    const auto r = renderer();
-
-    mBaseTex = std::make_shared<eTexture>();
-    mBaseTex->create(r, w, h, {0, 0, 0, 255});
-
-    mLightingTex = std::make_shared<eLightingTexture>();
-    mLightingTex->initialize(r, w, h, SDL_Color{180, 180, 180, 255});
-
-    mDisplayTex = std::make_shared<eTexture>();
-    mDisplayTex->create(r, w, h, {0, 0, 0, 255});
-
-    setTexture(mDisplayTex);
+    const auto tex = mGamePainter.initialize(w, h);
+    setTexture(tex);
 }
 
 void eGameScreen::showESCMenu() {

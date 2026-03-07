@@ -4,7 +4,7 @@
 #include "escreenbase.h"
 
 #include "../textures/echarunitmodel.h"
-#include "../textures/elightingtexture.h"
+#include "gameScreenHelpers/egamepainter.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/epathfinder.h>
@@ -16,7 +16,7 @@
 
 class eGameScreen : public eScreenBase {
 public:
-    using eScreenBase::eScreenBase;
+    eGameScreen(eMainWindow* const window);
     ~eGameScreen();
 
     void setExitAction(const eAction& a);
@@ -51,9 +51,7 @@ private:
 
     void initialize(const int charId, eUnit& u);
 
-    std::shared_ptr<eTexture> mBaseTex;
-    std::shared_ptr<eLightingTexture> mLightingTex;
-    std::shared_ptr<eTexture> mDisplayTex;
+    eGamePainter mGamePainter;
 
     int mClientId = -1;
     std::shared_ptr<eServer> mServer;

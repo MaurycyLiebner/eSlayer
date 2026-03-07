@@ -24,7 +24,7 @@ void eCharUnitModel::incFrame(const double by) {
     }
 }
 
-void eCharUnitModel::draw(ePainter& p) const {
+void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
     const int fMax = mModel.nFrames(mAnim);
     const int gMax = mModel.nGroups();
 
@@ -115,6 +115,11 @@ void eCharUnitModel::draw(ePainter& p) const {
         for(int pp = 0; pp < ppMax; pp++) {
             const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
             p.drawTexture(0, 0, tex);
+            if(highlight) {
+                tex->setBlendMode(SDL_BLENDMODE_ADD);
+                p.drawTexture(0, 0, tex);
+                tex->setBlendMode(SDL_BLENDMODE_BLEND);
+            }
         }
     }
 

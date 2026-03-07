@@ -12,7 +12,7 @@ public:
     void setCharModel(const eCharModel& model);
 
     void incFrame(const double by);
-    void draw(ePainter& p) const;
+    void draw(ePainter& p, const bool highligh = false) const;
 
     void setAnimation(const int a, const int id);
     void setAnimation(const int a);
