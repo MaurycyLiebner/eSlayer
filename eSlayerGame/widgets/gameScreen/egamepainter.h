@@ -1,7 +1,7 @@
 #ifndef EGAMEPAINTER_H
 #define EGAMEPAINTER_H
 
-#include "../../widgets/epainter.h"
+#include "../epainter.h"
 #include "../../textures/elightingtexture.h"
 
 class eGamePainter : public ePainter {

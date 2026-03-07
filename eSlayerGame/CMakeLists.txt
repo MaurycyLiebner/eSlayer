@@ -143,7 +143,8 @@ add_executable(eSlayerGame main.cpp
     textures/etilestextures.h textures/etilestextures.cpp
     textures/etilesiterator.h textures/etilesiterator.cpp
     units/eunit.h units/eunit.cpp
-    screens/gameScreenHelpers/egamepainter.h screens/gameScreenHelpers/egamepainter.cpp
+    widgets/gameScreen/egamepainter.h widgets/gameScreen/egamepainter.cpp
+    widgets/gameScreen/eunitindicator.h widgets/gameScreen/eunitindicator.cpp
 )
 
 include(GNUInstallDirs)

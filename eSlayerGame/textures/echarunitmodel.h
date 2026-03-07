@@ -3,6 +3,7 @@
 
 #include "echarmodel.h"
 
+class eGamePainter;
 class ePainter;
 
 class eCharUnitModel {
@@ -11,8 +12,12 @@ public:
 
     void setCharModel(const eCharModel& model);
 
+    SDL_Rect boundingRect() const;
+    SDL_Rect offsetBoundingRect() const;
+
     void incFrame(const double by);
-    void draw(ePainter& p, const bool highligh = false) const;
+    void draw(eGamePainter& p, const bool highligh = false) const;
+    void drawBase(ePainter& p) const;
 
     void setAnimation(const int a, const int id);
     void setAnimation(const int a);

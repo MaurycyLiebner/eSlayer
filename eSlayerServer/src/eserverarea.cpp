@@ -14,6 +14,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fCharId = charId;
             u->fTeamId = -1;
             u->fTypeId = eRand::rand() % 2;
+            u->fHealth = 100;
+            u->fMaxHealth = 100;
             u->fRadius = u->fTypeId == 0 ? 0.4 : 0.8;
             u->fAnim = 0;
             u->fAnimId = 0;

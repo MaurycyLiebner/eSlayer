@@ -28,4 +28,8 @@
         <string id="1">Save and exit game</string>
         <string id="2">Return to game</string>
     </group>
+    <group id="6">
+        <string id="0">Mummy</string>
+        <string id="1">Wendigo</string>
+    </group>
 </strings>

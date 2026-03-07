@@ -26,6 +26,9 @@ private:
     int mDirs;
     SDL_Color mColorKey;
 
+    int mWidth;
+    int mHeight;
+
     struct eAnimation {
         int fFrames;
         eOffset fOffset;

@@ -1,12 +1,12 @@
 #include "egamescreen.h"
 
-#include "../textures/echarstextures.h"
-#include "../textures/eterrstextures.h"
-#include "../textures/eobjstextures.h"
-#include "../textures/etilesiterator.h"
-
-#include "../widgets/gameScreen/eescmenubutton.h"
 #include "../elanguage.h"
+#include "../textures/echarstextures.h"
+#include "../textures/eobjstextures.h"
+#include "../textures/eterrstextures.h"
+#include "../textures/etilesiterator.h"
+#include "../widgets/gameScreen/eescmenubutton.h"
+#include "../widgets/gameScreen/eunitindicator.h"
 
 #include <eSlayerHelpers/evec2.h>
 
@@ -31,6 +31,13 @@ void eGameScreen::initialize(const int clientId,
     mServer = server;
 
     initializeTextures();
+    mUnitIndicator = new eUnitIndicator(window());
+    mUnitIndicator->initialize();
+    const double m = resolution().multiplier();
+    mUnitIndicator->resize(200*m, 40*m);
+    addWidget(mUnitIndicator);
+    mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
+    mUnitIndicator->move(mUnitIndicator->x(), 20*m);
 
     mMap = map;
 
@@ -108,6 +115,8 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
+    mGamePainter.clear();
+
     mServer->increment(1.);
     mServer->requestUnits(mClientId);
     std::vector<eUnitData> units;
@@ -160,9 +169,9 @@ void eGameScreen::paintEvent(ePainter& p) {
     mServer->moveTo(mClientId, characterPos());
 
     if(!mESCMenu) {
+        const auto pos = pixelToTilePos(mMousePos);
         bool move = false;
         eVec2d vec;
-        const auto pos = pixelToTilePos(mMousePos);
 
         if(mMousePressed) {
             mMovementHandler.moveInDirection(pos);
@@ -199,7 +208,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != i) return;
                 const auto& tex = floor->getTexture(tile.fTileType);
-                p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                mGamePainter.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
                 const auto iobjs = mMap->objects(x, y);
             });
         }
@@ -231,6 +240,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         });
 
         int nextUnit = 0;
+        setHighlightedUnit(nullptr);
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
             const auto& iobjs = mMap->objects(x, y);
@@ -247,21 +257,36 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto iPos = pos.floor();
                 if(iPos.fY != y) continue;
                 if(iPos.fX != x) continue;
-                p.save();
+                mGamePainter.save();
                 const auto displ = tilePosToPixel(pos);
                 const auto idispl = displ.round();
-                p.translate(idispl.fX, idispl.fY);
+                mGamePainter.translate(idispl.fX, idispl.fY);
                 const int frame = std::round(resultTime - u->actionStartTime());
                 auto& model = u->model();
                 model.incFrame(1.);
-                model.draw(p);
-                p.restore();
+                bool highlight = false;
+                if(!mHighlightUnit && u != mMainChar) {
+                    const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
+                    const int w = 0.75*u->fRadius*mTileW;
+                    const int h = 2.*w;
+                    const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
+                    highlight = SDL_PointInRect(&p, &rect);
+                    if(highlight) {
+                        const auto b = model.offsetBoundingRect();
+                        const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
+                        highlight = SDL_PointInRect(&p, &rect);
+                        if(highlight) {
+                            setHighlightedUnit(u);
+                        }
+                    }
+                }
+                model.draw(mGamePainter, highlight);
+                mGamePainter.restore();
                 nextUnit = unitId + 1;
             }
         });
     }
 
-    mGamePainter.clear();
     mGamePainter.renderLight(r, width()/2.f, height()/2.f,
                              10.f, SDL_Color{255, 255, 255, 255});
     mGamePainter.finish();
@@ -357,6 +382,11 @@ void eGameScreen::hideESCMenu() {
     if(!mESCMenu) return;
     mESCMenu->deleteLater();
     mESCMenu = nullptr;
+}
+
+void eGameScreen::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
+    mHighlightUnit = u;
+    mUnitIndicator->setUnit(u);
 }
 
 eWalkable eGameScreen::walkable() const {

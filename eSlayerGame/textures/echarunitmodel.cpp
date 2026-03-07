@@ -2,6 +2,7 @@
 
 #include "../widgets/epainter.h"
 #include "echarmodel.h"
+#include "../widgets/gameScreen/egamepainter.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 
@@ -14,17 +15,7 @@ void eCharUnitModel::setCharModel(const eCharModel& model) {
     mModel = model;
 }
 
-void eCharUnitModel::incFrame(const double by) {
-    mFrame += by;
-    if(mAnim != 0 && mAnim != 1) {
-        const int fMax = mModel.nFrames(mAnim);
-        if(int(std::round(mFrame)) >= fMax) {
-            setAnimation(0);
-        }
-    }
-}
-
-void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
+SDL_Rect eCharUnitModel::boundingRect() const {
     const int fMax = mModel.nFrames(mAnim);
     const int gMax = mModel.nGroups();
 
@@ -35,7 +26,7 @@ void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
     for(int g = 0; g < gMax; g++) {
         const int ppMax = mModel.nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto tex = mModel.get(mAnim, g, pp, mDir, frame);
+            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
 
             const int newX = std::min(texRect.x, tex->offsetX());
             texRect.w += texRect.x - newX;
@@ -48,6 +39,62 @@ void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
             texRect.h = std::max(texRect.h, -texRect.y + (tex->offsetY() + tex->height()));
         }
     }
+
+    return texRect;
+}
+
+SDL_Rect eCharUnitModel::offsetBoundingRect() const {
+    SDL_Rect result = boundingRect();
+    const auto& offset = mModel.animOffset(mAnim);
+    result.x += offset.fX;
+    result.y += offset.fY;
+    return result;
+}
+
+void eCharUnitModel::incFrame(const double by) {
+    mFrame += by;
+    if(mAnim != 0 && mAnim != 1) {
+        const int fMax = mModel.nFrames(mAnim);
+        if(int(std::round(mFrame)) >= fMax) {
+            setAnimation(0);
+        }
+    }
+}
+
+void eCharUnitModel::draw(eGamePainter& p, const bool highlight) const {
+    drawBase(p);
+    if(!highlight) return;
+
+    const int fMax = mModel.nFrames(mAnim);
+    const int gMax = mModel.nGroups();
+
+    const int frame = int(std::round(mFrame)) % fMax;
+    p.save();
+    const auto& offset = mModel.animOffset(mAnim);
+    p.translate(offset.fX, offset.fY);
+
+    for(int g = 0; g < gMax; g++) {
+        const int ppMax = mModel.nParts(g);
+        for(int pp = 0; pp < ppMax; pp++) {
+            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
+            tex->setBlendMode(SDL_BLENDMODE_ADD);
+            tex->setAlpha(125);
+            p.drawTexture(0, 0, tex);
+            tex->setBlendMode(SDL_BLENDMODE_BLEND);
+            tex->clearAlphaMod();
+        }
+    }
+
+    p.restore();
+}
+
+void eCharUnitModel::drawBase(ePainter& p) const {
+    const int fMax = mModel.nFrames(mAnim);
+    const int gMax = mModel.nGroups();
+
+    const int frame = int(std::round(mFrame)) % fMax;
+
+    const SDL_Rect texRect = boundingRect();
 
     const auto r = p.renderer();
     const auto shadow = std::make_shared<eTexture>();
@@ -115,11 +162,6 @@ void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
         for(int pp = 0; pp < ppMax; pp++) {
             const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
             p.drawTexture(0, 0, tex);
-            if(highlight) {
-                tex->setBlendMode(SDL_BLENDMODE_ADD);
-                p.drawTexture(0, 0, tex);
-                tex->setBlendMode(SDL_BLENDMODE_BLEND);
-            }
         }
     }
 
@@ -153,7 +195,7 @@ void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
             const auto holder = tex->createTargetHolder(r);
             ePainter p(r);
             p.translate(dim/2, dim/2);
-            draw(p);
+            drawBase(p);
         }
         tex->save(r, path);
     }

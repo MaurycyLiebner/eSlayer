@@ -8,6 +8,8 @@ public:
     using eLabel::eLabel;
 
     int value() const { return mValue; }
+    int min() const { return mMin; }
+    int max() const { return mMax; }
 
     void setRange(const int min, const int max);
     void setValue(const int v);

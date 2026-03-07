@@ -4,7 +4,7 @@
 #include "escreenbase.h"
 
 #include "../textures/echarunitmodel.h"
-#include "gameScreenHelpers/egamepainter.h"
+#include "../widgets/gameScreen/egamepainter.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/epathfinder.h>
@@ -13,6 +13,8 @@
 #include <eSlayerServer/eserver.h>
 
 #include "../units/eunit.h"
+
+class eUnitIndicator;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -46,6 +48,7 @@ private:
     void initializeTextures();
     void showESCMenu();
     void hideESCMenu();
+    void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
 
     eWalkable walkable() const;
 
@@ -60,6 +63,7 @@ private:
     std::shared_ptr<eUnit> mMainChar;
 
     std::vector<std::shared_ptr<eUnit>> mUnits;
+    std::shared_ptr<eUnit> mHighlightUnit;
     std::map<int, int> mUnitIndexMap;
     std::shared_ptr<eMap> mMap;
 
@@ -71,9 +75,9 @@ private:
     bool mMousePressed = false;
     ePointF mMousePos{0., 0.};
 
-
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;
+    eUnitIndicator* mUnitIndicator = nullptr;
 };
 
 #endif // EGAMESCREEN_H
