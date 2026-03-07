@@ -32,6 +32,7 @@ public:
     void setSpeed(const double s) { mSpeed = s; }
     void setRadius(const double r);
     void setMoveRandom(const double r) { mMoveRandom = r; }
+    double stuckTime() const { return mStuckTimer; }
 
     bool increment(const double by);
 

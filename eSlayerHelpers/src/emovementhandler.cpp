@@ -200,7 +200,7 @@ bool eMovementHandler::increment(const double by) {
     }
     mVel = moveDir*mSpeed;
     const double progress = eVec2d::dot(mVel, desiredDir);
-    if(progress < 0.1) {
+    if(progress < 0.1*mSpeed) {
         mStuckTimer += by;
     } else {
         mStuckTimer = 0.;
@@ -213,12 +213,13 @@ bool eMovementHandler::increment(const double by) {
     } else {
         const auto tryX = ePointF{newPos.fX, mPos.fY};
         const auto tryY = ePointF{mPos.fX, newPos.fY};
-        if(walkable(tryX)) mPos.fX = tryX.fX;
-        if(walkable(tryY)) mPos.fY = tryY.fY;
-    }
-
-    if(mStuckTimer > 1.) {
-        stopMoving();
+        if(walkable(tryX)) {
+            mPos.fX = tryX.fX;
+        } else if(walkable(tryY)) {
+            mPos.fY = tryY.fY;
+        } else {
+            stopMoving();
+        }
     }
 
     return true;

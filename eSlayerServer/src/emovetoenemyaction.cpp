@@ -4,6 +4,10 @@
 
 void eMoveToEnemyAction::increment(const double by) {
     auto& handler = mUnit.movementHandler();
+    if(handler.stuckTime() > 10.) {
+        handler.stopMoving();
+        return finishAction();
+    }
     if(mTargetId != -1) {
         const auto target = mArea.unit(mTargetId);
         if(target) {
