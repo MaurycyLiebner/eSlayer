@@ -9,9 +9,9 @@
 #include "textures/eterrstextures.h"
 #include "textures/eobjstextures.h"
 #include "textures/eeffectstextures.h"
-#include "efileloader.h"
 
 #include <eSlayerHelpers/eexceptions.h>
+#include <eSlayerHelpers/erunsettings.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -71,7 +71,24 @@ bool getDisplayResolutions(std::vector<SDL_DisplayMode>& resolutions) {
     return true;
 }
 
+std::string strToUpper(std::string s) {
+    const auto transform = [](const unsigned char c) {
+        return std::toupper(c);
+    };
+    std::transform(s.begin(), s.end(), s.begin(), transform);
+    return s;
+}
+
 int main(int argc, char* argv[]) {
+    for(int i = 1; i < argc - 1; i += 2) {
+        const std::string arg = argv[i];
+        std::string value = argv[i + 1];
+        value = strToUpper(value);
+        if(arg == "--zip") {
+            eRunSettings::sUseZip = value == "TRUE";
+        }
+    }
+
     SDL_SetLogOutputFunction([](void *userdata, int category, SDL_LogPriority priority, const char *message) {
         const auto def = SDL_GetDefaultLogOutputFunction();
         def(userdata, category, priority, message);
@@ -132,8 +149,6 @@ int main(int argc, char* argv[]) {
         const bool m = music.initialize();
         if(!m) return 1;
         eSounds sounds(mixer);
-
-        eFileLoader loder(false);
 
         const auto showMainMenu = [&]() {
             sh.showMainMenu();

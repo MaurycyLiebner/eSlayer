@@ -1,4 +1,4 @@
-#include "eziploader.h"
+#include "../include/eSlayerHelpers/eziploader.h"
 
 #include <stdexcept>
 

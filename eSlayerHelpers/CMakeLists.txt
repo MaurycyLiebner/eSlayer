@@ -7,6 +7,32 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+include(FetchContent)
+
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
+
+FetchContent_Declare(
+    libzip
+    GIT_REPOSITORY https://github.com/nih-at/libzip.git
+    GIT_TAG v1.11.4
+)
+
+FetchContent_MakeAvailable(libzip)
+
+FetchContent_Declare(
+    tinyxml2
+    GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
+    GIT_TAG 11.0.0
+)
+
+FetchContent_MakeAvailable(tinyxml2)
+
 add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eslayerhelpersexport.h
     include/eSlayerHelpers/erand.h src/erand.cpp
@@ -26,9 +52,20 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/emovementgoal.h
     src/emovementgoal.cpp
     include/eSlayerHelpers/eidpointf.h
-    include/eSlayerHelpers/eexceptions.h eexceptions.cpp
+    include/eSlayerHelpers/eexceptions.h src/eexceptions.cpp
     include/eSlayerHelpers/eunitdata.h
     src/eunitdata.cpp
+    include/eSlayerHelpers/echardata.h
+    include/eSlayerHelpers/eoffset.h
+    src/echardata.cpp
+    include/eSlayerHelpers/efileloaderbase.h
+    src/efileloaderbase.cpp
+    src/eziploader.cpp
+    include/eSlayerHelpers/eziploader.h
+    include/eSlayerHelpers/erunsettings.h
+    src/erunsettings.cpp
+    include/eSlayerHelpers/egamedir.h
+    src/egamedir.cpp
 )
 
 target_include_directories(eSlayerHelpers
@@ -38,3 +75,7 @@ target_include_directories(eSlayerHelpers
 target_compile_definitions(eSlayerHelpers
     PRIVATE ESLAYERHELPERS_EXPORTS
 )
+
+target_link_libraries(eSlayerHelpers PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(eSlayerHelpers PUBLIC libzip::zip)
+target_link_libraries(eSlayerHelpers PUBLIC tinyxml2::tinyxml2)

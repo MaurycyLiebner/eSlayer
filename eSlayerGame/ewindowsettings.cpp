@@ -1,7 +1,8 @@
 #include "ewindowsettings.h"
 
-#include "egamedir.h"
 #include "eloadtexthelper.h"
+
+#include <eSlayerHelpers/egamedir.h>
 
 #include <filesystem>
 #include <fstream>

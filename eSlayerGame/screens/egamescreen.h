@@ -61,6 +61,7 @@ private:
 
     eMovementHandler mMovementHandler;
     std::shared_ptr<eUnit> mMainChar;
+    eCharTextures* mMainCharData = nullptr;
 
     std::vector<std::shared_ptr<eUnit>> mUnits;
     std::shared_ptr<eUnit> mHighlightUnit;

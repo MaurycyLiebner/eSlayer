@@ -120,6 +120,7 @@ void eScreenHandler::showGame(const eCharacter& c) {
     const auto r = mWindow->renderer();
     loading.emplace_back([server]() {
         *server = eSlayerServer::generate("single_player");
+        (*server)->initialize();
     });
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();

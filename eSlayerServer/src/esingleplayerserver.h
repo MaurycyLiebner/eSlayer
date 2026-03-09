@@ -10,6 +10,8 @@
 
 class eSinglePlayerServer : public eServer {
 public:
+    void initialize() override;
+
     int connect() override;
     bool disconnect(const int clientId) override;
 

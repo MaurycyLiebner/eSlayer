@@ -44,10 +44,10 @@ void eGameScreen::initialize(const int clientId,
     const eCharTextures::eModelParts modelParts {
         {"whole", "light"}
     };
-    const auto texs = eCharsTextures::get("pal");
+    mMainCharData = eCharsTextures::get("pal");
 
     const auto r = renderer();
-    const auto model = texs->generateModel(modelParts, r);
+    const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
     umodel.setAnimation(0);
@@ -130,7 +130,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             if(charId == mClientId) continue;
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
-                eCharModel unitModel;
+                std::shared_ptr<eCharModel> unitModel;
                 if(u.fTypeId == 0) {
                     const eCharTextures::eModelParts modelParts {
                         {"mummy", "whole"}
@@ -182,12 +182,43 @@ void eGameScreen::paintEvent(ePainter& p) {
             move = mMovementHandler.increment(1.);
         }
         auto& model = mMainChar->model();
+        const bool a = false;
+        int animId;
         if(move) {
             model.setAngle(mMovementHandler.angle());
-            model.setAnimation(1);
+            const int naId = mMainCharData->animId("walk");
+            const int aId = mMainCharData->animId("walkReady");
+            if(a) {
+                if(aId != -1) {
+                    animId = aId;
+                } else {
+                    animId = naId;
+                }
+            } else {
+                if(naId != -1) {
+                    animId = naId;
+                } else {
+                    animId = aId;
+                }
+            }
         } else {
-            model.setAnimation(0);
+            const int naId = mMainCharData->animId("stand");
+            const int aId = mMainCharData->animId("standReady");
+            if(a) {
+                if(aId != -1) {
+                    animId = aId;
+                } else {
+                    animId = naId;
+                }
+            } else {
+                if(naId != -1) {
+                    animId = naId;
+                } else {
+                    animId = aId;
+                }
+            }
         }
+        model.setAnimation(animId);
         mFrame++;
     }
 

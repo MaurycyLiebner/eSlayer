@@ -2,6 +2,8 @@
 
 #include "eserverarea.h"
 
+#include <eSlayerHelpers/echardata.h>
+
 void eMoveToEnemyAction::increment(const double by) {
     auto& handler = mUnit.movementHandler();
     if(handler.stuckTime() > 10.) {
@@ -44,6 +46,22 @@ void eMoveToEnemyAction::setTarget(const eServerUnit& u) {
     if(!r) handler.moveTo(u.fPos);
     mTargetId = u.fCharId;
     mTargetPos = u.fPos;
-    mUnit.fAnim = 1;
+    const bool a = mUnit.aggressive();
+    const auto& data = mUnit.data();
+    const int naId = data.animId("walk");
+    const int aId = data.animId("walkReady");
+    if(a) {
+        if(aId != -1) {
+            mUnit.fAnim = aId;
+        } else {
+            mUnit.fAnim = naId;
+        }
+    } else {
+        if(naId != -1) {
+            mUnit.fAnim = naId;
+        } else {
+            mUnit.fAnim = aId;
+        }
+    }
     mUnit.fAnimId++;
 }

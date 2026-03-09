@@ -1,5 +1,11 @@
 #include "esingleplayerserver.h"
 
+#include "eserverchardata.h"
+
+void eSinglePlayerServer::initialize() {
+    eServerCharData::load();
+}
+
 int eSinglePlayerServer::connect() {
     const int clientId = eServerUnit::sNextCharId++;
     mClientHandlers[clientId] = std::make_shared<eServerClientHandler>();

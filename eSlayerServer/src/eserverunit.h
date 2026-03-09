@@ -7,10 +7,15 @@
 #include <memory>
 
 class eUnitAction;
+class eCharData;
 
 class eServerUnit : public eUnitData {
 public:
     static int sNextCharId;
+
+    eServerUnit(const eCharData& data);
+
+    bool aggressive() const { return mAggressive; }
 
     void increment(const double by);
 
@@ -21,7 +26,11 @@ public:
     { return mHandler; }
     const eMovementHandler& movementHandler() const
     { return mHandler; }
+
+    const eCharData& data() const { return mData; }
 private:
+    const eCharData& mData;
+    bool mAggressive = false;
     std::shared_ptr<eUnitAction> mAction;
     eMovementHandler mHandler;
 };

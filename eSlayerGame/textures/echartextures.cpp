@@ -4,22 +4,24 @@
 
 eCharTextures::eCharTextures() {}
 
-eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
-                                        SDL_Renderer * const r) {
+std::shared_ptr<eCharModel> eCharTextures::generateModel(
+    const eModelParts& modelParts,
+    SDL_Renderer * const r) {
     const auto dir = "Textures";
     const auto path = "chars/" + mName + "/";
-    eCharModel result;
-    result.mNAnims = mAnims.size();
-    result.mNGroups = mGroups.size();
-    result.mNDirs = mDirs;
+    const auto result = std::make_shared<eCharModel>(*this);
+    result->mNAnims = mAnims.size();
+    result->mNGroups = mGroups.size();
+    result->mNDirs = mDirs;
     for(const auto& parts : mGroups) {
-        result.mNParts.push_back(parts.size());
+        result->mNParts.push_back(parts.size());
     }
     for(const auto& anim : mAnims) {
         const auto animPath = path + anim.first + "/";
-        auto& ranim = result.mAnims.emplace_back();
+        auto& ranim = result->mAnims.emplace_back();
         ranim.fFrames = anim.second.fFrames;
         ranim.fOffset = anim.second.fOffset;
+        ranim.fClamp = anim.second.fClamp;
         for(const auto& parts : mGroups) {
             auto& rparts = ranim.fGroups.emplace_back();
             for(const auto& part : parts) {
@@ -53,29 +55,9 @@ eCharModel eCharTextures::generateModel(const eModelParts& modelParts,
 }
 
 void eCharTextures::load(ordered_json& jdata) {
-    mDirs = jdata["directions"];
     const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0, 0});
     if(colorKey.size() == 3) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
     }
-    const auto anims = jdata["animations"].items();
-    for(auto& [name, animData] : anims) {
-        const int frames = animData.value("frames", 0);
-        const auto offset = animData.value("offset", std::vector<int>{0, 0});
-        auto& animP = mAnims.emplace_back();
-        animP.first = name;
-        auto& anim = animP.second;
-        anim.fFrames = frames;
-        anim.fOffset = eOffset{offset[0], offset[1]};
-    }
-
-    const auto groups = jdata["groups"];
-    for(const auto& groupJson : groups) {
-        auto& group = mGroups.emplace_back();
-        const auto items = groupJson.items();
-        for(auto& [key, valueArray] : items) {
-            const auto values = valueArray.get<std::vector<std::string>>();
-            group[key] = values;
-        }
-    }
+    return eCharData::load(jdata);
 }

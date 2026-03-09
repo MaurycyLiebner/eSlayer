@@ -10,6 +10,8 @@
 
 class ESLAYERSERVER_API eServer {
 public:
+    virtual void initialize() = 0;
+
     virtual int connect() = 0;
     virtual bool disconnect(const int clientId) = 0;
 

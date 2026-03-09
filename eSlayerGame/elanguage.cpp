@@ -1,6 +1,6 @@
 #include "elanguage.h"
 
-#include "egamedir.h"
+#include <eSlayerHelpers/egamedir.h>
 
 #include <fstream>
 

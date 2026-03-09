@@ -6,6 +6,9 @@
 
 int eServerUnit::sNextCharId = 0;
 
+eServerUnit::eServerUnit(const eCharData& data)
+    : mData(data) {}
+
 void eServerUnit::increment(const double by) {
     if(mAction) mAction->increment(by);
     const bool r = mHandler.increment(1.);

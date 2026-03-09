@@ -5,12 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+include(FetchContent)
+
 # Disable unnecessary SDL components (optional but recommended)
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
-
-include(FetchContent)
 
 FetchContent_Declare(
     SDL3
@@ -45,36 +45,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL3_mixer)
 
 FetchContent_Declare(
-    tinyxml2
-    GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
-    GIT_TAG 11.0.0
-)
-
-FetchContent_MakeAvailable(tinyxml2)
-
-FetchContent_Declare(
-    nlohmann_json
-    GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG v3.12.0
-)
-
-FetchContent_MakeAvailable(nlohmann_json)
-
-FetchContent_Declare(
     rapidcsv
     GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
     GIT_TAG v8.90
 )
 
 FetchContent_MakeAvailable(rapidcsv)
-
-FetchContent_Declare(
-    libzip
-    GIT_REPOSITORY https://github.com/nih-at/libzip.git
-    GIT_TAG v1.11.4
-)
-
-FetchContent_MakeAvailable(libzip)
 
 add_executable(eSlayerGame main.cpp
     evectorhelpers.cpp evectorhelpers.h
@@ -94,7 +70,7 @@ add_executable(eSlayerGame main.cpp
     ewindowsettings.h ewindowsettings.cpp
     eloadtexthelper.cpp eloadtexthelper.h
     eresolution.cpp eresolution.h
-    egamedir.cpp egamedir.h
+
     widgets/elabel.cpp widgets/elabel.h
     widgets/elabelbase.cpp widgets/elabelbase.h
     widgets/ebuttonbase.cpp widgets/ebuttonbase.h
@@ -123,7 +99,7 @@ add_executable(eSlayerGame main.cpp
     textures/echarmodel.h textures/echarmodel.cpp
     textures/echarstextures.h textures/echarstextures.cpp
     textures/echarunitmodel.h textures/echarunitmodel.cpp
-    eziploader.h eziploader.cpp
+
     efileloader.h efileloader.cpp
     audio/eaudiovector.h audio/eaudiovector.cpp
     widgets/eprogressbar.h widgets/eprogressbar.cpp
@@ -157,10 +133,7 @@ target_link_libraries(eSlayerGame PRIVATE SDL3::SDL3)
 target_link_libraries(eSlayerGame PRIVATE SDL3_ttf::SDL3_ttf)
 target_link_libraries(eSlayerGame PRIVATE SDL3_image::SDL3_image)
 target_link_libraries(eSlayerGame PRIVATE SDL3_mixer::SDL3_mixer)
-target_link_libraries(eSlayerGame PRIVATE tinyxml2::tinyxml2)
-target_link_libraries(eSlayerGame PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(eSlayerGame PRIVATE ${rapidcsv_SOURCE_DIR}/src)
-target_link_libraries(eSlayerGame PRIVATE libzip::zip)
 
 target_link_libraries(eSlayerGame PRIVATE eSlayerServer)
 target_link_libraries(eSlayerGame PRIVATE eSlayerMapGenerator)

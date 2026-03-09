@@ -1,6 +1,6 @@
 #include "echaracters.h"
 
-#include "egamedir.h"
+#include <eSlayerHelpers/egamedir.h>
 
 #include <filesystem>
 

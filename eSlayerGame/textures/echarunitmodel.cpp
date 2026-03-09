@@ -3,6 +3,7 @@
 #include "../widgets/epainter.h"
 #include "echarmodel.h"
 #include "../widgets/gameScreen/egamepainter.h"
+#include "echartextures.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 
@@ -11,22 +12,22 @@
 
 eCharUnitModel::eCharUnitModel() {}
 
-void eCharUnitModel::setCharModel(const eCharModel& model) {
+void eCharUnitModel::setCharModel(const std::shared_ptr<eCharModel>& model) {
     mModel = model;
 }
 
 SDL_Rect eCharUnitModel::boundingRect() const {
-    const int fMax = mModel.nFrames(mAnim);
-    const int gMax = mModel.nGroups();
+    const int fMax = mModel->nFrames(mAnim);
+    const int gMax = mModel->nGroups();
 
     const int frame = int(std::round(mFrame)) % fMax;
 
     SDL_Rect texRect{0, 0, 0, 0};
 
     for(int g = 0; g < gMax; g++) {
-        const int ppMax = mModel.nParts(g);
+        const int ppMax = mModel->nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
+            const auto& tex = mModel->get(mAnim, g, pp, mDir, frame);
 
             const int newX = std::min(texRect.x, tex->offsetX());
             texRect.w += texRect.x - newX;
@@ -45,7 +46,7 @@ SDL_Rect eCharUnitModel::boundingRect() const {
 
 SDL_Rect eCharUnitModel::offsetBoundingRect() const {
     SDL_Rect result = boundingRect();
-    const auto& offset = mModel.animOffset(mAnim);
+    const auto& offset = mModel->animOffset(mAnim);
     result.x += offset.fX;
     result.y += offset.fY;
     return result;
@@ -53,10 +54,28 @@ SDL_Rect eCharUnitModel::offsetBoundingRect() const {
 
 void eCharUnitModel::incFrame(const double by) {
     mFrame += by;
-    if(mAnim != 0 && mAnim != 1) {
-        const int fMax = mModel.nFrames(mAnim);
+    if(mClamp) {
+        const int fMax = mModel->nFrames(mAnim);
         if(int(std::round(mFrame)) >= fMax) {
-            setAnimation(0);
+            const auto& data = mModel->data();
+            const int naId = data.animId("stand");
+            const int aId = data.animId("standReady");
+            const bool a = aggressive();
+            int animId;
+            if(a) {
+                if(aId != -1) {
+                    animId = aId;
+                } else {
+                    animId = naId;
+                }
+            } else {
+                if(naId != -1) {
+                    animId = naId;
+                } else {
+                    animId = aId;
+                }
+            }
+            setAnimation(animId);
         }
     }
 }
@@ -65,18 +84,18 @@ void eCharUnitModel::draw(eGamePainter& p, const bool highlight) const {
     drawBase(p);
     if(!highlight) return;
 
-    const int fMax = mModel.nFrames(mAnim);
-    const int gMax = mModel.nGroups();
+    const int fMax = mModel->nFrames(mAnim);
+    const int gMax = mModel->nGroups();
 
     const int frame = int(std::round(mFrame)) % fMax;
     p.save();
-    const auto& offset = mModel.animOffset(mAnim);
+    const auto& offset = mModel->animOffset(mAnim);
     p.translate(offset.fX, offset.fY);
 
     for(int g = 0; g < gMax; g++) {
-        const int ppMax = mModel.nParts(g);
+        const int ppMax = mModel->nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
+            const auto& tex = mModel->get(mAnim, g, pp, mDir, frame);
             tex->setBlendMode(SDL_BLENDMODE_ADD);
             tex->setAlpha(125);
             p.drawTexture(0, 0, tex);
@@ -89,8 +108,8 @@ void eCharUnitModel::draw(eGamePainter& p, const bool highlight) const {
 }
 
 void eCharUnitModel::drawBase(ePainter& p) const {
-    const int fMax = mModel.nFrames(mAnim);
-    const int gMax = mModel.nGroups();
+    const int fMax = mModel->nFrames(mAnim);
+    const int gMax = mModel->nGroups();
 
     const int frame = int(std::round(mFrame)) % fMax;
 
@@ -105,16 +124,16 @@ void eCharUnitModel::drawBase(ePainter& p) const {
         sp.translate(-texRect.x, -texRect.y);
         const auto holder = shadow->createTargetHolder(r);
         for(int g = 0; g < gMax; g++) {
-            const int ppMax = mModel.nParts(g);
+            const int ppMax = mModel->nParts(g);
             for(int pp = 0; pp < ppMax; pp++) {
-                const auto tex = mModel.get(mAnim, g, pp, mDir, frame);
+                const auto tex = mModel->get(mAnim, g, pp, mDir, frame);
                 sp.drawTexture(0, 0, tex);
             }
         }
     }
 
     p.save();
-    const auto& offset = mModel.animOffset(mAnim);
+    const auto& offset = mModel->animOffset(mAnim);
     p.translate(offset.fX, offset.fY);
 
     {
@@ -158,9 +177,9 @@ void eCharUnitModel::drawBase(ePainter& p) const {
     }
 
     for(int g = 0; g < gMax; g++) {
-        const int ppMax = mModel.nParts(g);
+        const int ppMax = mModel->nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto& tex = mModel.get(mAnim, g, pp, mDir, frame);
+            const auto& tex = mModel->get(mAnim, g, pp, mDir, frame);
             p.drawTexture(0, 0, tex);
         }
     }
@@ -170,7 +189,7 @@ void eCharUnitModel::drawBase(ePainter& p) const {
 }
 
 void eCharUnitModel::setAngle(const double a) {
-    const int dirs = mModel.nDirs();
+    const int dirs = mModel->nDirs();
     const double ainc = 360./dirs;
     const int dir = std::round(a/ainc) - 2*dirs/16;
     setDirection((dirs + dir) % dirs);
@@ -178,9 +197,9 @@ void eCharUnitModel::setAngle(const double a) {
 
 void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
     const std::string dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
-    for(int anim = 0; anim < mModel.nAnims(); anim++) {
+    for(int anim = 0; anim < mModel->nAnims(); anim++) {
         mAnim = anim;
-        mFrame = mModel.nFrames(anim) - 1;
+        mFrame = mModel->nFrames(anim) - 1;
         int id = 0;
         while(std::filesystem::exists(dir + std::to_string(id) + ".png")) {
             id++;
@@ -208,7 +227,7 @@ void eCharUnitModel::setAnimation(const int a, const int id) {
 }
 
 void eCharUnitModel::setAnimation(const int a) {
-    if(a >= mModel.nAnims()) {
+    if(a >= mModel->nAnims()) {
         eExceptions::logError("Animation id " +
                               std::to_string(a) +
                               " out of range!");
@@ -217,11 +236,13 @@ void eCharUnitModel::setAnimation(const int a) {
     if(mAnim != a) {
         mAnim = a;
         mFrame = 0.;
+        const auto& data = mModel->data();
+        mClamp = data.animClamp(a);
     }
 }
 
 void eCharUnitModel::setDirection(const int d) {
-    if(d >= mModel.nDirs()) {
+    if(d >= mModel->nDirs()) {
         eExceptions::logError("Direction id " +
                               std::to_string(d) +
                               " out of range!");

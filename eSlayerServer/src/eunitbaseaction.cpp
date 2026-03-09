@@ -1,10 +1,11 @@
 #include "eunitbaseaction.h"
 
-#include "emovetoenemyaction.h"
 #include "eattackaction.h"
-#include "ewaitaction.h"
+#include "emovetoenemyaction.h"
 #include "eserverarea.h"
+#include "ewaitaction.h"
 
+#include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
 
 void eUnitBaseAction::decide() {
@@ -23,13 +24,37 @@ void eUnitBaseAction::decide() {
         const auto wait = std::make_shared<eWaitAction>(mUnit, mArea);
         wait->setRemTime(100.);
         setChild(wait);
-        mUnit.fAnim = 0;
+        const bool a = mUnit.aggressive();
+        const auto& data = mUnit.data();
+        const int naId = data.animId("stand");
+        const int aId = data.animId("standReady");
+        if(a) {
+            if(aId != -1) {
+                mUnit.fAnim = aId;
+            } else {
+                mUnit.fAnim = naId;
+            }
+        } else {
+            if(naId != -1) {
+                mUnit.fAnim = naId;
+            } else {
+                mUnit.fAnim = aId;
+            }
+        }
         mUnit.fAnimId++;
     }
 }
 
 void eUnitBaseAction::attack(const eServerUnit& u) {
-    mUnit.fAnim = 2 + (eRand::rand() % 2);
+    const auto& data = mUnit.data();
+    const int a1Id = data.animId("attack1");
+    const int a2Id = data.animId("attack2");
+
+    if(a2Id != -1 && eRand::rand() % 2) {
+        mUnit.fAnim = a2Id;
+    } else {
+        mUnit.fAnim = a1Id;
+    }
     mUnit.fAnimId++;
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
