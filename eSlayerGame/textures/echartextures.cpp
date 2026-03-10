@@ -34,7 +34,7 @@ std::shared_ptr<eCharModel> eCharTextures::generateModel(
                     auto& partMap = mTexMap[partPath];
                     eSpriteLoader loader(dir, partPath, r, mColorKey);
                     for(int i = 0; i < mDirs; i++) {
-                        const auto coll = std::make_shared<eTextureCollection>(r);
+                        const auto coll = std::make_shared<eTextureCollection>();
                         const int nFrames = anim.second.fFrames;
                         for(int f = 0; f < nFrames; f++) {
                             loader.load(i*nFrames + f, *coll);

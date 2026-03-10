@@ -11,6 +11,7 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
 #include "../textures/eeffectstextures.h"
+#include "../textures/euitextures.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -145,6 +146,9 @@ void eScreenHandler::showGame(const eCharacter& c) {
             const auto texs = eObjsTextures::get(objType.fName);
             texs->load(r);
         }
+    });
+    loading.emplace_back([r]() {
+        eUITextures::sLoad(r);
     });
     showLoadingScreen(loading, finish);
 }

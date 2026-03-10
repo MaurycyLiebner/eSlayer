@@ -7,6 +7,8 @@
 #include "../textures/etilesiterator.h"
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../widgets/gameScreen/ehealthorb.h"
+#include "../widgets/ecolors.h"
 
 #include <eSlayerHelpers/evec2.h>
 
@@ -37,7 +39,23 @@ void eGameScreen::initialize(const int clientId,
     mUnitIndicator->resize(200*m, 40*m);
     addWidget(mUnitIndicator);
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
-    mUnitIndicator->move(mUnitIndicator->x(), 20*m);
+    mUnitIndicator->setY(20*m);
+
+    const int orbX = 200*m;
+
+    mHealthOrb = new eHealthOrb(window());
+    mHealthOrb->setColor(eColors::sHealth);
+    mHealthOrb->initialize();
+    addWidget(mHealthOrb);
+    mHealthOrb->align(eAlignment::bottom);
+    mHealthOrb->setX(orbX);
+
+    mManaOrb = new eHealthOrb(window());
+    mManaOrb->setColor(eColors::sMana);
+    mManaOrb->initialize();
+    addWidget(mManaOrb);
+    mManaOrb->align(eAlignment::bottom);
+    mManaOrb->setX(width() - orbX - mManaOrb->width());
 
     mMap = map;
 

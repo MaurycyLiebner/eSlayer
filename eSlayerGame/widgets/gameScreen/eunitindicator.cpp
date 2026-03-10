@@ -2,6 +2,7 @@
 
 #include "../../elanguage.h"
 #include "../../units/eunit.h"
+#include "../ecolors.h"
 
 void eUnitIndicator::initialize() {
     mName = new eLabel(window());
@@ -36,6 +37,6 @@ void eUnitIndicator::paintEvent(ePainter& p) {
     const SDL_Rect rect{innerRect.x, innerRect.y,
                         w, innerRect.h};
     p.fillRect(baseRect, {0, 0, 0, 255});
-    p.fillRect(rect, {200, 0, 0, 255});
+    p.fillRect(rect, eColors::sHealth);
     p.drawRect(baseRect, {255, 255, 255, 255}, lineWidth());
 }

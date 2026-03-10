@@ -17,6 +17,6 @@ void eEffectTextures::load(SDL_Renderer* const r) {
     mLoaded = true;
     eSpriteLoader loader("Textures", "effects/" + mName,
                          r, SDL_Color{0, 0, 0, 0});
-    mColl = std::make_shared<eTextureCollection>(r);
+    mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }
