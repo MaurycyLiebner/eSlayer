@@ -66,6 +66,13 @@ void eSpriteLoader::initialize() {
                 "Invalid atlas rect/offset at line " +
                 std::to_string(i + 1) + " in " +
                 csvPath + ".");
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 0;
+            rect.h = 0;
+
+            offset.x = 0;
+            offset.y = 0;
             continue;
         }
         rect.x = row[0];

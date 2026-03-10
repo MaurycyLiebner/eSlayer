@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 eLogger eExceptions::mLogger;
+eDialogShower eExceptions::mDialogShower;
 
 bool isExceptionNested(const std::exception& e) {
     if(auto ne = dynamic_cast<const std::nested_exception*>(std::addressof(e))) {
@@ -33,6 +34,19 @@ void eExceptions::logError(const std::string& msg,
     logError(msg + "\n" + err);
 }
 
+void eExceptions::showDialog(const std::string& msg) {
+    if(mDialogShower) mDialogShower(msg);
+}
+
+void eExceptions::showDialog(const std::exception& e) {
+    const auto msg = eExceptions::fullMsg(e);
+    showDialog(msg);
+}
+
 void eExceptions::setLogger(const eLogger& logger) {
     mLogger = logger;
+}
+
+void eExceptions::setDialogShower(const eDialogShower& dialogShower) {
+    mDialogShower = dialogShower;
 }

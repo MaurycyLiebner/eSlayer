@@ -2,6 +2,8 @@
 
 #include "../efileloader.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+
 eCharsTextures eCharsTextures::sInstance;
 
 eCharsTextures::eCharsTextures() {}
@@ -20,14 +22,29 @@ void eCharsTextures::loadImpl() {
 
     const auto dir = "Textures";
 
-    const auto jdata = eFileLoader::parse(dir, "chars/chars.json");
-    const auto chars = jdata.get<std::vector<std::string>>();
+    std::vector<std::string> chars;
+    try {
+        const auto jdata = eFileLoader::parse(dir, "chars/chars.json");
+        chars = jdata.get<std::vector<std::string>>();
+    } catch(...) {
+        eRuntimeThrow("Failed to parse " + dir + "/chars/chars.json");
+    }
 
     for(const auto& name : chars) {
-        auto& texs = mChars[name];
-        texs.setName(name);
-        auto jdata = eFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
-        texs.load(jdata);
+        try {
+            const auto it = mChars.find(name);
+            if(it != mChars.end()) {
+                eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/chars/chars.json");
+                continue;
+            }
+            auto& texs = mChars[name];
+            texs.setName(name);
+            auto jdata = eFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
+            texs.load(jdata);
+        } catch(const std::exception& e) {
+            eExceptions::showDialog(e);
+            mChars.erase(name);
+        }
     }
 }
 

@@ -16,7 +16,7 @@ private:
     static eEffectsTextures sInstance;
 
     bool mLoaded = false;
-    std::map<std::string, eEffectTextures> mTerrs;
+    std::map<std::string, eEffectTextures> mEffects;
 };
 
 #endif // EEFFECTSTEXTURES_H

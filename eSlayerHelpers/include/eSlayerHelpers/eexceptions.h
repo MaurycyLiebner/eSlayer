@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <string>
+#include <stdexcept>
 
 #define eFILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
@@ -19,6 +20,7 @@
 }
 
 using eLogger = std::function<void(const std::string& msg)>;
+using eDialogShower = std::function<void(const std::string& msg)>;
 
 class ESLAYERHELPERS_API eExceptions {
 public:
@@ -26,9 +28,15 @@ public:
     static void logError(const std::string& msg);
     static void logError(const std::string& msg,
                          const std::string& err);
+
+    static void showDialog(const std::string& msg);
+    static void showDialog(const std::exception& e);
+
     static void setLogger(const eLogger& logger);
+    static void setDialogShower(const eDialogShower& dialogShower);
 private:
     static eLogger mLogger;
+    static eDialogShower mDialogShower;
 };
 
 #endif // EEXCEPTIONS_H

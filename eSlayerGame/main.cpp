@@ -101,6 +101,10 @@ int main(int argc, char* argv[]) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s", msg.c_str());
     });
 
+    eExceptions::setDialogShower([](const std::string& msg) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", msg.c_str(), nullptr);
+    });
+
     if(!init()) {
         eExceptions::logError("Failed to initialize!");
         close();
@@ -189,8 +193,7 @@ int main(int argc, char* argv[]) {
 
         r = w.exec();
     } catch(const std::exception& e) {
-        const auto msg = eExceptions::fullMsg(e);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", msg.c_str(), nullptr);
+        eExceptions::showDialog(e);
     }
 
     close();
