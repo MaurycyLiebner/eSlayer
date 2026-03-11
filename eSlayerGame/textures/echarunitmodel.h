@@ -20,7 +20,8 @@ public:
     void draw(eGamePainter& p, const bool highligh = false) const;
     void drawBase(ePainter& p) const;
 
-    bool aggressive() const { return false; }
+    bool aggressive() const { return mAggressive; }
+    void setAggressive(const bool a) { mAggressive = a; }
 
     void setAnimation(const int a, const int id);
     void setAnimation(const int a);
@@ -30,11 +31,12 @@ public:
 
     void generatePreview(SDL_Renderer* const r);
 private:
-    int mAnim;
+    int mAnim = 0;
     int mAnimId = -1;
     double mFrame = 0.;
     bool mClamp = false;
-    int mDir;
+    bool mAggressive = false;
+    int mDir = 0;
     std::shared_ptr<eCharModel> mModel;
 };
 

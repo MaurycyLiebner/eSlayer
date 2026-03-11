@@ -59,17 +59,7 @@ void eGameScreen::initialize(const int clientId,
 
     mMap = map;
 
-    const eCharTextures::eModelParts modelParts {
-        {"whole", "light"}
-    };
-    mMainCharData = eCharsTextures::get("pal");
-
     const auto r = renderer();
-    const auto model = mMainCharData->generateModel(modelParts, r);
-    eCharUnitModel umodel;
-    umodel.setCharModel(model);
-    umodel.setAnimation(0);
-    umodel.setDirection(0);
 
     const auto w = walkable();
     const auto iter = [this](const eOtherHandler& handler) {
@@ -77,13 +67,8 @@ void eGameScreen::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMovementHandler.intialize(w, iter, clientId, 0);
-    mMovementHandler.setRadius(0.4);
-    mMovementHandler.setMoveRandom(0.);
-
-    mMainChar = std::make_shared<eUnit>();
-    mMainChar->setModel(umodel);
-
+    mMainAction.initialize(r, w, iter, clientId, 0);
+    mMainChar = mMainAction.unit();
     // {
     //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
     //     for(const auto& entry : std::filesystem::directory_iterator(dir))
@@ -102,7 +87,7 @@ void eGameScreen::initialize(const int clientId,
 }
 
 const ePointF& eGameScreen::characterPos() const {
-    return mMovementHandler.pos();
+    return mMainAction.pos();
 }
 
 ePointF eGameScreen::pixelToTilePos(
@@ -120,12 +105,12 @@ ePointF eGameScreen::pixelToTilePos(
 
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
-    const auto& pos = mMovementHandler.pos();
+    const auto& pos = characterPos();
     return pixelToTilePos(pos, pixel);
 }
 
 ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
-    const auto& charPos = mMovementHandler.pos();
+    const auto& charPos = characterPos();
     ePointF result;
     result.fY = height()/2. + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.;
     result.fX = width()/2. + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.;
@@ -143,6 +128,7 @@ void eGameScreen::paintEvent(ePainter& p) {
     const bool b = mServer->receiveUnits(
         mClientId, units, resultTime);
     if(b) {
+        bool aggressive = false;
         for(const auto& u : units) {
             const int charId = u.fCharId;
             if(charId == mClientId) {
@@ -188,61 +174,20 @@ void eGameScreen::paintEvent(ePainter& p) {
                 model.setAngle(u.fAngle);
                 model.setAnimation(unit->fAnim, unit->fAnimId);
             }
+            if(!aggressive && mMainChar->fTeamId != u.fTeamId) {
+                const double dist = ePointF::distance(mMainChar->pos(), u.fPos);
+                if(dist < 5.) aggressive = true;
+            }
         }
+        auto& model = mMainChar->model();
+        model.setAggressive(aggressive);
     }
     mServer->moveTo(mClientId, characterPos());
 
     if(!mESCMenu) {
-        const auto pos = pixelToTilePos(mMousePos);
-        bool move = false;
-        eVec2d vec;
+        const auto mouseTilePos = pixelToTilePos(mMousePos);
+        mMainAction.increment(mMousePressed, mouseTilePos, 1.);
 
-        if(mMousePressed) {
-            mMovementHandler.moveInDirection(pos);
-            move = mMovementHandler.increment(1.);
-        }
-        if(!move) {
-            if(mMousePressed) mMovementHandler.moveTo(pos);
-            move = mMovementHandler.increment(1.);
-        }
-        auto& model = mMainChar->model();
-        const bool a = false;
-        int animId;
-        if(move) {
-            model.setAngle(mMovementHandler.angle());
-            const int naId = mMainCharData->animId("walk");
-            const int aId = mMainCharData->animId("walkReady");
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
-            } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
-            }
-        } else {
-            const int naId = mMainCharData->animId("stand");
-            const int aId = mMainCharData->animId("standReady");
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
-            } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
-            }
-        }
-        model.setAnimation(animId);
         mFrame++;
     }
 
@@ -356,6 +301,10 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
     if(leftPressed) {
         mMousePressed = true;
         mMousePos = ePointF{double(e.x()), double(e.y())};
+        if(mHighlightUnit) {
+            setPressedUnit(mHighlightUnit);
+            mMainAction.setPressedUnit(mHighlightUnit);
+        }
     }
     return true;
 }
@@ -366,8 +315,9 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::left);
     if(leftReleased) {
         mMousePressed = false;
+        setPressedUnit(nullptr);
         const auto pos = pixelToTilePos(mMousePos);
-        mMovementHandler.moveTo(pos);
+        mMainAction.mouseRelease(pos);
     }
     return true;
 }
@@ -441,7 +391,18 @@ void eGameScreen::hideESCMenu() {
 
 void eGameScreen::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
-    mUnitIndicator->setUnit(u);
+    if(!mPressedUnit) {
+        mUnitIndicator->setUnit(u);
+    }
+}
+
+void eGameScreen::setPressedUnit(const std::shared_ptr<eUnit>& u) {
+    mPressedUnit = u;
+    if(mPressedUnit) {
+        mUnitIndicator->setUnit(mPressedUnit);
+    } else {
+        mUnitIndicator->setUnit(mHighlightUnit);
+    }
 }
 
 eWalkable eGameScreen::walkable() const {

@@ -124,6 +124,7 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/ehealthorb.h widgets/gameScreen/ehealthorb.cpp
     textures/euitextures.h textures/euitextures.cpp
     widgets/ecolors.h widgets/ecolors.cpp
+    emaincharaction.h emaincharaction.cpp
 )
 
 include(GNUInstallDirs)

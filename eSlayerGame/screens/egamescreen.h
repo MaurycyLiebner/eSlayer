@@ -9,10 +9,10 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
-#include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerServer/eserver.h>
 
 #include "../units/eunit.h"
+#include "../emaincharaction.h"
 
 class eUnitIndicator;
 class eHealthOrb;
@@ -50,6 +50,7 @@ private:
     void showESCMenu();
     void hideESCMenu();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
+    void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     eWalkable walkable() const;
 
@@ -60,12 +61,12 @@ private:
     int mClientId = -1;
     std::shared_ptr<eServer> mServer;
 
-    eMovementHandler mMovementHandler;
+    eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
-    eCharTextures* mMainCharData = nullptr;
 
     std::vector<std::shared_ptr<eUnit>> mUnits;
     std::shared_ptr<eUnit> mHighlightUnit;
+    std::shared_ptr<eUnit> mPressedUnit;
     std::map<int, int> mUnitIndexMap;
     std::shared_ptr<eMap> mMap;
 
