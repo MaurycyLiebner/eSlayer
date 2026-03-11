@@ -59,6 +59,13 @@ bool eSinglePlayerServer::moveTo(
     return h->moveTo(clientId, pos);
 }
 
+bool eSinglePlayerServer::attack(const int clientId,
+                                 const int targetId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->attack(clientId, targetId);
+}
+
 eServerClientHandler*
 eSinglePlayerServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

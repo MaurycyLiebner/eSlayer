@@ -8,10 +8,12 @@
 class eUnit;
 class SDL_Renderer;
 class eCharTextures;
+class eServer;
 
 class eMainCharAction {
 public:
-    void initialize(SDL_Renderer* const r,
+    void initialize(const std::shared_ptr<eServer>& s,
+                    SDL_Renderer* const r,
                     const eWalkable& w,
                     const eOtherIterator& iter,
                     const int clientId,
@@ -28,12 +30,15 @@ public:
     const ePointF& pos() const { return mMovementHandler.pos(); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
 private:
+    int mClientId;
+    std::shared_ptr<eServer> mServer;
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
 
-    double mAttackTime = 0.;
+    double mAttackActionTime = 0.;
+    double mAttackDuration = 0.;
     std::shared_ptr<eUnit> mAttackedUnit;
 };
 

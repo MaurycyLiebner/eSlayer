@@ -4,11 +4,16 @@
 #include "textures/echartextures.h"
 #include "textures/echarstextures.h"
 
-void eMainCharAction::initialize(SDL_Renderer* const r,
+#include <eSlayerServer/eserver.h>
+
+void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
+                                 SDL_Renderer* const r,
                                  const eWalkable& w,
                                  const eOtherIterator& iter,
                                  const int clientId,
                                  const int teamId) {
+    mClientId = clientId;
+    mServer = s;
     mMovementHandler.intialize(w, iter, clientId, 0);
     mMovementHandler.setRadius(0.4);
     mMovementHandler.setMoveRandom(0.);
@@ -41,14 +46,20 @@ void eMainCharAction::increment(const bool mousePressed,
     eVec2d vec;
     auto& model = mMainChar->model();
 
-    mAttackTime -= by;
+    mAttackDuration -= by;
+    mAttackActionTime -= by;
+    if(mAttackedUnit && mAttackActionTime <= 0) {
+        const int targetId = mAttackedUnit->charId();
+        mServer->attack(mClientId, targetId);
+        mAttackedUnit = nullptr;
+    }
     if(mPressedUnit) {
         pos = mPressedUnit->pos();
         const double dist = ePointF::distance(mMainChar->pos(), pos);
         const double attackDist = 0.5*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
-            if(mAttackTime <= 0.) {
+            if(mAttackDuration <= 0.) {
                 int animId;
                 const int a1Id = mMainCharData->animId("attack1");
                 const int a2Id = mMainCharData->animId("attack2");
@@ -66,7 +77,8 @@ void eMainCharAction::increment(const bool mousePressed,
                     }
                 }
                 model.setAnimation(animId);
-                mAttackTime = mMainCharData->animFrames(animId);
+                mAttackDuration = mMainCharData->animFrames(animId);
+                mAttackActionTime = mMainCharData->animActionFrame(animId);
                 const auto vec = ePointF::vector(mPressedUnit->pos(),
                                                  mMainChar->pos());
                 model.setAngle(vec.angle());
@@ -76,9 +88,7 @@ void eMainCharAction::increment(const bool mousePressed,
     } else {
         pos = mousePos;
     }
-    if(mAttackTime <= 0.) {
-        mAttackedUnit = nullptr;
-
+    if(mAttackDuration <= 0.) {
         if(mousePressed) {
             mMovementHandler.moveInDirection(pos);
             move = mMovementHandler.increment(1.);

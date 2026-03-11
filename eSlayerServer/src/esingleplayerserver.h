@@ -29,6 +29,9 @@ public:
 
     bool moveTo(const int clientId,
                 const ePointF& pos) override;
+
+    bool attack(const int clientId,
+                const int targetId) override;
 public:
     eServerClientHandler* clientHandler(const int clientId);
 

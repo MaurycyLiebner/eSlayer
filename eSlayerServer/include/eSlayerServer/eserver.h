@@ -32,6 +32,9 @@ public:
     virtual bool
     moveTo(const int clientId,
            const ePointF& pos) = 0;
+    virtual bool
+    attack(const int clientId,
+           const int targetId) = 0;
 private:
 };
 

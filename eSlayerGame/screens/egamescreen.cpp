@@ -67,7 +67,7 @@ void eGameScreen::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMainAction.initialize(r, w, iter, clientId, 0);
+    mMainAction.initialize(mServer, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
     // {
     //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";

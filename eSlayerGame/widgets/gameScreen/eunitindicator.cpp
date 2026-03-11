@@ -13,8 +13,6 @@ void eUnitIndicator::initialize() {
 void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u) {
     mUnit = u;
     if(mUnit) {
-        setRange(0, u->fMaxHealth);
-        setValue(u->fHealth);
         const auto name = eLanguage::text(6, mUnit->fTypeId);
         mName->setText(name);
         mName->fitContent();
@@ -27,6 +25,8 @@ void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u) {
 
 void eUnitIndicator::paintEvent(ePainter& p) {
     if(!mUnit) return;
+    setRange(0, mUnit->fMaxHealth);
+    setValue(mUnit->fHealth);
     const double per = double(value() - min())/(max() - min());
     const SDL_Rect baseRect = rect();
     const int pp = padding();

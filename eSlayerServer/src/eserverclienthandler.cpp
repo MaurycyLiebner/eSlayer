@@ -46,3 +46,10 @@ bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
     }
     return true;
 }
+
+bool eServerClientHandler::attack(const int clientId, const int targetId) {
+    if(!mArea) return false;
+    const auto unit = mArea->unit(targetId);
+    unit->fHealth = std::max(0, unit->fHealth - 10);
+    return true;
+}
