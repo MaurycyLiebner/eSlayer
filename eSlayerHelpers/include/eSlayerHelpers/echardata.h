@@ -25,6 +25,9 @@ public:
     int animFrames(const int id) const;
     int animFrames(const std::string& name) const;
 
+    int animActionFrame(const int id) const;
+    int animActionFrame(const std::string& name) const;
+
     bool animClamp(const int id) const;
     bool animClamp(const std::string& name) const;
 protected:
@@ -54,6 +57,7 @@ protected:
         int fFrames;
         eOffset fOffset;
         bool fClamp;
+        int fActionFrame;
     };
 
     std::vector<std::pair<std::string, eAnimation>> mAnims;

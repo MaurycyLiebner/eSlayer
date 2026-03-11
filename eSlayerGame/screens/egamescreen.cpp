@@ -145,7 +145,13 @@ void eGameScreen::paintEvent(ePainter& p) {
     if(b) {
         for(const auto& u : units) {
             const int charId = u.fCharId;
-            if(charId == mClientId) continue;
+            if(charId == mClientId) {
+                mMainChar->fHealth = u.fHealth;
+                mMainChar->fMaxHealth = u.fMaxHealth;
+                mHealthOrb->setValue(u.fHealth);
+                mHealthOrb->setMax(u.fMaxHealth);
+                continue;
+            }
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
                 std::shared_ptr<eCharModel> unitModel;

@@ -31,6 +31,7 @@ void eCharData::load(ordered_json& jdata) {
         anim.fFrames = animData.value("frames", 0);
         anim.fOffset = eOffset{offset[0], offset[1]};
         anim.fClamp = animData.value("clamp", false);
+        anim.fActionFrame = animData.value("actionFrame", anim.fFrames);
     }
 
     const auto groups = jdata["groups"];
@@ -64,6 +65,15 @@ int eCharData::animFrames(const int id) const {
 }
 
 int eCharData::animFrames(const std::string& name) const {
+    const int id = animId(name);
+    return animFrames(id);
+}
+
+int eCharData::animActionFrame(const int id) const {
+    return mAnims[id].second.fActionFrame;
+}
+
+int eCharData::animActionFrame(const std::string& name) const {
     const int id = animId(name);
     return animFrames(id);
 }

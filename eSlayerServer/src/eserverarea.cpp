@@ -67,8 +67,12 @@ void eServerArea::addClient(
     const auto u = std::make_shared<eServerUnit>(*data);
     u->fCharId = clientId;
     u->fRadius = data->radius();
+    u->fAnim = data->animId("stand");
+    u->fAnimId = 0;
     u->fTeamId = 0;
     u->fPos = pos;
+    u->fMaxHealth = 100;
+    u->fHealth = 100;
     mUnits.emplace_back(u);
 }
 

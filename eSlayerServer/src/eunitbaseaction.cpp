@@ -59,5 +59,12 @@ void eUnitBaseAction::attack(const eServerUnit& u) {
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
     const auto attack = std::make_shared<eAttackAction>(mUnit, mArea);
+    attack->setDuration(data.animFrames(mUnit.fAnim));
+    const int targetId = u.fCharId;
+    attack->setAction(data.animActionFrame(mUnit.fAnim), [this, targetId]() {
+        const auto u = mArea.unit(targetId);
+        if(!u) return;
+        u->fHealth = std::clamp(u->fHealth - 10, 0, u->fMaxHealth);
+    });
     setChild(attack);
 }
