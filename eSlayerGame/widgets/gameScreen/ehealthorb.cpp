@@ -5,8 +5,8 @@
 #include <cmath>
 
 void eHealthOrb::initialize() {
-    const auto& orb = eUITextures::sOrb;
-    setTexture(orb.getTexture(0));
+    setNoPadding();
+    setTexture(eUITextures::sOrb);
     fitContent();
 }
 
@@ -23,22 +23,15 @@ void eHealthOrb::setValue(const int v) {
 }
 
 void eHealthOrb::paintEvent(ePainter& p) {
+    eLabel::paintEvent(p);
     const auto& orb = eUITextures::sOrb;
-    const auto& orbBack = orb.getTexture(1);
-    orbBack->setColorMod(mColor.r, mColor.g, mColor.b);
-    orbBack->setAlpha(mColor.a);
+    orb->setColorMod(mColor.r, mColor.g, mColor.b);
     const int wTotal = width();
     const int hTotal = height();
-    const int hBase = orbBack->height();
-    const int y = (hTotal - hBase)/2;
-    const int h = std::round(double(hBase)*mValue/mMax);
-    const SDL_Rect clipRect{0, y + hBase - h, wTotal, h};
+    const int h = std::round(double(hTotal)*mValue/mMax);
+    const SDL_Rect clipRect{0, hTotal - h, wTotal, h};
     p.setClipRect(&clipRect);
-    const int cx = wTotal/2;
-    const int cy = hTotal/2;
-    p.drawTexture(cx, cy, orbBack, eAlignment::center);
+    p.drawTexture(0, 0, orb);
     p.setClipRect(nullptr);
-    orbBack->clearColorMod();
-    orbBack->clearAlphaMod();
-    eLabel::paintEvent(p);
+    orb->clearColorMod();
 }

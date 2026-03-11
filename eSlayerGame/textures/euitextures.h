@@ -1,13 +1,13 @@
 #ifndef EUITEXTURES_H
 #define EUITEXTURES_H
 
-#include "../textures/etexturecollection.h"
+#include "../textures/etexture.h"
 
 class eUITextures {
 public:        
     static void sLoad(SDL_Renderer * const r);
 
-    static eTextureCollection sOrb;
+    static std::shared_ptr<eTexture> sOrb;
 private:
     static bool sLoaded;
 };
