@@ -22,6 +22,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fMaxHealth = 100;
             u->fRadius = data->radius();
             u->fAnim = data->animId("stand");
+            u->fHasAction = false;
             u->fAnimId = 0;
             const ePointF pos{double(x), double(y)};
             u->fPos = pos;
@@ -73,6 +74,7 @@ void eServerArea::addClient(
     u->fPos = pos;
     u->fMaxHealth = 100;
     u->fHealth = 100;
+    u->fHasAction = false;
     mUnits.emplace_back(u);
 }
 

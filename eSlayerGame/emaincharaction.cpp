@@ -41,10 +41,16 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 void eMainCharAction::increment(const bool mousePressed,
                                 const ePointF& mousePos,
                                 const double by) {
+    auto& model = mMainChar->model();
+    if(mMainChar->fHasAction) {
+        mAttackedUnit = nullptr;
+        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId);
+        return;
+    }
+
     ePointF pos;
     bool move = false;
     eVec2d vec;
-    auto& model = mMainChar->model();
 
     mAttackDuration -= by;
     mAttackActionTime -= by;

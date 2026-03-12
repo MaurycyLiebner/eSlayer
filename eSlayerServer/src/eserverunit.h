@@ -19,8 +19,7 @@ public:
 
     void increment(const double by);
 
-    void setAction(const std::shared_ptr<eUnitAction>& a)
-    { mAction = a; }
+    void setAction(const std::shared_ptr<eUnitAction>& a);
     const std::shared_ptr<eUnitAction>&
     action() const { return mAction; }
 

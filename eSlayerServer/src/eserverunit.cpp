@@ -22,3 +22,8 @@ void eServerUnit::increment(const double by) {
         fVel = eVec2d{0., 0.};
     }
 }
+
+void eServerUnit::setAction(const std::shared_ptr<eUnitAction>& a) {
+    mAction = a;
+    fHasAction = a.get();
+}

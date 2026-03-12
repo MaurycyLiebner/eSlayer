@@ -4,6 +4,7 @@
 #include "emovetoenemyaction.h"
 #include "eserverarea.h"
 #include "ewaitaction.h"
+#include "egethitaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -64,7 +65,15 @@ void eUnitBaseAction::attack(const eServerUnit& u) {
     attack->setAction(data.animActionFrame(mUnit.fAnim), [this, targetId]() {
         const auto u = mArea.unit(targetId);
         if(!u) return;
-        u->fHealth = std::clamp(u->fHealth - 10, 0, u->fMaxHealth);
+        u->fHealth = std::max(0, u->fMaxHealth - 10);
+        if(u->fHealth <= 0) {
+
+        } else {
+            if(eRand::rand() % 4) {
+                const auto a = eGetHitAction::sCreate(*u, mArea);
+                if(a) u->setAction(a);
+            }
+        }
     });
     setChild(attack);
 }
