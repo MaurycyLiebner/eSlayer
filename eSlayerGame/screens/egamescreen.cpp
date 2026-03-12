@@ -73,12 +73,11 @@ void eGameScreen::initialize(const int clientId,
     //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
     //     for(const auto& entry : std::filesystem::directory_iterator(dir))
     //         std::filesystem::remove_all(entry.path());
-    //     eCharModel unitModel;
     //     const eCharTextures::eModelParts modelParts {
-    //         {"wendigo", "whole"}
+    //         {"mummy", "whole"}
     //     };
-    //     const auto texs = eCharsTextures::get("wendigo");
-    //     unitModel = texs->generateModel(modelParts, r);
+    //     const auto texs = eCharsTextures::get("mummy");
+    //     const auto unitModel = texs->generateModel(modelParts, r);
     //     eCharUnitModel model;
     //     model.setCharModel(unitModel);
     //     model.setDirection(0);
@@ -174,7 +173,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 model.setAngle(u.fAngle);
                 model.setAnimation(unit->fAnim, unit->fAnimId);
             }
-            if(!aggressive && mMainChar->fTeamId != u.fTeamId) {
+            if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
                 const double dist = ePointF::distance(mMainChar->pos(), u.fPos);
                 if(dist < 5.) aggressive = true;
             }
@@ -241,6 +240,9 @@ void eGameScreen::paintEvent(ePainter& p) {
 
         int nextUnit = 0;
         setHighlightedUnit(nullptr);
+        if(mPressedUnit && mPressedUnit->fHealth <= 0) {
+            setPressedUnit(nullptr);
+        }
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
             const auto& iobjs = mMap->objects(x, y);
@@ -265,7 +267,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 auto& model = u->model();
                 model.incFrame(1.);
                 bool highlight = false;
-                if(!mHighlightUnit && u != mMainChar) {
+                if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
                     const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
                     const int w = 0.75*u->fRadius*mTileW;
                     const int h = 2.*w;
@@ -280,6 +282,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                         }
                     }
                 }
+                if(mPressedUnit) highlight = mPressedUnit == u;
                 model.draw(mGamePainter, highlight);
                 mGamePainter.restore();
                 nextUnit = unitId + 1;
@@ -303,7 +306,6 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
         mMousePos = ePointF{double(e.x()), double(e.y())};
         if(mHighlightUnit) {
             setPressedUnit(mHighlightUnit);
-            mMainAction.setPressedUnit(mHighlightUnit);
         }
     }
     return true;
@@ -403,6 +405,8 @@ void eGameScreen::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     } else {
         mUnitIndicator->setUnit(mHighlightUnit);
     }
+
+    mMainAction.setPressedUnit(u);
 }
 
 eWalkable eGameScreen::walkable() const {

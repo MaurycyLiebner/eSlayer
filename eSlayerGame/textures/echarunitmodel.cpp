@@ -54,27 +54,11 @@ SDL_Rect eCharUnitModel::offsetBoundingRect() const {
 
 void eCharUnitModel::incFrame(const double by) {
     mFrame += by;
-    if(mClamp) {
+    if(!mClamp.empty()) {
         const int fMax = mModel->nFrames(mAnim);
         if(int(std::round(mFrame)) >= fMax) {
             const auto& data = mModel->data();
-            const int naId = data.animId("stand");
-            const int aId = data.animId("standReady");
-            const bool a = aggressive();
-            int animId;
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
-            } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
-            }
+            const int animId = data.animId(mClamp);
             setAnimation(animId);
         }
     }
@@ -227,7 +211,7 @@ void eCharUnitModel::setAnimation(const int a, const int id) {
 }
 
 void eCharUnitModel::setAnimation(const int a) {
-    if(a >= mModel->nAnims()) {
+    if(a < 0 || a >= mModel->nAnims()) {
         eExceptions::logError("Animation id " +
                               std::to_string(a) +
                               " out of range!");
@@ -242,7 +226,7 @@ void eCharUnitModel::setAnimation(const int a) {
 }
 
 void eCharUnitModel::setDirection(const int d) {
-    if(d >= mModel->nDirs()) {
+    if(d < 0 || d >= mModel->nDirs()) {
         eExceptions::logError("Direction id " +
                               std::to_string(d) +
                               " out of range!");

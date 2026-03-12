@@ -23,9 +23,11 @@ void eHealthOrb::setValue(const int v) {
 }
 
 void eHealthOrb::paintEvent(ePainter& p) {
-    eLabel::paintEvent(p);
     {
         const auto& orb = eUITextures::sOrb;
+        orb->setBlendMode(SDL_BLENDMODE_MUL);
+        p.drawTexture(0, 0, orb);
+        orb->setBlendMode(SDL_BLENDMODE_BLEND);
         const auto& orbFront = eUITextures::sOrbFront;
         const int wTotal = width();
         const int hTotal = height();
@@ -35,7 +37,7 @@ void eHealthOrb::paintEvent(ePainter& p) {
         orb->setColorMod(mColor.r, mColor.g, mColor.b);
         p.drawTexture(0, 0, orb);
         orb->clearColorMod();
-        p.drawTexture(0, 0, orbFront);
         p.setClipRect(nullptr);
+        p.drawTexture(0, 0, orbFront);
     }
 }

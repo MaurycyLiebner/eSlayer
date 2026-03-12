@@ -133,6 +133,7 @@ bool eMovementHandler::walkable(const ePointF& pos) const {
         if(!walkable) return;
         if(other.fCharId == mCharId) return;
         if(other.fTeamId == mTeamId) return;
+        if(other.fHealth <= 0) return;
         const eVec2d diff = ePointF::vector(pos, other.fPos);
         const double dist = diff.length();
         if(dist > mNearbyUnits) return;
@@ -172,6 +173,7 @@ bool eMovementHandler::increment(const double by) {
     mOtherIterator([&](const eUnitData& other) {
         if(other.fCharId == mCharId) return;
         if(other.fTeamId != mTeamId) return;
+        if(other.fHealth <= 0) return;
         eVec2d diff = ePointF::vector(mPos, other.fPos);
         const double dist = diff.length();
         if(dist > mNearbyUnits) return;

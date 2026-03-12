@@ -28,8 +28,8 @@ public:
     int animActionFrame(const int id) const;
     int animActionFrame(const std::string& name) const;
 
-    bool animClamp(const int id) const;
-    bool animClamp(const std::string& name) const;
+    const std::string& animClamp(const int id) const;
+    const std::string& animClamp(const std::string& name) const;
 protected:
     void setAnimId(const std::string& name, const int id);
 
@@ -56,7 +56,7 @@ protected:
     struct eAnimation {
         int fFrames;
         eOffset fOffset;
-        bool fClamp;
+        std::string fClamp;
         int fActionFrame;
     };
 

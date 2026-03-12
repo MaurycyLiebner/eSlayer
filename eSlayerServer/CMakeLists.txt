@@ -23,6 +23,7 @@ add_library(eSlayerServer SHARED
     src/ewaitaction.h src/ewaitaction.cpp
     src/eserverchardata.h src/eserverchardata.cpp
     src/eserverfileloader.h src/eserverfileloader.cpp
+    src/edieaction.h src/edieaction.cpp
 
 )
 

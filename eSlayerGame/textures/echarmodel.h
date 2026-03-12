@@ -15,7 +15,7 @@ using eCharTextureGroups = std::vector<eCharTextureParts>;
 struct eCharTextureAnim {
     int fFrames;
     eOffset fOffset;
-    bool fClamp;
+    std::string fClamp;
     eCharTextureGroups fGroups;
 };
 

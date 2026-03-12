@@ -1,5 +1,9 @@
 #include "eserverclienthandler.h"
 
+#include "edieaction.h"
+
+#include <eSlayerHelpers/echardata.h>
+
 bool eServerClientHandler::requestUnits() {
     if(mArea) {
         const double time = mArea->time();
@@ -50,6 +54,11 @@ bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
 bool eServerClientHandler::attack(const int clientId, const int targetId) {
     if(!mArea) return false;
     const auto unit = mArea->unit(targetId);
+    if(!unit) return false;
     unit->fHealth = std::max(0, unit->fHealth - 10);
+    if(unit->fHealth == 0) {
+        const auto die = std::make_shared<eDieAction>(*unit, *mArea);
+        unit->setAction(die);
+    }
     return true;
 }

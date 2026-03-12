@@ -34,7 +34,7 @@ private:
     int mAnim = 0;
     int mAnimId = -1;
     double mFrame = 0.;
-    bool mClamp = false;
+    std::string mClamp;
     bool mAggressive = false;
     int mDir = 0;
     std::shared_ptr<eCharModel> mModel;

@@ -30,7 +30,7 @@ void eCharData::load(ordered_json& jdata) {
         auto& anim = animP.second;
         anim.fFrames = animData.value("frames", 0);
         anim.fOffset = eOffset{offset[0], offset[1]};
-        anim.fClamp = animData.value("clamp", false);
+        anim.fClamp = animData.value("clamp", "");
         anim.fActionFrame = animData.value("actionFrame", anim.fFrames);
     }
 
@@ -78,11 +78,11 @@ int eCharData::animActionFrame(const std::string& name) const {
     return animFrames(id);
 }
 
-bool eCharData::animClamp(const int id) const {
+const std::string& eCharData::animClamp(const int id) const {
     return mAnims[id].second.fClamp;
 }
 
-bool eCharData::animClamp(const std::string& name) const {
+const std::string& eCharData::animClamp(const std::string& name) const {
     const int id = animId(name);
     return animClamp(id);
 }
