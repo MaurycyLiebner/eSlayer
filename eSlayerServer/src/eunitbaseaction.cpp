@@ -63,15 +63,17 @@ void eUnitBaseAction::attack(const eServerUnit& u) {
     attack->setDuration(data.animFrames(mUnit.fAnim));
     const int targetId = u.fCharId;
     attack->setAction(data.animActionFrame(mUnit.fAnim), [this, targetId]() {
-        const auto u = mArea.unit(targetId);
-        if(!u) return;
-        u->fHealth = std::max(0, u->fMaxHealth - 10);
-        if(u->fHealth <= 0) {
+        const auto target = mArea.unit(targetId);
+        if(!target) return;
+        const double hitChance = eServerUnit::sHitChance(*target, mUnit);
+        if(eRand::randF() > hitChance) return;
+        target->fHealth = std::max(0, target->fMaxHealth - 10);
+        if(target->fHealth <= 0) {
 
         } else {
             if(eRand::rand() % 4) {
-                const auto a = eGetHitAction::sCreate(*u, mArea);
-                if(a) u->setAction(a);
+                const auto a = eGetHitAction::sCreate(*target, mArea);
+                if(a) target->setAction(a);
             }
         }
     });

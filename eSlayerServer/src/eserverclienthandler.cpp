@@ -55,16 +55,20 @@ bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
 
 bool eServerClientHandler::attack(const int clientId, const int targetId) {
     if(!mArea) return false;
-    const auto unit = mArea->unit(targetId);
-    if(!unit) return false;
-    unit->fHealth = std::max(0, unit->fHealth - 10);
-    if(unit->fHealth == 0) {
-        const auto die = std::make_shared<eDieAction>(*unit, *mArea);
-        unit->setAction(die);
+    const auto client = mArea->unit(clientId);
+    if(!client) return false;
+    const auto target = mArea->unit(targetId);
+    if(!target) return false;
+    const double hitChance = eServerUnit::sHitChance(*target, *client);
+    if(eRand::randF() > hitChance) return false;
+    target->fHealth = std::max(0, target->fHealth - 10);
+    if(target->fHealth == 0) {
+        const auto die = std::make_shared<eDieAction>(*target, *mArea);
+        target->setAction(die);
     } else {
-        const auto ca = unit->action();
+        const auto ca = target->action();
         if(const auto uba = dynamic_cast<eUnitBaseAction*>(ca.get())) {
-            const auto a = eGetHitAction::sCreate(*unit, *mArea);
+            const auto a = eGetHitAction::sCreate(*target, *mArea);
             if(a) uba->setChild(a);
         }
     }

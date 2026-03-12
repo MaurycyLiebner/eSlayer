@@ -17,6 +17,13 @@ public:
 
     bool aggressive() const { return mAggressive; }
 
+    double level() const { return mLevel; }
+    double attackRating() const { return mAttackRating; }
+    double defense() const { return mDefense; }
+
+    static double sHitChance(const eServerUnit& hit,
+                             const eServerUnit& by);
+
     void increment(const double by);
 
     void setAction(const std::shared_ptr<eUnitAction>& a);
@@ -34,6 +41,10 @@ private:
     bool mAggressive = false;
     std::shared_ptr<eUnitAction> mAction;
     eMovementHandler mHandler;
+
+    double mLevel = 1.;
+    double mAttackRating = 100.;
+    double mDefense = 100.;
 };
 
 #endif // ESERVERUNIT_H
