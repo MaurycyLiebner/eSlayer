@@ -21,7 +21,7 @@ struct ESLAYERHELPERS_API eUnitData {
     int fAnim;
     int fAnimId;
 
-    bool fHasAction;
+    double fActionTime;
 
     int fHealth;
     int fMaxHealth;

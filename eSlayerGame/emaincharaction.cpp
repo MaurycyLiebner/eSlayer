@@ -42,8 +42,13 @@ void eMainCharAction::increment(const bool mousePressed,
                                 const ePointF& mousePos,
                                 const double by) {
     auto& model = mMainChar->model();
-    if(mMainChar->fHasAction) {
+
+    const double tmp = mMainChar->fActionTime;
+    mMainChar->fActionTime -= by;
+    if(tmp > 0.) {
         mAttackedUnit = nullptr;
+        mAttackActionTime = 0.;
+        mAttackDuration = 0.;
         model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId);
         return;
     }
@@ -54,7 +59,7 @@ void eMainCharAction::increment(const bool mousePressed,
 
     mAttackDuration -= by;
     mAttackActionTime -= by;
-    if(mAttackedUnit && mAttackActionTime <= 0) {
+    if(mAttackedUnit && mAttackActionTime <= 0.) {
         const int targetId = mAttackedUnit->charId();
         mServer->attack(mClientId, targetId);
         mAttackedUnit = nullptr;

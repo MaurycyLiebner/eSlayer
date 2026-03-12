@@ -15,6 +15,7 @@ eGetHitAction::sCreate(
         getHit->setRemTime(frames);
         unit.fAnim = aId;
         unit.fAnimId++;
+        unit.fActionTime = frames;
         return getHit;
     } else {
         return nullptr;
@@ -27,5 +28,6 @@ void eGetHitAction::setRemTime(const double t) {
 
 void eGetHitAction::increment(const double by) {
     mRemTime -= by;
-    if(mRemTime <= 0) finishAction();
+    mUnit.fActionTime = mRemTime;
+    if(mRemTime <= 0.) finishAction();
 }

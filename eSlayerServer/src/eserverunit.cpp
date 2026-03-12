@@ -25,5 +25,4 @@ void eServerUnit::increment(const double by) {
 
 void eServerUnit::setAction(const std::shared_ptr<eUnitAction>& a) {
     mAction = a;
-    fHasAction = a.get();
 }

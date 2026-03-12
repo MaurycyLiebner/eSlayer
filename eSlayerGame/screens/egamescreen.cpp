@@ -133,7 +133,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             if(charId == mClientId) {
                 mMainChar->fHealth = u.fHealth;
                 mMainChar->fMaxHealth = u.fMaxHealth;
-                mMainChar->fHasAction = u.fHasAction;
+                mMainChar->fActionTime = u.fActionTime;
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;
                 mHealthOrb->setValue(u.fHealth);
