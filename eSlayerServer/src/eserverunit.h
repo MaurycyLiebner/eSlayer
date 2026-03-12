@@ -21,6 +21,8 @@ public:
 
     void setAction(const std::shared_ptr<eUnitAction>& a)
     { mAction = a; }
+    const std::shared_ptr<eUnitAction>&
+    action() const { return mAction; }
 
     eMovementHandler& movementHandler()
     { return mHandler; }

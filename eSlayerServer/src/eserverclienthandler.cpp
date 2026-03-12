@@ -1,6 +1,8 @@
 #include "eserverclienthandler.h"
 
 #include "edieaction.h"
+#include "egethitaction.h"
+#include "eunitbaseaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -59,6 +61,12 @@ bool eServerClientHandler::attack(const int clientId, const int targetId) {
     if(unit->fHealth == 0) {
         const auto die = std::make_shared<eDieAction>(*unit, *mArea);
         unit->setAction(die);
+    } else {
+        const auto ca = unit->action();
+        if(const auto uba = dynamic_cast<eUnitBaseAction*>(ca.get())) {
+            const auto a = eGetHitAction::sCreate(*unit, *mArea);
+            if(a) uba->setChild(a);
+        }
     }
     return true;
 }

@@ -24,6 +24,7 @@ add_library(eSlayerServer SHARED
     src/eserverchardata.h src/eserverchardata.cpp
     src/eserverfileloader.h src/eserverfileloader.cpp
     src/edieaction.h src/edieaction.cpp
+    src/egethitaction.h src/egethitaction.cpp
 
 )
 
