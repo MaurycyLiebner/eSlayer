@@ -24,14 +24,18 @@ void eHealthOrb::setValue(const int v) {
 
 void eHealthOrb::paintEvent(ePainter& p) {
     eLabel::paintEvent(p);
-    const auto& orb = eUITextures::sOrb;
-    orb->setColorMod(mColor.r, mColor.g, mColor.b);
-    const int wTotal = width();
-    const int hTotal = height();
-    const int h = std::round(double(hTotal)*mValue/mMax);
-    const SDL_Rect clipRect{0, hTotal - h, wTotal, h};
-    p.setClipRect(&clipRect);
-    p.drawTexture(0, 0, orb);
-    p.setClipRect(nullptr);
-    orb->clearColorMod();
+    {
+        const auto& orb = eUITextures::sOrb;
+        const auto& orbFront = eUITextures::sOrbFront;
+        const int wTotal = width();
+        const int hTotal = height();
+        const int h = std::round(double(hTotal)*mValue/mMax);
+        const SDL_Rect clipRect{0, hTotal - h, wTotal, h};
+        p.setClipRect(&clipRect);
+        orb->setColorMod(mColor.r, mColor.g, mColor.b);
+        p.drawTexture(0, 0, orb);
+        orb->clearColorMod();
+        p.drawTexture(0, 0, orbFront);
+        p.setClipRect(nullptr);
+    }
 }
