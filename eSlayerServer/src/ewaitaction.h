@@ -1,17 +1,24 @@
 #ifndef EWAITACTION_H
 #define EWAITACTION_H
 
-#include "eunitaction.h"
+#include "eunitactionbase.h"
 
-class eWaitAction : public eUnitAction {
+#include <memory>
+
+class eWaitAction : public eUnitActionBase {
 public:
-    using eUnitAction::eUnitAction;
+    using eUnitActionBase::eUnitActionBase;
 
-    void increment(const double by) override;
-
-    void setRemTime(const double t);
-private:
-    double mRemTime = 0.;
+    static std::shared_ptr<eWaitAction>
+    sCreateStand(eServerUnit& unit, eServerArea& area,
+                 const int time);
+    static std::shared_ptr<eWaitAction>
+    sCreateDeath(eServerUnit& unit, eServerArea& area);
+    static std::shared_ptr<eWaitAction>
+    sCreateBody(eServerUnit& unit, eServerArea& area);
+    static std::shared_ptr<eWaitAction>
+    sCreate(eServerUnit& unit, eServerArea& area,
+            const int anim);
 };
 
 #endif // EWAITACTION_H

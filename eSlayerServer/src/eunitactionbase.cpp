@@ -17,6 +17,7 @@ void eUnitActionBase::increment(const double by) {
 
 void eUnitActionBase::setDuration(const double d) {
     mRemTime = d;
+    mUnit.fActionTime = d;
 }
 
 void eUnitActionBase::setAction(const double time, const eAction& a) {
@@ -31,7 +32,6 @@ void eUnitActionBase::setup(
     mUnit.fAnimId++;
     const int frames = data.animFrames(anim);
     setDuration(frames);
-    mUnit.fActionTime = frames;
 
     if(a) {
         const int frame = data.animActionFrame(anim);

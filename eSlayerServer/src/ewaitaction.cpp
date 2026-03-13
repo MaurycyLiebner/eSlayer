@@ -1,10 +1,61 @@
 #include "ewaitaction.h"
 
-void eWaitAction::increment(const double by) {
-    mRemTime -= by;
-    if(mRemTime <= 0) finishAction();
+#include "eserverunit.h"
+
+#include <eSlayerHelpers/echardata.h>
+
+std::shared_ptr<eWaitAction>
+eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
+                          const int time) {
+    const bool a = unit.aggressive();
+    const auto& data = unit.data();
+    const int naId = data.animId("stand");
+    const int aId = data.animId("standReady");
+    int anim;
+    if(a) {
+        if(aId != -1) {
+            anim = aId;
+        } else {
+            anim = naId;
+        }
+    } else {
+        if(naId != -1) {
+            anim = naId;
+        } else {
+            anim = aId;
+        }
+    }
+    const auto result = eWaitAction::sCreate(unit, area, anim);
+    if(result) result->setDuration(time);
+    return result;
 }
 
-void eWaitAction::setRemTime(const double t) {
-    mRemTime = t;
+std::shared_ptr<eWaitAction>
+eWaitAction::sCreateDeath(
+    eServerUnit& unit, eServerArea& area) {
+    const auto& data = unit.data();
+    const int anim = data.animId("death");
+    return sCreate(unit, area, anim);
+}
+
+std::shared_ptr<eWaitAction>
+eWaitAction::sCreateBody(
+    eServerUnit& unit, eServerArea& area) {
+    const auto& data = unit.data();
+    const int anim = data.animId("body");
+    const auto result = sCreate(unit, area, anim);
+    if(result) result->setDuration(std::numeric_limits<double>::max());
+    return result;
+}
+
+std::shared_ptr<eWaitAction> eWaitAction::sCreate(
+    eServerUnit& unit, eServerArea& area,
+    const int anim) {
+    if(anim != -1) {
+        const auto wait = std::make_shared<eWaitAction>(unit, area);
+        wait->setup(anim, nullptr);
+        return wait;
+    } else {
+        return nullptr;
+    }
 }

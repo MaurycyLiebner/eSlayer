@@ -23,27 +23,8 @@ void eUnitBaseAction::decide() {
         const auto move = std::make_shared<eMoveToEnemyAction>(mUnit, mArea);
         setChild(move);
     } else {
-        const auto wait = std::make_shared<eWaitAction>(mUnit, mArea);
-        wait->setRemTime(100.);
+        const auto wait = eWaitAction::sCreateStand(mUnit, mArea, 100.);
         setChild(wait);
-        const bool a = mUnit.aggressive();
-        const auto& data = mUnit.data();
-        const int naId = data.animId("stand");
-        const int aId = data.animId("standReady");
-        if(a) {
-            if(aId != -1) {
-                mUnit.fAnim = aId;
-            } else {
-                mUnit.fAnim = naId;
-            }
-        } else {
-            if(naId != -1) {
-                mUnit.fAnim = naId;
-            } else {
-                mUnit.fAnim = aId;
-            }
-        }
-        mUnit.fAnimId++;
     }
 }
 

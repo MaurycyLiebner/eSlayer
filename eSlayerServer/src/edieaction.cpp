@@ -1,22 +1,25 @@
 #include "edieaction.h"
 
-#include "eserverunit.h"
 #include "ewaitaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
 void eDieAction::decide() {
-    const auto& data = mUnit.data();
-    const int deathId = data.animId("death");
-    const auto wait = std::make_shared<eWaitAction>(mUnit, mArea);
-    if(mUnit.fAnim == deathId) {
-        const int bodyId = data.animId("body");
-        mUnit.fAnim = bodyId;
-        wait->setRemTime(std::numeric_limits<double>::max());
-    } else {
-        mUnit.fAnim = deathId;
-        wait->setRemTime(data.animFrames(deathId));
+    switch(mStage) {
+    case eDieStage::none: {
+        mStage = eDieStage::collapse;
+        const auto death = eWaitAction::sCreateDeath(mUnit, mArea);
+        if(death) setChild(death);
+        else decide();
+    } break;
+    case eDieStage::collapse: {
+        mStage = eDieStage::body;
+        const auto body = eWaitAction::sCreateBody(mUnit, mArea);
+        if(body) setChild(body);
+        else decide();
+    } break;
+    case eDieStage::body: {
+        finishAction();
+    } break;
     }
-    mUnit.fAnimId++;
-    setChild(wait);
 }
