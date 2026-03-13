@@ -23,6 +23,10 @@ public:
     double defense() const { return mDefense; }
     double blockChance() const { return mBlockChance; }
     void setBlockChance(const double c) { mBlockChance = c; }
+    double fasterHitRecovery() const { return mFasterHitRecovery; }
+    void setFasterHitRecovery(const double fhr) { mFasterHitRecovery = fhr; }
+    double fasterBlockRate() const { return mFasterBlockRate; }
+    void setFasterBlockRate(const double fbr) { mFasterBlockRate = fbr; }
 
     static double sHitChance(const eServerUnit& hit,
                              const eServerUnit& by);
@@ -50,6 +54,8 @@ private:
     double mAttackRating = 100.;
     double mDefense = 100.;
     double mBlockChance = 0.;
+    double mFasterHitRecovery = 0.;
+    double mFasterBlockRate = 0.;
 };
 
 #endif // ESERVERUNIT_H

@@ -23,8 +23,12 @@ public:
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
 
-    void setAnimation(const int a, const int id);
-    void setAnimation(const int a);
+    void setAnimationSpeed(const double speed);
+
+    void setAnimation(const int a, const int id,
+                      const double speed);
+    void setAnimation(const int a,
+                      const double speed);
 
     void setDirection(const int d);
     void setAngle(const double a);
@@ -33,6 +37,7 @@ public:
 private:
     int mAnim = 0;
     int mAnimId = -1;
+    double mAnimSpeed = 1.;
     double mFrame = 0.;
     std::string mClamp;
     bool mAggressive = false;

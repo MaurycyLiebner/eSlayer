@@ -25,7 +25,7 @@ eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
             anim = aId;
         }
     }
-    const auto result = eWaitAction::sCreate(unit, area, anim);
+    const auto result = sCreate(unit, area, anim);
     if(result) result->setDuration(time);
     return result;
 }
@@ -53,7 +53,7 @@ std::shared_ptr<eWaitAction> eWaitAction::sCreate(
     const int anim) {
     if(anim != -1) {
         const auto wait = std::make_shared<eWaitAction>(unit, area);
-        wait->setup(anim, nullptr);
+        wait->setup(anim, -1, nullptr);
         return wait;
     } else {
         return nullptr;

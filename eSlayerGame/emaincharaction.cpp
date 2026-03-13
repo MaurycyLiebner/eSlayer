@@ -26,7 +26,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
-    umodel.setAnimation(0);
+    umodel.setAnimation(0, 1.);
     umodel.setDirection(0);
 
     mMainChar = std::make_shared<eUnit>();
@@ -49,7 +49,8 @@ void eMainCharAction::increment(const bool mousePressed,
         mAttackedUnit = nullptr;
         mAttackActionTime = 0.;
         mAttackDuration = 0.;
-        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId);
+        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId,
+                           mMainChar->fAnimSpeed);
         return;
     }
 
@@ -87,7 +88,7 @@ void eMainCharAction::increment(const bool mousePressed,
                         animId = a1Id;
                     }
                 }
-                model.setAnimation(animId);
+                model.setAnimation(animId, 1.);
                 mAttackDuration = mMainCharData->animFrames(animId);
                 mAttackActionTime = mMainCharData->animActionFrame(animId);
                 const auto vec = ePointF::vector(mPressedUnit->pos(),
@@ -145,7 +146,7 @@ void eMainCharAction::increment(const bool mousePressed,
                 }
             }
         }
-        model.setAnimation(animId);
+        model.setAnimation(animId, 1.);
     }
 }
 

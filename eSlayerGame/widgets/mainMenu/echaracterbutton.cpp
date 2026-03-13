@@ -20,7 +20,7 @@ void eCharacterButton::initialize(const eCharacter& c) {
     const auto r = renderer();
     const auto model = texs->generateModel(modelParts, r);
     mModel.setCharModel(model);
-    mModel.setAnimation(0);
+    mModel.setAnimation(0, 1.);
     mModel.setDirection(0);
 
     const auto label = new eLabel(c.name(), window());

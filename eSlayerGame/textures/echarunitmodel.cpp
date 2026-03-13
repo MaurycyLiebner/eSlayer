@@ -53,13 +53,13 @@ SDL_Rect eCharUnitModel::offsetBoundingRect() const {
 }
 
 void eCharUnitModel::incFrame(const double by) {
-    mFrame += by;
+    mFrame += by*mAnimSpeed;
     if(!mClamp.empty()) {
         const int fMax = mModel->nFrames(mAnim);
         if(int(std::round(mFrame)) >= fMax) {
             const auto& data = mModel->data();
             const int animId = data.animId(mClamp);
-            setAnimation(animId);
+            setAnimation(animId, 1.);
         }
     }
 }
@@ -172,6 +172,10 @@ void eCharUnitModel::drawBase(ePainter& p) const {
     // p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 
+void eCharUnitModel::setAnimationSpeed(const double speed) {
+    mAnimSpeed = speed;
+}
+
 void eCharUnitModel::setAngle(const double a) {
     const int dirs = mModel->nDirs();
     const double ainc = 360./dirs;
@@ -204,13 +208,15 @@ void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
     }
 }
 
-void eCharUnitModel::setAnimation(const int a, const int id) {
+void eCharUnitModel::setAnimation(const int a, const int id,
+                                  const double speed) {
     if(id <= mAnimId) return;
     mAnimId = id;
-    setAnimation(a);
+    setAnimation(a, speed);
 }
 
-void eCharUnitModel::setAnimation(const int a) {
+void eCharUnitModel::setAnimation(const int a,
+                                  const double speed) {
     if(a < 0 || a >= mModel->nAnims()) {
         eExceptions::logError("Animation id " +
                               std::to_string(a) +
@@ -222,6 +228,7 @@ void eCharUnitModel::setAnimation(const int a) {
         mFrame = 0.;
         const auto& data = mModel->data();
         mClamp = data.animClamp(a);
+        mAnimSpeed = speed;
     }
 }
 

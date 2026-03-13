@@ -142,6 +142,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 mMainChar->fActionTime = u.fActionTime;
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;
+                mMainChar->fAnimSpeed = u.fAnimSpeed;
                 mHealthIndicator->setValue(u.fHealth);
                 mHealthIndicator->setRange(0, u.fMaxHealth);
                 continue;
@@ -168,7 +169,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 initialize(charId, *unit);
                 eCharUnitModel model;
                 model.setCharModel(unitModel);
-                model.setAnimation(0);
+                model.setAnimation(0, 1.);
                 model.setDirection(0);
                 unit->setModel(model);
                 unit->setPos(u.fPos);
@@ -181,6 +182,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 unit->setPos(u.fPos);
                 model.setAngle(u.fAngle);
                 model.setAnimation(unit->fAnim, unit->fAnimId);
+                model.setAnimationSpeed(unit->fAnimSpeed);
             }
             if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
                 const double dist = ePointF::distance(mMainChar->pos(), u.fPos);

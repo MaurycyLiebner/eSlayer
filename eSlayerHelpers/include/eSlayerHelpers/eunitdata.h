@@ -20,6 +20,7 @@ struct ESLAYERHELPERS_API eUnitData {
 
     int fAnim;
     int fAnimId;
+    double fAnimSpeed;
 
     double fActionTime;
 

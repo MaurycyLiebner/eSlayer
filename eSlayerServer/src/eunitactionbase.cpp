@@ -26,11 +26,15 @@ void eUnitActionBase::setAction(const double time, const eAction& a) {
 }
 
 void eUnitActionBase::setup(
-    const int anim, const eAction& a) {
+    const int anim,
+    int frames,
+    const eAction& a) {
     const auto& data = mUnit.data();
     mUnit.fAnim = anim;
     mUnit.fAnimId++;
-    const int frames = data.animFrames(anim);
+    const int baseFrames = data.animFrames(anim);
+    if(frames == -1) frames = baseFrames;
+    mUnit.fAnimSpeed = double(baseFrames)/frames;
     setDuration(frames);
 
     if(a) {

@@ -16,7 +16,10 @@ public:
     void setDuration(const double d);
     void setAction(const double time, const eAction& a);
 protected:
-    void setup(const int anim, const eAction& a);
+    void setup(const int anim,
+               int frames,
+               const eAction& a);
+
 private:
     double mRemTime;
     double mActionTime;
