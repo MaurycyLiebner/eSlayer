@@ -35,6 +35,8 @@ public:
     virtual bool
     attack(const int clientId,
            const int targetId) = 0;
+    virtual bool
+    stopAttack(const int clientId) = 0;
 private:
 };
 

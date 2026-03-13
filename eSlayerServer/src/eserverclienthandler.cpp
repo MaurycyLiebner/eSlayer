@@ -1,8 +1,6 @@
 #include "eserverclienthandler.h"
 
-#include "edieaction.h"
-#include "ehitrecoveryaction.h"
-#include "eunitbaseaction.h"
+#include "eclientaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -59,18 +57,24 @@ bool eServerClientHandler::attack(const int clientId, const int targetId) {
     if(!client) return false;
     const auto target = mArea->unit(targetId);
     if(!target) return false;
-    const double hitChance = eServerUnit::sHitChance(*target, *client);
-    if(eRand::randF() > hitChance) return false;
-    target->fHealth = std::max(0, target->fHealth - 10);
-    if(target->fHealth == 0) {
-        const auto die = std::make_shared<eDieAction>(*target, *mArea);
-        target->setAction(die);
-    } else {
-        const auto ca = target->action();
-        if(const auto uba = dynamic_cast<eUnitBaseAction*>(ca.get())) {
-            const auto a = eHitRecoveryAction::sCreate(*target, *mArea);
-            if(a) uba->setChild(a);
-        }
+
+    const auto a = client->action();
+    if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
+        ca->attack(target);
     }
+
+    return true;
+}
+
+bool eServerClientHandler::stopAttack(const int clientId) {
+    if(!mArea) return false;
+    const auto client = mArea->unit(clientId);
+    if(!client) return false;
+
+    const auto a = client->action();
+    if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
+        ca->attack(nullptr);
+    }
+
     return true;
 }

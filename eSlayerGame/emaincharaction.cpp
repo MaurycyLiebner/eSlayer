@@ -43,111 +43,99 @@ void eMainCharAction::increment(const bool mousePressed,
                                 const double by) {
     auto& model = mMainChar->model();
 
+    bool stopAttack = mAttack && !mPressedUnit.get();
+
+    if(stopAttack) {
+        mAttack = false;
+        mServer->stopAttack(mClientId);
+    }
+
     const double tmp = mMainChar->fActionTime;
     mMainChar->fActionTime -= by;
     if(tmp > 0.) {
-        mAttackedUnit = nullptr;
-        mAttackActionTime = 0.;
-        mAttackDuration = 0.;
         model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId,
                            mMainChar->fAnimSpeed);
         return;
     }
 
     ePointF pos;
-    bool move = false;
-    eVec2d vec;
 
-    mAttackDuration -= by;
-    mAttackActionTime -= by;
-    if(mAttackedUnit && mAttackActionTime <= 0.) {
-        const int targetId = mAttackedUnit->charId();
-        mServer->attack(mClientId, targetId);
-        mAttackedUnit = nullptr;
-    }
     if(mPressedUnit) {
         pos = mPressedUnit->pos();
         const double dist = ePointF::distance(mMainChar->pos(), pos);
         const double attackDist = 0.5*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
-            if(mAttackDuration <= 0.) {
-                int animId;
-                const int a1Id = mMainCharData->animId("attack1");
-                const int a2Id = mMainCharData->animId("attack2");
-                if(eRand::rand() % 2) {
-                    if(a1Id != -1) {
-                        animId = a1Id;
-                    } else {
-                        animId = a2Id;
-                    }
-                } else {
-                    if(a2Id != -1) {
-                        animId = a2Id;
-                    } else {
-                        animId = a1Id;
-                    }
-                }
-                model.setAnimation(animId, 1.);
-                mAttackDuration = mMainCharData->animFrames(animId);
-                mAttackActionTime = mMainCharData->animActionFrame(animId);
+            if(mAttack) {
+            } else {
+                mAttack = true;
                 const auto vec = ePointF::vector(mPressedUnit->pos(),
                                                  mMainChar->pos());
                 model.setAngle(vec.angle());
-                mAttackedUnit = mPressedUnit;
+                const int targetId = mPressedUnit->fCharId;
+                mServer->attack(mClientId, targetId);
             }
+        } else {
+            stopAttack = true;
         }
     } else {
         pos = mousePos;
     }
-    if(mAttackDuration <= 0.) {
-        if(mousePressed) {
-            mMovementHandler.moveInDirection(pos);
-            move = mMovementHandler.increment(1.);
-        }
-        if(!move) {
-            if(mousePressed) mMovementHandler.moveTo(pos);
-            move = mMovementHandler.increment(1.);
-        }
 
-        const bool a = model.aggressive();
-        int animId;
-        if(move) {
-            model.setAngle(mMovementHandler.angle());
-            const int naId = mMainCharData->animId("walk");
-            const int aId = mMainCharData->animId("walkReady");
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
+    if(stopAttack) {
+        mAttack = false;
+        mServer->stopAttack(mClientId);
+    }
+
+    if(mAttack) return;
+
+    bool move = false;
+    if(mousePressed) {
+        mMovementHandler.moveInDirection(pos);
+        move = mMovementHandler.increment(1.);
+    }
+    if(!move) {
+        if(mousePressed) mMovementHandler.moveTo(pos);
+        move = mMovementHandler.increment(1.);
+    }
+
+    const bool a = model.aggressive();
+    int animId;
+    if(move) {
+        model.setAngle(mMovementHandler.angle());
+        const int naId = mMainCharData->animId("walk");
+        const int aId = mMainCharData->animId("walkReady");
+        if(a) {
+            if(aId != -1) {
+                animId = aId;
             } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
+                animId = naId;
             }
         } else {
-            const int naId = mMainCharData->animId("stand");
-            const int aId = mMainCharData->animId("standReady");
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
+            if(naId != -1) {
+                animId = naId;
             } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
+                animId = aId;
             }
         }
-        model.setAnimation(animId, 1.);
+    } else {
+        const int naId = mMainCharData->animId("stand");
+        const int aId = mMainCharData->animId("standReady");
+        if(a) {
+            if(aId != -1) {
+                animId = aId;
+            } else {
+                animId = naId;
+            }
+        } else {
+            if(naId != -1) {
+                animId = naId;
+            } else {
+                animId = aId;
+            }
+        }
     }
+    model.setAnimation(animId, 1.);
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {

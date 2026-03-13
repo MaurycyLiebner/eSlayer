@@ -13,6 +13,8 @@ public:
     virtual void decide() = 0;
 
     void setChild(const std::shared_ptr<eUnitAction>& c);
+protected:
+    bool attack(const eServerUnit& u);
 private:
     std::shared_ptr<eUnitAction> mChild;
 };

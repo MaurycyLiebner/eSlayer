@@ -37,9 +37,7 @@ private:
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
 
-    double mAttackActionTime = 0.;
-    double mAttackDuration = 0.;
-    std::shared_ptr<eUnit> mAttackedUnit;
+    bool mAttack = false;
 };
 
 #endif // EMAINCHARACTION_H

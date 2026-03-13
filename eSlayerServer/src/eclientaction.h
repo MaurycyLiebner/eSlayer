@@ -7,7 +7,12 @@ class eClientAction : public eComplexAction {
 public:
     using eComplexAction::eComplexAction;
 
+    void increment(const double by) override;
     void decide() override;
+
+    void attack(const std::shared_ptr<eServerUnit>& target);
+private:
+    std::shared_ptr<eServerUnit> mAttackTarget;
 };
 
 #endif // ECLIENTACTION_H

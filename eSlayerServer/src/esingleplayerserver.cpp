@@ -66,6 +66,12 @@ bool eSinglePlayerServer::attack(const int clientId,
     return h->attack(clientId, targetId);
 }
 
+bool eSinglePlayerServer::stopAttack(const int clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->stopAttack(clientId);
+}
+
 eServerClientHandler*
 eSinglePlayerServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

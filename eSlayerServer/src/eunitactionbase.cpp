@@ -34,11 +34,13 @@ void eUnitActionBase::setup(
     mUnit.fAnimId++;
     const int baseFrames = data.animFrames(anim);
     if(frames == -1) frames = baseFrames;
-    mUnit.fAnimSpeed = double(baseFrames)/frames;
+    const double speed = double(baseFrames)/frames;
+    mUnit.fAnimSpeed = speed;
     setDuration(frames);
 
     if(a) {
-        const int frame = data.animActionFrame(anim);
+        const int baseFrame = data.animActionFrame(anim);
+        const double frame = baseFrame/speed;
         setAction(frame, a);
     }
 }

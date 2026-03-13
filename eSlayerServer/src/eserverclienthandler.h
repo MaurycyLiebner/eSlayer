@@ -21,6 +21,7 @@ public:
 
     bool moveTo(const int clientId, const ePointF& pos);
     bool attack(const int clientId, const int targetId);
+    bool stopAttack(const int clientId);
 private:
     int mDelay = 100;
     std::shared_ptr<eServerArea> mArea;
