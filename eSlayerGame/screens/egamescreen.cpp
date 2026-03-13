@@ -7,7 +7,7 @@
 #include "../textures/etilesiterator.h"
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eunitindicator.h"
-#include "../widgets/gameScreen/ehealthorb.h"
+#include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/ecolors.h"
 
 #include <eSlayerHelpers/evec2.h>
@@ -41,21 +41,27 @@ void eGameScreen::initialize(const int clientId,
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
     mUnitIndicator->setY(20*m);
 
-    const int orbX = 200*m;
+    const int indicatorW = 400*m;
+    const int indicatorH = 40*m;
+    const int indicatorX = (width() - 2*indicatorW)/2;
 
-    mHealthOrb = new eHealthOrb(window());
-    mHealthOrb->setColor(eColors::sHealth);
-    mHealthOrb->initialize();
-    addWidget(mHealthOrb);
-    mHealthOrb->align(eAlignment::bottom);
-    mHealthOrb->setX(orbX);
+    mHealthIndicator = new ePlayerHealthIndicator(window());
+    mHealthIndicator->setColor(eColors::sHealth);
+    mHealthIndicator->setName(eLanguage::text(7, 0));
+    mHealthIndicator->initialize();
+    addWidget(mHealthIndicator);
+    mHealthIndicator->resize(indicatorW, indicatorH);
+    mHealthIndicator->align(eAlignment::bottom);
+    mHealthIndicator->setX(indicatorX);
 
-    mManaOrb = new eHealthOrb(window());
-    mManaOrb->setColor(eColors::sMana);
-    mManaOrb->initialize();
-    addWidget(mManaOrb);
-    mManaOrb->align(eAlignment::bottom);
-    mManaOrb->setX(width() - orbX - mManaOrb->width());
+    mManaIndicator = new ePlayerHealthIndicator(window());
+    mManaIndicator->setColor(eColors::sMana);
+    mManaIndicator->setName(eLanguage::text(7, 1));
+    mManaIndicator->initialize();
+    addWidget(mManaIndicator);
+    mManaIndicator->resize(indicatorW, indicatorH);
+    mManaIndicator->align(eAlignment::bottom);
+    mManaIndicator->setX(width() - indicatorX - mManaIndicator->width());
 
     mMap = map;
 
@@ -136,8 +142,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                 mMainChar->fActionTime = u.fActionTime;
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;
-                mHealthOrb->setValue(u.fHealth);
-                mHealthOrb->setMax(u.fMaxHealth);
+                mHealthIndicator->setValue(u.fHealth);
+                mHealthIndicator->setRange(0, u.fMaxHealth);
                 continue;
             }
             const auto it = mUnitIndexMap.find(charId);

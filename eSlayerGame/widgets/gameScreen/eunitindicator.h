@@ -1,13 +1,13 @@
 #ifndef EUNITINDICATOR_H
 #define EUNITINDICATOR_H
 
-#include "../eprogressbar.h"
+#include "ehealthindicator.h"
 
 class eUnit;
 
-class eUnitIndicator : public eProgressBar {
+class eUnitIndicator : public eHealthIndicator {
 public:
-    using eProgressBar::eProgressBar;
+    using eHealthIndicator::eHealthIndicator;
 
     void initialize();
 
@@ -15,8 +15,9 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
 private:
+    using eHealthIndicator::initialize;
+
     std::shared_ptr<eUnit> mUnit;
-    eLabel* mName = nullptr;
 };
 
 #endif // EUNITINDICATOR_H

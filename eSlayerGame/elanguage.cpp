@@ -1,7 +1,8 @@
 #include "elanguage.h"
 
+#include <cstring>
+#include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/egamedir.h>
-
 #include <fstream>
 
 eLanguage eLanguage::sInstance;
@@ -19,12 +20,12 @@ const std::string &eLanguage::text(const int g, const int s) {
 const std::string &eLanguage::textImpl(const int g, const int s) {
     const auto git = mText.find(g);
     if(git == mText.end()) {
-        printf("Groud id %i out of range.\n", g);
+        eRuntimeThrow("Groud id " + std::to_string(g) + " missing from text.xml.");
     }
     const auto& group = git->second;
     const auto sit = group.find(s);
     if(sit == group.end()) {
-        printf("String id %i out of range.\n", s);
+        eRuntimeThrow("String id " + std::to_string(s) + " missing from text.xml.");
     }
     return sit->second;
 }
@@ -88,7 +89,7 @@ bool parse(const std::string& path,
            eStrings& strings) {
     std::ifstream file(path);
     if(!file.good()) {
-        printf("File missing %s\n", path.c_str());
+        eRuntimeThrow("File missing " + path);
         return false;
     }
 

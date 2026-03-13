@@ -32,4 +32,8 @@
         <string id="0">Mummy</string>
         <string id="1">Wendigo</string>
     </group>
+    <group id="7">
+        <string id="0">Life</string>
+        <string id="1">Mana</string>
+    </group>
 </strings>

@@ -15,7 +15,7 @@
 #include "../emaincharaction.h"
 
 class eUnitIndicator;
-class eHealthOrb;
+class ePlayerHealthIndicator;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -81,8 +81,8 @@ private:
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
-    eHealthOrb* mHealthOrb = nullptr;
-    eHealthOrb* mManaOrb = nullptr;
+    ePlayerHealthIndicator* mHealthIndicator = nullptr;
+    ePlayerHealthIndicator* mManaIndicator = nullptr;
 };
 
 #endif // EGAMESCREEN_H
