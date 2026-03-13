@@ -24,7 +24,7 @@ add_library(eSlayerServer SHARED
     src/eserverchardata.h src/eserverchardata.cpp
     src/eserverfileloader.h src/eserverfileloader.cpp
     src/edieaction.h src/edieaction.cpp
-    src/egethitaction.h src/egethitaction.cpp
+    src/ehitrecoveryaction.h src/ehitrecoveryaction.cpp
     src/eunitactionbase.h src/eunitactionbase.cpp
     src/eblockaction.h src/eblockaction.cpp
     src/eclientaction.h src/eclientaction.cpp

@@ -1,7 +1,7 @@
 #include "eserverclienthandler.h"
 
 #include "edieaction.h"
-#include "egethitaction.h"
+#include "ehitrecoveryaction.h"
 #include "eunitbaseaction.h"
 
 #include <eSlayerHelpers/echardata.h>
@@ -68,7 +68,7 @@ bool eServerClientHandler::attack(const int clientId, const int targetId) {
     } else {
         const auto ca = target->action();
         if(const auto uba = dynamic_cast<eUnitBaseAction*>(ca.get())) {
-            const auto a = eGetHitAction::sCreate(*target, *mArea);
+            const auto a = eHitRecoveryAction::sCreate(*target, *mArea);
             if(a) uba->setChild(a);
         }
     }

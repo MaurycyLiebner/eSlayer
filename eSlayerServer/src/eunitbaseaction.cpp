@@ -4,7 +4,7 @@
 #include "emovetoenemyaction.h"
 #include "eserverarea.h"
 #include "ewaitaction.h"
-#include "egethitaction.h"
+#include "ehitrecoveryaction.h"
 #include "eblockaction.h"
 
 #include <eSlayerHelpers/echardata.h>
@@ -47,7 +47,7 @@ void eUnitBaseAction::attack(const eServerUnit& u) {
             if(target->fHealth <= 0) {
 
             } else if(dmg >= target->fMaxHealth/12.) {
-                const auto a = eGetHitAction::sCreate(*target, mArea);
+                const auto a = eHitRecoveryAction::sCreate(*target, mArea);
                 if(a) target->setChildAction(a);
             }
         }

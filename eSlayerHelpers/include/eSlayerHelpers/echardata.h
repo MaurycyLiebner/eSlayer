@@ -48,7 +48,7 @@ protected:
     int mAttack1Id = -1;
     int mAttack2Id = -1;
     int mBlockId = -1;
-    int mGetHitId = -1;
+    int mHitRecoveryId = -1;
     int mDeathId = -1;
     int mBodyId = -1;
     std::map<std::string, int> mCustomIds;
