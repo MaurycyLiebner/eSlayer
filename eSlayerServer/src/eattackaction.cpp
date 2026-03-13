@@ -1,20 +1,26 @@
 #include "eattackaction.h"
 
-void eAttackAction::increment(const double by) {
-    mDuration -= by;
-    mActionTime -= by;
-    if(mAction && mActionTime <= 0) {
-        mAction();
-        mAction = nullptr;
+#include "eserverunit.h"
+
+#include <eSlayerHelpers/echardata.h>
+
+std::shared_ptr<eAttackAction>
+eAttackAction::sCreate(
+    eServerUnit& unit, eServerArea& area,
+    const eAction& a) {
+    const auto& data = unit.data();
+    const int a1Id = data.animId("attack1");
+    const int a2Id = data.animId("attack2");
+    int anim;
+    if(a2Id != -1 && eRand::rand() % 2) {
+        anim = a2Id;
+    } else if(a1Id != -1) {
+        anim = a1Id;
+    } else {
+        return nullptr;
     }
-    if(mDuration <= 0) finishAction();
-}
-
-void eAttackAction::setDuration(const double d) {
-    mDuration = d;
-}
-
-void eAttackAction::setAction(const double time, const eAction& a) {
-    mActionTime = time;
-    mAction = a;
+    const auto result = std::make_shared<eAttackAction>(
+        unit, area);
+    result->setup(anim, a);
+    return result;
 }

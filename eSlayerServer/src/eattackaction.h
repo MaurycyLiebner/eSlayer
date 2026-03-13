@@ -1,25 +1,17 @@
 #ifndef EATTACKACTION_H
 #define EATTACKACTION_H
 
-#include "eunitaction.h"
+#include "eunitactionbase.h"
 
-#include <functional>
+#include <memory>
 
-using eAction = std::function<void()>;
-
-class eAttackAction : public eUnitAction {
+class eAttackAction : public eUnitActionBase {
 public:
-    using eUnitAction::eUnitAction;
+    using eUnitActionBase::eUnitActionBase;
 
-    void increment(const double by) override;
-
-    void setDuration(const double d);
-    void setAction(const double time, const eAction& a);
-private:
-    double mDuration;
-    double mActionTime;
-
-    eAction mAction;
+    static std::shared_ptr<eAttackAction>
+    sCreate(eServerUnit& unit, eServerArea& area,
+            const eAction& a);
 };
 
 #endif // EATTACKACTION_H

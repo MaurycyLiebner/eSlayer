@@ -5,6 +5,7 @@
 #include "eserverarea.h"
 #include "ewaitaction.h"
 #include "egethitaction.h"
+#include "eblockaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -47,35 +48,29 @@ void eUnitBaseAction::decide() {
 }
 
 void eUnitBaseAction::attack(const eServerUnit& u) {
-    const auto& data = mUnit.data();
-    const int a1Id = data.animId("attack1");
-    const int a2Id = data.animId("attack2");
-
-    if(a2Id != -1 && eRand::rand() % 2) {
-        mUnit.fAnim = a2Id;
-    } else {
-        mUnit.fAnim = a1Id;
-    }
-    mUnit.fAnimId++;
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
-    const auto attack = std::make_shared<eAttackAction>(mUnit, mArea);
-    attack->setDuration(data.animFrames(mUnit.fAnim));
     const int targetId = u.fCharId;
-    attack->setAction(data.animActionFrame(mUnit.fAnim), [this, targetId]() {
+    const auto a = [this, targetId]() {
         const auto target = mArea.unit(targetId);
         if(!target) return;
         const double hitChance = eServerUnit::sHitChance(*target, mUnit);
         if(eRand::randF() > hitChance) return;
-        target->fHealth = std::max(0, target->fMaxHealth - 10);
-        if(target->fHealth <= 0) {
-
+        const double blockChance = target->blockChance();
+        if(eRand::randF() < blockChance) {
+            const auto a = eBlockAction::sCreate(*target, mArea);
+            if(a) target->setAction(a);
         } else {
-            if(eRand::rand() % 4) {
+            const int dmg = 10;
+            target->fHealth = std::max(0, target->fHealth - dmg);
+            if(target->fHealth <= 0) {
+
+            } else if(dmg/12. >= target->fMaxHealth) {
                 const auto a = eGetHitAction::sCreate(*target, mArea);
                 if(a) target->setAction(a);
             }
         }
-    });
-    setChild(attack);
+    };
+    const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
+    if(attack) setChild(attack);
 }
