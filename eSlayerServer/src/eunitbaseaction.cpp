@@ -40,15 +40,15 @@ void eUnitBaseAction::attack(const eServerUnit& u) {
         const double blockChance = target->blockChance();
         if(eRand::randF() < blockChance) {
             const auto a = eBlockAction::sCreate(*target, mArea);
-            if(a) target->setAction(a);
+            if(a) target->setChildAction(a);
         } else {
             const int dmg = 10;
             target->fHealth = std::max(0, target->fHealth - dmg);
             if(target->fHealth <= 0) {
 
-            } else if(dmg/12. >= target->fMaxHealth) {
+            } else if(dmg >= target->fMaxHealth/12.) {
                 const auto a = eGetHitAction::sCreate(*target, mArea);
-                if(a) target->setAction(a);
+                if(a) target->setChildAction(a);
             }
         }
     };

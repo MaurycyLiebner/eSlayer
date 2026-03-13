@@ -2,6 +2,7 @@
 
 #include "eunitbaseaction.h"
 #include "eserverchardata.h"
+#include "eclientaction.h"
 
 #include <eSlayerHelpers/erand.h>
 
@@ -75,6 +76,8 @@ void eServerArea::addClient(
     u->fMaxHealth = 100;
     u->fHealth = 100;
     u->fActionTime = 0.;
+    const auto a = std::make_shared<eClientAction>(*u, *this);
+    u->setAction(a);
     mUnits.emplace_back(u);
 }
 

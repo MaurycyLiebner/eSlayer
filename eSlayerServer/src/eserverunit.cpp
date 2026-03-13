@@ -1,6 +1,6 @@
 #include "eserverunit.h"
 
-#include "eunitaction.h"
+#include "ecomplexaction.h"
 
 #include "eSlayerHelpers/emovementhandler.h"
 
@@ -32,6 +32,10 @@ void eServerUnit::increment(const double by) {
     }
 }
 
-void eServerUnit::setAction(const std::shared_ptr<eUnitAction>& a) {
+void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {
     mAction = a;
+}
+
+void eServerUnit::setChildAction(const std::shared_ptr<eUnitAction>& a) {
+    if(mAction) mAction->setChild(a);
 }

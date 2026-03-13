@@ -7,6 +7,7 @@
 #include <memory>
 
 class eUnitAction;
+class eComplexAction;
 class eCharData;
 
 class eServerUnit : public eUnitData {
@@ -28,8 +29,9 @@ public:
 
     void increment(const double by);
 
-    void setAction(const std::shared_ptr<eUnitAction>& a);
-    const std::shared_ptr<eUnitAction>&
+    void setAction(const std::shared_ptr<eComplexAction>& a);
+    void setChildAction(const std::shared_ptr<eUnitAction>& a);
+    const std::shared_ptr<eComplexAction>&
     action() const { return mAction; }
 
     eMovementHandler& movementHandler()
@@ -41,7 +43,7 @@ public:
 private:
     const eCharData& mData;
     bool mAggressive = false;
-    std::shared_ptr<eUnitAction> mAction;
+    std::shared_ptr<eComplexAction> mAction;
     eMovementHandler mHandler;
 
     double mLevel = 1.;
