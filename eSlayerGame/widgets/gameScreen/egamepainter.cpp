@@ -30,6 +30,7 @@ eRenderTargetHolder eGamePainter::switchToBase() {
 void eGamePainter::clear() {
     const auto r = renderer();
     mLightingTex->clear(r);
+    mBaseTex->fill(r, SDL_Color{0, 0, 0, 255});
 }
 
 void eGamePainter::renderLight(SDL_Renderer* const r,
