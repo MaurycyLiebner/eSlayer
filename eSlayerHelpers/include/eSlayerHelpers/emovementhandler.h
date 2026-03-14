@@ -45,6 +45,7 @@ public:
 private:
     bool walkable(const ePointF& pos) const;
     bool walkable(const ePointF& from, const ePointF& to) const;
+    ePathFinderPath smoothPath(const ePathFinderPath& path);
 
     int mCharId = 0;
     int mTeamId = 0;

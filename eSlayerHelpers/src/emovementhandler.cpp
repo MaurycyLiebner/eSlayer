@@ -42,18 +42,25 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
                     margin + (ipos.fY - iPos.fY)};
     auto path = ePathFinder::findPath(map, from, to, found);
     for(auto& step : path) {
-        step.fSrc.fX -= margin;
-        step.fSrc.fY -= margin;
-        step.fDst.fX -= margin;
-        step.fDst.fY -= margin;
-        step.fSrc.fX /= subdivision;
-        step.fSrc.fY /= subdivision;
-        step.fDst.fX /= subdivision;
-        step.fDst.fY /= subdivision;
-        step.fSrc.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
-        step.fSrc.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
-        step.fDst.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
-        step.fDst.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
+        step.fX -= margin;
+        step.fY -= margin;
+        step.fX /= subdivision;
+        step.fY /= subdivision;
+        step.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
+        step.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
+    }
+    {
+            path.emplace(path.begin(), mPos);
+            for(int i = 0; i < path.size() - 2; i++) {
+                const auto& from = path[i];
+                int j = path.size() - 1;
+                for(; j > i + 1; j--) {
+                    const bool r = walkable(from, path[j]);
+                    if(r) break;
+                }
+                path.erase(path.begin() + i + 1, path.begin() + j);
+            }
+            path.erase(path.begin());
     }
     mGoal.moveOnPath(path);
     return found;

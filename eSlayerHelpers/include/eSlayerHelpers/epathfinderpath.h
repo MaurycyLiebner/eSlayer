@@ -5,14 +5,9 @@
 
 #include <deque>
 
-struct ePathStep {
-    ePointF fSrc;
-    ePointF fDst;
-};
-
-class ESLAYERHELPERS_API ePathFinderPath : public std::deque<ePathStep> {
+class ESLAYERHELPERS_API ePathFinderPath : public std::deque<ePointF> {
 public:
-    using std::deque<ePathStep>::deque;
+    using std::deque<ePointF>::deque;
 
     ePointF posAtDist(const ePointF& start,
                       const double dist) const;

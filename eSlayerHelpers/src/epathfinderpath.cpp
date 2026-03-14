@@ -10,7 +10,7 @@ ePointF ePathFinderPath::posAtDist(
     int nodeId = 0;
     const auto& first = operator[](nodeId++);
     auto pos = start;
-    auto dst = first.fDst;
+    auto dst = first;
     while(remDist > 0) {
         eVec2d vec(dst.fX - pos.fX, dst.fY - pos.fY);
         const double newRem = remDist - vec.length();
@@ -19,7 +19,7 @@ ePointF ePathFinderPath::posAtDist(
         pos.fY += vec.y;
         if(nodeId >= size()) break;
         const auto& next = operator[](nodeId++);
-        dst = next.fDst;
+        dst = next;
         remDist = newRem;
     }
     return pos;

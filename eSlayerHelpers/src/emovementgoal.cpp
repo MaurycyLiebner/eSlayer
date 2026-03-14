@@ -27,7 +27,7 @@ bool eMovementGoal::goal(ePointF& to) {
     } break;
     case eMovementGoalType::path: {
         if(mPath.empty()) return false;
-        to = mPath.front().fDst;
+        to = mPath.front();
         return true;
     } break;
     }

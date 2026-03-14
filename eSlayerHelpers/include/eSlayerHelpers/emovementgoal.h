@@ -21,6 +21,8 @@ public:
     void moveInDir(const ePointF& dir);
     void moveOnPath(const ePathFinderPath& path);
     void stopMoving();
+
+    const ePathFinderPath& path() const { return mPath; }
 protected:
     eMovementGoalType mType = eMovementGoalType::none;
 
