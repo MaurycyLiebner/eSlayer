@@ -73,6 +73,8 @@ void eMainWindow::setResolution(const eResolution& res) {
     const int w = res.width();
     const int h = res.height();
     SDL_SetWindowSize(mSdlWindow, w, h);
+    const auto mode = SDL_RendererLogicalPresentation::SDL_LOGICAL_PRESENTATION_LETTERBOX;
+    SDL_SetRenderLogicalPresentation(mSdlRenderer, w, h, mode);
 }
 
 void eMainWindow::setFullscreen(const bool f) {
@@ -80,6 +82,10 @@ void eMainWindow::setFullscreen(const bool f) {
     mFirstFullscrenSetting = false;
     mSettings.fFullscreen = f;
     SDL_SetWindowFullscreen(mSdlWindow, f ? SDL_WINDOW_FULLSCREEN : 0);
+    const auto& res = mSettings.fRes;
+    const int w = res.width();
+    const int h = res.height();
+    SDL_SetWindowSize(mSdlWindow, w, h);
 }
 
 int eMainWindow::exec() {
@@ -101,8 +107,9 @@ int eMainWindow::exec() {
         const auto fpsStart = high_resolution_clock::now();
 
         while(SDL_PollEvent(&e)) {
-            float x, y;
-            SDL_GetMouseState(&x, &y);
+            SDL_ConvertEventToRenderCoordinates(mSdlRenderer, &e);
+            const float x = e.motion.x;
+            const float y = e.motion.y;
             const bool shift = mShiftPressed > 0;
             const bool ctrl = mCtrlPressed > 0;
             if(e.type == SDL_EVENT_QUIT) {
