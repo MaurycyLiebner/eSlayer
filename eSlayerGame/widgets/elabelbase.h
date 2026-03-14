@@ -12,6 +12,7 @@ public:
     bool setVerySmallFontSize();
     bool setSmallFontSize();
     bool setHugeFontSize();
+    bool setExtraHugeFontSize();
 
     bool setFont(const eFont& font);
     bool setFontSize(const int s);

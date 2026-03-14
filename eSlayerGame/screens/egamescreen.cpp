@@ -401,14 +401,14 @@ void eGameScreen::showDeadMenu() {
     mDeadMenu = new eWidget(window());
 
     const auto line1 = new eLabel(window());
-    line1->setHugeFontSize();
+    line1->setExtraHugeFontSize();
     line1->setFontColor(eFontColor::redBlack);
     line1->setText(eLanguage::text(5, 3));
     line1->fitContent();
     mDeadMenu->addWidget(line1);
 
     const auto line2 = new eLabel(window());
-    line2->setHugeFontSize();
+    line2->setExtraHugeFontSize();
     line2->setFontColor(eFontColor::redBlack);
     line2->setText(eLanguage::text(5, 4));
     line2->fitContent();

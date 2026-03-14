@@ -32,6 +32,11 @@ bool eLabelBase::setHugeFontSize() {
     return setFontSize(s);
 }
 
+bool eLabelBase::setExtraHugeFontSize() {
+    const int s = res().extraHugeFontSize();
+    return setFontSize(s);
+}
+
 bool eLabelBase::setFontSize(const int s) {
     mFont.fPtSize = s;
     return updateTextTexture();

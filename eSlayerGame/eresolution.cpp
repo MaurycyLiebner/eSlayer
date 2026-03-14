@@ -74,6 +74,10 @@ double eResolution::multiplier() const {
     return 1.;
 }
 
+int eResolution::extraHugeFontSize() const {
+    return 3*largeFontSize();
+}
+
 int eResolution::hugeFontSize() const {
     return 3*largeFontSize()/2;
 }

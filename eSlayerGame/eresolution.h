@@ -27,6 +27,7 @@ public:
 
     int margin() const;
 
+    int extraHugeFontSize() const;
     int hugeFontSize() const;
     int largeFontSize() const;
     int smallFontSize() const;
