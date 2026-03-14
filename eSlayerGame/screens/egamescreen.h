@@ -19,6 +19,7 @@
 class eUnitIndicator;
 class ePlayerHealthIndicator;
 class eButtonBase;
+class eCheckButton;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -92,6 +93,7 @@ private:
 
     eButtonBase* mLeftSkillButton = nullptr;
     eButtonBase* mRightSkillButton = nullptr;
+    eCheckButton* mRunButton = nullptr;
 };
 
 #endif // EGAMESCREEN_H

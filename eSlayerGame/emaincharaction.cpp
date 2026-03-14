@@ -92,6 +92,14 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(mAttack) return;
 
+    const bool run = shouldRun();
+    mContinueRunning = false;
+    if(run) {
+        mMovementHandler.setSpeed(0.1);
+    } else {
+        mMovementHandler.setSpeed(0.075);
+    }
+
     bool move = false;
     if(mousePressed) {
         mMovementHandler.moveInDirection(pos);
@@ -106,23 +114,33 @@ void eMainCharAction::increment(const bool mousePressed,
     int animId;
     if(move) {
         mMainChar->fPos = mMovementHandler.pos();
-        model.setAngle(mMovementHandler.angle());
-        const int naId = mMainCharData->animId("walk");
-        const int aId = mMainCharData->animId("walkReady");
-        if(a) {
-            if(aId != -1) {
-                animId = aId;
-            } else {
-                animId = naId;
-            }
+        const double angle = mMovementHandler.angle();
+        mMainChar->fAngle = angle;
+        model.setAngle(angle);
+        if(run) {
+            mContinueRunning = true;
+            incStamina(-0.1);
+            animId = mMainCharData->animId("run");
         } else {
-            if(naId != -1) {
-                animId = naId;
+            incStamina(0.05);
+            const int naId = mMainCharData->animId("walk");
+            const int aId = mMainCharData->animId("walkReady");
+            if(a) {
+                if(aId != -1) {
+                    animId = aId;
+                } else {
+                    animId = naId;
+                }
             } else {
-                animId = aId;
+                if(naId != -1) {
+                    animId = naId;
+                } else {
+                    animId = aId;
+                }
             }
         }
     } else {
+        incStamina(0.05);
         const int naId = mMainCharData->animId("stand");
         const int aId = mMainCharData->animId("standReady");
         if(a) {
@@ -154,4 +172,13 @@ void eMainCharAction::stop() {
     mPressedUnit = nullptr;
     mAttack = false;
     mMovementHandler.stopMoving();
+}
+
+void eMainCharAction::incStamina(const double by) {
+    mStamina = std::clamp(mStamina + by, 0., mMaxStamina);
+}
+
+bool eMainCharAction::shouldRun() const {
+    if(!mRunning) return false;
+    return mStamina > 5. || (mStamina > 0. && mContinueRunning);
 }

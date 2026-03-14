@@ -94,23 +94,24 @@ void eGameScreen::initialize(const int clientId,
     const auto staminaWid = new eWidget(window());
     staminaWid->setNoPadding();
 
-    const auto runButton = new eCheckButton(window());
-    runButton->setNoPadding();
-    runButton->setCheckAction([this, runButton](const bool check) {
-        if(check) runButton->setTexture(eUITextures::sRunIcon);
-        else runButton->setTexture(eUITextures::sWalkIcon);
+    mRunButton = new eCheckButton(window());
+    mRunButton->setNoPadding();
+    mRunButton->setCheckAction([this](const bool check) {
+        if(check) mRunButton->setTexture(eUITextures::sRunIcon);
+        else mRunButton->setTexture(eUITextures::sWalkIcon);
+        mMainAction.setRunning(check);
     });
-    runButton->setTexture(eUITextures::sWalkIcon);
-    runButton->fitContent();
-    staminaWid->addWidget(runButton);
+    mRunButton->setTexture(eUITextures::sWalkIcon);
+    mRunButton->fitContent();
+    staminaWid->addWidget(mRunButton);
 
     mStaminaIndicator = new ePlayerHealthIndicator(window());
     mStaminaIndicator->setColor(eColors::sStamina);
     mStaminaIndicator->setName(eLanguage::text(7, 2));
     mStaminaIndicator->initialize();
     staminaWid->addWidget(mStaminaIndicator);
-    mStaminaIndicator->resize(indicatorW - runButton->width(),
-                              runButton->height());
+    mStaminaIndicator->resize(indicatorW - mRunButton->width(),
+                              mRunButton->height());
 
     staminaWid->stackHorizontally();
     staminaWid->fitContent();
@@ -233,6 +234,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                 mMainChar->fAnimSpeed = u.fAnimSpeed;
                 mHealthIndicator->setValue(u.fHealth);
                 mHealthIndicator->setRange(0, u.fMaxHealth);
+                mStaminaIndicator->setValue(mMainAction.stamina());
+                mStaminaIndicator->setRange(0, mMainAction.maxStamina());
                 continue;
             }
             const auto it = mUnitIndexMap.find(charId);
@@ -460,6 +463,10 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
                 showESCMenu();
             }
         }
+    } else if(e.key() == SDL_SCANCODE_R) {
+        const bool run = !mMainAction.running();
+        mRunButton->setChecked(run);
+        mMainAction.setRunning(run);
     }
     return true;
 }

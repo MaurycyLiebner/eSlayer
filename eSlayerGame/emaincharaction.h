@@ -31,6 +31,13 @@ public:
     const ePointF& pos() const { return mMovementHandler.pos(); }
     void setPos(const ePointF& pos) { mMovementHandler.setPos(pos); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
+
+    double stamina() const { return mStamina; }
+    void incStamina(const double by);
+    double maxStamina() const { return mMaxStamina; }
+    bool running() const { return mRunning; }
+    void setRunning(const bool r) { mRunning = r; }
+    bool shouldRun() const;
 private:
     int mClientId;
     std::shared_ptr<eServer> mServer;
@@ -40,6 +47,10 @@ private:
     eMovementHandler mMovementHandler;
 
     bool mAttack = false;
+    bool mRunning = false;
+    double mMaxStamina = 100.;
+    double mStamina = mMaxStamina;
+    bool mContinueRunning = false;
 };
 
 #endif // EMAINCHARACTION_H
