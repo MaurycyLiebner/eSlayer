@@ -18,6 +18,7 @@
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
+class eButtonBase;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -86,6 +87,11 @@ private:
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
     ePlayerHealthIndicator* mManaIndicator = nullptr;
+    ePlayerHealthIndicator* mStaminaIndicator = nullptr;
+    ePlayerHealthIndicator* mExperienceIndicator = nullptr;
+
+    eButtonBase* mLeftSkillButton = nullptr;
+    eButtonBase* mRightSkillButton = nullptr;
 };
 
 #endif // EGAMESCREEN_H

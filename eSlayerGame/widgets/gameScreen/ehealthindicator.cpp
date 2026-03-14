@@ -2,6 +2,7 @@
 
 void eHealthIndicator::initialize() {
     mText = new eLabel(window());
+    mText->setNoPadding();
     mText->setFontColor(eFontColor::white);
     addWidget(mText);
 }
@@ -21,14 +22,9 @@ void eHealthIndicator::hideText() {
 void eHealthIndicator::paintEvent(ePainter& p) {
     const double per = double(value() - min())/(max() - min());
     const SDL_Rect baseRect = rect();
-    const int pp = padding();
-    const SDL_Rect innerRect{pp, pp,
-                             baseRect.w - 2*pp,
-                             baseRect.h - 2*pp};
-    const int w = per*innerRect.w;
-    const SDL_Rect rect{innerRect.x, innerRect.y,
-                        w, innerRect.h};
-    p.fillRect(baseRect, {0, 0, 0, 255});
+    const int w = per*baseRect.w;
+    const SDL_Rect rect{baseRect.x, baseRect.y,
+                        w, baseRect.h};
     p.fillRect(rect, mColor);
     p.drawRect(baseRect, {255, 255, 255, 255}, lineWidth());
 }
@@ -37,4 +33,7 @@ void eHealthIndicator::setText(const std::string& text) {
     mText->setText(text);
     mText->fitContent();
     mText->align(eAlignment::center);
+    if(mText->height() > height()) {
+        mText->setY(-1.2*mText->height());
+    }
 }

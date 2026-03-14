@@ -5,10 +5,12 @@
 #include "../textures/eobjstextures.h"
 #include "../textures/eterrstextures.h"
 #include "../textures/etilesiterator.h"
+#include "../textures/euitextures.h"
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/ecolors.h"
+#include "../widgets/echeckbutton.h"
 
 #include <eSlayerHelpers/evec2.h>
 
@@ -42,26 +44,98 @@ void eGameScreen::initialize(const int clientId,
     mUnitIndicator->setY(20*m);
 
     const int indicatorW = 400*m;
-    const int indicatorH = 40*m;
-    const int indicatorX = (width() - 2*indicatorW)/2;
+    const int indicatorH = 30*m;
+
+    const auto bottomWid = new eWidget(window());
+    bottomWid->setNoPadding();
+
+    const auto attackIcon = eUITextures::sSkillIcons["attack"];
+    mLeftSkillButton = new eButtonBase(window());
+    mLeftSkillButton->setNoPadding();
+    mLeftSkillButton->setTexture(attackIcon);
+    mLeftSkillButton->fitContent();
+    bottomWid->addWidget(mLeftSkillButton);
+
+    const auto centerWid = new eWidget(window());
+    centerWid->setNoPadding();
+
+    mExperienceIndicator = new ePlayerHealthIndicator(window());
+    mExperienceIndicator->setColor(eColors::sExperience);
+    mExperienceIndicator->setName(eLanguage::text(7, 3));
+    mExperienceIndicator->initialize();
+    centerWid->addWidget(mExperienceIndicator);
+    mExperienceIndicator->resize(2*indicatorW, indicatorH/2);
+
+    const auto healthMana = new eWidget(window());
+    healthMana->setNoPadding();
 
     mHealthIndicator = new ePlayerHealthIndicator(window());
     mHealthIndicator->setColor(eColors::sHealth);
     mHealthIndicator->setName(eLanguage::text(7, 0));
     mHealthIndicator->initialize();
-    addWidget(mHealthIndicator);
+    healthMana->addWidget(mHealthIndicator);
     mHealthIndicator->resize(indicatorW, indicatorH);
-    mHealthIndicator->align(eAlignment::bottom);
-    mHealthIndicator->setX(indicatorX);
 
     mManaIndicator = new ePlayerHealthIndicator(window());
     mManaIndicator->setColor(eColors::sMana);
     mManaIndicator->setName(eLanguage::text(7, 1));
     mManaIndicator->initialize();
-    addWidget(mManaIndicator);
+    healthMana->addWidget(mManaIndicator);
     mManaIndicator->resize(indicatorW, indicatorH);
-    mManaIndicator->align(eAlignment::bottom);
-    mManaIndicator->setX(width() - indicatorX - mManaIndicator->width());
+
+    const int lineWidth = eLabel::lineWidth();
+    healthMana->stackHorizontally(-lineWidth);
+    healthMana->fitContent();
+    centerWid->addWidget(healthMana);
+
+    const auto staminaExperience = new eWidget(window());
+    staminaExperience->setNoPadding();
+
+    const auto staminaWid = new eWidget(window());
+    staminaWid->setNoPadding();
+
+    const auto runButton = new eCheckButton(window());
+    runButton->setNoPadding();
+    runButton->setCheckAction([this, runButton](const bool check) {
+        if(check) runButton->setTexture(eUITextures::sRunIcon);
+        else runButton->setTexture(eUITextures::sWalkIcon);
+    });
+    runButton->setTexture(eUITextures::sWalkIcon);
+    runButton->fitContent();
+    staminaWid->addWidget(runButton);
+
+    mStaminaIndicator = new ePlayerHealthIndicator(window());
+    mStaminaIndicator->setColor(eColors::sStamina);
+    mStaminaIndicator->setName(eLanguage::text(7, 2));
+    mStaminaIndicator->initialize();
+    staminaWid->addWidget(mStaminaIndicator);
+    mStaminaIndicator->resize(indicatorW - runButton->width(),
+                              runButton->height());
+
+    staminaWid->stackHorizontally();
+    staminaWid->fitContent();
+
+    staminaExperience->addWidget(staminaWid);
+
+    staminaExperience->stackHorizontally(-lineWidth);
+    staminaExperience->fitContent();
+    centerWid->addWidget(staminaExperience);
+
+    centerWid->stackVertically();
+    centerWid->fitContent();
+    centerWid->align(eAlignment::bottom | eAlignment::hcenter);
+    bottomWid->addWidget(centerWid);
+
+    mRightSkillButton = new eButtonBase(window());
+    mRightSkillButton->setNoPadding();
+    mRightSkillButton->setTexture(attackIcon);
+    mRightSkillButton->fitContent();
+    bottomWid->addWidget(mRightSkillButton);
+
+    bottomWid->stackHorizontally();
+    bottomWid->fitContent();
+    addWidget(bottomWid);
+    bottomWid->align(eAlignment::bottom | eAlignment::hcenter);
 
     mMap = map;
 

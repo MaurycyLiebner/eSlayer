@@ -84,7 +84,7 @@ void ePainter::drawTexture(const int x, const int y,
 
 void ePainter::fillRect(const SDL_Rect& rect,
                         const SDL_Color& color) const {
-    SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(mRenderer, color.r, color.g, color.b, color.a);
     const SDL_FRect dRect{float(rect.x + mX),
                           float(rect.y + mY),

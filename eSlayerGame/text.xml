@@ -37,5 +37,7 @@
     <group id="7">
         <string id="0">Life</string>
         <string id="1">Mana</string>
+        <string id="2">Stamina</string>
+        <string id="3">Experience</string>
     </group>
 </strings>
