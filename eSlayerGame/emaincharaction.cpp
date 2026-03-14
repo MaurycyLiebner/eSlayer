@@ -41,6 +41,8 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 void eMainCharAction::increment(const bool mousePressed,
                                 const ePointF& mousePos,
                                 const double by) {
+    if(mMainChar->fHealth <= 0) return;
+
     auto& model = mMainChar->model();
 
     bool stopAttack = mAttack && !mPressedUnit.get();
@@ -48,6 +50,7 @@ void eMainCharAction::increment(const bool mousePressed,
     if(stopAttack) {
         mAttack = false;
         mServer->stopAttack(mClientId);
+        stopAttack = false;
     }
 
     const double tmp = mMainChar->fActionTime;
@@ -61,16 +64,16 @@ void eMainCharAction::increment(const bool mousePressed,
     ePointF pos;
 
     if(mPressedUnit) {
-        pos = mPressedUnit->pos();
-        const double dist = ePointF::distance(mMainChar->pos(), pos);
+        pos = mPressedUnit->fPos;
+        const double dist = ePointF::distance(mMainChar->fPos, pos);
         const double attackDist = 0.5*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
             if(mAttack) {
             } else {
                 mAttack = true;
-                const auto vec = ePointF::vector(mPressedUnit->pos(),
-                                                 mMainChar->pos());
+                const auto vec = ePointF::vector(mPressedUnit->fPos,
+                                                 mMainChar->fPos);
                 model.setAngle(vec.angle());
                 const int targetId = mPressedUnit->fCharId;
                 mServer->attack(mClientId, targetId);
@@ -102,6 +105,7 @@ void eMainCharAction::increment(const bool mousePressed,
     const bool a = model.aggressive();
     int animId;
     if(move) {
+        mMainChar->fPos = mMovementHandler.pos();
         model.setAngle(mMovementHandler.angle());
         const int naId = mMainCharData->animId("walk");
         const int aId = mMainCharData->animId("walkReady");
@@ -144,4 +148,10 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
     } else {
         mMovementHandler.moveTo(mousePos);
     }
+}
+
+void eMainCharAction::stop() {
+    mPressedUnit = nullptr;
+    mAttack = false;
+    mMovementHandler.stopMoving();
 }

@@ -12,6 +12,8 @@ struct eUnitsRequest {
 
 class eServerClientHandler {
 public:
+    eServerClientHandler(const int clientId);
+
     bool requestUnits();
     bool receiveUnits(std::vector<eUnitData>& units,
                       double& resultTime,
@@ -19,11 +21,12 @@ public:
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 
-    bool moveTo(const int clientId, const ePointF& pos);
-    bool attack(const int clientId, const int targetId);
-    bool stopAttack(const int clientId);
+    bool moveTo(const ePointF& pos);
+    bool attack(const int targetId);
+    bool stopAttack();
+    bool respawn();
 private:
-    int mDelay = 100;
+    const int mClientId;
     std::shared_ptr<eServerArea> mArea;
     std::vector<eUnitsRequest> mUnitRequests;
 };

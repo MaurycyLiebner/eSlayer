@@ -9,26 +9,10 @@
 
 class eUnit : public eUnitData {
 public:
-    void intialize(const eWalkable& w,
-                   const int charId);
-
-    int charId() const { return mCharId; }
-
-    void setPos(const ePointF& pos) { mHandler.setPos(pos); }
-    const ePointF& pos() const { return mHandler.pos(); }
-
     eCharUnitModel& model() { return mModel; }
     const eCharUnitModel& model() const { return mModel; }
     void setModel(const eCharUnitModel& model) { mModel = model; }
-
-    void increment(const double by);
-
-    double actionStartTime() const { return mActStartTime; }
-    void setActStartTime(const double t) { mActStartTime = t; }
 private:
-    int mCharId;
-    double mActStartTime = 0.;
-    eMovementHandler mHandler;
     eCharUnitModel mModel;
 };
 

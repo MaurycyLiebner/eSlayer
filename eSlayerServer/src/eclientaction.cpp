@@ -4,7 +4,11 @@
 
 void eClientAction::increment(const double by) {
     mUnit.fActionTime -= by;
-    eComplexAction::increment(by);
+    if(mUnit.fHealth <= 0) {
+        mAttackTarget = nullptr;
+    } else {
+        eComplexAction::increment(by);
+    }
 }
 
 void eClientAction::decide() {

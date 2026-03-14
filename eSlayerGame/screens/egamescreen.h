@@ -14,6 +14,8 @@
 #include "../units/eunit.h"
 #include "../emaincharaction.h"
 
+#include <set>
+
 class eUnitIndicator;
 class ePlayerHealthIndicator;
 
@@ -47,14 +49,13 @@ protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
 private:
     void initializeTextures();
+    void showDeadMenu();
     void showESCMenu();
     void hideESCMenu();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     eWalkable walkable() const;
-
-    void initialize(const int charId, eUnit& u);
 
     eGamePainter mGamePainter;
 
@@ -68,6 +69,7 @@ private:
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;
     std::map<int, int> mUnitIndexMap;
+    std::set<int> mUnitSlots;
     std::shared_ptr<eMap> mMap;
 
     int mFrame = 0;
@@ -80,6 +82,7 @@ private:
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;
+    eWidget* mDeadMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
     ePlayerHealthIndicator* mManaIndicator = nullptr;

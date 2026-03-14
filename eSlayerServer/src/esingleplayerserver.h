@@ -33,6 +33,8 @@ public:
     bool attack(const int clientId,
                 const int targetId) override;
     bool stopAttack(const int clientId) override;
+
+    bool respawn(const int clientId) override;
 public:
     eServerClientHandler* clientHandler(const int clientId);
 

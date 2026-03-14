@@ -26,8 +26,10 @@ public:
                    const double by);
 
     void mouseRelease(const ePointF& mousePos);
+    void stop();
 
     const ePointF& pos() const { return mMovementHandler.pos(); }
+    void setPos(const ePointF& pos) { mMovementHandler.setPos(pos); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
 private:
     int mClientId;

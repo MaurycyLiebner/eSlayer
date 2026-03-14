@@ -6,7 +6,7 @@
 
 enum class eFontColor {
     white, gray,
-    whiteBlack, grayBlack
+    whiteBlack, grayBlack, redBlack
 };
 
 namespace eFontColorHelpers {

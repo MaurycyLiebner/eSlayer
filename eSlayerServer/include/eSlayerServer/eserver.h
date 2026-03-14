@@ -37,6 +37,9 @@ public:
            const int targetId) = 0;
     virtual bool
     stopAttack(const int clientId) = 0;
+
+    virtual bool
+    respawn(const int clientId) = 0;
 private:
 };
 

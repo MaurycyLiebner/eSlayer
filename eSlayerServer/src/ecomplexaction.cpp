@@ -23,6 +23,7 @@ void eComplexAction::setChild(const std::shared_ptr<eUnitAction>& c) {
 }
 
 bool eComplexAction::attack(const eServerUnit& u) {
+    if(u.fHealth <= 0) return false;
     const double dist = ePointF::distance(mUnit.fPos, u.fPos);
     const double attackDist = 0.5*(mUnit.fRadius + u.fRadius);
     if(dist > attackDist) return false;

@@ -60,7 +60,7 @@ eMapGenerator::generate(const std::string& name) const {
     if(name == "town") {
         auto& terrType = result->mTerrainTypes.emplace_back();
         terrType.fName = "town_floor";
-        const int w = 40;
+        const int w = 80;
         const int h = 80;
         for(int y = 0; y < h; y++) {
             auto& row = result->mTiles.emplace_back();

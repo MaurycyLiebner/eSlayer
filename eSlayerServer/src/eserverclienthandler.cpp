@@ -4,17 +4,13 @@
 
 #include <eSlayerHelpers/echardata.h>
 
+eServerClientHandler::eServerClientHandler(const int clientId) :
+    mClientId(clientId) {}
+
 bool eServerClientHandler::requestUnits() {
     if(mArea) {
         const double time = mArea->time();
-        const auto& units = mArea->units();
-        std::vector<eUnitData> unitsData;
-        unitsData.reserve(units.size());
-        for(const auto& u : units) {
-            const eUnitData& uu =
-                reinterpret_cast<eUnitData&>(*u);
-            unitsData.emplace_back(uu);
-        }
+        const auto unitsData = mArea->unitsData(mClientId);
         mUnitRequests.emplace_back(eUnitsRequest{time, unitsData});
     } else {
         mUnitRequests.emplace_back(eUnitsRequest{0., {}});
@@ -38,22 +34,22 @@ bool eServerClientHandler::receiveUnits(std::vector<eUnitData>& units,
     return false;
 }
 
-bool eServerClientHandler::moveTo(const int clientId, const ePointF& pos) {
+bool eServerClientHandler::moveTo(const ePointF& pos) {
     if(!mArea) return false;
-    const auto unit = mArea->unit(clientId);
+    const auto unit = mArea->unit(mClientId);
     if(unit) {
         unit->fVel = ePointF::vector(pos, unit->fPos);
         unit->fAngle = unit->fVel.angle();
         unit->fPos = pos;
     } else {
-        mArea->addClient(clientId, pos);
+        mArea->addClient(mClientId, pos);
     }
     return true;
 }
 
-bool eServerClientHandler::attack(const int clientId, const int targetId) {
+bool eServerClientHandler::attack(const int targetId) {
     if(!mArea) return false;
-    const auto client = mArea->unit(clientId);
+    const auto client = mArea->unit(mClientId);
     if(!client) return false;
     const auto target = mArea->unit(targetId);
     if(!target) return false;
@@ -66,15 +62,28 @@ bool eServerClientHandler::attack(const int clientId, const int targetId) {
     return true;
 }
 
-bool eServerClientHandler::stopAttack(const int clientId) {
+bool eServerClientHandler::stopAttack() {
     if(!mArea) return false;
-    const auto client = mArea->unit(clientId);
+    const auto client = mArea->unit(mClientId);
     if(!client) return false;
 
     const auto a = client->action();
     if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
         ca->attack(nullptr);
     }
+
+    return true;
+}
+
+bool eServerClientHandler::respawn() {
+    if(!mArea) return false;
+    const auto client = mArea->unit(mClientId);
+    if(!client) return false;
+
+    const auto a = client->action();
+    a->setChild(nullptr);
+    client->fHealth = client->fMaxHealth;
+    client->fPos = ePointF{0., 0.};
 
     return true;
 }

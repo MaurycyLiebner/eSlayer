@@ -20,5 +20,9 @@ void eFontColorHelpers::colors(const eFontColor c,
         col1 = SDL_Color{155, 155, 155, 255};
         col2 = SDL_Color{0, 0, 0, 255};
         break;
+    case eFontColor::redBlack:
+        col1 = SDL_Color{207, 27, 2, 255};
+        col2 = SDL_Color{0, 0, 0, 255};
+        break;
     }
 }

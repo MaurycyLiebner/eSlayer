@@ -9,8 +9,10 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 13; x < 24; x++) {
-        for(int y = 13; y < 24; y++) {
+    for(int x = 24; x < 75; x++) {
+        if(x == 40) x += 20;
+        for(int y = 24; y < 75; y++) {
+            if(y == 40) y += 20;
             const int typeId = eRand::rand() % 2;
             const std::string name = typeId == 0 ? "mummy" : "wendigo";
             const auto data = eServerCharData::get(name);
@@ -29,6 +31,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fPos = pos;
             mUnitIdMap[charId] = mUnits.size();
             mUnits.emplace_back(u);
+            const auto area = unitArea(*u);
+            mUnitAreas[area].emplace(charId);
 
             auto& m = u->movementHandler();
             m.setSpeed(0.025);
@@ -53,16 +57,84 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 void eServerArea::increment(const double by) {
-    const int iMax = mUnits.size();
-    for(int i = 0; i < iMax; i++) {
-        const auto& u = mUnits[i];
-        u->increment(by);
+    std::map<int, eUnitTile> clientAreas;
+
+    for(const int i : mClientIds) {
+        const auto u = unit(i);
+        if(!u) continue;
+        const auto area = unitArea(*u);
+        clientAreas[i] = area;
+    }
+
+    std::set<eUnitTile> unitTiles;
+    for(const auto& clientAreaP : clientAreas) {
+        const auto& clientArea = clientAreaP.second;
+        const int iMax = mUnits.size();
+        for(int i = 0; i < iMax; i++) {
+            for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
+                for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
+                    const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
+                    const auto it = mUnitAreas.find(area);
+                    if(it == mUnitAreas.end()) continue;
+                    unitTiles.emplace(area);
+                }
+            }
+        }
+    }
+    for(const auto& area : unitTiles) {
+        const auto units = mUnitAreas.at(area);
+        for(const int charId : units) {
+            const int id = mUnitIdMap[charId];
+            const auto& u = mUnits[id];
+            const auto oldArea = unitArea(*u);
+            u->increment(by);
+            const auto newArea = unitArea(*u);
+            if(oldArea != newArea) {
+                mUnitAreas[oldArea].erase(charId);
+                mUnitAreas[newArea].emplace(charId);
+            }
+        }
     }
     mTime += by;
 }
 
+std::vector<eUnitData>
+eServerArea::unitsData(const int clientId) const {
+    std::vector<eUnitData> result;
+    const auto client = unit(clientId);
+    if(!client) return result;
+    const auto clientArea = unitArea(*client);
+    for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
+        for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
+            const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
+            const auto it = mUnitAreas.find(area);
+            if(it == mUnitAreas.end()) continue;
+            for(const int charId : it->second) {
+                const auto u = unit(charId);
+                if(!u) continue;
+                result.emplace_back(reinterpret_cast<eUnitData&>(*u));
+            }
+        }
+    }
+    return result;
+}
+
+eUnitTile eServerArea::unitArea(const int charId) const {
+    const auto u = unit(charId);
+    if(!u) return {-1, -1};
+    return unitArea(*u);
+}
+
+eUnitTile eServerArea::unitArea(const eServerUnit& u) const {
+    const auto& pos = u.fPos;
+    eUnitTile result;
+    reinterpret_cast<ePoint&>(result) = pos.floor()/mUnitAreaDim;
+    return result;
+}
+
 void eServerArea::addClient(
     const int clientId, const ePointF& pos) {
+    mClientIds.emplace_back(clientId);
     mUnitIdMap[clientId] = mUnits.size();
     const std::string name = "pal";
     const auto data = eServerCharData::get(name);
@@ -79,6 +151,8 @@ void eServerArea::addClient(
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     mUnits.emplace_back(u);
+    const auto area = unitArea(*u);
+    mUnitAreas[area].emplace(clientId);
 }
 
 std::shared_ptr<eServerUnit>

@@ -70,6 +70,7 @@ void eGameScreen::initialize(const int clientId,
     const auto w = walkable();
     const auto iter = [this](const eOtherHandler& handler) {
         for(const auto& u : mUnits) {
+            if(!u) continue;
             handler(*u);
         }
     };
@@ -134,10 +135,23 @@ void eGameScreen::paintEvent(ePainter& p) {
         mClientId, units, resultTime);
     if(b) {
         bool aggressive = false;
+        std::set<int> present;
         for(const auto& u : units) {
             const int charId = u.fCharId;
+            present.emplace(charId);
             if(charId == mClientId) {
+                if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
+                    mMainChar->fPos = u.fPos;
+                    mMainAction.setPos(u.fPos);
+                    mMainAction.stop();
+                    setPressedUnit(nullptr);
+                    setHighlightedUnit(nullptr);
+                }
                 mMainChar->fHealth = u.fHealth;
+                if(!mDeadMenu && u.fHealth <= 0) {
+                    showDeadMenu();
+                    mMainAction.stop();
+                }
                 mMainChar->fMaxHealth = u.fMaxHealth;
                 mMainChar->fActionTime = u.fActionTime;
                 mMainChar->fAnim = u.fAnim;
@@ -163,38 +177,56 @@ void eGameScreen::paintEvent(ePainter& p) {
                     const auto texs = eCharsTextures::get("wendigo");
                     unitModel = texs->generateModel(modelParts, r);
                 }
-                auto& unit = mUnits.emplace_back(std::make_shared<eUnit>());
+                const auto unit = std::make_shared<eUnit>();
                 unit->fRadius = u.fRadius;
                 reinterpret_cast<eUnitData&>(*unit) = u;
-                initialize(charId, *unit);
                 eCharUnitModel model;
                 model.setCharModel(unitModel);
-                model.setAnimation(0, 1.);
-                model.setDirection(0);
+                model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
+                model.setAngle(u.fAngle);
                 unit->setModel(model);
-                unit->setPos(u.fPos);
-                mUnitIndexMap[charId] = mUnits.size() - 1;
+                unit->fPos = u.fPos;
+                if(mUnitSlots.empty()) {
+                    mUnits.emplace_back(unit);
+                    mUnitIndexMap[charId] = mUnits.size() - 1;
+                } else {
+                    const auto it = mUnitSlots.extract(mUnitSlots.begin());
+                    const int id = it.value();
+                    mUnits[id] = unit;
+                    mUnitIndexMap[charId] = id;
+                }
             } else {
                 const int id = it->second;
                 const auto& unit = mUnits[id];
                 reinterpret_cast<eUnitData&>(*unit) = u;
                 auto& model = unit->model();
-                unit->setPos(u.fPos);
+                unit->fPos = u.fPos;
                 model.setAngle(u.fAngle);
-                model.setAnimation(unit->fAnim, unit->fAnimId);
-                model.setAnimationSpeed(unit->fAnimSpeed);
+                model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
             }
             if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
-                const double dist = ePointF::distance(mMainChar->pos(), u.fPos);
+                const double dist = ePointF::distance(mMainChar->fPos, u.fPos);
                 if(dist < 5.) aggressive = true;
             }
+        }
+        const int iMax = mUnits.size();
+        for(int i = 0; i < iMax; i++) {
+            const auto& u = mUnits[i];
+            if(!u) continue;
+            const int charId = u->fCharId;
+            const auto it = present.find(charId);
+            if(it != present.end()) continue;
+            mUnits[i] = nullptr;
+            mUnitSlots.emplace(i);
+            mUnitIndexMap.erase(charId);
         }
         auto& model = mMainChar->model();
         model.setAggressive(aggressive);
     }
-    mServer->moveTo(mClientId, characterPos());
 
-    if(!mESCMenu) {
+    if(!mESCMenu && !mDeadMenu) {
+        mServer->moveTo(mClientId, characterPos());
+
         const auto mouseTilePos = pixelToTilePos(mMousePos);
         mMainAction.increment(mMousePressed, mouseTilePos, 1.);
 
@@ -223,17 +255,18 @@ void eGameScreen::paintEvent(ePainter& p) {
             });
         }
 
-        const auto pos = characterPos();
         std::vector<std::shared_ptr<eUnit>> units = mUnits;
         units.emplace_back(mMainChar);
-        mMainChar->setPos(pos);
 
         std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
                                                   const std::shared_ptr<eUnit>& u2) {
-            const auto& p1 = u1->pos();
-            const auto& p2 = u2->pos();
-            const auto& ip1 = p1.floor();
-            const auto& ip2 = p2.floor();
+            if(!u1 && !u2) return false;
+            if(!u1) return true;
+            if(!u2) return false;
+            const auto& p1 = u1->fPos;
+            const auto& p2 = u2->fPos;
+            const auto ip1 = p1.floor();
+            const auto ip2 = p2.floor();
 
             const int ty1 = ip1.fX + ip1.fY;
             const int tx1 = (ip1.fX + ip1.fY)/2 - ip1.fY;
@@ -266,7 +299,8 @@ void eGameScreen::paintEvent(ePainter& p) {
             }
             for(int unitId = nextUnit; unitId < units.size(); unitId++) {
                 const auto& u = units[unitId];
-                const auto& pos = u->pos();
+                if(!u) continue;
+                const auto& pos = u->fPos;
                 const auto iPos = pos.floor();
                 if(iPos.fY != y) continue;
                 if(iPos.fX != x) continue;
@@ -274,7 +308,6 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto displ = tilePosToPixel(pos);
                 const auto idispl = displ.round();
                 mGamePainter.translate(idispl.fX, idispl.fY);
-                const int frame = std::round(resultTime - u->actionStartTime());
                 auto& model = u->model();
                 model.incFrame(1.);
                 bool highlight = false;
@@ -342,10 +375,16 @@ bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mESCMenu) {
-            hideESCMenu();
+        if(mDeadMenu) {
+            mDeadMenu->deleteLater();
+            mDeadMenu = nullptr;
+            mServer->respawn(mClientId);
         } else {
-            showESCMenu();
+            if(mESCMenu) {
+                hideESCMenu();
+            } else {
+                showESCMenu();
+            }
         }
     }
     return true;
@@ -356,6 +395,35 @@ void eGameScreen::initializeTextures() {
     const int h = height();
     const auto tex = mGamePainter.initialize(w, h);
     setTexture(tex);
+}
+
+void eGameScreen::showDeadMenu() {
+    mDeadMenu = new eWidget(window());
+
+    const auto line1 = new eLabel(window());
+    line1->setHugeFontSize();
+    line1->setFontColor(eFontColor::redBlack);
+    line1->setText(eLanguage::text(5, 3));
+    line1->fitContent();
+    mDeadMenu->addWidget(line1);
+
+    const auto line2 = new eLabel(window());
+    line2->setHugeFontSize();
+    line2->setFontColor(eFontColor::redBlack);
+    line2->setText(eLanguage::text(5, 4));
+    line2->fitContent();
+    mDeadMenu->addWidget(line2);
+
+    const auto res = resolution();
+    const int p = res.hugePadding();
+    mDeadMenu->stackVertically(p);
+    mDeadMenu->fitContent();
+
+    line1->align(eAlignment::hcenter);
+    line2->align(eAlignment::hcenter);
+
+    addWidget(mDeadMenu);
+    mDeadMenu->align(eAlignment::center);
 }
 
 void eGameScreen::showESCMenu() {
@@ -424,9 +492,4 @@ eWalkable eGameScreen::walkable() const {
     return [this](const int x, const int y) {
         return mMap->walkable(x, y);
     };
-}
-
-void eGameScreen::initialize(const int charId, eUnit& u) {
-    const auto w = walkable();
-    u.intialize(w, charId);
 }

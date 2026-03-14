@@ -27,6 +27,8 @@
         <string id="0">Options</string>
         <string id="1">Save and exit game</string>
         <string id="2">Return to game</string>
+        <string id="3">You have died</string>
+        <string id="4">Press ESC to continue.</string>
     </group>
     <group id="6">
         <string id="0">Mummy</string>

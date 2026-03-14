@@ -10,6 +10,10 @@
 struct ESLAYERHELPERS_API ePoint {
     int fX;
     int fY;
+
+    ePoint operator/(const int div) const {
+        return {fX/div, fY/div};
+    }
 };
 
 inline bool operator==(const ePoint& p1, const ePoint& p2) {

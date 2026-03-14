@@ -8,7 +8,7 @@ void eSinglePlayerServer::initialize() {
 
 int eSinglePlayerServer::connect() {
     const int clientId = eServerUnit::sNextCharId++;
-    mClientHandlers[clientId] = std::make_shared<eServerClientHandler>();
+    mClientHandlers[clientId] = std::make_shared<eServerClientHandler>(clientId);
     return clientId;
 }
 
@@ -56,20 +56,26 @@ bool eSinglePlayerServer::moveTo(
     const int clientId, const ePointF& pos) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->moveTo(clientId, pos);
+    return h->moveTo(pos);
 }
 
 bool eSinglePlayerServer::attack(const int clientId,
                                  const int targetId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->attack(clientId, targetId);
+    return h->attack(targetId);
 }
 
 bool eSinglePlayerServer::stopAttack(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->stopAttack(clientId);
+    return h->stopAttack();
+}
+
+bool eSinglePlayerServer::respawn(const int clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->respawn();
 }
 
 eServerClientHandler*
