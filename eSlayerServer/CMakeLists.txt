@@ -41,3 +41,4 @@ target_compile_definitions(eSlayerServer
 
 target_link_libraries(eSlayerServer PUBLIC eSlayerHelpers)
 target_link_libraries(eSlayerServer PUBLIC eSlayerMapGenerator)
+target_link_libraries(eSlayerServer PUBLIC eSlayerNet)

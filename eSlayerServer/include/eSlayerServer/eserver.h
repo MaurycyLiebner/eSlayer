@@ -8,6 +8,11 @@
 
 #include <memory>
 
+struct eServerData {
+    std::string fName;
+    std::string fIp;
+};
+
 class ESLAYERSERVER_API eServer {
 public:
     virtual void initialize() = 0;
@@ -45,7 +50,7 @@ private:
 
 namespace eSlayerServer {
     ESLAYERSERVER_API std::shared_ptr<eServer>
-    generate(const std::string& name);
+    generate(const eServerData& data);
 }
 
 #endif // ESERVER_H

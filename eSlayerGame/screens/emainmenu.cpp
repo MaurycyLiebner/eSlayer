@@ -8,6 +8,7 @@ eMainMenu::eMainMenu(eMainWindow * const window) :
     eScreenBase(window) {}
 
 void eMainMenu::initialize(const eAction& singlePlayer,
+                           const eAction& tcpIpGame,
                            const eAction& settings,
                            const eAction& exitGame) {
     const auto res = resolution();
@@ -21,13 +22,18 @@ void eMainMenu::initialize(const eAction& singlePlayer,
     sp->setPressAction(singlePlayer);
     w->addWidget(sp);
 
-    const auto s = new eMainMenuButton(
+    const auto tcpIp = new eMainMenuButton(
         eLanguage::text(1, 1), window());
+    tcpIp->setPressAction(tcpIpGame);
+    w->addWidget(tcpIp);
+
+    const auto s = new eMainMenuButton(
+        eLanguage::text(1, 2), window());
     s->setPressAction(settings);
     w->addWidget(s);
 
     const auto eg = new eMainMenuButton(
-        eLanguage::text(1, 2), window());
+        eLanguage::text(1, 3), window());
     eg->setPressAction(exitGame);
     w->addWidget(eg);
 
@@ -36,6 +42,7 @@ void eMainMenu::initialize(const eAction& singlePlayer,
     w->fitContent();
 
     sp->align(eAlignment::hcenter);
+    tcpIp->align(eAlignment::hcenter);
     s->align(eAlignment::hcenter);
     eg->align(eAlignment::hcenter);
 

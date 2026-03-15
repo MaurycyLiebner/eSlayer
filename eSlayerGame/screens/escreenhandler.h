@@ -3,6 +3,8 @@
 
 #include "../echaracters.h"
 
+#include <eSlayerServer/eserver.h>
+
 #include <functional>
 
 class eMainWindow;
@@ -14,9 +16,16 @@ public:
     eScreenHandler(eMainWindow* const window);
 
     void showMainMenu();
-    void showCreateCharacterMenu();
-    void showChooseCharacterMenu();
-    void showGame(const eCharacter& c);
+    void showCreateOrChooseCharacterMenu(
+        const eServerData& serverData);
+    void showCreateCharacterMenu(
+        eServerData serverData);
+    void showChooseCharacterMenu(
+        eServerData serverData);
+    void showTcpIpGameMenu();
+    void showTcpIpJoinMenu();
+    void showGame(eServerData serverData,
+                  const eCharacter& c);
     void showSettings();
     void showLoadingScreen(const std::vector<eAction>& loading,
                            const eAction& finish);

@@ -7,13 +7,15 @@
 #include "esettingsmenu.h"
 #include "eloadingscreen.h"
 #include "egamescreen.h"
+#include "etcpipgamemenu.h"
+#include "etcpipjoinmenu.h"
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
 #include "../textures/eeffectstextures.h"
 #include "../textures/euitextures.h"
 
-#include <eSlayerServer/eserver.h>
+#include <eSlayerNet/etcpnetwork.h>
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
@@ -25,12 +27,12 @@ void eScreenHandler::showMainMenu() {
     w->resize(width, height);
 
     const auto singlePlayer = [this]() {
-        loadCharacters();
-        if(mCharacters.empty()) {
-            showCreateCharacterMenu();
-        } else {
-            showChooseCharacterMenu();
-        }
+        const eServerData serverData{"single_player", ""};
+        showCreateOrChooseCharacterMenu(serverData);
+    };
+
+    const auto tcpIpGame = [this]() {
+        showTcpIpGameMenu();
     };
 
     const auto settings = [this]() {
@@ -41,34 +43,46 @@ void eScreenHandler::showMainMenu() {
         mWindow->quit();
     };
     w->initialize(singlePlayer,
+                  tcpIpGame,
                   settings,
                   exitGame);
     mWindow->setWidget(w);
 }
 
-void eScreenHandler::showCreateCharacterMenu() {
+void eScreenHandler::showCreateOrChooseCharacterMenu(
+    const eServerData& serverData) {
+    loadCharacters();
+    if(mCharacters.empty()) {
+        showCreateCharacterMenu(serverData);
+    } else {
+        showChooseCharacterMenu(serverData);
+    }
+}
+
+void eScreenHandler::showCreateCharacterMenu(eServerData serverData) {
     const auto w = new eCreateCharacterMenu(mWindow);
     const int width = mWindow->width();
     const int height = mWindow->height();
     w->resize(width, height);
 
-    const auto exit = [this]() {
-        showChooseCharacterMenu();
+    const auto exit = [this, serverData]() {
+        showChooseCharacterMenu(serverData);
     };
 
-    const auto ok = [this](const std::string& name,
-                           const bool hardcore) {
+    const auto ok = [this, serverData](
+                        const std::string& name,
+                        const bool hardcore) {
         const bool c = mCharacters.contains(name);
         if(c) return;
         mCharacters.add(name, hardcore);
-        showGame(mCharacters.get(name));
+        showGame(serverData, mCharacters.get(name));
     };
 
     w->initialize(exit, ok);
     mWindow->setWidget(w);
 }
 
-void eScreenHandler::showChooseCharacterMenu() {
+void eScreenHandler::showChooseCharacterMenu(eServerData serverData) {
     const auto w = new eChooseCharacterMenu(mWindow);
     const int width = mWindow->width();
     const int height = mWindow->height();
@@ -78,19 +92,19 @@ void eScreenHandler::showChooseCharacterMenu() {
         showMainMenu();
     };
 
-    const auto ok = [this](const std::string& name) {
+    const auto ok = [this, serverData](const std::string& name) {
         const bool c = mCharacters.contains(name);
         if(!c) return;
-        showGame(mCharacters.get(name));
+        showGame(serverData, mCharacters.get(name));
     };
 
-    const auto createCharacter = [this]() {
-        showCreateCharacterMenu();
+    const auto createCharacter = [this, serverData]() {
+        showCreateCharacterMenu(serverData);
     };
 
-    const auto deleteCharacter = [this](const std::string& name) {
+    const auto deleteCharacter = [this, serverData](const std::string& name) {
         mCharacters.remove(name);
-        showChooseCharacterMenu();
+        showChooseCharacterMenu(serverData);
     };
 
     w->initialize(exit, ok,
@@ -100,7 +114,51 @@ void eScreenHandler::showChooseCharacterMenu() {
     mWindow->setWidget(w);
 }
 
-void eScreenHandler::showGame(const eCharacter& c) {
+void eScreenHandler::showTcpIpGameMenu() {
+    const auto w = new eTcpIpGameMenu(mWindow);
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    w->resize(width, height);
+
+    const auto host = [this]() {
+        const auto ip = eTCPNetwork::sGetActiveLanIP();
+        const eServerData serverData{"tcp_ip_host", ip};
+        showCreateOrChooseCharacterMenu(serverData);
+    };
+
+    const auto join = [this]() {
+        showTcpIpJoinMenu();
+    };
+
+    const auto exit = [this]() {
+        showMainMenu();
+    };
+
+    w->initialize(host, join, exit);
+    mWindow->setWidget(w);
+}
+
+void eScreenHandler::showTcpIpJoinMenu() {
+    const auto w = new eTcpIpJoinMenu(mWindow);
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    w->resize(width, height);
+
+    const auto join = [this](const std::string& ip) {
+        const eServerData serverData{"tcp_ip_join", ip};
+        showCreateOrChooseCharacterMenu(serverData);
+    };
+
+    const auto exit = [this]() {
+        showTcpIpGameMenu();
+    };
+
+    w->initialize(join, exit);
+    mWindow->setWidget(w);
+}
+
+void eScreenHandler::showGame(eServerData serverData,
+                              const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
     const auto map = std::make_shared<std::shared_ptr<eMap>>();
     const auto clientId = std::make_shared<int>();
@@ -119,8 +177,8 @@ void eScreenHandler::showGame(const eCharacter& c) {
 
     std::vector<eAction> loading;
     const auto r = mWindow->renderer();
-    loading.emplace_back([server]() {
-        *server = eSlayerServer::generate("single_player");
+    loading.emplace_back([server, serverData]() {
+        *server = eSlayerServer::generate(serverData);
         (*server)->initialize();
     });
     loading.emplace_back([server, clientId]() {

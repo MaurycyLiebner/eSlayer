@@ -2,8 +2,9 @@
 <strings name="eSlayer textfile" indexWithCounts="true">
     <group id="1">
         <string id="0">Single player</string>
-        <string id="1">Settings</string>
-        <string id="2">Exit game</string>
+        <string id="1">TCP/IP game</string>
+        <string id="2">Settings</string>
+        <string id="3">Exit game</string>
     </group>
     <group id="2">
         <string id="0">Exit</string>
@@ -39,5 +40,14 @@
         <string id="1">Mana</string>
         <string id="2">Stamina</string>
         <string id="3">Experience</string>
+    </group>
+    <group id="8">
+        <string id="0">Host game</string>
+        <string id="1">Join game</string>
+        <string id="2">Cancel</string>
+        <string id="3">Your IP address is:</string>
+        <string id="4">Enter host IP to join game</string>
+        <string id="5">Join</string>
+        <string id="6">Cancel</string>
     </group>
 </strings>

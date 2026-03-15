@@ -10,6 +10,9 @@ public:
     void setChangeAction(const eAction a);
 
     void setMaxLength(const int max);
+
+    void allow(const char c);
+    void disallow(const char c);
 protected:
     bool mouseMoveEvent(const eMouseEvent& e) override;
     bool mouseEnterEvent(const eMouseEvent& e) override;
@@ -23,6 +26,7 @@ private:
     eAction mChangeAction;
     int mMaxLength = 15;
     int mTime = 0;
+    std::string mAllowed = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-_1234567890";
 };
 
 #endif // ELINEEDIT_H

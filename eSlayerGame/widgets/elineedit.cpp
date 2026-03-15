@@ -19,6 +19,19 @@ void eLineEdit::setMaxLength(const int max) {
     setText(tmp);
 }
 
+void eLineEdit::allow(const char c) {
+    mAllowed.push_back(c);
+}
+
+void eLineEdit::disallow(const char c) {
+    std::string allowed;
+    for(const auto cc : mAllowed) {
+        if(cc == c) continue;
+        allowed.push_back(cc);
+    }
+    std::swap(mAllowed, allowed);
+}
+
 bool eLineEdit::mouseMoveEvent(const eMouseEvent& e) {
     (void)e;
     return true;
@@ -119,15 +132,26 @@ bool eLineEdit::keyPressEvent(const eKeyPressEvent& e) {
     } else if(k == SDL_Scancode::SDL_SCANCODE_Z) {
         add = "z";
     } else if(k == SDL_Scancode::SDL_SCANCODE_MINUS) {
-        add = "-";
+        if(e.shiftPressed()) {
+            add = "_";
+        } else {
+            add = "-";
+        }
     } else if(k == SDL_Scancode::SDL_SCANCODE_SPACE) {
         add = " ";
+    } else if(k == SDL_Scancode::SDL_SCANCODE_PERIOD) {
+        add = ".";
+    } else if(k == SDL_Scancode::SDL_SCANCODE_SEMICOLON) {
+        add = ":";
+    } else if(k == SDL_Scancode::SDL_SCANCODE_SLASH) {
+        add = "/";
     } else {
         return false;
     }
     if(e.shiftPressed()) {
         std::transform(add.begin(), add.end(), add.begin(), ::toupper);
     }
+    if(mAllowed.find(add) == std::string::npos) return true;
     setText(txt + add);
     if(mChangeAction) mChangeAction();
     return true;

@@ -127,6 +127,8 @@ add_executable(eSlayerGame main.cpp
     emaincharaction.h emaincharaction.cpp
     widgets/gameScreen/ehealthindicator.h widgets/gameScreen/ehealthindicator.cpp
     widgets/gameScreen/eplayerhealthindicator.h widgets/gameScreen/eplayerhealthindicator.cpp
+    screens/etcpipgamemenu.h screens/etcpipgamemenu.cpp
+    screens/etcpipjoinmenu.h screens/etcpipjoinmenu.cpp
 )
 
 include(GNUInstallDirs)

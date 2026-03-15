@@ -8,6 +8,7 @@ public:
     eMainMenu(eMainWindow* const window);
 
     void initialize(const eAction& singlePlayer,
+                    const eAction& tcpIpGame,
                     const eAction& settings,
                     const eAction& exitGame);
 };
