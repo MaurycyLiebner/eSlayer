@@ -21,7 +21,7 @@ add_library(eSlayerNet SHARED
     include/eSlayerNet/eslayernetexport.h
     include/eSlayerNet/etcpnetwork.h
     src/etcpnetwork.cpp
-    include/eSlayerNet/epacket.h
+
 )
 
 target_include_directories(eSlayerNet

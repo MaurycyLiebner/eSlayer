@@ -3,10 +3,10 @@
 
 #include "eslayernetexport.h"
 
-#include "epacket.h"
-
 #include <SDL3/SDL.h>
 #include <SDL3_net/SDL_net.h>
+
+#include <eSlayerHelpers/epacket.h>
 
 #include <vector>
 #include <queue>

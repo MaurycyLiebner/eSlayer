@@ -142,6 +142,11 @@ void eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
     memcpy(buf.data() + sizeof(uint32_t), p.data(), size);
 
     NET_WriteToStreamSocket(sock, buf.data(), buf.size());
+
+    for(int i = 0; i < size + 1; i++) {
+        std::cout << int(buf[i]);
+    }
+    std::cout << std::endl;
 }
 
 void eTCPNetwork::sendToServer(const ePacket& p) {

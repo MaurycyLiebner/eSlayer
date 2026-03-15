@@ -66,6 +66,7 @@ add_library(eSlayerHelpers SHARED
     src/erunsettings.cpp
     include/eSlayerHelpers/egamedir.h
     src/egamedir.cpp
+    include/eSlayerHelpers/epacket.h
 )
 
 target_include_directories(eSlayerHelpers

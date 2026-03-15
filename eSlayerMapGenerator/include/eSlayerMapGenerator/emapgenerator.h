@@ -16,21 +16,23 @@ struct ESLAYERMAPGENERATOR_API eObjectType {
 };
 
 struct ESLAYERMAPGENERATOR_API eTile {
-    int fTerrainType;
-    int fTileType;
+    int32_t fTerrainType;
+    int32_t fTileType;
 };
 
 struct ESLAYERMAPGENERATOR_API eObject {
-    int fObjectType;
-    int fTileType;
+    int32_t fObjectType;
+    int32_t fTileType;
 
-    int fTileX;
-    int fTileY;
+    int32_t fTileX;
+    int32_t fTileY;
 };
+
+class ePacket;
 
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
-  public:
+public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
 
@@ -45,11 +47,14 @@ class ESLAYERMAPGENERATOR_API eMap {
     objectTypes() const { return mObjectTypes; }
 
     bool walkable(const int x, const int y) const;
-  private:
+
+    void write(ePacket& p) const;
+    void read(ePacket& p);
+private:
     void updateObjectsMap();
 
-    int mWidth = 0;
-    int mHeight = 0;
+    int32_t mWidth = 0;
+    int32_t mHeight = 0;
     std::vector<std::vector<eTile>> mTiles;
     std::vector<eObject> mObjects;
     std::vector<std::vector<std::vector<int>>> mObjectsMap;

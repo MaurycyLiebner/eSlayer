@@ -29,7 +29,7 @@ public:
     virtual bool
     requestUnits(const int clientId) = 0;
 
-    virtual int
+    virtual bool
     receiveUnits(const int clientId,
                  std::vector<eUnitData>& units,
                  double& resultTime) = 0;

@@ -1,4 +1,6 @@
-#include "../include/eSlayerMapGenerator/emapgenerator.h"
+#include "eSlayerMapGenerator/emapgenerator.h"
+
+#include <eSlayerHelpers/epacket.h>
 
 class eMapGenerator {
 public:
@@ -36,6 +38,80 @@ bool eMap::walkable(const int x, const int y) const {
     }
 }
 
+void eMap::write(ePacket& p) const {
+    const int32_t nTerrTypes = mTerrainTypes.size();
+    p << nTerrTypes;
+    for(const auto& terrType : mTerrainTypes) {
+        p << terrType.fName;
+    }
+
+    p << mWidth;
+    p << mHeight;
+    for(int y = 0; y < mHeight; y++) {
+        for(int x = 0; x < mWidth; x++) {
+            const auto& tile = mTiles[y][x];
+            p << tile.fTerrainType;
+            p << tile.fTileType;
+        }
+    }
+
+    const int32_t nObjTypes = mObjectTypes.size();
+    p << nObjTypes;
+    for(const auto& objType : mObjectTypes) {
+        p << objType.fName;
+    }
+
+    const int32_t nObjs = mObjects.size();
+    p << nObjs;
+    for(const auto& obj : mObjects) {
+        p << obj.fObjectType;
+        p << obj.fTileType;
+        p << obj.fTileX;
+        p << obj.fTileY;
+    }
+}
+
+void eMap::read(ePacket& p) {
+    int32_t nTerrTypes;
+    p >> nTerrTypes;
+    for(int i = 0; i < nTerrTypes; i++) {
+        auto& terrType = mTerrainTypes.emplace_back();
+        p >> terrType.fName;
+    }
+
+    p >> mWidth;
+    p >> mHeight;
+    mTiles.reserve(mHeight);
+    for(int y = 0; y < mHeight; y++) {
+        auto& row = mTiles.emplace_back();
+        row.reserve(mWidth);
+        for(int x = 0; x < mWidth; x++) {
+            auto& tile = row.emplace_back();
+            p >> tile.fTerrainType;
+            p >> tile.fTileType;
+        }
+    }
+
+    int32_t nObjTypes;
+    p >> nObjTypes;
+    for(int i = 0; i < nObjTypes; i++) {
+        auto& objType = mObjectTypes.emplace_back();
+        p >> objType.fName;
+    }
+
+    int32_t nObjs;
+    p >> nObjs;
+    for(int i = 0; i < nObjs; i++) {
+        auto& obj = mObjects.emplace_back();
+        p >> obj.fObjectType;
+        p >> obj.fTileType;
+        p >> obj.fTileX;
+        p >> obj.fTileY;
+    }
+
+    updateObjectsMap();
+}
+
 void eMap::updateObjectsMap() {
     mObjectsMap.clear();
 
@@ -62,6 +138,7 @@ eMapGenerator::generate(const std::string& name) const {
         terrType.fName = "town_floor";
         const int w = 80;
         const int h = 80;
+        result->mTiles.reserve(h);
         for(int y = 0; y < h; y++) {
             auto& row = result->mTiles.emplace_back();
             row.reserve(w);

@@ -1,32 +1,23 @@
 #ifndef EPACKET_H
 #define EPACKET_H
 
-#include "eslayernetexport.h"
+#include "eslayerhelpersexport.h"
 
-#include <vector>
-#include <string>
-#include <cstring>
-#include <stdexcept>
+#include "eSlayerHelpers/eexceptions.h"
+
 #include <cstdint>
+#include <cstring>
+#include <string>
+#include <vector>
 
-class ESLAYERNET_API ePacket {
+class ESLAYERHELPERS_API ePacket {
 public:
-    ePacket(const uint16_t id = 0) {
-        write(id);
-    }
-
     const uint8_t* data() const { return buffer.data(); }
     size_t size() const { return buffer.size(); }
 
     void setData(const uint8_t* d, const size_t s) {
         buffer.assign(d, d + s);
         readPos = 0;
-    }
-
-    uint16_t getID() const {
-        uint16_t id;
-        memcpy(&id, buffer.data(), sizeof(uint16_t));
-        return id;
     }
 
     template<typename T>
@@ -42,10 +33,10 @@ public:
     }
 
     ePacket& operator<<(const std::string& str) {
-        uint32_t len = str.size();
+        const uint32_t len = str.size();
         write(len);
 
-        size_t pos = buffer.size();
+        const size_t pos = buffer.size();
         buffer.resize(pos + len);
         memcpy(buffer.data() + pos, str.data(), len);
 
@@ -56,8 +47,9 @@ public:
         uint32_t len;
         read(len);
 
-        if(readPos + len > buffer.size())
-            throw std::runtime_error("ePacket overflow");
+        if(readPos + len > buffer.size()) {
+            eRuntimeThrow("ePacket overflow");
+        }
 
         str.assign((char*)buffer.data() + readPos, len);
         readPos += len;
@@ -68,15 +60,16 @@ public:
 private:
     template<typename T>
     void write(const T& v) {
-        size_t pos = buffer.size();
+        const size_t pos = buffer.size();
         buffer.resize(pos + sizeof(T));
         memcpy(buffer.data() + pos, &v, sizeof(T));
     }
 
     template<typename T>
     void read(T& v) {
-        if(readPos + sizeof(T) > buffer.size())
-            throw std::runtime_error("ePacket overflow");
+        if(readPos + sizeof(T) > buffer.size()) {
+            eRuntimeThrow("ePacket overflow");
+        }
 
         memcpy(&v, buffer.data() + readPos, sizeof(T));
         readPos += sizeof(T);

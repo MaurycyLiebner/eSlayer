@@ -28,6 +28,10 @@ add_library(eSlayerServer SHARED
     src/eunitactionbase.h src/eunitactionbase.cpp
     src/eblockaction.h src/eblockaction.cpp
     src/eclientaction.h src/eclientaction.cpp
+    src/elocalserver.h src/elocalserver.cpp
+    src/etcpiphost.h src/etcpiphost.cpp
+    src/epacketdata.h
+    src/etcpipjoin.h src/etcpipjoin.cpp
 
 )
 

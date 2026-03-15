@@ -19,3 +19,5 @@ target_include_directories(eSlayerMapGenerator
 target_compile_definitions(eSlayerMapGenerator
     PRIVATE ESLAYERMAPGENERATOR_EXPORTS
 )
+
+target_link_libraries(eSlayerMapGenerator PUBLIC eSlayerHelpers)

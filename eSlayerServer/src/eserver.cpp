@@ -1,6 +1,8 @@
 #include "../include/eSlayerServer/eserver.h"
 
 #include "esingleplayerserver.h"
+#include "etcpiphost.h"
+#include "etcpipjoin.h"
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -15,72 +17,72 @@ std::shared_ptr<eServer> eSlayerServer::generate(
     if(data.fName == "single_player") {
         return std::make_shared<eSinglePlayerServer>();
     } else if(data.fName == "tcp_ip_host") {
-        std::cout << "Host initialization..." << std::endl;
+        // std::cout << "Host initialization..." << std::endl;
 
-        eTCPNetwork net;
+        // eTCPNetwork net;
 
-        net.init();
-        net.startServer(TCP_IP_PORT);
+        // net.init();
+        // net.startServer(TCP_IP_PORT);
 
-        while(true) {
-            net.update();
+        // while(true) {
+        //     net.update();
 
-            eNetPacket pkt;
+        //     eNetPacket pkt;
 
-            while(net.pollPacket(pkt)) {
-                uint16_t type;
-                pkt.fPacket >> type;
+        //     while(net.pollPacket(pkt)) {
+        //         uint16_t type;
+        //         pkt.fPacket >> type;
 
-                if(type == PACKET_CHAT) {
-                    std::string text;
-                    pkt.fPacket >> text;
+        //         if(type == PACKET_CHAT) {
+        //             std::string text;
+        //             pkt.fPacket >> text;
 
-                    std::cout << "Client "
-                              << pkt.fClientID
-                              << ": " << text << std::endl;
+        //             std::cout << "Client "
+        //                       << pkt.fClientID
+        //                       << ": " << text << std::endl;
 
-                    ePacket reply(PACKET_CHAT);
-                    reply << std::string("Hello client!");
+        //             ePacket reply(PACKET_CHAT);
+        //             reply << std::string("Hello client!");
 
-                    net.broadcast(reply);
-                }
-            }
+        //             net.broadcast(reply);
+        //         }
+        //     }
 
-            SDL_Delay(16);
-        }
-        return std::make_shared<eSinglePlayerServer>();
+        //     SDL_Delay(16);
+        // }
+        return std::make_shared<eTcpIpHost>();
     } else if(data.fName == "tcp_ip_join") {
-        eTCPNetwork net;
+        // eTCPNetwork net;
 
-        net.init();
-        net.connect(data.fIp.data(), TCP_IP_PORT);
+        // net.init();
+        // net.connect(data.fIp.data(), TCP_IP_PORT);
 
-        ePacket p(PACKET_CHAT);
-        p << std::string("Hello server!");
+        // ePacket p(PACKET_CHAT);
+        // p << std::string("Hello server!");
 
-        net.sendToServer(p);
+        // net.sendToServer(p);
 
-        while(true) {
-            net.update();
+        // while(true) {
+        //     net.update();
 
-            eNetPacket pkt;
+        //     eNetPacket pkt;
 
-            while(net.pollPacket(pkt)) {
-                uint16_t type;
-                pkt.fPacket >> type;
+        //     while(net.pollPacket(pkt)) {
+        //         uint16_t type;
+        //         pkt.fPacket >> type;
 
-                if(type == PACKET_CHAT) {
-                    std::string text;
-                    pkt.fPacket >> text;
+        //         if(type == PACKET_CHAT) {
+        //             std::string text;
+        //             pkt.fPacket >> text;
 
-                    std::cout << "Server: "
-                              << text << std::endl;
-                }
-            }
+        //             std::cout << "Server: "
+        //                       << text << std::endl;
+        //         }
+        //     }
 
-            SDL_Delay(16);
-        }
-        return std::make_shared<eSinglePlayerServer>();
+        //     SDL_Delay(16);
+        // }
+        return std::make_shared<eTcpIpJoin>(data.fIp);
     }
     return nullptr;
 }

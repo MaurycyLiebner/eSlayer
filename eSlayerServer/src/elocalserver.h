@@ -1,0 +1,48 @@
+#ifndef ELOCALSERVER_H
+#define ELOCALSERVER_H
+
+#include "eSlayerServer/eserver.h"
+
+#include "eserverclienthandler.h"
+#include "eserverarea.h"
+
+#include <map>
+
+class eLocalServer : public eServer {
+public:
+    void initialize() override;
+
+    int connect() override;
+    bool disconnect(const int clientId) override;
+
+    void increment(const double by) override;
+
+    std::shared_ptr<eMap>
+    requestMap(const int clientId,
+               const std::string& name) override;
+
+    bool requestUnits(const int clientId) override;
+
+    bool receiveUnits(const int clientId,
+                      std::vector<eUnitData>& units,
+                      double& resultTime) override;
+
+    bool moveTo(const int clientId,
+                const ePointF& pos) override;
+
+    bool attack(const int clientId,
+                const int targetId) override;
+    bool stopAttack(const int clientId) override;
+
+    bool respawn(const int clientId) override;
+public:
+    eServerClientHandler* clientHandler(const int clientId);
+
+    double mTime = 0.;
+
+    std::vector<std::shared_ptr<eServerArea>> mAreas;
+    std::map<std::string, std::shared_ptr<eMap>> mMaps;
+    std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
+};
+
+#endif // ELOCALSERVER_H
