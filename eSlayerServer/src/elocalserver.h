@@ -8,9 +8,11 @@
 
 #include <map>
 
+struct eAttackData;
+
 class eLocalServer : public eServer {
 public:
-    void initialize() override;
+    bool initialize() override;
 
     int connect() override;
     bool disconnect(const int clientId) override;
@@ -21,17 +23,17 @@ public:
     requestMap(const int clientId,
                const std::string& name) override;
 
-    bool requestUnits(const int clientId) override;
+    bool requestData(const int clientId) override;
 
-    bool receiveUnits(const int clientId,
-                      std::vector<eUnitData>& units,
-                      double& resultTime) override;
+    bool receiveData(const int clientId,
+                     eRequestData& data,
+                     double& resultTime) override;
 
-    bool moveTo(const int clientId,
-                const ePointF& pos) override;
+    bool changeState(const int clientId,
+                     const eUnitData& u) override;
 
     bool attack(const int clientId,
-                const int targetId) override;
+                const eAttackData& target) override;
     bool stopAttack(const int clientId) override;
 
     bool respawn(const int clientId) override;
@@ -40,7 +42,7 @@ public:
 
     double mTime = 0.;
 
-    std::vector<std::shared_ptr<eServerArea>> mAreas;
+    std::map<std::string, std::shared_ptr<eServerArea>> mAreas;
     std::map<std::string, std::shared_ptr<eMap>> mMaps;
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 };

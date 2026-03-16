@@ -13,14 +13,28 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         if(x == 40) x += 20;
         for(int y = 24; y < 75; y++) {
             if(y == 40) y += 20;
-            const int typeId = eRand::rand() % 2;
-            const std::string name = typeId == 0 ? "mummy" : "wendigo";
-            const auto data = eServerCharData::get(name);
+            const int typeId = 2 + eRand::rand() % 2;
+            const auto data = eServerCharData::get(typeId);
+            const auto name = data->name();
+            eModelParts modelParts;
+            if(name == "mummy") {
+                modelParts = {
+                    {"mummy", "whole"}
+                };
+            } else if(name == "wendigo") {
+                modelParts = {
+                    {"wendigo", "whole"}
+                };
+            } else {
+                continue;
+            }
+            const auto cmodelParts = data->compress(modelParts);
             const auto u = std::make_shared<eServerUnit>(*data);
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
             u->fTypeId = typeId;
+            u->fModelParts = cmodelParts;
             u->fHealth = 100;
             u->fMaxHealth = 100;
             u->fRadius = data->radius();
@@ -62,22 +76,25 @@ void eServerArea::increment(const double by) {
     for(const int i : mClientIds) {
         const auto u = unit(i);
         if(!u) continue;
-        const auto area = unitArea(*u);
-        clientAreas[i] = area;
+        auto& oldArea = mClientAreas[i];
+        const auto newArea = unitArea(*u);
+        if(oldArea != newArea) {
+            mUnitAreas[oldArea].erase(i);
+            mUnitAreas[newArea].emplace(i);
+            oldArea = newArea;
+        }
+        clientAreas[i] = newArea;
     }
 
     std::set<eUnitTile> unitTiles;
     for(const auto& clientAreaP : clientAreas) {
         const auto& clientArea = clientAreaP.second;
-        const int iMax = mUnits.size();
-        for(int i = 0; i < iMax; i++) {
-            for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
-                for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
-                    const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
-                    const auto it = mUnitAreas.find(area);
-                    if(it == mUnitAreas.end()) continue;
-                    unitTiles.emplace(area);
-                }
+        for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
+            for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
+                const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
+                const auto it = mUnitAreas.find(area);
+                if(it == mUnitAreas.end()) continue;
+                unitTiles.emplace(area);
             }
         }
     }
@@ -136,23 +153,30 @@ void eServerArea::addClient(
     const int clientId, const ePointF& pos) {
     mClientIds.emplace_back(clientId);
     mUnitIdMap[clientId] = mUnits.size();
-    const std::string name = "pal";
-    const auto data = eServerCharData::get(name);
+    const int typeId = 1;
+    const auto data = eServerCharData::get(typeId);
+    const eModelParts modelParts {
+        {"whole", "light"}
+    };
     const auto u = std::make_shared<eServerUnit>(*data);
     u->fCharId = clientId;
+    u->fTypeId = typeId;
     u->fRadius = data->radius();
     u->fAnim = data->animId("stand");
     u->fAnimId = 0;
+    u->fAnimSpeed = 1.;
     u->fTeamId = 0;
     u->fPos = pos;
     u->fMaxHealth = 100;
     u->fHealth = 100;
     u->fActionTime = 0.;
+    u->fModelParts = data->compress(modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     mUnits.emplace_back(u);
     const auto area = unitArea(*u);
     mUnitAreas[area].emplace(clientId);
+    mClientAreas[clientId] = area;
 }
 
 std::shared_ptr<eServerUnit>

@@ -6,12 +6,13 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/etilesiterator.h"
 #include "../textures/euitextures.h"
-#include "../widgets/gameScreen/eescmenubutton.h"
-#include "../widgets/gameScreen/eunitindicator.h"
-#include "../widgets/gameScreen/eplayerhealthindicator.h"
-#include "../widgets/ecolors.h"
 #include "../widgets/echeckbutton.h"
+#include "../widgets/ecolors.h"
+#include "../widgets/gameScreen/eescmenubutton.h"
+#include "../widgets/gameScreen/eplayerhealthindicator.h"
+#include "../widgets/gameScreen/eunitindicator.h"
 
+#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
 
 eGameScreen::eGameScreen(eMainWindow* const window) :
@@ -202,13 +203,14 @@ void eGameScreen::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
     mServer->increment(1.);
-    mServer->requestUnits(mClientId);
-    std::vector<eUnitData> units;
+    mServer->requestData(mClientId);
+    eRequestData data;
     double resultTime;
     const auto r = renderer();
-    const bool b = mServer->receiveUnits(
-        mClientId, units, resultTime);
+    const bool b = mServer->receiveData(
+        mClientId, data, resultTime);
     if(b) {
+        const auto& units = data.fUnits;
         bool aggressive = false;
         std::set<int> present;
         for(const auto& u : units) {
@@ -216,6 +218,10 @@ void eGameScreen::paintEvent(ePainter& p) {
             present.emplace(charId);
             if(charId == mClientId) {
                 if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
+                    if(mDeadMenu) {
+                        mDeadMenu->deleteLater();
+                        mDeadMenu = nullptr;
+                    }
                     mMainChar->fPos = u.fPos;
                     mMainAction.setPos(u.fPos);
                     mMainAction.stop();
@@ -229,9 +235,11 @@ void eGameScreen::paintEvent(ePainter& p) {
                 }
                 mMainChar->fMaxHealth = u.fMaxHealth;
                 mMainChar->fActionTime = u.fActionTime;
-                mMainChar->fAnim = u.fAnim;
-                mMainChar->fAnimId = u.fAnimId;
-                mMainChar->fAnimSpeed = u.fAnimSpeed;
+                if(u.fAnimId > mMainChar->fAnimId) {
+                    mMainChar->fAnim = u.fAnim;
+                    mMainChar->fAnimId = u.fAnimId;
+                    mMainChar->fAnimSpeed = u.fAnimSpeed;
+                }
                 mHealthIndicator->setValue(u.fHealth);
                 mHealthIndicator->setRange(0, u.fMaxHealth);
                 mStaminaIndicator->setValue(mMainAction.stamina());
@@ -240,20 +248,10 @@ void eGameScreen::paintEvent(ePainter& p) {
             }
             const auto it = mUnitIndexMap.find(charId);
             if(it == mUnitIndexMap.end()) {
-                std::shared_ptr<eCharModel> unitModel;
-                if(u.fTypeId == 0) {
-                    const eCharTextures::eModelParts modelParts {
-                        {"mummy", "whole"}
-                    };
-                    const auto texs = eCharsTextures::get("mummy");
-                    unitModel = texs->generateModel(modelParts, r);
-                } else {
-                    const eCharTextures::eModelParts modelParts {
-                        {"wendigo", "whole"}
-                    };
-                    const auto texs = eCharsTextures::get("wendigo");
-                    unitModel = texs->generateModel(modelParts, r);
-                }
+                const auto texs = eCharsTextures::get(u.fTypeId);
+                const auto modelParts = texs->decompress(u.fModelParts);
+                const auto unitModel = texs->generateModel(modelParts, r);
+
                 const auto unit = std::make_shared<eUnit>();
                 unit->fRadius = u.fRadius;
                 reinterpret_cast<eUnitData&>(*unit) = u;
@@ -302,7 +300,7 @@ void eGameScreen::paintEvent(ePainter& p) {
     }
 
     if(!mESCMenu && !mDeadMenu) {
-        mServer->moveTo(mClientId, characterPos());
+        mServer->changeState(mClientId, *mMainChar);
 
         const auto mouseTilePos = pixelToTilePos(mMousePos);
         mMainAction.increment(mMousePressed, mouseTilePos, 1.);
@@ -453,8 +451,6 @@ bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     if(e.key() == SDL_SCANCODE_ESCAPE) {
         if(mDeadMenu) {
-            mDeadMenu->deleteLater();
-            mDeadMenu = nullptr;
             mServer->respawn(mClientId);
         } else {
             if(mESCMenu) {

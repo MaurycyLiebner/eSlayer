@@ -3,60 +3,57 @@
 #include "eclientaction.h"
 
 #include <eSlayerHelpers/echardata.h>
+#include <eSlayerHelpers/eattackdata.h>
 
 eServerClientHandler::eServerClientHandler(const int clientId) :
     mClientId(clientId) {}
 
-bool eServerClientHandler::requestUnits() {
-    if(mArea) {
-        const double time = mArea->time();
-        const auto unitsData = mArea->unitsData(mClientId);
-        mUnitRequests.emplace_back(eUnitsRequest{time, unitsData});
-    } else {
-        mUnitRequests.emplace_back(eUnitsRequest{0., {}});
-    }
+bool eServerClientHandler::requestData() {
     return true;
 }
 
-bool eServerClientHandler::receiveUnits(std::vector<eUnitData>& units,
-                                        double& resultTime,
-                                        const double clientTime) {
-    const int iMax = mUnitRequests.size();
-    for(int i = 0; i < iMax; i++) {
-        auto& r = mUnitRequests[i];
-        resultTime = r.fTime;
-        if(clientTime >= resultTime) {
-            std::swap(units, r.fUnits);
-            mUnitRequests.erase(mUnitRequests.begin() + i);
-            return true;
-        }
-    }
-    return false;
+bool eServerClientHandler::receiveData(eRequestData& data,
+                                       double& resultTime) {
+    if(!mArea) return false;
+    resultTime = mArea->time();
+    const auto unitsData = mArea->unitsData(mClientId);
+    data.fUnits = unitsData;
+    return true;
 }
 
-bool eServerClientHandler::moveTo(const ePointF& pos) {
+bool eServerClientHandler::changeState(
+    const eUnitData& u) {
     if(!mArea) return false;
     const auto unit = mArea->unit(mClientId);
-    if(unit) {
-        unit->fVel = ePointF::vector(pos, unit->fPos);
-        unit->fAngle = unit->fVel.angle();
-        unit->fPos = pos;
-    } else {
-        mArea->addClient(mClientId, pos);
-    }
+    if(!unit) return false;
+    unit->fPos = u.fPos;
+    unit->fVel = u.fVel;
+    unit->fAngle = u.fAngle;
+
+    unit->fAnim = u.fAnim;
+    unit->fAnimId = u.fAnimId;
+    unit->fAnimSpeed = u.fAnimSpeed;
+
+    unit->fActionTime = u.fActionTime;
     return true;
 }
 
-bool eServerClientHandler::attack(const int targetId) {
+bool eServerClientHandler::attack(const eAttackData& target) {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(!client) return false;
-    const auto target = mArea->unit(targetId);
-    if(!target) return false;
-
-    const auto a = client->action();
-    if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
-        ca->attack(target);
+    switch(target.fType) {
+    case eAttackTargetType::character: {
+        const auto u = mArea->unit(target.fChar);
+        if(!u) return false;
+        const auto a = client->action();
+        if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
+            ca->attack(u);
+        }
+    } break;
+    case eAttackTargetType::position: {
+        return false;
+    } break;
     }
 
     return true;
@@ -84,6 +81,13 @@ bool eServerClientHandler::respawn() {
     a->setChild(nullptr);
     client->fHealth = client->fMaxHealth;
     client->fPos = ePointF{0., 0.};
+    return true;
+}
 
+bool eServerClientHandler::spawn() {
+    if(!mArea) return false;
+    const auto client = mArea->unit(mClientId);
+    if(client) return false;
+    mArea->addClient(mClientId, ePointF{0., 0.});
     return true;
 }

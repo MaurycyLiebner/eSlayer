@@ -32,8 +32,10 @@
         <string id="4">Press ESC to continue.</string>
     </group>
     <group id="6">
-        <string id="0">Mummy</string>
-        <string id="1">Wendigo</string>
+        <string id="0">Barbarian</string>
+        <string id="1">Paladin</string>
+        <string id="2">Mummy</string>
+        <string id="3">Wendigo</string>
     </group>
     <group id="7">
         <string id="0">Life</string>
@@ -49,5 +51,8 @@
         <string id="4">Enter host IP to join game</string>
         <string id="5">Join</string>
         <string id="6">Cancel</string>
+    </group>
+    <group id="9">
+        <string id="0">Press ESC to continue.</string>
     </group>
 </strings>

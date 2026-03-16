@@ -13,7 +13,7 @@ void eCharacterButton::initialize(const eCharacter& c) {
     //     {"tr", "bare"}
     // };
     // const auto texs = eCharsTextures::get("char");
-    const eCharTextures::eModelParts modelParts {
+    const eModelParts modelParts {
         {"whole", "light"}
     };
     const auto texs = eCharsTextures::get("pal");

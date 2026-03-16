@@ -8,14 +8,21 @@
 
 #include <memory>
 
+class eRequestData;
+struct eAttackData;
+
 struct eServerData {
     std::string fName;
     std::string fIp;
 };
 
+using eServerFailureHandler = std::function<void(const std::string& msg)>;
+
 class ESLAYERSERVER_API eServer {
 public:
-    virtual void initialize() = 0;
+    void setFailureHandler(const eServerFailureHandler& h);
+
+    virtual bool initialize() = 0;
 
     virtual int connect() = 0;
     virtual bool disconnect(const int clientId) = 0;
@@ -27,25 +34,28 @@ public:
                const std::string& name) = 0;
 
     virtual bool
-    requestUnits(const int clientId) = 0;
+    requestData(const int clientId) = 0;
 
     virtual bool
-    receiveUnits(const int clientId,
-                 std::vector<eUnitData>& units,
-                 double& resultTime) = 0;
+    receiveData(const int clientId,
+                eRequestData& data,
+                double& resultTime) = 0;
 
     virtual bool
-    moveTo(const int clientId,
-           const ePointF& pos) = 0;
+    changeState(const int clientId,
+                const eUnitData& u) = 0;
     virtual bool
     attack(const int clientId,
-           const int targetId) = 0;
+           const eAttackData& target) = 0;
     virtual bool
     stopAttack(const int clientId) = 0;
 
     virtual bool
     respawn(const int clientId) = 0;
+protected:
+    void failed(const std::string& msg);
 private:
+    eServerFailureHandler mFailure;
 };
 
 namespace eSlayerServer {

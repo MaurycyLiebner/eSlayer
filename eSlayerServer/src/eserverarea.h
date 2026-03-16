@@ -45,9 +45,10 @@ private:
     mUnits;
     std::map<int, int> mUnitIdMap;
     std::map<eUnitTile, std::set<int>> mUnitAreas;
+    std::map<int, eUnitTile> mClientAreas;
     std::vector<int> mClientIds;
-    const int mUnitAreaDim = 5;
-    const int mUnitAreaMargin = 5;
+    const int mUnitAreaDim = 4;
+    const int mUnitAreaMargin = 3;
 
     std::shared_ptr<eMap> mMap;
 };

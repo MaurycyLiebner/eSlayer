@@ -1,7 +1,7 @@
 #include "ewidget.h"
 
 #include "../emainwindow.h"
-#include "../evectorhelpers.h"
+#include "../../eSlayerHelpers/include/eSlayerHelpers/evectorhelpers.h"
 
 #include <algorithm>
 

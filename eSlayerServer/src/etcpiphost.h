@@ -9,13 +9,13 @@ class eTcpIpHost : public eLocalServer {
 public:
     ~eTcpIpHost();
 
-    void initialize() override;
+    bool initialize() override;
 
     void increment(const double by) override;
 private:
     eTCPNetwork mNet;
     bool mInitialized = false;
-    // maps charId to eTCPNetwork client id
+    // maps eTCPNetwork client id to charId
     std::map<int, int> mClientIdMap;
 };
 

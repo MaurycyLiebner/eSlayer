@@ -1,6 +1,5 @@
 #include "eloadingscreen.h"
 
-#include "../emainwindow.h"
 #include "../widgets/eprogressbar.h"
 
 void eLoadingScreen::initialize(
@@ -12,8 +11,6 @@ void eLoadingScreen::initialize(
     const int width = inner->width();
     const int height = 4*res.largePadding();
 
-    const auto w = window();
-
     const auto pb = new eProgressBar(window());
     pb->resize(width, height);
     pb->setRange(0, loading.size());
@@ -21,10 +18,19 @@ void eLoadingScreen::initialize(
     pb->align(eAlignment::center);
 
     for(const auto& l : loading) {
-        w->addLoad([l, pb]() {
+        mLoading.push([l, pb]() {
             pb->setValue(pb->value() + 1);
             l();
         });
     }
-    w->addLoad(finish);
+    mLoading.push(finish);
+}
+
+void eLoadingScreen::paintEvent(ePainter& p) {
+    eScreenBase::paintEvent(p);
+    if(!mLoading.empty()) {
+        const auto l = mLoading.front();
+        mLoading.pop();
+        l();
+    }
 }

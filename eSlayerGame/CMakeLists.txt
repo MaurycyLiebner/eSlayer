@@ -53,7 +53,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(rapidcsv)
 
 add_executable(eSlayerGame main.cpp
-    evectorhelpers.cpp evectorhelpers.h
+
 
     audio/emusic.cpp audio/emusic.h
     audio/emusicvector.cpp audio/emusicvector.h
@@ -129,6 +129,7 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/eplayerhealthindicator.h widgets/gameScreen/eplayerhealthindicator.cpp
     screens/etcpipgamemenu.h screens/etcpipgamemenu.cpp
     screens/etcpipjoinmenu.h screens/etcpipjoinmenu.cpp
+    screens/eerrorscreen.h screens/eerrorscreen.cpp
 )
 
 include(GNUInstallDirs)

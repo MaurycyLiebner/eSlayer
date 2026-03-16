@@ -215,12 +215,6 @@ int eMainWindow::exec() {
         }
         mSlots.clear();
 
-        if(!mLoading.empty()) {
-            const auto l = mLoading.front();
-            mLoading.pop();
-            l();
-        }
-
         const auto fpsEnd = high_resolution_clock::now();
         const duration<double, std::milli> fpsElapsed = fpsEnd - fpsStart;
         const duration<double, std::milli> fpsDuration(1000./fpsClamp);
@@ -246,9 +240,5 @@ void eMainWindow::quit() {
 
 void eMainWindow::addSlot(const eSlot &slot) {
     mSlots.push_back(slot);
-}
-
-void eMainWindow::addLoad(const eAction& l) {
-    mLoading.push(l);
 }
 

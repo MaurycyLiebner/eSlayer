@@ -3,32 +3,36 @@
 
 #include "eserverarea.h"
 
+#include <eSlayerHelpers/erequestdata.h>
+
 #include <memory>
 
-struct eUnitsRequest {
+struct eAttackData;
+
+struct eDataRequest {
     double fTime;
-    std::vector<eUnitData> fUnits;
+    eRequestData fData;
 };
 
 class eServerClientHandler {
 public:
     eServerClientHandler(const int clientId);
 
-    bool requestUnits();
-    bool receiveUnits(std::vector<eUnitData>& units,
-                      double& resultTime,
-                      const double clientTime);
+    bool requestData();
+    bool receiveData(eRequestData& data,
+                     double& resultTime);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 
-    bool moveTo(const ePointF& pos);
-    bool attack(const int targetId);
+    bool changeState(const eUnitData& u);
+    bool attack(const eAttackData& target);
     bool stopAttack();
     bool respawn();
+    bool spawn();
 private:
     const int mClientId;
     std::shared_ptr<eServerArea> mArea;
-    std::vector<eUnitsRequest> mUnitRequests;
+    std::vector<eDataRequest> mDataRequests;
 };
 
 #endif // ESERVERCLIENTHANDLER_H

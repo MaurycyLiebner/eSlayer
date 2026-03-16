@@ -1,10 +1,11 @@
 #include "emaincharaction.h"
 
-#include "units/eunit.h"
-#include "textures/echartextures.h"
 #include "textures/echarstextures.h"
+#include "textures/echartextures.h"
+#include "units/eunit.h"
 
 #include <eSlayerServer/eserver.h>
+#include <eSlayerHelpers/eattackdata.h>
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
@@ -18,10 +19,11 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMovementHandler.setRadius(0.4);
     mMovementHandler.setMoveRandom(0.);
 
-    const eCharTextures::eModelParts modelParts {
+    const eModelParts modelParts {
         {"whole", "light"}
     };
-    mMainCharData = eCharsTextures::get("pal");
+    const int typeId = 1;
+    mMainCharData = eCharsTextures::get(typeId);
 
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
@@ -32,6 +34,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
     mMainChar->fRadius = 0.4;
+    mMainChar->fTypeId = typeId;
+    mMainChar->fModelParts = mMainCharData->compress(modelParts);
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
@@ -76,7 +80,8 @@ void eMainCharAction::increment(const bool mousePressed,
                                                  mMainChar->fPos);
                 model.setAngle(vec.angle());
                 const int targetId = mPressedUnit->fCharId;
-                mServer->attack(mClientId, targetId);
+                const eAttackData data(targetId);
+                mServer->attack(mClientId, data);
             }
         } else {
             stopAttack = true;
@@ -157,6 +162,11 @@ void eMainCharAction::increment(const bool mousePressed,
             }
         }
     }
+    if(mMainChar->fAnim != animId) {
+        mMainChar->fAnimId++;
+    }
+    mMainChar->fAnim = animId;
+    mMainChar->fAnimSpeed = 1.;
     model.setAnimation(animId, 1.);
 }
 

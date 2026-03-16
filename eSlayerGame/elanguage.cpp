@@ -25,7 +25,7 @@ const std::string &eLanguage::textImpl(const int g, const int s) {
     const auto& group = git->second;
     const auto sit = group.find(s);
     if(sit == group.end()) {
-        eRuntimeThrow("String id " + std::to_string(s) + " missing from text.xml.");
+        eRuntimeThrow("String id " + std::to_string(s) + " missing from group " + std::to_string(g) + " text.xml.");
     }
     return sit->second;
 }

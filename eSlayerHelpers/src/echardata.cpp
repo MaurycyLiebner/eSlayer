@@ -1,5 +1,9 @@
 #include "eSlayerHelpers/echardata.h"
 
+#include "eSlayerHelpers/eexceptions.h"
+#include "eSlayerHelpers/evectorhelpers.h"
+#include "eSlayerHelpers/epacket.h"
+
 const std::unordered_map<std::string, int eCharData::*>
 eCharData::sAnimFields = {
     {"stand", &eCharData::mStandId},
@@ -97,4 +101,58 @@ void eCharData::setAnimId(const std::string& name, const int id) {
     }
 
     mCustomIds[name] = id;
+}
+
+eCompressedModelParts
+eCharData::compress(const eModelParts& parts) {
+    eCompressedModelParts result;
+    for(const auto& group : mGroups) {
+        for(const auto& part : group) {
+            const auto it = parts.find(part.first);
+            if(it == parts.end()) {
+                eRuntimeThrow("Did not provide part \"" + part.first + "\" info.");
+            } else {
+                const auto& val = it->second;
+                const uint8_t id = eVectorHelpers::index(part.second, val);
+                result.fValues.push_back(id);
+            }
+        }
+    }
+    return result;
+}
+
+eModelParts
+eCharData::decompress(const eCompressedModelParts& parts) {
+    eModelParts result;
+    int id = 0;
+    const auto& vals = parts.fValues;
+    for(const auto& group : mGroups) {
+        for(const auto& part : group) {
+            if(id >= vals.size()) {
+                eRuntimeThrow("Part id \"" + std::to_string(id) + "\" out of range.");
+            }
+            const uint8_t partId = vals[id++];
+            result[part.first] = part.second[partId];
+        }
+    }
+    return result;
+}
+
+void eCompressedModelParts::read(ePacket& p) {
+    uint8_t nVals;
+    p >> nVals;
+    fValues.reserve(nVals);
+    for(uint8_t i = 0; i < nVals; i++) {
+        uint8_t val;
+        p >> val;
+        fValues.emplace_back(val);
+    }
+}
+
+void eCompressedModelParts::write(ePacket& p) const {
+    const uint8_t nVals = fValues.size();
+    p << nVals;
+    for(const uint8_t val : fValues) {
+        p << val;
+    }
 }

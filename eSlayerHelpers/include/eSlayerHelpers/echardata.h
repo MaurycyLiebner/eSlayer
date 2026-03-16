@@ -9,11 +9,24 @@
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
 
+class ePacket;
+
+using eModelParts = std::map<std::string, std::string>;
+struct eCompressedModelParts {
+    std::vector<uint8_t> fValues;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
+};
+
 class eCharData {
 public:
     eCharData();
 
     virtual void load(ordered_json& jdata);
+
+    void setTypeId(const int id) { mId = id; }
+    int typeId() const { return mId; }
 
     void setName(const std::string& name) { mName = name; }
     const std::string& name() const { return mName; }
@@ -30,10 +43,17 @@ public:
 
     const std::string& animClamp(const int id) const;
     const std::string& animClamp(const std::string& name) const;
+
+    eCompressedModelParts
+    compress(const eModelParts& parts);
+
+    eModelParts
+    decompress(const eCompressedModelParts& parts);
 protected:
     void setAnimId(const std::string& name, const int id);
 
     std::string mName;
+    int mId;
     int mDirs;
 
     double mRadius;

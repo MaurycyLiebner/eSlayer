@@ -7,6 +7,7 @@
 #include "esettingsmenu.h"
 #include "eloadingscreen.h"
 #include "egamescreen.h"
+#include "eerrorscreen.h"
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
 
@@ -177,8 +178,11 @@ void eScreenHandler::showGame(eServerData serverData,
 
     std::vector<eAction> loading;
     const auto r = mWindow->renderer();
-    loading.emplace_back([server, serverData]() {
+    loading.emplace_back([this, server, serverData]() {
         *server = eSlayerServer::generate(serverData);
+        (*server)->setFailureHandler([this](const std::string& msg) {
+            showErrorMsg(msg);
+        });
         (*server)->initialize();
     });
     loading.emplace_back([server, clientId]() {
@@ -245,6 +249,17 @@ void eScreenHandler::showLoadingScreen(
     const int height = mWindow->height();
     w->resize(width, height);
     w->initialize(loading, finish);
+    mWindow->setWidget(w);
+}
+
+void eScreenHandler::showErrorMsg(const std::string& msg) {
+    const auto w = new eErrorScreen(mWindow);
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    w->resize(width, height);
+    w->initialize(msg, [this]() {
+        showMainMenu();
+    });
     mWindow->setWidget(w);
 }
 

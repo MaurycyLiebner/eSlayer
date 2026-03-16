@@ -23,7 +23,6 @@ public:
     void quit();
 
     void addSlot(const eSlot& slot);
-    void addLoad(const eAction& l);
 
     int width() const { return resolution().width(); }
     int height() const { return resolution().height(); }
@@ -45,7 +44,6 @@ private:
     bool mFirstResolutionSetting = true;
 
     std::vector<eSlot> mSlots;
-    std::queue<eAction> mLoading;
 
     int mShiftPressed = 0;
     int mCtrlPressed = 0;

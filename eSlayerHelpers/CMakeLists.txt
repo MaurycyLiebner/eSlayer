@@ -67,6 +67,11 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/egamedir.h
     src/egamedir.cpp
     include/eSlayerHelpers/epacket.h
+    include/eSlayerHelpers/erequestdata.h
+    src/erequestdata.cpp
+    src/evectorhelpers.cpp
+    include/eSlayerHelpers/evectorhelpers.h
+    include/eSlayerHelpers/eattackdata.h
 )
 
 target_include_directories(eSlayerHelpers

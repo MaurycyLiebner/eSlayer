@@ -11,7 +11,6 @@ public:
 
     void load(ordered_json& jdata) override;
 
-    using eModelParts = std::map<std::string, std::string>;
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
         SDL_Renderer* const r);

@@ -48,6 +48,7 @@ bool eTCPNetwork::connect(const char* host, const uint16_t port) {
     if(!mClientSocket) return false;
 
     if(NET_WaitUntilConnected(mClientSocket, 5000) != NET_SUCCESS) {
+        mClientSocket = nullptr;
         return false;
     }
 
@@ -57,6 +58,7 @@ bool eTCPNetwork::connect(const char* host, const uint16_t port) {
 void eTCPNetwork::update() {
     if(mServer) {
         acceptClients();
+        removeDisconnectedClients();
         receiveFromClients();
     }
 
@@ -85,6 +87,21 @@ void eTCPNetwork::acceptClients() {
     }
 }
 
+void eTCPNetwork::removeDisconnectedClients() {
+    for(size_t i = 0; i < mClients.size();) {
+        const auto& c = mClients[i];
+
+        const auto status = NET_GetConnectionStatus(c.fSocket);
+
+        if(status != NET_SUCCESS) {
+            removeClient(c.fId);
+            continue;
+        }
+
+        i++;
+    }
+}
+
 void eTCPNetwork::receiveFromClients() {
     for(auto& c : mClients) {
         receivePackets(c.fSocket, c.fId, c.fRecvBuffer);
@@ -99,9 +116,9 @@ void eTCPNetwork::receiveFromServer() {
 void eTCPNetwork::receivePackets(NET_StreamSocket* const sock,
                                  const int id,
                                  std::vector<uint8_t>& buffer) {
-    uint8_t temp[4096];
+    uint8_t temp[65536];
 
-    int len = NET_ReadFromStreamSocket(sock, temp, sizeof(temp));
+    const int len = NET_ReadFromStreamSocket(sock, temp, sizeof(temp));
 
     if(len <= 0) return;
 
@@ -132,7 +149,7 @@ void eTCPNetwork::receivePackets(NET_StreamSocket* const sock,
     }
 }
 
-void eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
+bool eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
                              const ePacket& p) {
     const uint32_t size = (uint32_t)p.size();
 
@@ -141,31 +158,52 @@ void eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
     memcpy(buf.data(), &size, sizeof(uint32_t));
     memcpy(buf.data() + sizeof(uint32_t), p.data(), size);
 
-    NET_WriteToStreamSocket(sock, buf.data(), buf.size());
-
-    for(int i = 0; i < size + 1; i++) {
-        std::cout << int(buf[i]);
-    }
-    std::cout << std::endl;
+    return NET_WriteToStreamSocket(sock, buf.data(), buf.size());
 }
 
-void eTCPNetwork::sendToServer(const ePacket& p) {
-    if(mClientSocket) {
-        sendPacket(mClientSocket, p);
-    }
-}
-
-void eTCPNetwork::sendToClient(const int id, const ePacket& p) {
-    for(auto& c : mClients) {
+void eTCPNetwork::removeClient(const int id) {
+    for(int i = 0; i < mClients.size(); i++) {
+        const auto& c = mClients[i];
         if(c.fId == id) {
-            sendPacket(c.fSocket, p);
+            NET_DestroyStreamSocket(c.fSocket);
+            std::cout << "Client disconnected: " << c.fId << std::endl;
+            mClients.erase(mClients.begin() + i);
+            return;
         }
     }
 }
 
+bool eTCPNetwork::sendToServer(const ePacket& p) {
+    if(!mClientSocket) return false;
+    const bool r = sendPacket(mClientSocket, p);
+    if(r) return true;
+    NET_DestroyStreamSocket(mClientSocket);
+    mClientSocket = nullptr;
+    return false;
+}
+
+bool eTCPNetwork::sendToClient(const int id, const ePacket& p) {
+    for(const auto& c : mClients) {
+        if(c.fId == id) {
+            const bool r = sendPacket(c.fSocket, p);
+            if(!r) {
+                removeClient(id);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void eTCPNetwork::broadcast(const ePacket& p) {
-    for(auto& c : mClients) {
-        sendPacket(c.fSocket, p);
+    for(int i = 0; i < mClients.size(); i++) {
+        const auto& c = mClients[i];
+        const bool r = sendPacket(c.fSocket, p);
+        if(!r) {
+            removeClient(c.fId);
+            i--;
+            continue;
+        }
     }
 }
 
@@ -184,7 +222,7 @@ bool eTCPNetwork::pollPacket(eNetPacket& p) {
 std::vector<std::string> eTCPNetwork::sGetLanIPs() {
     NET_Init();
     int count;
-    NET_Address **addresses = NET_GetLocalAddresses(&count);
+    const auto addresses = NET_GetLocalAddresses(&count);
     std::vector<std::string> result;
     for(int i = 0; i < count; i++) {
         const char *ip = NET_GetAddressString(addresses[i]);

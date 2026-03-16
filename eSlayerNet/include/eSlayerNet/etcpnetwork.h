@@ -33,8 +33,8 @@ public:
 
     void update();
 
-    void sendToServer(const ePacket& p);
-    void sendToClient(const int id, const ePacket& p);
+    bool sendToServer(const ePacket& p);
+    bool sendToClient(const int id, const ePacket& p);
     void broadcast(const ePacket& p);
 
     bool pollPacket(eNetPacket& p);
@@ -43,14 +43,15 @@ public:
     static std::string sGetActiveLanIP();
 private:
     void acceptClients();
+    void removeDisconnectedClients();
     void receiveFromClients();
     void receiveFromServer();
 
     void receivePackets(NET_StreamSocket* const sock,
                         const int id,
                         std::vector<uint8_t>& buffer);
-    void sendPacket(NET_StreamSocket* const sock,
-                    const ePacket& p);
+    bool sendPacket(NET_StreamSocket* const sock, const ePacket& p);
+    void removeClient(const int id);
 private:
     NET_Server* mServer = nullptr;
     NET_StreamSocket* mClientSocket = nullptr;

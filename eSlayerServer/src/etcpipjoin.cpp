@@ -1,5 +1,6 @@
 #include "etcpipjoin.h"
 
+#include "eSlayerHelpers/eattackdata.h"
 #include "epacketdata.h"
 
 eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
@@ -9,16 +10,26 @@ eTcpIpJoin::~eTcpIpJoin() {
     if(mInitialized) mNet.shutdown();
 }
 
-void eTcpIpJoin::initialize() {
+bool eTcpIpJoin::initialize() {
     mInitialized = mNet.init();
-    if(!mInitialized) return;
-    mNet.connect(mIP.data(), 4000);
+    if(!mInitialized) {
+        failed("Failed to initialize SDL3_net.");
+        return false;
+    }
+    const bool r = mNet.connect(mIP.data(), 4000);
+    if(!r) failed("Failed to connect to the host.");
+    return r;
 }
 
 int eTcpIpJoin::connect() {
     ePacket p;
     p << ePacketType::connect;
-    mNet.sendToServer(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) {
+        failed("Failed to connect to the host.");
+        return -1;
+    }
+    uint32_t time = 0;
     while(true) {
         mNet.update();
 
@@ -37,6 +48,11 @@ int eTcpIpJoin::connect() {
         }
 
         SDL_Delay(16);
+        time += 16;
+        if(time > 2000) {
+            failed("Connection timed out.");
+            return -1;
+        }
     }
 }
 
@@ -45,14 +61,34 @@ bool eTcpIpJoin::disconnect(const int clientId) {
 }
 
 void eTcpIpJoin::increment(const double by) {
-
+    mNet.update();
+    eNetPacket pkt;
+    while(mNet.pollPacket(pkt)) {
+        auto& p = pkt.fPacket;
+        ePacketType type;
+        p >> type;
+        switch(type) {
+        case ePacketType::data: {
+            mData = eRequestData();
+            mData.read(p);
+            mNewData = true;
+        } break;
+        default:
+            break;
+        }
+    }
 }
 
 std::shared_ptr<eMap> eTcpIpJoin::requestMap(
     const int clientId, const std::string& name) {
     ePacket p;
     p << ePacketType::map;
-    mNet.sendToServer(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) {
+        failed("Failed to send map request to the host.");
+        return nullptr;
+    }
+    uint32_t time = 0;
     while(true) {
         mNet.update();
 
@@ -71,33 +107,65 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
         }
 
         SDL_Delay(16);
+        time += 16;
+        if(time > 2000) {
+            failed("Map request timed out.");
+            return nullptr;
+        }
     }
 }
 
-bool eTcpIpJoin::requestUnits(const int clientId) {
+bool eTcpIpJoin::requestData(const int clientId) {
+    ePacket p;
+    p << ePacketType::request;
+    p << mRequestId++;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Failed to send a request to the host.");
+    return r;
+}
+
+bool eTcpIpJoin::receiveData(const int clientId,
+                             eRequestData& data,
+                             double& resultTime) {
+    if(!mNewData) return false;
+    mReceivedId = mData.fRequestId;
+    std::swap(mData, data);
+    mNewData = false;
     return true;
 }
 
-bool eTcpIpJoin::receiveUnits(const int clientId,
-                              std::vector<eUnitData>& units,
-                              double& resultTime) {
-    return true;
-}
-
-bool eTcpIpJoin::moveTo(const int clientId,
-                        const ePointF& pos) {
-    return true;
+bool eTcpIpJoin::changeState(
+    const int clientId, const eUnitData& u) {
+    ePacket p;
+    p << ePacketType::state;
+    u.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Failed to send state change to the host.");
+    return r;
 }
 
 bool eTcpIpJoin::attack(const int clientId,
-                        const int targetId) {
+                        const eAttackData& target) {
+    ePacket p;
+    p << ePacketType::attack;
+    target.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Failed to send attack change to the host.");
     return true;
 }
 
 bool eTcpIpJoin::stopAttack(const int clientId) {
+    ePacket p;
+    p << ePacketType::stopAttack;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Failed to send attack change to the host.");
     return true;
 }
 
 bool eTcpIpJoin::respawn(const int clientId) {
+    ePacket p;
+    p << ePacketType::respawn;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Failed to send respawn request to the host.");
     return true;
 }

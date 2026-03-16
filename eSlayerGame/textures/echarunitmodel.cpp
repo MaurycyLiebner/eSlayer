@@ -1,14 +1,14 @@
 #include "echarunitmodel.h"
 
 #include "../widgets/epainter.h"
-#include "echarmodel.h"
 #include "../widgets/gameScreen/egamepainter.h"
+#include "echarmodel.h"
 #include "echartextures.h"
 
-#include <eSlayerHelpers/eexceptions.h>
-
 #include <cmath>
+#include <eSlayerHelpers/eexceptions.h>
 #include <filesystem>
+#include <iostream>
 
 eCharUnitModel::eCharUnitModel() {}
 

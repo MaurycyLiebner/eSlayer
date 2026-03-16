@@ -2,8 +2,9 @@
 
 #include "eserverchardata.h"
 
-void eLocalServer::initialize() {
+bool eLocalServer::initialize() {
     eServerCharData::load();
+    return true;
 }
 
 int eLocalServer::connect() {
@@ -20,50 +21,61 @@ bool eLocalServer::disconnect(const int clientId) {
 void eLocalServer::increment(const double by) {
     mTime += by;
     for(const auto& a : mAreas) {
-        a->increment(by);
+        a.second->increment(by);
     }
 }
 
 std::shared_ptr<eMap> eLocalServer::requestMap(const int clientId, const std::string& name) {
     const auto h = clientHandler(clientId);
     if(!h) return nullptr;
-    const auto it = mMaps.find(name);
-    if(it != mMaps.end()) return it->second;
-    const auto map = eSlayerMapGenerator::generate(name);
-    mMaps[name] = map;
-    const auto area = std::make_shared<eServerArea>();
-    area->initialize(map);
-    mAreas.push_back(area);
+    const auto mapIt = mMaps.find(name);
+    std::shared_ptr<eMap> map;
+    if(mapIt == mMaps.end()) {
+        map = eSlayerMapGenerator::generate(name);
+        mMaps[name] = map;
+    } else {
+        map = mapIt->second;
+    }
+    const auto areaIt = mAreas.find(name);
+    std::shared_ptr<eServerArea> area;
+    if(areaIt == mAreas.end()) {
+        area = std::make_shared<eServerArea>();
+        area->initialize(map);
+        mAreas[name] = area;
+    } else {
+        area = areaIt->second;
+    }
     h->setArea(area);
+    h->spawn();
     return map;
 }
 
-bool eLocalServer::requestUnits(const int clientId) {
+bool eLocalServer::requestData(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->requestUnits();
+    return h->requestData();
 }
 
-bool eLocalServer::receiveUnits(const int clientId,
-                                std::vector<eUnitData>& units,
-                                double& resultTime) {
+bool eLocalServer::receiveData(const int clientId,
+                               eRequestData& data,
+                               double& resultTime) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->receiveUnits(units, resultTime, mTime);
+    return h->receiveData(data, resultTime);
 }
 
-bool eLocalServer::moveTo(
-    const int clientId, const ePointF& pos) {
+bool eLocalServer::changeState(
+    const int clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->moveTo(pos);
+    return h->changeState(u);
 }
 
 bool eLocalServer::attack(const int clientId,
-                                 const int targetId) {
+                          const eAttackData& target) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->attack(targetId);
+    return h->attack(target);
 }
 
 bool eLocalServer::stopAttack(const int clientId) {
