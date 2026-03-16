@@ -4,6 +4,8 @@
 #include "../elanguage.h"
 #include "../widgets/elineedit.h"
 
+#include <eSlayerNet/etcpnetwork.h>
+
 void eTcpIpJoinMenu::initialize(const eJoinAction& joinGameA,
                                 const eAction& exitA) {
     const auto res = resolution();
@@ -18,7 +20,8 @@ void eTcpIpJoinMenu::initialize(const eJoinAction& joinGameA,
     ipEdit->allow('.');
     ipEdit->allow(':');
     ipEdit->allow('/');
-    ipEdit->setText("127.0.0.1");
+    const auto ip = eTCPNetwork::sGetActiveLanIP();
+    ipEdit->setText(ip);
     w->addWidget(ipEdit);
 
     const int p = res.hugePadding();
