@@ -43,6 +43,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fAnimId = 0;
             const ePointF pos{double(x), double(y)};
             u->fPos = pos;
+            u->fAngle = 0.;
             mUnitIdMap[charId] = mUnits.size();
             mUnits.emplace_back(u);
             const auto area = unitArea(*u);
@@ -167,6 +168,7 @@ void eServerArea::addClient(
     u->fAnimSpeed = 1.;
     u->fTeamId = 0;
     u->fPos = pos;
+    u->fAngle = 0.;
     u->fMaxHealth = 100;
     u->fHealth = 100;
     u->fActionTime = 0.;

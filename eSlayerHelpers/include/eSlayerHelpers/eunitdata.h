@@ -11,9 +11,9 @@
 
 struct ESLAYERHELPERS_API eUnitData {
     int32_t fCharId;
-    int32_t fTeamId;
+    int8_t fTeamId;
 
-    int32_t fTypeId;
+    uint8_t fTypeId;
 
     double fRadius;
 
@@ -21,14 +21,14 @@ struct ESLAYERHELPERS_API eUnitData {
     eVec2d fVel;
     double fAngle;
 
-    int32_t fAnim;
-    int32_t fAnimId;
+    uint8_t fAnim;
+    uint32_t fAnimId;
     double fAnimSpeed;
 
     double fActionTime;
 
-    int32_t fHealth;
-    int32_t fMaxHealth;
+    uint16_t fHealth;
+    uint16_t fMaxHealth;
 
     eCompressedModelParts fModelParts;
 
