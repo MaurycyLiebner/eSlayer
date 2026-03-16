@@ -11,7 +11,7 @@ public:
     eUnitAction(eServerUnit& unit,
                 eServerArea& area);
 
-    virtual void increment(const double by) = 0;
+    virtual void increment(const float by) = 0;
 
     void setParent(eComplexAction* const c);
     void finishAction();

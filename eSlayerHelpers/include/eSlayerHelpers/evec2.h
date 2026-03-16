@@ -66,41 +66,41 @@ public:
 		return *this;
 	}
 	
-    eVec2 operator+(const double s) const {
+    eVec2 operator+(const float s) const {
         return eVec2(x + s, y + s);
 	}
 
-    eVec2 operator-(const double s) const {
+    eVec2 operator-(const float s) const {
         return eVec2(x - s, y - s);
 	}
 
-    eVec2 operator*(const double s) const {
+    eVec2 operator*(const float s) const {
         return eVec2(x * s, y * s);
 	}
 
-    eVec2 operator/(const double s) const {
+    eVec2 operator/(const float s) const {
         return eVec2(x / s, y / s);
 	}
 	
-    eVec2& operator+=(const double s) {
+    eVec2& operator+=(const float s) {
 		x += s;
 		y += s;
 		return *this;
 	}
 
-    eVec2& operator-=(const double s) {
+    eVec2& operator-=(const float s) {
 		x -= s;
 		y -= s;
 		return *this;
 	}
 
-    eVec2& operator*=(const double s) {
+    eVec2& operator*=(const float s) {
 		x *= s;
 		y *= s;
 		return *this;
 	}
 
-    eVec2& operator/=(const double s) {
+    eVec2& operator/=(const float s) {
 		x /= s;
 		y /= s;
 		return *this;
@@ -111,17 +111,17 @@ public:
 		this->y = y;
 	}
 	
-    void rotate(const double deg) {
-		double theta = deg / 180.0 * M_PI;
-		double c = cos(theta);
-		double s = sin(theta);
-		double tx = x * c - y * s;
-		double ty = x * s + y * c;
+    void rotate(const float deg) {
+        const float theta = deg / 180.0f * M_PI;
+        const float c = cos(theta);
+        const float s = sin(theta);
+        const float tx = x * c - y * s;
+        const float ty = x * s + y * c;
 		x = tx;
 		y = ty;
 	}
 	
-    eVec2& normalize(const double newLength = 1.0) {
+    eVec2& normalize(const float newLength = 1.0f) {
         if(length() == 0) return *this;
         *this *= (newLength / length());
 		return *this;
@@ -136,16 +136,16 @@ public:
 		return std::sqrt(x * x + y * y);
 	}
 
-    void truncate(const double length) {
-		double angle = atan2f(y, x);
+    void truncate(const float length) {
+		float angle = atan2f(y, x);
 		x = length * cos(angle);
 		y = length * sin(angle);
 	}
 
     T angle() const { // 0 - 360
-        const double radAngle = std::atan2(y, x);
-        const double radAngle2 = radAngle < 0 ? 2*M_PI + radAngle : radAngle;
-        const double degAngle = radAngle2 * 180 / M_PI;
+        const float radAngle = std::atan2(y, x);
+        const float radAngle2 = radAngle < 0 ? 2*M_PI + radAngle : radAngle;
+        const float degAngle = radAngle2 * 180 / M_PI;
         return degAngle;
     }
 	
@@ -161,7 +161,7 @@ public:
 		return (v1.x * v2.y) - (v1.y * v2.x);
 	}
 
-    static eVec2 random(const double len = 1.) {
+    static eVec2 random(const float len = 1.f) {
         eVec2 r{0, 0};
         do {
             r.x = eRand::randF();
@@ -173,6 +173,5 @@ public:
 };
 
 typedef eVec2<float> eVec2f;
-typedef eVec2<double> eVec2d;
 
 #endif // VEC2_H

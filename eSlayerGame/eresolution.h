@@ -16,7 +16,7 @@ public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
 
-    double multiplier() const;
+    float multiplier() const;
 
     int hugePadding() const;
     int largePadding() const;

@@ -10,11 +10,11 @@ eHitRecoveryAction::sCreate(
     const auto& data = unit.data();
     const int anim = data.animId("hitRecovery");
     if(anim != -1) {
-        const double fhr = unit.fasterHitRecovery();
-        const double efhr = std::floor(fhr*120./(fhr + 120.));
+        const float fhr = unit.fasterHitRecovery();
+        const float efhr = std::floor(fhr*120.f/(fhr + 120.f));
         const int hitBase = data.animFrames(anim);
-        const double animSpeed = 256.;
-        const int frames = int(std::ceil(256.*hitBase/std::floor(animSpeed*(50. + efhr)/100.))) - 1;
+        const float animSpeed = 256.f;
+        const int frames = int(std::ceil(256.f*hitBase/std::floor(animSpeed*(50.f + efhr)/100.f))) - 1;
         const auto a = std::make_shared<eHitRecoveryAction>(unit, area);
         a->setup(anim, frames, nullptr);
         return a;

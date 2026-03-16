@@ -18,7 +18,7 @@ bool eLocalServer::disconnect(const int clientId) {
     return true;
 }
 
-void eLocalServer::increment(const double by) {
+void eLocalServer::increment(const float by) {
     mTime += by;
     for(const auto& a : mAreas) {
         a.second->increment(by);
@@ -58,7 +58,7 @@ bool eLocalServer::requestData(const int clientId) {
 
 bool eLocalServer::receiveData(const int clientId,
                                eRequestData& data,
-                               double& resultTime) {
+                               float& resultTime) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->receiveData(data, resultTime);

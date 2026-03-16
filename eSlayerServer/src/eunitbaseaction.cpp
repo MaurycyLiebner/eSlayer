@@ -17,7 +17,7 @@ void eUnitBaseAction::decide() {
         const auto move = std::make_shared<eMoveToEnemyAction>(mUnit, mArea);
         setChild(move);
     } else {
-        const auto wait = eWaitAction::sCreateStand(mUnit, mArea, 100.);
+        const auto wait = eWaitAction::sCreateStand(mUnit, mArea, 100.f);
         setChild(wait);
     }
 }

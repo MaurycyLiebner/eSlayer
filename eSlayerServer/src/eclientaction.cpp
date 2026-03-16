@@ -2,7 +2,7 @@
 
 #include "eserverunit.h"
 
-void eClientAction::increment(const double by) {
+void eClientAction::increment(const float by) {
     mUnit.fActionTime -= by;
     if(mUnit.fHealth <= 0) {
         mAttackTarget = nullptr;

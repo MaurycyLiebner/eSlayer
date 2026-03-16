@@ -17,7 +17,7 @@ public:
     int connect() override;
     bool disconnect(const int clientId) override;
 
-    void increment(const double by) override;
+    void increment(const float by) override;
 
     std::shared_ptr<eMap>
     requestMap(const int clientId,
@@ -27,7 +27,7 @@ public:
 
     bool receiveData(const int clientId,
                      eRequestData& data,
-                     double& resultTime) override;
+                     float& resultTime) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -40,7 +40,7 @@ public:
 public:
     eServerClientHandler* clientHandler(const int clientId);
 
-    double mTime = 0.;
+    float mTime = 0.f;
 
     std::map<std::string, std::shared_ptr<eServerArea>> mAreas;
     std::map<std::string, std::shared_ptr<eMap>> mMaps;

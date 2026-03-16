@@ -16,8 +16,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mClientId = clientId;
     mServer = s;
     mMovementHandler.intialize(w, iter, clientId, 0);
-    mMovementHandler.setRadius(0.4);
-    mMovementHandler.setMoveRandom(0.);
+    mMovementHandler.setRadius(0.4f);
+    mMovementHandler.setMoveRandom(0.f);
 
     const eModelParts modelParts {
         {"whole", "light"}
@@ -28,12 +28,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
-    umodel.setAnimation(0, 1.);
+    umodel.setAnimation(0, 1.f);
     umodel.setDirection(0);
 
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
-    mMainChar->fRadius = 0.4;
+    mMainChar->fRadius = 0.4f;
     mMainChar->fTypeId = typeId;
     mMainChar->fModelParts = mMainCharData->compress(modelParts);
 }
@@ -44,7 +44,7 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 
 void eMainCharAction::increment(const bool mousePressed,
                                 const ePointF& mousePos,
-                                const double by) {
+                                const float by) {
     if(mMainChar->fHealth <= 0) return;
 
     auto& model = mMainChar->model();
@@ -57,9 +57,9 @@ void eMainCharAction::increment(const bool mousePressed,
         stopAttack = false;
     }
 
-    const double tmp = mMainChar->fActionTime;
+    const float tmp = mMainChar->fActionTime;
     mMainChar->fActionTime -= by;
-    if(tmp > 0.) {
+    if(tmp > 0.f) {
         model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId,
                            mMainChar->fAnimSpeed);
         return;
@@ -69,8 +69,8 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(mPressedUnit) {
         pos = mPressedUnit->fPos;
-        const double dist = ePointF::distance(mMainChar->fPos, pos);
-        const double attackDist = 0.5*(mPressedUnit->fRadius + mMainChar->fRadius);
+        const float dist = ePointF::distance(mMainChar->fPos, pos);
+        const float attackDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
             if(mAttack) {
@@ -100,34 +100,34 @@ void eMainCharAction::increment(const bool mousePressed,
     const bool run = shouldRun();
     mContinueRunning = false;
     if(run) {
-        mMovementHandler.setSpeed(0.1);
+        mMovementHandler.setSpeed(0.1f);
     } else {
-        mMovementHandler.setSpeed(0.075);
+        mMovementHandler.setSpeed(0.075f);
     }
 
     bool move = false;
     if(mousePressed) {
         mMovementHandler.moveInDirection(pos);
-        move = mMovementHandler.increment(1.);
+        move = mMovementHandler.increment(1.f);
     }
     if(!move) {
         if(mousePressed) mMovementHandler.moveTo(pos);
-        move = mMovementHandler.increment(1.);
+        move = mMovementHandler.increment(1.f);
     }
 
     const bool a = model.aggressive();
     int animId;
     if(move) {
         mMainChar->fPos = mMovementHandler.pos();
-        const double angle = mMovementHandler.angle();
+        const float angle = mMovementHandler.angle();
         mMainChar->fAngle = angle;
         model.setAngle(angle);
         if(run) {
             mContinueRunning = true;
-            incStamina(-0.1);
+            incStamina(-0.1f);
             animId = mMainCharData->animId("run");
         } else {
-            incStamina(0.05);
+            incStamina(0.05f);
             const int naId = mMainCharData->animId("walk");
             const int aId = mMainCharData->animId("walkReady");
             if(a) {
@@ -145,7 +145,7 @@ void eMainCharAction::increment(const bool mousePressed,
             }
         }
     } else {
-        incStamina(0.05);
+        incStamina(0.05f);
         const int naId = mMainCharData->animId("stand");
         const int aId = mMainCharData->animId("standReady");
         if(a) {
@@ -166,8 +166,8 @@ void eMainCharAction::increment(const bool mousePressed,
         mMainChar->fAnimId++;
     }
     mMainChar->fAnim = animId;
-    mMainChar->fAnimSpeed = 1.;
-    model.setAnimation(animId, 1.);
+    mMainChar->fAnimSpeed = 1.f;
+    model.setAnimation(animId, 1.f);
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
@@ -184,11 +184,11 @@ void eMainCharAction::stop() {
     mMovementHandler.stopMoving();
 }
 
-void eMainCharAction::incStamina(const double by) {
-    mStamina = std::clamp(mStamina + by, 0., mMaxStamina);
+void eMainCharAction::incStamina(const float by) {
+    mStamina = std::clamp(mStamina + by, 0.f, mMaxStamina);
 }
 
 bool eMainCharAction::shouldRun() const {
     if(!mRunning) return false;
-    return mStamina > 5. || (mStamina > 0. && mContinueRunning);
+    return mStamina > 5.f || (mStamina > 0.f && mContinueRunning);
 }

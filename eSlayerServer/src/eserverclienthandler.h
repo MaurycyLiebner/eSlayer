@@ -10,7 +10,7 @@
 struct eAttackData;
 
 struct eDataRequest {
-    double fTime;
+    float fTime;
     eRequestData fData;
 };
 
@@ -20,7 +20,7 @@ public:
 
     bool requestData();
     bool receiveData(eRequestData& data,
-                     double& resultTime);
+                     float& resultTime);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 

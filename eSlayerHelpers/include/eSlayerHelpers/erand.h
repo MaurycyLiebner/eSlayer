@@ -9,8 +9,8 @@
 class ESLAYERHELPERS_API eRand {
 public:
     static int rand();
-    static double randF(const double min = 0.,
-                        const double max = 1.);
+    static float randF(const float min = 0.f,
+                       const float max = 1.f);
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
 private:

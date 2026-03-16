@@ -13,7 +13,7 @@ bool eServerClientHandler::requestData() {
 }
 
 bool eServerClientHandler::receiveData(eRequestData& data,
-                                       double& resultTime) {
+                                       float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
     const auto unitsData = mArea->unitsData(mClientId);
@@ -80,7 +80,7 @@ bool eServerClientHandler::respawn() {
     const auto a = client->action();
     a->setChild(nullptr);
     client->fHealth = client->fMaxHealth;
-    client->fPos = ePointF{0., 0.};
+    client->fPos = ePointF{0.f, 0.f};
     return true;
 }
 
@@ -88,6 +88,6 @@ bool eServerClientHandler::spawn() {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, ePointF{0., 0.});
+    mArea->addClient(mClientId, ePointF{0.f, 0.f});
     return true;
 }

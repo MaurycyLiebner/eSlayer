@@ -11,18 +11,18 @@ class eUnitActionBase : public eUnitAction {
 public:
     using eUnitAction::eUnitAction;
 
-    void increment(const double by) override;
+    void increment(const float by) override;
 
-    void setDuration(const double d);
-    void setAction(const double time, const eAction& a);
+    void setDuration(const float d);
+    void setAction(const float time, const eAction& a);
 protected:
     void setup(const int anim,
                int frames,
                const eAction& a);
 
 private:
-    double mRemTime;
-    double mActionTime;
+    float mRemTime;
+    float mActionTime;
 
     eAction mAction;
 };

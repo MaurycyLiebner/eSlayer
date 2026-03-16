@@ -31,7 +31,7 @@ public:
     void setName(const std::string& name) { mName = name; }
     const std::string& name() const { return mName; }
 
-    double radius() const { return mRadius; }
+    float radius() const { return mRadius; }
 
     int animId(const std::string& name) const;
 
@@ -56,7 +56,7 @@ protected:
     int mId;
     int mDirs;
 
-    double mRadius;
+    float mRadius;
 
     static const std::unordered_map<std::string, int eCharData::*>
     sAnimFields;

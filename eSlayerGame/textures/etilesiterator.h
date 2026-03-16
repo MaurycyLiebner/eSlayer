@@ -17,8 +17,8 @@ public:
     void iterate(const eVisibleTileFunc& func) const;
 private:
     ePoint mMin;
-    double mPDX;
-    double mPDY;
+    float mPDX;
+    float mPDY;
     int mTileW;
     int mTileH;
     int mTileMargin;

@@ -9,9 +9,9 @@ class eWaitAction : public eUnitActionBase {
 public:
     using eUnitActionBase::eUnitActionBase;
 
-    static std::shared_ptr<eWaitAction>
-    sCreateStand(eServerUnit& unit, eServerArea& area,
-                 const int time);
+    static std::shared_ptr<eWaitAction> sCreateStand(
+        eServerUnit& unit, eServerArea& area,
+        const float time);
     static std::shared_ptr<eWaitAction>
     sCreateDeath(eServerUnit& unit, eServerArea& area);
     static std::shared_ptr<eWaitAction>

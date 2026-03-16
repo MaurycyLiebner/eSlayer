@@ -60,18 +60,18 @@ int eResolution::margin() const {
     return largePadding();
 }
 
-double eResolution::multiplier() const {
+float eResolution::multiplier() const {
     switch(mUIScale) {
     case eUIScale::tiny:
-        return 0.5;
+        return 0.5f;
     case eUIScale::small:
-        return 1.0;
+        return 1.0f;
     case eUIScale::medium:
-        return 1.5;
+        return 1.5f;
     case eUIScale::large:
-        return 2.0;
+        return 2.0f;
     }
-    return 1.;
+    return 1.f;
 }
 
 int eResolution::extraHugeFontSize() const {

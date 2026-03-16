@@ -11,7 +11,7 @@ public:
 
     bool initialize() override;
 
-    void increment(const double by) override;
+    void increment(const float by) override;
 private:
     eTCPNetwork mNet;
     bool mInitialized = false;

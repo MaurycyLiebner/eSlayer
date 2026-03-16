@@ -26,17 +26,17 @@ inline bool operator!=(const ePoint& p1, const ePoint& p2) {
 
 struct ESLAYERHELPERS_API ePointF {
     ePointF() {}
-    ePointF(const double x, const double y) :
+    ePointF(const float x, const float y) :
         fX(x), fY(y) {}
     ePointF(const ePoint& p) :
         fX(p.fX), fY(p.fY) {}
 
-    double fX;
-    double fY;
+    float fX;
+    float fY;
 
-    static double distance(const ePointF& p1, const ePointF& p2);
+    static float distance(const ePointF& p1, const ePointF& p2);
 
-    static eVec2d vector(const ePointF& to, const ePointF& from);
+    static eVec2f vector(const ePointF& to, const ePointF& from);
 
     ePoint round() const {
         return {int(std::round(fX)),
@@ -48,15 +48,15 @@ struct ESLAYERHELPERS_API ePointF {
                 int(std::floor(fY))};
     }
 
-    ePointF operator+(const eVec2d& vec) const {
+    ePointF operator+(const eVec2f& vec) const {
         return {fX + vec.x, fY + vec.y};
     }
 
-    ePointF operator*(const double mult) const {
+    ePointF operator*(const float mult) const {
         return {mult*fX, mult*fY};
     }
 
-    ePointF& operator*=(const double mult) {
+    ePointF& operator*=(const float mult) {
         fX *= mult;
         fY *= mult;
         return *this;

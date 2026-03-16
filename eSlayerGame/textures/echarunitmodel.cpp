@@ -52,14 +52,14 @@ SDL_Rect eCharUnitModel::offsetBoundingRect() const {
     return result;
 }
 
-void eCharUnitModel::incFrame(const double by) {
+void eCharUnitModel::incFrame(const float by) {
     mFrame += by*mAnimSpeed;
     if(!mClamp.empty()) {
         const int fMax = mModel->nFrames(mAnim);
         if(int(std::round(mFrame)) >= fMax) {
             const auto& data = mModel->data();
             const int animId = data.animId(mClamp);
-            setAnimation(animId, 1.);
+            setAnimation(animId, 1.f);
         }
     }
 }
@@ -172,13 +172,13 @@ void eCharUnitModel::drawBase(ePainter& p) const {
     // p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 
-void eCharUnitModel::setAnimationSpeed(const double speed) {
+void eCharUnitModel::setAnimationSpeed(const float speed) {
     mAnimSpeed = speed;
 }
 
-void eCharUnitModel::setAngle(const double a) {
+void eCharUnitModel::setAngle(const float a) {
     const int dirs = mModel->nDirs();
-    const double ainc = 360./dirs;
+    const float ainc = 360.f/dirs;
     const int dir = std::round(a/ainc) - 2*dirs/16;
     setDirection((dirs + dir) % dirs);
 }
@@ -209,14 +209,14 @@ void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
 }
 
 void eCharUnitModel::setAnimation(const int a, const int id,
-                                  const double speed) {
+                                  const float speed) {
     if(id <= mAnimId) return;
     mAnimId = id;
     setAnimation(a, speed);
 }
 
 void eCharUnitModel::setAnimation(const int a,
-                                  const double speed) {
+                                  const float speed) {
     if(a < 0 || a >= mModel->nAnims()) {
         eExceptions::logError("Animation id " +
                               std::to_string(a) +
@@ -225,7 +225,7 @@ void eCharUnitModel::setAnimation(const int a,
     }
     if(mAnim != a) {
         mAnim = a;
-        mFrame = 0.;
+        mFrame = 0.f;
         const auto& data = mModel->data();
         mClamp = data.animClamp(a);
         mAnimSpeed = speed;

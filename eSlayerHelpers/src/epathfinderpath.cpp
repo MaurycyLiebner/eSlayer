@@ -4,16 +4,16 @@
 
 ePointF ePathFinderPath::posAtDist(
     const ePointF& start,
-    const double dist) const {
+    const float dist) const {
     if(empty()) return start;
-    double remDist = dist;
+    float remDist = dist;
     int nodeId = 0;
     const auto& first = operator[](nodeId++);
     auto pos = start;
     auto dst = first;
     while(remDist > 0) {
-        eVec2d vec(dst.fX - pos.fX, dst.fY - pos.fY);
-        const double newRem = remDist - vec.length();
+        eVec2f vec(dst.fX - pos.fX, dst.fY - pos.fY);
+        const float newRem = remDist - vec.length();
         if(vec.length() > remDist) vec.normalize(remDist);
         pos.fX += vec.x;
         pos.fY += vec.y;

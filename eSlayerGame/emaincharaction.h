@@ -23,7 +23,7 @@ public:
 
     void increment(const bool mousePressed,
                    const ePointF& mousePos,
-                   const double by);
+                   const float by);
 
     void mouseRelease(const ePointF& mousePos);
     void stop();
@@ -32,9 +32,9 @@ public:
     void setPos(const ePointF& pos) { mMovementHandler.setPos(pos); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
 
-    double stamina() const { return mStamina; }
-    void incStamina(const double by);
-    double maxStamina() const { return mMaxStamina; }
+    float stamina() const { return mStamina; }
+    void incStamina(const float by);
+    float maxStamina() const { return mMaxStamina; }
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
     bool shouldRun() const;
@@ -48,8 +48,8 @@ private:
 
     bool mAttack = false;
     bool mRunning = false;
-    double mMaxStamina = 100.;
-    double mStamina = mMaxStamina;
+    float mMaxStamina = 100.f;
+    float mStamina = mMaxStamina;
     bool mContinueRunning = false;
 };
 

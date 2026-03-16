@@ -16,29 +16,29 @@ public:
     SDL_Rect boundingRect() const;
     SDL_Rect offsetBoundingRect() const;
 
-    void incFrame(const double by);
+    void incFrame(const float by);
     void draw(eGamePainter& p, const bool highligh = false) const;
     void drawBase(ePainter& p) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
 
-    void setAnimationSpeed(const double speed);
+    void setAnimationSpeed(const float speed);
 
     void setAnimation(const int a, const int id,
-                      const double speed);
+                      const float speed);
     void setAnimation(const int a,
-                      const double speed);
+                      const float speed);
 
     void setDirection(const int d);
-    void setAngle(const double a);
+    void setAngle(const float a);
 
     void generatePreview(SDL_Renderer* const r);
 private:
     int mAnim = 0;
     int mAnimId = -1;
-    double mAnimSpeed = 1.;
-    double mFrame = 0.;
+    float mAnimSpeed = 1.f;
+    float mFrame = 0.f;
     std::string mClamp;
     bool mAggressive = false;
     int mDir = 0;

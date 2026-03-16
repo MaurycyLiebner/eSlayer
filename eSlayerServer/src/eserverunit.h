@@ -18,20 +18,20 @@ public:
 
     bool aggressive() const { return mAggressive; }
 
-    double level() const { return mLevel; }
-    double attackRating() const { return mAttackRating; }
-    double defense() const { return mDefense; }
-    double blockChance() const { return mBlockChance; }
-    void setBlockChance(const double c) { mBlockChance = c; }
-    double fasterHitRecovery() const { return mFasterHitRecovery; }
-    void setFasterHitRecovery(const double fhr) { mFasterHitRecovery = fhr; }
-    double fasterBlockRate() const { return mFasterBlockRate; }
-    void setFasterBlockRate(const double fbr) { mFasterBlockRate = fbr; }
+    float level() const { return mLevel; }
+    float attackRating() const { return mAttackRating; }
+    float defense() const { return mDefense; }
+    float blockChance() const { return mBlockChance; }
+    void setBlockChance(const float c) { mBlockChance = c; }
+    float fasterHitRecovery() const { return mFasterHitRecovery; }
+    void setFasterHitRecovery(const float fhr) { mFasterHitRecovery = fhr; }
+    float fasterBlockRate() const { return mFasterBlockRate; }
+    void setFasterBlockRate(const float fbr) { mFasterBlockRate = fbr; }
 
-    static double sHitChance(const eServerUnit& hit,
+    static float sHitChance(const eServerUnit& hit,
                              const eServerUnit& by);
 
-    void increment(const double by);
+    void increment(const float by);
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);
@@ -50,12 +50,12 @@ private:
     std::shared_ptr<eComplexAction> mAction;
     eMovementHandler mHandler;
 
-    double mLevel = 1.;
-    double mAttackRating = 100.;
-    double mDefense = 100.;
-    double mBlockChance = 0.;
-    double mFasterHitRecovery = 0.;
-    double mFasterBlockRate = 0.;
+    float mLevel = 1.f;
+    float mAttackRating = 100.f;
+    float mDefense = 100.f;
+    float mBlockChance = 0.f;
+    float mFasterHitRecovery = 0.f;
+    float mFasterBlockRate = 0.f;
 };
 
 #endif // ESERVERUNIT_H

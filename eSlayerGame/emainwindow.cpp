@@ -98,7 +98,7 @@ int eMainWindow::exec() {
     SDL_Event e;
 
     const bool showFPS = false;
-    const double fpsClamp = 25;
+    const double fpsClamp = 25.;
 
     int c = 0;
     int fpsVal = 0;

@@ -16,7 +16,7 @@ public:
     int connect() override;
     bool disconnect(const int clientId) override;
 
-    void increment(const double by) override;
+    void increment(const float by) override;
 
     std::shared_ptr<eMap>
     requestMap(const int clientId,
@@ -26,7 +26,7 @@ public:
 
     bool receiveData(const int clientId,
                      eRequestData& data,
-                     double& resultTime) override;
+                     float& resultTime) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;

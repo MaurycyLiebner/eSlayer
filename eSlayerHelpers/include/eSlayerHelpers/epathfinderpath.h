@@ -10,7 +10,7 @@ public:
     using std::deque<ePointF>::deque;
 
     ePointF posAtDist(const ePointF& start,
-                      const double dist) const;
+                      const float dist) const;
 };
 
 #endif // EPATHFINDERPATH_H

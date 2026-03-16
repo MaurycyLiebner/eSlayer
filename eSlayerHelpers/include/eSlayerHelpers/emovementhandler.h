@@ -28,13 +28,13 @@ public:
 
     const ePointF& pos() const { return mPos; }
     void setPos(const ePointF& pos) { mPos = pos; }
-    double angle() const { return mAngle; }
-    void setSpeed(const double s) { mSpeed = s; }
-    void setRadius(const double r);
-    void setMoveRandom(const double r) { mMoveRandom = r; }
-    double stuckTime() const { return mStuckTimer; }
+    float angle() const { return mAngle; }
+    void setSpeed(const float s) { mSpeed = s; }
+    void setRadius(const float r);
+    void setMoveRandom(const float r) { mMoveRandom = r; }
+    float stuckTime() const { return mStuckTimer; }
 
-    bool increment(const double by);
+    bool increment(const float by);
 
     bool moving() const { return mGoal.moving(); }
     eMovementGoalType goalType() const { return mGoal.type(); }
@@ -54,20 +54,20 @@ private:
 
     eMovementGoal mGoal;
 
-    ePointF mPos{0., 0.};
-    eVec2d mVel{0., 0.};
+    ePointF mPos{0.f, 0.f};
+    eVec2f mVel{0.f, 0.f};
 
-    double mRadius = 0.4;
-    double mSpeed = 0.1;
-    double mStuckTimer = 0.;
+    float mRadius = 0.4f;
+    float mSpeed = 0.1f;
+    float mStuckTimer = 0.f;
 
-    double mAngle = 0.;
+    float mAngle = 0.f;
     int mTileMoveSubdivision = 2;
     int mPathFindMargin = 40;
-    double mWaypointReachDist = 0.2;
-    double mNearbyUnits = 1.5;
+    float mWaypointReachDist = 0.2f;
+    float mNearbyUnits = 1.5f;
 
-    double mMoveRandom = 0.05;
+    float mMoveRandom = 0.05f;
 };
 
 #endif // EMOVEMENTHANDLER_H

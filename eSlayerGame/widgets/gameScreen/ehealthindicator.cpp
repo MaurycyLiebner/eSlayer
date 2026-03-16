@@ -20,7 +20,7 @@ void eHealthIndicator::hideText() {
 }
 
 void eHealthIndicator::paintEvent(ePainter& p) {
-    const double per = double(value() - min())/(max() - min());
+    const float per = float(value() - min())/(max() - min());
     const SDL_Rect baseRect = rect();
     const int w = per*baseRect.w;
     const SDL_Rect rect{baseRect.x, baseRect.y,
@@ -34,6 +34,6 @@ void eHealthIndicator::setText(const std::string& text) {
     mText->fitContent();
     mText->align(eAlignment::center);
     if(mText->height() > height()) {
-        mText->setY(-1.2*mText->height());
+        mText->setY(-1.2f*mText->height());
     }
 }

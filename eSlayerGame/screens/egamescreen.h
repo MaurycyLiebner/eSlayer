@@ -80,7 +80,7 @@ private:
     const int mTileH = 79;
 
     bool mMousePressed = false;
-    ePointF mMousePos{0., 0.};
+    ePointF mMousePos{0.f, 0.f};
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;

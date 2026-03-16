@@ -4,7 +4,7 @@
 
 #include <eSlayerHelpers/echardata.h>
 
-void eUnitActionBase::increment(const double by) {
+void eUnitActionBase::increment(const float by) {
     mRemTime -= by;
     mUnit.fActionTime = mRemTime;
     mActionTime -= by;
@@ -15,12 +15,12 @@ void eUnitActionBase::increment(const double by) {
     if(mRemTime <= 0) finishAction();
 }
 
-void eUnitActionBase::setDuration(const double d) {
+void eUnitActionBase::setDuration(const float d) {
     mRemTime = d;
     mUnit.fActionTime = d;
 }
 
-void eUnitActionBase::setAction(const double time, const eAction& a) {
+void eUnitActionBase::setAction(const float time, const eAction& a) {
     mActionTime = time;
     mAction = a;
 }
@@ -34,13 +34,13 @@ void eUnitActionBase::setup(
     mUnit.fAnimId++;
     const int baseFrames = data.animFrames(anim);
     if(frames == -1) frames = baseFrames;
-    const double speed = double(baseFrames)/frames;
+    const float speed = float(baseFrames)/frames;
     mUnit.fAnimSpeed = speed;
     setDuration(frames);
 
     if(a) {
         const int baseFrame = data.animActionFrame(anim);
-        const double frame = baseFrame/speed;
+        const float frame = baseFrame/speed;
         setAction(frame, a);
     }
 }

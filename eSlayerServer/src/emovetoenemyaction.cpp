@@ -4,23 +4,23 @@
 
 #include <eSlayerHelpers/echardata.h>
 
-void eMoveToEnemyAction::increment(const double by) {
+void eMoveToEnemyAction::increment(const float by) {
     auto& handler = mUnit.movementHandler();
-    if(handler.stuckTime() > 10.) {
+    if(handler.stuckTime() > 10.f) {
         handler.stopMoving();
         return finishAction();
     }
     if(mTargetId != -1) {
         const auto target = mArea.unit(mTargetId);
         if(target) {
-            const double dist = ePointF::distance(target->fPos, mUnit.fPos);
-            if(dist < 0.5*(mUnit.fRadius + target->fRadius)) {
+            const float dist = ePointF::distance(target->fPos, mUnit.fPos);
+            if(dist < 0.5f*(mUnit.fRadius + target->fRadius)) {
                 handler.stopMoving();
                 finishAction();
             } else {
-                const double targetChange = ePointF::distance(target->fPos, mTargetPos);
-                const double dist = ePointF::distance(mTargetPos, mUnit.fPos);
-                if(targetChange > 0.5*dist || !handler.moving()) {
+                const float targetChange = ePointF::distance(target->fPos, mTargetPos);
+                const float dist = ePointF::distance(mTargetPos, mUnit.fPos);
+                if(targetChange > 0.5f*dist || !handler.moving()) {
                     setTarget(*target);
                 }
             }
@@ -31,8 +31,8 @@ void eMoveToEnemyAction::increment(const double by) {
     }
     for(const auto& unit : mArea.units()) {
         if(mUnit.fTeamId == unit->fTeamId) continue;
-        const double dist = ePointF::distance(mUnit.fPos, unit->fPos);
-        if(dist < 5.) {
+        const float dist = ePointF::distance(mUnit.fPos, unit->fPos);
+        if(dist < 5.f) {
             setTarget(*unit);
             return;
         }

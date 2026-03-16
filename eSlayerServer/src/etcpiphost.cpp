@@ -20,7 +20,7 @@ bool eTcpIpHost::initialize() {
     return r;
 }
 
-void eTcpIpHost::increment(const double by) {
+void eTcpIpHost::increment(const float by) {
     eLocalServer::increment(by);
     mNet.update();
     eNetPacket pkt;
@@ -75,7 +75,7 @@ void eTcpIpHost::increment(const double by) {
                 if(!r) continue;
                 eRequestData data;
                 p >> data.fRequestId;
-                double time;
+                float time;
                 r = receiveData(charId, data, time);
                 if(!r) continue;
                 {

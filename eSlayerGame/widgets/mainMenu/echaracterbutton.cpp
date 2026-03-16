@@ -20,7 +20,7 @@ void eCharacterButton::initialize(const eCharacter& c) {
     const auto r = renderer();
     const auto model = texs->generateModel(modelParts, r);
     mModel.setCharModel(model);
-    mModel.setAnimation(0, 1.);
+    mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);
 
     const auto label = new eLabel(c.name(), window());
@@ -33,7 +33,7 @@ void eCharacterButton::initialize(const eCharacter& c) {
 void eCharacterButton::paintEvent(ePainter& p) {
     p.save();
     p.translate(width()/5, 3*height()/4);
-    mModel.incFrame(1.);
+    mModel.incFrame(1.f);
     mModel.drawBase(p);
     p.restore();
     eCheckButton::paintEvent(p);

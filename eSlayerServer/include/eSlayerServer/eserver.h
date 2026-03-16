@@ -27,7 +27,7 @@ public:
     virtual int connect() = 0;
     virtual bool disconnect(const int clientId) = 0;
 
-    virtual void increment(const double by) = 0;
+    virtual void increment(const float by) = 0;
 
     virtual std::shared_ptr<eMap>
     requestMap(const int clientId,
@@ -39,7 +39,7 @@ public:
     virtual bool
     receiveData(const int clientId,
                 eRequestData& data,
-                double& resultTime) = 0;
+                float& resultTime) = 0;
 
     virtual bool
     changeState(const int clientId,

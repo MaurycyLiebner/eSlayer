@@ -16,15 +16,15 @@ void eMovementHandler::intialize(const eWalkable& w,
     mOtherIterator = iter;
 }
 
-void eMovementHandler::setRadius(const double r) {
+void eMovementHandler::setRadius(const float r) {
     mRadius = r;
-    if(r > 0.5) mTileMoveSubdivision = 1;
+    if(r > 0.5f) mTileMoveSubdivision = 1;
     else mTileMoveSubdivision = 2;
 }
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
     const int margin = mPathFindMargin;
-    const double subdivision = mTileMoveSubdivision;
+    const float subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(0, 0, dim, dim);
     const auto iPos = (mPos * subdivision).round();
@@ -46,8 +46,8 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
         step.fY -= margin;
         step.fX /= subdivision;
         step.fY /= subdivision;
-        step.fX += (std::round(mPos.fX*subdivision) + 0.5)/subdivision;
-        step.fY += (std::round(mPos.fY*subdivision) + 0.5)/subdivision;
+        step.fX += (std::round(mPos.fX*subdivision) + 0.5f)/subdivision;
+        step.fY += (std::round(mPos.fY*subdivision) + 0.5f)/subdivision;
     }
     {
             path.emplace(path.begin(), mPos);
@@ -71,10 +71,10 @@ void eMovementHandler::moveInDirection(const ePointF& pos) {
 }
 
 bool eMovementHandler::walkable(const ePointF& from, const ePointF& to) const {
-    const double x0 = from.fX;
-    const double y0 = from.fY;
-    const double x1 = to.fX;
-    const double y1 = to.fY;
+    const float x0 = from.fX;
+    const float y0 = from.fY;
+    const float x1 = to.fX;
+    const float y1 = to.fY;
 
     int x = (int)std::floor(x0);
     int y = (int)std::floor(y0);
@@ -82,30 +82,30 @@ bool eMovementHandler::walkable(const ePointF& from, const ePointF& to) const {
     const int endX = (int)std::floor(x1);
     const int endY = (int)std::floor(y1);
 
-    const double dx = x1 - x0;
-    const double dy = y1 - y0;
+    const float dx = x1 - x0;
+    const float dy = y1 - y0;
 
     const int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
     const int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
 
-    const double tDeltaX = (stepX != 0) ? std::abs(1.0 / dx) :
-                               std::numeric_limits<double>::infinity();
-    const double tDeltaY = (stepY != 0) ? std::abs(1.0 / dy) :
-                               std::numeric_limits<double>::infinity();
+    const float tDeltaX = (stepX != 0) ? std::abs(1.0f / dx) :
+                               std::numeric_limits<float>::infinity();
+    const float tDeltaY = (stepY != 0) ? std::abs(1.0f / dy) :
+                               std::numeric_limits<float>::infinity();
 
-    const double nextBoundaryX = (stepX > 0)
-                                     ? (std::floor(x0) + 1.0)
+    const float nextBoundaryX = (stepX > 0)
+                                     ? (std::floor(x0) + 1.0f)
                                      : std::floor(x0);
 
-    const double nextBoundaryY = (stepY > 0)
-                                     ? (std::floor(y0) + 1.0)
+    const float nextBoundaryY = (stepY > 0)
+                                     ? (std::floor(y0) + 1.0f)
                                      : std::floor(y0);
 
-    double tMaxX = (stepX != 0) ? (nextBoundaryX - x0) / dx :
-                       std::numeric_limits<double>::infinity();
+    float tMaxX = (stepX != 0) ? (nextBoundaryX - x0) / dx :
+                       std::numeric_limits<float>::infinity();
 
-    double tMaxY = (stepY != 0) ? (nextBoundaryY - y0) / dy :
-                       std::numeric_limits<double>::infinity();
+    float tMaxY = (stepY != 0) ? (nextBoundaryY - y0) / dy :
+                       std::numeric_limits<float>::infinity();
 
     while(true) {
         const bool r = mWalkable(x, y);
@@ -141,24 +141,24 @@ bool eMovementHandler::walkable(const ePointF& pos) const {
         if(other.fCharId == mCharId) return;
         if(other.fTeamId == mTeamId) return;
         if(other.fHealth <= 0) return;
-        const eVec2d diff = ePointF::vector(pos, other.fPos);
-        const double dist = diff.length();
+        const eVec2f diff = ePointF::vector(pos, other.fPos);
+        const float dist = diff.length();
         if(dist > mNearbyUnits) return;
-        const double minDist = 0.4*(mRadius + other.fRadius);
-        walkable = walkable && (dist > minDist || dist < 0.0001);
+        const float minDist = 0.4f*(mRadius + other.fRadius);
+        walkable = walkable && (dist > minDist || dist < 0.0001f);
     });
     if(!walkable) return false;
     const auto ipos = pos.floor();
     return mWalkable(ipos.fX, ipos.fY);
 }
 
-bool eMovementHandler::increment(const double by) {
+bool eMovementHandler::increment(const float by) {
     ePointF to;
     const bool r = mGoal.goal(to);
     if(!r) return false;
     switch(mGoal.type()) {
     case eMovementGoalType::dir: {
-        if(ePointF::distance(mPos, to) < 0.01) {
+        if(ePointF::distance(mPos, to) < 0.01f) {
             mGoal.stopMoving();
             return false;
         }
@@ -174,20 +174,20 @@ bool eMovementHandler::increment(const double by) {
     auto desiredDir = ePointF::vector(to, mPos);
     desiredDir.normalize();
 
-    eVec2d separation{0., 0.};
-    eVec2d avoid{0., 0.};
+    eVec2f separation{0.f, 0.f};
+    eVec2f avoid{0.f, 0.f};
 
     mOtherIterator([&](const eUnitData& other) {
         if(other.fCharId == mCharId) return;
         if(other.fTeamId != mTeamId) return;
         if(other.fHealth <= 0) return;
-        eVec2d diff = ePointF::vector(mPos, other.fPos);
-        const double dist = diff.length();
+        eVec2f diff = ePointF::vector(mPos, other.fPos);
+        const float dist = diff.length();
         if(dist > mNearbyUnits) return;
         diff.normalize();
 
-        const double minDist = mRadius + other.fRadius;
-        if(dist < minDist && dist > 0.0001) {
+        const float minDist = mRadius + other.fRadius;
+        if(dist < minDist && dist > 0.0001f) {
             separation += diff*(minDist - dist);
         }
 
@@ -195,24 +195,24 @@ bool eMovementHandler::increment(const double by) {
         auto normRelPos = relPos;
         normRelPos.normalize();
         const auto relVel = mVel - other.fVel;
-        if(eVec2d::dot(relPos, relVel) < 0) {
+        if(eVec2f::dot(relPos, relVel) < 0) {
             avoid -= normRelPos;
         }
     });
 
-    auto moveDir = desiredDir*1.0 +
-                   separation*1.5 +
-                   avoid*0.35 +
-                   eVec2d::random()*mMoveRandom;
+    auto moveDir = desiredDir*1.0f +
+                   separation*1.5f +
+                   avoid*0.35f +
+                   eVec2f::random()*mMoveRandom;
     if(moveDir.length() > 0) {
         moveDir.normalize();
     }
     mVel = moveDir*mSpeed;
-    const double progress = eVec2d::dot(mVel, desiredDir);
-    if(progress < 0.1*mSpeed) {
+    const float progress = eVec2f::dot(mVel, desiredDir);
+    if(progress < 0.1f*mSpeed) {
         mStuckTimer += by;
     } else {
-        mStuckTimer = 0.;
+        mStuckTimer = 0.f;
     }
     mAngle = mVel.angle();
 
@@ -235,6 +235,6 @@ bool eMovementHandler::increment(const double by) {
 }
 
 void eMovementHandler::stopMoving() {
-    mStuckTimer = 0.;
+    mStuckTimer = 0.f;
     mGoal.stopMoving();
 }

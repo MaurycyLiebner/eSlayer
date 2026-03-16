@@ -9,7 +9,7 @@
 
 #include <eSlayerHelpers/epoint.h>
 
-void eComplexAction::increment(const double by) {
+void eComplexAction::increment(const float by) {
     if(mChild) {
         mChild->increment(by);
     } else {
@@ -24,8 +24,8 @@ void eComplexAction::setChild(const std::shared_ptr<eUnitAction>& c) {
 
 bool eComplexAction::attack(const eServerUnit& u) {
     if(u.fHealth <= 0) return false;
-    const double dist = ePointF::distance(mUnit.fPos, u.fPos);
-    const double attackDist = 0.5*(mUnit.fRadius + u.fRadius);
+    const float dist = ePointF::distance(mUnit.fPos, u.fPos);
+    const float attackDist = 0.5f*(mUnit.fRadius + u.fRadius);
     if(dist > attackDist) return false;
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
@@ -33,9 +33,9 @@ bool eComplexAction::attack(const eServerUnit& u) {
     const auto a = [this, targetId]() {
         const auto target = mArea.unit(targetId);
         if(!target) return;
-        const double hitChance = eServerUnit::sHitChance(*target, mUnit);
+        const float hitChance = eServerUnit::sHitChance(*target, mUnit);
         if(eRand::randF() > hitChance) return;
-        const double blockChance = target->blockChance();
+        const float blockChance = target->blockChance();
         if(eRand::randF() < blockChance) {
             const auto a = eBlockAction::sCreate(*target, mArea);
             if(a) target->setChildAction(a);
@@ -45,7 +45,7 @@ bool eComplexAction::attack(const eServerUnit& u) {
             if(target->fHealth <= 0) {
                 const auto die = std::make_shared<eDieAction>(*target, mArea);
                 target->setChildAction(die);
-            } else if(dmg >= target->fMaxHealth/12.) {
+            } else if(dmg >= target->fMaxHealth/12.f) {
                 const auto a = eHitRecoveryAction::sCreate(*target, mArea);
                 if(a) target->setChildAction(a);
             }

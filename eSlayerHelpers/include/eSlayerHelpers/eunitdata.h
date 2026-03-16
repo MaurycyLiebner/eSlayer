@@ -15,17 +15,17 @@ struct ESLAYERHELPERS_API eUnitData {
 
     uint8_t fTypeId;
 
-    double fRadius;
+    float fRadius;
 
     ePointF fPos;
-    eVec2d fVel;
-    double fAngle;
+    eVec2f fVel;
+    float fAngle;
 
     uint8_t fAnim;
     uint32_t fAnimId;
-    double fAnimSpeed;
+    float fAnimSpeed;
 
-    double fActionTime;
+    float fActionTime;
 
     uint16_t fHealth;
     uint16_t fMaxHealth;

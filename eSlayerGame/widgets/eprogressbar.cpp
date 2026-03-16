@@ -10,7 +10,7 @@ void eProgressBar::setValue(const int v) {
 }
 
 void eProgressBar::paintEvent(ePainter& p) {
-    const double per = double(mValue - mMin)/(mMax - mMin);
+    const float per = float(mValue - mMin)/(mMax - mMin);
     const SDL_Rect baseRect = rect();
     const int pp = padding();
     const SDL_Rect innerRect{pp, pp,

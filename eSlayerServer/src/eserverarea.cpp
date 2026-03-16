@@ -39,18 +39,18 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fMaxHealth = 100;
             u->fRadius = data->radius();
             u->fAnim = data->animId("stand");
-            u->fActionTime = 0.;
+            u->fActionTime = 0.f;
             u->fAnimId = 0;
-            const ePointF pos{double(x), double(y)};
+            const ePointF pos{float(x), float(y)};
             u->fPos = pos;
-            u->fAngle = 0.;
+            u->fAngle = 0.f;
             mUnitIdMap[charId] = mUnits.size();
             mUnits.emplace_back(u);
             const auto area = unitArea(*u);
             mUnitAreas[area].emplace(charId);
 
             auto& m = u->movementHandler();
-            m.setSpeed(0.025);
+            m.setSpeed(0.025f);
 
             const auto w = [this](const int x, const int y) {
                 return mMap->walkable(x, y);
@@ -71,7 +71,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     }
 }
 
-void eServerArea::increment(const double by) {
+void eServerArea::increment(const float by) {
     std::map<int, eUnitTile> clientAreas;
 
     for(const int i : mClientIds) {
@@ -165,13 +165,13 @@ void eServerArea::addClient(
     u->fRadius = data->radius();
     u->fAnim = data->animId("stand");
     u->fAnimId = 0;
-    u->fAnimSpeed = 1.;
+    u->fAnimSpeed = 1.f;
     u->fTeamId = 0;
     u->fPos = pos;
-    u->fAngle = 0.;
+    u->fAngle = 0.f;
     u->fMaxHealth = 100;
     u->fHealth = 100;
-    u->fActionTime = 0.;
+    u->fActionTime = 0.f;
     u->fModelParts = data->compress(modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);

@@ -9,7 +9,7 @@ class eComplexAction : public eUnitAction {
 public:
     using eUnitAction::eUnitAction;
 
-    void increment(const double by) override;
+    void increment(const float by) override;
     virtual void decide() = 0;
 
     void setChild(const std::shared_ptr<eUnitAction>& c);

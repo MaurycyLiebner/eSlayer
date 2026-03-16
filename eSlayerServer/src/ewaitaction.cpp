@@ -6,7 +6,7 @@
 
 std::shared_ptr<eWaitAction>
 eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
-                          const int time) {
+                          const float time) {
     const bool a = unit.aggressive();
     const auto& data = unit.data();
     const int naId = data.animId("stand");
@@ -44,7 +44,7 @@ eWaitAction::sCreateBody(
     const auto& data = unit.data();
     const int anim = data.animId("body");
     const auto result = sCreate(unit, area, anim);
-    if(result) result->setDuration(std::numeric_limits<double>::max());
+    if(result) result->setDuration(std::numeric_limits<float>::max());
     return result;
 }
 

@@ -38,7 +38,7 @@ void eGameScreen::initialize(const int clientId,
     initializeTextures();
     mUnitIndicator = new eUnitIndicator(window());
     mUnitIndicator->initialize();
-    const double m = resolution().multiplier();
+    const float m = resolution().multiplier();
     mUnitIndicator->resize(200*m, 40*m);
     addWidget(mUnitIndicator);
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
@@ -177,11 +177,11 @@ ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
     ePointF result;
     result.fY = pos.fY +
-                (pixel.fY - height()/2.)/mTileH +
-                (width()/2. - pixel.fX)/mTileW;
+                (pixel.fY - height()/2.f)/mTileH +
+                (width()/2.f - pixel.fX)/mTileW;
     result.fX = pos.fX +
-                (pixel.fX - width()/2.)/mTileW +
-                (pixel.fY - height()/2.)/mTileH;
+                (pixel.fX - width()/2.f)/mTileW +
+                (pixel.fY - height()/2.f)/mTileH;
     return result;
 }
 
@@ -194,18 +194,18 @@ ePointF eGameScreen::pixelToTilePos(
 ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
     const auto& charPos = characterPos();
     ePointF result;
-    result.fY = height()/2. + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.;
-    result.fX = width()/2. + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.;
+    result.fY = height()/2.f + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.f;
+    result.fX = width()/2.f + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.f;
     return result;
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
-    mServer->increment(1.);
+    mServer->increment(1.f);
     mServer->requestData(mClientId);
     eRequestData data;
-    double resultTime;
+    float resultTime;
     const auto r = renderer();
     const bool b = mServer->receiveData(
         mClientId, data, resultTime);
@@ -280,8 +280,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                 model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
             }
             if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
-                const double dist = ePointF::distance(mMainChar->fPos, u.fPos);
-                if(dist < 5.) aggressive = true;
+                const float dist = ePointF::distance(mMainChar->fPos, u.fPos);
+                if(dist < 5.f) aggressive = true;
             }
         }
         const int iMax = mUnits.size();
@@ -303,7 +303,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         mServer->changeState(mClientId, *mMainChar);
 
         const auto mouseTilePos = pixelToTilePos(mMousePos);
-        mMainAction.increment(mMousePressed, mouseTilePos, 1.);
+        mMainAction.increment(mMousePressed, mouseTilePos, 1.f);
 
         mFrame++;
     }
@@ -384,12 +384,12 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto idispl = displ.round();
                 mGamePainter.translate(idispl.fX, idispl.fY);
                 auto& model = u->model();
-                model.incFrame(1.);
+                model.incFrame(1.f);
                 bool highlight = false;
                 if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
                     const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
                     const int w = 0.75*u->fRadius*mTileW;
-                    const int h = 2.*w;
+                    const int h = 2*w;
                     const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
                     highlight = SDL_PointInRect(&p, &rect);
                     if(highlight) {
@@ -422,7 +422,7 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
         button & eMouseButton::left);
     if(leftPressed) {
         mMousePressed = true;
-        mMousePos = ePointF{double(e.x()), double(e.y())};
+        mMousePos = ePointF{float(e.x()), float(e.y())};
         if(mHighlightUnit) {
             setPressedUnit(mHighlightUnit);
         }
@@ -444,7 +444,7 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
 }
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
-    mMousePos = ePointF{double(e.x()), double(e.y())};
+    mMousePos = ePointF{float(e.x()), float(e.y())};
     return true;
 }
 

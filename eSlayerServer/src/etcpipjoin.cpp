@@ -60,7 +60,7 @@ bool eTcpIpJoin::disconnect(const int clientId) {
     return true;
 }
 
-void eTcpIpJoin::increment(const double by) {
+void eTcpIpJoin::increment(const float by) {
     mNet.update();
     eNetPacket pkt;
     while(mNet.pollPacket(pkt)) {
@@ -126,7 +126,7 @@ bool eTcpIpJoin::requestData(const int clientId) {
 
 bool eTcpIpJoin::receiveData(const int clientId,
                              eRequestData& data,
-                             double& resultTime) {
+                             float& resultTime) {
     if(!mNewData) return false;
     mReceivedId = mData.fRequestId;
     std::swap(mData, data);
