@@ -7,11 +7,12 @@
 #include <cstdint>
 
 enum class eAttackTargetType {
-    character, position
+    none, character, position
 };
 
 struct eAttackData {
-    eAttackData() {}
+    eAttackData() :
+        fType(eAttackTargetType::none) {}
     eAttackData(const int c) :
         fType(eAttackTargetType::character),
         fChar(c) {}

@@ -1,6 +1,7 @@
 #ifndef EMAINCHARACTION_H
 #define EMAINCHARACTION_H
 
+#include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
 
 #include <memory>
@@ -22,6 +23,7 @@ public:
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     void increment(const bool mousePressed,
+                   const bool shiftPressed,
                    const ePointF& mousePos,
                    const float by);
 
@@ -37,16 +39,17 @@ public:
     float maxStamina() const { return mMaxStamina; }
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
-    bool shouldRun() const;
 private:
+    bool shouldRun() const;
+
     int mClientId;
     std::shared_ptr<eServer> mServer;
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
+    eAttackData mAttackData;
 
-    bool mAttack = false;
     bool mRunning = false;
     float mMaxStamina = 100.f;
     float mStamina = mMaxStamina;

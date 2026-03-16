@@ -303,7 +303,8 @@ void eGameScreen::paintEvent(ePainter& p) {
         mServer->changeState(mClientId, *mMainChar);
 
         const auto mouseTilePos = pixelToTilePos(mMousePos);
-        mMainAction.increment(mMousePressed, mouseTilePos, 1.f);
+        mMainAction.increment(mMousePressed, mShiftPressed,
+                              mouseTilePos, 1.f);
 
         mFrame++;
     }
@@ -445,6 +446,7 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
     mMousePos = ePointF{float(e.x()), float(e.y())};
+    mShiftPressed = e.shiftPressed();
     return true;
 }
 

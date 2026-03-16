@@ -43,16 +43,19 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 }
 
 void eMainCharAction::increment(const bool mousePressed,
+                                const bool shiftPressed,
                                 const ePointF& mousePos,
                                 const float by) {
     if(mMainChar->fHealth <= 0) return;
 
     auto& model = mMainChar->model();
 
-    bool stopAttack = mAttack && !mPressedUnit.get();
+    const auto atype = mAttackData.fType;
+    bool stopAttack = (atype == eAttackTargetType::character && !mPressedUnit.get()) ||
+                      (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed));
 
     if(stopAttack) {
-        mAttack = false;
+        mAttackData = eAttackData();
         mServer->stopAttack(mClientId);
         stopAttack = false;
     }
@@ -73,13 +76,13 @@ void eMainCharAction::increment(const bool mousePressed,
         const float attackDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
-            if(mAttack) {
+            if(mAttackData.fType != eAttackTargetType::none) {
             } else {
-                mAttack = true;
+                const int targetId = mPressedUnit->fCharId;
+                mAttackData = eAttackData(targetId);
                 const auto vec = ePointF::vector(mPressedUnit->fPos,
                                                  mMainChar->fPos);
                 model.setAngle(vec.angle());
-                const int targetId = mPressedUnit->fCharId;
                 const eAttackData data(targetId);
                 mServer->attack(mClientId, data);
             }
@@ -91,11 +94,11 @@ void eMainCharAction::increment(const bool mousePressed,
     }
 
     if(stopAttack) {
-        mAttack = false;
+        mAttackData = eAttackData();
         mServer->stopAttack(mClientId);
     }
 
-    if(mAttack) return;
+    if(mAttackData.fType != eAttackTargetType::none) return;
 
     const bool run = shouldRun();
     mContinueRunning = false;
@@ -180,7 +183,7 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
 
 void eMainCharAction::stop() {
     mPressedUnit = nullptr;
-    mAttack = false;
+    mAttackData = eAttackData();
     mMovementHandler.stopMoving();
 }
 
