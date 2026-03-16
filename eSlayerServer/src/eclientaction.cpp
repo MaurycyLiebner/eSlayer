@@ -5,19 +5,19 @@
 void eClientAction::increment(const float by) {
     mUnit.fActionTime -= by;
     if(mUnit.fHealth <= 0) {
-        mAttackTarget = nullptr;
+        mAttackTarget = eAttackData();
     } else {
         eComplexAction::increment(by);
     }
 }
 
 void eClientAction::decide() {
-    if(mAttackTarget) {
-        const bool r = eComplexAction::attack(*mAttackTarget);
-        if(!r) mAttackTarget = nullptr;
+    if(mAttackTarget.fType != eAttackTargetType::none) {
+        const bool r = eComplexAction::attack(mAttackTarget);
+        if(!r) mAttackTarget = eAttackData();
     }
 }
 
-void eClientAction::attack(const std::shared_ptr<eServerUnit>& target) {
+void eClientAction::attack(const eAttackData& target) {
     mAttackTarget = target;
 }

@@ -4,8 +4,9 @@
 #include "textures/echartextures.h"
 #include "units/eunit.h"
 
-#include <eSlayerServer/eserver.h>
 #include <eSlayerHelpers/eattackdata.h>
+#include <eSlayerServer/eserver.h>
+#include <iostream>
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
@@ -83,11 +84,19 @@ void eMainCharAction::increment(const bool mousePressed,
                 const auto vec = ePointF::vector(mPressedUnit->fPos,
                                                  mMainChar->fPos);
                 model.setAngle(vec.angle());
-                const eAttackData data(targetId);
-                mServer->attack(mClientId, data);
+                mServer->attack(mClientId, mAttackData);
             }
         } else {
             stopAttack = true;
+        }
+    } else if(mousePressed && shiftPressed) {
+        if(mAttackData.fType != eAttackTargetType::position ||
+           ePointF::distance(mousePos, mAttackData.fPos) > 0.1f) {
+            mAttackData = eAttackData(mousePos);
+            const auto vec = ePointF::vector(mousePos,
+                                             mMainChar->fPos);
+            model.setAngle(vec.angle());
+            mServer->attack(mClientId, mAttackData);
         }
     } else {
         pos = mousePos;

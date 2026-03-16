@@ -5,8 +5,6 @@
 #include "eresolution.h"
 #include "ewindowsettings.h"
 
-#include <queue>
-
 using eSlot = std::function<void()>;
 
 class eMainWindow {
@@ -23,6 +21,8 @@ public:
     void quit();
 
     void addSlot(const eSlot& slot);
+
+    bool shiftPressed() const { return mShiftPressed > 0; }
 
     int width() const { return resolution().width(); }
     int height() const { return resolution().height(); }

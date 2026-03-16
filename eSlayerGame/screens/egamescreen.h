@@ -80,7 +80,6 @@ private:
     const int mTileH = 79;
 
     bool mMousePressed = false;
-    bool mShiftPressed = false;
     ePointF mMousePos{0.f, 0.f};
 
     eAction mExitAction;

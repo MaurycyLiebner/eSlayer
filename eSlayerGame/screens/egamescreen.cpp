@@ -11,6 +11,7 @@
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../emainwindow.h"
 
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
@@ -303,7 +304,9 @@ void eGameScreen::paintEvent(ePainter& p) {
         mServer->changeState(mClientId, *mMainChar);
 
         const auto mouseTilePos = pixelToTilePos(mMousePos);
-        mMainAction.increment(mMousePressed, mShiftPressed,
+        const auto w = window();
+        const bool shiftPressed = w->shiftPressed();
+        mMainAction.increment(mMousePressed, shiftPressed,
                               mouseTilePos, 1.f);
 
         mFrame++;
@@ -446,7 +449,6 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
     mMousePos = ePointF{float(e.x()), float(e.y())};
-    mShiftPressed = e.shiftPressed();
     return true;
 }
 

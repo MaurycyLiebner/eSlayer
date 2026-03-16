@@ -18,6 +18,11 @@ float eServerUnit::sHitChance(
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
 }
 
+bool eServerUnit::getHit(const eServerUnit& by) {
+    if(!mAction) return false;
+    return mAction->getHit(by);
+}
+
 void eServerUnit::increment(const float by) {
     if(mAction) mAction->increment(by);
     const bool r = mHandler.increment(1.f);

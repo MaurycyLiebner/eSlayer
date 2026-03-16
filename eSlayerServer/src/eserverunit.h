@@ -29,7 +29,9 @@ public:
     void setFasterBlockRate(const float fbr) { mFasterBlockRate = fbr; }
 
     static float sHitChance(const eServerUnit& hit,
-                             const eServerUnit& by);
+                            const eServerUnit& by);
+
+    bool getHit(const eServerUnit& by);
 
     void increment(const float by);
 

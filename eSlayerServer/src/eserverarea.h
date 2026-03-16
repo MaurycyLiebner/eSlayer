@@ -33,11 +33,14 @@ public:
 
     eUnitTile unitArea(const int charId) const;
     eUnitTile unitArea(const eServerUnit& u) const;
+    eUnitTile posArea(const ePointF& pos) const;
 
     void addClient(const int clientId, const ePointF& pos);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
+    std::shared_ptr<eServerUnit>
+    unit(const ePointF& pos) const;
 private:
     float mTime = 0.f;
 

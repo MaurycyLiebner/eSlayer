@@ -3,6 +3,8 @@
 
 #include "ecomplexaction.h"
 
+#include <eSlayerHelpers/eattackdata.h>
+
 class eClientAction : public eComplexAction {
 public:
     using eComplexAction::eComplexAction;
@@ -10,9 +12,9 @@ public:
     void increment(const float by) override;
     void decide() override;
 
-    void attack(const std::shared_ptr<eServerUnit>& target);
+    void attack(const eAttackData& target);
 private:
-    std::shared_ptr<eServerUnit> mAttackTarget;
+    eAttackData mAttackTarget;
 };
 
 #endif // ECLIENTACTION_H

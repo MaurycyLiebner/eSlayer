@@ -145,6 +145,10 @@ eUnitTile eServerArea::unitArea(const int charId) const {
 
 eUnitTile eServerArea::unitArea(const eServerUnit& u) const {
     const auto& pos = u.fPos;
+    return posArea(pos);
+}
+
+eUnitTile eServerArea::posArea(const ePointF& pos) const {
     eUnitTile result;
     reinterpret_cast<ePoint&>(result) = pos.floor()/mUnitAreaDim;
     return result;
@@ -187,4 +191,21 @@ eServerArea::unit(const int charId) const {
     if(it == mUnitIdMap.end()) return nullptr;
     const int id = it->second;
     return mUnits[id];
+}
+
+std::shared_ptr<eServerUnit>
+eServerArea::unit(const ePointF& pos) const {
+    const auto area = posArea(pos);
+    const auto it = mUnitAreas.find(area);
+    if(it == mUnitAreas.end()) return nullptr;
+    for(const auto& u : mUnitAreas) {
+        for(const int charId : u.second) {
+            const auto u = unit(charId);
+            if(!u) continue;
+            const auto& upos = u->fPos;
+            const float dist = ePointF::distance(pos, upos);
+            if(dist <= u->fRadius) return u;
+        }
+    }
+    return nullptr;
 }

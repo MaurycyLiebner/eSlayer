@@ -43,15 +43,14 @@ bool eServerClientHandler::attack(const eAttackData& target) {
     const auto client = mArea->unit(mClientId);
     if(!client) return false;
     switch(target.fType) {
-    case eAttackTargetType::character: {
-        const auto u = mArea->unit(target.fChar);
-        if(!u) return false;
+    case eAttackTargetType::character:
+    case eAttackTargetType::position: {
         const auto a = client->action();
         if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
-            ca->attack(u);
+            ca->attack(target);
         }
     } break;
-    case eAttackTargetType::position: {
+    case eAttackTargetType::none: {
         return false;
     } break;
     }
@@ -66,7 +65,7 @@ bool eServerClientHandler::stopAttack() {
 
     const auto a = client->action();
     if(const auto ca = dynamic_cast<eClientAction*>(a.get())) {
-        ca->attack(nullptr);
+        ca->attack(eAttackData());
     }
 
     return true;
