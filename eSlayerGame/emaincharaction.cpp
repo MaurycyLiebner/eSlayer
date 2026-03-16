@@ -60,7 +60,7 @@ void eMainCharAction::increment(const bool mousePressed,
     const float tmp = mMainChar->fActionTime;
     mMainChar->fActionTime -= by;
     if(tmp > 0.f) {
-        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimId,
+        model.setAnimation(mMainChar->fAnim,
                            mMainChar->fAnimSpeed);
         return;
     }

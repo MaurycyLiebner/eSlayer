@@ -30,11 +30,11 @@ bool eServerClientHandler::changeState(
     unit->fVel = u.fVel;
     unit->fAngle = u.fAngle;
 
-    unit->fAnim = u.fAnim;
-    unit->fAnimId = u.fAnimId;
-    unit->fAnimSpeed = u.fAnimSpeed;
-
-    unit->fActionTime = u.fActionTime;
+    if(unit->fActionTime <= 0.f) {
+        unit->fAnim = u.fAnim;
+        unit->fAnimId = u.fAnimId;
+        unit->fAnimSpeed = u.fAnimSpeed;
+    }
     return true;
 }
 
