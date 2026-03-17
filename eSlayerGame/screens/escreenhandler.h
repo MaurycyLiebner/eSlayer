@@ -29,7 +29,9 @@ public:
     void showSettings();
     void showLoadingScreen(const std::vector<eAction>& loading,
                            const eAction& finish);
-    void showErrorMsg(const std::string& msg);
+    void showErrorMsg(const std::string& msg,
+                      const std::string& subMsg);
+
 private:
     void loadCharacters();
 

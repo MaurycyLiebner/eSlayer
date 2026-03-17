@@ -11,6 +11,7 @@ public:
     bool setTinyFontSize();
     bool setVerySmallFontSize();
     bool setSmallFontSize();
+    bool setLargeFontSize();
     bool setHugeFontSize();
     bool setExtraHugeFontSize();
 

@@ -16,7 +16,8 @@ struct eServerData {
     std::string fIp;
 };
 
-using eServerFailureHandler = std::function<void(const std::string& msg)>;
+using eServerFailureHandler = std::function<void(const std::string& msg,
+                                                 const std::string& subMsg)>;
 
 class ESLAYERSERVER_API eServer {
 public:
@@ -53,7 +54,9 @@ public:
     virtual bool
     respawn(const int clientId) = 0;
 protected:
-    void failed(const std::string& msg);
+    void failed(const std::string& msg,
+                const std::string& subMsg);
+
 private:
     eServerFailureHandler mFailure;
 };

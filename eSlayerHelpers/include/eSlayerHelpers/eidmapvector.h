@@ -55,8 +55,9 @@ public:
             vid = mValues.size();
             mValues.emplace_back(v);
         } else {
-            const auto it =  mSlots.extract(mSlots.begin());
+            const auto it = mSlots.extract(mSlots.begin());
             vid = it.value();
+            mValues[vid] = v;
         }
         mIdMap[id] = vid;
     }

@@ -8,6 +8,7 @@ public:
     using eScreenBase::eScreenBase;
 
     void initialize(const std::string& msg,
+                    const std::string& subMsg,
                     const eAction& finish);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;

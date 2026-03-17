@@ -13,11 +13,11 @@ eTcpIpJoin::~eTcpIpJoin() {
 bool eTcpIpJoin::initialize() {
     mInitialized = mNet.init();
     if(!mInitialized) {
-        failed("Failed to initialize SDL3_net.");
+        failed("Disconnected", "Failed to initialize SDL3_net.");
         return false;
     }
     const bool r = mNet.connect(mIP.data(), 4000);
-    if(!r) failed("Failed to connect to the host.");
+    if(!r) failed("Disconnected", "Failed to connect to the host.");
     return r;
 }
 
@@ -26,7 +26,7 @@ int eTcpIpJoin::connect() {
     p << ePacketType::connect;
     const bool r = mNet.sendToServer(p);
     if(!r) {
-        failed("Failed to connect to the host.");
+        failed("Disconnected", "Failed to send connection request.");
         return -1;
     }
     uint32_t time = 0;
@@ -50,14 +50,16 @@ int eTcpIpJoin::connect() {
         SDL_Delay(16);
         time += 16;
         if(time > 2000) {
-            failed("Connection timed out.");
+            failed("Disconnected", "Connection timed out.");
             return -1;
         }
     }
 }
 
 bool eTcpIpJoin::disconnect(const int clientId) {
-    return true;
+    ePacket p;
+    p << ePacketType::disconnect;
+    return mNet.sendToServer(p);
 }
 
 void eTcpIpJoin::increment(const float by) {
@@ -73,6 +75,9 @@ void eTcpIpJoin::increment(const float by) {
             mData.read(p);
             mNewData = true;
         } break;
+        case ePacketType::disconnect: {
+            failed("Disconnected", "Host closed the connection.");
+        } break;
         default:
             break;
         }
@@ -85,7 +90,7 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
     p << ePacketType::map;
     const bool r = mNet.sendToServer(p);
     if(!r) {
-        failed("Failed to send map request to the host.");
+        failed("Disconnected", "Failed to send map request to the host.");
         return nullptr;
     }
     uint32_t time = 0;
@@ -109,7 +114,7 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
         SDL_Delay(16);
         time += 16;
         if(time > 2000) {
-            failed("Map request timed out.");
+            failed("Disconnected", "Map request timed out.");
             return nullptr;
         }
     }
@@ -120,7 +125,7 @@ bool eTcpIpJoin::requestData(const int clientId) {
     p << ePacketType::request;
     p << mRequestId++;
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Failed to send a request to the host.");
+    if(!r) failed("Disconnected", "Failed to send a request to the host.");
     return r;
 }
 
@@ -140,7 +145,7 @@ bool eTcpIpJoin::changeState(
     p << ePacketType::state;
     u.write(p);
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Failed to send state change to the host.");
+    if(!r) failed("Disconnected", "Failed to send state change to the host.");
     return r;
 }
 
@@ -150,7 +155,7 @@ bool eTcpIpJoin::attack(const int clientId,
     p << ePacketType::attack;
     target.write(p);
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Failed to send attack change to the host.");
+    if(!r) failed("Disconnected", "Failed to send attack change to the host.");
     return true;
 }
 
@@ -158,7 +163,7 @@ bool eTcpIpJoin::stopAttack(const int clientId) {
     ePacket p;
     p << ePacketType::stopAttack;
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Failed to send attack change to the host.");
+    if(!r) failed("Disconnected", "Failed to send attack change to the host.");
     return true;
 }
 
@@ -166,6 +171,6 @@ bool eTcpIpJoin::respawn(const int clientId) {
     ePacket p;
     p << ePacketType::respawn;
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Failed to send respawn request to the host.");
+    if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
     return true;
 }

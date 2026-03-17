@@ -29,6 +29,7 @@ public:
     bool stopAttack();
     bool respawn();
     bool spawn();
+    bool disconnect();
 private:
     const int mClientId;
     std::shared_ptr<eServerArea> mArea;

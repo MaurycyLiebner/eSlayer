@@ -58,7 +58,6 @@ bool eTCPNetwork::connect(const char* host, const uint16_t port) {
 void eTCPNetwork::update() {
     if(mServer) {
         acceptClients();
-        removeDisconnectedClients();
         receiveFromClients();
     }
 
@@ -79,6 +78,7 @@ void eTCPNetwork::acceptClients() {
 
         eClient c;
         c.fId = mNextClientID++;
+        c.fTimeOut = 0;
         c.fSocket = sock;
 
         mClients.push_back(c);
@@ -87,24 +87,32 @@ void eTCPNetwork::acceptClients() {
     }
 }
 
-void eTCPNetwork::removeDisconnectedClients() {
+std::set<int> eTCPNetwork::removeDisconnectedClients() {
+    std::set<int> result;
     for(size_t i = 0; i < mClients.size();) {
         const auto& c = mClients[i];
 
         const auto status = NET_GetConnectionStatus(c.fSocket);
 
-        if(status != NET_SUCCESS) {
+        if(status != NET_SUCCESS || c.fTimeOut > 100) {
+            result.emplace(c.fId);
             removeClient(c.fId);
             continue;
         }
 
         i++;
     }
+    return result;
 }
 
 void eTCPNetwork::receiveFromClients() {
     for(auto& c : mClients) {
-        receivePackets(c.fSocket, c.fId, c.fRecvBuffer);
+        const bool r = receivePackets(c.fSocket, c.fId, c.fRecvBuffer);
+        if(r) {
+            c.fTimeOut = 0;
+        } else {
+            c.fTimeOut++;
+        }
     }
 }
 
@@ -113,27 +121,27 @@ void eTCPNetwork::receiveFromServer() {
     receivePackets(mClientSocket, 0, buffer);
 }
 
-void eTCPNetwork::receivePackets(NET_StreamSocket* const sock,
+bool eTCPNetwork::receivePackets(NET_StreamSocket* const sock,
                                  const int id,
                                  std::vector<uint8_t>& buffer) {
     uint8_t temp[65536];
 
     const int len = NET_ReadFromStreamSocket(sock, temp, sizeof(temp));
 
-    if(len <= 0) return;
+    if(len <= 0) return false;
 
     buffer.insert(buffer.end(), temp, temp + len);
 
     while(true) {
         if(buffer.size() < sizeof(uint32_t)) {
-            return;
+            return true;
         }
 
         uint32_t size;
         memcpy(&size, buffer.data(), sizeof(uint32_t));
 
         if(buffer.size() < sizeof(uint32_t) + size) {
-            return;
+            return true;
         }
 
         ePacket p;

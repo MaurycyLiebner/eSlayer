@@ -38,6 +38,7 @@ public:
 
     bool addClient(const int clientId, const ePointF& pos);
     bool removeClient(const int clientId);
+    bool removeUnit(const int charId);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;

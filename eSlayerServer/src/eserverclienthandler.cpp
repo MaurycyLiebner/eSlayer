@@ -90,3 +90,8 @@ bool eServerClientHandler::spawn() {
     mArea->addClient(mClientId, ePointF{0.f, 0.f});
     return true;
 }
+
+bool eServerClientHandler::disconnect() {
+    if(!mArea) return false;
+    return mArea->removeClient(mClientId);
+}

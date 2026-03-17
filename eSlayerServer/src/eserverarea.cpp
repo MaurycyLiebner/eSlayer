@@ -137,7 +137,7 @@ eServerArea::unitsData(const int clientId) const {
 
 eUnitTile eServerArea::unitArea(const int charId) const {
     const auto u = unit(charId);
-    if(!u) return {-1, -1};
+    if(!u) return {0, 0};
     return unitArea(*u);
 }
 
@@ -183,12 +183,16 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
 }
 
 bool eServerArea::removeClient(const int clientId) {
-    const auto area = unitArea(clientId);
-    mUnitAreas[area].erase(clientId);
-    mClientIds.erase(clientId);
-    mUnits.remove(clientId);
+    removeUnit(clientId);
+    const int r = mClientIds.erase(clientId);
     mClientAreas.erase(clientId);
-    return true;
+    return r > 0;
+}
+
+bool eServerArea::removeUnit(const int charId) {
+    const auto area = unitArea(charId);
+    mUnitAreas[area].erase(charId);
+    return mUnits.remove(charId);
 }
 
 std::shared_ptr<eServerUnit>

@@ -13,6 +13,8 @@ public:
 
     void increment(const float by) override;
 private:
+    bool handleClientDisconnect(const int tcpClientId);
+
     eTCPNetwork mNet;
     bool mInitialized = false;
     // maps eTCPNetwork client id to charId

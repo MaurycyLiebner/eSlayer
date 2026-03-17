@@ -180,8 +180,9 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto r = mWindow->renderer();
     loading.emplace_back([this, server, serverData]() {
         *server = eSlayerServer::generate(serverData);
-        (*server)->setFailureHandler([this](const std::string& msg) {
-            showErrorMsg(msg);
+        (*server)->setFailureHandler([this](const std::string& msg,
+                                            const std::string& subMsg) {
+            showErrorMsg(msg, subMsg);
         });
         (*server)->initialize();
     });
@@ -252,12 +253,13 @@ void eScreenHandler::showLoadingScreen(
     mWindow->setWidget(w);
 }
 
-void eScreenHandler::showErrorMsg(const std::string& msg) {
+void eScreenHandler::showErrorMsg(const std::string& msg,
+                                  const std::string& subMsg) {
     const auto w = new eErrorScreen(mWindow);
     const int width = mWindow->width();
     const int height = mWindow->height();
     w->resize(width, height);
-    w->initialize(msg, [this]() {
+    w->initialize(msg, subMsg, [this]() {
         showMainMenu();
     });
     mWindow->setWidget(w);

@@ -22,7 +22,8 @@ void eServer::setFailureHandler(const eServerFailureHandler& h) {
     mFailure = h;
 }
 
-void eServer::failed(const std::string& msg) {
-    if(mFailure) mFailure(msg);
-    else eRuntimeThrow(msg);
+void eServer::failed(const std::string& msg,
+                     const std::string& subMsg) {
+    if(mFailure) mFailure(msg, subMsg);
+    else eRuntimeThrow(msg + " " + subMsg);
 }

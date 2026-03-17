@@ -11,6 +11,7 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <set>
 
 struct eNetPacket {
     int fClientID;
@@ -19,6 +20,7 @@ struct eNetPacket {
 
 struct eClient {
     int fId;
+    int fTimeOut;
     NET_StreamSocket* fSocket;
     std::vector<uint8_t> fRecvBuffer;
 };
@@ -32,6 +34,7 @@ public:
     bool connect(const char* host, const uint16_t port);
 
     void update();
+    std::set<int> removeDisconnectedClients();
 
     bool sendToServer(const ePacket& p);
     bool sendToClient(const int id, const ePacket& p);
@@ -43,11 +46,10 @@ public:
     static std::string sGetActiveLanIP();
 private:
     void acceptClients();
-    void removeDisconnectedClients();
     void receiveFromClients();
     void receiveFromServer();
 
-    void receivePackets(NET_StreamSocket* const sock,
+    bool receivePackets(NET_StreamSocket* const sock,
                         const int id,
                         std::vector<uint8_t>& buffer);
     bool sendPacket(NET_StreamSocket* const sock, const ePacket& p);

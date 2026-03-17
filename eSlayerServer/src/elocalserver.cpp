@@ -14,6 +14,9 @@ int eLocalServer::connect() {
 }
 
 bool eLocalServer::disconnect(const int clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    h->disconnect();
     mClientHandlers.erase(clientId);
     return true;
 }

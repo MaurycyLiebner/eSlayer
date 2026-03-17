@@ -5,18 +5,51 @@
 #include <eSlayerHelpers/eattackdata.h>
 
 eTcpIpHost::~eTcpIpHost() {
-    if(mInitialized) mNet.shutdown();
+    if(mInitialized) {
+        ePacket p;
+        p << ePacketType::disconnect;
+        for(const auto& c : mClientIdMap) {
+            const int tcpClientId = c.first;
+            mNet.sendToClient(tcpClientId, p);
+        }
+
+        uint32_t time = 0;
+        while(!mClientIdMap.empty()) {
+            mNet.update();
+
+            eNetPacket pkt;
+
+            while(mNet.pollPacket(pkt)) {
+                auto& p = pkt.fPacket;
+                const int tcpClientId = pkt.fClientID;
+                ePacketType type;
+                p >> type;
+
+                if(type == ePacketType::disconnect) {
+                    mClientIdMap.erase(tcpClientId);
+                }
+            }
+
+            SDL_Delay(16);
+            time += 16;
+            if(time > 2000) {
+                break;
+            }
+        }
+
+        mNet.shutdown();
+    }
 }
 
 bool eTcpIpHost::initialize() {
     eLocalServer::initialize();
     mInitialized = mNet.init();
     if(!mInitialized) {
-        failed("Failed to initialize SDL3_net.");
+        failed("Disconnected", "Failed to initialize SDL3_net.");
         return false;
     }
     const bool r = mNet.startServer(4000);
-    if(!r) failed("Failed to create the host server.");
+    if(!r) failed("Disconnected", "Failed to create the host server.");
     return r;
 }
 
@@ -109,6 +142,22 @@ void eTcpIpHost::increment(const float by) {
                 respawn(charId);
             }
         } break;
+        case ePacketType::disconnect: {
+            handleClientDisconnect(tcpClientId);
+        } break;
         }
     }
+    const auto tcpIds = mNet.removeDisconnectedClients();
+    for(const int tcpClientId : tcpIds) {
+        handleClientDisconnect(tcpClientId);
+    }
+}
+
+bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
+    const auto it = mClientIdMap.find(tcpClientId);
+    if(it == mClientIdMap.end()) return false;
+    mClientIdMap.erase(tcpClientId);
+    const int charId = it->second;
+    disconnect(charId);
+    return true;
 }

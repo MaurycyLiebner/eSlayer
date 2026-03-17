@@ -27,6 +27,11 @@ bool eLabelBase::setSmallFontSize() {
     return setFontSize(s);
 }
 
+bool eLabelBase::setLargeFontSize() {
+    const int s = res().largeFontSize();
+    return setFontSize(s);
+}
+
 bool eLabelBase::setHugeFontSize() {
     const int s = res().hugeFontSize();
     return setFontSize(s);
