@@ -6,6 +6,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
+#include <eSlayerHelpers/emissile.h>
 
 #include <memory>
 #include <map>
@@ -40,6 +41,12 @@ public:
     bool removeClient(const int clientId);
     bool removeUnit(const int charId);
 
+    std::vector<eMissile>
+    missileData(const int clientId) const;
+
+    void addMissile(const std::shared_ptr<eMissile>& m);
+    void removeMissile(const std::shared_ptr<eMissile>& m);
+
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
     std::shared_ptr<eServerUnit>
@@ -47,6 +54,7 @@ public:
 private:
     float mTime = 0.f;
 
+    std::vector<std::shared_ptr<eMissile>> mMissiles;
     eIdMapVector<eServerUnit> mUnits;
     std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::map<int, eUnitTile> mClientAreas;

@@ -5,11 +5,11 @@
 
 #include "epacket.h"
 
-#include "epoint.h"
+#include "epositioned.h"
 #include "evec2.h"
 #include "echardata.h"
 
-struct ESLAYERHELPERS_API eUnitData {
+struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     int32_t fCharId;
     int8_t fTeamId;
 
@@ -17,7 +17,6 @@ struct ESLAYERHELPERS_API eUnitData {
 
     float fRadius;
 
-    ePointF fPos;
     eVec2f fVel;
     float fAngle;
 

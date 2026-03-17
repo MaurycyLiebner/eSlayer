@@ -73,6 +73,9 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/evectorhelpers.h
     include/eSlayerHelpers/eattackdata.h
     include/eSlayerHelpers/eidmapvector.h
+    include/eSlayerHelpers/emissile.h
+    src/emissile.cpp
+    include/eSlayerHelpers/epositioned.h
 )
 
 target_include_directories(eSlayerHelpers

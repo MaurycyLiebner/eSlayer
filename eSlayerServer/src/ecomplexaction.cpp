@@ -53,6 +53,11 @@ bool eComplexAction::attack(const eAttackData& target) {
     case eAttackTargetType::position: {
         auto dir = ePointF::vector(target.fPos, mUnit.fPos);
         dir.normalize(mUnit.fRadius + 0.2f);
+        const auto m = std::make_shared<eMissile>();
+        m->fType = 0;
+        m->fPos = mUnit.fPos;
+        m->fPath.push_back(target.fPos);
+        mArea.addMissile(m);
         const auto targetPos = mUnit.fPos + dir;
         const auto a = [this, targetPos]() {
             const auto target = mArea.unit(targetPos);

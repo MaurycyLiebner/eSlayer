@@ -212,6 +212,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         mClientId, data, resultTime);
     if(b) {
         const auto& units = data.fUnits;
+        const auto& missiles = data.fMissiles;
         bool aggressive = false;
         std::set<int> present;
         for(const auto& u : units) {
@@ -283,6 +284,12 @@ void eGameScreen::paintEvent(ePainter& p) {
         }
         auto& model = mMainChar->model();
         model.setAggressive(aggressive);
+
+        for(const auto& m : missiles) {
+            auto& mm = mMissiles.emplace_back();
+            mm = std::make_shared<eMissile>();
+            *mm = m;
+        }
     }
 
     if(!mESCMenu && !mDeadMenu) {
@@ -319,11 +326,31 @@ void eGameScreen::paintEvent(ePainter& p) {
             });
         }
 
-        auto units = mUnits.get();
-        units.emplace_back(mMainChar);
+        enum class eRenderElementType {
+            unit, missile
+        };
 
-        std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
-                                                  const std::shared_ptr<eUnit>& u2) {
+        struct eRenderElement {
+            eRenderElementType fType;
+            std::shared_ptr<ePositioned> fPtr;
+        };
+        std::vector<eRenderElement> renderElements;
+        for(const auto& u : mUnits) {
+            renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
+                                        std::static_pointer_cast<ePositioned>(u)});
+        }
+        renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
+                                    std::static_pointer_cast<ePositioned>(mMainChar)});
+        for(const auto& m : mMissiles) {
+            renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
+                                        std::static_pointer_cast<ePositioned>(m)});
+        }
+
+        std::sort(renderElements.begin(), renderElements.end(),
+                  [&](const eRenderElement& e1,
+                      const eRenderElement& e2) {
+            const auto& u1 = e1.fPtr;
+            const auto& u2 = e2.fPtr;
             if(!u1 && !u2) return false;
             if(!u1) return true;
             if(!u2) return false;
@@ -346,7 +373,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             return pd1.fX < pd2.fX;
         });
 
-        int nextUnit = 0;
+        int nextElement = 0;
         setHighlightedUnit(nullptr);
         if(mPressedUnit && mPressedUnit->fHealth <= 0) {
             setPressedUnit(nullptr);
@@ -361,39 +388,51 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tex = object->getTexture(obj.fTileType);
                 p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
             }
-            for(int unitId = nextUnit; unitId < units.size(); unitId++) {
-                const auto& u = units[unitId];
-                if(!u) continue;
-                const auto& pos = u->fPos;
-                const auto iPos = pos.floor();
-                if(iPos.fY != y) continue;
-                if(iPos.fX != x) continue;
-                mGamePainter.save();
-                const auto displ = tilePosToPixel(pos);
-                const auto idispl = displ.round();
-                mGamePainter.translate(idispl.fX, idispl.fY);
-                auto& model = u->model();
-                model.incFrame(1.f);
-                bool highlight = false;
-                if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
-                    const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
-                    const int w = 0.75*u->fRadius*mTileW;
-                    const int h = 2*w;
-                    const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
-                    highlight = SDL_PointInRect(&p, &rect);
-                    if(highlight) {
-                        const auto b = model.offsetBoundingRect();
-                        const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
+            for(int eleId = nextElement; eleId < renderElements.size(); eleId++) {
+                const auto& e = renderElements[eleId];
+                if(e.fType == eRenderElementType::unit) {
+                    const auto u = std::static_pointer_cast<eUnit>(e.fPtr);
+                    if(!u) continue;
+                    const auto& pos = u->fPos;
+                    const auto iPos = pos.floor();
+                    if(iPos.fY != y) continue;
+                    if(iPos.fX != x) continue;
+                    mGamePainter.save();
+                    const auto displ = tilePosToPixel(pos);
+                    const auto idispl = displ.round();
+                    mGamePainter.translate(idispl.fX, idispl.fY);
+                    auto& model = u->model();
+                    model.incFrame(1.f);
+                    bool highlight = false;
+                    if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
+                        const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
+                        const int w = 0.75*u->fRadius*mTileW;
+                        const int h = 2*w;
+                        const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
-                            setHighlightedUnit(u);
+                            const auto b = model.offsetBoundingRect();
+                            const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
+                            highlight = SDL_PointInRect(&p, &rect);
+                            if(highlight) {
+                                setHighlightedUnit(u);
+                            }
                         }
                     }
+                    if(mPressedUnit) highlight = mPressedUnit == u;
+                    model.draw(mGamePainter, highlight);
+                    mGamePainter.restore();
+                    nextElement = eleId + 1;
+                } else if(e.fType == eRenderElementType::missile) {
+                    const auto m = std::static_pointer_cast<eMissile>(e.fPtr);
+                    if(!m) continue;
+                    const auto pixel = tilePosToPixel(m->fPos);
+                    const int dim = 5;
+                    mGamePainter.fillRect(SDL_Rect{int(pixel.fX - dim),
+                                                   int(pixel.fY - dim),
+                                                   2*dim, 2*dim},
+                                          SDL_Color{255, 0, 0, 255});
                 }
-                if(mPressedUnit) highlight = mPressedUnit == u;
-                model.draw(mGamePainter, highlight);
-                mGamePainter.restore();
-                nextUnit = unitId + 1;
             }
         });
     }

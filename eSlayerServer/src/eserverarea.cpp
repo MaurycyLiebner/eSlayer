@@ -1,10 +1,11 @@
 #include "eserverarea.h"
 
-#include "eunitbaseaction.h"
-#include "eserverchardata.h"
 #include "eclientaction.h"
+#include "eserverchardata.h"
+#include "eunitbaseaction.h"
 
 #include <eSlayerHelpers/erand.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
@@ -111,6 +112,16 @@ void eServerArea::increment(const float by) {
             }
         }
     }
+
+    for(int i = 0; i < mMissiles.size(); i++) {
+        const auto& m = mMissiles[i];
+        m->increment(by);
+        if(m->fPath.empty()) {
+            removeMissile(m);
+            i--;
+        }
+    }
+
     mTime += by;
 }
 
@@ -193,6 +204,28 @@ bool eServerArea::removeUnit(const int charId) {
     const auto area = unitArea(charId);
     mUnitAreas[area].erase(charId);
     return mUnits.remove(charId);
+}
+
+std::vector<eMissile>
+eServerArea::missileData(const int clientId) const {
+    std::vector<eMissile> result;
+    const auto u = unit(clientId);
+    if(!u) return result;
+    result.reserve(mMissiles.size());
+    for(const auto& m : mMissiles) {
+        const float dist = ePointF::distance(m->fPos, u->fPos);
+        if(dist > 20.f) continue;
+        result.emplace_back(*m);
+    }
+    return result;
+}
+
+void eServerArea::addMissile(const std::shared_ptr<eMissile>& m) {
+    mMissiles.emplace_back(m);
+}
+
+void eServerArea::removeMissile(const std::shared_ptr<eMissile>& m) {
+    eVectorHelpers::remove(mMissiles, m);
 }
 
 std::shared_ptr<eServerUnit>

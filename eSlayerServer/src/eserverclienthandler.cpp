@@ -16,8 +16,8 @@ bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
-    const auto unitsData = mArea->unitsData(mClientId);
-    data.fUnits = unitsData;
+    data.fUnits = mArea->unitsData(mClientId);
+    data.fMissiles = mArea->missileData(mClientId);
     return true;
 }
 

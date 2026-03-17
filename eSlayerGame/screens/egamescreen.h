@@ -1,19 +1,18 @@
 #ifndef EGAMESCREEN_H
 #define EGAMESCREEN_H
 
+#include "../emaincharaction.h"
+#include "../textures/echarunitmodel.h"
+#include "../units/eunit.h"
+#include "../widgets/gameScreen/egamepainter.h"
 #include "escreenbase.h"
 
-#include "../textures/echarunitmodel.h"
-#include "../widgets/gameScreen/egamepainter.h"
-
-#include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerServer/eserver.h>
-
-#include "../units/eunit.h"
-#include "../emaincharaction.h"
+#include <eSlayerHelpers/emissile.h>
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
@@ -66,6 +65,7 @@ private:
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
+    std::vector<std::shared_ptr<eMissile>> mMissiles;
     eIdMapVector<eUnit> mUnits;
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;
