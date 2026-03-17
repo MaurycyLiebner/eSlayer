@@ -5,6 +5,7 @@
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/eidmapvector.h>
 
 #include <memory>
 #include <map>
@@ -25,7 +26,7 @@ public:
 
     float time() const { return mTime; }
 
-    const std::vector<std::shared_ptr<eServerUnit>>&
+    const eIdMapVector<eServerUnit>&
     units() const { return mUnits; }
 
     std::vector<eUnitData>
@@ -35,7 +36,8 @@ public:
     eUnitTile unitArea(const eServerUnit& u) const;
     eUnitTile posArea(const ePointF& pos) const;
 
-    void addClient(const int clientId, const ePointF& pos);
+    bool addClient(const int clientId, const ePointF& pos);
+    bool removeClient(const int clientId);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
@@ -44,12 +46,10 @@ public:
 private:
     float mTime = 0.f;
 
-    std::vector<std::shared_ptr<eServerUnit>>
-    mUnits;
-    std::map<int, int> mUnitIdMap;
+    eIdMapVector<eServerUnit> mUnits;
     std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::map<int, eUnitTile> mClientAreas;
-    std::vector<int> mClientIds;
+    std::set<int> mClientIds;
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
 

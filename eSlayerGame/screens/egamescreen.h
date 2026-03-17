@@ -7,14 +7,13 @@
 #include "../widgets/gameScreen/egamepainter.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
+#include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerServer/eserver.h>
 
 #include "../units/eunit.h"
 #include "../emaincharaction.h"
-
-#include <set>
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
@@ -67,11 +66,9 @@ private:
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    std::vector<std::shared_ptr<eUnit>> mUnits;
+    eIdMapVector<eUnit> mUnits;
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;
-    std::map<int, int> mUnitIndexMap;
-    std::set<int> mUnitSlots;
     std::shared_ptr<eMap> mMap;
 
     int mFrame = 0;

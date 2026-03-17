@@ -44,8 +44,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
             u->fAngle = 0.f;
-            mUnitIdMap[charId] = mUnits.size();
-            mUnits.emplace_back(u);
+            mUnits.add(charId, u);
             const auto area = unitArea(*u);
             mUnitAreas[area].emplace(charId);
 
@@ -102,8 +101,7 @@ void eServerArea::increment(const float by) {
     for(const auto& area : unitTiles) {
         const auto units = mUnitAreas.at(area);
         for(const int charId : units) {
-            const int id = mUnitIdMap[charId];
-            const auto& u = mUnits[id];
+            const auto u = mUnits.get(charId);
             const auto oldArea = unitArea(*u);
             u->increment(by);
             const auto newArea = unitArea(*u);
@@ -154,10 +152,8 @@ eUnitTile eServerArea::posArea(const ePointF& pos) const {
     return result;
 }
 
-void eServerArea::addClient(
-    const int clientId, const ePointF& pos) {
-    mClientIds.emplace_back(clientId);
-    mUnitIdMap[clientId] = mUnits.size();
+bool eServerArea::addClient(const int clientId, const ePointF& pos) {
+    mClientIds.emplace(clientId);
     const int typeId = 1;
     const auto data = eServerCharData::get(typeId);
     const eModelParts modelParts {
@@ -179,18 +175,25 @@ void eServerArea::addClient(
     u->fModelParts = data->compress(modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
-    mUnits.emplace_back(u);
+    mUnits.add(clientId, u);
     const auto area = unitArea(*u);
     mUnitAreas[area].emplace(clientId);
     mClientAreas[clientId] = area;
+    return true;
+}
+
+bool eServerArea::removeClient(const int clientId) {
+    const auto area = unitArea(clientId);
+    mUnitAreas[area].erase(clientId);
+    mClientIds.erase(clientId);
+    mUnits.remove(clientId);
+    mClientAreas.erase(clientId);
+    return true;
 }
 
 std::shared_ptr<eServerUnit>
 eServerArea::unit(const int charId) const {
-    const auto it = mUnitIdMap.find(charId);
-    if(it == mUnitIdMap.end()) return nullptr;
-    const int id = it->second;
-    return mUnits[id];
+    return mUnits.get(charId);
 }
 
 std::shared_ptr<eServerUnit>

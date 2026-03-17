@@ -247,8 +247,14 @@ void eGameScreen::paintEvent(ePainter& p) {
                 mStaminaIndicator->setRange(0, mMainAction.maxStamina());
                 continue;
             }
-            const auto it = mUnitIndexMap.find(charId);
-            if(it == mUnitIndexMap.end()) {
+            const auto unit = mUnits.get(charId);
+            if(unit) {
+                reinterpret_cast<eUnitData&>(*unit) = u;
+                auto& model = unit->model();
+                unit->fPos = u.fPos;
+                model.setAngle(u.fAngle);
+                model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
+            } else {
                 const auto texs = eCharsTextures::get(u.fTypeId);
                 const auto modelParts = texs->decompress(u.fModelParts);
                 const auto unitModel = texs->generateModel(modelParts, r);
@@ -262,39 +268,18 @@ void eGameScreen::paintEvent(ePainter& p) {
                 model.setAngle(u.fAngle);
                 unit->setModel(model);
                 unit->fPos = u.fPos;
-                if(mUnitSlots.empty()) {
-                    mUnits.emplace_back(unit);
-                    mUnitIndexMap[charId] = mUnits.size() - 1;
-                } else {
-                    const auto it = mUnitSlots.extract(mUnitSlots.begin());
-                    const int id = it.value();
-                    mUnits[id] = unit;
-                    mUnitIndexMap[charId] = id;
-                }
-            } else {
-                const int id = it->second;
-                const auto& unit = mUnits[id];
-                reinterpret_cast<eUnitData&>(*unit) = u;
-                auto& model = unit->model();
-                unit->fPos = u.fPos;
-                model.setAngle(u.fAngle);
-                model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
+                mUnits.add(charId, unit);
             }
             if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
                 const float dist = ePointF::distance(mMainChar->fPos, u.fPos);
                 if(dist < 5.f) aggressive = true;
             }
         }
-        const int iMax = mUnits.size();
-        for(int i = 0; i < iMax; i++) {
-            const auto& u = mUnits[i];
-            if(!u) continue;
+        for(const auto& u : mUnits) {
             const int charId = u->fCharId;
             const auto it = present.find(charId);
             if(it != present.end()) continue;
-            mUnits[i] = nullptr;
-            mUnitSlots.emplace(i);
-            mUnitIndexMap.erase(charId);
+            mUnits.remove(charId);
         }
         auto& model = mMainChar->model();
         model.setAggressive(aggressive);
@@ -334,7 +319,7 @@ void eGameScreen::paintEvent(ePainter& p) {
             });
         }
 
-        std::vector<std::shared_ptr<eUnit>> units = mUnits;
+        auto units = mUnits.get();
         units.emplace_back(mMainChar);
 
         std::sort(units.begin(), units.end(), [&](const std::shared_ptr<eUnit>& u1,
