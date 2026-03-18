@@ -20,11 +20,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMovementHandler.setRadius(0.4f);
     mMovementHandler.setMoveRandom(0.f);
 
-    const eModelParts modelParts {
+    const std::map<std::string, std::string> partsMap {
         {"whole", "light"}
     };
     const int typeId = 1;
     mMainCharData = eCharsTextures::get(typeId);
+    const auto modelParts = mMainCharData->mapToModelParts(partsMap);
 
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
@@ -36,7 +37,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar->setModel(umodel);
     mMainChar->fRadius = 0.4f;
     mMainChar->fTypeId = typeId;
-    mMainChar->fModelParts = mMainCharData->compress(modelParts);
+    mMainChar->fModelParts = modelParts;
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {

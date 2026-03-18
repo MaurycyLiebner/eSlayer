@@ -3,6 +3,8 @@
 
 #include "eoffset.h"
 
+#include "estringidmapvector.h"
+
 #include <map>
 #include <string>
 
@@ -11,8 +13,7 @@ using namespace nlohmann;
 
 class ePacket;
 
-using eModelParts = std::map<std::string, std::string>;
-struct eCompressedModelParts {
+struct eModelParts {
     std::vector<uint8_t> fValues;
 
     void read(ePacket& p);
@@ -44,11 +45,8 @@ public:
     const std::string& animClamp(const int id) const;
     const std::string& animClamp(const std::string& name) const;
 
-    eCompressedModelParts
-    compress(const eModelParts& parts);
-
-    eModelParts
-    decompress(const eCompressedModelParts& parts);
+    eModelParts mapToModelParts(
+        const std::map<std::string, std::string>& m);
 protected:
     void setAnimId(const std::string& name, const int id);
 
@@ -80,8 +78,10 @@ protected:
         int fActionFrame;
     };
 
-    std::vector<std::pair<std::string, eAnimation>> mAnims;
-    std::vector<std::map<std::string, std::vector<std::string>>> mGroups;
+    eStringIdMapVector<eAnimation> mAnims;
+    std::vector<std::vector<int>> mGroups;
+    eStringIdMapVector<eStringIdMapVector<bool>> mParts;
+    int mNParts = 0;
 };
 
 #endif // ECHARDATA_H

@@ -17,25 +17,25 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const int typeId = 2 + eRand::rand() % 2;
             const auto data = eServerCharData::get(typeId);
             const auto name = data->name();
-            eModelParts modelParts;
+            std::map<std::string, std::string> partsMap;
             if(name == "mummy") {
-                modelParts = {
+                partsMap = {
                     {"mummy", "whole"}
                 };
             } else if(name == "wendigo") {
-                modelParts = {
+                partsMap = {
                     {"wendigo", "whole"}
                 };
             } else {
                 continue;
             }
-            const auto cmodelParts = data->compress(modelParts);
+            const auto modelParts = data->mapToModelParts(partsMap);
             const auto u = std::make_shared<eServerUnit>(*data);
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
             u->fTypeId = typeId;
-            u->fModelParts = cmodelParts;
+            u->fModelParts = modelParts;
             u->fHealth = 100;
             u->fMaxHealth = 100;
             u->fRadius = data->radius();
@@ -167,9 +167,8 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     mClientIds.emplace(clientId);
     const int typeId = 1;
     const auto data = eServerCharData::get(typeId);
-    const eModelParts modelParts {
-        {"whole", "light"}
-    };
+    const std::map<std::string, std::string> partsMap{{"whole", "light"}};
+    const auto modelParts = data->mapToModelParts(partsMap);
     const auto u = std::make_shared<eServerUnit>(*data);
     u->fCharId = clientId;
     u->fTypeId = typeId;
@@ -183,7 +182,7 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     u->fMaxHealth = 100;
     u->fHealth = 100;
     u->fActionTime = 0.f;
-    u->fModelParts = data->compress(modelParts);
+    u->fModelParts = modelParts;
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     mUnits.add(clientId, u);

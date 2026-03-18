@@ -17,16 +17,19 @@ std::shared_ptr<eCharModel> eCharTextures::generateModel(
         result->mNParts.push_back(parts.size());
     }
     for(const auto& anim : mAnims) {
-        const auto animPath = path + anim.first + "/";
+        const auto animPath = path + anim.fName + "/";
         auto& ranim = result->mAnims.emplace_back();
-        ranim.fFrames = anim.second.fFrames;
-        ranim.fOffset = anim.second.fOffset;
-        ranim.fClamp = anim.second.fClamp;
+        ranim.fFrames = anim.fValue.fFrames;
+        ranim.fOffset = anim.fValue.fOffset;
+        ranim.fClamp = anim.fValue.fClamp;
         for(const auto& parts : mGroups) {
             auto& rparts = ranim.fGroups.emplace_back();
-            for(const auto& part : parts) {
-                const auto modelPart = modelParts.at(part.first);
-                const auto partPath = animPath + part.first + "_" + modelPart;
+            for(const int partId : parts) {
+                const auto& partOptions = mParts.get(partId);
+                const auto partName = mParts.name(partId);
+                const int eqId = modelParts.fValues[partId];
+                const auto eqName = partOptions.name(eqId);
+                const auto partPath = animPath + partName + "_" + eqName;
                 auto& rpart = rparts.emplace_back();
                 rpart.reserve(mDirs);
                 const auto it = mTexMap.find(partPath);
@@ -35,7 +38,7 @@ std::shared_ptr<eCharModel> eCharTextures::generateModel(
                     eSpriteLoader loader(dir, partPath, r, mColorKey);
                     for(int i = 0; i < mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>();
-                        const int nFrames = anim.second.fFrames;
+                        const int nFrames = anim.fValue.fFrames;
                         for(int f = 0; f < nFrames; f++) {
                             loader.load(i*nFrames + f, *coll);
                         }

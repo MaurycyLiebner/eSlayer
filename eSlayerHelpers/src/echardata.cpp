@@ -1,7 +1,5 @@
 #include "eSlayerHelpers/echardata.h"
 
-#include "eSlayerHelpers/eexceptions.h"
-#include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/epacket.h"
 
 const std::unordered_map<std::string, int eCharData::*>
@@ -24,27 +22,30 @@ eCharData::eCharData() {}
 void eCharData::load(ordered_json& jdata) {
     mDirs = jdata["directions"];
     mRadius = jdata["radius"];
-    const auto anims = jdata["animations"].items();
-    int id = 0;
-    for(auto& [name, animData] : anims) {
-        setAnimId(name, id++);
+    const auto& anims = jdata["animations"];
+    for(auto& [name, animData] : anims.items()) {
         const auto offset = animData.value("offset", std::vector<int>{0, 0});
-        auto& animP = mAnims.emplace_back();
-        animP.first = name;
-        auto& anim = animP.second;
+        eAnimation anim;
         anim.fFrames = animData.value("frames", 0);
         anim.fOffset = eOffset{offset[0], offset[1]};
         anim.fClamp = animData.value("clamp", "");
         anim.fActionFrame = animData.value("actionFrame", anim.fFrames);
+        const int id = mAnims.add(name, anim);
+        setAnimId(name, id);
     }
 
     const auto groups = jdata["groups"];
     for(const auto& groupJson : groups) {
         auto& group = mGroups.emplace_back();
-        const auto items = groupJson.items();
-        for(auto& [key, valueArray] : items) {
+        for(auto& [key, valueArray] : groupJson.items()) {
             const auto values = valueArray.get<std::vector<std::string>>();
-            group[key] = values;
+            eStringIdMapVector<bool> equipment;
+            for(const auto& v : values) {
+                equipment.add(v, true);
+            }
+            const int id = mParts.add(key, equipment);
+            group.emplace_back(id);
+            mNParts++;
         }
     }
 }
@@ -65,7 +66,7 @@ int eCharData::animId(const std::string& name) const {
 }
 
 int eCharData::animFrames(const int id) const {
-    return mAnims[id].second.fFrames;
+    return mAnims.get(id).fFrames;
 }
 
 int eCharData::animFrames(const std::string& name) const {
@@ -74,7 +75,7 @@ int eCharData::animFrames(const std::string& name) const {
 }
 
 int eCharData::animActionFrame(const int id) const {
-    return mAnims[id].second.fActionFrame;
+    return mAnims.get(id).fActionFrame;
 }
 
 int eCharData::animActionFrame(const std::string& name) const {
@@ -83,12 +84,37 @@ int eCharData::animActionFrame(const std::string& name) const {
 }
 
 const std::string& eCharData::animClamp(const int id) const {
-    return mAnims[id].second.fClamp;
+    return mAnims.get(id).fClamp;
 }
 
 const std::string& eCharData::animClamp(const std::string& name) const {
     const int id = animId(name);
     return animClamp(id);
+}
+
+eModelParts eCharData::mapToModelParts(
+    const std::map<std::string, std::string>& m) {
+    if(m.size() != mNParts) {
+        eRuntimeThrow("Insufficient unit equipment information.");
+    }
+    eModelParts result;
+    result.fValues.resize(mNParts);
+    for(const auto& part : m) {
+        const auto& partName = part.first;
+        const int partId = mParts.id(partName);
+        if(partId == -1) {
+            eRuntimeThrow("Part \"" + partName + "\" not found.");
+        }
+        const auto& partData = mParts.get(partId);
+        const auto& eqName = part.second;
+        const int eqId = partData.id(eqName);
+        if(eqId == -1) {
+            eRuntimeThrow("Part \"" + partName + "\" does not have \"" + eqName + "\".");
+        }
+        result.fValues[partId] = eqId;
+    }
+
+    return result;
 }
 
 void eCharData::setAnimId(const std::string& name, const int id) {
@@ -103,42 +129,7 @@ void eCharData::setAnimId(const std::string& name, const int id) {
     mCustomIds[name] = id;
 }
 
-eCompressedModelParts
-eCharData::compress(const eModelParts& parts) {
-    eCompressedModelParts result;
-    for(const auto& group : mGroups) {
-        for(const auto& part : group) {
-            const auto it = parts.find(part.first);
-            if(it == parts.end()) {
-                eRuntimeThrow("Did not provide part \"" + part.first + "\" info.");
-            } else {
-                const auto& val = it->second;
-                const uint8_t id = eVectorHelpers::index(part.second, val);
-                result.fValues.push_back(id);
-            }
-        }
-    }
-    return result;
-}
-
-eModelParts
-eCharData::decompress(const eCompressedModelParts& parts) {
-    eModelParts result;
-    int id = 0;
-    const auto& vals = parts.fValues;
-    for(const auto& group : mGroups) {
-        for(const auto& part : group) {
-            if(id >= vals.size()) {
-                eRuntimeThrow("Part id \"" + std::to_string(id) + "\" out of range.");
-            }
-            const uint8_t partId = vals[id++];
-            result[part.first] = part.second[partId];
-        }
-    }
-    return result;
-}
-
-void eCompressedModelParts::read(ePacket& p) {
+void eModelParts::read(ePacket& p) {
     uint8_t nVals;
     p >> nVals;
     fValues.reserve(nVals);
@@ -149,7 +140,7 @@ void eCompressedModelParts::read(ePacket& p) {
     }
 }
 
-void eCompressedModelParts::write(ePacket& p) const {
+void eModelParts::write(ePacket& p) const {
     const uint8_t nVals = fValues.size();
     p << nVals;
     for(const uint8_t val : fValues) {

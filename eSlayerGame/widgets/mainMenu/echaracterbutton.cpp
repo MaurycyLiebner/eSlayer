@@ -13,12 +13,13 @@ void eCharacterButton::initialize(const eCharacter& c) {
     //     {"tr", "bare"}
     // };
     // const auto texs = eCharsTextures::get("char");
-    const eModelParts modelParts {
+    const std::map<std::string, std::string> partsMap {
         {"whole", "light"}
     };
-    const auto texs = eCharsTextures::get("pal");
+    const auto data = eCharsTextures::get("pal");
+    const auto modelParts = data->mapToModelParts(partsMap);
     const auto r = renderer();
-    const auto model = texs->generateModel(modelParts, r);
+    const auto model = data->generateModel(modelParts, r);
     mModel.setCharModel(model);
     mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);

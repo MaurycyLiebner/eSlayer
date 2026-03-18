@@ -257,8 +257,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
             } else {
                 const auto texs = eCharsTextures::get(u.fTypeId);
-                const auto modelParts = texs->decompress(u.fModelParts);
-                const auto unitModel = texs->generateModel(modelParts, r);
+                const auto unitModel = texs->generateModel(u.fModelParts, r);
 
                 const auto unit = std::make_shared<eUnit>();
                 unit->fRadius = u.fRadius;
@@ -422,10 +421,13 @@ void eGameScreen::paintEvent(ePainter& p) {
                     if(mPressedUnit) highlight = mPressedUnit == u;
                     model.draw(mGamePainter, highlight);
                     mGamePainter.restore();
-                    nextElement = eleId + 1;
                 } else if(e.fType == eRenderElementType::missile) {
                     const auto m = std::static_pointer_cast<eMissile>(e.fPtr);
                     if(!m) continue;
+                    const auto& pos = m->fPos;
+                    const auto iPos = pos.floor();
+                    if(iPos.fY != y) continue;
+                    if(iPos.fX != x) continue;
                     const auto pixel = tilePosToPixel(m->fPos);
                     const int dim = 5;
                     mGamePainter.fillRect(SDL_Rect{int(pixel.fX - dim),
@@ -433,6 +435,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                                                    2*dim, 2*dim},
                                           SDL_Color{255, 0, 0, 255});
                 }
+                nextElement = eleId + 1;
             }
         });
     }

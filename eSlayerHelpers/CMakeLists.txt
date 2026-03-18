@@ -76,6 +76,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/emissile.h
     src/emissile.cpp
     include/eSlayerHelpers/epositioned.h
+    include/eSlayerHelpers/estringidmapvector.h
 )
 
 target_include_directories(eSlayerHelpers

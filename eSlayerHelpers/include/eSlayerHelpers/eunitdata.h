@@ -29,7 +29,7 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     uint16_t fHealth;
     uint16_t fMaxHealth;
 
-    eCompressedModelParts fModelParts;
+    eModelParts fModelParts;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
