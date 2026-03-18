@@ -32,6 +32,7 @@ add_library(eSlayerServer SHARED
     src/etcpiphost.h src/etcpiphost.cpp
     src/epacketdata.h
     src/etcpipjoin.h src/etcpipjoin.cpp
+    src/eservermissile.h src/eservermissile.cpp
 
 )
 
@@ -46,3 +47,4 @@ target_compile_definitions(eSlayerServer
 target_link_libraries(eSlayerServer PUBLIC eSlayerHelpers)
 target_link_libraries(eSlayerServer PUBLIC eSlayerMapGenerator)
 target_link_libraries(eSlayerServer PUBLIC eSlayerNet)
+target_link_libraries(eSlayerServer PUBLIC eSlayerMissiles)

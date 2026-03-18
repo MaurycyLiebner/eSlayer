@@ -2,11 +2,11 @@
 #define ESERVERAREA_H
 
 #include "eserverunit.h"
+#include "eservermissile.h"
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
-#include <eSlayerHelpers/emissile.h>
 
 #include <memory>
 #include <map>
@@ -44,8 +44,8 @@ public:
     std::vector<eMissile>
     missileData(const int clientId) const;
 
-    void addMissile(const std::shared_ptr<eMissile>& m);
-    void removeMissile(const std::shared_ptr<eMissile>& m);
+    void addMissile(const std::shared_ptr<eServerMissile>& m);
+    void removeMissile(const std::shared_ptr<eServerMissile>& m);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
@@ -54,7 +54,8 @@ public:
 private:
     float mTime = 0.f;
 
-    std::vector<std::shared_ptr<eMissile>> mMissiles;
+    eIdMapVector<eServerMissile> mMissiles;
+    mutable std::map<int, int32_t> mClientLatestMissileId;
     eIdMapVector<eServerUnit> mUnits;
     std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::map<int, eUnitTile> mClientAreas;

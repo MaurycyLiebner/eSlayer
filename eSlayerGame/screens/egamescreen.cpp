@@ -1,6 +1,7 @@
 #include "egamescreen.h"
 
 #include "../elanguage.h"
+#include "../emainwindow.h"
 #include "../textures/echarstextures.h"
 #include "../textures/eobjstextures.h"
 #include "../textures/eterrstextures.h"
@@ -11,7 +12,8 @@
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eunitindicator.h"
-#include "../emainwindow.h"
+
+#include <eSlayerMissiles/emissileincrement.h>
 
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
@@ -203,7 +205,8 @@ ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
 void eGameScreen::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
-    mServer->increment(1.f);
+    const float by = 1.f;
+    mServer->increment(by);
     mServer->requestData(mClientId);
     eRequestData data;
     float resultTime;
@@ -285,23 +288,29 @@ void eGameScreen::paintEvent(ePainter& p) {
         model.setAggressive(aggressive);
 
         for(const auto& m : missiles) {
-            auto& mm = mMissiles.emplace_back();
-            mm = std::make_shared<eMissile>();
+            const auto mm = std::make_shared<eMissile>();
             *mm = m;
+            mMissiles.add(m.fId, mm);
+        }
+    }
+
+    mServer->changeState(mClientId, *mMainChar);
+    for(const auto& m : mMissiles) {
+        eMissileIncrement::increment(*m, by);
+        if(m->fRemDist <= 0.0001f) {
+            mMissiles.remove(m->fId);
         }
     }
 
     if(!mESCMenu && !mDeadMenu) {
-        mServer->changeState(mClientId, *mMainChar);
-
         const auto mouseTilePos = pixelToTilePos(mMousePos);
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
         mMainAction.increment(mMousePressed, shiftPressed,
-                              mouseTilePos, 1.f);
-
-        mFrame++;
+                              mouseTilePos, by);
     }
+
+    mFrame++;
 
     {
         const auto holder = mGamePainter.switchToBase();
@@ -334,13 +343,22 @@ void eGameScreen::paintEvent(ePainter& p) {
             std::shared_ptr<ePositioned> fPtr;
         };
         std::vector<eRenderElement> renderElements;
+        const int margin = 100;
+        const int w = width();
+        const int h = height();
         for(const auto& u : mUnits) {
+            const auto pixel = tilePosToPixel(u->fPos);
+            if(pixel.fX < -margin || pixel.fY < -margin ||
+               pixel.fX > w + margin || pixel.fY > h + margin) continue;
             renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
                                         std::static_pointer_cast<ePositioned>(u)});
         }
         renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
                                     std::static_pointer_cast<ePositioned>(mMainChar)});
         for(const auto& m : mMissiles) {
+            const auto pixel = tilePosToPixel(m->fPos);
+            if(pixel.fX < -margin || pixel.fY < -margin ||
+               pixel.fX > w + margin || pixel.fY > h + margin) continue;
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                         std::static_pointer_cast<ePositioned>(m)});
         }
@@ -468,8 +486,10 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
     if(leftReleased) {
         mMousePressed = false;
         setPressedUnit(nullptr);
-        const auto pos = pixelToTilePos(mMousePos);
-        mMainAction.mouseRelease(pos);
+        if(!e.shiftPressed()) {
+            const auto pos = pixelToTilePos(mMousePos);
+            mMainAction.mouseRelease(pos);
+        }
     }
     return true;
 }

@@ -8,10 +8,15 @@
 class ePacket;
 
 struct ESLAYERHELPERS_API eMissile : public ePositioned {
+    int32_t fId;
     uint8_t fType;
-    std::vector<ePointF> fPath;
-
-    void increment(const float by);
+    uint8_t fPathType;
+    ePointF fFrom;
+    ePointF fTo;
+    float fSpeed;
+    // number of obsticles missile can hit (0 - infinity)
+    uint8_t fObsticles;
+    float fRemDist;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

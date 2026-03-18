@@ -8,6 +8,7 @@
 #include "edieaction.h"
 
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerMissiles/emissileincrement.h>
 
 void eComplexAction::increment(const float by) {
     if(mChild) {
@@ -53,10 +54,15 @@ bool eComplexAction::attack(const eAttackData& target) {
     case eAttackTargetType::position: {
         auto dir = ePointF::vector(target.fPos, mUnit.fPos);
         dir.normalize(mUnit.fRadius + 0.2f);
-        const auto m = std::make_shared<eMissile>();
+        const auto m = std::make_shared<eServerMissile>();
         m->fType = 0;
+        m->fObsticles = 1;
+        m->fSpeed = 0.1f;
+        m->fRemDist = 5.f;
+        m->fPathType = eMissileIncrement::incrementorId("linear");
+        m->fFrom = mUnit.fPos;
         m->fPos = mUnit.fPos;
-        m->fPath.push_back(target.fPos);
+        m->fTo = target.fPos;
         mArea.addMissile(m);
         const auto targetPos = mUnit.fPos + dir;
         const auto a = [this, targetPos]() {

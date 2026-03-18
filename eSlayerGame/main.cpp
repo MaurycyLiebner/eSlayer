@@ -13,6 +13,8 @@
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
 
+#include <eSlayerMissiles/emissileincrement.h>
+
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_mixer/SDL_mixer.h>
@@ -153,6 +155,8 @@ int main(int argc, char* argv[]) {
         const bool m = music.initialize();
         if(!m) return 1;
         eSounds sounds(mixer);
+
+        eMissileIncrement::initialize();
 
         const auto showMainMenu = [&]() {
             sh.showMainMenu();

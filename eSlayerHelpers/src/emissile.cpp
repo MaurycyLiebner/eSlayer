@@ -2,42 +2,21 @@
 
 #include "eSlayerHelpers/epacket.h"
 
-void eMissile::increment(const float by) {
-    const float speed = 0.1f;
-    float remDist = by*speed;
-    while(remDist > 0.f && !fPath.empty()) {
-        const auto& target = fPath.front();
-        eVec2f dir = ePointF::vector(target, fPos);
-        if(dir.length() >= remDist) {
-            dir.normalize(remDist);
-            remDist = 0.f;
-        } else {
-            remDist -= dir.length();
-            fPath.erase(fPath.begin());
-        }
-        fPos = fPos + dir;
-    }
+int obsticlesFromChance(const float p) {
+    const float u = eRand::randF();
+    return int(std::log(u) / std::log(p));
 }
 
 void eMissile::read(ePacket& p) {
     p >> fType;
+    p >> fFrom;
     p >> fPos;
-
-    uint16_t nPath;
-    p >> nPath;
-    for(int i = 0; i < nPath; i++) {
-        auto& pos = fPath.emplace_back();
-        p >> pos;
-    }
+    p >> fTo;
 }
 
 void eMissile::write(ePacket& p) const {
     p << fType;
+    p << fFrom;
     p << fPos;
-
-    const uint16_t nPath = fPath.size();
-    p << nPath;
-    for(const auto& pos : fPath) {
-        p << pos;
-    }
+    p << fTo;
 }

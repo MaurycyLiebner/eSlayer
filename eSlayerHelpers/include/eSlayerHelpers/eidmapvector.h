@@ -81,6 +81,9 @@ public:
     const eCont& get() const {
         return mValues;
     }
+
+    int size() const { return mValues.size(); }
+    int actualSize() const { return mValues.size() - mSlots.size(); }
 private:
     eCont mValues;
     std::map<int, int> mIdMap;

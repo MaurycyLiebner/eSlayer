@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+#include <eSlayerMissiles/emissileincrement.h>
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
@@ -113,12 +114,10 @@ void eServerArea::increment(const float by) {
         }
     }
 
-    for(int i = 0; i < mMissiles.size(); i++) {
-        const auto& m = mMissiles[i];
-        m->increment(by);
-        if(m->fPath.empty()) {
+    for(const auto& m : mMissiles) {
+        eMissileIncrement::increment(*m, by);
+        if(m->fRemDist <= 0.0001f) {
             removeMissile(m);
-            i--;
         }
     }
 
@@ -165,6 +164,7 @@ eUnitTile eServerArea::posArea(const ePointF& pos) const {
 
 bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     mClientIds.emplace(clientId);
+    mClientLatestMissileId[clientId] = -1;
     const int typeId = 1;
     const auto data = eServerCharData::get(typeId);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
@@ -194,6 +194,7 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
 
 bool eServerArea::removeClient(const int clientId) {
     removeUnit(clientId);
+    mClientLatestMissileId.erase(clientId);
     const int r = mClientIds.erase(clientId);
     mClientAreas.erase(clientId);
     return r > 0;
@@ -210,21 +211,26 @@ eServerArea::missileData(const int clientId) const {
     std::vector<eMissile> result;
     const auto u = unit(clientId);
     if(!u) return result;
-    result.reserve(mMissiles.size());
+    result.reserve(mMissiles.actualSize());
+    const auto latestMissile = mClientLatestMissileId[clientId];
+    auto newLatestMissile = latestMissile;
     for(const auto& m : mMissiles) {
+        if(m->fId <= latestMissile) continue;
+        newLatestMissile = std::max(newLatestMissile, m->fId);
         const float dist = ePointF::distance(m->fPos, u->fPos);
         if(dist > 20.f) continue;
         result.emplace_back(*m);
     }
+    mClientLatestMissileId[clientId] = newLatestMissile;
     return result;
 }
 
-void eServerArea::addMissile(const std::shared_ptr<eMissile>& m) {
-    mMissiles.emplace_back(m);
+void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
+    mMissiles.add(m->fId, m);
 }
 
-void eServerArea::removeMissile(const std::shared_ptr<eMissile>& m) {
-    eVectorHelpers::remove(mMissiles, m);
+void eServerArea::removeMissile(const std::shared_ptr<eServerMissile>& m) {
+    mMissiles.remove(m->fId);
 }
 
 std::shared_ptr<eServerUnit>
