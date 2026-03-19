@@ -492,8 +492,11 @@ void eGameScreen::paintEvent(ePainter& p) {
                     const float ainc = 360.f/dirs;
                     int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
                     dir = (dirs + dir) % dirs;
-                    mGamePainter.renderLight(r, pixel.fX, pixel.fY,
-                                             5.f, SDL_Color{255, 255, 255, 255});
+                    const float lradius = fireball.lighting();
+                    if(lradius > 0.01f) {
+                        mGamePainter.renderLight(r, pixel.fX, pixel.fY,
+                                                 lradius, SDL_Color{255, 255, 255, 255});
+                    }
                     const auto& ftex = fireball.get(0, dir, mFrame % fireball.nFrames(0));
                     mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
                 }

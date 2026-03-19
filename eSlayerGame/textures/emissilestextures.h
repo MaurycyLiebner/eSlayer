@@ -28,7 +28,11 @@ public:
 
     int nFrames(const int animId) const;
     int nDirs(const int animId) const;
+
+    float lighting() const { return mLighting; }
+    void setLighting(const float l) { mLighting = l; }
 private:
+    float mLighting = 0.f;
     eStringIdMapVector<eMissileAnim> mAnims;
 };
 

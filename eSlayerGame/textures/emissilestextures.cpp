@@ -62,8 +62,10 @@ void eMissilesTextures::loadData() {
         const auto pathBase = "missiles/" + name;
         const auto jdata = eFileLoader::parse(dir, "missiles/" + name + ".json");
         const int dirs = jdata["directions"];
+        const float lighting = jdata.value("lighting", 0);
         const auto& anims = jdata["animations"];
         eMissileTextures texs;
+        texs.setLighting(lighting);
         for(auto& [aname, animData] : anims.items()) {
             eMissileAnim anim;
             const int nFrames = animData.value("frames", 0);
