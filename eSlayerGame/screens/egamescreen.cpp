@@ -7,6 +7,7 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/etilesiterator.h"
 #include "../textures/euitextures.h"
+#include "../textures/emissilestextures.h"
 #include "../widgets/echeckbutton.h"
 #include "../widgets/ecolors.h"
 #include "../widgets/gameScreen/eescmenubutton.h"
@@ -294,15 +295,19 @@ void eGameScreen::paintEvent(ePainter& p) {
         model.setAggressive(aggressive);
 
         for(const auto& m : missiles) {
-            const auto mm = std::make_shared<eMissile>();
-            *mm = m;
+            const auto mm = std::make_shared<eExtendedMissile>();
+            reinterpret_cast<eMissile&>(*mm) = m;
             mMissiles.add(m.fId, mm);
         }
     }
 
     mServer->changeState(mClientId, *mMainChar);
     for(const auto& m : mMissiles) {
+        const auto oldPos = m->fPos;
         eMissileIncrement::increment(*m, by);
+        const auto newPos = m->fPos;
+        const auto dir = ePointF::vector(oldPos, newPos);
+        m->fAngle = dir.angle();
         if(m->fRemDist <= 0.0001f) {
             mMissiles.remove(m->fId);
         } else {
@@ -475,18 +480,22 @@ void eGameScreen::paintEvent(ePainter& p) {
                     model.draw(mGamePainter, highlight);
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
-                    const auto m = std::static_pointer_cast<eMissile>(e.fPtr);
+                    const auto m = std::static_pointer_cast<eExtendedMissile>(e.fPtr);
                     if(!m) continue;
                     const auto& pos = m->fPos;
                     const auto iPos = pos.floor();
                     if(iPos.fY != y) continue;
                     if(iPos.fX != x) continue;
                     const auto pixel = tilePosToPixel(m->fPos);
-                    const int dim = 5;
-                    mGamePainter.fillRect(SDL_Rect{int(pixel.fX - dim),
-                                                   int(pixel.fY - dim),
-                                                   2*dim, 2*dim},
-                                          SDL_Color{255, 0, 0, 255});
+                    auto& fireball = eMissilesTextures::sMissiles.get(m->fType);
+                    const int dirs = fireball.nDirs(0);
+                    const float ainc = 360.f/dirs;
+                    int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
+                    dir = (dirs + dir) % dirs;
+                    mGamePainter.renderLight(r, pixel.fX, pixel.fY,
+                                             5.f, SDL_Color{255, 255, 255, 255});
+                    const auto& ftex = fireball.get(0, dir, mFrame % fireball.nFrames(0));
+                    mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
                 }
                 nextElement = eleId + 1;
             }
@@ -521,7 +530,9 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
     if(leftReleased) {
         mMousePressed = false;
         setPressedUnit(nullptr);
-        if(!e.shiftPressed()) {
+        if(e.shiftPressed()) {
+            mMainAction.stop();
+        } else {
             const auto pos = pixelToTilePos(mMousePos);
             mMainAction.mouseRelease(pos);
         }

@@ -9,8 +9,9 @@ void eLightingTexture::initialize(SDL_Renderer * const r,
     create(r, w, h, color);
     setBlendMode(SDL_BLENDMODE_MOD);
 
-    const auto lighting = eEffectsTextures::get("lighting");
-    mLightingTex = lighting->getTexture(0);
+    const int id = eEffectsTextures::sEffects.id("lighting");
+    const auto& lighting = eEffectsTextures::sEffects.get(id);
+    mLightingTex = lighting.getTexture(0);
     mLightingTex->setBlendMode(SDL_BLENDMODE_ADD);
 }
 

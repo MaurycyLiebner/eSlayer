@@ -14,6 +14,7 @@
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
 #include "../textures/eeffectstextures.h"
+#include "../textures/emissilestextures.h"
 #include "../textures/euitextures.h"
 
 #include <eSlayerNet/etcpnetwork.h>
@@ -193,8 +194,12 @@ void eScreenHandler::showGame(eServerData serverData,
         *map = (*server)->requestMap(*clientId, "town");
     });
     loading.emplace_back([r]() {
-        const auto lighting = eEffectsTextures::get("lighting");
-        lighting->load(r);
+        const int id = eEffectsTextures::sEffects.id("lighting");
+        auto& lighting = eEffectsTextures::sEffects.get(id);
+        lighting.load(r);
+    });
+    loading.emplace_back([r]() {
+        eMissilesTextures::loadTextures(r);
     });
     loading.emplace_back([r, map]() {
         const auto& terrTypes = (*map)->terrainTypes();

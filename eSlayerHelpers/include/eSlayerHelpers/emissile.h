@@ -24,4 +24,8 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     void write(ePacket& p) const;
 };
 
+struct eExtendedMissile : public eMissile {
+    float fAngle;
+};
+
 #endif // EMISSILE_H

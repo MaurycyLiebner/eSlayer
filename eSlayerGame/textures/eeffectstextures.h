@@ -3,20 +3,15 @@
 
 #include "eeffecttextures.h"
 
+#include <eSlayerHelpers/estringidmapvector.h>
+
 class eEffectsTextures {
 public:
-    eEffectsTextures();
-
-    static eEffectTextures* get(const std::string& name);
     static void load();
+
+    static eStringIdMapVector<eEffectTextures> sEffects;
 private:
-    void loadImpl();
-    eEffectTextures* getImpl(const std::string& name);
-
-    static eEffectsTextures sInstance;
-
-    bool mLoaded = false;
-    std::map<std::string, eEffectTextures> mEffects;
+    static bool sLoaded;
 };
 
 #endif // EEFFECTSTEXTURES_H

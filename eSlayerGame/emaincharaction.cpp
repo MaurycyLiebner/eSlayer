@@ -193,7 +193,10 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
 
 void eMainCharAction::stop() {
     mPressedUnit = nullptr;
-    mAttackData = eAttackData();
+    if(mAttackData.fType != eAttackTargetType::none) {
+        mServer->stopAttack(mClientId);
+        mAttackData = eAttackData();
+    }
     mMovementHandler.stopMoving();
 }
 

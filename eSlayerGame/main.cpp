@@ -9,9 +9,11 @@
 #include "textures/eterrstextures.h"
 #include "textures/eobjstextures.h"
 #include "textures/eeffectstextures.h"
+#include "textures/emissilestextures.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/eskills.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -191,6 +193,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eEffectsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eMissilesTextures::loadData();
+        });
+
+        loadings.emplace_back([&]() {
+            eSkills::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

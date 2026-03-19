@@ -66,7 +66,7 @@ private:
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    eIdMapVector<eMissile> mMissiles;
+    eIdMapVector<eExtendedMissile> mMissiles;
     eIdMapVector<eUnit> mUnits;
     std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::shared_ptr<eUnit> mHighlightUnit;

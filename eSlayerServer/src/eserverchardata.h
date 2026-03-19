@@ -2,6 +2,7 @@
 #define ESERVERCHARDATA_H
 
 #include <eSlayerHelpers/echardata.h>
+#include <eSlayerHelpers/estringidmapvector.h>
 
 class eServerCharData {
 public:
@@ -19,8 +20,7 @@ private:
     static eServerCharData sInstance;
 
     bool mLoaded = false;
-    std::vector<eCharData> mChars;
-    std::map<std::string, int> mCharIdMap;
+    eStringIdMapVector<eCharData> mChars;
 };
 
 #endif // ESERVERCHARDATA_H

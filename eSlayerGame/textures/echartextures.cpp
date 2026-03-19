@@ -17,6 +17,7 @@ std::shared_ptr<eCharModel> eCharTextures::generateModel(
         result->mNParts.push_back(parts.size());
     }
     for(const auto& anim : mAnims) {
+        const int nFrames = anim.fValue.fFrames;
         const auto animPath = path + anim.fName + "/";
         auto& ranim = result->mAnims.emplace_back();
         ranim.fFrames = anim.fValue.fFrames;
@@ -38,7 +39,6 @@ std::shared_ptr<eCharModel> eCharTextures::generateModel(
                     eSpriteLoader loader(dir, partPath, r, mColorKey);
                     for(int i = 0; i < mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>();
-                        const int nFrames = anim.fValue.fFrames;
                         for(int f = 0; f < nFrames; f++) {
                             loader.load(i*nFrames + f, *coll);
                         }

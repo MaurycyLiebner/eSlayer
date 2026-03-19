@@ -32,34 +32,33 @@ void eServerCharData::loadImpl() {
     mChars.reserve(chars.size());
     for(const auto& name : chars) {
         try {
-            const auto it = mCharIdMap.find(name);
-            if(it != mCharIdMap.end()) {
+            const int oldId = mChars.id(name);
+            if(oldId != -1) {
                 eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/chars/chars.json");
                 continue;
             }
-            const int id = mChars.size();
-            mCharIdMap[name] = id;
-            auto& texs = mChars.emplace_back();
+
+            eCharData texs;
+            const int id = mChars.nextId();
             texs.setTypeId(id);
             texs.setName(name);
             auto jdata = eServerFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
             texs.load(jdata);
+            mChars.add(name, texs);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
-            mCharIdMap.erase(name);
         }
     }
 }
 
 eCharData* eServerCharData::getImpl(const std::string &name) {
-    const auto it = mCharIdMap.find(name);
-    if(it == mCharIdMap.end()) return nullptr;
-    return getImpl(it->second);
+    const int id = mChars.id(name);
+    return getImpl(id);
 }
 
 eCharData* eServerCharData::getImpl(const int id) {
     if(id < 0 || id >= mChars.size()) {
         eRuntimeThrow("Index out of range.");
     }
-    return &mChars[id];
+    return &mChars.get(id);
 }

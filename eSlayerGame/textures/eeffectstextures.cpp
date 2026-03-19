@@ -4,21 +4,13 @@
 
 #include <eSlayerHelpers/eexceptions.h>
 
-eEffectsTextures eEffectsTextures::sInstance;
-
-eEffectsTextures::eEffectsTextures() {}
-
-eEffectTextures* eEffectsTextures::get(const std::string& name) {
-    return sInstance.getImpl(name);
-}
+bool eEffectsTextures::sLoaded = false;
+eStringIdMapVector<eEffectTextures>
+eEffectsTextures::sEffects;
 
 void eEffectsTextures::load() {
-    return sInstance.loadImpl();
-}
-
-void eEffectsTextures::loadImpl() {
-    if(mLoaded) return;
-    mLoaded = true;
+    if(sLoaded) return;
+    sLoaded = true;
 
     const auto dir = "Textures";
 
@@ -32,22 +24,16 @@ void eEffectsTextures::loadImpl() {
 
     for(const auto& name : effs) {
         try {
-            const auto it = mEffects.find(name);
-            if(it != mEffects.end()) {
+            const int oldId = sEffects.id(name);
+            if(oldId != -1) {
                 eExceptions::showDialog("Duplicate effect '" + name + "' in " + dir + "/effects/effects.json");
                 continue;
             }
-            auto& texs = mEffects[name];
+            eEffectTextures texs;
             texs.setName(name);
+            sEffects.add(name, texs);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
-            mEffects.erase(name);
         }
     }
-}
-
-eEffectTextures* eEffectsTextures::getImpl(const std::string& name) {
-    const auto it = mEffects.find(name);
-    if(it == mEffects.end()) return nullptr;
-    return &it->second;
 }

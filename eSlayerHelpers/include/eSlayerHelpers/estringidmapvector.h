@@ -10,10 +10,11 @@
 template <typename T>
 class eStringIdMapVector {
 public:
+    template <typename ValueRef>
     struct eIterateType {
         std::string fName;
         int fId;
-        const T& fValue;
+        ValueRef fValue;
     };
 
     template <typename ContType>
@@ -25,8 +26,8 @@ public:
 
         decltype(auto) operator*() {
             const auto name = mCont.name(mId);
-            const auto& value = mCont.get(mId);
-            return eIterateType{name, mId, value};
+            decltype(auto) value = mCont.get(mId);
+            return eIterateType<decltype(value)>{name, mId, value};
         }
 
         eIterator& operator++() {
@@ -48,6 +49,8 @@ public:
     eIterator<const eStringIdMapVector> begin() const { return eIterator(0, *this); }
     eIterator<const eStringIdMapVector> end() const { return eIterator(mValues.size(), *this); }
 
+    int nextId() const { return mValues.size(); }
+
     int add(const std::string& str, const T& value) {
         const int oldId = id(str);
         if(oldId != -1) {
@@ -60,6 +63,10 @@ public:
     }
 
     const T& get(const int id) const {
+        return mValues[id];
+    }
+
+    T& get(const int id) {
         return mValues[id];
     }
 
@@ -79,6 +86,8 @@ public:
     }
 
     int size() const { return mValues.size(); }
+
+    void reserve(const int size) { mValues.reserve(size); }
 private:
     std::map<std::string, int> mMap;
     std::vector<T> mValues;
