@@ -56,6 +56,7 @@ bool eComplexAction::attack(const eAttackData& target) {
         dir.normalize(mUnit.fRadius + 0.2f);
         const auto m = std::make_shared<eServerMissile>();
         m->fType = 0;
+        m->fTeamId = mUnit.fTeamId;
         m->fObsticles = 1;
         m->fSpeed = 0.1f;
         m->fRemDist = 5.f;
@@ -63,6 +64,7 @@ bool eComplexAction::attack(const eAttackData& target) {
         m->fFrom = mUnit.fPos;
         m->fPos = mUnit.fPos;
         m->fTo = target.fPos;
+        m->fRadius = 0.5f;
         mArea.addMissile(m);
         const auto targetPos = mUnit.fPos + dir;
         const auto a = [this, targetPos]() {

@@ -16,6 +16,7 @@
 #include <eSlayerMissiles/emissileincrement.h>
 
 #include <eSlayerHelpers/erequestdata.h>
+#include <eSlayerHelpers/eunittile.h>
 #include <eSlayerHelpers/evec2.h>
 
 eGameScreen::eGameScreen(eMainWindow* const window) :
@@ -214,12 +215,17 @@ void eGameScreen::paintEvent(ePainter& p) {
     const bool b = mServer->receiveData(
         mClientId, data, resultTime);
     if(b) {
+        mUnitAreas.clear();
         const auto& units = data.fUnits;
         const auto& missiles = data.fMissiles;
         bool aggressive = false;
         std::set<int> present;
         for(const auto& u : units) {
             const int charId = u.fCharId;
+            const auto ipos = u.fPos.floor();
+            eUnitTile tile;
+            reinterpret_cast<ePoint&>(tile) = ipos;
+            mUnitAreas[tile].emplace(charId);
             present.emplace(charId);
             if(charId == mClientId) {
                 if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
@@ -299,6 +305,35 @@ void eGameScreen::paintEvent(ePainter& p) {
         eMissileIncrement::increment(*m, by);
         if(m->fRemDist <= 0.0001f) {
             mMissiles.remove(m->fId);
+        } else {
+            const auto ipos = m->fPos.floor();
+            const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
+            if(obsticle) {
+                mMissiles.remove(m->fId);
+            } else {
+                bool found = false;
+                const int margin = int(m->fRadius) + 1;
+                const int xMin = ipos.fX - margin;
+                const int xMax = ipos.fX + margin;
+                const int yMin = ipos.fY - margin;
+                const int yMax = ipos.fY + margin;
+                for(int x = xMin; x <= xMax; x++) {
+                    for(int y = yMin; y <= yMax; y++) {
+                        const auto& charIds = mUnitAreas[eUnitTile{x, y}];
+                        for(const int charId : charIds) {
+                            const auto& u = mUnits.get(charId);
+                            if(!u) continue;
+                            if(u->fTeamId == m->fTeamId) continue;
+                            const float dist = ePointF::distance(u->fPos, m->fPos);
+                            if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
+                            found = true;
+                            mMissiles.remove(m->fId);
+                            break;
+                        }
+                    }
+                    if(found) break;
+                }
+            }
         }
     }
 

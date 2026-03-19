@@ -13,6 +13,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerServer/eserver.h>
 #include <eSlayerHelpers/emissile.h>
+#include <eSlayerHelpers/eunittile.h>
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
@@ -67,6 +68,7 @@ private:
 
     eIdMapVector<eMissile> mMissiles;
     eIdMapVector<eUnit> mUnits;
+    std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eMap> mMap;

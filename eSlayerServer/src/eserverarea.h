@@ -7,17 +7,11 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
+#include <eSlayerHelpers/eunittile.h>
 
 #include <memory>
 #include <map>
 #include <set>
-
-struct eUnitTile : public ePoint {
-   friend bool operator<(const eUnitTile& t1, const eUnitTile& t2) {
-        if(t1.fY != t2.fY) return t1.fY < t2.fY;
-        return t1.fX < t2.fX;
-    }
-};
 
 class eServerArea {
 public:
