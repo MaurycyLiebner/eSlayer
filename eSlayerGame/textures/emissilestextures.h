@@ -44,7 +44,8 @@ public:
     static eStringIdMapVector<eMissileTextures>
     sMissiles;
 private:
-    static bool sLoaded;
+    static bool sDataLoaded;
+    static bool sTexsLoaded;
 };
 
 #endif // EMISSILESTEXTURES_H

@@ -55,8 +55,16 @@ void eGameScreen::initialize(const int clientId,
     const auto bottomWid = new eWidget(window());
     bottomWid->setNoPadding();
 
-    const auto attackIcon = eUITextures::sSkillIcons["attack"];
+    const int attackIconId = eUITextures::sSkillIcons.id("attack");
+    const auto attackIcon = eUITextures::sSkillIcons.get(attackIconId);
     mLeftSkillButton = new eButtonBase(window());
+    mLeftSkillButton->setPressAction([this]() {
+        mLeftSkill = mLeftSkill == 0 ? 1 : 0;
+        const auto name = mLeftSkill == 0 ? "attack" : "fireball";
+        const int iconId = eUITextures::sSkillIcons.id(name);
+        const auto icon = eUITextures::sSkillIcons.get(iconId);
+        mLeftSkillButton->setTexture(icon);
+    });
     mLeftSkillButton->setNoPadding();
     mLeftSkillButton->setTexture(attackIcon);
     mLeftSkillButton->fitContent();
@@ -134,6 +142,13 @@ void eGameScreen::initialize(const int clientId,
     bottomWid->addWidget(centerWid);
 
     mRightSkillButton = new eButtonBase(window());
+    mRightSkillButton->setPressAction([this]() {
+        mRightSkill = mRightSkill == 0 ? 1 : 0;
+        const auto name = mRightSkill == 0 ? "attack" : "fireball";
+        const int iconId = eUITextures::sSkillIcons.id(name);
+        const auto icon = eUITextures::sSkillIcons.get(iconId);
+        mRightSkillButton->setTexture(icon);
+    });
     mRightSkillButton->setNoPadding();
     mRightSkillButton->setTexture(attackIcon);
     mRightSkillButton->fitContent();
@@ -347,7 +362,10 @@ void eGameScreen::paintEvent(ePainter& p) {
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
         mMainAction.increment(mMousePressed, shiftPressed,
-                              mouseTilePos, by);
+                              mouseTilePos,
+                              mRightPressed ? mRightSkill :
+                                              mLeftSkill,
+                              by);
     }
 
     mFrame++;
@@ -516,7 +534,15 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
     const auto button = e.button();
     const bool leftPressed = static_cast<bool>(
         button & eMouseButton::left);
-    if(leftPressed) {
+    const bool rightPressed = static_cast<bool>(
+        button & eMouseButton::right);
+    if(leftPressed || rightPressed) {
+        if(rightPressed) {
+            mRightPressed = true;
+        }
+        if(leftPressed) {
+            mLeftPressed = true;
+        }
         mMousePressed = true;
         mMousePos = ePointF{float(e.x()), float(e.y())};
         if(mHighlightUnit) {
@@ -530,8 +556,16 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
     const auto button = e.button();
     const bool leftReleased = static_cast<bool>(
         button & eMouseButton::left);
-    if(leftReleased) {
-        mMousePressed = false;
+    const bool rightRelease = static_cast<bool>(
+        button & eMouseButton::right);
+    if(leftReleased || rightRelease) {
+        if(rightRelease) {
+            mRightPressed = false;
+        }
+        if(leftReleased) {
+            mLeftPressed = false;
+        }
+        mMousePressed = mRightPressed || mLeftPressed;
         setPressedUnit(nullptr);
         if(e.shiftPressed()) {
             mMainAction.stop();

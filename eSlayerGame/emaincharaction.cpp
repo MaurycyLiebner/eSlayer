@@ -6,7 +6,6 @@
 
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerServer/eserver.h>
-#include <iostream>
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
@@ -47,6 +46,7 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 void eMainCharAction::increment(const bool mousePressed,
                                 const bool shiftPressed,
                                 const ePointF& mousePos,
+                                const uint8_t skill,
                                 const float by) {
     if(mMainChar->fHealth <= 0) return;
 
@@ -81,7 +81,7 @@ void eMainCharAction::increment(const bool mousePressed,
             if(mAttackData.fType != eAttackTargetType::none) {
             } else {
                 const int targetId = mPressedUnit->fCharId;
-                mAttackData = eAttackData(targetId);
+                mAttackData = eAttackData(targetId, skill);
                 const auto vec = ePointF::vector(mPressedUnit->fPos,
                                                  mMainChar->fPos);
                 model.setAngle(vec.angle());
@@ -93,7 +93,7 @@ void eMainCharAction::increment(const bool mousePressed,
     } else if(mousePressed && shiftPressed) {
         if(mAttackData.fType != eAttackTargetType::position ||
            ePointF::distance(mousePos, mAttackData.fPos) > 0.1f) {
-            mAttackData = eAttackData(mousePos);
+            mAttackData = eAttackData(mousePos, skill);
             const auto vec = ePointF::vector(mousePos,
                                              mMainChar->fPos);
             model.setAngle(vec.angle());

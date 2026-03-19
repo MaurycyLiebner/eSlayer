@@ -79,6 +79,8 @@ private:
     const int mTileH = 79;
 
     bool mMousePressed = false;
+    bool mRightPressed = false;
+    bool mLeftPressed = false;
     ePointF mMousePos{0.f, 0.f};
 
     eAction mExitAction;
@@ -92,6 +94,8 @@ private:
 
     eButtonBase* mLeftSkillButton = nullptr;
     eButtonBase* mRightSkillButton = nullptr;
+    int mLeftSkill = 0;
+    int mRightSkill = 0;
     eCheckButton* mRunButton = nullptr;
 };
 

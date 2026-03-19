@@ -3,7 +3,7 @@
 #include "../efileloader.h"
 
 bool eUITextures::sLoaded = false;
-std::map<std::string, std::shared_ptr<eTexture>>
+eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
 std::shared_ptr<eTexture> eUITextures::sRunIcon;
@@ -23,6 +23,6 @@ void eUITextures::sLoad(SDL_Renderer* const r) {
 
     for(const auto& name : names) {
         const auto tex = eFileLoader::readTexture(r, dir, "ui/skills/" + name + ".png");
-        sSkillIcons[name] = tex;
+        sSkillIcons.add(name, tex);
     }
 }

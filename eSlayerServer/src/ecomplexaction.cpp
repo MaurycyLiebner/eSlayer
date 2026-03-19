@@ -49,33 +49,30 @@ bool eComplexAction::attack(const eAttackData& target) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
-        return attack(*u);
+        if(target.fSkill == 0) {
+            return attack(*u);
+        } else {
+            return spawnMissile(u->fPos);
+        }
     } break;
     case eAttackTargetType::position: {
-        auto dir = ePointF::vector(target.fPos, mUnit.fPos);
-        dir.normalize(mUnit.fRadius + 0.2f);
-        const auto m = std::make_shared<eServerMissile>();
-        m->fType = 0;
-        m->fTeamId = mUnit.fTeamId;
-        m->fObsticles = 1;
-        m->fSpeed = 0.1f;
-        m->fRemDist = 5.f;
-        m->fPathType = eMissileIncrement::incrementorId("linear");
-        m->fFrom = mUnit.fPos;
-        m->fPos = mUnit.fPos;
-        m->fTo = target.fPos;
-        m->fRadius = 0.5f;
-        mArea.addMissile(m);
-        const auto targetPos = mUnit.fPos + dir;
-        const auto a = [this, targetPos]() {
-            const auto target = mArea.unit(targetPos);
-            if(!target) return;
-            if(target.get() == &mUnit) return;
-            target->getHit(mUnit);
-        };
-        const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
-        if(attack) setChild(attack);
-        return attack.get();
+        if(target.fSkill == 0) {
+            auto dir = ePointF::vector(target.fPos, mUnit.fPos);
+            dir.normalize(mUnit.fRadius + 0.2f);
+            const auto targetPos = mUnit.fPos + dir;
+            const auto a = [this, targetPos]() {
+                const auto target = mArea.unit(targetPos);
+                if(!target) return;
+                if(target.get() == &mUnit) return;
+                target->getHit(mUnit);
+            };
+            const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
+            if(attack) setChild(attack);
+            return attack.get();
+        } else {
+            return spawnMissile(target.fPos);
+        }
+
     } break;
     case eAttackTargetType::none: {
         return false;
@@ -100,4 +97,26 @@ bool eComplexAction::attack(const eServerUnit& u) {
     const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
     if(attack) setChild(attack);
     return attack.get();
+}
+
+bool eComplexAction::spawnMissile(const ePointF& to) {
+    const auto a = [this, to]() {
+        const auto m = std::make_shared<eServerMissile>();
+        m->fType = 0;
+        m->fTeamId = mUnit.fTeamId;
+        m->fObsticles = 1;
+        m->fSpeed = 0.1f;
+        m->fRemDist = 5.f;
+        m->fPathType = eMissileIncrement::incrementorId("linear");
+        m->fFrom = mUnit.fPos;
+        m->fPos = mUnit.fPos;
+        m->fTo = to;
+        m->fRadius = 0.5f;
+        mArea.addMissile(m);
+    };
+    const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
+    if(attack) setChild(attack);
+    return attack.get();
+
+    return true;
 }

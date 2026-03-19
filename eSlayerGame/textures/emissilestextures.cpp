@@ -5,7 +5,8 @@
 
 eStringIdMapVector<eMissileTextures>
 eMissilesTextures::sMissiles;
-bool eMissilesTextures::sLoaded = false;
+bool eMissilesTextures::sDataLoaded = false;
+bool eMissilesTextures::sTexsLoaded = false;
 
 const std::shared_ptr<eTexture>&
 eMissileAnim::get(const int dir, const int frame) {
@@ -49,8 +50,8 @@ int eMissileTextures::nDirs(const int animId) const {
 }
 
 void eMissilesTextures::loadData() {
-    if(sLoaded) return;
-    sLoaded = true;
+    if(sDataLoaded) return;
+    sDataLoaded = true;
 
     const std::string dir = "Textures";
 
@@ -79,6 +80,8 @@ void eMissilesTextures::loadData() {
 }
 
 void eMissilesTextures::loadTextures(SDL_Renderer* const r) {
+    if(sTexsLoaded) return;
+    sTexsLoaded = true;
     for(const auto& m : sMissiles) {
         m.fValue.load(r);
     }

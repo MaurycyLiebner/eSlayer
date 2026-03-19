@@ -21,6 +21,8 @@ protected:
     bool attack(const eAttackData& target);
     bool attack(const eServerUnit& u);
 private:
+    bool spawnMissile(const ePointF& to);
+
     std::shared_ptr<eUnitAction> mChild;
 };
 

@@ -13,14 +13,19 @@ enum class eAttackTargetType {
 struct eAttackData {
     eAttackData() :
         fType(eAttackTargetType::none) {}
-    eAttackData(const int c) :
+    eAttackData(const int c,
+                const uint8_t skill) :
         fType(eAttackTargetType::character),
+        fSkill(skill),
         fChar(c) {}
-    eAttackData(const ePointF& pos) :
+    eAttackData(const ePointF& pos,
+                const uint8_t skill) :
         fType(eAttackTargetType::position),
+        fSkill(skill),
         fPos(pos) {}
 
     eAttackTargetType fType;
+    uint8_t fSkill;
     int32_t fChar;
     ePointF fPos;
 
@@ -31,6 +36,8 @@ struct eAttackData {
             p >> fChar;
         case eAttackTargetType::position:
             p >> fPos;
+        case eAttackTargetType::none:
+            break;
         }
     }
 
@@ -41,6 +48,8 @@ struct eAttackData {
             p << fChar;
         case eAttackTargetType::position:
             p << fPos;
+        case eAttackTargetType::none:
+            break;
         }
     }
 };

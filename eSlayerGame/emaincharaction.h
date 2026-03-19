@@ -25,6 +25,7 @@ public:
     void increment(const bool mousePressed,
                    const bool shiftPressed,
                    const ePointF& mousePos,
+                   const uint8_t skill,
                    const float by);
 
     void mouseRelease(const ePointF& mousePos);

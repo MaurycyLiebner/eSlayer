@@ -131,6 +131,7 @@ add_executable(eSlayerGame main.cpp
     screens/etcpipjoinmenu.h screens/etcpipjoinmenu.cpp
     screens/eerrorscreen.h screens/eerrorscreen.cpp
     textures/emissilestextures.h textures/emissilestextures.cpp
+
 )
 
 include(GNUInstallDirs)
