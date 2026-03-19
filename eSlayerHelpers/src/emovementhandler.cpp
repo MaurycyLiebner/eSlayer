@@ -158,7 +158,7 @@ bool eMovementHandler::increment(const float by) {
     if(!r) return false;
     switch(mGoal.type()) {
     case eMovementGoalType::dir: {
-        if(ePointF::distance(mPos, to) < 0.01f) {
+        if(ePointF::distance(mPos, to) < 0.05f) {
             mGoal.stopMoving();
             return false;
         }
@@ -207,7 +207,16 @@ bool eMovementHandler::increment(const float by) {
     if(moveDir.length() > 0) {
         moveDir.normalize();
     }
-    mVel = moveDir*mSpeed;
+
+    const float distToGoal = ePointF::distance(mPos, to);
+    const float slowRadius = 0.5f;
+
+    float speedFactor = 1.0f;
+    if(distToGoal < slowRadius) {
+        speedFactor = distToGoal / slowRadius;
+    }
+
+    mVel = moveDir*mSpeed*speedFactor;
     const float progress = eVec2f::dot(mVel, desiredDir);
     if(progress < 0.1f*mSpeed) {
         mStuckTimer += by;
