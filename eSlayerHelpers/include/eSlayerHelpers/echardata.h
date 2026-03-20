@@ -35,6 +35,7 @@ public:
     float radius() const { return mRadius; }
 
     int animId(const std::string& name) const;
+    int runAnimId() const { return mRunId; }
 
     int animFrames(const int id) const;
     int animFrames(const std::string& name) const;

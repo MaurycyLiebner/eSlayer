@@ -9,6 +9,22 @@ int eServerUnit::sNextCharId = 0;
 eServerUnit::eServerUnit(const eCharData& data)
     : mData(data) {}
 
+float eServerUnit::defense() const {
+    if(fAnim == mData.runAnimId()) {
+        return 0.f;
+    } else {
+        return mDefense;
+    }
+}
+
+float eServerUnit::blockChance() const {
+    if(fAnim == mData.runAnimId()) {
+        return std::clamp(0.33f*mBlockChance, 0.f, 0.25f);
+    } else {
+        return std::clamp(mBlockChance, 0.f, 0.75f);
+    }
+}
+
 float eServerUnit::sHitChance(
     const eServerUnit& hit, const eServerUnit& by) {
     const float alvl = by.level();

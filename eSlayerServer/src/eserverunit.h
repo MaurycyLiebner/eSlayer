@@ -21,8 +21,8 @@ public:
 
     float level() const { return mLevel; }
     float attackRating() const { return mAttackRating; }
-    float defense() const { return mDefense; }
-    float blockChance() const { return mBlockChance; }
+    float defense() const;
+    float blockChance() const;
     void setBlockChance(const float c) { mBlockChance = c; }
     float fasterHitRecovery() const { return mFasterHitRecovery; }
     void setFasterHitRecovery(const float fhr) { mFasterHitRecovery = fhr; }
