@@ -5,11 +5,14 @@
 #include <eSlayerHelpers/eskills.h>
 
 void eSkillButton::initialize() {
-    setSkillId(mSkillId);
+    const int attackSkillId = eSkills::sSkills.id("attack");
+    setSkillId(attackSkillId);
+    setNoPadding();
     fitContent();
 }
 
 void eSkillButton::setSkillId(const int skillId) {
+    if(skillId == -1) return;
     mSkillId = skillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const int iconId = skill.fIconId;

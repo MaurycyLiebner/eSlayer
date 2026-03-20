@@ -132,6 +132,7 @@ add_executable(eSlayerGame main.cpp
     screens/eerrorscreen.h screens/eerrorscreen.cpp
     textures/emissilestextures.h textures/emissilestextures.cpp
     widgets/gameScreen/eskillbutton.h widgets/gameScreen/eskillbutton.cpp
+    widgets/gameScreen/eskillselectwidget.h widgets/gameScreen/eskillselectwidget.cpp
 
 )
 

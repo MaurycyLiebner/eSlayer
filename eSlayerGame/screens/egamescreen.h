@@ -17,7 +17,7 @@
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
-class eButtonBase;
+class eSkillButton;
 class eCheckButton;
 
 class eGameScreen : public eScreenBase {
@@ -55,6 +55,9 @@ private:
     void hideESCMenu();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
+    void openSkillMenu(const eAlignment align,
+                       eSkillButton* const targetButton,
+                       int& targetSkillVar);
 
     eWalkable walkable() const;
 
@@ -92,8 +95,9 @@ private:
     ePlayerHealthIndicator* mStaminaIndicator = nullptr;
     ePlayerHealthIndicator* mExperienceIndicator = nullptr;
 
-    eButtonBase* mLeftSkillButton = nullptr;
-    eButtonBase* mRightSkillButton = nullptr;
+    eSkillButton* mLeftSkillButton = nullptr;
+    eSkillButton* mRightSkillButton = nullptr;
+    eWidget* mSkillMenu = nullptr;
     int mLeftSkill = 0;
     int mRightSkill = 0;
     eCheckButton* mRunButton = nullptr;

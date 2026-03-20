@@ -13,9 +13,12 @@
 #include "../widgets/gameScreen/eescmenubutton.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../widgets/gameScreen/eskillbutton.h"
+#include "../widgets/gameScreen/eskillselectwidget.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
+#include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eunittile.h>
 #include <eSlayerHelpers/evec2.h>
@@ -55,19 +58,11 @@ void eGameScreen::initialize(const int clientId,
     const auto bottomWid = new eWidget(window());
     bottomWid->setNoPadding();
 
-    const int attackIconId = eUITextures::sSkillIcons.id("attack");
-    const auto attackIcon = eUITextures::sSkillIcons.get(attackIconId);
-    mLeftSkillButton = new eButtonBase(window());
+    mLeftSkillButton = new eSkillButton(window());
+    mLeftSkillButton->initialize();
     mLeftSkillButton->setPressAction([this]() {
-        mLeftSkill = mLeftSkill == 0 ? 1 : 0;
-        const auto name = mLeftSkill == 0 ? "attack" : "fireball";
-        const int iconId = eUITextures::sSkillIcons.id(name);
-        const auto icon = eUITextures::sSkillIcons.get(iconId);
-        mLeftSkillButton->setTexture(icon);
+        openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill);
     });
-    mLeftSkillButton->setNoPadding();
-    mLeftSkillButton->setTexture(attackIcon);
-    mLeftSkillButton->fitContent();
     bottomWid->addWidget(mLeftSkillButton);
 
     const auto centerWid = new eWidget(window());
@@ -141,17 +136,11 @@ void eGameScreen::initialize(const int clientId,
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
     bottomWid->addWidget(centerWid);
 
-    mRightSkillButton = new eButtonBase(window());
+    mRightSkillButton = new eSkillButton(window());
+    mRightSkillButton->initialize();
     mRightSkillButton->setPressAction([this]() {
-        mRightSkill = mRightSkill == 0 ? 1 : 0;
-        const auto name = mRightSkill == 0 ? "attack" : "fireball";
-        const int iconId = eUITextures::sSkillIcons.id(name);
-        const auto icon = eUITextures::sSkillIcons.get(iconId);
-        mRightSkillButton->setTexture(icon);
+        openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill);
     });
-    mRightSkillButton->setNoPadding();
-    mRightSkillButton->setTexture(attackIcon);
-    mRightSkillButton->fitContent();
     bottomWid->addWidget(mRightSkillButton);
 
     bottomWid->stackHorizontally();
@@ -585,7 +574,10 @@ bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mDeadMenu) {
+        if(mSkillMenu) {
+            mSkillMenu->deleteLater();
+            mSkillMenu = nullptr;
+        } else if(mDeadMenu) {
             mServer->respawn(mClientId);
         } else {
             if(mESCMenu) {
@@ -698,6 +690,40 @@ void eGameScreen::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     }
 
     mMainAction.setPressedUnit(u);
+}
+
+void eGameScreen::openSkillMenu(const eAlignment align,
+                                eSkillButton* const targetButton,
+                                int& targetSkillVar) {
+    if(mSkillMenu) {
+        mSkillMenu->deleteLater();
+        mSkillMenu = nullptr;
+        return;
+    }
+
+    const auto w = new eSkillSelectWidget(window());
+
+    std::vector<int> skillIds;
+    for(const auto& s : eSkills::sSkills) {
+        skillIds.push_back(s.fId);
+    }
+
+    const auto action = [this, targetButton, &targetSkillVar](const int skillId) {
+        targetButton->setSkillId(skillId);
+        targetSkillVar = skillId;
+        mSkillMenu = nullptr;
+    };
+    w->initialize(skillIds, align, action);
+
+    addWidget(w);
+
+    const auto res = resolution();
+    const float mult = res.multiplier();
+    const int margin = 100*mult;
+    w->move(align == eAlignment::left ? margin : width() - w->width() - margin,
+            height() - w->height() - margin);
+
+    mSkillMenu = w;
 }
 
 eWalkable eGameScreen::walkable() const {
