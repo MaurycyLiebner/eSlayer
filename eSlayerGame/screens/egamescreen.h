@@ -1,13 +1,14 @@
 #ifndef EGAMESCREEN_H
 #define EGAMESCREEN_H
 
+#include "../egameinput.h"
+#include "../egameworld.h"
 #include "../emaincharaction.h"
 #include "../textures/echarunitmodel.h"
 #include "../units/eunit.h"
 #include "../widgets/gameScreen/egamepainter.h"
 #include "escreenbase.h"
 
-#include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerMapGenerator/emapgenerator.h>
@@ -30,8 +31,8 @@ public:
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map);
 
-    int tileWidth() const { return mTileW; }
-    int tileHeight() const { return mTileH; }
+    int tileWidth() const { return mInput.tileWidth(); }
+    int tileHeight() const { return mInput.tileHeight(); }
 
     int mapWidth() const { return mMap->width(); }
     int mapHeight() const { return mMap->height(); }
@@ -59,8 +60,12 @@ private:
                        eSkillButton* const targetButton,
                        int& targetSkillVar);
 
+    void updateMainCharFromServer(const eUnitData& u);
+
     eWalkable walkable() const;
 
+    eGameWorld mWorld;
+    eGameInput mInput;
     eGamePainter mGamePainter;
 
     int mClientId = -1;
@@ -69,22 +74,11 @@ private:
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    eIdMapVector<eExtendedMissile> mMissiles;
-    eIdMapVector<eUnit> mUnits;
-    std::map<eUnitTile, std::set<int>> mUnitAreas;
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eMap> mMap;
 
     int mFrame = 0;
-
-    const int mTileW = 160;
-    const int mTileH = 79;
-
-    bool mMousePressed = false;
-    bool mRightPressed = false;
-    bool mLeftPressed = false;
-    ePointF mMousePos{0.f, 0.f};
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;

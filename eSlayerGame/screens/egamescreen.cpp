@@ -2,7 +2,6 @@
 
 #include "../elanguage.h"
 #include "../emainwindow.h"
-#include "../textures/echarstextures.h"
 #include "../textures/eobjstextures.h"
 #include "../textures/eterrstextures.h"
 #include "../textures/etilesiterator.h"
@@ -154,27 +153,13 @@ void eGameScreen::initialize(const int clientId,
 
     const auto w = walkable();
     const auto iter = [this](const eOtherHandler& handler) {
-        for(const auto& u : mUnits) {
+        for(const auto& u : mWorld.units()) {
             if(!u) continue;
             handler(*u);
         }
     };
     mMainAction.initialize(mServer, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
-    // {
-    //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
-    //     for(const auto& entry : std::filesystem::directory_iterator(dir))
-    //         std::filesystem::remove_all(entry.path());
-    //     const eCharTextures::eModelParts modelParts {
-    //         {"mummy", "whole"}
-    //     };
-    //     const auto texs = eCharsTextures::get("mummy");
-    //     const auto unitModel = texs->generateModel(modelParts, r);
-    //     eCharUnitModel model;
-    //     model.setCharModel(unitModel);
-    //     model.setDirection(0);
-    //     model.generatePreview(r);
-    // }
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -184,28 +169,18 @@ const ePointF& eGameScreen::characterPos() const {
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pos,
     const ePointF& pixel) const {
-    ePointF result;
-    result.fY = pos.fY +
-                (pixel.fY - height()/2.f)/mTileH +
-                (width()/2.f - pixel.fX)/mTileW;
-    result.fX = pos.fX +
-                (pixel.fX - width()/2.f)/mTileW +
-                (pixel.fY - height()/2.f)/mTileH;
-    return result;
+    return mInput.pixelToTilePos(pos, pixel, width(), height());
 }
 
 ePointF eGameScreen::pixelToTilePos(
     const ePointF& pixel) const {
     const auto& pos = characterPos();
-    return pixelToTilePos(pos, pixel);
+    return mInput.pixelToTilePos(pos, pixel, width(), height());
 }
 
 ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
     const auto& charPos = characterPos();
-    ePointF result;
-    result.fY = height()/2.f + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.f;
-    result.fX = width()/2.f + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.f;
-    return result;
+    return mInput.tilePosToPixel(pos, charPos, width(), height());
 }
 
 void eGameScreen::paintEvent(ePainter& p) {
@@ -213,150 +188,35 @@ void eGameScreen::paintEvent(ePainter& p) {
 
     const float by = 1.f;
     mServer->increment(by);
-    mServer->requestData(mClientId);
-    eRequestData data;
-    float resultTime;
+
     const auto r = renderer();
-    const bool b = mServer->receiveData(
-        mClientId, data, resultTime);
-    if(b) {
-        mUnitAreas.clear();
-        const auto& units = data.fUnits;
-        const auto& missiles = data.fMissiles;
-        bool aggressive = false;
-        std::set<int> present;
-        for(const auto& u : units) {
-            const int charId = u.fCharId;
-            const auto ipos = u.fPos.floor();
-            eUnitTile tile;
-            reinterpret_cast<ePoint&>(tile) = ipos;
-            mUnitAreas[tile].emplace(charId);
-            present.emplace(charId);
-            if(charId == mClientId) {
-                if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
-                    if(mDeadMenu) {
-                        mDeadMenu->deleteLater();
-                        mDeadMenu = nullptr;
-                    }
-                    mMainChar->fPos = u.fPos;
-                    mMainAction.setPos(u.fPos);
-                    mMainAction.stop();
-                    setPressedUnit(nullptr);
-                    setHighlightedUnit(nullptr);
-                }
-                mMainChar->fHealth = u.fHealth;
-                if(!mDeadMenu && u.fHealth <= 0) {
-                    showDeadMenu();
-                    mMainAction.stop();
-                }
-                mMainChar->fMaxHealth = u.fMaxHealth;
-                mMainChar->fActionTime = u.fActionTime;
-                if(u.fAnimId > mMainChar->fAnimId) {
-                    mMainChar->fAnim = u.fAnim;
-                    mMainChar->fAnimId = u.fAnimId;
-                    mMainChar->fAnimSpeed = u.fAnimSpeed;
-                }
-                mHealthIndicator->setValue(u.fHealth);
-                mHealthIndicator->setRange(0, u.fMaxHealth);
-                mStaminaIndicator->setValue(mMainAction.stamina());
-                mStaminaIndicator->setRange(0, mMainAction.maxStamina());
-                continue;
-            }
-            const auto unit = mUnits.get(charId);
-            if(unit) {
-                reinterpret_cast<eUnitData&>(*unit) = u;
-                auto& model = unit->model();
-                unit->fPos = u.fPos;
-                model.setAngle(u.fAngle);
-                model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
-            } else {
-                const auto texs = eCharsTextures::get(u.fTypeId);
-                const auto unitModel = texs->generateModel(u.fModelParts, r);
 
-                const auto unit = std::make_shared<eUnit>();
-                unit->fRadius = u.fRadius;
-                reinterpret_cast<eUnitData&>(*unit) = u;
-                eCharUnitModel model;
-                model.setCharModel(unitModel);
-                model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
-                model.setAngle(u.fAngle);
-                unit->setModel(model);
-                unit->fPos = u.fPos;
-                mUnits.add(charId, unit);
-            }
-            if(!aggressive && mMainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
-                const float dist = ePointF::distance(mMainChar->fPos, u.fPos);
-                if(dist < 5.f) aggressive = true;
-            }
+    const auto worldResult = mWorld.processServerData(
+        mClientId, mServer, mMainChar, r);
+
+    if(worldResult.fReceived) {
+        if(worldResult.fHasMainCharData) {
+            updateMainCharFromServer(worldResult.fMainCharData);
         }
-        for(const auto& u : mUnits) {
-            const int charId = u->fCharId;
-            const auto it = present.find(charId);
-            if(it != present.end()) continue;
-            mUnits.remove(charId);
-        }
+
         auto& model = mMainChar->model();
-        model.setAggressive(aggressive);
-
-        for(const auto& m : missiles) {
-            const auto mm = std::make_shared<eExtendedMissile>();
-            reinterpret_cast<eMissile&>(*mm) = m;
-            mMissiles.add(m.fId, mm);
-        }
+        model.setAggressive(worldResult.fAggressive);
     }
 
     mServer->changeState(mClientId, *mMainChar);
-    for(const auto& m : mMissiles) {
-        const auto oldPos = m->fPos;
-        eMissileIncrement::increment(*m, by);
-        const auto newPos = m->fPos;
-        const auto dir = ePointF::vector(oldPos, newPos);
-        m->fAngle = dir.angle();
-        if(m->fRemDist <= 0.0001f) {
-            mMissiles.remove(m->fId);
-        } else {
-            const auto ipos = m->fPos.floor();
-            const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
-            if(obsticle) {
-                mMissiles.remove(m->fId);
-            } else {
-                bool found = false;
-                const int margin = int(m->fRadius) + 1;
-                const int xMin = ipos.fX - margin;
-                const int xMax = ipos.fX + margin;
-                const int yMin = ipos.fY - margin;
-                const int yMax = ipos.fY + margin;
-                for(int x = xMin; x <= xMax; x++) {
-                    for(int y = yMin; y <= yMax; y++) {
-                        const auto& charIds = mUnitAreas[eUnitTile{x, y}];
-                        for(const int charId : charIds) {
-                            const auto u = mUnits.get(charId);
-                            if(!u || u->fHealth <= 0) continue;
-                            if(u->fTeamId == m->fTeamId) continue;
-                            const float dist = ePointF::distance(u->fPos, m->fPos);
-                            if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
-                            found = true;
-                            mMissiles.remove(m->fId);
-                            break;
-                        }
-                        if(found) break;
-                    }
-                    if(found) break;
-                }
-            }
-        }
-    }
+
+    mWorld.simulateMissiles(by, mMap);
 
     if(!mESCMenu && !mDeadMenu) {
-        const auto mouseTilePos = pixelToTilePos(mMousePos);
+        const auto mouseTilePos = pixelToTilePos(mInput.mousePos());
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
-        mMainAction.increment(mMousePressed,
-                              mRightPressed,
+        mMainAction.increment(mInput.mousePressed(),
+                              mInput.rightPressed(),
                               shiftPressed,
                               mouseTilePos,
-                              mRightPressed ? mRightSkill :
-                                              mLeftSkill,
+                              mInput.rightPressed() ? mRightSkill :
+                                                      mLeftSkill,
                               by);
     }
 
@@ -396,7 +256,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         const int margin = 100;
         const int w = width();
         const int h = height();
-        for(const auto& u : mUnits) {
+        for(const auto& u : mWorld.units()) {
             const auto pixel = tilePosToPixel(u->fPos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
@@ -405,7 +265,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         }
         renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
                                     std::static_pointer_cast<ePositioned>(mMainChar)});
-        for(const auto& m : mMissiles) {
+        for(const auto& m : mWorld.missiles()) {
             const auto pixel = tilePosToPixel(m->fPos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
@@ -445,6 +305,8 @@ void eGameScreen::paintEvent(ePainter& p) {
         if(mPressedUnit && mPressedUnit->fHealth <= 0) {
             setPressedUnit(nullptr);
         }
+        const auto& mousePos = mInput.mousePos();
+        const int tileW = mInput.tileWidth();
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
             const auto& iobjs = mMap->objects(x, y);
@@ -472,8 +334,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                     model.incFrame(1.f);
                     bool highlight = false;
                     if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
-                        const SDL_Point p{int(mMousePos.fX), int(mMousePos.fY)};
-                        const int w = 0.75*u->fRadius*mTileW;
+                        const SDL_Point p{int(mousePos.fX), int(mousePos.fY)};
+                        const int w = 0.75*u->fRadius*tileW;
                         const int h = 2*w;
                         const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
                         highlight = SDL_PointInRect(&p, &rect);
@@ -522,6 +384,36 @@ void eGameScreen::paintEvent(ePainter& p) {
     eLabel::paintEvent(p);
 }
 
+void eGameScreen::updateMainCharFromServer(const eUnitData& u) {
+    if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
+        if(mDeadMenu) {
+            mDeadMenu->deleteLater();
+            mDeadMenu = nullptr;
+        }
+        mMainChar->fPos = u.fPos;
+        mMainAction.setPos(u.fPos);
+        mMainAction.stop();
+        setPressedUnit(nullptr);
+        setHighlightedUnit(nullptr);
+    }
+    mMainChar->fHealth = u.fHealth;
+    if(!mDeadMenu && u.fHealth <= 0) {
+        showDeadMenu();
+        mMainAction.stop();
+    }
+    mMainChar->fMaxHealth = u.fMaxHealth;
+    mMainChar->fActionTime = u.fActionTime;
+    if(u.fAnimId > mMainChar->fAnimId) {
+        mMainChar->fAnim = u.fAnim;
+        mMainChar->fAnimId = u.fAnimId;
+        mMainChar->fAnimSpeed = u.fAnimSpeed;
+    }
+    mHealthIndicator->setValue(u.fHealth);
+    mHealthIndicator->setRange(0, u.fMaxHealth);
+    mStaminaIndicator->setValue(mMainAction.stamina());
+    mStaminaIndicator->setRange(0, mMainAction.maxStamina());
+}
+
 bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
     const auto button = e.button();
     const bool leftPressed = static_cast<bool>(
@@ -529,14 +421,8 @@ bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
     const bool rightPressed = static_cast<bool>(
         button & eMouseButton::right);
     if(leftPressed || rightPressed) {
-        if(rightPressed) {
-            mRightPressed = true;
-        }
-        if(leftPressed) {
-            mLeftPressed = true;
-        }
-        mMousePressed = true;
-        mMousePos = ePointF{float(e.x()), float(e.y())};
+        mInput.handleMousePress(leftPressed, rightPressed,
+                                float(e.x()), float(e.y()));
         if(mHighlightUnit) {
             setPressedUnit(mHighlightUnit);
         }
@@ -551,20 +437,14 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
     const bool rightRelease = static_cast<bool>(
         button & eMouseButton::right);
     if(leftReleased || rightRelease) {
-        if(rightRelease) {
-            mRightPressed = false;
-        }
-        if(leftReleased) {
-            mLeftPressed = false;
-        }
-        mMousePressed = mRightPressed || mLeftPressed;
+        mInput.handleMouseRelease(leftReleased, rightRelease);
         setPressedUnit(nullptr);
         const auto& skill = eSkills::sSkills.get(mRightSkill);
         const bool rangeAttack = skill.fType == eSkillType::missile;
         if(e.shiftPressed() || (rightRelease && rangeAttack)) {
             mMainAction.stop();
         } else {
-            const auto pos = pixelToTilePos(mMousePos);
+            const auto pos = pixelToTilePos(mInput.mousePos());
             mMainAction.mouseRelease(pos);
         }
     }
@@ -572,7 +452,7 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
 }
 
 bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
-    mMousePos = ePointF{float(e.x()), float(e.y())};
+    mInput.handleMouseMove(float(e.x()), float(e.y()));
     return true;
 }
 

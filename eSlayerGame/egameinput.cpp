@@ -1,0 +1,56 @@
+#include "egameinput.h"
+
+ePointF eGameInput::pixelToTilePos(
+    const ePointF& charPos,
+    const ePointF& pixel,
+    const int screenW,
+    const int screenH) const {
+    ePointF result;
+    result.fY = charPos.fY +
+                (pixel.fY - screenH/2.f)/mTileH +
+                (screenW/2.f - pixel.fX)/mTileW;
+    result.fX = charPos.fX +
+                (pixel.fX - screenW/2.f)/mTileW +
+                (pixel.fY - screenH/2.f)/mTileH;
+    return result;
+}
+
+ePointF eGameInput::pixelToTilePos(
+    const ePointF& charPos,
+    const int screenW,
+    const int screenH) const {
+    return pixelToTilePos(charPos, mMousePos, screenW, screenH);
+}
+
+ePointF eGameInput::tilePosToPixel(
+    const ePointF& pos,
+    const ePointF& charPos,
+    const int screenW,
+    const int screenH) const {
+    ePointF result;
+    result.fY = screenH/2.f + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.f;
+    result.fX = screenW/2.f + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.f;
+    return result;
+}
+
+void eGameInput::handleMousePress(
+    const bool leftPressed,
+    const bool rightPressed,
+    const float x, const float y) {
+    if(rightPressed) mRightPressed = true;
+    if(leftPressed) mLeftPressed = true;
+    mMousePressed = true;
+    mMousePos = ePointF{x, y};
+}
+
+void eGameInput::handleMouseRelease(
+    const bool leftReleased,
+    const bool rightReleased) {
+    if(rightReleased) mRightPressed = false;
+    if(leftReleased) mLeftPressed = false;
+    mMousePressed = mRightPressed || mLeftPressed;
+}
+
+void eGameInput::handleMouseMove(const float x, const float y) {
+    mMousePos = ePointF{x, y};
+}

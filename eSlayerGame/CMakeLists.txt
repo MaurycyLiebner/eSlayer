@@ -107,6 +107,8 @@ add_executable(eSlayerGame main.cpp
     textures/eterrstextures.h textures/eterrstextures.cpp
 
     screens/egamescreen.h screens/egamescreen.cpp
+    egameworld.h egameworld.cpp
+    egameinput.h egameinput.cpp
     textures/elightingtexture.h textures/elightingtexture.cpp
     textures/eeffectstextures.h textures/eeffectstextures.cpp
     textures/eeffecttextures.h textures/eeffecttextures.cpp
