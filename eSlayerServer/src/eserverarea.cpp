@@ -11,10 +11,10 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 411; x < 55; x++) {
-        if(x == 20) x += 20;
-        for(int y = 4; y < 55; y++) {
-            if(y == 20) y += 20;
+    for(int x = 24; x < 75; x++) {
+        if(x == 40) x += 20;
+        for(int y = 24; y < 75; y++) {
+            if(y == 40) y += 20;
             const int typeId = 2 + eRand::rand() % 2;
             const auto data = eServerCharData::get(typeId);
             const auto name = data->name();

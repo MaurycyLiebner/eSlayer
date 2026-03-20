@@ -17,7 +17,6 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mClientId = clientId;
     mServer = s;
     mMovementHandler.intialize(w, iter, clientId, 0);
-    mMovementHandler.setRadius(0.4f);
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {
@@ -25,6 +24,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     };
     const int typeId = 1;
     mMainCharData = eCharsTextures::get(typeId);
+    const float radius = mMainCharData->radius();
+    mMovementHandler.setRadius(radius);
     const auto modelParts = mMainCharData->mapToModelParts(partsMap);
 
     mRunAnimId = mMainCharData->animId("run");
@@ -36,12 +37,13 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
-    umodel.setAnimation(0, 1.f);
+    const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, false);
+    umodel.setAnimation(animId, 1.f);
     umodel.setDirection(0);
 
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
-    mMainChar->fRadius = 0.4f;
+    mMainChar->fRadius = radius;
     mMainChar->fTypeId = typeId;
     mMainChar->fModelParts = modelParts;
 }
