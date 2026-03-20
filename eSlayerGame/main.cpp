@@ -158,8 +158,6 @@ int main(int argc, char* argv[]) {
         if(!m) return 1;
         eSounds sounds(mixer);
 
-        eMissileIncrement::initialize();
-
         const auto showMainMenu = [&]() {
             sh.showMainMenu();
         };
@@ -180,6 +178,10 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
+            eSkills::load();
+        });
+
+        loadings.emplace_back([&]() {
             eCharsTextures::load();
         });
 
@@ -197,10 +199,7 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eMissilesTextures::loadData();
-        });
-
-        loadings.emplace_back([&]() {
-            eSkills::load();
+            eMissileIncrement::initialize();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

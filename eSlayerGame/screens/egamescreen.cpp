@@ -341,8 +341,8 @@ void eGameScreen::paintEvent(ePainter& p) {
                     for(int y = yMin; y <= yMax; y++) {
                         const auto& charIds = mUnitAreas[eUnitTile{x, y}];
                         for(const int charId : charIds) {
-                            const auto& u = mUnits.get(charId);
-                            if(!u) continue;
+                            const auto u = mUnits.get(charId);
+                            if(!u || u->fHealth <= 0) continue;
                             if(u->fTeamId == m->fTeamId) continue;
                             const float dist = ePointF::distance(u->fPos, m->fPos);
                             if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
@@ -350,6 +350,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                             mMissiles.remove(m->fId);
                             break;
                         }
+                        if(found) break;
                     }
                     if(found) break;
                 }

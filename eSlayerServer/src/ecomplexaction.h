@@ -7,6 +7,11 @@
 
 #include <memory>
 
+struct eHitData {
+    float fHitChance;
+    float fBlockMultiplier;
+};
+
 class eComplexAction : public eUnitAction {
 public:
     using eUnitAction::eUnitAction;
@@ -16,12 +21,15 @@ public:
 
     void setChild(const std::shared_ptr<eUnitAction>& c);
 
-    bool getHit(const eServerUnit& by);
+    bool getHit(const eHitData& data);
+
 protected:
     bool attack(const eAttackData& target);
     bool attack(const eServerUnit& u);
 private:
-    bool spawnMissile(const ePointF& to);
+    bool spawnMissile(const ePointF& to,
+                      const int missileId,
+                      const int pathId);
 
     std::shared_ptr<eUnitAction> mChild;
 };

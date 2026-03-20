@@ -3,6 +3,8 @@
 #include "../efileloader.h"
 #include "espriteloader.h"
 
+#include <eSlayerHelpers/eskills.h>
+
 eStringIdMapVector<eMissileTextures>
 eMissilesTextures::sMissiles;
 bool eMissilesTextures::sDataLoaded = false;
@@ -76,6 +78,11 @@ void eMissilesTextures::loadData() {
             texs.mAnims.add(aname, anim);
         }
         sMissiles.add(name, texs);
+    }
+
+    for(const auto& it : eSkills::sSkills) {
+        auto& skill = it.fValue;
+        skill.fMissileId = sMissiles.id(skill.fMissile);
     }
 }
 

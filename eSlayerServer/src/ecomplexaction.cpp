@@ -8,6 +8,7 @@
 #include "edieaction.h"
 
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/eskills.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 void eComplexAction::increment(const float by) {
@@ -23,10 +24,11 @@ void eComplexAction::setChild(const std::shared_ptr<eUnitAction>& c) {
     if(c) c->setParent(this);
 }
 
-bool eComplexAction::getHit(const eServerUnit& by) {
-    const float hitChance = eServerUnit::sHitChance(mUnit, by);
-    if(eRand::randF() > hitChance) return false;
-    const float blockChance = mUnit.blockChance();
+bool eComplexAction::getHit(const eHitData& data) {
+    if(eRand::randF() > data.fHitChance) {
+        return false;
+    }
+    const float blockChance = data.fBlockMultiplier*mUnit.blockChance();
     if(eRand::randF() < blockChance) {
         const auto a = eBlockAction::sCreate(mUnit, mArea);
         if(a) mUnit.setChildAction(a);
@@ -45,18 +47,19 @@ bool eComplexAction::getHit(const eServerUnit& by) {
 }
 
 bool eComplexAction::attack(const eAttackData& target) {
+    const auto& skill = eSkills::sSkills.get(target.fSkill);
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
-        if(target.fSkill == 0) {
+        if(skill.fType == eSkillType::attack) {
             return attack(*u);
-        } else {
-            return spawnMissile(u->fPos);
+        } else if(skill.fType == eSkillType::missile) {
+            return spawnMissile(u->fPos, skill.fMissileId, skill.fPathId);
         }
     } break;
     case eAttackTargetType::position: {
-        if(target.fSkill == 0) {
+        if(skill.fType == eSkillType::attack) {
             auto dir = ePointF::vector(target.fPos, mUnit.fPos);
             dir.normalize(mUnit.fRadius + 0.2f);
             const auto targetPos = mUnit.fPos + dir;
@@ -64,13 +67,17 @@ bool eComplexAction::attack(const eAttackData& target) {
                 const auto target = mArea.unit(targetPos);
                 if(!target) return;
                 if(target.get() == &mUnit) return;
-                target->getHit(mUnit);
+                const float hitChance = eServerUnit::sHitChance(*target, mUnit);
+                eHitData data;
+                data.fHitChance = hitChance;
+                data.fBlockMultiplier = 1.f;
+                target->getHit(data);
             };
             const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
             if(attack) setChild(attack);
             return attack.get();
-        } else {
-            return spawnMissile(target.fPos);
+        } else if(skill.fType == eSkillType::missile) {
+            return spawnMissile(target.fPos, skill.fMissileId, skill.fPathId);
         }
 
     } break;
@@ -92,26 +99,38 @@ bool eComplexAction::attack(const eServerUnit& u) {
     const auto a = [this, targetId]() {
         const auto target = mArea.unit(targetId);
         if(!target) return;
-        target->getHit(mUnit);
+        const float hitChance = eServerUnit::sHitChance(*target, mUnit);
+        eHitData data;
+        data.fHitChance = hitChance;
+        data.fBlockMultiplier = 1.f;
+        target->getHit(data);
     };
     const auto attack = eAttackAction::sCreate(mUnit, mArea, a);
     if(attack) setChild(attack);
     return attack.get();
 }
 
-bool eComplexAction::spawnMissile(const ePointF& to) {
-    const auto a = [this, to]() {
+bool eComplexAction::spawnMissile(const ePointF& to,
+                                  const int missileId,
+                                  const int pathId) {
+    const auto a = [this, to, missileId, pathId]() {
         const auto m = std::make_shared<eServerMissile>();
-        m->fType = 0;
+        m->fType = missileId;
         m->fTeamId = mUnit.fTeamId;
         m->fObsticles = 1;
-        m->fSpeed = 0.1f;
-        m->fRemDist = 5.f;
-        m->fPathType = eMissileIncrement::incrementorId("linear");
+        m->fSpeed = 0.25f;
+        m->fRemDist = 8.f;
+        m->fPathType = pathId;
         m->fFrom = mUnit.fPos;
         m->fPos = mUnit.fPos;
         m->fTo = to;
         m->fRadius = 0.5f;
+        m->fHitAction = [](eServerUnit& u) {
+            eHitData data;
+            data.fBlockMultiplier = 0.f;
+            data.fHitChance = 1.f;
+            u.getHit(data);
+        };
         mArea.addMissile(m);
     };
     const auto attack = eAttackAction::sCreate(mUnit, mArea, a);

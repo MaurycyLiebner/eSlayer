@@ -11,10 +11,10 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 24; x < 75; x++) {
-        if(x == 40) x += 20;
-        for(int y = 24; y < 75; y++) {
-            if(y == 40) y += 20;
+    for(int x = 4; x < 55; x++) {
+        if(x == 20) x += 20;
+        for(int y = 4; y < 55; y++) {
+            if(y == 20) y += 20;
             const int typeId = 2 + eRand::rand() % 2;
             const auto data = eServerCharData::get(typeId);
             const auto name = data->name();
@@ -118,6 +118,37 @@ void eServerArea::increment(const float by) {
         eMissileIncrement::increment(*m, by);
         if(m->fRemDist <= 0.0001f) {
             removeMissile(m);
+        } else {
+            const auto ipos = m->fPos.floor();
+            const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
+            if(obsticle) {
+                mMissiles.remove(m->fId);
+            } else {
+                bool found = false;
+                const int margin = int(m->fRadius) + 1;
+                const int xMin = ipos.fX - margin;
+                const int xMax = ipos.fX + margin;
+                const int yMin = ipos.fY - margin;
+                const int yMax = ipos.fY + margin;
+                for(int x = xMin; x <= xMax; x++) {
+                    for(int y = yMin; y <= yMax; y++) {
+                        const auto& charIds = mUnitAreas[posArea(ePointF{float(x), float(y)})];
+                        for(const int charId : charIds) {
+                            const auto u = mUnits.get(charId);
+                            if(!u || u->fHealth <= 0) continue;
+                            if(u->fTeamId == m->fTeamId) continue;
+                            const float dist = ePointF::distance(u->fPos, m->fPos);
+                            if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
+                            found = true;
+                            if(m->fHitAction) m->fHitAction(*u);
+                            mMissiles.remove(m->fId);
+                            break;
+                        }
+                        if(found) break;
+                    }
+                    if(found) break;
+                }
+            }
         }
     }
 

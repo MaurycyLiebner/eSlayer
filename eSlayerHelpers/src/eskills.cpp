@@ -26,6 +26,8 @@ void eSkills::load() {
             skill.fType = eSkillType::missile;
             const auto missileStr = jdata["missile"];
             skill.fMissile = missileStr;
+            const auto pathStr = jdata.value("path", "linear");
+            skill.fPath = pathStr;
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
         }

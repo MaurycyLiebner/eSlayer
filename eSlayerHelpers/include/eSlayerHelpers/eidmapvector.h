@@ -68,6 +68,7 @@ public:
         const int vid = it->second;
         mValues[vid] = nullptr;
         mSlots.emplace(vid);
+        mIdMap.erase(id);
         return true;
     }
 

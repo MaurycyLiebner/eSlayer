@@ -9,6 +9,7 @@
 class eUnitAction;
 class eComplexAction;
 class eCharData;
+class eHitData;
 
 class eServerUnit : public eUnitData {
 public:
@@ -31,7 +32,7 @@ public:
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by);
 
-    bool getHit(const eServerUnit& by);
+    bool getHit(const eHitData& data);
 
     void increment(const float by);
 

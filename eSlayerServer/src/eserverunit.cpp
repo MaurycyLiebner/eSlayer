@@ -18,14 +18,17 @@ float eServerUnit::sHitChance(
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
 }
 
-bool eServerUnit::getHit(const eServerUnit& by) {
+bool eServerUnit::getHit(const eHitData& data) {
     if(!mAction) return false;
-    return mAction->getHit(by);
+    return mAction->getHit(data);
 }
 
 void eServerUnit::increment(const float by) {
     if(mAction) mAction->increment(by);
-    const bool r = mHandler.increment(1.f);
+    const float tmp = fActionTime;
+    fActionTime -= by;
+    if(tmp > 0.f) return;
+    const bool r = mHandler.increment(by);
     if(r) {
         const auto newPos = mHandler.pos();
         fVel = ePointF::vector(newPos, fPos);

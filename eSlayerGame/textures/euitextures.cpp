@@ -2,6 +2,8 @@
 
 #include "../efileloader.h"
 
+#include <eSlayerHelpers/eskills.h>
+
 bool eUITextures::sLoaded = false;
 eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
@@ -24,5 +26,10 @@ void eUITextures::sLoad(SDL_Renderer* const r) {
     for(const auto& name : names) {
         const auto tex = eFileLoader::readTexture(r, dir, "ui/skills/" + name + ".png");
         sSkillIcons.add(name, tex);
+    }
+
+    for(const auto& it : eSkills::sSkills) {
+        auto& skill = it.fValue;
+        skill.fIconId = sSkillIcons.id(skill.fIcon);
     }
 }

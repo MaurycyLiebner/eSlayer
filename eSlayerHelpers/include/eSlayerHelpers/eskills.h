@@ -12,7 +12,20 @@ enum class eSkillType {
 struct eSkill {
     eSkillType fType;
     std::string fIcon;
+    int fIconId;
     std::string fMissile;
+    int fMissileId;
+    std::string fPath;
+    int fPathId;
+    std::vector<std::string> fAnims;
+};
+
+struct eSkillData {
+    eSkillType fType;
+    int fIconId;
+    int fMissileId;
+    int fPathId;
+    std::vector<int> fAnims;
 };
 
 class ESLAYERHELPERS_API eSkills {

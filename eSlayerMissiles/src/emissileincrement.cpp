@@ -1,5 +1,7 @@
 #include "eSlayerMissiles/emissileincrement.h"
 
+#include <eSlayerHelpers/eskills.h>
+
 eIncrementorsMap eMissileIncrement::sIncrementors;
 
 void linear(eMissile& m, const float by) {
@@ -45,6 +47,11 @@ void spiral(eMissile& m, const float by) {
 void eMissileIncrement::initialize() {
     sIncrementors.add("linear", &linear);
     sIncrementors.add("spiral", &spiral);
+
+    for(const auto& it : eSkills::sSkills) {
+        auto& skill = it.fValue;
+        skill.fPathId = sIncrementors.id(skill.fPath);
+    }
 }
 
 int eMissileIncrement::incrementorId(const std::string& name) {
