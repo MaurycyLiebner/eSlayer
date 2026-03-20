@@ -11,7 +11,7 @@
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 4; x < 55; x++) {
+    for(int x = 411; x < 55; x++) {
         if(x == 20) x += 20;
         for(int y = 4; y < 55; y++) {
             if(y == 20) y += 20;

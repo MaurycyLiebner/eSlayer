@@ -10,6 +10,8 @@ class eUnit;
 class SDL_Renderer;
 class eCharTextures;
 class eServer;
+class eCharUnitModel;
+class eSkill;
 
 class eMainCharAction {
 public:
@@ -43,6 +45,37 @@ public:
     void setRunning(const bool r) { mRunning = r; }
 private:
     bool shouldRun() const;
+    void handleAttackStop(const bool mousePressed,
+                          const bool shiftPressed,
+                          const int skillId);
+
+    bool consumeActionTime(const float by,
+                           eCharUnitModel& model);
+
+    bool handleUnitAttack(const int skillId,
+                          const eSkill& skill,
+                          const bool rangeAttack,
+                          eCharUnitModel& model);
+
+    bool handlePositionAttack(const ePointF& mousePos,
+                              const int skillId,
+                              eCharUnitModel& model);
+
+    void handleMovement(const bool mousePressed,
+                        const ePointF& pos,
+                        const float by,
+                        eCharUnitModel& model);
+
+    int chooseAnim(const int normal,
+                   const int aggressive,
+                   const bool isAggressive);
+
+    void updateMovementAnimation(const bool moved,
+                                 const bool run,
+                                 const float by,
+                                 eCharUnitModel& model);
+
+    void stopAttack();
 
     int mClientId;
     std::shared_ptr<eServer> mServer;
@@ -56,6 +89,12 @@ private:
     float mMaxStamina = 100.f;
     float mStamina = mMaxStamina;
     bool mContinueRunning = false;
+
+    int mRunAnimId = -1;
+    int mWalkAnimId = -1;
+    int mWalkReadyAnimId = -1;
+    int mStandAnimId = -1;
+    int mStandReadyAnimId = -1;
 };
 
 #endif // EMAINCHARACTION_H

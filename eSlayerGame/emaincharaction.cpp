@@ -27,6 +27,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainCharData = eCharsTextures::get(typeId);
     const auto modelParts = mMainCharData->mapToModelParts(partsMap);
 
+    mRunAnimId = mMainCharData->animId("run");
+    mWalkAnimId = mMainCharData->animId("walk");
+    mWalkReadyAnimId = mMainCharData->animId("walkReady");
+    mStandAnimId = mMainCharData->animId("stand");
+    mStandReadyAnimId = mMainCharData->animId("standReady");
+
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
@@ -54,143 +60,180 @@ void eMainCharAction::increment(const bool mousePressed,
 
     auto& model = mMainChar->model();
 
-    const auto atype = mAttackData.fType;
-    bool stopAttack = (atype == eAttackTargetType::character && !mPressedUnit.get()) ||
-                      (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed)) ||
-                      (atype != eAttackTargetType::none && skillId != mAttackData.fSkill);
+    handleAttackStop(mousePressed, shiftPressed, skillId);
 
-    if(stopAttack) {
-        mAttackData = eAttackData();
-        mServer->stopAttack(mClientId);
-        stopAttack = false;
-    }
-
-    const float tmp = mMainChar->fActionTime;
-    mMainChar->fActionTime -= by;
-    if(tmp > 0.f) {
-        model.setAnimation(mMainChar->fAnim,
-                           mMainChar->fAnimSpeed);
-        return;
-    }
+    if(consumeActionTime(by, model)) return;
 
     const auto& skill = eSkills::sSkills.get(skillId);
     const bool rangeAttack = skill.fType == eSkillType::missile;
 
-    ePointF pos;
+    ePointF targetPos = mousePos;
+    bool shouldStopAttack = false;
 
     if(mPressedUnit) {
-        pos = mPressedUnit->fPos;
-        const float dist = ePointF::distance(mMainChar->fPos, pos);
-        const float attackDist = rangeAttack ?
-                skill.fRange :
-                0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
-
-        if(dist < attackDist) {
-            if(mAttackData.fType != eAttackTargetType::none) {
-            } else {
-                const int targetId = mPressedUnit->fCharId;
-                mAttackData = eAttackData(targetId, skillId);
-                const auto vec = ePointF::vector(mPressedUnit->fPos,
-                                                 mMainChar->fPos);
-                model.setAngle(vec.angle());
-                mServer->attack(mClientId, mAttackData);
-                stopAttack = false;
-            }
-        } else {
-            stopAttack = true;
-        }
+        shouldStopAttack = !handleUnitAttack(skillId, skill, rangeAttack, model);
+        targetPos = mPressedUnit->fPos;
     } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
-        if(mAttackData.fType != eAttackTargetType::position ||
-           ePointF::distance(mousePos, mAttackData.fPos) > 0.1f) {
-            mAttackData = eAttackData(mousePos, skillId);
-            const auto vec = ePointF::vector(mousePos,
-                                             mMainChar->fPos);
-            model.setAngle(vec.angle());
-            mServer->attack(mClientId, mAttackData);
-            stopAttack = false;
-        }
-    } else {
-        pos = mousePos;
+        shouldStopAttack = !handlePositionAttack(mousePos, skillId, model);
     }
 
-    if(stopAttack) {
-        mAttackData = eAttackData();
-        mServer->stopAttack(mClientId);
+    if(shouldStopAttack) {
+        stopAttack();
     }
 
     if(mAttackData.fType != eAttackTargetType::none) return;
 
+    handleMovement(mousePressed, targetPos, by, model);
+}
+
+void eMainCharAction::handleAttackStop(
+    const bool mousePressed,
+    const bool shiftPressed,
+    const int skillId) {
+    const auto atype = mAttackData.fType;
+
+    const bool stop =
+        (atype == eAttackTargetType::character && !mPressedUnit) ||
+        (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed)) ||
+        (atype != eAttackTargetType::none && skillId != mAttackData.fSkill);
+
+    if(stop) {
+        stopAttack();
+    }
+}
+
+bool eMainCharAction::consumeActionTime(
+    const float by,
+    eCharUnitModel& model) {
+    const float prev = mMainChar->fActionTime;
+    mMainChar->fActionTime -= by;
+
+    if(prev > 0.f) {
+        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimSpeed);
+        return true;
+    }
+    return false;
+}
+
+bool eMainCharAction::handleUnitAttack(
+    const int skillId,
+    const eSkill& skill,
+    const bool rangeAttack,
+    eCharUnitModel& model) {
+    const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
+    const float meeleDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
+    const float attackDist = rangeAttack ? skill.fRange : meeleDist;
+
+    if(dist >= attackDist) {
+        return false;
+    }
+
+    if(mAttackData.fType == eAttackTargetType::none) {
+        const int targetId = mPressedUnit->fCharId;
+        mAttackData = eAttackData(targetId, skillId);
+
+        const auto vec = ePointF::vector(mPressedUnit->fPos, mMainChar->fPos);
+        model.setAngle(vec.angle());
+
+        mServer->attack(mClientId, mAttackData);
+    }
+
+    return true;
+}
+
+bool eMainCharAction::handlePositionAttack(
+    const ePointF& mousePos,
+    const int skillId,
+    eCharUnitModel& model) {
+    if(mAttackData.fType == eAttackTargetType::position &&
+       ePointF::distance(mousePos, mAttackData.fPos) <= 0.1f) {
+        return true;
+    }
+
+    mAttackData = eAttackData(mousePos, skillId);
+
+    const auto vec = ePointF::vector(mousePos, mMainChar->fPos);
+    model.setAngle(vec.angle());
+
+    mServer->attack(mClientId, mAttackData);
+    return true;
+}
+
+void eMainCharAction::handleMovement(
+    const bool mousePressed,
+    const ePointF& pos,
+    const float by,
+    eCharUnitModel& model) {
     const bool run = shouldRun();
     mContinueRunning = false;
-    if(run) {
-        mMovementHandler.setSpeed(0.1f);
-    } else {
-        mMovementHandler.setSpeed(0.075f);
-    }
 
-    bool move = false;
+    mMovementHandler.setSpeed(run ? 0.1f : 0.075f);
+
+    bool moved = false;
+
     if(mousePressed) {
         mMovementHandler.moveInDirection(pos);
-        move = mMovementHandler.increment(by);
-    }
-    if(!move) {
-        if(mousePressed) mMovementHandler.moveTo(pos);
-        move = mMovementHandler.increment(by);
+        moved = mMovementHandler.increment(by);
     }
 
-    const bool a = model.aggressive();
+    if(!moved) {
+        if(mousePressed) mMovementHandler.moveTo(pos);
+        moved = mMovementHandler.increment(by);
+    }
+
+    updateMovementAnimation(moved, run, by, model);
+}
+
+int eMainCharAction::chooseAnim(const int normal,
+                                const int aggressive,
+                                const bool isAggressive) {
+    if(isAggressive) {
+        return (aggressive != -1) ? aggressive : normal;
+    } else {
+        return (normal != -1) ? normal : aggressive;
+    }
+}
+
+void eMainCharAction::updateMovementAnimation(
+    const bool moved,
+    const bool run,
+    const float by,
+    eCharUnitModel& model) {
+    const bool aggressive = model.aggressive();
     int animId;
-    if(move) {
+
+    if(moved) {
         mMainChar->fPos = mMovementHandler.pos();
+
         const float angle = mMovementHandler.angle();
         mMainChar->fAngle = angle;
         model.setAngle(angle);
-        if(run) {
+
+        if (run) {
             mContinueRunning = true;
-            incStamina(-by*0.1f);
-            animId = mMainCharData->animId("run");
+            incStamina(-by * 0.1f);
+            animId = mRunAnimId;
         } else {
-            incStamina(by*0.05f);
-            const int naId = mMainCharData->animId("walk");
-            const int aId = mMainCharData->animId("walkReady");
-            if(a) {
-                if(aId != -1) {
-                    animId = aId;
-                } else {
-                    animId = naId;
-                }
-            } else {
-                if(naId != -1) {
-                    animId = naId;
-                } else {
-                    animId = aId;
-                }
-            }
+            incStamina(by * 0.05f);
+            animId = chooseAnim(mWalkAnimId, mWalkReadyAnimId, aggressive);
         }
     } else {
-        incStamina(by*0.05f);
-        const int naId = mMainCharData->animId("stand");
-        const int aId = mMainCharData->animId("standReady");
-        if(a) {
-            if(aId != -1) {
-                animId = aId;
-            } else {
-                animId = naId;
-            }
-        } else {
-            if(naId != -1) {
-                animId = naId;
-            } else {
-                animId = aId;
-            }
-        }
+        incStamina(by * 0.05f);
+        animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
     }
+
     if(mMainChar->fAnim != animId) {
         mMainChar->fAnimId++;
     }
+
     mMainChar->fAnim = animId;
     mMainChar->fAnimSpeed = 1.f;
     model.setAnimation(animId, 1.f);
+}
+
+void eMainCharAction::stopAttack() {
+    mAttackData = eAttackData();
+    mServer->stopAttack(mClientId);
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
@@ -204,8 +247,7 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
 void eMainCharAction::stop() {
     mPressedUnit = nullptr;
     if(mAttackData.fType != eAttackTargetType::none) {
-        mServer->stopAttack(mClientId);
-        mAttackData = eAttackData();
+        stopAttack();
     }
     mMovementHandler.stopMoving();
 }
