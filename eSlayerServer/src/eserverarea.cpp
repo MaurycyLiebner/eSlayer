@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+#include <eSlayerHelpers/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
@@ -141,13 +142,7 @@ void eServerArea::increment(const float by) {
         const auto areaMin = posArea(ePointF{aabbMinX, aabbMinY});
         const auto areaMax = posArea(ePointF{aabbMaxX, aabbMaxY});
 
-        // Segment direction vector
-        const float dx = newPos.fX - oldPos.fX;
-        const float dy = newPos.fY - oldPos.fY;
-        const float segLenSq = dx*dx + dy*dy;
-
-        float bestT = 2.f; // > 1 means no hit found
-        int bestCharId = -1;
+        eMissileCollision::eResult collResult;
 
         for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
             for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
@@ -158,42 +153,19 @@ void eServerArea::increment(const float by) {
                     if(!u || u->fHealth <= 0) continue;
                     if(u->fTeamId == m->fTeamId) continue;
                     const float collR = 0.5f*(u->fRadius + m->fRadius);
-
-                    if(segLenSq < 0.0001f) {
-                        // Missile barely moved — point test
-                        const float dist = ePointF::distance(u->fPos, newPos);
-                        if(dist <= collR && 0.f < bestT) {
-                            bestT = 0.f;
-                            bestCharId = charId;
-                        }
-                    } else {
-                        // Swept segment-vs-circle test
-                        // Solve: |oldPos + t*d - C|² = collR²
-                        const float fx = oldPos.fX - u->fPos.fX;
-                        const float fy = oldPos.fY - u->fPos.fY;
-                        const float a = segLenSq;
-                        const float b = 2.f*(fx*dx + fy*dy);
-                        const float c = fx*fx + fy*fy - collR*collR;
-                        const float disc = b*b - 4.f*a*c;
-                        if(disc < 0.f) continue;
-                        float t = (-b - std::sqrt(disc)) / (2.f*a);
-                        // If entry point is behind us, check if
-                        // we're already inside the circle at t=0
-                        if(t < 0.f) t = 0.f;
-                        if(t <= 1.f && t < bestT) {
-                            bestT = t;
-                            bestCharId = charId;
-                        }
-                    }
+                    eMissileCollision::test(oldPos, newPos,
+                                           u->fPos, collR,
+                                           charId, collResult);
                 }
             }
         }
 
-        if(bestCharId >= 0) {
-            // Move missile to the hit point
-            m->fPos.fX = oldPos.fX + bestT * dx;
-            m->fPos.fY = oldPos.fY + bestT * dy;
-            const auto hitUnit = mUnits.get(bestCharId);
+        if(collResult.fHit) {
+            const float dx = newPos.fX - oldPos.fX;
+            const float dy = newPos.fY - oldPos.fY;
+            m->fPos.fX = oldPos.fX + collResult.fT * dx;
+            m->fPos.fY = oldPos.fY + collResult.fT * dy;
+            const auto hitUnit = mUnits.get(collResult.fCharId);
             if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
             mMissiles.remove(m->fId);
         }

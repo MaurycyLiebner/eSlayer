@@ -1,0 +1,19 @@
+#ifndef EMISSILECOLLISION_H
+#define EMISSILECOLLISION_H
+
+#include "epoint.h"
+
+#include <cmath>
+
+struct eMissileCollision {
+    struct eResult {
+        bool fHit = false;
+        float fT = 2.f;
+        int fCharId = -1;
+    };
+
+    static void test(const ePointF& oldPos, const ePointF& newPos, const ePointF& unitPos,
+                     const float collR, const int charId, eResult& result);
+};
+
+#endif // EMISSILECOLLISION_H
