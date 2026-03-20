@@ -351,7 +351,9 @@ void eGameScreen::paintEvent(ePainter& p) {
         const auto mouseTilePos = pixelToTilePos(mMousePos);
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
-        mMainAction.increment(mMousePressed, shiftPressed,
+        mMainAction.increment(mMousePressed,
+                              mRightPressed,
+                              shiftPressed,
                               mouseTilePos,
                               mRightPressed ? mRightSkill :
                                               mLeftSkill,
@@ -557,7 +559,9 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         }
         mMousePressed = mRightPressed || mLeftPressed;
         setPressedUnit(nullptr);
-        if(e.shiftPressed()) {
+        const auto& skill = eSkills::sSkills.get(mRightSkill);
+        const bool rangeAttack = skill.fType == eSkillType::missile;
+        if(e.shiftPressed() || (rightRelease && rangeAttack)) {
             mMainAction.stop();
         } else {
             const auto pos = pixelToTilePos(mMousePos);

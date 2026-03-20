@@ -18,6 +18,7 @@ struct eSkill {
     std::string fPath;
     int fPathId;
     std::vector<std::string> fAnims;
+    float fRange;
 };
 
 struct eSkillData {

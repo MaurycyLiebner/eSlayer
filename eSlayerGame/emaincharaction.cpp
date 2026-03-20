@@ -4,6 +4,7 @@
 #include "textures/echartextures.h"
 #include "units/eunit.h"
 
+#include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerServer/eserver.h>
 
@@ -44,9 +45,10 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
 }
 
 void eMainCharAction::increment(const bool mousePressed,
+                                const bool rightPressed,
                                 const bool shiftPressed,
                                 const ePointF& mousePos,
-                                const uint8_t skill,
+                                const int skillId,
                                 const float by) {
     if(mMainChar->fHealth <= 0) return;
 
@@ -54,7 +56,8 @@ void eMainCharAction::increment(const bool mousePressed,
 
     const auto atype = mAttackData.fType;
     bool stopAttack = (atype == eAttackTargetType::character && !mPressedUnit.get()) ||
-                      (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed));
+                      (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed)) ||
+                      (atype != eAttackTargetType::none && skillId != mAttackData.fSkill);
 
     if(stopAttack) {
         mAttackData = eAttackData();
@@ -70,34 +73,41 @@ void eMainCharAction::increment(const bool mousePressed,
         return;
     }
 
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const bool rangeAttack = skill.fType == eSkillType::missile;
+
     ePointF pos;
 
     if(mPressedUnit) {
         pos = mPressedUnit->fPos;
         const float dist = ePointF::distance(mMainChar->fPos, pos);
-        const float attackDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
+        const float attackDist = rangeAttack ?
+                skill.fRange :
+                0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
 
         if(dist < attackDist) {
             if(mAttackData.fType != eAttackTargetType::none) {
             } else {
                 const int targetId = mPressedUnit->fCharId;
-                mAttackData = eAttackData(targetId, skill);
+                mAttackData = eAttackData(targetId, skillId);
                 const auto vec = ePointF::vector(mPressedUnit->fPos,
                                                  mMainChar->fPos);
                 model.setAngle(vec.angle());
                 mServer->attack(mClientId, mAttackData);
+                stopAttack = false;
             }
         } else {
             stopAttack = true;
         }
-    } else if(mousePressed && shiftPressed) {
+    } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
         if(mAttackData.fType != eAttackTargetType::position ||
            ePointF::distance(mousePos, mAttackData.fPos) > 0.1f) {
-            mAttackData = eAttackData(mousePos, skill);
+            mAttackData = eAttackData(mousePos, skillId);
             const auto vec = ePointF::vector(mousePos,
                                              mMainChar->fPos);
             model.setAngle(vec.angle());
             mServer->attack(mClientId, mAttackData);
+            stopAttack = false;
         }
     } else {
         pos = mousePos;
@@ -121,11 +131,11 @@ void eMainCharAction::increment(const bool mousePressed,
     bool move = false;
     if(mousePressed) {
         mMovementHandler.moveInDirection(pos);
-        move = mMovementHandler.increment(1.f);
+        move = mMovementHandler.increment(by);
     }
     if(!move) {
         if(mousePressed) mMovementHandler.moveTo(pos);
-        move = mMovementHandler.increment(1.f);
+        move = mMovementHandler.increment(by);
     }
 
     const bool a = model.aggressive();
@@ -137,10 +147,10 @@ void eMainCharAction::increment(const bool mousePressed,
         model.setAngle(angle);
         if(run) {
             mContinueRunning = true;
-            incStamina(-0.1f);
+            incStamina(-by*0.1f);
             animId = mMainCharData->animId("run");
         } else {
-            incStamina(0.05f);
+            incStamina(by*0.05f);
             const int naId = mMainCharData->animId("walk");
             const int aId = mMainCharData->animId("walkReady");
             if(a) {
@@ -158,7 +168,7 @@ void eMainCharAction::increment(const bool mousePressed,
             }
         }
     } else {
-        incStamina(0.05f);
+        incStamina(by*0.05f);
         const int naId = mMainCharData->animId("stand");
         const int aId = mMainCharData->animId("standReady");
         if(a) {

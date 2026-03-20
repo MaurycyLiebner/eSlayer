@@ -23,9 +23,10 @@ public:
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     void increment(const bool mousePressed,
+                   const bool rightPressed,
                    const bool shiftPressed,
                    const ePointF& mousePos,
-                   const uint8_t skill,
+                   const int skillId,
                    const float by);
 
     void mouseRelease(const ePointF& mousePos);
