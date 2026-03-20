@@ -115,40 +115,87 @@ void eServerArea::increment(const float by) {
     }
 
     for(const auto& m : mMissiles) {
+        const auto oldPos = m->fPos;
         eMissileIncrement::increment(*m, by);
+        const auto newPos = m->fPos;
         if(m->fRemDist <= 0.0001f) {
             removeMissile(m);
-        } else {
-            const auto ipos = m->fPos.floor();
-            const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
-            if(obsticle) {
-                mMissiles.remove(m->fId);
-            } else {
-                bool found = false;
-                const int margin = int(m->fRadius) + 1;
-                const int xMin = ipos.fX - margin;
-                const int xMax = ipos.fX + margin;
-                const int yMin = ipos.fY - margin;
-                const int yMax = ipos.fY + margin;
-                for(int x = xMin; x <= xMax; x++) {
-                    for(int y = yMin; y <= yMax; y++) {
-                        const auto& charIds = mUnitAreas[posArea(ePointF{float(x), float(y)})];
-                        for(const int charId : charIds) {
-                            const auto u = mUnits.get(charId);
-                            if(!u || u->fHealth <= 0) continue;
-                            if(u->fTeamId == m->fTeamId) continue;
-                            const float dist = ePointF::distance(u->fPos, m->fPos);
-                            if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
-                            found = true;
-                            if(m->fHitAction) m->fHitAction(*u);
-                            mMissiles.remove(m->fId);
-                            break;
+            continue;
+        }
+        const auto ipos = newPos.floor();
+        const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
+        if(obsticle) {
+            mMissiles.remove(m->fId);
+            continue;
+        }
+
+        // Compute AABB of the travel segment, expanded by max
+        // possible collision radius to cover all candidate units
+        const float maxRadius = m->fRadius + 1.f;
+        const float aabbMinX = std::min(oldPos.fX, newPos.fX) - maxRadius;
+        const float aabbMaxX = std::max(oldPos.fX, newPos.fX) + maxRadius;
+        const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
+        const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
+
+        // Determine which unit areas overlap this AABB
+        const auto areaMin = posArea(ePointF{aabbMinX, aabbMinY});
+        const auto areaMax = posArea(ePointF{aabbMaxX, aabbMaxY});
+
+        // Segment direction vector
+        const float dx = newPos.fX - oldPos.fX;
+        const float dy = newPos.fY - oldPos.fY;
+        const float segLenSq = dx*dx + dy*dy;
+
+        float bestT = 2.f; // > 1 means no hit found
+        int bestCharId = -1;
+
+        for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+            for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+                const auto it = mUnitAreas.find(eUnitTile{ax, ay});
+                if(it == mUnitAreas.end()) continue;
+                for(const int charId : it->second) {
+                    const auto u = mUnits.get(charId);
+                    if(!u || u->fHealth <= 0) continue;
+                    if(u->fTeamId == m->fTeamId) continue;
+                    const float collR = 0.5f*(u->fRadius + m->fRadius);
+
+                    if(segLenSq < 0.0001f) {
+                        // Missile barely moved — point test
+                        const float dist = ePointF::distance(u->fPos, newPos);
+                        if(dist <= collR && 0.f < bestT) {
+                            bestT = 0.f;
+                            bestCharId = charId;
                         }
-                        if(found) break;
+                    } else {
+                        // Swept segment-vs-circle test
+                        // Solve: |oldPos + t*d - C|² = collR²
+                        const float fx = oldPos.fX - u->fPos.fX;
+                        const float fy = oldPos.fY - u->fPos.fY;
+                        const float a = segLenSq;
+                        const float b = 2.f*(fx*dx + fy*dy);
+                        const float c = fx*fx + fy*fy - collR*collR;
+                        const float disc = b*b - 4.f*a*c;
+                        if(disc < 0.f) continue;
+                        float t = (-b - std::sqrt(disc)) / (2.f*a);
+                        // If entry point is behind us, check if
+                        // we're already inside the circle at t=0
+                        if(t < 0.f) t = 0.f;
+                        if(t <= 1.f && t < bestT) {
+                            bestT = t;
+                            bestCharId = charId;
+                        }
                     }
-                    if(found) break;
                 }
             }
+        }
+
+        if(bestCharId >= 0) {
+            // Move missile to the hit point
+            m->fPos.fX = oldPos.fX + bestT * dx;
+            m->fPos.fY = oldPos.fY + bestT * dy;
+            const auto hitUnit = mUnits.get(bestCharId);
+            if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
+            mMissiles.remove(m->fId);
         }
     }
 
