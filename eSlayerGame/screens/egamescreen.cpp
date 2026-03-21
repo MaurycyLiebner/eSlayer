@@ -222,6 +222,7 @@ void eGameScreen::paintEvent(ePainter& p) {
 
     mFrame++;
 
+    const int tileHeight = eGameScreen::tileHeight();
     {
         const auto holder = mGamePainter.switchToBase();
 
@@ -239,7 +240,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != i) return;
                 const auto& tex = floor->getTexture(tile.fTileType);
-                mGamePainter.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                mGamePainter.drawTexture(px, py + tileHeight, tex, eAlignment::top | eAlignment::hcenter);
                 const auto iobjs = mMap->objects(x, y);
             });
         }
@@ -315,7 +316,7 @@ void eGameScreen::paintEvent(ePainter& p) {
                 const auto& objType = objTypes[obj.fObjectType];
                 const auto object = eObjsTextures::get(objType.fName);
                 const auto& tex = object->getTexture(obj.fTileType);
-                p.drawTexture(px, py, tex, eAlignment::top | eAlignment::hcenter);
+                p.drawTexture(px, py + tileHeight, tex, eAlignment::top | eAlignment::hcenter);
             }
             for(int eleId = nextElement; eleId < renderElements.size(); eleId++) {
                 const auto& e = renderElements[eleId];

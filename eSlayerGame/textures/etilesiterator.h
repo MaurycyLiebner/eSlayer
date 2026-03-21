@@ -15,12 +15,10 @@ public:
     void initialize(eGameScreen* const game);
 
     void iterate(const eVisibleTileFunc& func) const;
+
 private:
+    eGameScreen* mGame = nullptr;
     ePoint mMin;
-    float mPDX;
-    float mPDY;
-    int mTileW;
-    int mTileH;
     int mTileMargin;
     int mDxMax;
     int mDyMax;
