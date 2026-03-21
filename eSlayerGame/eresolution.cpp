@@ -62,8 +62,6 @@ int eResolution::margin() const {
 
 float eResolution::multiplier() const {
     switch(mUIScale) {
-    case eUIScale::tiny:
-        return 0.5f;
     case eUIScale::small:
         return 1.0f;
     case eUIScale::medium:

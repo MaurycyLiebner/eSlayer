@@ -5,7 +5,7 @@
 #include <vector>
 
 enum class eUIScale {
-    tiny, small, medium, large
+    small, medium, large
 };
 
 class eResolution {
@@ -51,6 +51,10 @@ public:
 
     bool operator!=(const eResolution other) const {
         return !(*this == other);
+    }
+
+    friend bool operator<(const eResolution& r1, const eResolution& r2) {
+        return r1.mWidth < r2.mWidth;
     }
 private:
     int mWidth;

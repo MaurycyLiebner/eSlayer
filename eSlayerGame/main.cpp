@@ -131,6 +131,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    std::sort(eResolution::sResolutions.begin(),
+              eResolution::sResolutions.end());
+
     const auto mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
     if(!mixer) {
         eExceptions::logError(
