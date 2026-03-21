@@ -21,20 +21,39 @@ void eMissileCollision::test(const ePointF& oldPos,
         return;
     }
 
-    // Swept segment-vs-circle test
-    // Solve: |oldPos + t*d - C|² = collR²
     const float fx = oldPos.fX - unitPos.fX;
     const float fy = oldPos.fY - unitPos.fY;
+
     const float a = segLenSq;
     const float b = 2.f * (fx * dx + fy * dy);
     const float c = fx * fx + fy * fy - collR * collR;
+
+    // Already inside
+    if(c < 0.f) {
+        if(0.f < result.fT) {
+            result.fHit = true;
+            result.fT = 0.f;
+            result.fCharId = charId;
+        }
+        return;
+    }
+
     const float disc = b * b - 4.f * a * c;
     if(disc < 0.f) return;
-    float t = (-b - std::sqrt(disc)) / (2.f * a);
-    // If entry point is behind us, check if
-    // we're already inside the circle at t=0
-    if(t < 0.f) t = 0.f;
-    if(t <= 1.f && t < result.fT) {
+
+    const float sqrtDisc = std::sqrt(disc);
+    const float invDenom = 1.f / (2.f * a);
+
+    float t1 = (-b - sqrtDisc) * invDenom;
+    float t2 = (-b + sqrtDisc) * invDenom;
+
+    float t = 2.f;
+
+    if(t1 >= 0.f && t1 <= 1.f) t = t1;
+    else if(t2 >= 0.f && t2 <= 1.f) t = t2;
+    else return;
+
+    if(t < result.fT) {
         result.fHit = true;
         result.fT = t;
         result.fCharId = charId;

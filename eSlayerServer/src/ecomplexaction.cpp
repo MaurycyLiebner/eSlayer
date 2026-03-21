@@ -122,9 +122,11 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         m->fRemDist = 8.f;
         m->fPathType = pathId;
         m->fFrom = mUnit.fPos;
-        m->fPos = mUnit.fPos;
-        m->fTo = to;
         m->fRadius = 0.5f;
+        auto dir = ePointF::vector(to, mUnit.fPos);
+        dir.normalize(0.5*m->fRadius);
+        m->fPos = mUnit.fPos + dir;
+        m->fTo = to;
         m->fHitAction = [](eServerUnit& u) {
             eHitData data;
             data.fBlockMultiplier = 0.f;
