@@ -27,6 +27,9 @@ void eSkills::load() {
             skill.fMissile = jdata["missile"];
             skill.fPath = jdata.value("path", "linear");
             skill.fRange = jdata.value("range", 5.f);
+            skill.fRadius = jdata.value("radius", 0.5f);
+            skill.fSpeed = jdata.value("speed", 0.25f);
+            skill.fPierceChance = jdata.value("pierce", 0.f);
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
         }

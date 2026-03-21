@@ -55,7 +55,7 @@ bool eComplexAction::attack(const eAttackData& target) {
         if(skill.fType == eSkillType::attack) {
             return attack(*u);
         } else if(skill.fType == eSkillType::missile) {
-            return spawnMissile(u->fPos, skill.fMissileId, skill.fPathId);
+            return spawnMissile(u->fPos, skill);
         }
     } break;
     case eAttackTargetType::position: {
@@ -77,7 +77,7 @@ bool eComplexAction::attack(const eAttackData& target) {
             if(attack) setChild(attack);
             return attack.get();
         } else if(skill.fType == eSkillType::missile) {
-            return spawnMissile(target.fPos, skill.fMissileId, skill.fPathId);
+            return spawnMissile(target.fPos, skill);
         }
 
     } break;
@@ -110,19 +110,25 @@ bool eComplexAction::attack(const eServerUnit& u) {
     return attack.get();
 }
 
+int piercedFromPierceChance(const float p) {
+    const float u = eRand::randF();
+    return int(std::log(u) / std::log(p));
+}
+
 bool eComplexAction::spawnMissile(const ePointF& to,
-                                  const int missileId,
-                                  const int pathId) {
-    const auto a = [this, to, missileId, pathId]() {
+                                  const eSkill& skill) {
+    const auto a = [this, to, skill]() {
         const auto m = std::make_shared<eServerMissile>();
-        m->fType = missileId;
+        m->fType = skill.fMissileId;
         m->fTeamId = mUnit.fTeamId;
-        m->fObsticles = 1;
-        m->fSpeed = 0.25f;
-        m->fRemDist = 8.f;
-        m->fPathType = pathId;
+        const int max = std::numeric_limits<uint8_t>::max();
+        const int pierced = piercedFromPierceChance(skill.fPierceChance);
+        m->fPierced = std::min(max, pierced);
+        m->fSpeed = skill.fSpeed;
+        m->fRemDist = skill.fRange;
+        m->fPathType = skill.fPathId;
         m->fFrom = mUnit.fPos;
-        m->fRadius = 0.5f;
+        m->fRadius = skill.fRadius;
         auto dir = ePointF::vector(to, mUnit.fPos);
         dir.normalize(0.5*m->fRadius);
         m->fPos = mUnit.fPos + dir;

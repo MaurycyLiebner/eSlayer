@@ -2,21 +2,28 @@
 
 #include "eSlayerHelpers/epacket.h"
 
-int obsticlesFromChance(const float p) {
-    const float u = eRand::randF();
-    return int(std::log(u) / std::log(p));
-}
-
 void eMissile::read(ePacket& p) {
+    p >> fId;
+    p >> fTeamId;
     p >> fType;
+    p >> fPathType;
     p >> fFrom;
-    p >> fPos;
     p >> fTo;
+    p >> fSpeed;
+    p >> fPierced;
+    p >> fRemDist;
+    p >> fRadius;
 }
 
 void eMissile::write(ePacket& p) const {
+    p << fId;
+    p << fTeamId;
     p << fType;
+    p << fPathType;
     p << fFrom;
-    p << fPos;
     p << fTo;
+    p << fSpeed;
+    p << fPierced;
+    p << fRemDist;
+    p << fRadius;
 }

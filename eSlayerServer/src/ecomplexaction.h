@@ -7,6 +7,8 @@
 
 #include <memory>
 
+struct eSkill;
+
 struct eHitData {
     float fHitChance;
     float fBlockMultiplier;
@@ -28,8 +30,7 @@ protected:
     bool attack(const eServerUnit& u);
 private:
     bool spawnMissile(const ePointF& to,
-                      const int missileId,
-                      const int pathId);
+                      const eSkill& skill);
 
     std::shared_ptr<eUnitAction> mChild;
 };

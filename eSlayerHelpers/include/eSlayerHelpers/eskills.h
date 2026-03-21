@@ -17,8 +17,11 @@ struct eSkill {
     int fMissileId;
     std::string fPath;
     int fPathId;
-    std::vector<std::string> fAnims;
     float fRange;
+    float fRadius;
+    float fSpeed;
+    float fPierceChance;
+    std::vector<std::string> fAnims;
 };
 
 struct eSkillData {
@@ -26,6 +29,8 @@ struct eSkillData {
     int fIconId;
     int fMissileId;
     int fPathId;
+    float fRange;
+    float fRadius;
     std::vector<int> fAnims;
 };
 
