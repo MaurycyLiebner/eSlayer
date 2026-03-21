@@ -7,16 +7,15 @@
 
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/emissile.h>
-#include <eSlayerHelpers/eunittile.h>
+#include <eSlayerHelpers/eunitareas.h>
 #include <eSlayerServer/eserver.h>
-
-#include <map>
-#include <set>
 
 class eMap;
 
 class eGameWorld {
 public:
+    eGameWorld();
+
     struct eProcessResult {
         bool fReceived = false;
         bool fAggressive = false;
@@ -40,17 +39,13 @@ public:
     eIdMapVector<eExtendedMissile>& missiles() { return mMissiles; }
     const eIdMapVector<eExtendedMissile>& missiles() const { return mMissiles; }
 
-    const std::map<eUnitTile, std::set<int>>& unitAreas() const {
-        return mUnitAreas;
-    }
-
     std::shared_ptr<eUnit> getUnit(const int id) const {
         return mUnits.get(id);
     }
 private:
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
-    std::map<eUnitTile, std::set<int>> mUnitAreas;
+    eUnitAreas mUnitAreas;
 };
 
 #endif // EGAMEWORLD_H

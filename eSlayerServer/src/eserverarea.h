@@ -7,7 +7,8 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
-#include <eSlayerHelpers/eunittile.h>
+#include <eSlayerHelpers/eunitarea.h>
+#include <eSlayerHelpers/eunitareas.h>
 
 #include <memory>
 #include <map>
@@ -15,6 +16,8 @@
 
 class eServerArea {
 public:
+    eServerArea();
+
     void initialize(const std::shared_ptr<eMap>& map);
 
     void increment(const float by = 1.f);
@@ -25,11 +28,10 @@ public:
     units() const { return mUnits; }
 
     std::vector<eUnitData>
-    unitsData(const int clientId) const;
+    unitsData(const int clientId);
 
-    eUnitTile unitArea(const int charId) const;
-    eUnitTile unitArea(const eServerUnit& u) const;
-    eUnitTile posArea(const ePointF& pos) const;
+    eUnitArea unitArea(const int charId) const;
+    eUnitArea unitArea(const eServerUnit& u) const;
 
     bool addClient(const int clientId, const ePointF& pos);
     bool removeClient(const int clientId);
@@ -44,18 +46,18 @@ public:
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
     std::shared_ptr<eServerUnit>
-    unit(const ePointF& pos) const;
+    unit(const ePointF& pos);
 private:
     float mTime = 0.f;
 
     eIdMapVector<eServerMissile> mMissiles;
     mutable std::map<int, int32_t> mClientLatestMissileId;
     eIdMapVector<eServerUnit> mUnits;
-    std::map<eUnitTile, std::set<int>> mUnitAreas;
-    std::map<int, eUnitTile> mClientAreas;
-    std::set<int> mClientIds;
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
+    eUnitAreas mUnitAreas;
+    std::map<int, eUnitArea> mClientAreas;
+    std::set<int> mClientIds;
 
     std::shared_ptr<eMap> mMap;
 };

@@ -19,7 +19,7 @@
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erequestdata.h>
-#include <eSlayerHelpers/eunittile.h>
+#include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/evec2.h>
 
 eGameScreen::eGameScreen(eMainWindow* const window) :

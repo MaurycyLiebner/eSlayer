@@ -77,11 +77,13 @@ add_library(eSlayerHelpers SHARED
     src/emissile.cpp
     include/eSlayerHelpers/epositioned.h
     include/eSlayerHelpers/estringidmapvector.h
-    include/eSlayerHelpers/eunittile.h
+    include/eSlayerHelpers/eunitarea.h
     include/eSlayerHelpers/emissilecollision.h
     include/eSlayerHelpers/eskills.h
     src/eskills.cpp
     src/emissilecollision.cpp
+    include/eSlayerHelpers/eunitareas.h
+    src/eunitareas.cpp
 )
 
 target_include_directories(eSlayerHelpers

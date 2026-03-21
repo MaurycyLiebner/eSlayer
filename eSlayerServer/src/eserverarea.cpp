@@ -9,6 +9,9 @@
 #include <eSlayerHelpers/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
+eServerArea::eServerArea() :
+    mUnitAreas(mUnitAreaDim) {}
+
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
@@ -49,7 +52,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fAngle = 0.f;
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
-            mUnitAreas[area].emplace(charId);
+            mUnitAreas.emplace(area, charId);
 
             auto& m = u->movementHandler();
             m.setSpeed(0.025f);
@@ -74,7 +77,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 void eServerArea::increment(const float by) {
-    std::map<int, eUnitTile> clientAreas;
+    std::map<int, eUnitArea> clientAreas;
 
     for(const int i : mClientIds) {
         const auto u = unit(i);
@@ -82,21 +85,19 @@ void eServerArea::increment(const float by) {
         auto& oldArea = mClientAreas[i];
         const auto newArea = unitArea(*u);
         if(oldArea != newArea) {
-            mUnitAreas[oldArea].erase(i);
-            mUnitAreas[newArea].emplace(i);
+            mUnitAreas.erase(oldArea, i);
+            mUnitAreas.emplace(newArea, i);
             oldArea = newArea;
         }
         clientAreas[i] = newArea;
     }
 
-    std::set<eUnitTile> unitTiles;
+    std::set<eUnitArea> unitTiles;
     for(const auto& clientAreaP : clientAreas) {
         const auto& clientArea = clientAreaP.second;
         for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
             for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
-                const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
-                const auto it = mUnitAreas.find(area);
-                if(it == mUnitAreas.end()) continue;
+                const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
                 unitTiles.emplace(area);
             }
         }
@@ -109,8 +110,8 @@ void eServerArea::increment(const float by) {
             u->increment(by);
             const auto newArea = unitArea(*u);
             if(oldArea != newArea) {
-                mUnitAreas[oldArea].erase(charId);
-                mUnitAreas[newArea].emplace(charId);
+                mUnitAreas.erase(oldArea, charId);
+                mUnitAreas.emplace(newArea, charId);
             }
         }
     }
@@ -139,23 +140,23 @@ void eServerArea::increment(const float by) {
         const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
 
         // Determine which unit areas overlap this AABB
-        const auto areaMin = posArea(ePointF{aabbMinX, aabbMinY});
-        const auto areaMax = posArea(ePointF{aabbMaxX, aabbMaxY});
+        const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
+        const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
 
         eMissileCollision::eResult collResult;
 
         for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
             for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-                const auto it = mUnitAreas.find(eUnitTile{ax, ay});
-                if(it == mUnitAreas.end()) continue;
-                for(const int charId : it->second) {
+                const eUnitArea area{ax, ay};
+                const auto& units = mUnitAreas.at(area);
+                for(const int charId : units) {
                     const auto u = mUnits.get(charId);
                     if(!u || u->fHealth <= 0) continue;
                     if(u->fTeamId == m->fTeamId) continue;
                     const float collR = 0.5f*(u->fRadius + m->fRadius);
                     eMissileCollision::test(oldPos, newPos,
-                                           u->fPos, collR,
-                                           charId, collResult);
+                                            u->fPos, collR,
+                                            charId, collResult);
                 }
             }
         }
@@ -175,17 +176,16 @@ void eServerArea::increment(const float by) {
 }
 
 std::vector<eUnitData>
-eServerArea::unitsData(const int clientId) const {
+eServerArea::unitsData(const int clientId) {
     std::vector<eUnitData> result;
     const auto client = unit(clientId);
     if(!client) return result;
     const auto clientArea = unitArea(*client);
     for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
         for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
-            const eUnitTile area{clientArea.fX + x, clientArea.fY + y};
-            const auto it = mUnitAreas.find(area);
-            if(it == mUnitAreas.end()) continue;
-            for(const int charId : it->second) {
+            const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
+            const auto& units = mUnitAreas.at(area);
+            for(const int charId : units) {
                 const auto u = unit(charId);
                 if(!u) continue;
                 result.emplace_back(reinterpret_cast<eUnitData&>(*u));
@@ -195,21 +195,15 @@ eServerArea::unitsData(const int clientId) const {
     return result;
 }
 
-eUnitTile eServerArea::unitArea(const int charId) const {
+eUnitArea eServerArea::unitArea(const int charId) const {
     const auto u = unit(charId);
     if(!u) return {0, 0};
     return unitArea(*u);
 }
 
-eUnitTile eServerArea::unitArea(const eServerUnit& u) const {
+eUnitArea eServerArea::unitArea(const eServerUnit& u) const {
     const auto& pos = u.fPos;
-    return posArea(pos);
-}
-
-eUnitTile eServerArea::posArea(const ePointF& pos) const {
-    eUnitTile result;
-    reinterpret_cast<ePoint&>(result) = pos.floor()/mUnitAreaDim;
-    return result;
+    return mUnitAreas.posArea(pos);
 }
 
 bool eServerArea::addClient(const int clientId, const ePointF& pos) {
@@ -237,7 +231,7 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     u->setAction(a);
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
-    mUnitAreas[area].emplace(clientId);
+    mUnitAreas.emplace(area, clientId);
     mClientAreas[clientId] = area;
     return true;
 }
@@ -252,7 +246,7 @@ bool eServerArea::removeClient(const int clientId) {
 
 bool eServerArea::removeUnit(const int charId) {
     const auto area = unitArea(charId);
-    mUnitAreas[area].erase(charId);
+    mUnitAreas.erase(area, charId);
     return mUnits.remove(charId);
 }
 
@@ -289,17 +283,29 @@ eServerArea::unit(const int charId) const {
 }
 
 std::shared_ptr<eServerUnit>
-eServerArea::unit(const ePointF& pos) const {
-    const auto area = posArea(pos);
-    const auto it = mUnitAreas.find(area);
-    if(it == mUnitAreas.end()) return nullptr;
-    for(const auto& u : mUnitAreas) {
-        for(const int charId : u.second) {
-            const auto u = unit(charId);
-            if(!u) continue;
-            const auto& upos = u->fPos;
-            const float dist = ePointF::distance(pos, upos);
-            if(dist <= u->fRadius) return u;
+eServerArea::unit(const ePointF& pos) {
+    const auto centralArea = mUnitAreas.posArea(pos);
+
+    const float maxRadius = 1.f;
+    const float minX = centralArea.fX - maxRadius;
+    const float maxX = centralArea.fX + maxRadius;
+    const float minY = centralArea.fY - maxRadius;
+    const float maxY = centralArea.fY + maxRadius;
+
+    const auto areaMin = mUnitAreas.posArea(ePointF{minX, minY});
+    const auto areaMax = mUnitAreas.posArea(ePointF{maxX, maxY});
+
+    for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+        for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+            const eUnitArea area{ax, ay};
+            const auto& units = mUnitAreas.at(area);
+            for(const int charId : units) {
+                const auto u = unit(charId);
+                if(!u) continue;
+                const auto& upos = u->fPos;
+                const float dist = ePointF::distance(pos, upos);
+                if(dist <= u->fRadius) return u;
+            }
         }
     }
     return nullptr;

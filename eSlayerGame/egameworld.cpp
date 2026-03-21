@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerMissiles/emissileincrement.h>
 #include <eSlayerHelpers/evec2.h>
+#include <eSlayerHelpers/emissilecollision.h>
 
 eGameWorld::eProcessResult eGameWorld::processServerData(
     const int clientId,
@@ -27,10 +28,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     std::set<int> present;
     for(const auto& u : units) {
         const int charId = u.fCharId;
-        const auto ipos = u.fPos.floor();
-        eUnitTile tile;
-        reinterpret_cast<ePoint&>(tile) = ipos;
-        mUnitAreas[tile].emplace(charId);
+        const auto area = mUnitAreas.posArea(u.fPos);
+        mUnitAreas.emplace(area, charId);
         present.emplace(charId);
         if(charId == clientId) {
             result.fHasMainCharData = true;
@@ -80,9 +79,10 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     return result;
 }
 
-void eGameWorld::simulateMissiles(
-    const float by,
-    const std::shared_ptr<eMap>& map) {
+eGameWorld::eGameWorld() :
+    mUnitAreas(1) {}
+
+void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& map) {
     for(const auto& m : mMissiles) {
         const auto oldPos = m->fPos;
         eMissileIncrement::increment(*m, by);
@@ -97,28 +97,43 @@ void eGameWorld::simulateMissiles(
             if(obsticle) {
                 mMissiles.remove(m->fId);
             } else {
-                bool found = false;
-                const int margin = int(m->fRadius) + 1;
-                const int xMin = ipos.fX - margin;
-                const int xMax = ipos.fX + margin;
-                const int yMin = ipos.fY - margin;
-                const int yMax = ipos.fY + margin;
-                for(int x = xMin; x <= xMax; x++) {
-                    for(int y = yMin; y <= yMax; y++) {
-                        const auto& charIds = mUnitAreas[eUnitTile{x, y}];
-                        for(const int charId : charIds) {
+                // Compute AABB of the travel segment, expanded by max
+                // possible collision radius to cover all candidate units
+                const float maxRadius = m->fRadius + 1.f;
+                const float aabbMinX = std::min(oldPos.fX, newPos.fX) - maxRadius;
+                const float aabbMaxX = std::max(oldPos.fX, newPos.fX) + maxRadius;
+                const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
+                const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
+
+                       // Determine which unit areas overlap this AABB
+                const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
+                const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
+
+                eMissileCollision::eResult collResult;
+
+                for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+                    for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+                        const eUnitArea area{ax, ay};
+                        const auto& units = mUnitAreas.at(area);
+                        for(const int charId : units) {
                             const auto u = mUnits.get(charId);
                             if(!u || u->fHealth <= 0) continue;
                             if(u->fTeamId == m->fTeamId) continue;
-                            const float dist = ePointF::distance(u->fPos, m->fPos);
-                            if(dist > 0.5f*(u->fRadius + m->fRadius)) continue;
-                            found = true;
-                            mMissiles.remove(m->fId);
-                            break;
+                            const float collR = 0.5f*(u->fRadius + m->fRadius);
+                            eMissileCollision::test(oldPos, newPos,
+                                                    u->fPos, collR,
+                                                    charId, collResult);
                         }
-                        if(found) break;
                     }
-                    if(found) break;
+                }
+
+                if(collResult.fHit) {
+                    const float dx = newPos.fX - oldPos.fX;
+                    const float dy = newPos.fY - oldPos.fY;
+                    m->fPos.fX = oldPos.fX + collResult.fT * dx;
+                    m->fPos.fY = oldPos.fY + collResult.fT * dy;
+                    const auto hitUnit = mUnits.get(collResult.fCharId);
+                    mMissiles.remove(m->fId);
                 }
             }
         }

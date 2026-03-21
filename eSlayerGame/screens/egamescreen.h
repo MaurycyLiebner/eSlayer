@@ -14,7 +14,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerServer/eserver.h>
 #include <eSlayerHelpers/emissile.h>
-#include <eSlayerHelpers/eunittile.h>
+#include <eSlayerHelpers/eunitarea.h>
 
 class eUnitIndicator;
 class ePlayerHealthIndicator;
