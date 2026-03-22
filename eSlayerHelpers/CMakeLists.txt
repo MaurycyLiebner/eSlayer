@@ -84,6 +84,8 @@ add_library(eSlayerHelpers SHARED
     src/emissilecollision.cpp
     include/eSlayerHelpers/eunitareas.h
     src/eunitareas.cpp
+    include/eSlayerHelpers/edamage.h
+    src/edamage.cpp
 )
 
 target_include_directories(eSlayerHelpers

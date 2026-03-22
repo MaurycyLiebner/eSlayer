@@ -10,7 +10,10 @@
 void eUnitBaseAction::decide() {
     for(const auto& unit : mArea.units()) {
         if(mUnit.fTeamId == unit->fTeamId) continue;
-        const bool r = attack(*unit);
+        const auto& data = mUnit.data();
+        const int skillId = eSkills::sSkills.id("attack");
+        const auto& skill = data.getSkill(skillId);
+        const bool r = attack(*unit, skill);
         if(r) return;
     }
     if(eRand::rand() % 2) {

@@ -105,7 +105,7 @@ void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& m
                 const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
                 const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
 
-                       // Determine which unit areas overlap this AABB
+                // Determine which unit areas overlap this AABB
                 const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
                 const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
 
@@ -117,23 +117,19 @@ void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& m
                         const auto& units = mUnitAreas.at(area);
                         for(const int charId : units) {
                             const auto u = mUnits.get(charId);
-                            if(!u || u->fHealth <= 0) continue;
-                            if(u->fTeamId == m->fTeamId) continue;
-                            const float collR = 0.5f*(u->fRadius + m->fRadius);
+                            if(!u) continue;
                             eMissileCollision::test(oldPos, newPos,
-                                                    u->fPos, collR,
-                                                    charId, collResult);
+                                                    *u, *m, collResult);
                         }
                     }
                 }
 
                 if(collResult.fHit) {
-                    const float dx = newPos.fX - oldPos.fX;
-                    const float dy = newPos.fY - oldPos.fY;
-                    m->fPos.fX = oldPos.fX + collResult.fT * dx;
-                    m->fPos.fY = oldPos.fY + collResult.fT * dy;
-                    const auto hitUnit = mUnits.get(collResult.fCharId);
-                    mMissiles.remove(m->fId);
+                    m->fPierced.emplace(collResult.fCharId);
+                    if(m->fToPierce == 0) continue;
+                    if(--m->fToPierce == 0) {
+                        mMissiles.remove(m->fId);
+                    }
                 }
             }
         }

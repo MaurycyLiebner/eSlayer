@@ -7,11 +7,11 @@ ePointF eGameInput::pixelToTilePos(
     const int screenH) const {
     ePointF result;
     result.fY = charPos.fY +
-                (pixel.fY - screenH/2.f)/mTileH +
+                (pixel.fY - mCharacterVerticalPos*screenH)/mTileH +
                 (screenW/2.f - pixel.fX)/mTileW;
     result.fX = charPos.fX +
                 (pixel.fX - screenW/2.f)/mTileW +
-                (pixel.fY - screenH/2.f)/mTileH;
+                (pixel.fY - mCharacterVerticalPos*screenH)/mTileH;
     return result;
 }
 
@@ -28,7 +28,7 @@ ePointF eGameInput::tilePosToPixel(
     const int screenW,
     const int screenH) const {
     ePointF result;
-    result.fY = screenH/2.f + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.f;
+    result.fY = mCharacterVerticalPos*screenH + (pos.fY - charPos.fY + pos.fX - charPos.fX)*mTileH/2.f;
     result.fX = screenW/2.f + (charPos.fY - pos.fY + pos.fX - charPos.fX)*mTileW/2.f;
     return result;
 }

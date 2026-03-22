@@ -8,7 +8,6 @@
 #include <cmath>
 #include <eSlayerHelpers/eexceptions.h>
 #include <filesystem>
-#include <iostream>
 
 eCharUnitModel::eCharUnitModel() {}
 

@@ -41,6 +41,11 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     umodel.setAnimation(animId, 1.f);
     umodel.setDirection(0);
 
+    // const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
+    // for(const auto& entry : std::filesystem::directory_iterator(dir))
+    //     std::filesystem::remove_all(entry.path());
+    // umodel.generatePreview(r);
+
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
     mMainChar->fRadius = radius;

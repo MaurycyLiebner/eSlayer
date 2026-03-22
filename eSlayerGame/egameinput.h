@@ -35,9 +35,13 @@ public:
     bool rightPressed() const { return mRightPressed; }
     bool leftPressed() const { return mLeftPressed; }
     const ePointF& mousePos() const { return mMousePos; }
+
+    float characterVertialPos() const { return mCharacterVerticalPos; }
 private:
     const int mTileW = 160;
     const int mTileH = 79;
+
+    const float mCharacterVerticalPos = 0.45f;
 
     bool mMousePressed = false;
     bool mRightPressed = false;

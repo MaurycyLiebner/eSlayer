@@ -5,7 +5,11 @@
 
 #include "epositioned.h"
 
+#include "edamage.h"
+
 class ePacket;
+
+#include <set>
 
 struct ESLAYERHELPERS_API eMissile : public ePositioned {
     int32_t fId;
@@ -16,17 +20,15 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     ePointF fTo;
     float fSpeed;
     // number of obsticles missile can hit (0 - infinity)
-    uint8_t fPierced;
+    uint8_t fToPierce;
     float fRemDist;
     float fRadius;
-    float fTime;
+    float fTime = 0.f;
+
+    std::set<int32_t> fPierced;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
-};
-
-struct eExtendedMissile : public eMissile {
-    float fAngle;
 };
 
 #endif // EMISSILE_H

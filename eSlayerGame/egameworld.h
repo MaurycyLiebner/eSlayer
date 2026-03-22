@@ -12,6 +12,10 @@
 
 class eMap;
 
+struct eExtendedMissile : public eMissile {
+    float fAngle;
+};
+
 class eGameWorld {
 public:
     eGameWorld();

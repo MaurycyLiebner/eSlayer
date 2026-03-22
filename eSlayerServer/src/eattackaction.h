@@ -5,13 +5,15 @@
 
 #include <memory>
 
+class eSkill;
+
 class eAttackAction : public eUnitActionBase {
 public:
     using eUnitActionBase::eUnitActionBase;
 
-    static std::shared_ptr<eAttackAction>
-    sCreate(eServerUnit& unit, eServerArea& area,
-            const eAction& a);
+    static std::shared_ptr<eAttackAction> sCreate(
+        eServerUnit& unit, eServerArea& area,
+        const std::vector<int>& anims, const eAction& a);
 };
 
 #endif // EATTACKACTION_H

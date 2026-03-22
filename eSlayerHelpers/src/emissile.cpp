@@ -11,10 +11,9 @@ void eMissile::read(ePacket& p) {
     p >> fPos;
     p >> fTo;
     p >> fSpeed;
-    p >> fPierced;
+    p >> fToPierce;
     p >> fRemDist;
     p >> fRadius;
-    p >> fTime;
 }
 
 void eMissile::write(ePacket& p) const {
@@ -26,8 +25,7 @@ void eMissile::write(ePacket& p) const {
     p << fPos;
     p << fTo;
     p << fSpeed;
-    p << fPierced;
+    p << fToPierce;
     p << fRemDist;
     p << fRadius;
-    p << fTime;
 }

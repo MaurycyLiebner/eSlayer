@@ -1,5 +1,8 @@
 #include "eSlayerHelpers/emissilecollision.h"
 
+#include "eSlayerHelpers/eunitdata.h"
+#include "eSlayerHelpers/emissile.h"
+
 void eMissileCollision::test(const ePointF& oldPos,
                              const ePointF& newPos,
                              const ePointF& unitPos,
@@ -58,4 +61,16 @@ void eMissileCollision::test(const ePointF& oldPos,
         result.fT = t;
         result.fCharId = charId;
     }
+}
+
+void eMissileCollision::test(const ePointF& oldPos,
+                             const ePointF& newPos,
+                             const eUnitData& u,
+                             const eMissile& m,
+                             eResult& result) {
+    if(u.fHealth <= 0) return;
+    if(u.fTeamId == m.fTeamId) return;
+    if(m.fPierced.find(u.fCharId) != m.fPierced.end()) return;
+    const float collR = 0.5f*(u.fRadius + m.fRadius);
+    return test(oldPos, newPos, u.fPos, collR, u.fCharId, result);
 }

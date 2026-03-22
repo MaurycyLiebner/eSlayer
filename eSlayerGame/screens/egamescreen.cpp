@@ -130,7 +130,7 @@ void eGameScreen::initialize(const int clientId,
     staminaExperience->fitContent();
     centerWid->addWidget(staminaExperience);
 
-    centerWid->stackVertically();
+    centerWid->stackVertically(-lineWidth);
     centerWid->fitContent();
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
     bottomWid->addWidget(centerWid);
@@ -160,6 +160,21 @@ void eGameScreen::initialize(const int clientId,
     };
     mMainAction.initialize(mServer, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
+
+    // {
+    //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
+    //     for(const auto& entry : std::filesystem::directory_iterator(dir))
+    //         std::filesystem::remove_all(entry.path());
+    //     const eCharTextures::eModelParts modelParts {
+    //         {"mummy", "whole"}
+    //     };
+    //     const auto texs = eCharsTextures::get("mummy");
+    //     const auto unitModel = texs->generateModel(modelParts, r);
+    //     eCharUnitModel model;
+    //     model.setCharModel(unitModel);
+    //     model.setDirection(0);
+    //     model.generatePreview(r);
+    // }
 }
 
 const ePointF& eGameScreen::characterPos() const {
@@ -378,7 +393,7 @@ void eGameScreen::paintEvent(ePainter& p) {
         });
     }
 
-    mGamePainter.renderLight(r, width()/2.f, height()/2.f,
+    mGamePainter.renderLight(r, width()/2.f, mInput.characterVertialPos()*height(),
                              10.f, SDL_Color{255, 255, 255, 255});
     mGamePainter.finish();
 

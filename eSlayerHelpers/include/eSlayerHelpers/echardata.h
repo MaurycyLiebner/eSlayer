@@ -4,6 +4,7 @@
 #include "eoffset.h"
 
 #include "estringidmapvector.h"
+#include "eskills.h"
 
 #include <map>
 #include <string>
@@ -48,6 +49,8 @@ public:
 
     eModelParts mapToModelParts(
         const std::map<std::string, std::string>& m);
+
+    const eUnitSkill& getSkill(const int id) const;
 protected:
     void setAnimId(const std::string& name, const int id);
 
@@ -83,6 +86,8 @@ protected:
     std::vector<std::vector<int>> mGroups;
     eStringIdMapVector<eStringIdMapVector<bool>> mParts;
     int mNParts = 0;
+
+    std::vector<eUnitSkill> mSkills;
 };
 
 #endif // ECHARDATA_H

@@ -48,6 +48,17 @@ void eCharData::load(ordered_json& jdata) {
             mNParts++;
         }
     }
+
+    for(const auto& it : eSkills::sSkills) {
+        auto& uskill = mSkills.emplace_back();
+        auto& skill = it.fValue;
+        reinterpret_cast<eSkill&>(uskill) = skill;
+        for(const auto& a : skill.fCastAnims) {
+            const int aid = animId(a);
+            if(aid == -1) continue;
+            uskill.fCastAnimIds.push_back(aid);
+        }
+    }
 }
 
 int eCharData::animId(const std::string& name) const {
@@ -115,6 +126,10 @@ eModelParts eCharData::mapToModelParts(
     }
 
     return result;
+}
+
+const eUnitSkill& eCharData::getSkill(const int id) const {
+    return mSkills[id];
 }
 
 void eCharData::setAnimId(const std::string& name, const int id) {

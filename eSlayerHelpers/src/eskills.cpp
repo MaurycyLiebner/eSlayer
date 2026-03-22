@@ -20,21 +20,51 @@ void eSkills::load() {
         eSkill skill;
         const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
         const std::string typeStr = jdata["type"];
+        skill.fIcon = jdata["icon"];
         if(typeStr == "attack") {
             skill.fType = eSkillType::attack;
         } else if(typeStr == "missile") {
             skill.fType = eSkillType::missile;
             skill.fMissile = jdata["missile"];
+            skill.fBaseMissiles = jdata.value("missiles", 1);
+            skill.fBaseDamage.fFire = jdata.value("fireDamage", 0);
             skill.fPath = jdata.value("path", "linear");
-            skill.fRange = jdata.value("range", 5.f);
+            skill.fRange = jdata.value("range", 8.f);
             skill.fRadius = jdata.value("radius", 0.5f);
             skill.fSpeed = jdata.value("speed", 0.25f);
-            skill.fPierceChance = jdata.value("pierce", 0.f);
+            skill.fBasePierceChance = jdata.value("pierce", 0.f);
+            skill.fMaxAngle = jdata.value("maxAngle", 0.f);
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
         }
-        const auto iconStr = jdata["icon"];
-        skill.fIcon = iconStr;
+        skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
+        if(jdata.contains("levels")) {
+            const auto& levels = jdata["levels"];
+            int missiles = skill.fBaseMissiles;
+            float pierce = skill.fBasePierceChance;
+            eDamage damage = skill.fBaseDamage;
+            for(auto& [name, levelData] : levels.items()) {
+                eSkillLevel level;
+
+                missiles = levelData.value("missiles", missiles);
+                level.fMissiles = missiles;
+
+                pierce = levelData.value("pierce", pierce);
+                level.fPierceChance = pierce;
+
+                const float physicalIncrease = levelData.value("physicalDamageIncrease", 0.f);
+                damage.fPhysical *= 1.f + physicalIncrease;
+                const float fireIncrease = levelData.value("fireDamageIncrease", 0.f);
+                damage.fFire *= 1.f + fireIncrease;
+                const float coldIncrease = levelData.value("coldDamageIncrease", 0.f);
+                damage.fCold *= 1.f + coldIncrease;
+                const float lightningIncrease = levelData.value("lightningDamageIncrease", 0.f);
+                damage.fLightning *= 1.f + lightningIncrease;
+                level.fDamage = damage;
+
+                skill.fLevels.emplace_back(level);
+            }
+        }
         sSkills.add(name, skill);
     }
 }

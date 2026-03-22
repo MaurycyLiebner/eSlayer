@@ -4,14 +4,18 @@
 #include "eunitaction.h"
 
 #include <eSlayerHelpers/eattackdata.h>
+#include <eSlayerHelpers/edamage.h>
 
 #include <memory>
 
 struct eSkill;
+struct eSkillLevel;
+struct eUnitSkill;
 
 struct eHitData {
     float fHitChance;
     float fBlockMultiplier;
+    eDamage fDamage;
 };
 
 class eComplexAction : public eUnitAction {
@@ -24,13 +28,15 @@ public:
     void setChild(const std::shared_ptr<eUnitAction>& c);
 
     bool getHit(const eHitData& data);
-
 protected:
     bool attack(const eAttackData& target);
-    bool attack(const eServerUnit& u);
+    bool attack(const eServerUnit& u,
+                const eUnitSkill& skill);
+    bool getHit(eServerUnit& target);
 private:
     bool spawnMissile(const ePointF& to,
-                      const eSkill& skill);
+                      const eUnitSkill& skill,
+                      const int levelId);
 
     std::shared_ptr<eUnitAction> mChild;
 };

@@ -3,6 +3,7 @@
 
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/eskills.h>
 
 #include <memory>
 

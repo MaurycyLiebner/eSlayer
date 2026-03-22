@@ -4,34 +4,42 @@
 #include "eslayerhelpersexport.h"
 
 #include "estringidmapvector.h"
+#include "edamage.h"
 
 enum class eSkillType {
     attack, missile
 };
 
+struct eSkillLevel {
+    int fLevel;
+    eDamage fDamage;
+    int fMissiles;
+    float fPierceChance;
+};
+
 struct eSkill {
     eSkillType fType;
+
     std::string fIcon;
     int fIconId;
     std::string fMissile;
     int fMissileId;
     std::string fPath;
     int fPathId;
+
+    int fBaseMissiles;
+    eDamage fBaseDamage;
     float fRange;
     float fRadius;
     float fSpeed;
-    float fPierceChance;
-    std::vector<std::string> fAnims;
+    float fBasePierceChance;
+    float fMaxAngle;
+    std::vector<std::string> fCastAnims;
+    std::vector<eSkillLevel> fLevels;
 };
 
-struct eSkillData {
-    eSkillType fType;
-    int fIconId;
-    int fMissileId;
-    int fPathId;
-    float fRange;
-    float fRadius;
-    std::vector<int> fAnims;
+struct eUnitSkill : public eSkill {
+    std::vector<int> fCastAnimIds;
 };
 
 class ESLAYERHELPERS_API eSkills {
