@@ -11,6 +11,10 @@ public:
     static int rand();
     static float randF(const float min = 0.f,
                        const float max = 1.f);
+    static int rand(const int seed);
+    static float randF(const int seed,
+                       const float min = 0.f,
+                       const float max = 1.f);
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
 private:

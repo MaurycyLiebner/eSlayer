@@ -164,8 +164,8 @@ public:
     static eVec2 random(const float len = 1.f) {
         eVec2 r{0, 0};
         do {
-            r.x = eRand::randF();
-            r.y = eRand::randF();
+            r.x = eRand::randF(-1.f, 1.f);
+            r.y = eRand::randF(-1.f, 1.f);
         } while(r.length() == 0);
         r.normalize(len);
         return r;

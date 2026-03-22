@@ -5,14 +5,61 @@
 eIncrementorsMap eMissileIncrement::sIncrementors;
 
 void linear(eMissile& m, const float by) {
+    m.fTime += by;
     const float dist = std::min(m.fRemDist, by*m.fSpeed);
-    eVec2f dir = ePointF::vector(m.fTo, m.fFrom);
-    dir.normalize(dist);
+    auto dir = ePointF::vector(m.fTo, m.fFrom);
+    if(dir.length() == 0.0f) return;
+    dir.normalize();
     m.fRemDist -= dist;
-    m.fPos = m.fPos + dir;
+    m.fPos = m.fPos + dir * dist;
+}
+
+void wave(eMissile& m, const float by) {
+    const float prevTime = m.fTime;
+    m.fTime += by;
+    const float currTime = m.fTime;
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
+
+    auto dir = ePointF::vector(m.fTo, m.fFrom);
+    if(dir.length() == 0.0f) return;
+    dir.normalize(1.0f);
+
+    const eVec2f perp(-dir.y, dir.x);
+
+    const float amplitude = 0.5f;
+    const float frequency = 0.5f;
+
+    const float prevOffset = std::sin(prevTime * frequency) * amplitude;
+    const float currOffset = std::sin(currTime * frequency) * amplitude;
+
+    const auto forwardMove = dir * dist;
+    const auto waveMove = perp * (currOffset - prevOffset);
+
+    m.fPos = m.fPos + forwardMove + waveMove;
+
+    m.fRemDist -= dist;
+}
+
+void jitter(eMissile& m, const float by) {
+    m.fTime += by;
+
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
+    auto dir = ePointF::vector(m.fTo, m.fFrom);
+    if(dir.length() == 0.0f) return;
+    dir.normalize(1.0f);
+
+    const eVec2f perp(-dir.y, dir.x);
+    const int seed = 100*(m.fId % 100) + int(m.fTime/3.f);
+    const float perpDist = dist;
+    const float perpMult = eRand::randF(seed, -perpDist, perpDist);
+
+    m.fPos = m.fPos + dir * dist + perp * perpMult;
+
+    m.fRemDist -= dist;
 }
 
 void spiral(eMissile& m, const float by) {
+    m.fTime += by;
     const float dist = std::min(m.fRemDist, by * m.fSpeed);
 
     const eVec2f v = ePointF::vector(m.fPos, m.fFrom);
@@ -46,6 +93,8 @@ void spiral(eMissile& m, const float by) {
 
 void eMissileIncrement::initialize() {
     sIncrementors.add("linear", &linear);
+    sIncrementors.add("wave", &wave);
+    sIncrementors.add("jitter", &jitter);
     sIncrementors.add("spiral", &spiral);
 
     for(const auto& it : eSkills::sSkills) {

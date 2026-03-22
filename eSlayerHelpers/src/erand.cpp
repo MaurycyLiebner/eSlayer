@@ -16,3 +16,15 @@ float eRand::randF(const float min, const float max) {
     const int margin = 100000;
     return min + (max - min)*(rand() % (margin + 1))/margin;
 }
+
+int eRand::rand(const int seed) {
+    sRng.seed(seed);
+    return rand();
+}
+
+float eRand::randF(const int seed,
+                   const float min,
+                   const float max) {
+    sRng.seed(seed);
+    return randF(min, max);
+}

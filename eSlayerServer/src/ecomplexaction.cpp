@@ -133,6 +133,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         dir.normalize(0.5*m->fRadius);
         m->fPos = mUnit.fPos + dir;
         m->fTo = to;
+        m->fTime = 0.f;
         m->fHitAction = [](eServerUnit& u) {
             eHitData data;
             data.fBlockMultiplier = 0.f;

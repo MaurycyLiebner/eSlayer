@@ -19,6 +19,7 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     uint8_t fPierced;
     float fRemDist;
     float fRadius;
+    float fTime;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
