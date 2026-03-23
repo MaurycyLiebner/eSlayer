@@ -35,7 +35,7 @@ protected:
     bool getHit(eServerUnit& target);
 private:
     bool spawnMissile(const ePointF& to,
-                      const eUnitSkill& skill,
+                      const eUnitSkill& uskill,
                       const int levelId);
 
     std::shared_ptr<eUnitAction> mChild;

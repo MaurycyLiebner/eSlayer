@@ -51,8 +51,8 @@ void eCharData::load(ordered_json& jdata) {
 
     for(const auto& it : eSkills::sSkills) {
         auto& uskill = mSkills.emplace_back();
+        uskill.fSkillId = it.fId;
         auto& skill = it.fValue;
-        reinterpret_cast<eSkill&>(uskill) = skill;
         for(const auto& a : skill.fCastAnims) {
             const int aid = animId(a);
             if(aid == -1) continue;

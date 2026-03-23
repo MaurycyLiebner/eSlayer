@@ -51,15 +51,16 @@ bool eComplexAction::getHit(const eHitData& data) {
 
 bool eComplexAction::attack(const eAttackData& target) {
     const auto& data = mUnit.data();
-    const auto& skill = data.getSkill(target.fSkill);
+    const auto& uskill = data.getSkill(target.fSkill);
+    const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
         if(skill.fType == eSkillType::attack) {
-            return attack(*u, skill);
+            return attack(*u, uskill);
         } else if(skill.fType == eSkillType::missile) {
-            return spawnMissile(u->fPos, skill, 1);
+            return spawnMissile(u->fPos, uskill, 1);
         }
     } break;
     case eAttackTargetType::position: {
@@ -73,11 +74,11 @@ bool eComplexAction::attack(const eAttackData& target) {
                 if(target.get() == &mUnit) return;
                 getHit(*target);
             };
-            const auto attack = eAttackAction::sCreate(mUnit, mArea, skill.fCastAnimIds, a);
+            const auto attack = eAttackAction::sCreate(mUnit, mArea, uskill.fCastAnimIds, a);
             if(attack) setChild(attack);
             return attack.get();
         } else if(skill.fType == eSkillType::missile) {
-            return spawnMissile(target.fPos, skill, 1);
+            return spawnMissile(target.fPos, uskill, 1);
         }
 
     } break;
@@ -122,8 +123,9 @@ int piercedFromPierceChance(const float p) {
 }
 
 bool eComplexAction::spawnMissile(const ePointF& to,
-                                  const eUnitSkill& skill,
+                                  const eUnitSkill& uskill,
                                   const int levelId) {
+    const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
     const auto& level = skill.fLevels[levelId];
     const auto a = [this, to, skill, level]() {
         auto baseDir = ePointF::vector(to, mUnit.fPos);
@@ -162,7 +164,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             }
         }
     };
-    const auto attack = eAttackAction::sCreate(mUnit, mArea, skill.fCastAnimIds, a);
+    const auto attack = eAttackAction::sCreate(mUnit, mArea, uskill.fCastAnimIds, a);
     if(attack) setChild(attack);
     return attack.get();
 

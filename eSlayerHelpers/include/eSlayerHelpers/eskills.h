@@ -38,7 +38,8 @@ struct eSkill {
     std::vector<eSkillLevel> fLevels;
 };
 
-struct eUnitSkill : public eSkill {
+struct eUnitSkill {
+    int fSkillId;
     std::vector<int> fCastAnimIds;
 };
 
