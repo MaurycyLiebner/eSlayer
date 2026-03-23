@@ -67,12 +67,13 @@ void eMainCharAction::increment(const bool mousePressed,
 
     auto& model = mMainChar->model();
 
-    handleAttackStop(mousePressed, shiftPressed, skillId);
+    handleAttackStop(mousePressed, rightPressed, shiftPressed, skillId);
 
     if(consumeActionTime(by, model)) return;
 
     const auto& skill = eSkills::sSkills.get(skillId);
-    const bool rangeAttack = skill.fType == eSkillType::missile;
+    const bool rangeAttack = skill.fType == eSkillType::missile ||
+                             skill.fType == eSkillType::wall;
 
     ePointF targetPos = mousePos;
     bool shouldStopAttack = false;
@@ -95,13 +96,14 @@ void eMainCharAction::increment(const bool mousePressed,
 
 void eMainCharAction::handleAttackStop(
     const bool mousePressed,
+    const bool rightPressed,
     const bool shiftPressed,
     const int skillId) {
     const auto atype = mAttackData.fType;
 
     const bool stop =
         (atype == eAttackTargetType::character && !mPressedUnit) ||
-        (atype == eAttackTargetType::position && (!mousePressed || !shiftPressed)) ||
+        (atype == eAttackTargetType::position && (!mousePressed || (!shiftPressed && !rightPressed))) ||
         (atype != eAttackTargetType::none && skillId != mAttackData.fSkill);
 
     if(stop) {
@@ -129,7 +131,7 @@ bool eMainCharAction::handleUnitAttack(
     eCharUnitModel& model) {
     const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
     const float meeleDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
-    const float attackDist = rangeAttack ? skill.fRange : meeleDist;
+    const float attackDist = rangeAttack ? skill.fRangeTime : meeleDist;
 
     if(dist >= attackDist) {
         return false;

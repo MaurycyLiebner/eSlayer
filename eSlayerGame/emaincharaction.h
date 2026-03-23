@@ -46,6 +46,7 @@ public:
 private:
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
+                          const bool rightPressed,
                           const bool shiftPressed,
                           const int skillId);
 

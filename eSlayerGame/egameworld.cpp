@@ -89,7 +89,7 @@ void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& m
         const auto newPos = m->fPos;
         const auto dir = ePointF::vector(oldPos, newPos);
         m->fAngle = dir.angle();
-        if(m->fRemDist <= 0.0001f) {
+        if(m->fRemDistTime <= 0.0001f) {
             mMissiles.remove(m->fId);
         } else {
             const auto ipos = m->fPos.floor();

@@ -11,6 +11,15 @@ struct ESLAYERHELPERS_API eDamage {
     float fCold = 0.f;
     float fLightning = 0.f;
 
+    eDamage operator/(const float div) const {
+        eDamage result;
+        result.fPhysical = fPhysical/div;
+        result.fFire = fFire/div;
+        result.fCold = fCold/div;
+        result.fLightning = fLightning/div;
+        return result;
+    }
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

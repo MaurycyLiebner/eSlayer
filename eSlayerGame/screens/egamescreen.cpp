@@ -456,7 +456,8 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         mInput.handleMouseRelease(leftReleased, rightRelease);
         setPressedUnit(nullptr);
         const auto& skill = eSkills::sSkills.get(mRightSkill);
-        const bool rangeAttack = skill.fType == eSkillType::missile;
+        const bool rangeAttack = skill.fType == eSkillType::missile ||
+                                 skill.fType == eSkillType::wall;
         if(e.shiftPressed() || (rightRelease && rangeAttack)) {
             mMainAction.stop();
         } else {

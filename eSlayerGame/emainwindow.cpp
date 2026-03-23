@@ -3,6 +3,7 @@
 #include "audio/emusic.h"
 
 #include <eSlayerHelpers/eexceptions.h>
+#include <eSlayerHelpers/erunsettings.h>
 
 #include <chrono>
 #include <cmath>
@@ -98,7 +99,7 @@ int eMainWindow::exec() {
     SDL_Event e;
 
     const bool showFPS = false;
-    const double fpsClamp = 25.;
+    const double fpsClamp = eRunSettings::sFPS;
 
     int c = 0;
     int fpsVal = 0;

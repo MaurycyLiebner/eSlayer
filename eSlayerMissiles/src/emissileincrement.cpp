@@ -6,11 +6,11 @@ eIncrementorsMap eMissileIncrement::sIncrementors;
 
 void linear(eMissile& m, const float by) {
     m.fTime += by;
-    const float dist = std::min(m.fRemDist, by*m.fSpeed);
+    const float dist = std::min(m.fRemDistTime, by*m.fSpeed);
     auto dir = ePointF::vector(m.fTo, m.fFrom);
     if(dir.length() == 0.0f) return;
     dir.normalize();
-    m.fRemDist -= dist;
+    m.fRemDistTime -= dist;
     m.fPos = m.fPos + dir * dist;
 }
 
@@ -18,7 +18,7 @@ void wave(eMissile& m, const float by) {
     const float prevTime = m.fTime;
     m.fTime += by;
     const float currTime = m.fTime;
-    const float dist = std::min(m.fRemDist, by * m.fSpeed);
+    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
 
     auto dir = ePointF::vector(m.fTo, m.fFrom);
     if(dir.length() == 0.0f) return;
@@ -37,13 +37,13 @@ void wave(eMissile& m, const float by) {
 
     m.fPos = m.fPos + forwardMove + waveMove;
 
-    m.fRemDist -= dist;
+    m.fRemDistTime -= dist;
 }
 
 void jitter(eMissile& m, const float by) {
     m.fTime += by;
 
-    const float dist = std::min(m.fRemDist, by * m.fSpeed);
+    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
     auto dir = ePointF::vector(m.fTo, m.fFrom);
     if(dir.length() == 0.0f) return;
     dir.normalize(1.0f);
@@ -55,12 +55,12 @@ void jitter(eMissile& m, const float by) {
 
     m.fPos = m.fPos + dir * dist + perp * perpMult;
 
-    m.fRemDist -= dist;
+    m.fRemDistTime -= dist;
 }
 
 void spiral(eMissile& m, const float by) {
     m.fTime += by;
-    const float dist = std::min(m.fRemDist, by * m.fSpeed);
+    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
 
     const eVec2f v = ePointF::vector(m.fPos, m.fFrom);
 
@@ -88,7 +88,12 @@ void spiral(eMissile& m, const float by) {
     m.fPos.fX = m.fFrom.fX + r * std::cos(angle);
     m.fPos.fY = m.fFrom.fY + r * std::sin(angle);
 
-    m.fRemDist -= dist;
+    m.fRemDistTime -= dist;
+}
+
+void staticF(eMissile& m, const float by) {
+    m.fTime += by;
+    m.fRemDistTime -= by;
 }
 
 void eMissileIncrement::initialize() {
@@ -96,6 +101,7 @@ void eMissileIncrement::initialize() {
     sIncrementors.add("wave", &wave);
     sIncrementors.add("jitter", &jitter);
     sIncrementors.add("spiral", &spiral);
+    sIncrementors.add("static", &staticF);
 
     for(const auto& it : eSkills::sSkills) {
         auto& skill = it.fValue;

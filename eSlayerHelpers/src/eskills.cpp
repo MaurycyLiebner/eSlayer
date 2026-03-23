@@ -25,18 +25,27 @@ void eSkills::load() {
             skill.fType = eSkillType::attack;
         } else if(typeStr == "missile") {
             skill.fType = eSkillType::missile;
-            skill.fMissile = jdata["missile"];
-            skill.fBaseMissiles = jdata.value("missiles", 1);
-            skill.fBaseDamage.fFire = jdata.value("fireDamage", 0);
             skill.fPath = jdata.value("path", "linear");
-            skill.fRange = jdata.value("range", 8.f);
-            skill.fRadius = jdata.value("radius", 0.5f);
             skill.fSpeed = jdata.value("speed", 0.25f);
             skill.fBasePierceChance = jdata.value("pierce", 0.f);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
+            skill.fRangeTime = jdata.value("range", 8.f);
+        } else if(typeStr == "wall") {
+            skill.fType = eSkillType::wall;
+            skill.fRangeTime = jdata.value("time", 100.f);
+            skill.fPath = "static";
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
         }
+        if(skill.fType == eSkillType::missile ||
+           skill.fType == eSkillType::wall) {
+            skill.fMissile = jdata["missile"];
+            skill.fBaseMissiles = jdata.value("missiles", 1);
+            skill.fRadius = jdata.value("radius", 0.5f);
+        }
+
+        skill.fBaseDamage.fFire = jdata.value("fireDamage", 0.f);
+
         skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
         if(jdata.contains("levels")) {
             const auto& levels = jdata["levels"];

@@ -52,6 +52,10 @@ struct ESLAYERHELPERS_API ePointF {
         return {fX + vec.x, fY + vec.y};
     }
 
+    ePointF operator-(const eVec2f& vec) const {
+        return {fX - vec.x, fY - vec.y};
+    }
+
     ePointF operator*(const float mult) const {
         return {mult*fX, mult*fY};
     }

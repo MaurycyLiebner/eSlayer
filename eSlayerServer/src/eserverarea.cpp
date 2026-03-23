@@ -120,7 +120,7 @@ void eServerArea::increment(const float by) {
         const auto oldPos = m->fPos;
         eMissileIncrement::increment(*m, by);
         const auto newPos = m->fPos;
-        if(m->fRemDist <= 0.0001f) {
+        if(m->fRemDistTime <= 0.0001f) {
             removeMissile(m);
             continue;
         }
@@ -154,11 +154,15 @@ void eServerArea::increment(const float by) {
                     if(!u) continue;
                     eMissileCollision::test(oldPos, newPos,
                                             *u, *m, collResult);
+                    if(m->fContinuousDamage && collResult.fHit) {
+                        const auto hitUnit = mUnits.get(collResult.fCharId);
+                        if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
+                    }
                 }
             }
         }
 
-        if(collResult.fHit) {
+        if(!m->fContinuousDamage && collResult.fHit) {
             const auto hitUnit = mUnits.get(collResult.fCharId);
             if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
             m->fPierced.emplace(collResult.fCharId);

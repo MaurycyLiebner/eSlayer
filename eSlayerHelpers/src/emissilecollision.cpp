@@ -70,7 +70,9 @@ void eMissileCollision::test(const ePointF& oldPos,
                              eResult& result) {
     if(u.fHealth <= 0) return;
     if(u.fTeamId == m.fTeamId) return;
-    if(m.fPierced.find(u.fCharId) != m.fPierced.end()) return;
+    if(!m.fContinuousDamage) {
+        if(m.fPierced.find(u.fCharId) != m.fPierced.end()) return;
+    }
     const float collR = 0.5f*(u.fRadius + m.fRadius);
     return test(oldPos, newPos, u.fPos, collR, u.fCharId, result);
 }

@@ -48,6 +48,8 @@ public:
     { return mHandler; }
 
     const eCharData& data() const { return mData; }
+
+    float fHealthF = 100.f;
 private:
     const eCharData& mData;
     bool mAggressive = false;
