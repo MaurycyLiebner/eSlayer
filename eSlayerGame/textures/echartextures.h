@@ -5,19 +5,24 @@
 
 #include <eSlayerHelpers/echardata.h>
 
-class eCharTextures : public eCharData {
+class eCharTextures {
 public:
-    eCharTextures();
-
-    void load(ordered_json& jdata) override;
+    void setCharDataId(const int id);
+    void load(ordered_json& jdata);
 
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
-        SDL_Renderer* const r);
-private:
-    SDL_Color mColorKey;
+        SDL_Renderer* const r) const;
 
-    std::map<std::string, std::map<int, std::shared_ptr<eTextureCollection>>> mTexMap;
+    eModelParts mapToModelParts(const std::map<std::string, std::string>& m) const;
+
+    int animClamp(const int a) const;
+
+    eCharData& charData() const;
+private:
+    int mCharDataId;
+    SDL_Color mColorKey;
+    mutable std::map<std::string, std::vector<std::shared_ptr<eTextureCollection>>> mTexMap;
 };
 
 #endif // ECHARTEXTURES_H

@@ -1,32 +1,29 @@
-#include "eserverchardata.h"
+#include "../include/eSlayerHelpers/echardatainfo.h"
 
-#include "eserverfileloader.h"
-
+#include <eSlayerHelpers/efileloaderbase.h>
 #include <eSlayerHelpers/eexceptions.h>
 
-eServerCharData eServerCharData::sInstance;
+eCharDataInfo eCharDataInfo::sInstance;
 
-eServerCharData::eServerCharData() {}
-
-eCharData *eServerCharData::get(const std::string& name) {
+eCharData& eCharDataInfo::get(const std::string& name) {
     return sInstance.getImpl(name);
 }
 
-eCharData* eServerCharData::get(const int id) {
+eCharData& eCharDataInfo::get(const int id) {
     return sInstance.getImpl(id);
 }
 
-void eServerCharData::load() {
+void eCharDataInfo::load() {
     return sInstance.loadImpl();
 }
 
-void eServerCharData::loadImpl() {
+void eCharDataInfo::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
 
     const auto dir = "Textures";
 
-    const auto jdata = eServerFileLoader::parse(dir, "chars/chars.json");
+    const auto jdata = eFileLoaderBase::parse(dir, "chars/chars.json");
     const auto chars = jdata.get<std::vector<std::string>>();
 
     mChars.reserve(chars.size());
@@ -42,7 +39,7 @@ void eServerCharData::loadImpl() {
             const int id = mChars.nextId();
             texs.setTypeId(id);
             texs.setName(name);
-            auto jdata = eServerFileLoader::parse(dir, "chars/" + name + "/" + name + ".json");
+            auto jdata = eFileLoaderBase::parse(dir, "chars/" + name + "/" + name + ".json");
             texs.load(jdata);
             mChars.add(name, texs);
         } catch(const std::exception& e) {
@@ -51,14 +48,14 @@ void eServerCharData::loadImpl() {
     }
 }
 
-eCharData* eServerCharData::getImpl(const std::string &name) {
+eCharData& eCharDataInfo::getImpl(const std::string &name) {
     const int id = mChars.id(name);
     return getImpl(id);
 }
 
-eCharData* eServerCharData::getImpl(const int id) {
+eCharData& eCharDataInfo::getImpl(const int id) {
     if(id < 0 || id >= mChars.size()) {
         eRuntimeThrow("Index out of range.");
     }
-    return &mChars.get(id);
+    return mChars.get(id);
 }

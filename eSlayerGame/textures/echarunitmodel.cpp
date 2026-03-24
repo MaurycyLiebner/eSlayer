@@ -53,12 +53,10 @@ SDL_Rect eCharUnitModel::offsetBoundingRect() const {
 
 void eCharUnitModel::incFrame(const float by) {
     mFrame += by*mAnimSpeed;
-    if(!mClamp.empty()) {
+    if(mClampId != -1) {
         const int fMax = mModel->nFrames(mAnim);
         if(int(std::round(mFrame)) >= fMax) {
-            const auto& data = mModel->data();
-            const int animId = data.animId(mClamp);
-            setAnimation(animId, 1.f);
+            setAnimation(mClampId, 1.f);
         }
     }
 }
@@ -226,7 +224,7 @@ void eCharUnitModel::setAnimation(const int a,
         mAnim = a;
         mFrame = 0.f;
         const auto& data = mModel->data();
-        mClamp = data.animClamp(a);
+        mClampId = data.animClamp(a);
         mAnimSpeed = speed;
     }
 }

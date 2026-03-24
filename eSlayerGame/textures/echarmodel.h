@@ -26,7 +26,7 @@ class eCharTextures;
 class eCharModel {
     friend class eCharTextures;
 public:
-    eCharModel(eCharTextures& data);
+    eCharModel(const eCharTextures& data);
 
     const eTextureSptr& get(const int anim,
                             const int group,
@@ -34,7 +34,7 @@ public:
                             const int dir,
                             const int frame) const;
 
-    eCharTextures& data() const { return mData; }
+    const eCharTextures& data() const { return mData; }
 
     int nAnims() const { return mNAnims; }
     int nGroups() const { return mNGroups; }
@@ -44,7 +44,7 @@ public:
 
     const eOffset& animOffset(const int anim) const;
 private:
-    eCharTextures& mData;
+    const eCharTextures& mData;
 
     int mNAnims = 0;
     int mNGroups = 0;

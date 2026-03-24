@@ -1,7 +1,7 @@
 #include "eserverarea.h"
 
 #include "eclientaction.h"
-#include "eserverchardata.h"
+#include "../../eSlayerHelpers/include/eSlayerHelpers/echardatainfo.h"
 #include "eunitbaseaction.h"
 
 #include <eSlayerHelpers/erand.h>
@@ -21,8 +21,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         for(int y = 24; y < 75; y++) {
             if(y == 40) y += 20;
             const int typeId = 2 + eRand::rand() % 2;
-            const auto data = eServerCharData::get(typeId);
-            const auto name = data->name();
+            const auto& data = eCharDataInfo::get(typeId);
+            const auto name = data.name();
             std::map<std::string, std::string> partsMap;
             if(name == "mummy") {
                 partsMap = {
@@ -35,8 +35,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             } else {
                 continue;
             }
-            const auto modelParts = data->mapToModelParts(partsMap);
-            const auto u = std::make_shared<eServerUnit>(*data);
+            const auto modelParts = data.mapToModelParts(partsMap);
+            const auto u = std::make_shared<eServerUnit>(data);
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
@@ -44,8 +44,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fModelParts = modelParts;
             u->fHealth = 100;
             u->fMaxHealth = 100;
-            u->fRadius = data->radius();
-            u->fAnim = data->animId("stand");
+            u->fRadius = data.radius();
+            u->fAnim = data.animId("stand");
             u->fActionTime = 0.f;
             u->fAnimId = 0;
             const ePointF pos{float(x), float(y)};
@@ -212,14 +212,14 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     mClientIds.emplace(clientId);
     mClientLatestMissileId[clientId] = -1;
     const int typeId = 1;
-    const auto data = eServerCharData::get(typeId);
+    const auto& data = eCharDataInfo::get(typeId);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
-    const auto modelParts = data->mapToModelParts(partsMap);
-    const auto u = std::make_shared<eServerUnit>(*data);
+    const auto modelParts = data.mapToModelParts(partsMap);
+    const auto u = std::make_shared<eServerUnit>(data);
     u->fCharId = clientId;
     u->fTypeId = typeId;
-    u->fRadius = data->radius();
-    u->fAnim = data->animId("stand");
+    u->fRadius = data.radius();
+    u->fAnim = data.animId("stand");
     u->fAnimId = 0;
     u->fAnimSpeed = 1.f;
     u->fTeamId = 0;

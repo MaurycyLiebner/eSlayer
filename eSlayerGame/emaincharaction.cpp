@@ -23,16 +23,17 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
         {"whole", "light"}
     };
     const int typeId = 1;
-    mMainCharData = eCharsTextures::get(typeId);
-    const float radius = mMainCharData->radius();
+    mMainCharData = &eCharsTextures::get(typeId);
+    const auto& info = mMainCharData->charData();
+    const float radius = info.radius();
     mMovementHandler.setRadius(radius);
     const auto modelParts = mMainCharData->mapToModelParts(partsMap);
 
-    mRunAnimId = mMainCharData->animId("run");
-    mWalkAnimId = mMainCharData->animId("walk");
-    mWalkReadyAnimId = mMainCharData->animId("walkReady");
-    mStandAnimId = mMainCharData->animId("stand");
-    mStandReadyAnimId = mMainCharData->animId("standReady");
+    mRunAnimId = info.animId("run");
+    mWalkAnimId = info.animId("walk");
+    mWalkReadyAnimId = info.animId("walkReady");
+    mStandAnimId = info.animId("stand");
+    mStandReadyAnimId = info.animId("standReady");
 
     const auto model = mMainCharData->generateModel(modelParts, r);
     eCharUnitModel umodel;

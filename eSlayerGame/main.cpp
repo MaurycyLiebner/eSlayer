@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/echardatainfo.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -182,6 +183,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eSkills::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eCharDataInfo::load();
         });
 
         loadings.emplace_back([&]() {

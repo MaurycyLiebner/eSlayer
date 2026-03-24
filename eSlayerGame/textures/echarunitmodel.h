@@ -39,7 +39,7 @@ private:
     int mAnimId = -1;
     float mAnimSpeed = 1.f;
     float mFrame = 0.f;
-    std::string mClamp;
+    int mClampId = -1;
     bool mAggressive = false;
     int mDir = 0;
     std::shared_ptr<eCharModel> mModel;

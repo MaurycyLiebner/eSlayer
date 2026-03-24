@@ -35,6 +35,11 @@ void eCharData::load(ordered_json& jdata) {
         setAnimId(name, id);
     }
 
+    for(const auto& it : mAnims) {
+        auto& anim = it.fValue;
+        anim.fClampId = animId(anim.fClamp);
+    }
+
     const auto groups = jdata["groups"];
     for(const auto& groupJson : groups) {
         auto& group = mGroups.emplace_back();
@@ -95,17 +100,17 @@ int eCharData::animActionFrame(const std::string& name) const {
     return animFrames(id);
 }
 
-const std::string& eCharData::animClamp(const int id) const {
-    return mAnims.get(id).fClamp;
+int eCharData::animClamp(const int id) const {
+    return mAnims.get(id).fClampId;
 }
 
-const std::string& eCharData::animClamp(const std::string& name) const {
+int eCharData::animClamp(const std::string& name) const {
     const int id = animId(name);
     return animClamp(id);
 }
 
 eModelParts eCharData::mapToModelParts(
-    const std::map<std::string, std::string>& m) {
+    const std::map<std::string, std::string>& m) const {
     if(m.size() != mNParts) {
         eRuntimeThrow("Insufficient unit equipment information.");
     }

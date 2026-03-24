@@ -1,6 +1,6 @@
 #include "echarmodel.h"
 
-eCharModel::eCharModel(eCharTextures& data)
+eCharModel::eCharModel(const eCharTextures& data)
     : mData(data) {}
 
 const eTextureSptr& eCharModel::get(const int anim, const int group, const int part, const int dir,

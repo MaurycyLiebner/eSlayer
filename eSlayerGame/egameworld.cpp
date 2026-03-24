@@ -45,8 +45,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             model.setAngle(u.fAngle);
             model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
         } else {
-            const auto texs = eCharsTextures::get(u.fTypeId);
-            const auto unitModel = texs->generateModel(u.fModelParts, r);
+            const auto& texs = eCharsTextures::get(u.fTypeId);
+            const auto unitModel = texs.generateModel(u.fModelParts, r);
 
             const auto unit = std::make_shared<eUnit>();
             unit->fRadius = u.fRadius;

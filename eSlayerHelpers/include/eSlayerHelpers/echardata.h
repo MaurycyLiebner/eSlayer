@@ -22,6 +22,7 @@ struct eModelParts {
 };
 
 class eCharData {
+    friend class eCharTextures;
 public:
     eCharData();
 
@@ -44,11 +45,10 @@ public:
     int animActionFrame(const int id) const;
     int animActionFrame(const std::string& name) const;
 
-    const std::string& animClamp(const int id) const;
-    const std::string& animClamp(const std::string& name) const;
+    int animClamp(const int id) const;
+    int animClamp(const std::string& name) const;
 
-    eModelParts mapToModelParts(
-        const std::map<std::string, std::string>& m);
+    eModelParts mapToModelParts(const std::map<std::string, std::string>& m) const;
 
     const eUnitSkill& getSkill(const int id) const;
 protected:
@@ -80,6 +80,7 @@ protected:
         int fFrames;
         eOffset fOffset;
         std::string fClamp;
+        int fClampId;
         int fActionFrame;
     };
 

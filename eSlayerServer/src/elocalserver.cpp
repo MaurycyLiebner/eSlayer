@@ -1,9 +1,6 @@
 #include "elocalserver.h"
 
-#include "eserverchardata.h"
-
 bool eLocalServer::initialize() {
-    eServerCharData::load();
     return true;
 }
 

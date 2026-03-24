@@ -86,6 +86,8 @@ add_library(eSlayerHelpers SHARED
     src/eunitareas.cpp
     include/eSlayerHelpers/edamage.h
     src/edamage.cpp
+    src/echardatainfo.cpp
+    include/eSlayerHelpers/echardatainfo.h
 )
 
 target_include_directories(eSlayerHelpers
