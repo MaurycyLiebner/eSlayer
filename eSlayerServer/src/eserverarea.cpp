@@ -6,7 +6,8 @@
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
-#include <eSlayerHelpers/emissilecollision.h>
+
+#include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 eServerArea::eServerArea() :

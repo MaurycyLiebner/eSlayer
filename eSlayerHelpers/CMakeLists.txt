@@ -78,10 +78,10 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/epositioned.h
     include/eSlayerHelpers/estringidmapvector.h
     include/eSlayerHelpers/eunitarea.h
-    include/eSlayerHelpers/emissilecollision.h
+
     include/eSlayerHelpers/eskills.h
     src/eskills.cpp
-    src/emissilecollision.cpp
+
     include/eSlayerHelpers/eunitareas.h
     src/eunitareas.cpp
     include/eSlayerHelpers/edamage.h

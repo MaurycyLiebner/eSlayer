@@ -8,8 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_library(eSlayerMissiles SHARED
-    include/eSlayerMissiles/emissileincrement.h src/emissileincrement.cpp
     include/eSlayerMissiles/eslayermissilesexport.h
+    include/eSlayerMissiles/emissileincrement.h src/emissileincrement.cpp
+    include/eSlayerMissiles/emissilecollision.h src/emissilecollision.cpp
 )
 
 target_include_directories(eSlayerMissiles

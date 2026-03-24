@@ -1,14 +1,16 @@
 #ifndef EMISSILECOLLISION_H
 #define EMISSILECOLLISION_H
 
-#include "epoint.h"
+#include "eslayermissilesexport.h"
+
+#include <eSlayerHelpers/epoint.h>
 
 #include <cmath>
 
 struct eUnitData;
 struct eMissile;
 
-struct eMissileCollision {
+struct ESLAYERMISSILES_API eMissileCollision {
     struct eResult {
         bool fHit = false;
         float fT = 2.f;

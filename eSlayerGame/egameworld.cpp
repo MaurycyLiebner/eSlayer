@@ -4,9 +4,10 @@
 
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/epoint.h>
-#include <eSlayerMissiles/emissileincrement.h>
 #include <eSlayerHelpers/evec2.h>
-#include <eSlayerHelpers/emissilecollision.h>
+
+#include <eSlayerMissiles/emissilecollision.h>
+#include <eSlayerMissiles/emissileincrement.h>
 
 eGameWorld::eProcessResult eGameWorld::processServerData(
     const int clientId,

@@ -1,7 +1,7 @@
-#include "eSlayerHelpers/emissilecollision.h"
+#include "eSlayerMissiles/emissilecollision.h"
 
-#include "eSlayerHelpers/eunitdata.h"
-#include "eSlayerHelpers/emissile.h"
+#include <eSlayerHelpers/eunitdata.h>
+#include <eSlayerHelpers/emissile.h>
 
 void eMissileCollision::test(const ePointF& oldPos,
                              const ePointF& newPos,
