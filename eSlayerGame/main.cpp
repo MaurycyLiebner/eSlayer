@@ -91,6 +91,8 @@ int main(int argc, char* argv[]) {
         value = strToUpper(value);
         if(arg == "--zip") {
             eRunSettings::sUseZip = value == "TRUE";
+        } else if(arg == "--fps") {
+            eRunSettings::sFPS = std::stof(value);
         }
     }
 
