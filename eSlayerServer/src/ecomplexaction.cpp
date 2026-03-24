@@ -52,6 +52,8 @@ bool eComplexAction::getHit(const eHitData& data) {
 }
 
 bool eComplexAction::attack(const eAttackData& target) {
+    if(!mUnit.skillReady(target.fSkill)) return true;
+    mUnit.useSkill(target.fSkill);
     const auto& data = mUnit.data();
     const auto& uskill = data.getSkill(target.fSkill);
     const auto& skill = eSkills::sSkills.get(uskill.fSkillId);

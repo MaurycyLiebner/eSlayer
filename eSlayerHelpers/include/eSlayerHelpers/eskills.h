@@ -15,6 +15,7 @@ struct eSkillLevel {
     eDamage fDamage;
     int fMissiles;
     float fPierceChance;
+    float fCooldown;
 };
 
 struct eSkill {
@@ -34,6 +35,7 @@ struct eSkill {
     float fSpeed;
     float fTime;
     float fBasePierceChance;
+    float fBaseCooldown;
     float fMaxAngle;
     std::vector<std::string> fCastAnims;
     std::vector<eSkillLevel> fLevels;

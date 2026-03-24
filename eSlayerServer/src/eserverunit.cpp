@@ -2,7 +2,8 @@
 
 #include "ecomplexaction.h"
 
-#include "eSlayerHelpers/emovementhandler.h"
+#include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/erunsettings.h>
 
 int eServerUnit::sNextCharId = 0;
 
@@ -40,6 +41,9 @@ bool eServerUnit::getHit(const eHitData& data) {
 }
 
 void eServerUnit::increment(const float by) {
+    for(auto& it : mCooldowns) {
+        it.second = std::max(0.f, it.second - by);
+    }
     if(mAction) mAction->increment(by);
     const float tmp = fActionTime;
     fActionTime -= by;
@@ -54,6 +58,17 @@ void eServerUnit::increment(const float by) {
         mHandler.stopMoving();
         fVel = eVec2f{0.f, 0.f};
     }
+}
+
+bool eServerUnit::skillReady(const int skillId) const {
+    const auto it = mCooldowns.find(skillId);
+    if(it == mCooldowns.end()) return true;
+    return it->second <= 0.f;
+}
+
+void eServerUnit::useSkill(const int skillId) {
+    const auto& skill = eSkills::sSkills.get(skillId);
+    mCooldowns[skillId] = skill.fBaseCooldown*eRunSettings::sFPS;
 }
 
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {

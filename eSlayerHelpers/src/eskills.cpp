@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eskills.h"
 
 #include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/erunsettings.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
@@ -32,7 +33,7 @@ void eSkills::load() {
             skill.fRangeTime = jdata.value("range", 8.f);
         } else if(typeStr == "wall") {
             skill.fType = eSkillType::wall;
-            skill.fRangeTime = jdata.value("time", 100.f);
+            skill.fRangeTime = jdata.value("time", 100.f)*eRunSettings::sFPS;
             skill.fPath = "static";
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
@@ -44,6 +45,7 @@ void eSkills::load() {
             skill.fRadius = jdata.value("radius", 0.5f);
         }
 
+        skill.fBaseCooldown = jdata.value("cooldown", 0.f);
         skill.fBaseDamage.fFire = jdata.value("fireDamage", 0.f);
 
         skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
@@ -51,6 +53,7 @@ void eSkills::load() {
             const auto& levels = jdata["levels"];
             int missiles = skill.fBaseMissiles;
             float pierce = skill.fBasePierceChance;
+            float cooldown = skill.fBaseCooldown;
             eDamage damage = skill.fBaseDamage;
             for(auto& [name, levelData] : levels.items()) {
                 eSkillLevel level;
@@ -60,6 +63,9 @@ void eSkills::load() {
 
                 pierce = levelData.value("pierce", pierce);
                 level.fPierceChance = pierce;
+
+                cooldown = levelData.value("cooldown", cooldown);
+                level.fPierceChance = cooldown;
 
                 const float physicalIncrease = levelData.value("physicalDamageIncrease", 0.f);
                 damage.fPhysical *= 1.f + physicalIncrease;
