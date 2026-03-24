@@ -60,7 +60,7 @@ bool eComplexAction::attack(const eAttackData& target) {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
         if(skill.fType == eSkillType::attack) {
-            return attack(*u, uskill);
+            return meeleAttack(*u, uskill);
         } else if(skill.fType == eSkillType::missile ||
                   skill.fType == eSkillType::wall) {
             return spawnMissile(u->fPos, uskill, 1);
@@ -77,7 +77,9 @@ bool eComplexAction::attack(const eAttackData& target) {
                 if(target.get() == &mUnit) return;
                 getHit(*target);
             };
-            const auto attack = eAttackAction::sCreate(mUnit, mArea, uskill.fCastAnimIds, a);
+            const auto attack = eAttackAction::sCreate(
+                mUnit, mArea, uskill.fCastAnimIds,
+                eAttackType::attack, a);
             if(attack) setChild(attack);
             return attack.get();
         } else if(skill.fType == eSkillType::missile ||
@@ -93,8 +95,8 @@ bool eComplexAction::attack(const eAttackData& target) {
     return true;
 }
 
-bool eComplexAction::attack(const eServerUnit& u,
-                            const eUnitSkill& skill) {
+bool eComplexAction::meeleAttack(
+    const eServerUnit& u, const eUnitSkill& skill) {
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
     const float attackDist = 0.5f*(mUnit.fRadius + u.fRadius);
@@ -107,7 +109,9 @@ bool eComplexAction::attack(const eServerUnit& u,
         if(!target) return;
         getHit(*target);
     };
-    const auto attack = eAttackAction::sCreate(mUnit, mArea, skill.fCastAnimIds, a);
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, skill.fCastAnimIds,
+        eAttackType::attack, a);
     if(attack) setChild(attack);
     return attack.get();
 }
@@ -194,7 +198,10 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 continuousDamage ?
                 std::make_shared<eCharSkipper>() :
                 nullptr;
-            m->fHitAction = [m, level, continuousDamage, skip](eServerUnit& u) {
+            const auto damage = continuousDamage ?
+                level.fDamage/eRunSettings::sFPS :
+                level.fDamage;
+            m->fHitAction = [m, damage, skip](eServerUnit& u) {
                 if(skip) {
                     if(skip->fTime < m->fTime) {
                         skip->fChars.clear();
@@ -209,17 +216,18 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 eHitData data;
                 data.fBlockMultiplier = 0.f;
                 data.fHitChance = 1.f;
-                if(continuousDamage) {
-                    data.fDamage = level.fDamage/eRunSettings::sFPS;
-                } else {
-                    data.fDamage = level.fDamage;
-                }
+                data.fDamage = damage;
                 u.getHit(data);
             };
             mArea.addMissile(m);
         }
     };
-    const auto attack = eAttackAction::sCreate(mUnit, mArea, uskill.fCastAnimIds, a);
+    const eAttackType attackType =
+        skill.fType == eSkillType::attack ?
+            eAttackType::attack : eAttackType::cast;
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, uskill.fCastAnimIds,
+        attackType, a);
     if(attack) setChild(attack);
     return attack.get();
 

@@ -30,8 +30,8 @@ public:
     bool getHit(const eHitData& data);
 protected:
     bool attack(const eAttackData& target);
-    bool attack(const eServerUnit& u,
-                const eUnitSkill& skill);
+    bool meeleAttack(const eServerUnit& u,
+                     const eUnitSkill& skill);
     bool getHit(eServerUnit& target);
 private:
     bool spawnMissile(const ePointF& to,

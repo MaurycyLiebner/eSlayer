@@ -13,7 +13,7 @@ void eUnitBaseAction::decide() {
         const auto& data = mUnit.data();
         const int skillId = eSkills::sSkills.id("attack");
         const auto& skill = data.getSkill(skillId);
-        const bool r = attack(*unit, skill);
+        const bool r = meeleAttack(*unit, skill);
         if(r) return;
     }
     if(eRand::rand() % 2) {
