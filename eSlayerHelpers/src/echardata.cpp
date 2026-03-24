@@ -12,6 +12,7 @@ eCharData::sAnimFields = {
     {"attack1", &eCharData::mAttack1Id},
     {"attack2", &eCharData::mAttack2Id},
     {"block", &eCharData::mBlockId},
+    {"cast", &eCharData::mCastId},
     {"hitRecovery", &eCharData::mHitRecoveryId},
     {"death", &eCharData::mDeathId},
     {"body", &eCharData::mBodyId},
