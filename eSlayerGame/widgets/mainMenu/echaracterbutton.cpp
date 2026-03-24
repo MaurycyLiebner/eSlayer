@@ -35,7 +35,7 @@ void eCharacterButton::paintEvent(ePainter& p) {
     p.save();
     p.translate(width()/5, 3*height()/4);
     mModel.incFrame(1.f);
-    mModel.drawBase(p);
+    mModel.draw(p, true);
     p.restore();
     eCheckButton::paintEvent(p);
     mFrame++;

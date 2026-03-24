@@ -1,5 +1,7 @@
 #include "echarmodel.h"
 
+#include "../widgets/epainter.h"
+
 eCharModel::eCharModel(const eCharTextures& data)
     : mData(data) {}
 
@@ -18,4 +20,55 @@ int eCharModel::nFrames(const int anim) const {
 
 const eOffset& eCharModel::animOffset(const int anim) const {
     return mAnims[anim].fOffset;
+}
+
+std::shared_ptr<eTexture>
+eCharModel::requestTexture(
+    SDL_Renderer* const r,
+    const eTextureKey& key) {
+    auto it = mTexCache.find(key);
+    if(it != mTexCache.end()) return it->second;
+
+    const auto tex = std::make_shared<eTexture>();
+
+    const SDL_Rect texRect = boundingRect(key);
+    {
+        tex->create(r, texRect.w, texRect.h);
+        ePainter sp(r);
+        sp.translate(-texRect.x, -texRect.y);
+        const auto holder = tex->createTargetHolder(r);
+        for(int g = 0; g < mNGroups; g++) {
+            const int ppMax = nParts(g);
+            for(int pp = 0; pp < ppMax; pp++) {
+                const auto tex = get(key.fAnim, g, pp, key.fDir, key.fFrame);
+                sp.drawTexture(0, 0, tex);
+            }
+        }
+    }
+
+    mTexCache[key] = tex;
+    return tex;
+}
+
+SDL_Rect eCharModel::boundingRect(const eTextureKey& key) const {
+    SDL_Rect texRect{0, 0, 0, 0};
+
+    for(int g = 0; g < mNGroups; g++) {
+        const int ppMax = nParts(g);
+        for(int pp = 0; pp < ppMax; pp++) {
+            const auto& tex = get(key.fAnim, g, pp, key.fDir, key.fFrame);
+
+            const int newX = std::min(texRect.x, tex->offsetX());
+            texRect.w += texRect.x - newX;
+            texRect.x = newX;
+            texRect.w = std::max(texRect.w, -texRect.x + (tex->offsetX() + tex->width()));
+
+            const int newY = std::min(texRect.y, tex->offsetY());
+            texRect.h += texRect.y - newY;
+            texRect.y = newY;
+            texRect.h = std::max(texRect.h, -texRect.y + (tex->offsetY() + tex->height()));
+        }
+    }
+
+    return texRect;
 }

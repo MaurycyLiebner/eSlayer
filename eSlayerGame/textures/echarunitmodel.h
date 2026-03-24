@@ -3,6 +3,8 @@
 
 #include "echarmodel.h"
 
+#include <unordered_map>
+
 class eGamePainter;
 class ePainter;
 
@@ -17,8 +19,7 @@ public:
     SDL_Rect offsetBoundingRect() const;
 
     void incFrame(const float by);
-    void draw(eGamePainter& p, const bool highligh = false) const;
-    void drawBase(ePainter& p) const;
+    void draw(ePainter& p, const bool highligh = false) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
