@@ -35,7 +35,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mStandAnimId = info.animId("stand");
     mStandReadyAnimId = info.animId("standReady");
 
-    const auto model = mMainCharData->generateModel(modelParts, r);
+    const auto model = mMainCharData->requestModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
     const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, false);

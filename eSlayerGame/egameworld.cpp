@@ -2,8 +2,8 @@
 
 #include "textures/echarstextures.h"
 
-#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
 
 #include <eSlayerMissiles/emissilecollision.h>
@@ -27,6 +27,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& units = data.fUnits;
     const auto& missiles = data.fMissiles;
     std::set<int> present;
+
     for(const auto& u : units) {
         const int charId = u.fCharId;
         const auto area = mUnitAreas.posArea(u.fPos);
@@ -46,7 +47,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
         } else {
             const auto& texs = eCharsTextures::get(u.fTypeId);
-            const auto unitModel = texs.generateModel(u.fModelParts, r);
+            const auto unitModel = texs.requestModel(u.fModelParts, r);
 
             const auto unit = std::make_shared<eUnit>();
             unit->fRadius = u.fRadius;
