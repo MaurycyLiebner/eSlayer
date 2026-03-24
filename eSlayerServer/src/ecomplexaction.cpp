@@ -185,7 +185,27 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             const bool continuousDamage = skill.fType == eSkillType::wall;
             m->fContinuousDamage = continuousDamage;
             m->fTime = 0.f;
-            m->fHitAction = [level, continuousDamage](eServerUnit& u) {
+            struct eCharSkipper {
+                float fTime = 0.f;
+                std::set<int> fChars;
+            };
+
+            const std::shared_ptr<eCharSkipper> skip =
+                continuousDamage ?
+                std::make_shared<eCharSkipper>() :
+                nullptr;
+            m->fHitAction = [m, level, continuousDamage, skip](eServerUnit& u) {
+                if(skip) {
+                    if(skip->fTime < m->fTime) {
+                        skip->fChars.clear();
+                        skip->fTime = m->fTime;
+                    } else {
+                        if(skip->fChars.find(u.fCharId) != skip->fChars.end()) {
+                            return;
+                        }
+                    }
+                    skip->fChars.emplace(u.fCharId);
+                }
                 eHitData data;
                 data.fBlockMultiplier = 0.f;
                 data.fHitChance = 1.f;
