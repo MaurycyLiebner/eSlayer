@@ -256,7 +256,6 @@ void eGameScreen::paintEvent(ePainter& p) {
                 if(tile.fTerrainType != i) return;
                 const auto& tex = floor->getTexture(tile.fTileType);
                 mGamePainter.drawTexture(px, py + tileHeight, tex, eAlignment::top | eAlignment::hcenter);
-                const auto iobjs = mMap->objects(x, y);
             });
         }
 
