@@ -22,7 +22,8 @@ eGameScreen::~eGameScreen() {
     if(mGameWidget) {
         const auto server = mGameWidget->server();
         if(server) {
-            server->disconnect(mGameWidget->clientId());
+            const int clientId = mGameWidget->clientId();
+            server->disconnect(clientId);
         }
     }
 }
@@ -171,7 +172,9 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
         } else if(mDeadMenu) {
-            mGameWidget->server()->respawn(mGameWidget->clientId());
+            const auto& server = mGameWidget->server();
+            const int clientId = mGameWidget->clientId();
+            server->respawn(clientId);
         } else {
             if(mESCMenu) {
                 hideESCMenu();
@@ -180,9 +183,16 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             }
         }
     } else if(e.key() == SDL_SCANCODE_R) {
-        const bool run = !mGameWidget->mainAction().running();
+        auto& action = mGameWidget->mainAction();
+        const bool run = !action.running();
         mRunButton->setChecked(run);
-        mGameWidget->mainAction().setRunning(run);
+        action.setRunning(run);
+    } else if(e.key() == SDL_SCANCODE_I) {
+        if(mInventoryMenu) {
+            hideInventoryMenu();
+        } else {
+            showInventoryMenu();
+        }
     }
     return true;
 }
@@ -217,6 +227,7 @@ void eGameScreen::showDeadMenu() {
 }
 
 void eGameScreen::showESCMenu() {
+    if(mESCMenu) return;
     mESCMenu = new eWidget(window());
 
     const auto optionsB = new eESCMenuButton(
@@ -263,6 +274,20 @@ void eGameScreen::hideESCMenu() {
     mGameWidget->setMenuVisible(false);
 }
 
+void eGameScreen::showInventoryMenu() {
+    if(mInventoryMenu) return;
+    mInventoryMenu = new eWidget(window());
+    addWidget(mInventoryMenu);
+    updateCharPos();
+}
+
+void eGameScreen::hideInventoryMenu() {
+    if(!mInventoryMenu) return;
+    mInventoryMenu->deleteLater();
+    mInventoryMenu = nullptr;
+    updateCharPos();
+}
+
 void eGameScreen::openSkillMenu(const eAlignment align,
                                 eSkillButton* const targetButton,
                                 int& targetSkillVar) {
@@ -297,4 +322,13 @@ void eGameScreen::openSkillMenu(const eAlignment align,
             height() - w->height() - margin);
 
     mSkillMenu = w;
+}
+
+void eGameScreen::updateCharPos() {
+    auto& input = mGameWidget->input();
+    if(mInventoryMenu) {
+        input.setCharacterHorizontalPos(0.25f);
+    } else {
+        input.setCharacterHorizontalPos(0.5f);
+    }
 }

@@ -36,12 +36,15 @@ public:
     bool leftPressed() const { return mLeftPressed; }
     const ePointF& mousePos() const { return mMousePos; }
 
-    float characterVertialPos() const { return mCharacterVerticalPos; }
+    float characterVerticalPos() const { return mCharacterVerticalPos; }
+    float characterHorizontalPos() const { return mCharacterHorizontalPos; }
+    void setCharacterHorizontalPos(const float pos) { mCharacterHorizontalPos = pos; }
 private:
     const int mTileW = 160;
     const int mTileH = 79;
 
     const float mCharacterVerticalPos = 0.45f;
+    float mCharacterHorizontalPos = 0.5f;
 
     bool mMousePressed = false;
     bool mRightPressed = false;

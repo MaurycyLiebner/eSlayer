@@ -283,7 +283,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         });
     }
 
-    mGamePainter.renderLight(r, width()/2.f, mInput.characterVertialPos()*height(),
+    mGamePainter.renderLight(r, mInput.characterHorizontalPos()*width(),
+                             mInput.characterVerticalPos()*height(),
                              10.f, SDL_Color{255, 255, 255, 255});
     mGamePainter.finish();
 

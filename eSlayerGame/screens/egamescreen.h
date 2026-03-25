@@ -27,15 +27,19 @@ private:
     void showDeadMenu();
     void showESCMenu();
     void hideESCMenu();
+    void showInventoryMenu();
+    void hideInventoryMenu();
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar);
+    void updateCharPos();
 
     eGameWidget* mGameWidget = nullptr;
 
     eAction mExitAction;
     eWidget* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
+    eWidget* mInventoryMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
     ePlayerHealthIndicator* mManaIndicator = nullptr;
