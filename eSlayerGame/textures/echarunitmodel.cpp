@@ -1,12 +1,12 @@
 #include "echarunitmodel.h"
 
 #include "../widgets/epainter.h"
-#include "../widgets/gameScreen/egamepainter.h"
 #include "echarmodel.h"
 #include "echartextures.h"
 
-#include <cmath>
 #include <eSlayerHelpers/eexceptions.h>
+
+#include <cmath>
 #include <filesystem>
 
 eCharUnitModel::eCharUnitModel() {}
@@ -15,15 +15,14 @@ void eCharUnitModel::setCharModel(const std::shared_ptr<eCharModel>& model) {
     mModel = model;
 }
 
-SDL_Rect eCharUnitModel::boundingRect() const {
+eTextureKey eCharUnitModel::key() const {
     const int fMax = mModel->nFrames(mAnim);
     const int frame = int(std::round(mFrame)) % fMax;
-    const eTextureKey key{mAnim, frame, mDir};
-    return mModel->boundingRect(key);
+    return eTextureKey{mAnim, frame, mDir};
 }
 
 SDL_Rect eCharUnitModel::offsetBoundingRect() const {
-    SDL_Rect result = boundingRect();
+    SDL_Rect result = mModel->requestBoundingRect(key());
     const auto& offset = mModel->animOffset(mAnim);
     result.x += offset.fX;
     result.y += offset.fY;
@@ -41,14 +40,9 @@ void eCharUnitModel::incFrame(const float by) {
 }
 
 void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
-    const int fMax = mModel->nFrames(mAnim);
-    const int frame = int(std::round(mFrame)) % fMax;
-
-    const SDL_Rect texRect = boundingRect();
-
     const auto r = p.renderer();
-    const eTextureKey key{mAnim, frame, mDir};
-    const auto tex = mModel->requestTexture(r, key);
+    const auto tex = mModel->requestTexture(r, key());
+    const auto texRect = mModel->requestBoundingRect(key());
 
     p.save();
     const auto& offset = mModel->animOffset(mAnim);

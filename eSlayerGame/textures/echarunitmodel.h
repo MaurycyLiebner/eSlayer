@@ -3,8 +3,6 @@
 
 #include "echarmodel.h"
 
-#include <unordered_map>
-
 class eGamePainter;
 class ePainter;
 
@@ -15,7 +13,8 @@ public:
     void setCharModel(const std::shared_ptr<eCharModel>& model);
     const eCharModel& model() const { return *mModel; }
 
-    SDL_Rect boundingRect() const;
+    eTextureKey key() const;
+
     SDL_Rect offsetBoundingRect() const;
 
     void incFrame(const float by);

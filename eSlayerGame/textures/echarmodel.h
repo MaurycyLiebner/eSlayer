@@ -61,12 +61,12 @@ public:
 
     const eOffset& animOffset(const int anim) const;
 
-
     std::shared_ptr<eTexture> requestTexture(
         SDL_Renderer* const r,
         const eTextureKey& key);
-    SDL_Rect boundingRect(const eTextureKey& key) const;
+    SDL_Rect requestBoundingRect(const eTextureKey& key);
 private:
+    SDL_Rect boundingRect(const eTextureKey& key) const;
     const eCharTextures& mData;
 
     int mNAnims = 0;
@@ -75,6 +75,7 @@ private:
     int mNDirs = 0;
 
     std::vector<eCharTextureAnim> mAnims;
+    std::unordered_map<eTextureKey, SDL_Rect, eTextureKeyHash> mRectCache;
     std::unordered_map<eTextureKey, std::shared_ptr<eTexture>, eTextureKeyHash> mTexCache;
 };
 

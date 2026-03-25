@@ -5,8 +5,10 @@
 eCharModel::eCharModel(const eCharTextures& data)
     : mData(data) {}
 
-const eTextureSptr& eCharModel::get(const int anim, const int group, const int part, const int dir,
-                                    const int frame) const {
+const eTextureSptr& eCharModel::get(
+    const int anim, const int group,
+    const int part, const int dir,
+    const int frame) const {
     return mAnims[anim].fGroups[group][part][dir]->getTexture(frame);
 }
 
@@ -26,12 +28,14 @@ std::shared_ptr<eTexture>
 eCharModel::requestTexture(
     SDL_Renderer* const r,
     const eTextureKey& key) {
-    auto it = mTexCache.find(key);
-    if(it != mTexCache.end()) return it->second;
+    const auto it = mTexCache.find(key);
+    if(it != mTexCache.end()) {
+        return it->second;
+    }
+
+    const auto texRect = requestBoundingRect(key);
 
     const auto tex = std::make_shared<eTexture>();
-
-    const SDL_Rect texRect = boundingRect(key);
     {
         tex->create(r, texRect.w, texRect.h);
         ePainter sp(r);
@@ -48,6 +52,14 @@ eCharModel::requestTexture(
 
     mTexCache[key] = tex;
     return tex;
+}
+
+SDL_Rect eCharModel::requestBoundingRect(const eTextureKey& key) {
+    const auto it = mRectCache.find(key);
+    if(it != mRectCache.end()) return it->second;
+    const auto texRect = boundingRect(key);
+    mRectCache[key] = texRect;
+    return texRect;
 }
 
 SDL_Rect eCharModel::boundingRect(const eTextureKey& key) const {
