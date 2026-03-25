@@ -2,33 +2,28 @@
 
 #include "../elanguage.h"
 #include "../emainwindow.h"
-#include "../textures/eobjstextures.h"
-#include "../textures/eterrstextures.h"
-#include "../textures/etilesiterator.h"
 #include "../textures/euitextures.h"
-#include "../textures/emissilestextures.h"
 #include "../widgets/echeckbutton.h"
 #include "../widgets/ecolors.h"
 #include "../widgets/gameScreen/eescmenubutton.h"
+#include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
 
-#include <eSlayerMissiles/emissileincrement.h>
-
 #include <eSlayerHelpers/eskills.h>
-#include <eSlayerHelpers/erequestdata.h>
-#include <eSlayerHelpers/eunitarea.h>
-#include <eSlayerHelpers/evec2.h>
+#include <eSlayerHelpers/eunitdata.h>
 
 eGameScreen::eGameScreen(eMainWindow* const window) :
-    eScreenBase(window),
-    mGamePainter(renderer()) {}
+    eScreenBase(window) {}
 
 eGameScreen::~eGameScreen() {
-    if(mServer) {
-        mServer->disconnect(mClientId);
+    if(mGameWidget) {
+        const auto server = mGameWidget->server();
+        if(server) {
+            server->disconnect(mGameWidget->clientId());
+        }
     }
 }
 
@@ -39,10 +34,30 @@ void eGameScreen::setExitAction(const eAction& a) {
 void eGameScreen::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map) {
-    mClientId = clientId;
-    mServer = server;
+    mGameWidget = new eGameWidget(window());
+    mGameWidget->resize(width(), height());
+    addWidget(mGameWidget);
 
-    initializeTextures();
+    mGameWidget->initialize(clientId, server, map);
+
+    mGameWidget->setMainCharHandler([this](const eUnitData& u) {
+        mHealthIndicator->setValue(u.fHealth);
+        mHealthIndicator->setRange(0, u.fMaxHealth);
+        mStaminaIndicator->setValue(mGameWidget->mainAction().stamina());
+        mStaminaIndicator->setRange(0, mGameWidget->mainAction().maxStamina());
+    });
+
+    mGameWidget->setDeathHandler([this]() {
+        if(!mDeadMenu) showDeadMenu();
+    });
+
+    mGameWidget->setRespawnHandler([this]() {
+        if(mDeadMenu) {
+            mDeadMenu->deleteLater();
+            mDeadMenu = nullptr;
+        }
+    });
+
     mUnitIndicator = new eUnitIndicator(window());
     mUnitIndicator->initialize();
     const float m = resolution().multiplier();
@@ -50,6 +65,8 @@ void eGameScreen::initialize(const int clientId,
     addWidget(mUnitIndicator);
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
     mUnitIndicator->setY(20*m);
+
+    mGameWidget->setUnitIndicator(mUnitIndicator);
 
     const int indicatorW = 400*m;
     const int indicatorH = 30*m;
@@ -107,7 +124,7 @@ void eGameScreen::initialize(const int clientId,
     mRunButton->setCheckAction([this](const bool check) {
         if(check) mRunButton->setTexture(eUITextures::sRunIcon);
         else mRunButton->setTexture(eUITextures::sWalkIcon);
-        mMainAction.setRunning(check);
+        mGameWidget->mainAction().setRunning(check);
     });
     mRunButton->setTexture(eUITextures::sWalkIcon);
     mRunButton->fitContent();
@@ -146,336 +163,6 @@ void eGameScreen::initialize(const int clientId,
     bottomWid->fitContent();
     addWidget(bottomWid);
     bottomWid->align(eAlignment::bottom | eAlignment::hcenter);
-
-    mMap = map;
-
-    const auto r = renderer();
-
-    const auto w = walkable();
-    const auto iter = [this](const eOtherHandler& handler) {
-        for(const auto& u : mWorld.units()) {
-            if(!u) continue;
-            handler(*u);
-        }
-    };
-    mMainAction.initialize(mServer, r, w, iter, clientId, 0);
-    mMainChar = mMainAction.unit();
-
-    // {
-    //     const auto dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
-    //     for(const auto& entry : std::filesystem::directory_iterator(dir))
-    //         std::filesystem::remove_all(entry.path());
-    //     const eCharTextures::eModelParts modelParts {
-    //         {"mummy", "whole"}
-    //     };
-    //     const auto texs = eCharsTextures::get("mummy");
-    //     const auto unitModel = texs->generateModel(modelParts, r);
-    //     eCharUnitModel model;
-    //     model.setCharModel(unitModel);
-    //     model.setDirection(0);
-    //     model.generatePreview(r);
-    // }
-}
-
-const ePointF& eGameScreen::characterPos() const {
-    return mMainAction.pos();
-}
-
-ePointF eGameScreen::pixelToTilePos(
-    const ePointF& pos,
-    const ePointF& pixel) const {
-    return mInput.pixelToTilePos(pos, pixel, width(), height());
-}
-
-ePointF eGameScreen::pixelToTilePos(
-    const ePointF& pixel) const {
-    const auto& pos = characterPos();
-    return mInput.pixelToTilePos(pos, pixel, width(), height());
-}
-
-ePointF eGameScreen::tilePosToPixel(const ePointF& pos) const {
-    const auto& charPos = characterPos();
-    return mInput.tilePosToPixel(pos, charPos, width(), height());
-}
-
-void eGameScreen::paintEvent(ePainter& p) {
-    mGamePainter.clear();
-
-    const float by = 1.f;
-    mServer->increment(by);
-
-    const auto r = renderer();
-
-    const auto worldResult = mWorld.processServerData(
-        mClientId, mServer, mMainChar, r);
-
-    if(worldResult.fReceived) {
-        if(worldResult.fHasMainCharData) {
-            updateMainCharFromServer(worldResult.fMainCharData);
-        }
-
-        auto& model = mMainChar->model();
-        model.setAggressive(worldResult.fAggressive);
-    }
-
-    mServer->changeState(mClientId, *mMainChar);
-
-    mWorld.simulateMissiles(by, mMap);
-
-    if(!mESCMenu && !mDeadMenu) {
-        const auto mouseTilePos = pixelToTilePos(mInput.mousePos());
-        const auto w = window();
-        const bool shiftPressed = w->shiftPressed();
-        mMainAction.increment(mInput.mousePressed(),
-                              mInput.rightPressed(),
-                              shiftPressed,
-                              mouseTilePos,
-                              mInput.rightPressed() ? mRightSkill :
-                                                      mLeftSkill,
-                              by);
-    }
-
-    mFrame++;
-
-    const int tileHeight = eGameScreen::tileHeight();
-    {
-        const auto holder = mGamePainter.switchToBase();
-
-        const auto& terrTypes = mMap->terrainTypes();
-        const auto& objTypes = mMap->objectTypes();
-        const int iMax = terrTypes.size() - 1;
-
-        eTilesIterator iterator;
-        iterator.initialize(this);
-        for(int i = 0; i <= iMax; i++) {
-            const auto& terrType = terrTypes[i];
-            const auto floor = eTerrsTextures::get(terrType.fName);
-            iterator.iterate([&](const int x, const int y,
-                                 const int px, const int py) {
-                const auto& tile = mMap->tile(x, y);
-                if(tile.fTerrainType != i) return;
-                const auto& tex = floor->getTexture(tile.fTileType);
-                mGamePainter.drawTexture(px, py + tileHeight, tex, eAlignment::top | eAlignment::hcenter);
-            });
-        }
-
-        enum class eRenderElementType {
-            unit, missile
-        };
-
-        struct eRenderElement {
-            eRenderElementType fType;
-            std::shared_ptr<ePositioned> fPtr;
-        };
-        std::vector<eRenderElement> renderElements;
-        const int margin = 100;
-        const int w = width();
-        const int h = height();
-        for(const auto& u : mWorld.units()) {
-            const auto pixel = tilePosToPixel(u->fPos);
-            if(pixel.fX < -margin || pixel.fY < -margin ||
-               pixel.fX > w + margin || pixel.fY > h + margin) continue;
-            renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
-                                        std::static_pointer_cast<ePositioned>(u)});
-        }
-        renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
-                                    std::static_pointer_cast<ePositioned>(mMainChar)});
-        for(const auto& m : mWorld.missiles()) {
-            const auto pixel = tilePosToPixel(m->fPos);
-            if(pixel.fX < -margin || pixel.fY < -margin ||
-               pixel.fX > w + margin || pixel.fY > h + margin) continue;
-            renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
-                                        std::static_pointer_cast<ePositioned>(m)});
-        }
-
-        std::sort(renderElements.begin(), renderElements.end(),
-                  [&](const eRenderElement& e1,
-                      const eRenderElement& e2) {
-            const auto& u1 = e1.fPtr;
-            const auto& u2 = e2.fPtr;
-            if(!u1 && !u2) return false;
-            if(!u1) return true;
-            if(!u2) return false;
-            const auto& p1 = u1->fPos;
-            const auto& p2 = u2->fPos;
-            const auto ip1 = p1.floor();
-            const auto ip2 = p2.floor();
-
-            const int ty1 = ip1.fX + ip1.fY;
-            const int tx1 = (ip1.fX + ip1.fY)/2 - ip1.fY;
-            const int ty2 = ip2.fX + ip2.fY;
-            const int tx2 = (ip2.fX + ip2.fY)/2 - ip2.fY;
-
-            if(ty1 != ty2) return ty1 < ty2;
-            if(tx1 != tx2) return tx1 < tx2;
-
-            const auto pd1 = tilePosToPixel(p1);
-            const auto pd2 = tilePosToPixel(p2);
-            if(pd1.fY != pd2.fY) return pd1.fY < pd2.fY;
-            return pd1.fX < pd2.fX;
-        });
-
-        int nextElement = 0;
-        setHighlightedUnit(nullptr);
-        if(mPressedUnit && mPressedUnit->fHealth <= 0) {
-            setPressedUnit(nullptr);
-        }
-        const auto& mousePos = mInput.mousePos();
-        const int tileW = mInput.tileWidth();
-        iterator.iterate([&](const int x, const int y,
-                             const int px, const int py) {
-            const auto& iobjs = mMap->objects(x, y);
-            for(const auto& iobj : iobjs) {
-                const auto& obj = mMap->object(iobj);
-                const auto& objType = objTypes[obj.fObjectType];
-                const auto object = eObjsTextures::get(objType.fName);
-                const auto& tex = object->getTexture(obj.fTileType);
-                p.drawTexture(px, py + tileHeight, tex, eAlignment::top | eAlignment::hcenter);
-            }
-            for(int eleId = nextElement; eleId < renderElements.size(); eleId++) {
-                const auto& e = renderElements[eleId];
-                if(e.fType == eRenderElementType::unit) {
-                    const auto u = std::static_pointer_cast<eUnit>(e.fPtr);
-                    if(!u) continue;
-                    const auto& pos = u->fPos;
-                    const auto iPos = pos.floor();
-                    if(iPos.fY != y) continue;
-                    if(iPos.fX != x) continue;
-                    mGamePainter.save();
-                    const auto displ = tilePosToPixel(pos);
-                    const auto idispl = displ.round();
-                    mGamePainter.translate(idispl.fX, idispl.fY);
-                    auto& model = u->model();
-                    model.incFrame(1.f);
-                    bool highlight = false;
-                    if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
-                        const SDL_Point p{int(mousePos.fX), int(mousePos.fY)};
-                        const int w = 0.75*u->fRadius*tileW;
-                        const int h = 2*w;
-                        const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
-                        highlight = SDL_PointInRect(&p, &rect);
-                        if(highlight) {
-                            const auto b = model.offsetBoundingRect();
-                            const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
-                            highlight = SDL_PointInRect(&p, &rect);
-                            if(highlight) {
-                                setHighlightedUnit(u);
-                            }
-                        }
-                    }
-                    if(mPressedUnit) highlight = mPressedUnit == u;
-                    model.draw(mGamePainter, highlight);
-                    mGamePainter.restore();
-                } else if(e.fType == eRenderElementType::missile) {
-                    const auto m = std::static_pointer_cast<eExtendedMissile>(e.fPtr);
-                    if(!m) continue;
-                    const auto& pos = m->fPos;
-                    const auto iPos = pos.floor();
-                    if(iPos.fY != y) continue;
-                    if(iPos.fX != x) continue;
-                    const auto pixel = tilePosToPixel(m->fPos);
-                    auto& fireball = eMissilesTextures::sMissiles.get(m->fType);
-                    const int dirs = fireball.nDirs(0);
-                    const float ainc = 360.f/dirs;
-                    int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
-                    dir = (dirs + dir) % dirs;
-                    const float lradius = fireball.lighting();
-                    if(lradius > 0.01f) {
-                        mGamePainter.renderLight(r, pixel.fX, pixel.fY,
-                                                 lradius, SDL_Color{255, 255, 255, 255});
-                    }
-                    const auto& ftex = fireball.get(0, dir, mFrame % fireball.nFrames(0));
-                    mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
-                }
-                nextElement = eleId + 1;
-            }
-        });
-    }
-
-    mGamePainter.renderLight(r, width()/2.f, mInput.characterVertialPos()*height(),
-                             10.f, SDL_Color{255, 255, 255, 255});
-    mGamePainter.finish();
-
-    eLabel::paintEvent(p);
-}
-
-void eGameScreen::updateMainCharFromServer(const eUnitData& u) {
-    if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
-        if(mDeadMenu) {
-            mDeadMenu->deleteLater();
-            mDeadMenu = nullptr;
-        }
-        mMainChar->fPos = u.fPos;
-        mMainAction.setPos(u.fPos);
-        mMainAction.stop();
-        setPressedUnit(nullptr);
-        setHighlightedUnit(nullptr);
-    }
-    mMainChar->fHealth = u.fHealth;
-    if(!mDeadMenu && u.fHealth <= 0) {
-        showDeadMenu();
-        mMainAction.stop();
-    }
-    mMainChar->fMaxHealth = u.fMaxHealth;
-    mMainChar->fActionTime = u.fActionTime;
-    if(u.fAnimId > mMainChar->fAnimId) {
-        mMainChar->fAnim = u.fAnim;
-        mMainChar->fAnimId = u.fAnimId;
-        mMainChar->fAnimSpeed = u.fAnimSpeed;
-    }
-    mHealthIndicator->setValue(u.fHealth);
-    mHealthIndicator->setRange(0, u.fMaxHealth);
-    mStaminaIndicator->setValue(mMainAction.stamina());
-    mStaminaIndicator->setRange(0, mMainAction.maxStamina());
-}
-
-bool eGameScreen::mousePressEvent(const eMouseEvent& e) {
-    const auto button = e.button();
-    const bool leftPressed = static_cast<bool>(
-        button & eMouseButton::left);
-    const bool rightPressed = static_cast<bool>(
-        button & eMouseButton::right);
-    if(leftPressed || rightPressed) {
-        mInput.handleMousePress(leftPressed, rightPressed,
-                                float(e.x()), float(e.y()));
-        if(mHighlightUnit) {
-            setPressedUnit(mHighlightUnit);
-        }
-    }
-    return true;
-}
-
-bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
-    const auto button = e.button();
-    const bool leftReleased = static_cast<bool>(
-        button & eMouseButton::left);
-    const bool rightRelease = static_cast<bool>(
-        button & eMouseButton::right);
-    if(leftReleased || rightRelease) {
-        mInput.handleMouseRelease(leftReleased, rightRelease);
-        const auto& skill = eSkills::sSkills.get(mRightSkill);
-        const auto weaponType = mMainAction.equipment().fWeaponType;
-        const bool rangeAttack = skill.fType == eSkillType::missile ||
-                                 skill.fType == eSkillType::wall ||
-                                 skill.fType == eSkillType::shoot ||
-                                 skill.fType == eSkillType::throw_ ||
-                                 (skill.fType == eSkillType::attack &&
-                                  weaponType == eWeaponType::ranged);
-        if(e.shiftPressed() || (rightRelease && rangeAttack) ||
-           (rangeAttack && mPressedUnit)) {
-            mMainAction.stop();
-        } else {
-            const auto pos = pixelToTilePos(mInput.mousePos());
-            mMainAction.mouseRelease(pos);
-        }
-        setPressedUnit(nullptr);
-    }
-    return true;
-}
-
-bool eGameScreen::mouseMoveEvent(const eMouseEvent& e) {
-    mInput.handleMouseMove(float(e.x()), float(e.y()));
-    return true;
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -484,7 +171,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
         } else if(mDeadMenu) {
-            mServer->respawn(mClientId);
+            mGameWidget->server()->respawn(mGameWidget->clientId());
         } else {
             if(mESCMenu) {
                 hideESCMenu();
@@ -493,18 +180,11 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             }
         }
     } else if(e.key() == SDL_SCANCODE_R) {
-        const bool run = !mMainAction.running();
+        const bool run = !mGameWidget->mainAction().running();
         mRunButton->setChecked(run);
-        mMainAction.setRunning(run);
+        mGameWidget->mainAction().setRunning(run);
     }
     return true;
-}
-
-void eGameScreen::initializeTextures() {
-    const int w = width();
-    const int h = height();
-    const auto tex = mGamePainter.initialize(w, h);
-    setTexture(tex);
 }
 
 void eGameScreen::showDeadMenu() {
@@ -547,9 +227,9 @@ void eGameScreen::showESCMenu() {
         eLanguage::text(5, 1), window());
     mESCMenu->addWidget(exitB);
     exitB->setPressAction([this]() {
-        if(mServer) {
-            mServer->disconnect(mClientId);
-            mServer = nullptr;
+        const auto server = mGameWidget->server();
+        if(server) {
+            server->disconnect(mGameWidget->clientId());
         }
         mExitAction();
     });
@@ -572,30 +252,15 @@ void eGameScreen::showESCMenu() {
 
     addWidget(mESCMenu);
     mESCMenu->align(eAlignment::center);
+
+    mGameWidget->setMenuVisible(true);
 }
 
 void eGameScreen::hideESCMenu() {
     if(!mESCMenu) return;
     mESCMenu->deleteLater();
     mESCMenu = nullptr;
-}
-
-void eGameScreen::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
-    mHighlightUnit = u;
-    if(!mPressedUnit) {
-        mUnitIndicator->setUnit(u);
-    }
-}
-
-void eGameScreen::setPressedUnit(const std::shared_ptr<eUnit>& u) {
-    mPressedUnit = u;
-    if(mPressedUnit) {
-        mUnitIndicator->setUnit(mPressedUnit);
-    } else {
-        mUnitIndicator->setUnit(mHighlightUnit);
-    }
-
-    mMainAction.setPressedUnit(u);
+    mGameWidget->setMenuVisible(false);
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,
@@ -617,6 +282,8 @@ void eGameScreen::openSkillMenu(const eAlignment align,
     const auto action = [this, targetButton, &targetSkillVar](const int skillId) {
         targetButton->setSkillId(skillId);
         targetSkillVar = skillId;
+        mGameWidget->setLeftSkill(mLeftSkill);
+        mGameWidget->setRightSkill(mRightSkill);
         mSkillMenu = nullptr;
     };
     w->initialize(skillIds, align, action);
@@ -630,10 +297,4 @@ void eGameScreen::openSkillMenu(const eAlignment align,
             height() - w->height() - margin);
 
     mSkillMenu = w;
-}
-
-eWalkable eGameScreen::walkable() const {
-    return [this](const int x, const int y) {
-        return mMap->walkable(x, y);
-    };
 }

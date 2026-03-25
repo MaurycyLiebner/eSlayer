@@ -122,6 +122,7 @@ add_executable(eSlayerGame main.cpp
     textures/etilesiterator.h textures/etilesiterator.cpp
     units/eunit.h units/eunit.cpp
     widgets/gameScreen/egamepainter.h widgets/gameScreen/egamepainter.cpp
+    widgets/gameScreen/egamewidget.h widgets/gameScreen/egamewidget.cpp
     widgets/gameScreen/eunitindicator.h widgets/gameScreen/eunitindicator.cpp
 
     textures/euitextures.h textures/euitextures.cpp

@@ -5,19 +5,19 @@
 
 #include <functional>
 
-class eGameScreen;
+class eGameWidget;
 
 using eVisibleTileFunc = std::function<void(const int x, const int y,
                                             const int px, const int py)>;
 
 class eTilesIterator {
 public:
-    void initialize(eGameScreen* const game);
+    void initialize(eGameWidget* const game);
 
     void iterate(const eVisibleTileFunc& func) const;
 
 private:
-    eGameScreen* mGame = nullptr;
+    eGameWidget* mGame = nullptr;
     ePoint mMin;
     int mTileMargin;
     int mDxMax;

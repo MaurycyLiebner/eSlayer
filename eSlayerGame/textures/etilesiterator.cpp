@@ -1,8 +1,8 @@
 #include "etilesiterator.h"
 
-#include "../screens/egamescreen.h"
+#include "../widgets/gameScreen/egamewidget.h"
 
-void eTilesIterator::initialize(eGameScreen* const game) {
+void eTilesIterator::initialize(eGameWidget* const game) {
     const auto& pos = game->characterPos();
     mMin = game->pixelToTilePos(pos.floor(), {0.f, 0.f}).floor();
     const int width = game->width();
