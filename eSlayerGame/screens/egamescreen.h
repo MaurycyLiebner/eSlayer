@@ -6,6 +6,7 @@
 #include <eSlayerServer/eserver.h>
 #include <eSlayerMapGenerator/emapgenerator.h>
 
+class eESCMenu;
 class eGameWidget;
 class eUnitIndicator;
 class ePlayerHealthIndicator;
@@ -37,7 +38,7 @@ private:
     eGameWidget* mGameWidget = nullptr;
 
     eAction mExitAction;
-    eWidget* mESCMenu = nullptr;
+    eESCMenu* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
     eWidget* mInventoryMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;

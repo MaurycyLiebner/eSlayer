@@ -5,7 +5,7 @@
 #include "../textures/euitextures.h"
 #include "../widgets/echeckbutton.h"
 #include "../widgets/ecolors.h"
-#include "../widgets/gameScreen/eescmenubutton.h"
+#include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eunitindicator.h"
@@ -228,38 +228,18 @@ void eGameScreen::showDeadMenu() {
 
 void eGameScreen::showESCMenu() {
     if(mESCMenu) return;
-    mESCMenu = new eWidget(window());
-
-    const auto optionsB = new eESCMenuButton(
-        eLanguage::text(5, 0), window());
-    mESCMenu->addWidget(optionsB);
-
-    const auto exitB = new eESCMenuButton(
-        eLanguage::text(5, 1), window());
-    mESCMenu->addWidget(exitB);
-    exitB->setPressAction([this]() {
+    mESCMenu = new eESCMenu(window());
+    const auto return_ = [this]() {
+        hideESCMenu();
+    };
+    const auto exit = [this]() {
         const auto server = mGameWidget->server();
         if(server) {
             server->disconnect(mGameWidget->clientId());
         }
         mExitAction();
-    });
-
-    const auto returnB = new eESCMenuButton(
-        eLanguage::text(5, 2), window());
-    mESCMenu->addWidget(returnB);
-    returnB->setPressAction([this]() {
-        hideESCMenu();
-    });
-
-    const auto res = resolution();
-    const int p = res.hugePadding();
-    mESCMenu->stackVertically(p);
-    mESCMenu->fitContent();
-
-    optionsB->align(eAlignment::hcenter);
-    exitB->align(eAlignment::hcenter);
-    returnB->align(eAlignment::hcenter);
+    };
+    mESCMenu->initialize(return_, exit);
 
     addWidget(mESCMenu);
     mESCMenu->align(eAlignment::center);
