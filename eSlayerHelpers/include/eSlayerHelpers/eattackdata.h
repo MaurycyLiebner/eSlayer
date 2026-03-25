@@ -31,6 +31,7 @@ struct eAttackData {
 
     void read(ePacket& p) {
         p >> fType;
+        p >> fSkill;
         switch(fType) {
         case eAttackTargetType::character:
             p >> fChar;
@@ -43,6 +44,7 @@ struct eAttackData {
 
     void write(ePacket& p) const {
         p << fType;
+        p << fSkill;
         switch(fType) {
         case eAttackTargetType::character:
             p << fChar;

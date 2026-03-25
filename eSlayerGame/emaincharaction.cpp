@@ -143,7 +143,9 @@ bool eMainCharAction::handleUnitAttack(
         mAttackData = eAttackData(targetId, skillId);
 
         const auto vec = ePointF::vector(mPressedUnit->fPos, mMainChar->fPos);
-        model.setAngle(vec.angle());
+        const float angle = vec.angle();
+        mMainChar->fAngle = angle;
+        model.setAngle(angle);
 
         mServer->attack(mClientId, mAttackData);
     }
@@ -163,8 +165,19 @@ bool eMainCharAction::handlePositionAttack(
     mAttackData = eAttackData(mousePos, skillId);
 
     const auto vec = ePointF::vector(mousePos, mMainChar->fPos);
-    model.setAngle(vec.angle());
+    const float angle = vec.angle();
+    mMainChar->fAngle = angle;
+    model.setAngle(angle);
 
+    {
+        const bool aggressive = model.aggressive();
+        const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+
+        mMainChar->fAnim = animId;
+        mMainChar->fAnimId++;
+        mMainChar->fAnimSpeed = 1.f;
+        model.setAnimation(animId, 1.f);
+    }
     mServer->attack(mClientId, mAttackData);
     return true;
 }
@@ -219,7 +232,7 @@ void eMainCharAction::updateMovementAnimation(
         mMainChar->fAngle = angle;
         model.setAngle(angle);
 
-        if (run) {
+        if(run) {
             mContinueRunning = true;
             incStamina(-by * 0.1f);
             animId = mRunAnimId;
