@@ -6,7 +6,17 @@
 
 #include "epacket.h"
 
-struct eRequestData {
+struct ESLAYERHELPERS_API eEquipmentData {
+    eWeaponType fWeaponType = eWeaponType::ranged;
+    float fMeeleRange = 0.f;
+    float fRangedRange = 4.f;
+    int fMissileId = -1;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
+};
+
+struct ESLAYERHELPERS_API eRequestData {
     uint32_t fRequestId;
     std::vector<eUnitData> fUnits;
     std::vector<eMissile> fMissiles;

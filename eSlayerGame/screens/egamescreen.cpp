@@ -453,16 +453,22 @@ bool eGameScreen::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::right);
     if(leftReleased || rightRelease) {
         mInput.handleMouseRelease(leftReleased, rightRelease);
-        setPressedUnit(nullptr);
         const auto& skill = eSkills::sSkills.get(mRightSkill);
+        const auto weaponType = mMainAction.equipment().fWeaponType;
         const bool rangeAttack = skill.fType == eSkillType::missile ||
-                                 skill.fType == eSkillType::wall;
-        if(e.shiftPressed() || (rightRelease && rangeAttack)) {
+                                 skill.fType == eSkillType::wall ||
+                                 skill.fType == eSkillType::shoot ||
+                                 skill.fType == eSkillType::throw_ ||
+                                 (skill.fType == eSkillType::attack &&
+                                  weaponType == eWeaponType::ranged);
+        if(e.shiftPressed() || (rightRelease && rangeAttack) ||
+           (rangeAttack && mPressedUnit)) {
             mMainAction.stop();
         } else {
             const auto pos = pixelToTilePos(mInput.mousePos());
             mMainAction.mouseRelease(pos);
         }
+        setPressedUnit(nullptr);
     }
     return true;
 }

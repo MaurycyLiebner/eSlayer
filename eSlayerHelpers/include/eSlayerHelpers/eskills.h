@@ -7,7 +7,8 @@
 #include "edamage.h"
 
 enum class eSkillType {
-    attack, missile, wall
+    attack, shoot, throw_,
+    missile, wall
 };
 
 struct eSkillLevel {
@@ -37,6 +38,7 @@ struct eSkill {
     float fBasePierceChance;
     float fBaseCooldown;
     float fMaxAngle;
+    float fCastRange;
     std::vector<std::string> fCastAnims;
     std::vector<eSkillLevel> fLevels;
 };

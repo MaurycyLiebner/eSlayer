@@ -9,6 +9,10 @@
 #include "evec2.h"
 #include "echardata.h"
 
+enum class eWeaponType {
+    meele, ranged, throwable
+};
+
 struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     int32_t fCharId;
     int8_t fTeamId;

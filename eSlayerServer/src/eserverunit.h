@@ -21,20 +21,40 @@ public:
     bool aggressive() const { return mAggressive; }
 
     float level() const { return mLevel; }
+
     float attackRating() const { return mAttackRating; }
     float defense() const;
+
     float blockChance() const;
     void setBlockChance(const float c) { mBlockChance = c; }
+
     float fasterHitRecovery() const { return mFasterHitRecovery; }
     void setFasterHitRecovery(const float fhr) { mFasterHitRecovery = fhr; }
+
     float fasterBlockRate() const { return mFasterBlockRate; }
     void setFasterBlockRate(const float fbr) { mFasterBlockRate = fbr; }
-    float weaponRange() const { return mWeaponRange; }
-    void setWeaponRange(const float r) { mWeaponRange = r; }
+
+    float weaponMeeleRange() const { return mWeaponMeeleRange; }
+    void setWeaponMeeleRange(const float r) { mWeaponMeeleRange = r; }
+
+    eWeaponType weaponType() const { return mWeaponType; }
+
+    int weaponMissileId() const { return mWeaponMissileId; }
+    void setWeaponMissileId(const int id) { mWeaponMissileId = id; }
+
+    float weaponRangedRange() const { return mWeaponRangedRange; }
+    void setWeaponRangedRange(const float r) { mWeaponRangedRange = r; }
+
     float itemsAttackSpeed() const { return mItemsAttackSpeed; }
     void setItemsAttackSpeed(const float s) { mItemsAttackSpeed = s; }
+
     float itemsCastRate() const { return mItemsCastRate; }
     void setItemsCastRate(const float r) { mItemsCastRate = r; }
+
+    const eDamage& weaponMeeleDamage() const { return mWeaponMeeleDamage; }
+    void setWeaponMeeleDamage(const eDamage& d) { mWeaponMeeleDamage = d; }
+    const eDamage& weaponRangedDamage() const { return mWeaponRangedDamage; }
+    void setWeaponRangedDamage(const eDamage& d) { mWeaponRangedDamage = d; }
 
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by);
@@ -72,7 +92,12 @@ private:
     float mFasterBlockRate = 0.f;
     float mItemsAttackSpeed = 0.f;
     float mItemsCastRate = 0.f;
-    float mWeaponRange = 0.f;
+    float mWeaponMeeleRange = 0.f;
+    float mWeaponRangedRange = 4.f;
+    eWeaponType mWeaponType = eWeaponType::ranged;
+    int mWeaponMissileId = 2;
+    eDamage mWeaponMeeleDamage;
+    eDamage mWeaponRangedDamage;
 
     std::map<int, float> mCooldowns;
 };

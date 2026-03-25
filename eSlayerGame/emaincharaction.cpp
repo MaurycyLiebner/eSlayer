@@ -74,7 +74,11 @@ void eMainCharAction::increment(const bool mousePressed,
 
     const auto& skill = eSkills::sSkills.get(skillId);
     const bool rangeAttack = skill.fType == eSkillType::missile ||
-                             skill.fType == eSkillType::wall;
+                             skill.fType == eSkillType::wall ||
+                             skill.fType == eSkillType::shoot ||
+                             skill.fType == eSkillType::throw_ ||
+                             (skill.fType == eSkillType::attack &&
+                              mEquipment.fWeaponType == eWeaponType::ranged);
 
     ePointF targetPos = mousePos;
     bool shouldStopAttack = false;
@@ -130,10 +134,25 @@ bool eMainCharAction::handleUnitAttack(
     const eSkill& skill,
     const bool rangeAttack,
     eCharUnitModel& model) {
-    const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
-    const float meeleDist = 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
-    const float attackDist = rangeAttack ? skill.fRangeTime : meeleDist;
+    float attackDist;
+    if(skill.fType == eSkillType::attack) {
+        if(mEquipment.fWeaponType == eWeaponType::meele ||
+           mEquipment.fWeaponType == eWeaponType::throwable) {
+            attackDist = mEquipment.fMeeleRange + 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
+        } else {
+            attackDist = mEquipment.fRangedRange;
+        }
+    } else if(skill.fType == eSkillType::missile ||
+              skill.fType == eSkillType::wall) {
+        attackDist = skill.fCastRange;
+    } else if(skill.fType == eSkillType::throw_ ||
+              skill.fType == eSkillType::shoot) {
+        attackDist = mEquipment.fRangedRange;
+    } else {
+        return false;
+    }
 
+    const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
     if(dist >= attackDist) {
         return false;
     }

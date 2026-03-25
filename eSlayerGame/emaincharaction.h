@@ -1,6 +1,7 @@
 #ifndef EMAINCHARACTION_H
 #define EMAINCHARACTION_H
 
+#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
 
@@ -43,6 +44,8 @@ public:
     float maxStamina() const { return mMaxStamina; }
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
+
+    const eEquipmentData& equipment() const { return mEquipment; }
 private:
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
@@ -85,6 +88,7 @@ private:
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
+    eEquipmentData mEquipment;
 
     bool mRunning = false;
     float mMaxStamina = 100.f;

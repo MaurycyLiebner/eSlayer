@@ -33,3 +33,15 @@ void eRequestData::write(ePacket& p) const {
         m.write(p);
     }
 }
+
+void eEquipmentData::read(ePacket& p) {
+    p >> fWeaponType;
+    p >> fMeeleRange;
+    p >> fRangedRange;
+}
+
+void eEquipmentData::write(ePacket& p) const {
+    p << fWeaponType;
+    p << fMeeleRange;
+    p << fRangedRange;
+}

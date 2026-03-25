@@ -22,27 +22,29 @@ void eSkills::load() {
         const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
         const std::string typeStr = jdata["type"];
         skill.fIcon = jdata["icon"];
+
+        skill.fPath = jdata.value("path", "linear");
+        skill.fMissile = jdata.value("missile", "none");
+        skill.fBaseMissiles = jdata.value("missiles", 1);
+        skill.fRadius = jdata.value("radius", 0.5f);
+        skill.fSpeed = jdata.value("speed", 0.25f);
+        skill.fBasePierceChance = jdata.value("pierce", 0.f);
+        skill.fMaxAngle = jdata.value("maxAngle", 0.f);
+
         if(typeStr == "attack") {
             skill.fType = eSkillType::attack;
+            skill.fCastRange = 0.f;
         } else if(typeStr == "missile") {
             skill.fType = eSkillType::missile;
-            skill.fPath = jdata.value("path", "linear");
-            skill.fSpeed = jdata.value("speed", 0.25f);
-            skill.fBasePierceChance = jdata.value("pierce", 0.f);
-            skill.fMaxAngle = jdata.value("maxAngle", 0.f);
             skill.fRangeTime = jdata.value("range", 8.f);
+            skill.fCastRange = 8.f;
         } else if(typeStr == "wall") {
             skill.fType = eSkillType::wall;
             skill.fRangeTime = jdata.value("time", 100.f)*eRunSettings::sFPS;
             skill.fPath = "static";
+            skill.fCastRange = 8.f;
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
-        }
-        if(skill.fType == eSkillType::missile ||
-           skill.fType == eSkillType::wall) {
-            skill.fMissile = jdata["missile"];
-            skill.fBaseMissiles = jdata.value("missiles", 1);
-            skill.fRadius = jdata.value("radius", 0.5f);
         }
 
         skill.fBaseCooldown = jdata.value("cooldown", 0.f);
