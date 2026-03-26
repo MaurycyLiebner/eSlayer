@@ -24,11 +24,6 @@ void eLabel::fitOptions(const std::vector<std::string>& options) {
     setText(tmp);
 }
 
-void eLabel::renderTargetsReset() {
-    eWidget::renderTargetsReset();
-    updateTexture();
-}
-
 void eLabel::sizeHint(int& w, int& h) {
     const auto& tex = texture();
     if(tex) {

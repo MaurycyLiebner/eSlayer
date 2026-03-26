@@ -18,8 +18,6 @@ public:
     void scrollToTheBottom();
     void clampDY();
     void setScrollStep(const int s);
-
-    void renderTargetsReset() override;
 protected:
     void paintEvent(ePainter& p) override;
 

@@ -11,7 +11,6 @@ public:
            eMainWindow* const window);
 
     void fitOptions(const std::vector<std::string>& options);
-    void renderTargetsReset() override;
 protected:
     void sizeHint(int& w, int& h) override;
     void paintEvent(ePainter& p) override;

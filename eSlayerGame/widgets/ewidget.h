@@ -16,8 +16,6 @@ using eAction = std::function<void()>;
 class eWidget {
 public:
     eWidget(eMainWindow* const window);
-
-    virtual void renderTargetsReset();
 protected:
     virtual ~eWidget();
 

@@ -82,8 +82,3 @@ void eScrollWidget::clampDY() {
 void eScrollWidget::setScrollStep(const int s) {
     mStep = s;
 }
-
-void eScrollWidget::renderTargetsReset() {
-    eWidget::renderTargetsReset();
-    if(mScrollArea) mScrollArea->renderTargetsReset();
-}
