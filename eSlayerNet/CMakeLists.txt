@@ -5,7 +5,11 @@ project(eSlayerServer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif()
 
 include(FetchContent)
 
@@ -29,7 +33,7 @@ target_include_directories(eSlayerNet
 )
 
 target_compile_definitions(eSlayerNet
-    PRIVATE ESLAYERSERVER_EXPORTS
+    PRIVATE ESLAYERNET_EXPORTS
 )
 
 target_link_libraries(eSlayerNet PUBLIC SDL3_net::SDL3_net)

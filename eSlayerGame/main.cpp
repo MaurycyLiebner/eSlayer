@@ -15,12 +15,14 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/egamedir.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3/SDL_main.h>
 
 #include <vector>
 
@@ -85,6 +87,7 @@ std::string strToUpper(std::string s) {
 }
 
 int main(int argc, char* argv[]) {
+    eGameDir::sExePath = SDL_GetBasePath();
     for(int i = 1; i < argc - 1; i += 2) {
         const std::string arg = argv[i];
         std::string value = argv[i + 1];

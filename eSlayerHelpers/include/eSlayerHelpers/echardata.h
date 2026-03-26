@@ -21,7 +21,7 @@ struct eModelParts {
     void write(ePacket& p) const;
 };
 
-class eCharData {
+class ESLAYERHELPERS_API eCharData {
     friend class eCharTextures;
 public:
     eCharData();

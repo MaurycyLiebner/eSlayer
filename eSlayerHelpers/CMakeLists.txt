@@ -5,7 +5,11 @@ project(eSlayerMapGenerator LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif()
 
 include(FetchContent)
 
@@ -13,6 +17,7 @@ FetchContent_Declare(
     nlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     GIT_TAG v3.12.0
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(nlohmann_json)
@@ -21,6 +26,7 @@ FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
     GIT_TAG v1.11.4
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(libzip)
@@ -29,6 +35,7 @@ FetchContent_Declare(
     tinyxml2
     GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
     GIT_TAG 11.0.0
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(tinyxml2)

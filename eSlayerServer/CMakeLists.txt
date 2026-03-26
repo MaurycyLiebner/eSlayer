@@ -5,7 +5,11 @@ project(eSlayerServer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif()
 
 add_library(eSlayerServer SHARED
     include/eSlayerServer/eserver.h src/eserver.cpp
@@ -48,3 +52,4 @@ target_link_libraries(eSlayerServer PUBLIC eSlayerHelpers)
 target_link_libraries(eSlayerServer PUBLIC eSlayerMapGenerator)
 target_link_libraries(eSlayerServer PUBLIC eSlayerNet)
 target_link_libraries(eSlayerServer PUBLIC eSlayerMissiles)
+target_link_libraries(eSlayerServer PRIVATE SDL3::SDL3)
