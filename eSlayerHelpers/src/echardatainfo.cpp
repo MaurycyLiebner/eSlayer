@@ -1,7 +1,7 @@
-#include "../include/eSlayerHelpers/echardatainfo.h"
+#include "eSlayerHelpers/echardatainfo.h"
 
-#include <eSlayerHelpers/efileloaderbase.h>
-#include <eSlayerHelpers/eexceptions.h>
+#include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/eexceptions.h"
 
 eCharDataInfo eCharDataInfo::sInstance;
 
@@ -23,8 +23,13 @@ void eCharDataInfo::loadImpl() {
 
     const auto dir = "Textures";
 
-    const auto jdata = eFileLoaderBase::parse(dir, "chars/chars.json");
-    const auto chars = jdata.get<std::vector<std::string>>();
+    std::vector<std::string> chars;
+    try {
+        const auto jdata = eFileLoaderBase::parse(dir, "chars/chars.json");
+        chars = jdata.get<std::vector<std::string>>();
+    } catch(...) {
+        eRuntimeThrow("Failed to parse " + dir + "/chars/chars.json");
+    }
 
     mChars.reserve(chars.size());
     for(const auto& name : chars) {

@@ -1,8 +1,8 @@
 #ifndef ECHARDATAINFO_H
 #define ECHARDATAINFO_H
 
-#include <eSlayerHelpers/echardata.h>
-#include <eSlayerHelpers/estringidmapvector.h>
+#include "eSlayerHelpers/echardata.h"
+#include "eSlayerHelpers/estringidmapvector.h"
 
 class ESLAYERHELPERS_API eCharDataInfo {
 public:

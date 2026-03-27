@@ -152,6 +152,7 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/eskillbutton.h widgets/gameScreen/eskillbutton.cpp
     widgets/gameScreen/eskillselectwidget.h widgets/gameScreen/eskillselectwidget.cpp
     widgets/etexturecheckbutton.h widgets/etexturecheckbutton.cpp
+    textures/eitemstextures.h textures/eitemstextures.cpp
 
 )
 
