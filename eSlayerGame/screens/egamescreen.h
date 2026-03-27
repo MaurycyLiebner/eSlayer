@@ -11,7 +11,7 @@ class eGameWidget;
 class eUnitIndicator;
 class ePlayerHealthIndicator;
 class eSkillButton;
-class eCheckButton;
+class eTextureCheckButton;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -52,7 +52,7 @@ private:
     eWidget* mSkillMenu = nullptr;
     int mLeftSkill = 0;
     int mRightSkill = 0;
-    eCheckButton* mRunButton = nullptr;
+    eTextureCheckButton* mRunButton = nullptr;
 };
 
 #endif // EGAMESCREEN_H

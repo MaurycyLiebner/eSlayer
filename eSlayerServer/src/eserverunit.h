@@ -137,6 +137,12 @@ private:
 
     int mSkillL = -1;
     int mSkillR = -1;
+
+    int mMissilesL = 0;
+    int mMissilesR = 0;
+
+    float mPierceL = 0.f;
+    float mPierceR = 0.f;
 };
 
 #endif // ESERVERUNIT_H

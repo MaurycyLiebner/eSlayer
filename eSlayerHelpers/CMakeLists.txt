@@ -97,8 +97,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/echardatainfo.h
     include/eSlayerHelpers/eequipment.h
     include/eSlayerHelpers/eitem.h
-    include/eSlayerHelpers/eitemmodifier.h
-    src/eitemmodifier.cpp
+    include/eSlayerHelpers/emodifier.h
+    src/emodifier.cpp
     src/eitem.cpp
     src/eequipment.cpp
     include/eSlayerHelpers/eweapontype.h

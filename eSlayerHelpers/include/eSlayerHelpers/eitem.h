@@ -1,7 +1,7 @@
 #ifndef EITEM_H
 #define EITEM_H
 
-#include "eitemmodifier.h"
+#include "emodifier.h"
 
 #include <vector>
 
@@ -22,11 +22,11 @@ enum class eItemType : uint8_t {
 struct ESLAYERHELPERS_API eItem {
     eItemType fType;
     uint8_t fSubType;
-    float fValue1; // armor defense / min weapon damage
-    float fValue2; // shield block chance / max weapon damage
-    float fValue3; // min boots / shields damage
-    float fValue4; // max boots / shields damage
-    std::vector<eItemModifier> fModifiers;
+    float fValue1; // min weapon / shield / boots damage
+    float fValue2; // max weapon weapon / shield / boots damage
+    float fValue3; // armor defense
+    float fValue4; // shield block chance
+    std::vector<eModifier> fModifiers;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

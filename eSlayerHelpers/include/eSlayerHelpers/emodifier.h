@@ -1,5 +1,5 @@
-#ifndef EITEMMODIFIER_H
-#define EITEMMODIFIER_H
+#ifndef EMODIFIER_H
+#define EMODIFIER_H
 
 #include "eslayerhelpersexport.h"
 
@@ -7,18 +7,18 @@
 
 class ePacket;
 
-enum class eItemModifierType : uint8_t {
+enum class eModifierType : uint8_t {
+    none,
     walkRun,
     attackSpeed,
     castRate,
     defenseValue,
     defensePercent,
-    damageMinValue,
-    damageMaxValue,
     damageValue,
-    damageMinPercent,
-    damageMaxPercent,
     damagePercent,
+    damageFire,
+    damageLightning,
+    damageCold,
     attackRatingValue,
     attackRatingPercent,
     blockChancePercent,
@@ -27,16 +27,17 @@ enum class eItemModifierType : uint8_t {
     lifeValue,
     lifePercent,
     manaValue,
-    manaPercent
+    manaPercent,
+    pierceChance
 };
 
-struct ESLAYERHELPERS_API eItemModifier {
-    eItemModifierType fType;
-    float fValue1; // base / min
-    float fValue2; // max
+struct ESLAYERHELPERS_API eModifier {
+    eModifierType fType = eModifierType::none;
+    float fValue1 = 0.f; // base / min
+    float fValue2 = 0.f; // max
 
     void read(ePacket& p);
     void write(ePacket& p) const;
 };
 
-#endif // EITEMMODIFIER_H
+#endif // EMODIFIER_H

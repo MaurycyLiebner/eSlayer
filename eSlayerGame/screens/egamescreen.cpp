@@ -3,7 +3,7 @@
 #include "../elanguage.h"
 #include "../emainwindow.h"
 #include "../textures/euitextures.h"
-#include "../widgets/echeckbutton.h"
+#include "../widgets/etexturecheckbutton.h"
 #include "../widgets/ecolors.h"
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
@@ -120,15 +120,13 @@ void eGameScreen::initialize(const int clientId,
     const auto staminaWid = new eWidget(window());
     staminaWid->setNoPadding();
 
-    mRunButton = new eCheckButton(window());
-    mRunButton->setNoPadding();
+    mRunButton = new eTextureCheckButton(window());
     mRunButton->setCheckAction([this](const bool check) {
-        if(check) mRunButton->setTexture(eUITextures::sRunIcon);
-        else mRunButton->setTexture(eUITextures::sWalkIcon);
-        mGameWidget->mainAction().setRunning(check);
+        auto& action = mGameWidget->mainAction();
+        action.setRunning(check);
     });
-    mRunButton->setTexture(eUITextures::sWalkIcon);
-    mRunButton->fitContent();
+    mRunButton->initialize(eUITextures::sRunIcon,
+                           eUITextures::sWalkIcon);
     staminaWid->addWidget(mRunButton);
 
     mStaminaIndicator = new ePlayerHealthIndicator(window());

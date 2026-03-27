@@ -5,6 +5,7 @@
 
 #include "estringidmapvector.h"
 #include "edamage.h"
+#include "emodifier.h"
 
 enum class eSkillType {
     attack, shoot, throw_,
@@ -13,10 +14,9 @@ enum class eSkillType {
 
 struct eSkillLevel {
     int fLevel;
-    eDamage fDamage;
     int fMissiles;
-    float fPierceChance;
     float fCooldown;
+    std::map<eModifierType, eModifier> fTotalModifiers;
 };
 
 struct eSkill {
@@ -29,16 +29,13 @@ struct eSkill {
     std::string fPath;
     int fPathId;
 
-    int fBaseMissiles;
-    eDamage fBaseDamage;
     float fRangeTime;
     float fRadius;
     float fSpeed;
     float fTime;
-    float fBasePierceChance;
-    float fBaseCooldown;
     float fMaxAngle;
     float fCastRange;
+    std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
     std::vector<eSkillLevel> fLevels;
 };

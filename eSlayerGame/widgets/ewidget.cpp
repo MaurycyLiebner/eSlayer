@@ -229,8 +229,8 @@ bool eWidget::keyPress(const eKeyPressEvent& e) {
         int ey = e.y();
         mapTo(override, ex, ey);
         const auto ee = e.withPosition(ex, ey);
-        override->keyPressEvent(ee);
-        return true;
+        const bool r = override->keyPressEvent(ee);
+        if(r) return true;
     }
     const auto handler = mouseEvent(e, &eWidget::keyPressEvent);
     return handler;
