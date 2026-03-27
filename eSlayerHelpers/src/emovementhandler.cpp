@@ -202,8 +202,13 @@ bool eMovementHandler::increment(const float by) {
 
     auto moveDir = desiredDir*1.0f +
                    separation*1.5f +
-                   avoid*0.35f +
-                   eVec2f::random()*mMoveRandom;
+                   avoid*0.35f;
+
+    const bool addRandom = separation.length() > 0.1f ||
+                           avoid.length() > 0.1f;
+    if(addRandom) {
+        moveDir = moveDir + eVec2f::random()*mMoveRandom;
+    }
     if(moveDir.length() > 0) {
         moveDir.normalize();
     }
