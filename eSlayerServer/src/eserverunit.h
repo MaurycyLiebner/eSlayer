@@ -1,13 +1,15 @@
 #ifndef ESERVERUNIT_H
 #define ESERVERUNIT_H
 
-#include <eSlayerHelpers/eunitdata.h>
-#include <eSlayerHelpers/emovementhandler.h>
-#include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/erequestdata.h>
+#include <eSlayerHelpers/edamage.h>
 #include <eSlayerHelpers/eequipment.h>
-#include <eSlayerHelpers/eweapontype.h>
+#include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eskillchoice.h>
+#include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eweaponchoice.h>
+#include <eSlayerHelpers/eweapontype.h>
 
 #include <memory>
 
@@ -38,14 +40,25 @@ public:
 
     float weaponMeeleRange() const { return mWeaponMeeleRange; }
 
-    eWeaponType weaponType() const { return mWeaponType; }
+    eWeaponType weaponTypeL() const { return mWeaponTypeL; }
+    eWeaponType weaponTypeR() const { return mWeaponTypeR; }
+    eWeaponType weaponType(const eWeaponChoice wchoice) const;
 
-    int weaponMissileId() const { return mWeaponMissileId; }
+    int missileIdLWLS() const { return mMissileIdLWLS; }
+    int missileIdRWLS() const { return mMissileIdRWLS; }
+    int missileIdLWRS() const { return mMissileIdLWRS; }
+    int missileIdRWRS() const { return mMissileIdRWRS; }
+
+    int missileId(const eWeaponChoice wchoice,
+                  const eSkillChoice schoice) const;
 
     float weaponRangedRange() const { return mWeaponRangedRange; }
 
-    float itemsAttackSpeed() const { return mAttackSpeedRWLS; }
+    eWeaponData weaponData() const;
 
+    float itemsAttackSpeed(const eWeaponChoice wchoice) const;
+    float skillsAttackSpeed(const eSkillChoice schoice) const;
+    float weaponSpeedModifier(const eWeaponChoice wchoice) const;
     float itemsCastRate() const { return mCastRate; }
 
     static float sHitChance(const eServerUnit& hit,
@@ -84,6 +97,11 @@ public:
     const eCharData& data() const { return mData; }
 
     std::vector<int> castAnims(const eSkillChoice schoice) const;
+
+    eWeaponChoice useWeapon(const eSkillChoice schoice);
+
+    bool canUseSkill(const eSkillChoice schoice,
+                     const eWeaponChoice wchoice) const;
 private:
     void recalculateStats();
 
@@ -108,16 +126,23 @@ private:
     float mMaxMana = 100.f;
 
     // LWLS - left weapon, left skill
-    float mAttackSpeedLWLS = 0.f;
-    float mAttackSpeedRWLS = 0.f;
-    float mAttackSpeedLWRS = 0.f;
-    float mAttackSpeedRWRS = 0.f;
+    float mAttackSpeedLW = 0.f;
+    float mAttackSpeedRW = 0.f;
+    float mAttackSpeedLS = 0.f;
+    float mAttackSpeedRS = 0.f;
 
     float mCastRate = 0.f;
+
     float mWeaponMeeleRange = 0.f;
-    float mWeaponRangedRange = 4.f;
-    eWeaponType mWeaponType = eWeaponType::ranged;
-    int mWeaponMissileId = 2;
+    float mWeaponRangedRange = 0.f;
+
+    eWeaponType mWeaponTypeL = eWeaponType::meele;
+    eWeaponType mWeaponTypeR = eWeaponType::meele;
+
+    int mMissileIdLWLS = -1;
+    int mMissileIdRWLS = -1;
+    int mMissileIdLWRS = -1;
+    int mMissileIdRWRS = -1;
 
     // LWLS - left weapon, left skill
     eDamage mDamageMinLWLS;
@@ -143,6 +168,8 @@ private:
 
     float mPierceL = 0.f;
     float mPierceR = 0.f;
+
+    eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
 };
 
 #endif // ESERVERUNIT_H

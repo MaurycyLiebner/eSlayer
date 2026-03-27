@@ -35,6 +35,12 @@ void eSkills::load() {
         if(typeStr == "attack") {
             skill.fType = eSkillType::attack;
             skill.fCastRange = 0.f;
+        } else if(typeStr == "smite") {
+            skill.fType = eSkillType::smite;
+            skill.fCastRange = 0.f;
+        } else if(typeStr == "kick") {
+            skill.fType = eSkillType::kick;
+            skill.fCastRange = 0.f;
         } else if(typeStr == "missile") {
             skill.fType = eSkillType::missile;
             skill.fRangeTime = jdata.value("range", 8.f);

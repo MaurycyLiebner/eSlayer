@@ -23,10 +23,13 @@ public:
                const std::string& name) override;
 
     bool requestData(const int clientId) override;
+    bool requestWeaponData(const int clientId) override;
 
     bool receiveData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
+    bool receiveWeaponData(const int clientId,
+                           eWeaponData& data) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -46,6 +49,8 @@ private:
     bool mInitialized = false;
     eRequestData mData;
     bool mNewData = false;
+    eWeaponData mWeaponData;
+    bool mNewWeaponData = false;
     uint32_t mRequestId = 0;
     uint32_t mReceivedId = 0;
 };

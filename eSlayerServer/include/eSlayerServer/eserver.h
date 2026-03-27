@@ -11,6 +11,7 @@
 
 class eRequestData;
 struct eAttackData;
+struct eWeaponData;
 
 struct eServerData {
     std::string fName;
@@ -37,11 +38,16 @@ public:
 
     virtual bool
     requestData(const int clientId) = 0;
+    virtual bool
+    requestWeaponData(const int clientId) = 0;
 
     virtual bool
     receiveData(const int clientId,
                 eRequestData& data,
                 float& resultTime) = 0;
+    virtual bool
+    receiveWeaponData(const int clientId,
+                      eWeaponData& data) = 0;
 
     virtual bool
     changeState(const int clientId,

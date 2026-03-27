@@ -3,6 +3,9 @@
 
 #include "eunitactionbase.h"
 
+#include <eSlayerHelpers/eskillchoice.h>
+#include <eSlayerHelpers/eweaponchoice.h>
+
 #include <memory>
 
 class eSkill;
@@ -18,8 +21,9 @@ public:
     static std::shared_ptr<eAttackAction> sCreate(
         eServerUnit& unit, eServerArea& area,
         const std::vector<int>& anims,
-        const eAttackType type,
-        const eAction& a);
+        const eAttackType type, const eAction& a,
+        const eSkillChoice schoice,
+        const eWeaponChoice wchoice);
 };
 
 #endif // EATTACKACTION_H

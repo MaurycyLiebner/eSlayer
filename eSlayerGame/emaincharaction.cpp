@@ -77,21 +77,19 @@ void eMainCharAction::increment(const bool mousePressed,
     if(consumeActionTime(by, model)) return;
 
     const auto& skill = eSkills::sSkills.get(skillId);
-    const bool rangeAttack = skill.fType == eSkillType::missile ||
-                             skill.fType == eSkillType::wall ||
-                             skill.fType == eSkillType::shoot ||
-                             skill.fType == eSkillType::throw_ ||
-                             (skill.fType == eSkillType::attack &&
-                              mEquipment.fWeaponType == eWeaponType::ranged);
+    const bool canUseSkill = sCanUseSkill(skill.fType, mWeaponData);
+    const bool rangeAttack = sRangedAttack(skillId, skill.fType, mWeaponData);
 
     ePointF targetPos = mousePos;
-    bool shouldStopAttack = false;
+    bool shouldStopAttack = !canUseSkill;
 
-    if(mPressedUnit) {
-        shouldStopAttack = !handleUnitAttack(schoice, skill, rangeAttack, model);
-        targetPos = mPressedUnit->fPos;
-    } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
-        shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
+    if(!shouldStopAttack) {
+        if(mPressedUnit) {
+            shouldStopAttack = !handleUnitAttack(schoice, skill, rangeAttack, model);
+            targetPos = mPressedUnit->fPos;
+        } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
+            shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
+        }
     }
 
     if(shouldStopAttack) {
@@ -138,19 +136,25 @@ bool eMainCharAction::handleUnitAttack(
     const bool rangeAttack,
     eCharUnitModel& model) {
     float attackDist;
+    const float meeleDist = mWeaponData.fMeeleRange + 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
     if(skill.fType == eSkillType::attack) {
-        if(mEquipment.fWeaponType == eWeaponType::meele ||
-           mEquipment.fWeaponType == eWeaponType::throwable) {
-            attackDist = mEquipment.fMeeleRange + 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
+        if(mWeaponData.fWeaponTypeL == eWeaponType::meele ||
+           mWeaponData.fWeaponTypeL == eWeaponType::throwable ||
+           mWeaponData.fWeaponTypeR == eWeaponType::meele ||
+           mWeaponData.fWeaponTypeR == eWeaponType::throwable) {
+            attackDist = meeleDist;
         } else {
-            attackDist = mEquipment.fRangedRange;
+            attackDist = mWeaponData.fRangedRange;
         }
-    } else if(skill.fType == eSkillType::missile ||
+    } else if(skill.fType == eSkillType::smite ||
+              skill.fType == eSkillType::kick) {
+        attackDist = meeleDist;
+    }else if(skill.fType == eSkillType::missile ||
               skill.fType == eSkillType::wall) {
         attackDist = skill.fCastRange;
     } else if(skill.fType == eSkillType::throw_ ||
               skill.fType == eSkillType::shoot) {
-        attackDist = mEquipment.fRangedRange;
+        attackDist = mWeaponData.fRangedRange;
     } else {
         return false;
     }
@@ -299,6 +303,49 @@ void eMainCharAction::stop() {
 
 void eMainCharAction::incStamina(const float by) {
     mStamina = std::clamp(mStamina + by, 0.f, mMaxStamina);
+}
+
+bool eMainCharAction::sRangedAttack(
+    const int skillId,
+    const eSkillType skillType,
+    const eWeaponData& weapons) {
+    const auto lw = weapons.fWeaponTypeL;
+    const auto rw = weapons.fWeaponTypeR;
+    return skillType == eSkillType::missile ||
+           skillType == eSkillType::wall ||
+           skillType == eSkillType::shoot ||
+           skillType == eSkillType::throw_ ||
+           (skillId == 0 &&
+            (lw == eWeaponType::ranged ||
+             rw == eWeaponType::ranged));
+}
+
+bool eMainCharAction::sCanUseSkill(
+    const eSkillType skillType,
+    const eWeaponData& weapons) {
+    const auto lw = weapons.fWeaponTypeL;
+    const auto rw = weapons.fWeaponTypeR;
+    switch(skillType) {
+    case eSkillType::attack:
+        return true;
+    case eSkillType::smite:
+        return lw == eWeaponType::shield ||
+               rw == eWeaponType::shield;
+    case eSkillType::kick:
+        return true;
+    case eSkillType::shoot:
+        return lw == eWeaponType::ranged ||
+               rw == eWeaponType::ranged;
+    case eSkillType::throw_:
+        return lw == eWeaponType::throwable ||
+               rw == eWeaponType::throwable;
+    case eSkillType::missile:
+        return true;
+        break;
+    case eSkillType::wall:
+        return true;
+    }
+    return false;
 }
 
 bool eMainCharAction::shouldRun() const {

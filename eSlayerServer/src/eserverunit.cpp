@@ -27,6 +27,76 @@ float eServerUnit::blockChance() const {
     }
 }
 
+eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
+    return wchoice == eWeaponChoice::left ?
+               mWeaponTypeL :
+               mWeaponTypeR;
+}
+
+int eServerUnit::missileId(const eWeaponChoice wchoice,
+                           const eSkillChoice schoice) const {
+    switch(wchoice) {
+    case eWeaponChoice::left: {
+        switch(schoice) {
+        case eSkillChoice::left: {
+            return mMissileIdLWLS;
+        } break;
+        case eSkillChoice::right: {
+            return mMissileIdLWRS;
+        } break;
+        }
+    } break;
+    case eWeaponChoice::right: {
+        switch(schoice) {
+        case eSkillChoice::left: {
+            return mMissileIdRWLS;
+        } break;
+        case eSkillChoice::right: {
+            return mMissileIdRWRS;
+        } break;
+        }
+    } break;
+    }
+    return -1;
+}
+
+eWeaponData eServerUnit::weaponData() const {
+    eWeaponData result;
+    result.fWeaponTypeL = mWeaponTypeL;
+    result.fWeaponTypeR = mWeaponTypeR;
+    result.fMeeleRange = mWeaponMeeleRange;
+    result.fRangedRange = mWeaponRangedRange;
+    return result;
+}
+
+float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
+    switch(wchoice) {
+    case eWeaponChoice::left: {
+        return mAttackSpeedLW;
+    } break;
+    case eWeaponChoice::right: {
+        return mAttackSpeedRW;
+    } break;
+    }
+    return 0.f;
+}
+
+float eServerUnit::skillsAttackSpeed(const eSkillChoice schoice) const {
+    switch(schoice) {
+    case eSkillChoice::left: {
+        return mAttackSpeedLS;
+    } break;
+    case eSkillChoice::right: {
+        return mAttackSpeedRS;
+    } break;
+    }
+    return 0.f;
+}
+
+float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
+    return 0.f;
+}
+
 float eServerUnit::sHitChance(
     const eServerUnit& hit,
     const eServerUnit& by,
@@ -188,6 +258,51 @@ std::vector<int> eServerUnit::castAnims(const eSkillChoice schoice) const {
     return uskill.fCastAnimIds;
 }
 
+bool eServerUnit::canUseSkill(
+    const eSkillChoice schoice,
+    const eWeaponChoice wchoice) const {
+    const auto weapon = wchoice == eWeaponChoice::left ?
+        mWeaponTypeL : mWeaponTypeR;
+    const int skillId = schoice == eSkillChoice::left ?
+        mSkillL : mSkillR;
+    if(skillId == -1) return false;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto skillType = skill.fType;
+    switch(skillType) {
+    case eSkillType::attack:
+        return true;
+    case eSkillType::smite:
+        return weapon == eWeaponType::shield;
+    case eSkillType::kick:
+        return true;
+    case eSkillType::shoot:
+        return weapon == eWeaponType::ranged;
+    case eSkillType::throw_:
+        return weapon == eWeaponType::throwable;
+    case eSkillType::missile:
+        return true;
+    case eSkillType::wall:
+        return true;
+    }
+    return false;
+}
+
+eWeaponChoice eServerUnit::useWeapon(const eSkillChoice schoice) {
+    const bool canUseL = canUseSkill(schoice, eWeaponChoice::left);
+    const bool canUseR = canUseSkill(schoice, eWeaponChoice::right);
+    eWeaponChoice use;
+    if(!canUseL) {
+        use = eWeaponChoice::right;
+    } else if(!canUseR) {
+        use = eWeaponChoice::left;
+    } else {
+        use = mLastUsedWeapon == eWeaponChoice::right ?
+                  eWeaponChoice::left : eWeaponChoice::right;
+    }
+    mLastUsedWeapon = use;
+    return use;
+}
+
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
     float baseMin = weapon.fValue1;
@@ -213,7 +328,100 @@ void gCalculateWeaponDmg(const eItem& weapon,
     max = baseMax*(1.f + percentIncMax);
 }
 
+bool gWeaponIsRanged(const eWeaponSubtype subtype) {
+    switch(subtype) {
+    case eWeaponSubtype::sword:
+    case eWeaponSubtype::longSword:
+    case eWeaponSubtype::pike:
+        return false;
+    case eWeaponSubtype::bow:
+    case eWeaponSubtype::throwingAxe:
+        return true;
+    }
+    return false;
+}
+
+bool gWeaponIsMeele(const eWeaponSubtype subtype) {
+    switch(subtype) {
+    case eWeaponSubtype::sword:
+    case eWeaponSubtype::longSword:
+    case eWeaponSubtype::pike:
+    case eWeaponSubtype::throwingAxe:
+        return true;
+    case eWeaponSubtype::bow:
+        return false;
+    }
+    return false;
+}
+
+float gWeaponRangedRange(const eWeaponSubtype subtype) {
+    switch(subtype) {
+    case eWeaponSubtype::sword:
+        return 0.f;
+    case eWeaponSubtype::longSword:
+        return 0.f;
+    case eWeaponSubtype::pike:
+        return 0.f;
+    case eWeaponSubtype::bow:
+        return 8.f;
+    case eWeaponSubtype::throwingAxe:
+        return 4.f;
+    }
+    return 0.f;
+}
+
+float gWeaponMeeleRange(const eWeaponSubtype subtype) {
+    switch(subtype) {
+    case eWeaponSubtype::sword:
+        return 0.f;
+    case eWeaponSubtype::longSword:
+        return 0.2f;
+    case eWeaponSubtype::pike:
+        return 0.4f;
+    case eWeaponSubtype::bow:
+        return 0.f;
+    case eWeaponSubtype::throwingAxe:
+        return 0.f;
+    }
+    return 0.f;
+}
+
 void eServerUnit::recalculateStats() {
+    const auto& leftW = (mEquipment.fWeapons1 ?
+                             mEquipment.fWeapon1L :
+                             mEquipment.fWeapon2L);
+    const auto& rightW = (mEquipment.fWeapons1 ?
+                              mEquipment.fWeapon1R :
+                              mEquipment.fWeapon2R);
+
+    mWeaponMeeleRange = 0.f;
+    int meeleRangeDiv = 0;
+    mWeaponRangedRange = 10000.f;
+    const auto handleWeapon = [&](const eItem& w) {
+        const auto subtype = static_cast<eWeaponSubtype>(w.fSubType);
+        const bool r = gWeaponIsRanged(subtype);
+        if(r) {
+            const float range = gWeaponRangedRange(subtype);
+            mWeaponRangedRange = std::min(range, mWeaponRangedRange);
+        }
+        const bool m = gWeaponIsMeele(subtype);
+        if(m) {
+            meeleRangeDiv++;
+            const float range = gWeaponMeeleRange(subtype);
+            mWeaponMeeleRange += range;
+        }
+    };
+    if(leftW.fType == eItemType::weapon) {
+        handleWeapon(leftW);
+    }
+    if(rightW.fType == eItemType::weapon) {
+        handleWeapon(rightW);
+    }
+
+    if(meeleRangeDiv > 0) {
+        mWeaponMeeleRange /= meeleRangeDiv;
+    }
+
     const auto items = {
         mEquipment.fBoots,
         mEquipment.fGloves,
@@ -222,12 +430,8 @@ void eServerUnit::recalculateStats() {
         mEquipment.fBelt,
         mEquipment.fRing,
         mEquipment.fAmulet,
-        mEquipment.fWeapons1 ?
-            mEquipment.fWeapon1L :
-            mEquipment.fWeapon2L,
-        mEquipment.fWeapons1 ?
-            mEquipment.fWeapon1R :
-            mEquipment.fWeapon2R,
+        leftW,
+        rightW,
     };
 
     float strength = 10.f;
@@ -255,10 +459,10 @@ void eServerUnit::recalculateStats() {
     mBlockChance = 0.f;
     mWalkRun = 0.f;
     mCastRate = 0.f;
-    mAttackSpeedLWLS = 0.f;
-    mAttackSpeedLWRS = 0.f;
-    mAttackSpeedRWLS = 0.f;
-    mAttackSpeedRWRS = 0.f;
+    mAttackSpeedLW = 0.f;
+    mAttackSpeedRW = 0.f;
+    mAttackSpeedLS = 0.f;
+    mAttackSpeedRS = 0.f;
     mFasterBlockRate = 0.f;
     mFasterHitRecovery = 0.f;
     mMissilesL = 0;
@@ -284,6 +488,7 @@ void eServerUnit::recalculateStats() {
     eDamage dmgMultMaxRS{1.f, 1.f, 1.f, 1.f};
 
     const auto handleMod = [&](const eModifier& mod,
+                               const bool skill,
                                const bool ls, const bool rs) {
         switch(mod.fType) {
         case eModifierType::defenseValue:
@@ -309,13 +514,16 @@ void eServerUnit::recalculateStats() {
             mCastRate += mod.fValue1;
             break;
         case eModifierType::attackSpeed:
-            if(rs) {
-                mAttackSpeedRWRS += mod.fValue1;
-                mAttackSpeedLWRS += mod.fValue1;
-            }
-            if(ls) {
-                mAttackSpeedRWLS += mod.fValue1;
-                mAttackSpeedLWLS += mod.fValue1;
+            if(skill) {
+                if(rs) {
+                    mAttackSpeedRS += mod.fValue1;
+                }
+                if(ls) {
+                    mAttackSpeedLS += mod.fValue1;
+                }
+            } else {
+                mAttackSpeedRW += mod.fValue1;
+                mAttackSpeedLW += mod.fValue1;
             }
             break;
         case eModifierType::blockRecoverySpeed:
@@ -418,61 +626,83 @@ void eServerUnit::recalculateStats() {
         }
     };
 
-    if(mSkillL != -1) {
-        const auto& skillL = eSkills::sSkills.get(mSkillL);
-        const int skillLevelIdL = mSkillLevels[mSkillL];
+    const float minFistDmg = 1.f;
+    const float maxFistDmg = 6.f;
+
+    const auto handleSkill = [&](const int skillId,
+                                 eDamage& dmgMultMin,
+                                 eDamage& dmgMultMax,
+                                 eDamage& dmgBaseMinLW,
+                                 eDamage& dmgBaseMaxLW,
+                                 eDamage& dmgBaseMinRW,
+                                 eDamage& dmgBaseMaxRW,
+                                 int& missiles,
+                                 const bool ls,
+                                 const bool rs) {
+        if(skillId == -1) return;
+        const auto& skillL = eSkills::sSkills.get(skillId);
+        const int skillLevelIdL = mSkillLevels[skillId];
         const auto& skillLevelL = skillL.fLevels[skillLevelIdL];
         if(skillL.fType == eSkillType::attack) {
-            dmgMultMinLS.fPhysical += attrMult;
-            dmgMultMaxLS.fPhysical += attrMult;
-            const auto& leftW = (mEquipment.fWeapons1 ?
-                                    mEquipment.fWeapon1L :
-                                    mEquipment.fWeapon2L);
-           if(leftW.fType == eItemType::weapon ||
-              leftW.fType == eItemType::shield) {
+            dmgMultMin.fPhysical += attrMult;
+            dmgMultMax.fPhysical += attrMult;
+            if(leftW.fType == eItemType::weapon) {
                 float min;
                 float max;
                 gCalculateWeaponDmg(leftW, min, max);
-                dmgBaseMinLWLS.fPhysical += min;
-                dmgBaseMaxLWLS.fPhysical += max;
-                dmgBaseMinLWRS.fPhysical += min;
-                dmgBaseMaxLWRS.fPhysical += max;
-           }
-        }
-        mMissilesL = skillLevelL.fMissiles;
-
-        for(const auto& mod : skillLevelL.fTotalModifiers) {
-            handleMod(mod.second, true, false);
-        }
-    }
-
-    if(mSkillR != -1) {
-        const auto& skillR = eSkills::sSkills.get(mSkillR);
-        const int skillLevelIdR = mSkillLevels[mSkillR];
-        const auto& skillLevelR = skillR.fLevels[skillLevelIdR];
-        if(skillR.fType == eSkillType::attack) {
-            dmgMultMinRS.fPhysical += attrMult;
-            dmgMultMaxRS.fPhysical += attrMult;
-            const auto& rightW = (mEquipment.fWeapons1 ?
-                                     mEquipment.fWeapon1R :
-                                     mEquipment.fWeapon2R);
-            if(rightW.fType == eItemType::weapon ||
-               rightW.fType == eItemType::shield) {
+                dmgBaseMinLW.fPhysical += min;
+                dmgBaseMaxLW.fPhysical += max;
+            } else if(leftW.fType == eItemType::none) {
+                dmgBaseMinLW.fPhysical += minFistDmg;
+                dmgBaseMaxLW.fPhysical += maxFistDmg;
+            }
+            if(rightW.fType == eItemType::weapon) {
                 float min;
                 float max;
                 gCalculateWeaponDmg(rightW, min, max);
-                dmgBaseMinRWLS.fPhysical += min;
-                dmgBaseMaxRWLS.fPhysical += max;
-                dmgBaseMinRWRS.fPhysical += min;
-                dmgBaseMaxRWRS.fPhysical += max;
+                dmgBaseMinRW.fPhysical += min;
+                dmgBaseMaxRW.fPhysical += max;
+            } else if(leftW.fType == eItemType::none) {
+                dmgBaseMinRW.fPhysical += minFistDmg;
+                dmgBaseMaxRW.fPhysical += maxFistDmg;
+            }
+        } else if(skillL.fType == eSkillType::smite) {
+            dmgMultMin.fPhysical += attrMult;
+            dmgMultMax.fPhysical += attrMult;
+            if(rightW.fType == eItemType::shield) {
+                float min;
+                float max;
+                gCalculateWeaponDmg(rightW, min, max);
+                dmgBaseMinRW.fPhysical += min;
+                dmgBaseMaxRW.fPhysical += max;
+            }
+        } else if(skillL.fType == eSkillType::kick) {
+            dmgMultMin.fPhysical += attrMult;
+            dmgMultMax.fPhysical += attrMult;
+            const auto& boots = mEquipment.fBoots;
+            if(boots.fType == eItemType::boots) {
+                float min;
+                float max;
+                gCalculateWeaponDmg(boots, min, max);
+                dmgBaseMinRW.fPhysical += min;
+                dmgBaseMaxRW.fPhysical += max;
             }
         }
-        mMissilesR = skillLevelR.fMissiles;
+        missiles = skillLevelL.fMissiles;
 
-        for(const auto& mod : skillLevelR.fTotalModifiers) {
-            handleMod(mod.second, false, true);
+        for(const auto& mod : skillLevelL.fTotalModifiers) {
+            handleMod(mod.second, true, ls, rs);
         }
-    }
+    };
+
+    handleSkill(mSkillL, dmgMultMinLS, dmgMultMaxLS,
+                dmgBaseMinLWLS, dmgBaseMaxLWLS,
+                dmgBaseMinRWLS, dmgBaseMaxRWLS,
+                mMissilesL, true, false);
+    handleSkill(mSkillR, dmgMultMinRS, dmgMultMaxRS,
+                dmgBaseMinLWRS, dmgBaseMaxLWRS,
+                dmgBaseMinRWRS, dmgBaseMaxRWRS,
+                mMissilesR, false, true);
 
     for(const auto& item : items) {
         switch(item.fType) {
@@ -495,21 +725,15 @@ void eServerUnit::recalculateStats() {
                     }
                 }
                 if(mod.fType == eModifierType::attackSpeed) {
-                    if(&item != (mEquipment.fWeapons1 ?
-                                      &mEquipment.fWeapon1L :
-                                      &mEquipment.fWeapon2L)) {
-                        mAttackSpeedRWRS += mod.fValue1;
-                        mAttackSpeedRWLS += mod.fValue1;
+                    if(&item != &leftW) {
+                        mAttackSpeedRW += mod.fValue1;
                     }
-                    if(&item != (mEquipment.fWeapons1 ?
-                                      &mEquipment.fWeapon1R :
-                                      &mEquipment.fWeapon2R)) {
-                        mAttackSpeedLWRS += mod.fValue1;
-                        mAttackSpeedLWLS += mod.fValue1;
+                    if(&item != &rightW) {
+                        mAttackSpeedLW += mod.fValue1;
                     }
                     continue;
                 }
-                handleMod(mod, true, true);
+                handleMod(mod, false, true, true);
             }
         } break;
         }

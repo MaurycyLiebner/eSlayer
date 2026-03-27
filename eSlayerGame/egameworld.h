@@ -11,6 +11,7 @@
 #include <eSlayerServer/eserver.h>
 
 class eMap;
+class eMainCharAction;
 
 struct eExtendedMissile : public eMissile {
     float fAngle;
@@ -29,8 +30,9 @@ public:
 
     eProcessResult processServerData(
         const int clientId,
-        const std::shared_ptr<eServer>& server,
-        const std::shared_ptr<eUnit>& mainChar,
+        eServer& server,
+        const eUnit& mainChar,
+        eMainCharAction& mainAct,
         SDL_Renderer* const r);
 
     void simulateMissiles(

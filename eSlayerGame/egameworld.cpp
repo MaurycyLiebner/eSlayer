@@ -1,25 +1,29 @@
 #include "egameworld.h"
 
+#include "emaincharaction.h"
 #include "textures/echarstextures.h"
 
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
-
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 eGameWorld::eProcessResult eGameWorld::processServerData(
     const int clientId,
-    const std::shared_ptr<eServer>& server,
-    const std::shared_ptr<eUnit>& mainChar,
+    eServer& server,
+    const eUnit& mainChar,
+    eMainCharAction& mainAct,
     SDL_Renderer* const r) {
     eProcessResult result;
 
-    server->requestData(clientId);
+    server.requestData(clientId);
     eRequestData data;
     float resultTime;
-    const bool b = server->receiveData(clientId, data, resultTime);
+    const bool b = server.receiveData(clientId, data, resultTime);
+    eWeaponData wdata;
+    const bool w = server.receiveWeaponData(clientId, wdata);
+    if(w) mainAct.setWeaponData(wdata);
     if(!b) return result;
 
     result.fReceived = true;
@@ -60,8 +64,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             unit->fPos = u.fPos;
             mUnits.add(charId, unit);
         }
-        if(!result.fAggressive && mainChar->fTeamId != u.fTeamId && u.fHealth > 0) {
-            const float dist = ePointF::distance(mainChar->fPos, u.fPos);
+        if(!result.fAggressive && mainChar.fTeamId != u.fTeamId && u.fHealth > 0) {
+            const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;
         }
     }

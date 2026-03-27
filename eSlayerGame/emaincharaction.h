@@ -45,7 +45,13 @@ public:
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
 
-    const eWeaponAttackData& equipment() const { return mEquipment; }
+    static bool sRangedAttack(const int skillId,
+                              const eSkillType skillType,
+                              const eWeaponData& weapons);
+    static bool sCanUseSkill(const eSkillType skillType,
+                             const eWeaponData& weapons);
+    const eWeaponData& weaponData() const { return mWeaponData; }
+    void setWeaponData(const eWeaponData& d) { mWeaponData = d; }
 private:
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
@@ -88,7 +94,7 @@ private:
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
-    eWeaponAttackData mEquipment;
+    eWeaponData mWeaponData;
 
     bool mRunning = false;
     float mMaxStamina = 100.f;

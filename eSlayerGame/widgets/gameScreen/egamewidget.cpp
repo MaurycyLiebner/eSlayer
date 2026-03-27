@@ -44,6 +44,7 @@ void eGameWidget::initialize(const int clientId,
 
     setRightSkill(0);
     setLeftSkill(0);
+    mServer->requestWeaponData(mClientId);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -92,7 +93,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto r = renderer();
 
     const auto worldResult = mWorld.processServerData(
-        mClientId, mServer, mMainChar, r);
+        mClientId, *mServer, *mMainChar, mMainAction, r);
 
     if(worldResult.fReceived) {
         if(worldResult.fHasMainCharData) {
@@ -333,14 +334,11 @@ bool eGameWidget::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::right);
     if(leftReleased || rightRelease) {
         mInput.handleMouseRelease(leftReleased, rightRelease);
-        const auto& skill = eSkills::sSkills.get(mRightSkill);
-        const auto weaponType = mMainAction.equipment().fWeaponType;
-        const bool rangeAttack = skill.fType == eSkillType::missile ||
-                                 skill.fType == eSkillType::wall ||
-                                 skill.fType == eSkillType::shoot ||
-                                 skill.fType == eSkillType::throw_ ||
-                                 (skill.fType == eSkillType::attack &&
-                                  weaponType == eWeaponType::ranged);
+        const int skillId = leftReleased ? mLeftSkill : mRightSkill;
+        const auto& skill = eSkills::sSkills.get(skillId);
+        const auto& eq = mMainAction.weaponData();
+        const bool rangeAttack = eMainCharAction::sRangedAttack(
+            skillId, skill.fType, eq);
         if(e.shiftPressed() || (rightRelease && rangeAttack) ||
            (rangeAttack && mPressedUnit)) {
             mMainAction.stop();

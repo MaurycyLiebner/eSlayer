@@ -4,11 +4,11 @@
 #include "eslayerhelpersexport.h"
 
 #include "estringidmapvector.h"
-#include "edamage.h"
 #include "emodifier.h"
 
-enum class eSkillType {
-    attack, shoot, throw_,
+enum class eSkillType : uint8_t {
+    attack, smite, kick,
+    shoot, throw_,
     missile, wall
 };
 
@@ -16,7 +16,8 @@ struct eSkillLevel {
     int fLevel;
     int fMissiles;
     float fCooldown;
-    std::map<eModifierType, eModifier> fTotalModifiers;
+    std::map<eModifierType, eModifier>
+    fTotalModifiers;
 };
 
 struct eSkill {

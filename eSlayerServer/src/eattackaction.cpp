@@ -8,17 +8,19 @@
 std::shared_ptr<eAttackAction> eAttackAction::sCreate(
     eServerUnit& unit, eServerArea& area,
     const std::vector<int>& anims,
-    const eAttackType type, const eAction& a) {
+    const eAttackType type, const eAction& a,
+    const eSkillChoice schoice,
+    const eWeaponChoice wchoice) {
     const auto& data = unit.data();
     if(anims.empty()) return nullptr;
     const int anim = anims[eRand::rand() % anims.size()];
     const int animLen = data.animFrames(anim);
     int frames;
     if(type == eAttackType::attack) {
-        const float iasItem = unit.itemsAttackSpeed(); // all items speed modifiers
+        const float iasItem = unit.itemsAttackSpeed(wchoice); // all items speed modifiers
         const float eias = std::floor(iasItem*120.f/(iasItem + 120.f));
-        const float sias = 0.f; // skill increased attack speed
-        const float wsm = 0.f; // weapon speed modifier
+        const float sias = unit.skillsAttackSpeed(schoice); // skill increased attack speed
+        const float wsm = unit.weaponSpeedModifier(wchoice); // weapon speed modifier
         const float animSpeed = 256.f;
         const float animRate = 100.f;
         frames = int(std::ceil(256.f*animLen/std::floor(animSpeed*(animRate + sias + eias - wsm)/100.f))) - 1;

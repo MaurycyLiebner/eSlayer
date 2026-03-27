@@ -156,6 +156,21 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::disconnect: {
             handleClientDisconnect(tcpClientId);
         } break;
+        case ePacketType::weaponData: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                eWeaponData data;
+                const bool r = receiveWeaponData(charId, data);
+                if(!r) continue;
+                {
+                    ePacket p;
+                    p << ePacketType::weaponData;
+                    data.write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
+            }
+        } break;
         }
     }
     const auto tcpIds = mNet.removeDisconnectedClients();

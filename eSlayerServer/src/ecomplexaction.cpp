@@ -54,40 +54,48 @@ bool eComplexAction::attack(const eAttackData& target) {
     const int skillId = mUnit.skillId(target.fSkill);
     const auto& uskill = data.getSkill(skillId);
     const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
+    const auto schoice = target.fSkill;
+    const auto wchoice = mUnit.useWeapon(schoice);
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
-        if(skill.fType == eSkillType::attack) {
-            if(mUnit.weaponType() == eWeaponType::ranged) {
-                return spawnMissile(u->fPos, target.fSkill, eWeaponChoice::left);
+        if(skill.fType == eSkillType::attack ||
+           skill.fType == eSkillType::smite ||
+           skill.fType == eSkillType::kick) {
+            if(skillId == 0 && mUnit.weaponTypeL() == eWeaponType::ranged) {
+                return spawnMissile(u->fPos, schoice, wchoice);
             } else {
-                return meeleAttack(*u, target.fSkill, eWeaponChoice::left);
+                return meeleAttack(*u, schoice, wchoice);
             }
         } else if(skill.fType == eSkillType::missile ||
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(u->fPos, target.fSkill, eWeaponChoice::left);
+            return spawnMissile(u->fPos, schoice, wchoice);
         }
     } break;
     case eAttackTargetType::position: {
-        if(skill.fType == eSkillType::attack) {
-            if(mUnit.weaponType() == eWeaponType::ranged) {
-                return spawnMissile(target.fPos, target.fSkill, eWeaponChoice::left);
+        if(skill.fType == eSkillType::attack ||
+           skill.fType == eSkillType::smite ||
+           skill.fType == eSkillType::kick) {
+            const auto wtype = mUnit.weaponType(wchoice);
+            if(skillId == 0 && wtype == eWeaponType::ranged) {
+                return spawnMissile(target.fPos, schoice, wchoice);
             } else {
                 auto dir = ePointF::vector(target.fPos, mUnit.fPos);
                 dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
                 const auto targetPos = mUnit.fPos + dir;
-                const auto a = [this, targetPos, target]() {
+                const auto a = [this, targetPos, schoice, wchoice]() {
                     const auto u = mArea.unit(targetPos);
                     if(!u) return;
                     if(u.get() == &mUnit) return;
-                    getHit(*u, target.fSkill, eWeaponChoice::left);
+                    getHit(*u, schoice, wchoice);
                 };
                 const auto attack = eAttackAction::sCreate(
                     mUnit, mArea, uskill.fCastAnimIds,
-                    eAttackType::attack, a);
+                    eAttackType::attack, a,
+                    schoice, wchoice);
                 if(attack) setChild(attack);
                 return attack.get();
             }
@@ -95,7 +103,7 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(target.fPos, target.fSkill, eWeaponChoice::left);
+            return spawnMissile(target.fPos, schoice, wchoice);
         }
 
     } break;
@@ -125,7 +133,8 @@ bool eComplexAction::meeleAttack(
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),
-        eAttackType::attack, a);
+        eAttackType::attack, a,
+        schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
 }
@@ -200,10 +209,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 md.fDamage = mUnit.attackDamage(schoice, wchoice);
                 pt = pt + perp;
             }
-        } else if((skill.fType == eSkillType::attack &&
-                   mUnit.weaponType() == eWeaponType::ranged) ||
-                  skill.fType == eSkillType::shoot ||
-                  skill.fType == eSkillType::throw_) {
+        } else {
             const float angleMult = std::clamp(1.f - 3.f*baseDir.length()/skill.fRangeTime, 0.1f, 1.f);
             const float maxAngle = skill.fMaxAngle*angleMult;
             float angle = nMissiles == 1 ? 0.f : -0.5f*maxAngle;
@@ -219,15 +225,13 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 md.fPos = mUnit.fPos + castDispl;
                 md.fTo = mUnit.fPos + dir;
                 md.fMissileId = skill.fMissileId == -1 ?
-                    mUnit.weaponMissileId() : skill.fMissileId;
+                    mUnit.missileId(wchoice, schoice) : skill.fMissileId;
                 md.fRangeTime = mUnit.weaponRangedRange();
                 md.fDamage = mUnit.attackDamage(schoice, wchoice);
                 if(nMissiles > 1) {
                     angle += maxAngle/(nMissiles - 1);
                 }
             }
-        } else {
-            return;
         }
         for(const auto& md : missiles) {
             const auto m = std::make_shared<eServerMissile>();
@@ -278,11 +282,13 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         }
     };
     const eAttackType attackType =
-        skill.fType == eSkillType::attack ?
+        skill.fType == eSkillType::attack ||
+        skill.fType == eSkillType::smite ||
+        skill.fType == eSkillType::kick ?
             eAttackType::attack : eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),
-        attackType, a);
+        attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
 

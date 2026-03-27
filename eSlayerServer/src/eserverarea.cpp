@@ -51,6 +51,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
             u->fAngle = 0.f;
+            u->setSkillId(eSkillChoice::left, 0);
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
             mUnitAreas.emplace(area, charId);

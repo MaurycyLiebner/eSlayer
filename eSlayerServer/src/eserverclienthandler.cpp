@@ -12,12 +12,24 @@ bool eServerClientHandler::requestData() {
     return true;
 }
 
+bool eServerClientHandler::requestWeaponData() {
+    return true;
+}
+
 bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
     data.fUnits = mArea->unitsData(mClientId);
     data.fMissiles = mArea->missileData(mClientId);
+    return true;
+}
+
+bool eServerClientHandler::receiveWeaponData(eWeaponData& data) {
+    if(!mArea) return false;
+    const auto unit = mArea->unit(mClientId);
+    if(!unit) return false;
+    data = unit->weaponData();
     return true;
 }
 

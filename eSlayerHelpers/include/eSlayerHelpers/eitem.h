@@ -19,13 +19,17 @@ enum class eItemType : uint8_t {
     arrows
 };
 
+enum class eWeaponSubtype : uint8_t {
+    sword, longSword, pike, bow, throwingAxe
+};
+
 struct ESLAYERHELPERS_API eItem {
-    eItemType fType;
-    uint8_t fSubType;
-    float fValue1; // min weapon / shield / boots damage
-    float fValue2; // max weapon weapon / shield / boots damage
-    float fValue3; // armor defense
-    float fValue4; // shield block chance
+    eItemType fType = eItemType::none;
+    uint8_t fSubType = 0;
+    float fValue1 = 0.f; // min weapon / shield / boots damage
+    float fValue2 = 0.f; // max weapon weapon / shield / boots damage
+    float fValue3 = 0.f; // armor defense
+    float fValue4 = 0.f; // shield block chance
     std::vector<eModifier> fModifiers;
 
     void read(ePacket& p);

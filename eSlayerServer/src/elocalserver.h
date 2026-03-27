@@ -24,10 +24,13 @@ public:
                const std::string& name) override;
 
     bool requestData(const int clientId) override;
+    bool requestWeaponData(const int clientId) override;
 
     bool receiveData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
+    bool receiveWeaponData(const int clientId,
+                           eWeaponData& data) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -41,7 +44,7 @@ public:
     bool setSkillId(const int clientId,
                     const eSkillChoice schoice,
                     const int skillId) override;
-public:
+private:
     eServerClientHandler* clientHandler(const int clientId);
 
     float mTime = 0.f;

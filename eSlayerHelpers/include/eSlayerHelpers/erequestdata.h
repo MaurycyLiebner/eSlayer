@@ -7,11 +7,11 @@
 
 class ePacket;
 
-struct ESLAYERHELPERS_API eWeaponAttackData {
-    eWeaponType fWeaponType = eWeaponType::ranged;
+struct ESLAYERHELPERS_API eWeaponData {
+    eWeaponType fWeaponTypeL = eWeaponType::meele;
+    eWeaponType fWeaponTypeR = eWeaponType::meele;
     float fMeeleRange = 0.f;
-    float fRangedRange = 4.f;
-    int fMissileId = -1;
+    float fRangedRange = 0.f;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
