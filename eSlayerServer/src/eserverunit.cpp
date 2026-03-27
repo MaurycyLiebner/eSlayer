@@ -708,17 +708,19 @@ void eServerUnit::recalculateStats() {
         switch(item.fType) {
         case eItemType::shield:
             mBlockChance += item.fValue4;
+            [[fallthrough]];
         case eItemType::boots:
         case eItemType::gloves:
         case eItemType::helmet:
         case eItemType::armor:
         case eItemType::belt:
             baseDef += item.fValue3;
+            [[fallthrough]];
         default: {
             for(const auto& mod : item.fModifiers) {
-                if(item.fType != eItemType::weapon ||
-                   item.fType != eItemType::shield ||
-                   item.fType != eItemType::boots) {
+                if(item.fType == eItemType::weapon ||
+                   item.fType == eItemType::shield ||
+                   item.fType == eItemType::boots) {
                     if(mod.fType == eModifierType::damagePercent ||
                        mod.fType == eModifierType::damageValue) {
                         continue;
