@@ -1,5 +1,7 @@
 #include "eSlayerHelpers/erequestdata.h"
 
+#include "eSlayerHelpers/epacket.h"
+
 void eRequestData::read(ePacket& p) {
     p >> fRequestId;
 
@@ -34,13 +36,13 @@ void eRequestData::write(ePacket& p) const {
     }
 }
 
-void eEquipmentData::read(ePacket& p) {
+void eWeaponAttackData::read(ePacket& p) {
     p >> fWeaponType;
     p >> fMeeleRange;
     p >> fRangedRange;
 }
 
-void eEquipmentData::write(ePacket& p) const {
+void eWeaponAttackData::write(ePacket& p) const {
     p << fWeaponType;
     p << fMeeleRange;
     p << fRangedRange;

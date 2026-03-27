@@ -174,3 +174,15 @@ bool eTcpIpJoin::respawn(const int clientId) {
     if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
     return true;
 }
+
+bool eTcpIpJoin::setSkillId(const int clientId,
+                            const eSkillChoice schoice,
+                            const int skillId) {
+    ePacket p;
+    p << ePacketType::setSkillId;
+    p << schoice;
+    p << skillId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send skill change to the host.");
+    return true;
+}

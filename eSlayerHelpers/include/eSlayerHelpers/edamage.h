@@ -20,6 +20,18 @@ struct ESLAYERHELPERS_API eDamage {
         return result;
     }
 
+    eDamage operator*(const eDamage& mult) const {
+        eDamage result;
+        result.fPhysical = fPhysical*mult.fPhysical;
+        result.fFire = fFire*mult.fFire;
+        result.fCold = fCold*mult.fCold;
+        result.fLightning = fLightning*mult.fLightning;
+        return result;
+    }
+
+    static eDamage sRandom(const eDamage& min,
+                           const eDamage& max);
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

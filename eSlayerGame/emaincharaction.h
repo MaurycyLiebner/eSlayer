@@ -45,7 +45,7 @@ public:
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
 
-    const eEquipmentData& equipment() const { return mEquipment; }
+    const eWeaponAttackData& equipment() const { return mEquipment; }
 private:
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
@@ -56,13 +56,13 @@ private:
     bool consumeActionTime(const float by,
                            eCharUnitModel& model);
 
-    bool handleUnitAttack(const int skillId,
+    bool handleUnitAttack(const eSkillChoice schoice,
                           const eSkill& skill,
                           const bool rangeAttack,
                           eCharUnitModel& model);
 
     bool handlePositionAttack(const ePointF& mousePos,
-                              const int skillId,
+                              const eSkillChoice schoice,
                               eCharUnitModel& model);
 
     void handleMovement(const bool mousePressed,
@@ -88,7 +88,7 @@ private:
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
-    eEquipmentData mEquipment;
+    eWeaponAttackData mEquipment;
 
     bool mRunning = false;
     float mMaxStamina = 100.f;

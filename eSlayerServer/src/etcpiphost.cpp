@@ -142,6 +142,17 @@ void eTcpIpHost::increment(const float by) {
                 respawn(charId);
             }
         } break;
+        case ePacketType::setSkillId: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                eSkillChoice schoice;
+                p >> schoice;
+                int skillId;
+                p >> skillId;
+                setSkillId(charId, schoice, skillId);
+            }
+        } break;
         case ePacketType::disconnect: {
             handleClientDisconnect(tcpClientId);
         } break;

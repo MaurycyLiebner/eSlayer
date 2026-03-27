@@ -1,15 +1,16 @@
 #include "ecomplexaction.h"
 
-#include "eserverunit.h"
-#include "eserverarea.h"
+#include "eSlayerHelpers/eskillchoice.h"
 #include "eattackaction.h"
-#include "ehitrecoveryaction.h"
 #include "eblockaction.h"
 #include "edieaction.h"
+#include "ehitrecoveryaction.h"
+#include "eserverarea.h"
+#include "eserverunit.h"
 
 #include <eSlayerHelpers/epoint.h>
-#include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/eskills.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 void eComplexAction::increment(const float by) {
@@ -34,16 +35,11 @@ bool eComplexAction::getHit(const eHitData& data) {
         const auto a = eBlockAction::sCreate(mUnit, mArea);
         if(a) mUnit.setChildAction(a);
     } else {
-        const float dmg = data.fDamage.fPhysical +
-                          data.fDamage.fFire +
-                          data.fDamage.fCold +
-                          data.fDamage.fLightning;
-        mUnit.fHealthF = std::max(0.f, mUnit.fHealthF - dmg);
-        mUnit.fHealth = std::ceil(mUnit.fHealthF);
+        const float dmg = mUnit.takeDamage(data.fDamage);
         if(mUnit.fHealth <= 0) {
             const auto die = std::make_shared<eDieAction>(mUnit, mArea);
             mUnit.setChildAction(die);
-        } else if(dmg >= mUnit.fMaxHealth/12.f) {
+        } else if(dmg >= mUnit.maxHealth()/12.f) {
             const auto a = eHitRecoveryAction::sCreate(mUnit, mArea);
             if(a) mUnit.setChildAction(a);
         }
@@ -55,7 +51,8 @@ bool eComplexAction::attack(const eAttackData& target) {
     if(!mUnit.skillReady(target.fSkill)) return true;
     mUnit.useSkill(target.fSkill);
     const auto& data = mUnit.data();
-    const auto& uskill = data.getSkill(target.fSkill);
+    const int skillId = mUnit.skillId(target.fSkill);
+    const auto& uskill = data.getSkill(skillId);
     const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
     switch(target.fType) {
     case eAttackTargetType::character: {
@@ -63,30 +60,30 @@ bool eComplexAction::attack(const eAttackData& target) {
         if(!u) return false;
         if(skill.fType == eSkillType::attack) {
             if(mUnit.weaponType() == eWeaponType::ranged) {
-                return spawnMissile(u->fPos, uskill, 1);
+                return spawnMissile(u->fPos, target.fSkill, eWeaponChoice::left);
             } else {
-                return meeleAttack(*u, uskill);
+                return meeleAttack(*u, target.fSkill, eWeaponChoice::left);
             }
         } else if(skill.fType == eSkillType::missile ||
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(u->fPos, uskill, 1);
+            return spawnMissile(u->fPos, target.fSkill, eWeaponChoice::left);
         }
     } break;
     case eAttackTargetType::position: {
         if(skill.fType == eSkillType::attack) {
             if(mUnit.weaponType() == eWeaponType::ranged) {
-                return spawnMissile(target.fPos, uskill, 1);
+                return spawnMissile(target.fPos, target.fSkill, eWeaponChoice::left);
             } else {
                 auto dir = ePointF::vector(target.fPos, mUnit.fPos);
                 dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
                 const auto targetPos = mUnit.fPos + dir;
-                const auto a = [this, targetPos]() {
-                    const auto target = mArea.unit(targetPos);
-                    if(!target) return;
-                    if(target.get() == &mUnit) return;
-                    getHit(*target);
+                const auto a = [this, targetPos, target]() {
+                    const auto u = mArea.unit(targetPos);
+                    if(!u) return;
+                    if(u.get() == &mUnit) return;
+                    getHit(*u, target.fSkill, eWeaponChoice::left);
                 };
                 const auto attack = eAttackAction::sCreate(
                     mUnit, mArea, uskill.fCastAnimIds,
@@ -98,7 +95,7 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(target.fPos, uskill, 1);
+            return spawnMissile(target.fPos, target.fSkill, eWeaponChoice::left);
         }
 
     } break;
@@ -110,7 +107,9 @@ bool eComplexAction::attack(const eAttackData& target) {
 }
 
 bool eComplexAction::meeleAttack(
-    const eServerUnit& u, const eUnitSkill& skill) {
+    const eServerUnit& u,
+    const eSkillChoice schoice,
+    const eWeaponChoice wchoice) {
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
     const float attackDist = 0.5f*(mUnit.fRadius + u.fRadius) +
@@ -119,24 +118,26 @@ bool eComplexAction::meeleAttack(
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
     const int targetId = u.fCharId;
-    const auto a = [this, targetId]() {
+    const auto a = [this, targetId, schoice, wchoice]() {
         const auto target = mArea.unit(targetId);
         if(!target) return;
-        getHit(*target);
+        getHit(*target, schoice, wchoice);
     };
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, skill.fCastAnimIds,
+        mUnit, mArea, mUnit.castAnims(schoice),
         eAttackType::attack, a);
     if(attack) setChild(attack);
     return attack.get();
 }
 
-bool eComplexAction::getHit(eServerUnit& target) {
-    const float hitChance = eServerUnit::sHitChance(target, mUnit);
+bool eComplexAction::getHit(eServerUnit& target,
+                            const eSkillChoice schoice,
+                            const eWeaponChoice wchoice) {
+    const float hitChance = eServerUnit::sHitChance(target, mUnit, schoice);
     eHitData data;
     data.fHitChance = hitChance;
     data.fBlockMultiplier = 1.f;
-    data.fDamage.fPhysical = 10.f;
+    data.fDamage = mUnit.attackDamage(schoice, wchoice);
     return target.getHit(data);
 }
 
@@ -146,11 +147,11 @@ int piercedFromPierceChance(const float p) {
 }
 
 bool eComplexAction::spawnMissile(const ePointF& to,
-                                  const eUnitSkill& uskill,
-                                  const int levelId) {
-    const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
-    const auto& level = skill.fLevels[std::clamp(levelId, 0, int(skill.fLevels.size()) - 1)];
-    const auto a = [this, to, skill, level]() {
+                                  const eSkillChoice& schoice,
+                                  const eWeaponChoice& wchoice) {
+    const int skillId = mUnit.skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto a = [this, to, skill, schoice, wchoice]() {
         struct eMissileData {
             ePointF fPos;
             ePointF fTo;
@@ -160,17 +161,19 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             eDamage fDamage;
         };
         std::vector<eMissileData> missiles;
+        const int nMissiles = mUnit.attackMissiles(schoice, wchoice);
+        const float pierceChance = mUnit.pierceChance(schoice, wchoice);
         auto baseDir = ePointF::vector(to, mUnit.fPos);
         if(skill.fType == eSkillType::missile) {
             const float angleMult = std::clamp(1.f - 3.f*baseDir.length()/skill.fRangeTime, 0.1f, 1.f);
             const float maxAngle = skill.fMaxAngle*angleMult;
-            float angle = level.fMissiles == 1 ? 0.f : -0.5f*maxAngle;
-            for(int i = 0; i < level.fMissiles; i++) {
+            float angle = nMissiles == 1 ? 0.f : -0.5f*maxAngle;
+            for(int i = 0; i < nMissiles; i++) {
                 auto dir = baseDir;
                 if(angle != 0.f) dir.rotate(angle);
                 auto& md = missiles.emplace_back();
                 const int max = std::numeric_limits<uint8_t>::max();
-                const int pierced = piercedFromPierceChance(level.fPierceChance);
+                const int pierced = piercedFromPierceChance(pierceChance);
                 md.fToPierce = 1 + std::min(max, pierced);
                 auto castDispl = dir;
                 castDispl.normalize(0.5*skill.fRadius);
@@ -178,23 +181,23 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 md.fTo = mUnit.fPos + dir;
                 md.fMissileId = skill.fMissileId;
                 md.fRangeTime = skill.fRangeTime;
-                md.fDamage = level.fDamage;
-                if(level.fMissiles > 1) {
-                    angle += maxAngle/(level.fMissiles - 1);
+                md.fDamage = mUnit.attackDamage(schoice, wchoice);
+                if(nMissiles > 1) {
+                    angle += maxAngle/(nMissiles - 1);
                 }
             }
         } else if(skill.fType == eSkillType::wall) {
             eVec2f perp(-baseDir.y, baseDir.x);
             perp.normalize(2*skill.fRadius);
-            ePointF pt = to - perp * (level.fMissiles/2);
-            for(int i = 0; i < level.fMissiles; i++) {
+            ePointF pt = to - perp * (nMissiles/2);
+            for(int i = 0; i < nMissiles; i++) {
                 auto& md = missiles.emplace_back();
                 md.fToPierce = 0;
                 md.fPos = pt;
                 md.fTo = pt;
                 md.fMissileId = skill.fMissileId;
                 md.fRangeTime = skill.fRangeTime;
-                md.fDamage = level.fDamage;
+                md.fDamage = mUnit.attackDamage(schoice, wchoice);
                 pt = pt + perp;
             }
         } else if((skill.fType == eSkillType::attack &&
@@ -203,13 +206,13 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                   skill.fType == eSkillType::throw_) {
             const float angleMult = std::clamp(1.f - 3.f*baseDir.length()/skill.fRangeTime, 0.1f, 1.f);
             const float maxAngle = skill.fMaxAngle*angleMult;
-            float angle = level.fMissiles == 1 ? 0.f : -0.5f*maxAngle;
-            for(int i = 0; i < level.fMissiles; i++) {
+            float angle = nMissiles == 1 ? 0.f : -0.5f*maxAngle;
+            for(int i = 0; i < nMissiles; i++) {
                 auto dir = baseDir;
                 if(angle != 0.f) dir.rotate(angle);
                 auto& md = missiles.emplace_back();
                 const int max = std::numeric_limits<uint8_t>::max();
-                const int pierced = piercedFromPierceChance(level.fPierceChance);
+                const int pierced = piercedFromPierceChance(pierceChance);
                 md.fToPierce = 1 + std::min(max, pierced);
                 auto castDispl = dir;
                 castDispl.normalize(0.5*skill.fRadius);
@@ -218,9 +221,9 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 md.fMissileId = skill.fMissileId == -1 ?
                     mUnit.weaponMissileId() : skill.fMissileId;
                 md.fRangeTime = mUnit.weaponRangedRange();
-                md.fDamage = mUnit.weaponRangedDamage();
-                if(level.fMissiles > 1) {
-                    angle += maxAngle/(level.fMissiles - 1);
+                md.fDamage = mUnit.attackDamage(schoice, wchoice);
+                if(nMissiles > 1) {
+                    angle += maxAngle/(nMissiles - 1);
                 }
             }
         } else {
@@ -278,7 +281,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         skill.fType == eSkillType::attack ?
             eAttackType::attack : eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, uskill.fCastAnimIds,
+        mUnit, mArea, mUnit.castAnims(schoice),
         attackType, a);
     if(attack) setChild(attack);
     return attack.get();

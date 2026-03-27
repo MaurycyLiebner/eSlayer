@@ -5,6 +5,8 @@
 
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/edamage.h>
+#include <eSlayerHelpers/eskillchoice.h>
+#include <eSlayerHelpers/eweaponchoice.h>
 
 #include <memory>
 
@@ -31,12 +33,16 @@ public:
 protected:
     bool attack(const eAttackData& target);
     bool meeleAttack(const eServerUnit& u,
-                     const eUnitSkill& skill);
-    bool getHit(eServerUnit& target);
+                     const eSkillChoice schoice,
+                     const eWeaponChoice wchoice);
+    bool getHit(eServerUnit& target,
+                const eSkillChoice schoice,
+                const eWeaponChoice wchoice);
+
 private:
     bool spawnMissile(const ePointF& to,
-                      const eUnitSkill& uskill,
-                      const int levelId);
+                      const eSkillChoice& schoice,
+                      const eWeaponChoice& wchoice);
 
     std::shared_ptr<eUnitAction> mChild;
 };

@@ -58,9 +58,9 @@ public:
     const eGameInput& input() const { return mInput; }
 
     int leftSkill() const { return mLeftSkill; }
-    void setLeftSkill(const int s) { mLeftSkill = s; }
+    void setLeftSkill(const int s);
     int rightSkill() const { return mRightSkill; }
-    void setRightSkill(const int s) { mRightSkill = s; }
+    void setRightSkill(const int s);
 
     const std::shared_ptr<eServer>& server() const { return mServer; }
     int clientId() const { return mClientId; }
@@ -100,8 +100,8 @@ private:
 
     eUnitIndicator* mUnitIndicator = nullptr;
 
-    int mLeftSkill = 0;
-    int mRightSkill = 0;
+    int mLeftSkill = -1;
+    int mRightSkill = -1;
 
     eMainCharHandler mMainCharHandler;
     eDeathHandler mDeathHandler;

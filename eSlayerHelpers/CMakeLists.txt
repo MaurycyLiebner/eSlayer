@@ -95,6 +95,15 @@ add_library(eSlayerHelpers SHARED
     src/edamage.cpp
     src/echardatainfo.cpp
     include/eSlayerHelpers/echardatainfo.h
+    include/eSlayerHelpers/eequipment.h
+    include/eSlayerHelpers/eitem.h
+    include/eSlayerHelpers/eitemmodifier.h
+    src/eitemmodifier.cpp
+    src/eitem.cpp
+    src/eequipment.cpp
+    include/eSlayerHelpers/eweapontype.h
+    include/eSlayerHelpers/eskillchoice.h
+    include/eSlayerHelpers/eweaponchoice.h
 )
 
 target_include_directories(eSlayerHelpers

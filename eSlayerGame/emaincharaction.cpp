@@ -68,6 +68,10 @@ void eMainCharAction::increment(const bool mousePressed,
 
     auto& model = mMainChar->model();
 
+    const eSkillChoice schoice{rightPressed ?
+                                   eSkillChoice::right :
+                                   eSkillChoice::left};
+
     handleAttackStop(mousePressed, rightPressed, shiftPressed, skillId);
 
     if(consumeActionTime(by, model)) return;
@@ -84,10 +88,10 @@ void eMainCharAction::increment(const bool mousePressed,
     bool shouldStopAttack = false;
 
     if(mPressedUnit) {
-        shouldStopAttack = !handleUnitAttack(skillId, skill, rangeAttack, model);
+        shouldStopAttack = !handleUnitAttack(schoice, skill, rangeAttack, model);
         targetPos = mPressedUnit->fPos;
     } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
-        shouldStopAttack = !handlePositionAttack(mousePos, skillId, model);
+        shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
     }
 
     if(shouldStopAttack) {
@@ -108,8 +112,7 @@ void eMainCharAction::handleAttackStop(
 
     const bool stop =
         (atype == eAttackTargetType::character && !mPressedUnit) ||
-        (atype == eAttackTargetType::position && (!mousePressed || (!shiftPressed && !rightPressed))) ||
-        (atype != eAttackTargetType::none && skillId != mAttackData.fSkill);
+        (atype == eAttackTargetType::position && (!mousePressed || (!shiftPressed && !rightPressed)));
 
     if(stop) {
         stopAttack();
@@ -130,7 +133,7 @@ bool eMainCharAction::consumeActionTime(
 }
 
 bool eMainCharAction::handleUnitAttack(
-    const int skillId,
+    const eSkillChoice schoice,
     const eSkill& skill,
     const bool rangeAttack,
     eCharUnitModel& model) {
@@ -159,7 +162,7 @@ bool eMainCharAction::handleUnitAttack(
 
     if(mAttackData.fType == eAttackTargetType::none) {
         const int targetId = mPressedUnit->fCharId;
-        mAttackData = eAttackData(targetId, skillId);
+        mAttackData = eAttackData(targetId, schoice);
 
         const auto vec = ePointF::vector(mPressedUnit->fPos, mMainChar->fPos);
         const float angle = vec.angle();
@@ -174,14 +177,14 @@ bool eMainCharAction::handleUnitAttack(
 
 bool eMainCharAction::handlePositionAttack(
     const ePointF& mousePos,
-    const int skillId,
+    const eSkillChoice schoice,
     eCharUnitModel& model) {
     if(mAttackData.fType == eAttackTargetType::position &&
        ePointF::distance(mousePos, mAttackData.fPos) <= 0.1f) {
         return true;
     }
 
-    mAttackData = eAttackData(mousePos, skillId);
+    mAttackData = eAttackData(mousePos, schoice);
 
     const auto vec = ePointF::vector(mousePos, mMainChar->fPos);
     const float angle = vec.angle();

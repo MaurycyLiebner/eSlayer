@@ -90,6 +90,14 @@ bool eLocalServer::respawn(const int clientId) {
     return h->respawn();
 }
 
+bool eLocalServer::setSkillId(const int clientId,
+                              const eSkillChoice schoice,
+                              const int skillId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->setSkillId(schoice, skillId);
+}
+
 eServerClientHandler*
 eLocalServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

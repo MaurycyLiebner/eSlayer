@@ -5,6 +5,7 @@
 
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerMapGenerator/emapgenerator.h>
+#include <eSlayerHelpers/eskillchoice.h>
 
 #include <memory>
 
@@ -53,6 +54,11 @@ public:
 
     virtual bool
     respawn(const int clientId) = 0;
+
+    virtual bool
+    setSkillId(const int clientId,
+               const eSkillChoice schoice,
+               const int skillId) = 0;
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);

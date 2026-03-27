@@ -3,10 +3,11 @@
 
 #include "eunitdata.h"
 #include "emissile.h"
+#include "eweapontype.h"
 
-#include "epacket.h"
+class ePacket;
 
-struct ESLAYERHELPERS_API eEquipmentData {
+struct ESLAYERHELPERS_API eWeaponAttackData {
     eWeaponType fWeaponType = eWeaponType::ranged;
     float fMeeleRange = 0.f;
     float fRangedRange = 4.f;

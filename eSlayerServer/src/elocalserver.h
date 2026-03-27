@@ -37,6 +37,10 @@ public:
     bool stopAttack(const int clientId) override;
 
     bool respawn(const int clientId) override;
+
+    bool setSkillId(const int clientId,
+                    const eSkillChoice schoice,
+                    const int skillId) override;
 public:
     eServerClientHandler* clientHandler(const int clientId);
 

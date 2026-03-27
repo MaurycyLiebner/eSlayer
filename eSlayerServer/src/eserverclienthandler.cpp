@@ -95,3 +95,13 @@ bool eServerClientHandler::disconnect() {
     if(!mArea) return false;
     return mArea->removeClient(mClientId);
 }
+
+bool eServerClientHandler::setSkillId(
+    const eSkillChoice schoice,
+    const int skillId) {
+    if(!mArea) return false;
+    const auto client = mArea->unit(mClientId);
+    if(!client) return false;
+    client->setSkillId(schoice, skillId);
+    return true;
+}

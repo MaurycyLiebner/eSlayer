@@ -3,6 +3,7 @@
 
 #include "eSlayerHelpers/epoint.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/eskillchoice.h"
 
 #include <cstdint>
 
@@ -14,18 +15,18 @@ struct eAttackData {
     eAttackData() :
         fType(eAttackTargetType::none) {}
     eAttackData(const int c,
-                const uint8_t skill) :
+                const eSkillChoice skill) :
         fType(eAttackTargetType::character),
         fSkill(skill),
         fChar(c) {}
     eAttackData(const ePointF& pos,
-                const uint8_t skill) :
+                const eSkillChoice skill) :
         fType(eAttackTargetType::position),
         fSkill(skill),
         fPos(pos) {}
 
     eAttackTargetType fType;
-    uint8_t fSkill;
+    eSkillChoice fSkill;
     int32_t fChar;
     ePointF fPos;
 

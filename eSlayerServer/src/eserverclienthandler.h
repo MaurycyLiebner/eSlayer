@@ -30,6 +30,8 @@ public:
     bool respawn();
     bool spawn();
     bool disconnect();
+    bool setSkillId(const eSkillChoice schoice,
+                    const int skillId);
 private:
     const int mClientId;
     std::shared_ptr<eServerArea> mArea;

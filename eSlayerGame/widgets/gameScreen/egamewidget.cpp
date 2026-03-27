@@ -22,8 +22,8 @@ eGameWidget::eGameWidget(eMainWindow* const window) :
 }
 
 void eGameWidget::initialize(const int clientId,
-                              const std::shared_ptr<eServer>& server,
-                              const std::shared_ptr<eMap>& map) {
+                             const std::shared_ptr<eServer>& server,
+                             const std::shared_ptr<eMap>& map) {
     mClientId = clientId;
     mServer = server;
     mMap = map;
@@ -41,6 +41,9 @@ void eGameWidget::initialize(const int clientId,
     };
     mMainAction.initialize(mServer, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
+
+    setRightSkill(0);
+    setLeftSkill(0);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -66,6 +69,18 @@ ePointF eGameWidget::tilePosToPixel(const ePointF& pos) const {
 
 void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
     mUnitIndicator = indicator;
+}
+
+void eGameWidget::setLeftSkill(const int s) {
+    if(mLeftSkill == s) return;
+    mLeftSkill = s;
+    mServer->setSkillId(mClientId, eSkillChoice::left, s);
+}
+
+void eGameWidget::setRightSkill(const int s) {
+    if(mRightSkill == s) return;
+    mRightSkill = s;
+    mServer->setSkillId(mClientId, eSkillChoice::right, s);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
