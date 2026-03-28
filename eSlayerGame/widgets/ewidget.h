@@ -157,7 +157,7 @@ protected:
     }
 
     SDL_Renderer* renderer() const;
-    eResolution resolution() const;
+    const eResolution& resolution() const;
 private:
     static eWidget* sWidgetUnderMouse;
     static eWidget* sLastPressed;

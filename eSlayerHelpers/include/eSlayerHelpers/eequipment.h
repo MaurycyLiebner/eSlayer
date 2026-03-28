@@ -30,6 +30,8 @@ struct ESLAYERHELPERS_API eEquipment {
     eItem fWeapon2R;
     bool fWeapons1;
 
+    eItem fDragged;
+
     std::vector<eInventoryItem> fInventory;
 
     void read(ePacket& p);

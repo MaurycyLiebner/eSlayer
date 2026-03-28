@@ -7,4 +7,8 @@ enum class eWeaponType : uint8_t {
     meele, shield, ranged, throwable
 };
 
+enum class eWeaponSubtype : uint8_t {
+    sword, longSword, pike, bow, throwingAxe
+};
+
 #endif // EWEAPONTYPE_H

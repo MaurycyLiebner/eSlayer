@@ -37,7 +37,7 @@ void eItemsTextures::loadImpl() {
 
                     const auto path = key + "/" + name;
                     itemTex.fItemDataId = eItemsData::id(path);
-                    itemTex.fTexPath = path + ".png";
+                    itemTex.fTexPath = path;
 
                     auto& itemData = eItemsData::get(itemTex.fItemDataId);
                     itemData.fWidth = data.value("width", 2);
@@ -52,7 +52,7 @@ void eItemsTextures::loadImpl() {
 
                         const auto path = key + "/" + type + "/" + name;
                         itemTex.fItemDataId = eItemsData::id(path);
-                        itemTex.fTexPath = path + ".png";
+                        itemTex.fTexPath = path;
 
                         auto& itemData = eItemsData::get(itemTex.fItemDataId);
                         itemData.fWidth = data.value("width", 2);
@@ -67,7 +67,7 @@ void eItemsTextures::loadImpl() {
                     eItemTexture itemTex;
                     const auto path = key + "/" + name.get<std::string>();
                     itemTex.fItemDataId = eItemsData::id(path);
-                    itemTex.fTexPath = path + ".png";
+                    itemTex.fTexPath = path;
 
                     auto& itemData = eItemsData::get(itemTex.fItemDataId);
                     if(key == "amulets" || key == "rings") {
@@ -113,5 +113,6 @@ eItemTexture& eItemsTextures::getImpl(const int id) {
 void eItemTexture::request(SDL_Renderer* const r) {
     if(fTex) return;
     const auto dir = "Textures";
-    fTex = eFileLoader::readTexture(r, dir, fTexPath);
+    const auto path = "ui/items/" + fTexPath + ".png";
+    fTex = eFileLoader::readTexture(r, dir, path);
 }

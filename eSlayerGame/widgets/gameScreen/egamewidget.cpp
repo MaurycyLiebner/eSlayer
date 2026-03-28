@@ -45,6 +45,12 @@ void eGameWidget::initialize(const int clientId,
     setRightSkill(0);
     setLeftSkill(0);
     mServer->requestWeaponData(mClientId);
+
+    eItem item{0, eItemType::amulet};
+    mEq.fInventory.push_back(eInventoryItem{item, 0, 0, 1, 1});
+    mEq.fInventory.push_back(eInventoryItem{item, 1, 0, 1, 1});
+    mEq.fInventory.push_back(eInventoryItem{item, 2, 0, 1, 1});
+    mEq.fInventory.push_back(eInventoryItem{item, 3, 0, 1, 1});
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -70,6 +76,10 @@ ePointF eGameWidget::tilePosToPixel(const ePointF& pos) const {
 
 void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
     mUnitIndicator = indicator;
+}
+
+void eGameWidget::dropItem() {
+    mEq.fDragged.fType = eItemType::none;
 }
 
 void eGameWidget::setLeftSkill(const int s) {

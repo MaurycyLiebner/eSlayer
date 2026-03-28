@@ -17,6 +17,7 @@
 #include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/eunitdata.h>
+#include <eSlayerHelpers/eequipment.h>
 
 class eUnitIndicator;
 
@@ -57,6 +58,9 @@ public:
     eGameInput& input() { return mInput; }
     const eGameInput& input() const { return mInput; }
 
+    eEquipment* equipment() { return &mEq; }
+    void dropItem();
+
     int leftSkill() const { return mLeftSkill; }
     void setLeftSkill(const int s);
     int rightSkill() const { return mRightSkill; }
@@ -89,6 +93,7 @@ private:
 
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
+    eEquipment mEq;
 
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;

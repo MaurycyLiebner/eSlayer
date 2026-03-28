@@ -3,27 +3,12 @@
 
 #include "emodifier.h"
 
+#include "eitemdata.h"
+
 #include <vector>
 
-enum class eItemType : uint8_t {
-    none,
-    boots,
-    gloves,
-    helmet,
-    armor,
-    belt,
-    ring,
-    amulet,
-    weapon,
-    shield,
-    arrows
-};
-
-enum class eWeaponSubtype : uint8_t {
-    sword, longSword, pike, bow, throwingAxe
-};
-
 struct ESLAYERHELPERS_API eItem {
+    uint8_t fDataId = 0;
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;
     float fValue1 = 0.f; // min weapon / shield / boots damage

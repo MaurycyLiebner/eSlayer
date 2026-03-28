@@ -17,6 +17,10 @@ int eItemsData::id(const std::string& name) {
     return sInstance.idImpl(name);
 }
 
+std::string eItemsData::name(const int id) {
+    return sInstance.nameImpl(id);
+}
+
 void eItemsData::load() {
     return sInstance.loadImpl();
 }
@@ -66,4 +70,8 @@ eItemData& eItemsData::getImpl(const int id) {
 
 int eItemsData::idImpl(const std::string& name) const {
     return mItems.id(name);
+}
+
+std::string eItemsData::nameImpl(const int id) const {
+    return mItems.name(id);
 }

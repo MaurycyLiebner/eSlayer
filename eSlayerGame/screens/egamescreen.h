@@ -12,6 +12,8 @@ class eUnitIndicator;
 class ePlayerHealthIndicator;
 class eSkillButton;
 class eTextureCheckButton;
+class eInventoryWidget;
+class eItemDragWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -40,7 +42,9 @@ private:
     eAction mExitAction;
     eESCMenu* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
-    eWidget* mInventoryMenu = nullptr;
+    eWidget* mBottomWid = nullptr;
+    eInventoryWidget* mInventoryMenu = nullptr;
+    eItemDragWidget* mDragWidget = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
     ePlayerHealthIndicator* mManaIndicator = nullptr;

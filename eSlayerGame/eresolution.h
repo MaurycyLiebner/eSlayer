@@ -34,6 +34,8 @@ public:
     int verySmallFontSize() const;
     int tinyFontSize() const;
 
+    int lineWidth() const;
+
     int centralWidgetLargeWidth() const;
     int centralWidgetSmallWidth() const;
     int centralWidgetLargeHeight() const;

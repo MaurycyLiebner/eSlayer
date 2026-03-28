@@ -31,6 +31,7 @@ void eEquipment::read(ePacket& p) {
     fWeapon2L.read(p);
     fWeapon2R.read(p);
     p >> fWeapons1;
+    fDragged.read(p);
 
     uint16_t nitems;
     p >> nitems;
@@ -53,6 +54,7 @@ void eEquipment::write(ePacket& p) const {
     fWeapon2L.write(p);
     fWeapon2R.write(p);
     p << fWeapons1;
+    fDragged.write(p);
 
     const uint16_t nitems = fInventory.size();
     p << nitems;

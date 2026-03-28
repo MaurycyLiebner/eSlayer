@@ -1,5 +1,7 @@
 #include "eresolution.h"
 
+#include <cmath>
+
 std::vector<eResolution> eResolution::sResolutions{
     eResolution{800, 600},
     eResolution{1024, 768},
@@ -94,6 +96,10 @@ int eResolution::verySmallFontSize() const {
 
 int eResolution::tinyFontSize() const {
     return 17*largeFontSize()/30;
+}
+
+int eResolution::lineWidth() const {
+    return std::max(1, largeFontSize()/15);
 }
 
 int eResolution::centralWidgetLargeWidth() const {

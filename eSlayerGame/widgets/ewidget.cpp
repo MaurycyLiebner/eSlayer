@@ -35,7 +35,7 @@ SDL_Renderer* eWidget::renderer() const {
     return mWindow->renderer();
 }
 
-eResolution eWidget::resolution() const {
+const eResolution& eWidget::resolution() const {
     return mWindow->resolution();
 }
 

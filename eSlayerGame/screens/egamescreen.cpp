@@ -11,6 +11,8 @@
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
+#include "../widgets/gameScreen/einventorywidget.h"
+#include "../widgets/gameScreen/eitemdragwidget.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eunitdata.h>
@@ -72,15 +74,15 @@ void eGameScreen::initialize(const int clientId,
     const int indicatorW = 400*m;
     const int indicatorH = 30*m;
 
-    const auto bottomWid = new eWidget(window());
-    bottomWid->setNoPadding();
+    mBottomWid = new eWidget(window());
+    mBottomWid->setNoPadding();
 
     mLeftSkillButton = new eSkillButton(window());
     mLeftSkillButton->initialize();
     mLeftSkillButton->setPressAction([this]() {
         openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill);
     });
-    bottomWid->addWidget(mLeftSkillButton);
+    mBottomWid->addWidget(mLeftSkillButton);
 
     const auto centerWid = new eWidget(window());
     centerWid->setNoPadding();
@@ -149,19 +151,19 @@ void eGameScreen::initialize(const int clientId,
     centerWid->stackVertically(-lineWidth);
     centerWid->fitContent();
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
-    bottomWid->addWidget(centerWid);
+    mBottomWid->addWidget(centerWid);
 
     mRightSkillButton = new eSkillButton(window());
     mRightSkillButton->initialize();
     mRightSkillButton->setPressAction([this]() {
         openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill);
     });
-    bottomWid->addWidget(mRightSkillButton);
+    mBottomWid->addWidget(mRightSkillButton);
 
-    bottomWid->stackHorizontally();
-    bottomWid->fitContent();
-    addWidget(bottomWid);
-    bottomWid->align(eAlignment::bottom | eAlignment::hcenter);
+    mBottomWid->stackHorizontally();
+    mBottomWid->fitContent();
+    addWidget(mBottomWid);
+    mBottomWid->align(eAlignment::bottom | eAlignment::hcenter);
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -254,8 +256,38 @@ void eGameScreen::hideESCMenu() {
 
 void eGameScreen::showInventoryMenu() {
     if(mInventoryMenu) return;
-    mInventoryMenu = new eWidget(window());
+    mInventoryMenu = new eInventoryWidget(window());
+    const int w = width();
+    const int h = height();
+    mInventoryMenu->resize(w/2, h - mBottomWid->height());
+    const auto eq = mGameWidget->equipment();
+    const auto dragChange = [this, eq]() {
+        if(!mDragWidget) return;
+        if(eq->fDragged.fType == eItemType::none) {
+            mDragWidget->setItemDataId(-1);
+        } else {
+            const int dataId = eq->fDragged.fDataId;
+            mDragWidget->setItemDataId(dataId);
+        }
+    };
+    mInventoryMenu->initialize(dragChange, eq);
     addWidget(mInventoryMenu);
+    mInventoryMenu->align(eAlignment::right | eAlignment::top);
+
+    mDragWidget = new eItemDragWidget(window());
+    mDragWidget->resize(w, h);
+    mDragWidget->initialize([this, dragChange](SDL_Point pos) {
+        pos.x -= mInventoryMenu->x();
+        pos.y -= mInventoryMenu->y();
+        if(pos.x < 0) {
+            mGameWidget->dropItem();
+            dragChange();
+        } else {
+            const bool r = mInventoryMenu->dropItem(pos);
+        }
+    });
+    addWidget(mDragWidget);
+
     updateCharPos();
 }
 
@@ -263,6 +295,8 @@ void eGameScreen::hideInventoryMenu() {
     if(!mInventoryMenu) return;
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
+    mDragWidget->deleteLater();
+    mDragWidget = nullptr;
     updateCharPos();
 }
 
