@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/evec2.h>
+#include <eSlayerHelpers/eitemsdata.h>
 
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
@@ -23,7 +24,8 @@ eGameWidget::eGameWidget(eMainWindow* const window) :
 
 void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
-                             const std::shared_ptr<eMap>& map) {
+                             const std::shared_ptr<eMap>& map,
+                             const eEquipment& eq) {
     mClientId = clientId;
     mServer = server;
     mMap = map;
@@ -46,11 +48,7 @@ void eGameWidget::initialize(const int clientId,
     setLeftSkill(0);
     mServer->requestWeaponData(mClientId);
 
-    eItem item{0, eItemType::amulet};
-    mEq.fInventory.push_back(eInventoryItem{item, 0, 0, 1, 1});
-    mEq.fInventory.push_back(eInventoryItem{item, 1, 0, 1, 1});
-    mEq.fInventory.push_back(eInventoryItem{item, 2, 0, 1, 1});
-    mEq.fInventory.push_back(eInventoryItem{item, 3, 0, 1, 1});
+    mEq = eq;
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -79,7 +77,14 @@ void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
 }
 
 void eGameWidget::dropItem() {
-    mEq.fDragged.fType = eItemType::none;
+    auto& dragged = mEq.fDragged;
+    if(dragged.fType == eItemType::none) return;
+    mServer->dropItem(mClientId, dragged.fItemId);
+    dragged = eItem();
+}
+
+void eGameWidget::sendInventoryRearranged() {
+    mServer->rearrangeItems(mClientId, mEq);
 }
 
 void eGameWidget::setLeftSkill(const int s) {
@@ -177,7 +182,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
 
         enum class eRenderElementType {
-            unit, missile
+            unit, missile, item
         };
 
         struct eRenderElement {
@@ -188,6 +193,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         const int margin = 100;
         const int w = width();
         const int h = height();
+        for(const auto& i : mWorld.groundItems()) {
+            const auto pixel = tilePosToPixel(i->fPos);
+            if(pixel.fX < -margin || pixel.fY < -margin ||
+               pixel.fX > w + margin || pixel.fY > h + margin) continue;
+            renderElements.emplace_back(eRenderElement{eRenderElementType::item,
+                                                       std::static_pointer_cast<ePositioned>(i)});
+        }
         for(const auto& u : mWorld.units()) {
             const auto pixel = tilePosToPixel(u->fPos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
@@ -303,6 +315,16 @@ void eGameWidget::paintEvent(ePainter& p) {
                     }
                     const auto& ftex = fireball.get(0, dir, mFrame % fireball.nFrames(0));
                     mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
+                } else if(e.fType == eRenderElementType::item) {
+                    const auto i = std::static_pointer_cast<eGroundItem>(e.fPtr);
+                    if(!i) continue;
+                    const auto& pos = i->fPos;
+                    const auto iPos = pos.floor();
+                    if(iPos.fY != y) continue;
+                    if(iPos.fX != x) continue;
+                    const auto pixel = tilePosToPixel(i->fPos);
+                    mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
+                                                   4, 4}, SDL_Color{255, 0, 0, 255});
                 }
                 nextElement = eleId + 1;
             }

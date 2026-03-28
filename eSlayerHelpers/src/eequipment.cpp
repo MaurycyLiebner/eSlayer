@@ -18,6 +18,28 @@ void eInventoryItem::write(ePacket& p) const {
     p << fH;
 }
 
+eItem eEquipment::get(const int itemId) const {
+    for(const auto& it : {fBoots,
+                          fGloves,
+                          fHelmet,
+                          fArmor,
+                          fBelt,
+                          fRing,
+                          fAmulet,
+                          fWeapon1L,
+                          fWeapon1R,
+                          fWeapon2L,
+                          fWeapon2R,
+                          fDragged}) {
+        if(it.fItemId == itemId) return it;
+    }
+    for(const auto& it : fInventory) {
+        const auto& item = it.fItem;
+        if(item.fItemId == itemId) return item;
+    }
+    return eItem{0, 0, eItemType::none};
+}
+
 void eEquipment::read(ePacket& p) {
     fBoots.read(p);
     fGloves.read(p);

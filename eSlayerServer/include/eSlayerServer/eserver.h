@@ -12,6 +12,7 @@
 class eRequestData;
 struct eAttackData;
 struct eWeaponData;
+struct eEquipment;
 
 struct eServerData {
     std::string fName;
@@ -34,7 +35,8 @@ public:
 
     virtual std::shared_ptr<eMap>
     requestMap(const int clientId,
-               const std::string& name) = 0;
+               const std::string& name,
+               const eEquipment& eq) = 0;
 
     virtual bool
     requestData(const int clientId) = 0;
@@ -65,6 +67,16 @@ public:
     setSkillId(const int clientId,
                const eSkillChoice schoice,
                const int skillId) = 0;
+
+    virtual bool
+    pickupItem(const int clientId,
+               const int itemId) = 0;
+    virtual bool
+    dropItem(const int clientId,
+             const int itemId) = 0;
+    virtual bool
+    rearrangeItems(const int clientId,
+                   const eEquipment& eq) = 0;
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);

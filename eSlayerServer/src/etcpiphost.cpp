@@ -81,7 +81,9 @@ void eTcpIpHost::increment(const float by) {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                const auto map = requestMap(charId, "town");
+                eEquipment eq;
+                eq.read(p);
+                const auto map = requestMap(charId, "town", eq);
                 ePacket p;
                 p << ePacketType::map;
                 map->write(p);
@@ -169,6 +171,33 @@ void eTcpIpHost::increment(const float by) {
                     data.write(p);
                     mNet.sendToClient(tcpClientId, p);
                 }
+            }
+        } break;
+        case ePacketType::dropItem: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                int itemId;
+                p >> itemId;
+                dropItem(charId, itemId);
+            }
+        } break;
+        case ePacketType::pickupItem: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                int itemId;
+                p >> itemId;
+                pickupItem(charId, itemId);
+            }
+        } break;
+        case ePacketType::rearrangeItems: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                eEquipment eq;
+                eq.read(p);
+                rearrangeItems(charId, eq);
             }
         } break;
         }

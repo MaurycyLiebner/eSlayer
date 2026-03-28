@@ -56,6 +56,9 @@ public:
 
     eWeaponData weaponData() const;
 
+    void setEquipment(const eEquipment& eq);
+    eEquipment& equipment() { return mEquipment; }
+
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const eSkillChoice schoice) const;
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;

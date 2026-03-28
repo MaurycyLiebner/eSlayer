@@ -36,12 +36,13 @@ void eGameScreen::setExitAction(const eAction& a) {
 
 void eGameScreen::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
-                             const std::shared_ptr<eMap>& map) {
+                             const std::shared_ptr<eMap>& map,
+                             const eEquipment& eq) {
     mGameWidget = new eGameWidget(window());
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
 
-    mGameWidget->initialize(clientId, server, map);
+    mGameWidget->initialize(clientId, server, map, eq);
 
     mGameWidget->setMainCharHandler([this](const eUnitData& u) {
         mHealthIndicator->setValue(u.fHealth);
@@ -269,6 +270,7 @@ void eGameScreen::showInventoryMenu() {
             const int dataId = eq->fDragged.fDataId;
             mDragWidget->setItemDataId(dataId);
         }
+        mGameWidget->sendInventoryRearranged();
     };
     mInventoryMenu->initialize(dragChange, eq);
     addWidget(mInventoryMenu);

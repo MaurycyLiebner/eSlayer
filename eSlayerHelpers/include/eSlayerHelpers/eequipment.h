@@ -34,6 +34,8 @@ struct ESLAYERHELPERS_API eEquipment {
 
     std::vector<eInventoryItem> fInventory;
 
+    eItem get(const int itemId) const;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

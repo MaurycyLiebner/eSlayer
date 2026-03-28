@@ -165,7 +165,7 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto map = std::make_shared<std::shared_ptr<eMap>>();
     const auto clientId = std::make_shared<int>();
 
-    const auto finish = [this, map, server, clientId]() {
+    const auto finish = [this, map, server, clientId, c]() {
         const auto w = new eGameScreen(mWindow);
         const int width = mWindow->width();
         const int height = mWindow->height();
@@ -173,7 +173,8 @@ void eScreenHandler::showGame(eServerData serverData,
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*clientId, *server, *map);
+        const auto& eq = c.equipment();
+        w->initialize(*clientId, *server, *map, eq);
         mWindow->setWidget(w);
     };
 
@@ -190,8 +191,9 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([server, map, clientId]() {
-        *map = (*server)->requestMap(*clientId, "town");
+    loading.emplace_back([server, map, clientId, c]() {
+        const auto& eq = c.equipment();
+        *map = (*server)->requestMap(*clientId, "town", eq);
     });
     loading.emplace_back([r]() {
         const int id = eEffectsTextures::sEffects.id("lighting");

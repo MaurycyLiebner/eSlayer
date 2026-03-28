@@ -30,10 +30,14 @@ public:
     bool attack(const eAttackData& target);
     bool stopAttack();
     bool respawn();
-    bool spawn();
+    bool spawn(const eEquipment& eq);
     bool disconnect();
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);
+
+    bool pickupItem(const int itemId);
+    bool dropItem(const int itemId);
+    bool rearrangeItems(const eEquipment& eq);
 private:
     const int mClientId;
     std::shared_ptr<eServerArea> mArea;

@@ -22,6 +22,7 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     resultTime = mArea->time();
     data.fUnits = mArea->unitsData(mClientId);
     data.fMissiles = mArea->missileData(mClientId);
+    data.fItems = mArea->itemsData(mClientId);
     return true;
 }
 
@@ -95,11 +96,11 @@ bool eServerClientHandler::respawn() {
     return true;
 }
 
-bool eServerClientHandler::spawn() {
+bool eServerClientHandler::spawn(const eEquipment& eq) {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, ePointF{0.f, 0.f});
+    mArea->addClient(mClientId, eq, ePointF{0.f, 0.f});
     return true;
 }
 
@@ -115,5 +116,26 @@ bool eServerClientHandler::setSkillId(
     const auto client = mArea->unit(mClientId);
     if(!client) return false;
     client->setSkillId(schoice, skillId);
+    return true;
+}
+
+bool eServerClientHandler::pickupItem(
+    const int itemId) {
+    if(!mArea) return false;
+    mArea->pickupItem(mClientId, itemId);
+    return true;
+}
+
+bool eServerClientHandler::dropItem(
+    const int itemId) {
+    if(!mArea) return false;
+    mArea->dropItem(mClientId, itemId);
+    return true;
+}
+
+bool eServerClientHandler::rearrangeItems(
+    const eEquipment& eq) {
+    if(!mArea) return false;
+    mArea->rearrangeItems(mClientId, eq);
     return true;
 }

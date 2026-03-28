@@ -17,10 +17,10 @@ public:
     bool hasArea(const eUnitArea& area);
     void erase(const eUnitArea& area, const int id);
     void emplace(const eUnitArea& area, const int id);
-    const std::set<int>& at(const eUnitArea& area);
+    const std::set<int>& at(const eUnitArea& area) const;
 private:
     const int mAreaDim;
-    std::map<eUnitArea, std::set<int>> mAreas;
+    mutable std::map<eUnitArea, std::set<int>> mAreas;
 };
 
 #endif // EUNITAREAS_H

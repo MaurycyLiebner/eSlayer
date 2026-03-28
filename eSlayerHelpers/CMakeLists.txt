@@ -107,6 +107,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eitemdata.h
     include/eSlayerHelpers/eitemsdata.h
     src/eitemsdata.cpp
+    include/eSlayerHelpers/egrounditem.h
+    src/egrounditem.cpp
 )
 
 target_include_directories(eSlayerHelpers

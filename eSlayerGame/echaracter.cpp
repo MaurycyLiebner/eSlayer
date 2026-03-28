@@ -1,9 +1,9 @@
 #include "echaracter.h"
 
+#include <eSlayerHelpers/eitemsdata.h>
+
 #include <algorithm>
-
 #include <tinyxml2.h>
-
 using namespace tinyxml2;
 
 eCharacter::eCharacter(const std::string& name,
@@ -54,6 +54,16 @@ bool eCharacter::load(const std::string& path,
     c.mHardcore = isTrue(hardcoreV);
     const std::string deadV(deadE->GetText());
     c.mDead = isTrue(deadV);
+
+    for(int x = 0; x < 5; x++) {
+        eItem item{uint8_t(x), 0, eItemType::amulet};
+        c.mEquipment.fInventory.push_back(eInventoryItem{item, x, 0, 1, 1});
+    }
+
+    const uint8_t armorId = eItemsData::id("armor/quilted_armor");
+    eItem armor{5, armorId, eItemType::armor};
+    c.mEquipment.fInventory.push_back(eInventoryItem{armor, 0, 1, 2, 3});
+
     return true;
 }
 

@@ -25,7 +25,9 @@ void eLocalServer::increment(const float by) {
     }
 }
 
-std::shared_ptr<eMap> eLocalServer::requestMap(const int clientId, const std::string& name) {
+std::shared_ptr<eMap> eLocalServer::requestMap(
+    const int clientId, const std::string& name,
+    const eEquipment& eq) {
     const auto h = clientHandler(clientId);
     if(!h) return nullptr;
     const auto mapIt = mMaps.find(name);
@@ -46,7 +48,7 @@ std::shared_ptr<eMap> eLocalServer::requestMap(const int clientId, const std::st
         area = areaIt->second;
     }
     h->setArea(area);
-    h->spawn();
+    h->spawn(eq);
     return map;
 }
 
@@ -109,6 +111,27 @@ bool eLocalServer::setSkillId(const int clientId,
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->setSkillId(schoice, skillId);
+}
+
+bool eLocalServer::pickupItem(
+    const int clientId, const int itemId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->pickupItem(itemId);
+}
+
+bool eLocalServer::dropItem(
+    const int clientId, const int itemId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->dropItem(itemId);
+}
+
+bool eLocalServer::rearrangeItems(
+    const int clientId, const eEquipment& eq) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->rearrangeItems(eq);
 }
 
 eServerClientHandler*

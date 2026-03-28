@@ -9,6 +9,8 @@
 #include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/eunitareas.h>
 #include <eSlayerServer/eserver.h>
+#include <eSlayerHelpers/eitem.h>
+#include <eSlayerHelpers/egrounditem.h>
 
 class eMap;
 class eMainCharAction;
@@ -48,10 +50,16 @@ public:
     std::shared_ptr<eUnit> getUnit(const int id) const {
         return mUnits.get(id);
     }
+
+    eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
+    const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 private:
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
+    eIdMapVector<eItem> mItems;
+    eIdMapVector<eGroundItem> mGroundItems;
     eUnitAreas mUnitAreas;
+    eUnitAreas mGroundItemAreas;
 };
 
 #endif // EGAMEWORLD_H

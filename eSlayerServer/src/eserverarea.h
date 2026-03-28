@@ -29,13 +29,21 @@ public:
 
     std::vector<eUnitData>
     unitsData(const int clientId);
+    std::vector<eGroundItem>
+    itemsData(const int clientId);
 
     eUnitArea unitArea(const int charId) const;
     eUnitArea unitArea(const eServerUnit& u) const;
 
-    bool addClient(const int clientId, const ePointF& pos);
+    bool addClient(const int clientId,
+                   const eEquipment& eq,
+                   const ePointF& pos);
     bool removeClient(const int clientId);
     bool removeUnit(const int charId);
+
+    void pickupItem(const int clientId, const int itemId);
+    void dropItem(const int clientId, const int itemId);
+    void rearrangeItems(const int clientId, const eEquipment& eq);
 
     std::vector<eMissile>
     missileData(const int clientId) const;
@@ -45,6 +53,8 @@ public:
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
+    std::shared_ptr<eGroundItem>
+    groundItem(const int itemId) const;
     std::shared_ptr<eServerUnit>
     unit(const ePointF& pos);
 private:
@@ -53,9 +63,14 @@ private:
     eIdMapVector<eServerMissile> mMissiles;
     mutable std::map<int, int32_t> mClientLatestMissileId;
     eIdMapVector<eServerUnit> mUnits;
+    eIdMapVector<eItem> mItems;
+    eIdMapVector<eGroundItem> mGroundItems;
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
     eUnitAreas mUnitAreas;
+    const int mItemAreaDim = -2;
+    const int mItemAreaMargin = 6;
+    eUnitAreas mItemAreas;
     std::map<int, eUnitArea> mClientAreas;
     std::set<int> mClientIds;
 

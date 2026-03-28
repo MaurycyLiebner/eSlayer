@@ -30,6 +30,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     mUnitAreas.clear();
     const auto& units = data.fUnits;
     const auto& missiles = data.fMissiles;
+    const auto& items = data.fItems;
     std::set<int> present;
 
     for(const auto& u : units) {
@@ -76,6 +77,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mUnits.remove(charId);
     }
 
+    for(const auto& i : items) {
+        const int itemId = i.fItemId;
+        mGroundItems.add(itemId, std::make_shared<eGroundItem>(i));
+        const auto area = mGroundItemAreas.posArea(i.fPos);
+        mGroundItemAreas.emplace(area, itemId);
+    }
+
     for(const auto& m : missiles) {
         const auto mm = std::make_shared<eExtendedMissile>();
         reinterpret_cast<eMissile&>(*mm) = m;
@@ -86,7 +94,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 }
 
 eGameWorld::eGameWorld() :
-    mUnitAreas(1) {}
+    mUnitAreas(1),
+    mGroundItemAreas(-2) {}
 
 void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& map) {
     for(const auto& m : mMissiles) {

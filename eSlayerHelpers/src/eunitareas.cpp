@@ -5,7 +5,11 @@ eUnitAreas::eUnitAreas(const int areaDim) :
 
 eUnitArea eUnitAreas::posArea(const ePointF& pos) const {
     eUnitArea result;
-    reinterpret_cast<ePoint&>(result) = pos.floor()/mAreaDim;
+    if(mAreaDim > 0) {
+        reinterpret_cast<ePoint&>(result) = pos.floor()/mAreaDim;
+    } else {
+        reinterpret_cast<ePoint&>(result) = (pos*(-mAreaDim)).floor();
+    }
     return result;
 }
 
@@ -27,6 +31,6 @@ void eUnitAreas::emplace(const eUnitArea& area, const int id) {
     mAreas[area].emplace(id);
 }
 
-const std::set<int>& eUnitAreas::at(const eUnitArea& area) {
+const std::set<int>& eUnitAreas::at(const eUnitArea& area) const {
     return mAreas[area];
 }

@@ -31,7 +31,8 @@ public:
 
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
-                    const std::shared_ptr<eMap>& map);
+                    const std::shared_ptr<eMap>& map,
+                    const eEquipment& eq);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }
@@ -60,6 +61,7 @@ public:
 
     eEquipment* equipment() { return &mEq; }
     void dropItem();
+    void sendInventoryRearranged();
 
     int leftSkill() const { return mLeftSkill; }
     void setLeftSkill(const int s);

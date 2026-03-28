@@ -1,7 +1,9 @@
 #include "etcpipjoin.h"
 
-#include "eSlayerHelpers/eattackdata.h"
 #include "epacketdata.h"
+
+#include <eSlayerHelpers/eattackdata.h>
+#include <eSlayerHelpers/eequipment.h>
 
 eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
     mIP(ip) {}
@@ -90,9 +92,11 @@ void eTcpIpJoin::increment(const float by) {
 }
 
 std::shared_ptr<eMap> eTcpIpJoin::requestMap(
-    const int clientId, const std::string& name) {
+    const int clientId, const std::string& name,
+    const eEquipment& eq) {
     ePacket p;
     p << ePacketType::map;
+    eq.write(p);
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send map request to the host.");
@@ -205,5 +209,35 @@ bool eTcpIpJoin::setSkillId(const int clientId,
     p << skillId;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send skill change to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::pickupItem(
+    const int clientId, const int itemId) {
+    ePacket p;
+    p << ePacketType::pickupItem;
+    p << itemId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send item pickup to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::dropItem(
+    const int clientId, const int itemId) {
+    ePacket p;
+    p << ePacketType::dropItem;
+    p << itemId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send item drop to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::rearrangeItems(
+    const int clientId, const eEquipment& eq) {
+    ePacket p;
+    p << ePacketType::rearrangeItems;
+    eq.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send equipment rearrangement to the host.");
     return true;
 }

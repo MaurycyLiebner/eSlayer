@@ -69,6 +69,10 @@ eWeaponData eServerUnit::weaponData() const {
     return result;
 }
 
+void eServerUnit::setEquipment(const eEquipment& eq) {
+    mEquipment = eq;
+}
+
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left: {

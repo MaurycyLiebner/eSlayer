@@ -11,7 +11,8 @@
 #include <eSlayerMissiles/emissileincrement.h>
 
 eServerArea::eServerArea() :
-    mUnitAreas(mUnitAreaDim) {}
+    mUnitAreas(mUnitAreaDim),
+    mItemAreas(mItemAreaDim) {}
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
@@ -198,6 +199,26 @@ eServerArea::unitsData(const int clientId) {
     return result;
 }
 
+std::vector<eGroundItem>
+eServerArea::itemsData(const int clientId) {
+    std::vector<eGroundItem> result;
+    const auto client = unit(clientId);
+    if(!client) return result;
+    const auto clientArea = mItemAreas.posArea(client->fPos);
+    for(int x = -mItemAreaMargin; x <= mItemAreaMargin; x++) {
+        for(int y = -mItemAreaMargin; y <= mItemAreaMargin; y++) {
+            const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
+            const auto& items = mItemAreas.at(area);
+            for(const int itemId : items) {
+                const auto i = groundItem(itemId);
+                if(!i) continue;
+                result.emplace_back(*i);
+            }
+        }
+    }
+    return result;
+}
+
 eUnitArea eServerArea::unitArea(const int charId) const {
     const auto u = unit(charId);
     if(!u) return {0, 0};
@@ -209,7 +230,9 @@ eUnitArea eServerArea::unitArea(const eServerUnit& u) const {
     return mUnitAreas.posArea(pos);
 }
 
-bool eServerArea::addClient(const int clientId, const ePointF& pos) {
+bool eServerArea::addClient(const int clientId,
+                            const eEquipment& eq,
+                            const ePointF& pos) {
     mClientIds.emplace(clientId);
     mClientLatestMissileId[clientId] = -1;
     const int typeId = 1;
@@ -232,6 +255,7 @@ bool eServerArea::addClient(const int clientId, const ePointF& pos) {
     u->fModelParts = modelParts;
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
+    u->setEquipment(eq);
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, clientId);
@@ -251,6 +275,60 @@ bool eServerArea::removeUnit(const int charId) {
     const auto area = unitArea(charId);
     mUnitAreas.erase(area, charId);
     return mUnits.remove(charId);
+}
+
+void eServerArea::pickupItem(
+    const int clientId, const int itemId) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    auto& eq = u->equipment();
+    eq.fDragged = *mItems.get(itemId);
+    mGroundItems.remove(itemId);
+    mItems.remove(itemId);
+}
+
+void eServerArea::dropItem(
+    const int clientId, const int itemId) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    auto& eq = u->equipment();
+    const auto pos = u->fPos;
+    const auto item = eq.fDragged;
+    if(item.fType == eItemType::none) return;
+    eq.fDragged = eItem();
+    const auto groundItem = std::make_shared<eGroundItem>();
+    groundItem->fItemId = itemId;
+    groundItem->fDataId = item.fDataId;
+    groundItem->fType = item.fType;
+    groundItem->fSubType = item.fSubType;
+    const auto baseArea = mItemAreas.posArea(pos);
+    bool found = false;
+    for(int dist = 0; dist < 100; dist++) {
+        for(int x = -dist; x <= dist; x++) {
+            for(int y = -dist; y <= dist; y++) {
+                if(std::abs(x) != dist && std::abs(y) != dist) continue;
+                const eUnitArea area{baseArea.fX + x, baseArea.fY + y};
+                const auto items = mItemAreas.at(area);
+                if(!items.empty()) continue;
+                mItemAreas.emplace(area, itemId);
+                groundItem->fPos = ePointF{float(area.fX)/(-mItemAreaDim),
+                                           float(area.fY)/(-mItemAreaDim)};
+                found = true;
+                break;
+            }
+            if(found) break;
+        }
+        if(found) break;
+    }
+    mGroundItems.add(itemId, groundItem);
+    mItems.add(itemId, std::make_shared<eItem>(item));
+}
+
+void eServerArea::rearrangeItems(
+    const int clientId, const eEquipment& eq) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    u->setEquipment(eq);
 }
 
 std::vector<eMissile>
@@ -283,6 +361,11 @@ void eServerArea::removeMissile(const std::shared_ptr<eServerMissile>& m) {
 std::shared_ptr<eServerUnit>
 eServerArea::unit(const int charId) const {
     return mUnits.get(charId);
+}
+
+std::shared_ptr<eGroundItem>
+eServerArea::groundItem(const int itemId) const {
+    return mGroundItems.get(itemId);
 }
 
 std::shared_ptr<eServerUnit>

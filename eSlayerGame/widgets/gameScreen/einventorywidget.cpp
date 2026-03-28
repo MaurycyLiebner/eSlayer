@@ -7,7 +7,18 @@ void eInventoryWidget::initialize(
     eEquipment* const eq) {
     mEq = eq;
     const auto& res = resolution();
-    const int dim = 40*res.multiplier();
+    int dim;
+    switch(res.uiScale()) {
+    case eUIScale::small:
+        dim = 40;
+        break;
+    case eUIScale::medium:
+        dim = 60;
+        break;
+    case eUIScale::large:
+        dim = 80;
+        break;
+    }
 
     mBagpack = new eInventoryBagpackWidget(window());
     mBagpack->initialize(dragChange, mEq, dim, 10, 4);

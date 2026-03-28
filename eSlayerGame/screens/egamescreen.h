@@ -23,7 +23,9 @@ public:
     void setExitAction(const eAction& a);
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
-                    const std::shared_ptr<eMap>& map);
+                    const std::shared_ptr<eMap>& map,
+                    const eEquipment& eq);
+
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
 private:

@@ -19,9 +19,10 @@ public:
 
     void increment(const float by) override;
 
-    std::shared_ptr<eMap>
-    requestMap(const int clientId,
-               const std::string& name) override;
+    std::shared_ptr<eMap> requestMap(
+        const int clientId,
+        const std::string& name,
+        const eEquipment& eq) override;
 
     bool requestData(const int clientId) override;
     bool requestWeaponData(const int clientId) override;
@@ -44,6 +45,13 @@ public:
     bool setSkillId(const int clientId,
                     const eSkillChoice schoice,
                     const int skillId) override;
+
+    bool pickupItem(const int clientId,
+                    const int itemId) override;
+    bool dropItem(const int clientId,
+                  const int itemId) override;
+    bool rearrangeItems(const int clientId,
+                        const eEquipment& eq) override;
 private:
     eServerClientHandler* clientHandler(const int clientId);
 
