@@ -7,9 +7,9 @@
 #include <eSlayerHelpers/eequipment.h>
 
 bool eInventoryWidget::sBlocked = false;
+eItemDragWidget* eInventoryWidget::sDragWidget = nullptr;
 
 void eInventoryWidget::initialize(
-    const eAction& dragChange,
     eEquipment* const eq) {
     mEq = eq;
     const auto& res = resolution();
@@ -29,64 +29,55 @@ void eInventoryWidget::initialize(
     const auto helmet = new eItemPlaceWidget(window());
     helmet->intialize(2, 2, dim, mEq,
                       &eEquipment::fHelmet,
-                      {eItemType::helmet},
-                      dragChange);
+                      {eItemType::helmet});
     mItemPalces.emplace_back(helmet);
 
     const auto armor = new eItemPlaceWidget(window());
     armor->intialize(2, 3, dim, mEq,
                       &eEquipment::fArmor,
-                      {eItemType::armor},
-                      dragChange);
+                      {eItemType::armor});
     mItemPalces.emplace_back(armor);
 
     const auto belt = new eItemPlaceWidget(window());
     belt->intialize(2, 1, dim, mEq,
                      &eEquipment::fBelt,
-                     {eItemType::belt},
-                     dragChange);
+                     {eItemType::belt});
     mItemPalces.emplace_back(belt);
 
     const auto boots = new eItemPlaceWidget(window());
     boots->intialize(2, 2, dim, mEq,
                      &eEquipment::fBoots,
-                     {eItemType::boots},
-                     dragChange);
+                     {eItemType::boots});
     mItemPalces.emplace_back(boots);
 
     const auto gloves = new eItemPlaceWidget(window());
     gloves->intialize(2, 2, dim, mEq,
                       &eEquipment::fGloves,
-                      {eItemType::gloves},
-                      dragChange);
+                      {eItemType::gloves});
     mItemPalces.emplace_back(gloves);
 
     const auto ringL = new eItemPlaceWidget(window());
     ringL->intialize(1, 1, dim, mEq,
                      &eEquipment::fRingL,
-                     {eItemType::ring},
-                     dragChange);
+                     {eItemType::ring});
     mItemPalces.emplace_back(ringL);
 
     const auto ringR = new eItemPlaceWidget(window());
     ringR->intialize(1, 1, dim, mEq,
                      &eEquipment::fRingR,
-                     {eItemType::ring},
-                     dragChange);
+                     {eItemType::ring});
     mItemPalces.emplace_back(ringR);
 
     const auto amulet = new eItemPlaceWidget(window());
     amulet->intialize(1, 1, dim, mEq,
                       &eEquipment::fAmulet,
-                      {eItemType::amulet},
-                      dragChange);
+                      {eItemType::amulet});
     mItemPalces.emplace_back(amulet);
 
     mWeapon1L = new eItemPlaceWidget(window());
     mWeapon1L->intialize(2, 4, dim, mEq,
                       &eEquipment::fWeapon1L,
-                      {eItemType::weapon},
-                      dragChange);
+                      {eItemType::weapon});
     mItemPalces.emplace_back(mWeapon1L);
 
     mWeapon1R = new eItemPlaceWidget(window());
@@ -94,15 +85,13 @@ void eInventoryWidget::initialize(
                         &eEquipment::fWeapon1R,
                         {eItemType::weapon,
                          eItemType::shield,
-                         eItemType::arrows},
-                        dragChange);
+                         eItemType::arrows});
     mItemPalces.emplace_back(mWeapon1R);
 
     mWeapon2L = new eItemPlaceWidget(window());
     mWeapon2L->intialize(2, 4, dim, mEq,
                         &eEquipment::fWeapon2L,
-                        {eItemType::weapon},
-                        dragChange);
+                        {eItemType::weapon});
     mItemPalces.emplace_back(mWeapon2L);
 
     mWeapon2R = new eItemPlaceWidget(window());
@@ -110,8 +99,7 @@ void eInventoryWidget::initialize(
                         &eEquipment::fWeapon2R,
                         {eItemType::weapon,
                          eItemType::shield,
-                         eItemType::arrows},
-                        dragChange);
+                         eItemType::arrows});
     mItemPalces.emplace_back(mWeapon2R);
 
     const int p = res.largePadding();
@@ -185,7 +173,7 @@ void eInventoryWidget::initialize(
     addWidget(secondRow);
 
     mBagpack = new eInventoryBagpackWidget(window());
-    mBagpack->initialize(dragChange, mEq, dim);
+    mBagpack->initialize(mEq, dim);
     addWidget(mBagpack);
 
     layoutVertically();

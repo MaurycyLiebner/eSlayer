@@ -11,8 +11,7 @@ class eInventoryBagpackWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const eAction& dragChange,
-                    eEquipment* const eq,
+    void initialize(eEquipment* const eq,
                     const int dimensions);
 
     bool dropItem(const SDL_Point& mpos);
@@ -33,7 +32,6 @@ private:
     int mDimensions = 0;
 
     eEquipment* mEq = nullptr;
-    eAction mDraggedChanged;
 };
 
 #endif // EINVENTORYBAGPACKWIDGET_H

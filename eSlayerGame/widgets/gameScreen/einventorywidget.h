@@ -8,19 +8,20 @@ class eInventoryBagpackWidget;
 class eItemPlaceWidget;
 struct eEquipment;
 class eWeaponSwitch;
+class eItemDragWidget;
 
 class eInventoryWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const eAction& dragChange,
-                    eEquipment* const eq);
+    void initialize(eEquipment* const eq);
 
     bool dropItem(const SDL_Point& pos);
 
     void updateWeapons();
 
     static bool sBlocked;
+    static eItemDragWidget* sDragWidget;
 protected:
     void paintEvent(ePainter& p) override;
 private:

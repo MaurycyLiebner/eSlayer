@@ -38,10 +38,7 @@ void eGameScreen::initialize(const int clientId,
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
 
-    const auto dragUpdater = [this]() {
-        updateDrag();
-    };
-    mGameWidget->initialize(clientId, server, map, eq, dragUpdater);
+    mGameWidget->initialize(clientId, server, map, eq);
 
     mGameWidget->setMainCharHandler([this](const eUnitData& u) {
         mHealthIndicator->setValue(u.fHealth);
@@ -256,29 +253,22 @@ void eGameScreen::hideESCMenu() {
 
 void eGameScreen::showInventoryMenu() {
     if(mInventoryMenu) return;
-    mGameWidget->setDragEnabled(true);
     mInventoryMenu = new eInventoryWidget(window());
     const int w = width();
     const int h = height();
     mInventoryMenu->resize(w/2, h - mBottomWid->height());
     const auto eq = mGameWidget->equipment();
-    const auto dragChange = [this, eq]() {
-        if(!mDragWidget) return;
-        updateDrag();
-        mGameWidget->sendInventoryRearranged();
-    };
-    mInventoryMenu->initialize(dragChange, eq);
+    mInventoryMenu->initialize(eq);
     addWidget(mInventoryMenu);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
 
     mDragWidget = new eItemDragWidget(window());
     mDragWidget->resize(w, h);
-    mDragWidget->initialize([this, dragChange](SDL_Point pos) {
+    mDragWidget->initialize([this](SDL_Point pos) {
         pos.x -= mInventoryMenu->x();
         pos.y -= mInventoryMenu->y();
         if(pos.x < 0) {
             mGameWidget->dropItem();
-            dragChange();
         } else {
             const bool r = mInventoryMenu->dropItem(pos);
         }
@@ -290,23 +280,11 @@ void eGameScreen::showInventoryMenu() {
 
 void eGameScreen::hideInventoryMenu() {
     if(!mInventoryMenu) return;
-    mGameWidget->setDragEnabled(false);
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
     mDragWidget->deleteLater();
     mDragWidget = nullptr;
     updateCharPos();
-}
-
-void eGameScreen::updateDrag() {
-    if(!mDragWidget) return;
-    const auto eq = mGameWidget->equipment();
-    if(eq->fDragged.fType == eItemType::none) {
-        mDragWidget->setItemDataId(-1);
-    } else {
-        const int dataId = eq->fDragged.fDataId;
-        mDragWidget->setItemDataId(dataId);
-    }
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,

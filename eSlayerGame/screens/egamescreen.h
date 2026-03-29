@@ -34,7 +34,6 @@ private:
     void hideESCMenu();
     void showInventoryMenu();
     void hideInventoryMenu();
-    void updateDrag();
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar);

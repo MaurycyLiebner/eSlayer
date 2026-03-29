@@ -3,15 +3,21 @@
 
 #include "../ewidget.h"
 
+struct eEquipment;
+
 class eItemDragWidget : public eWidget {
 public:
-    using eWidget::eWidget;
+    eItemDragWidget(eMainWindow* const w);
+    ~eItemDragWidget();
 
     using eDropAction = std::function<void(const SDL_Point& pos)>;
 
     void initialize(const eDropAction& dropAction);
 
     void setItemDataId(const int dataId);
+
+    static eItemDragWidget* sInstance;
+    static void sUpdateDragItem(const eEquipment& eq);
 protected:
     void paintEvent(ePainter& p) override;
 

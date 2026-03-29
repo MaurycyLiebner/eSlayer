@@ -15,8 +15,7 @@ public:
                    const int dimensions,
                    eEquipment* const eq,
                    eItem eEquipment::* const item,
-                   const std::vector<eItemType>& allowedTypes,
-                   const eAction& dragChange);
+                   const std::vector<eItemType>& allowedTypes);
 
     bool dropItem();
 protected:
@@ -32,7 +31,6 @@ private:
     std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
     eItem eEquipment::*mItem = nullptr;
-    eAction mDraggedChanged;
 };
 
 #endif // EITEMPLACEWIDGET_H

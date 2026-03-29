@@ -3,6 +3,18 @@
 #include "../../textures/eitemstextures.h"
 
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/eequipment.h>
+
+eItemDragWidget* eItemDragWidget::sInstance = nullptr;
+
+eItemDragWidget::eItemDragWidget(eMainWindow* const w) :
+    eWidget(w) {
+    sInstance = this;
+}
+
+eItemDragWidget::~eItemDragWidget() {
+    sInstance = nullptr;
+}
 
 void eItemDragWidget::initialize(const eDropAction& dropAction) {
     mDropAction = dropAction;
@@ -17,6 +29,16 @@ void eItemDragWidget::setItemDataId(const int dataId) {
         auto& itemTex = eItemsTextures::get(name);
         itemTex.request(r);
         mItem = itemTex.fTex;
+    }
+}
+
+void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
+    if(!sInstance) return;
+    if(eq.fDragged.fType == eItemType::none) {
+        sInstance->setItemDataId(-1);
+    } else {
+        const int dataId = eq.fDragged.fDataId;
+        sInstance->setItemDataId(dataId);
     }
 }
 

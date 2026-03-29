@@ -7,6 +7,7 @@
 #include "../../textures/etilesiterator.h"
 #include "../../textures/emissilestextures.h"
 #include "eunitindicator.h"
+#include "eitemdragwidget.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -16,21 +17,26 @@
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/eitemsdata.h>
 
+eGameWidget* eGameWidget::sInstance = nullptr;
+
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
     mGamePainter(renderer()) {
+    sInstance = this;
     setNoPadding();
+}
+
+eGameWidget::~eGameWidget() {
+    sInstance = nullptr;
 }
 
 void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eEquipment& eq,
-                             const eAction& dragUpdater) {
+                             const eEquipment& eq) {
     mClientId = clientId;
     mServer = server;
     mMap = map;
-    mDragUpdater = dragUpdater;
 
     initializeTextures();
 
@@ -83,6 +89,7 @@ void eGameWidget::dropItem() {
     if(dragged.fType == eItemType::none) return;
     mServer->dropItem(mClientId, dragged.fItemId);
     dragged = eItem();
+    eItemDragWidget::sUpdateDragItem(mEq);
 }
 
 void eGameWidget::sendInventoryRearranged() {
@@ -122,6 +129,10 @@ void eGameWidget::disconnect() {
     }
 }
 
+void eGameWidget::sSendInventoryRearranged() {
+    sInstance->sendInventoryRearranged();
+}
+
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
@@ -136,7 +147,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const bool r = mServer->receiveEquipment(mClientId, mEq);
         if(r) {
             mWaitngForEq = false;
-            mDragUpdater();
+            eItemDragWidget::sUpdateDragItem(mEq);
         }
     }
 
@@ -414,7 +425,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
             uint32_t itemId;
             const bool r = mItemNames.at({e.x(), e.y()}, itemId);
             if(r) {
-                mServer->pickupItem(mClientId, itemId, mDragEnabled);
+                const bool dragEnabled = eItemDragWidget::sInstance;
+                mServer->pickupItem(mClientId, itemId, dragEnabled);
                 mWaitngForEq = true;
             }
         }

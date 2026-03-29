@@ -302,9 +302,8 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
     if(!u) return false;
     auto& eq = u->equipment();
     const auto pos = u->fPos;
-    const auto item = eq.fDragged;
+    auto& item = eq.fDragged;
     if(item.fType == eItemType::none) return false;
-    eq.fDragged = eItem();
     const auto groundItem = std::make_shared<eGroundItem>();
     groundItem->fItemId = itemId;
     groundItem->fDataId = item.fDataId;
@@ -331,6 +330,7 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
     }
     mGroundItems.add(itemId, groundItem);
     mItemsOnGround.add(itemId, std::make_shared<eItem>(item));
+    item = eItem();
     return true;
 }
 

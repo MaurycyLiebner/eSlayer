@@ -29,12 +29,12 @@ using eRespawnHandler = std::function<void()>;
 class eGameWidget : public eLabel {
 public:
     eGameWidget(eMainWindow* const window);
+    ~eGameWidget();
 
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eEquipment& eq,
-                    const eAction& dragUpdater);
+                    const eEquipment& eq);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }
@@ -64,7 +64,6 @@ public:
     eEquipment* equipment() { return &mEq; }
     void dropItem();
     void sendInventoryRearranged();
-    void setDragEnabled(const bool e) { mDragEnabled = e; }
     bool waitingForEquipment() const { return mWaitngForEq; }
 
     int leftSkill() const { return mLeftSkill; }
@@ -83,6 +82,9 @@ public:
     bool switchRunning();
     bool switchWeapons();
     void disconnect();
+
+    static eGameWidget* sInstance;
+    static void sSendInventoryRearranged();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -125,9 +127,7 @@ private:
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;
 
-    bool mDragEnabled = false;
     bool mWaitngForEq = false;
-    eAction mDragUpdater;
 };
 
 #endif // EGAMEWIDGET_H

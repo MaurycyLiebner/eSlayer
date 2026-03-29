@@ -2,6 +2,8 @@
 
 #include "../../textures/eitemstextures.h"
 #include "einventorywidget.h"
+#include "eitemdragwidget.h"
+#include "egamewidget.h"
 
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/eitemsdata.h>
@@ -13,12 +15,10 @@ void eItemPlaceWidget::intialize(
     const int dimensions,
     eEquipment* const eq,
     eItem eEquipment::* const item,
-    const std::vector<eItemType>& allowedTypes,
-    const eAction& dragChange) {
+    const std::vector<eItemType>& allowedTypes) {
     mEq = eq;
     mItem = item;
     mAllowedTypes = allowedTypes;
-    mDraggedChanged = dragChange;
 
     mWidth = width;
     mHeight = height;
@@ -33,7 +33,8 @@ bool eItemPlaceWidget::dropItem() {
     if(!draggedCompatible()) return false;
     auto& item = mEq->*mItem;
     std::swap(dragged, item);
-    mDraggedChanged();
+    eItemDragWidget::sUpdateDragItem(*mEq);
+    eGameWidget::sSendInventoryRearranged();
     return true;
 }
 
@@ -43,7 +44,8 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     if(dragged.fType != eItemType::none) return true;
     auto& item = mEq->*mItem;
     std::swap(dragged, item);
-    mDraggedChanged();
+    eItemDragWidget::sUpdateDragItem(*mEq);
+    eGameWidget::sSendInventoryRearranged();
     return true;
 }
 

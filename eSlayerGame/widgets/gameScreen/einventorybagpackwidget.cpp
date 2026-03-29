@@ -2,6 +2,8 @@
 
 #include "../../textures/eitemstextures.h"
 #include "einventorywidget.h"
+#include "eitemdragwidget.h"
+#include "egamewidget.h"
 
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/eitemsdata.h>
@@ -9,10 +11,8 @@
 #include <SDL3/SDL_mouse.h>
 
 void eInventoryBagpackWidget::initialize(
-    const eAction& dragChange,
     eEquipment* const eq,
     const int dimensions) {
-    mDraggedChanged = dragChange;
     mEq = eq;
     mDimensions = dimensions;
     mWidth = mEq->fInventoryWidth;
@@ -48,7 +48,8 @@ bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
         mEq->fInventory.push_back(invItem);
         mEq->fDragged.fType = eItemType::none;
     }
-    mDraggedChanged();
+    eItemDragWidget::sUpdateDragItem(*mEq);
+    eGameWidget::sSendInventoryRearranged();
     return true;
 }
 
@@ -132,7 +133,8 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     const auto item = inv[itemId].fItem;
     inv.erase(inv.begin() + itemId);
     mEq->fDragged = item;
-    mDraggedChanged();
+    eItemDragWidget::sUpdateDragItem(*mEq);
+    eGameWidget::sSendInventoryRearranged();
     return true;
 }
 
