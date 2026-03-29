@@ -1,6 +1,7 @@
 #include "eitemplacewidget.h"
 
 #include "../../textures/eitemstextures.h"
+#include "einventorywidget.h"
 
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/eitemsdata.h>
@@ -26,6 +27,7 @@ void eItemPlaceWidget::intialize(
 }
 
 bool eItemPlaceWidget::dropItem() {
+    if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
     if(!draggedCompatible()) return false;
@@ -36,6 +38,7 @@ bool eItemPlaceWidget::dropItem() {
 }
 
 bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
+    if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
     if(dragged.fType != eItemType::none) return true;
     auto& item = mEq->*mItem;

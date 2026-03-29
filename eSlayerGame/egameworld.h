@@ -56,10 +56,8 @@ public:
 private:
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
-    eIdMapVector<eItem> mItems;
     eIdMapVector<eGroundItem> mGroundItems;
     eUnitAreas mUnitAreas;
-    eUnitAreas mGroundItemAreas;
 };
 
 #endif // EGAMEWORLD_H

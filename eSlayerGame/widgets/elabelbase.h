@@ -24,6 +24,7 @@ public:
 
     eFontColor fontColor() const
     { return mFontColor; }
+    const eFont& font() const { return mFont; }
 
     int fontSize() const;
 

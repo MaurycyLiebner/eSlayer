@@ -42,6 +42,8 @@ public:
     requestData(const int clientId) = 0;
     virtual bool
     requestWeaponData(const int clientId) = 0;
+    virtual bool
+    requestEquipment(const int clientId) = 0;
 
     virtual bool
     receiveData(const int clientId,
@@ -50,6 +52,9 @@ public:
     virtual bool
     receiveWeaponData(const int clientId,
                       eWeaponData& data) = 0;
+    virtual bool
+    receiveEquipment(const int clientId,
+                     eEquipment& data) = 0;
 
     virtual bool
     changeState(const int clientId,
@@ -70,7 +75,8 @@ public:
 
     virtual bool
     pickupItem(const int clientId,
-               const int itemId) = 0;
+               const int itemId,
+               const bool drag) = 0;
     virtual bool
     dropItem(const int clientId,
              const int itemId) = 0;

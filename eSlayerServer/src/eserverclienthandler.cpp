@@ -16,6 +16,10 @@ bool eServerClientHandler::requestWeaponData() {
     return true;
 }
 
+bool eServerClientHandler::requestEquipment() {
+    return true;
+}
+
 bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
@@ -31,6 +35,14 @@ bool eServerClientHandler::receiveWeaponData(eWeaponData& data) {
     const auto unit = mArea->unit(mClientId);
     if(!unit) return false;
     data = unit->weaponData();
+    return true;
+}
+
+bool eServerClientHandler::receiveEquipment(eEquipment& data) {
+    if(!mArea) return false;
+    const auto unit = mArea->unit(mClientId);
+    if(!unit) return false;
+    data = unit->equipment();
     return true;
 }
 
@@ -120,10 +132,9 @@ bool eServerClientHandler::setSkillId(
 }
 
 bool eServerClientHandler::pickupItem(
-    const int itemId) {
+    const int itemId, const bool drag) {
     if(!mArea) return false;
-    mArea->pickupItem(mClientId, itemId);
-    return true;
+    return mArea->pickupItem(mClientId, itemId, drag);
 }
 
 bool eServerClientHandler::dropItem(

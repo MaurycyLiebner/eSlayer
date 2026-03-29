@@ -188,7 +188,18 @@ void eTcpIpHost::increment(const float by) {
                 const int charId = it->second;
                 int itemId;
                 p >> itemId;
-                pickupItem(charId, itemId);
+                bool drag;
+                p >> drag;
+                const bool r = pickupItem(charId, itemId, drag);
+                if(r) {
+                    eEquipment data;
+                    const bool r = receiveEquipment(charId, data);
+                    if(!r) continue;
+                    ePacket p;
+                    p << ePacketType::equipment;
+                    data.write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
             }
         } break;
         case ePacketType::rearrangeItems: {

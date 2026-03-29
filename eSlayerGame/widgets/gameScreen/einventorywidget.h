@@ -19,6 +19,8 @@ public:
     bool dropItem(const SDL_Point& pos);
 
     void updateWeapons();
+
+    static bool sBlocked;
 protected:
     void paintEvent(ePainter& p) override;
 private:

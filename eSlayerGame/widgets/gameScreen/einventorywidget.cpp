@@ -6,6 +6,8 @@
 
 #include <eSlayerHelpers/eequipment.h>
 
+bool eInventoryWidget::sBlocked = false;
+
 void eInventoryWidget::initialize(
     const eAction& dragChange,
     eEquipment* const eq) {
@@ -183,7 +185,7 @@ void eInventoryWidget::initialize(
     addWidget(secondRow);
 
     mBagpack = new eInventoryBagpackWidget(window());
-    mBagpack->initialize(dragChange, mEq, dim, 10, 4);
+    mBagpack->initialize(dragChange, mEq, dim);
     addWidget(mBagpack);
 
     layoutVertically();
@@ -200,6 +202,7 @@ void eInventoryWidget::paintEvent(ePainter& p) {
 }
 
 bool eInventoryWidget::dropItem(const SDL_Point& pos) {
+    if(sBlocked) return false;
     const auto bmpos = mBagpack->mousePos();
     const bool b = mBagpack->dropItem(bmpos);
     if(b) return true;

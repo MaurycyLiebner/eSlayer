@@ -26,12 +26,15 @@ public:
 
     bool requestData(const int clientId) override;
     bool requestWeaponData(const int clientId) override;
+    bool requestEquipment(const int clientId) override;
 
     bool receiveData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
     bool receiveWeaponData(const int clientId,
                            eWeaponData& data) override;
+    bool receiveEquipment(const int clientId,
+                          eEquipment& data) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -47,7 +50,8 @@ public:
                     const int skillId) override;
 
     bool pickupItem(const int clientId,
-                    const int itemId) override;
+                    const int itemId,
+                    const bool drag) override;
     bool dropItem(const int clientId,
                   const int itemId) override;
     bool rearrangeItems(const int clientId,

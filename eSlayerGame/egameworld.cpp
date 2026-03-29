@@ -31,13 +31,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& units = data.fUnits;
     const auto& missiles = data.fMissiles;
     const auto& items = data.fItems;
-    std::set<int> present;
+    std::set<int> uPresent;
 
     for(const auto& u : units) {
         const int charId = u.fCharId;
         const auto area = mUnitAreas.posArea(u.fPos);
         mUnitAreas.emplace(area, charId);
-        present.emplace(charId);
+        uPresent.emplace(charId);
         if(charId == clientId) {
             result.fHasMainCharData = true;
             result.fMainCharData = u;
@@ -72,16 +72,15 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     }
     for(const auto& u : mUnits) {
         const int charId = u->fCharId;
-        const auto it = present.find(charId);
-        if(it != present.end()) continue;
+        const auto it = uPresent.find(charId);
+        if(it != uPresent.end()) continue;
         mUnits.remove(charId);
     }
 
+    mGroundItems.clear();
     for(const auto& i : items) {
-        const int itemId = i.fItemId;
+        const auto itemId = i.fItemId;
         mGroundItems.add(itemId, std::make_shared<eGroundItem>(i));
-        const auto area = mGroundItemAreas.posArea(i.fPos);
-        mGroundItemAreas.emplace(area, itemId);
     }
 
     for(const auto& m : missiles) {
@@ -94,8 +93,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 }
 
 eGameWorld::eGameWorld() :
-    mUnitAreas(1),
-    mGroundItemAreas(-2) {}
+    mUnitAreas(1) {}
 
 void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& map) {
     for(const auto& m : mMissiles) {

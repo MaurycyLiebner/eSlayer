@@ -25,10 +25,12 @@ eGameWidget::eGameWidget(eMainWindow* const window) :
 void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eEquipment& eq) {
+                             const eEquipment& eq,
+                             const eAction& dragUpdater) {
     mClientId = clientId;
     mServer = server;
     mMap = map;
+    mDragUpdater = dragUpdater;
 
     initializeTextures();
 
@@ -130,6 +132,13 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar, mMainAction, r);
+    if(mWaitngForEq) {
+        const bool r = mServer->receiveEquipment(mClientId, mEq);
+        if(r) {
+            mWaitngForEq = false;
+            mDragUpdater();
+        }
+    }
 
     if(worldResult.fReceived) {
         if(worldResult.fHasMainCharData) {
@@ -165,8 +174,9 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     mWorld.simulateMissiles(by, mMap);
 
+    const auto& mpos = mInput.mousePos();
     if(!mMenuVisible) {
-        const auto mouseTilePos = pixelToTilePos(mInput.mousePos());
+        const auto mouseTilePos = pixelToTilePos(mpos);
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
         mMainAction.increment(mInput.mousePressed(),
@@ -198,9 +208,17 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != i) return;
                 const auto& tex = floor->getTexture(tile.fTileType);
-                mGamePainter.drawTexture(px, py + tileH, tex, eAlignment::top | eAlignment::hcenter);
+                mGamePainter.drawTexture(px, py + tileH, tex,
+                                         eAlignment::top | eAlignment::hcenter);
             });
         }
+
+        const auto window = eWidget::window();
+        const bool altPressed = window->altPressed();
+        mItemNames.clear();
+        const auto res = resolution();
+        const int fontSize = res.smallFontSize();
+        const auto font = eFonts::defaultFont(fontSize);
 
         enum class eRenderElementType {
             unit, missile, item
@@ -270,7 +288,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(mPressedUnit && mPressedUnit->fHealth <= 0) {
             setPressedUnit(nullptr);
         }
-        const auto& mousePos = mInput.mousePos();
+
         const int tileW = mInput.tileWidth();
         iterator.iterate([&](const int x, const int y,
                              const int px, const int py) {
@@ -299,7 +317,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     model.incFrame(1.f);
                     bool highlight = false;
                     if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
-                        const SDL_Point p{int(mousePos.fX), int(mousePos.fY)};
+                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                         const int w = 0.75*u->fRadius*tileW;
                         const int h = 2*w;
                         const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
@@ -346,10 +364,32 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto pixel = tilePosToPixel(i->fPos);
                     mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
                                                    4, 4}, SDL_Color{255, 0, 0, 255});
+                    if(altPressed) {
+                        const int w = width();
+                        const int h = height();
+                        mItemNames.add(r, font, w, h, pixel.floor(), *i);
+                    }
                 }
                 nextElement = eleId + 1;
             }
         });
+
+        if(altPressed) {
+            const SDL_Point impos{int(mpos.fX), int(mpos.fY)};
+            for(const auto& it : mItemNames) {
+                const auto& item = it.second;
+                const auto& rect = item.fRect;
+                SDL_Color color;
+                if(SDL_PointInRect(&impos, &rect)) {
+                    color = SDL_Color{0, 0, 255, 128};
+                } else {
+                    color = SDL_Color{0, 0, 0, 128};
+                }
+                mGamePainter.fillRect(rect, color);
+                mGamePainter.drawTexture(rect, item.fName,
+                                         eAlignment::center);
+            }
+        }
     }
 
     mGamePainter.renderLight(r, mInput.characterHorizontalPos()*width(),
@@ -370,6 +410,14 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
     const bool rightPressed = static_cast<bool>(
         button & eMouseButton::right);
     if(leftPressed || rightPressed) {
+        if(!mWaitngForEq && e.altPreseed()) {
+            uint32_t itemId;
+            const bool r = mItemNames.at({e.x(), e.y()}, itemId);
+            if(r) {
+                mServer->pickupItem(mClientId, itemId, mDragEnabled);
+                mWaitngForEq = true;
+            }
+        }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
         if(mHighlightUnit) {

@@ -1,5 +1,6 @@
 #include "eSlayerHelpers/eequipment.h"
 
+#include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
 
 void eInventoryItem::read(ePacket& p) {
@@ -39,6 +40,75 @@ eItem eEquipment::get(const int itemId) const {
         if(item.fItemId == itemId) return item;
     }
     return eItem{0, 0, eItemType::none};
+}
+
+bool eEquipment::add(const eItem& item) {
+    const auto tryAdd = [&](eItem& dst, const eItemType type) {
+        if(dst.fType != eItemType::none) return false;
+        if(item.fType != type) return false;
+        dst = item;
+        return true;
+    };
+
+    bool r = tryAdd(fBoots, eItemType::boots);
+    if(r) return true;
+    r = tryAdd(fGloves, eItemType::gloves);
+    if(r) return true;
+    r = tryAdd(fHelmet, eItemType::helmet);
+    if(r) return true;
+    r = tryAdd(fArmor, eItemType::armor);
+    if(r) return true;
+    r = tryAdd(fBelt, eItemType::belt);
+    if(r) return true;
+    r = tryAdd(fRingL, eItemType::ring);
+    if(r) return true;
+    r = tryAdd(fRingR, eItemType::ring);
+    if(r) return true;
+    r = tryAdd(fAmulet, eItemType::amulet);
+    if(r) return true;
+    r = tryAdd(fWeapon1L, eItemType::weapon);
+    if(r) return true;
+    r = tryAdd(fWeapon1R, eItemType::weapon);
+    if(r) return true;
+    r = tryAdd(fWeapon2L, eItemType::weapon);
+    if(r) return true;
+    r = tryAdd(fWeapon2R, eItemType::weapon);
+    if(r) return true;
+    r = tryAdd(fWeapon1R, eItemType::shield);
+    if(r) return true;
+    r = tryAdd(fWeapon2R, eItemType::shield);
+    if(r) return true;
+    r = tryAdd(fWeapon1R, eItemType::arrows);
+    if(r) return true;
+    r = tryAdd(fWeapon2R, eItemType::arrows);
+    if(r) return true;
+    const auto& itemData = eItemsData::get(item.fDataId);
+    const int w = itemData.fWidth;
+    const int h = itemData.fHeight;
+    for(int x = 0; x <= fInventoryWidth - w; x++) {
+        for(int y = 0; y <= fInventoryHeight - h; y++) {
+            bool overlap = false;
+            for(const auto& it : fInventory) {
+                const bool dontOverlap = x >= it.fX + it.fW ||
+                                         x + w <= it.fX ||
+                                         y >= it.fY + it.fH ||
+                                         y + h <= it.fY;
+                if(dontOverlap) continue;
+                overlap = true;
+                break;
+            }
+            if(!overlap) {
+                auto& iitem = fInventory.emplace_back();
+                iitem.fItem = item;
+                iitem.fX = x;
+                iitem.fY = y;
+                iitem.fW = w;
+                iitem.fH = h;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void eEquipment::read(ePacket& p) {

@@ -64,6 +64,12 @@ bool eLocalServer::requestWeaponData(const int clientId) {
     return h->requestWeaponData();
 }
 
+bool eLocalServer::requestEquipment(const int clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->requestEquipment();
+}
+
 bool eLocalServer::receiveData(const int clientId,
                                eRequestData& data,
                                float& resultTime) {
@@ -77,6 +83,13 @@ bool eLocalServer::receiveWeaponData(
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->receiveWeaponData(data);
+}
+
+bool eLocalServer::receiveEquipment(const int clientId,
+                                    eEquipment& data) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->receiveEquipment(data);
 }
 
 bool eLocalServer::changeState(
@@ -114,10 +127,11 @@ bool eLocalServer::setSkillId(const int clientId,
 }
 
 bool eLocalServer::pickupItem(
-    const int clientId, const int itemId) {
+    const int clientId, const int itemId,
+    const bool drag) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->pickupItem(itemId);
+    return h->pickupItem(itemId, drag);
 }
 
 bool eLocalServer::dropItem(

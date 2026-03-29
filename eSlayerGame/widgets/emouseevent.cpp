@@ -1,10 +1,12 @@
 #include "emouseevent.h"
 
 eMouseEvent::eMouseEvent(const int x, const int y,
-                         const bool shift, const bool ctrl,
+                         const bool shift,
+                         const bool alt,
+                         const bool ctrl,
                          const eMouseButton buttons,
                          const eMouseButton button) :
-    mX(x), mY(y), mShift(shift), mCtrl(ctrl),
+    mX(x), mY(y), mShift(shift), mAlt(alt), mCtrl(ctrl),
     mButtons(buttons), mButton(button) {
 
 }
@@ -24,10 +26,12 @@ eMouseEvent eMouseEvent::withPosition(const int x, const int y) const {
 }
 
 eMouseWheelEvent::eMouseWheelEvent(const int x, const int y,
-                                   const bool shift, const bool ctrl,
+                                   const bool shift,
+                                   const bool alt,
+                                   const bool ctrl,
                                    const eMouseButton buttons,
                                    const int dy) :
-    eMouseEvent(x, y, shift, ctrl, buttons), mDY(dy) {
+    eMouseEvent(x, y, shift, alt, ctrl, buttons), mDY(dy) {
 
 }
 
@@ -46,10 +50,12 @@ eMouseWheelEvent eMouseWheelEvent::withPosition(const int x, const int y) const 
 }
 
 eKeyPressEvent::eKeyPressEvent(const int x, const int y,
-                               const bool shift, const bool ctrl,
+                               const bool shift,
+                               const bool alt,
+                               const bool ctrl,
                                const eMouseButton buttons,
                                const SDL_Scancode key) :
-    eMouseEvent(x, y, shift, ctrl, buttons), mKey(key) {
+    eMouseEvent(x, y, shift, alt, ctrl, buttons), mKey(key) {
 
 }
 

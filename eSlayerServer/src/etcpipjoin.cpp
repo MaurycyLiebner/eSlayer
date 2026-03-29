@@ -82,6 +82,11 @@ void eTcpIpJoin::increment(const float by) {
             mWeaponData.read(p);
             mNewWeaponData = true;
         } break;
+        case ePacketType::equipment: {
+            mEquipment = eEquipment();
+            mEquipment.read(p);
+            mNewEquipment = true;
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -146,6 +151,14 @@ bool eTcpIpJoin::requestWeaponData(const int clientId) {
     return r;
 }
 
+bool eTcpIpJoin::requestEquipment(const int clientId) {
+    ePacket p;
+    p << ePacketType::equipment;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send a request to the host.");
+    return r;
+}
+
 bool eTcpIpJoin::receiveData(const int clientId,
                              eRequestData& data,
                              float& resultTime) {
@@ -161,6 +174,14 @@ bool eTcpIpJoin::receiveWeaponData(const int clientId,
     if(!mNewWeaponData) return false;
     data = mWeaponData;
     mNewWeaponData = false;
+    return true;
+}
+
+bool eTcpIpJoin::receiveEquipment(const int clientId,
+                                  eEquipment& data) {
+    if(!mNewEquipment) return false;
+    data = mEquipment;
+    mNewEquipment = false;
     return true;
 }
 
@@ -212,11 +233,13 @@ bool eTcpIpJoin::setSkillId(const int clientId,
     return true;
 }
 
-bool eTcpIpJoin::pickupItem(
-    const int clientId, const int itemId) {
+bool eTcpIpJoin::pickupItem(const int clientId,
+                            const int itemId,
+                            const bool drag) {
     ePacket p;
     p << ePacketType::pickupItem;
     p << itemId;
+    p << drag;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send item pickup to the host.");
     return true;

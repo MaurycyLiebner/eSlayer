@@ -20,9 +20,11 @@ public:
 
     bool requestData();
     bool requestWeaponData();
+    bool requestEquipment();
     bool receiveData(eRequestData& data,
                      float& resultTime);
     bool receiveWeaponData(eWeaponData& data);
+    bool receiveEquipment(eEquipment& data);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 
@@ -35,7 +37,7 @@ public:
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);
 
-    bool pickupItem(const int itemId);
+    bool pickupItem(const int itemId, const bool drag);
     bool dropItem(const int itemId);
     bool rearrangeItems(const eEquipment& eq);
 private:

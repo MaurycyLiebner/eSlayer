@@ -41,8 +41,9 @@ public:
     bool removeClient(const int clientId);
     bool removeUnit(const int charId);
 
-    void pickupItem(const int clientId, const int itemId);
-    void dropItem(const int clientId, const int itemId);
+    bool pickupItem(const int clientId, const int itemId,
+                    const bool drag);
+    bool dropItem(const int clientId, const int itemId);
     void rearrangeItems(const int clientId, const eEquipment& eq);
 
     std::vector<eMissile>
@@ -63,7 +64,7 @@ private:
     eIdMapVector<eServerMissile> mMissiles;
     mutable std::map<int, int32_t> mClientLatestMissileId;
     eIdMapVector<eServerUnit> mUnits;
-    eIdMapVector<eItem> mItems;
+    eIdMapVector<eItem> mItemsOnGround;
     eIdMapVector<eGroundItem> mGroundItems;
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;

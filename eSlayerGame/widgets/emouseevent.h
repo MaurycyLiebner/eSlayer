@@ -23,7 +23,9 @@ inline eMouseButton operator~(const eMouseButton a) {
 class eMouseEvent {
 public:
     eMouseEvent(const int x, const int y,
-                const bool shift, const bool ctrl,
+                const bool shift,
+                const bool alt,
+                const bool ctrl,
                 const eMouseButton buttons,
                 const eMouseButton button = eMouseButton::none);
 
@@ -35,12 +37,14 @@ public:
     eMouseButton buttons() const { return mButtons; }
 
     bool shiftPressed() const { return mShift; }
+    bool altPreseed() const { return mAlt; }
     bool ctrlPressed() const { return mCtrl; }
 protected:
     int mX;
     int mY;
 
     bool mShift;
+    bool mAlt;
     bool mCtrl;
 
     eMouseButton mButtons;
@@ -52,9 +56,10 @@ protected:
 class eMouseWheelEvent : public eMouseEvent {
 public:
     eMouseWheelEvent(const int x, const int y,
-                     const bool shift, const bool ctrl,
-                     const eMouseButton buttons,
-                     const int dy);
+                     const bool shift,
+                     const bool alt,
+                     const bool ctrl,
+                     const eMouseButton buttons, const int dy);
 
     eMouseWheelEvent translated(const int x, const int y) const;
     eMouseWheelEvent withPosition(const int x, const int y) const;
@@ -67,7 +72,9 @@ private:
 class eKeyPressEvent : public eMouseEvent {
 public:
     eKeyPressEvent(const int x, const int y,
-                   const bool shift, const bool ctrl,
+                   const bool shift,
+                   const bool alt,
+                   const bool ctrl,
                    const eMouseButton buttons,
                    const SDL_Scancode key);
 

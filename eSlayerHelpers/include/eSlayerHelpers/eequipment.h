@@ -33,9 +33,12 @@ struct ESLAYERHELPERS_API eEquipment {
 
     eItem fDragged;
 
+    static const int fInventoryWidth = 10;
+    static const int fInventoryHeight = 4;
     std::vector<eInventoryItem> fInventory;
 
     eItem get(const int itemId) const;
+    bool add(const eItem& item);
 
     void read(ePacket& p);
     void write(ePacket& p) const;

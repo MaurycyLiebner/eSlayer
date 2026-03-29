@@ -1,6 +1,7 @@
 #include "einventorybagpackwidget.h"
 
 #include "../../textures/eitemstextures.h"
+#include "einventorywidget.h"
 
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/eitemsdata.h>
@@ -10,18 +11,17 @@
 void eInventoryBagpackWidget::initialize(
     const eAction& dragChange,
     eEquipment* const eq,
-    const int dimensions,
-    const int width,
-    const int height) {
+    const int dimensions) {
     mDraggedChanged = dragChange;
     mEq = eq;
     mDimensions = dimensions;
-    mWidth = width;
-    mHeight = height;
+    mWidth = mEq->fInventoryWidth;
+    mHeight = mEq->fInventoryHeight;
     resize(mWidth*mDimensions, mHeight*mDimensions);
 }
 
 bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
+    if(eInventoryWidget::sBlocked) return false;
     const auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
     const auto ipos = mousePosToItemPos(mpos);
@@ -123,6 +123,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
 }
 
 bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
+    if(eInventoryWidget::sBlocked) return true;
     if(mEq->fDragged.fType != eItemType::none) return true;
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);

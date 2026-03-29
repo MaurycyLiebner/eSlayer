@@ -9,6 +9,7 @@
 #include "../../textures/echarunitmodel.h"
 #include "../../units/eunit.h"
 #include "egamepainter.h"
+#include "eitemnames.h"
 
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
@@ -32,7 +33,8 @@ public:
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eEquipment& eq);
+                    const eEquipment& eq,
+                    const eAction& dragUpdater);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }
@@ -62,6 +64,8 @@ public:
     eEquipment* equipment() { return &mEq; }
     void dropItem();
     void sendInventoryRearranged();
+    void setDragEnabled(const bool e) { mDragEnabled = e; }
+    bool waitingForEquipment() const { return mWaitngForEq; }
 
     int leftSkill() const { return mLeftSkill; }
     void setLeftSkill(const int s);
@@ -106,6 +110,8 @@ private:
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eMap> mMap;
 
+    eItemNames mItemNames;
+
     int mFrame = 0;
 
     bool mMenuVisible = false;
@@ -118,6 +124,10 @@ private:
     eMainCharHandler mMainCharHandler;
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;
+
+    bool mDragEnabled = false;
+    bool mWaitngForEq = false;
+    eAction mDragUpdater;
 };
 
 #endif // EGAMEWIDGET_H

@@ -38,7 +38,10 @@ void eGameScreen::initialize(const int clientId,
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
 
-    mGameWidget->initialize(clientId, server, map, eq);
+    const auto dragUpdater = [this]() {
+        updateDrag();
+    };
+    mGameWidget->initialize(clientId, server, map, eq, dragUpdater);
 
     mGameWidget->setMainCharHandler([this](const eUnitData& u) {
         mHealthIndicator->setValue(u.fHealth);
@@ -253,6 +256,7 @@ void eGameScreen::hideESCMenu() {
 
 void eGameScreen::showInventoryMenu() {
     if(mInventoryMenu) return;
+    mGameWidget->setDragEnabled(true);
     mInventoryMenu = new eInventoryWidget(window());
     const int w = width();
     const int h = height();
@@ -260,12 +264,7 @@ void eGameScreen::showInventoryMenu() {
     const auto eq = mGameWidget->equipment();
     const auto dragChange = [this, eq]() {
         if(!mDragWidget) return;
-        if(eq->fDragged.fType == eItemType::none) {
-            mDragWidget->setItemDataId(-1);
-        } else {
-            const int dataId = eq->fDragged.fDataId;
-            mDragWidget->setItemDataId(dataId);
-        }
+        updateDrag();
         mGameWidget->sendInventoryRearranged();
     };
     mInventoryMenu->initialize(dragChange, eq);
@@ -291,11 +290,23 @@ void eGameScreen::showInventoryMenu() {
 
 void eGameScreen::hideInventoryMenu() {
     if(!mInventoryMenu) return;
+    mGameWidget->setDragEnabled(false);
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
     mDragWidget->deleteLater();
     mDragWidget = nullptr;
     updateCharPos();
+}
+
+void eGameScreen::updateDrag() {
+    if(!mDragWidget) return;
+    const auto eq = mGameWidget->equipment();
+    if(eq->fDragged.fType == eItemType::none) {
+        mDragWidget->setItemDataId(-1);
+    } else {
+        const int dataId = eq->fDragged.fDataId;
+        mDragWidget->setItemDataId(dataId);
+    }
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,

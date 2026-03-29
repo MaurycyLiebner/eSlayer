@@ -5,6 +5,7 @@
 
 #include <eSlayerNet/etcpnetwork.h>
 #include <eSlayerHelpers/erequestdata.h>
+#include <eSlayerHelpers/eequipment.h>
 
 class eTcpIpJoin : public eServer {
 public:
@@ -25,12 +26,15 @@ public:
 
     bool requestData(const int clientId) override;
     bool requestWeaponData(const int clientId) override;
+    bool requestEquipment(const int clientId) override;
 
     bool receiveData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
     bool receiveWeaponData(const int clientId,
                            eWeaponData& data) override;
+    bool receiveEquipment(const int clientId,
+                          eEquipment& data) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -46,7 +50,8 @@ public:
                     const int skillId) override;
 
     bool pickupItem(const int clientId,
-                    const int itemId) override;
+                    const int itemId,
+                    const bool drag) override;
     bool dropItem(const int clientId,
                   const int itemId) override;
     bool rearrangeItems(const int clientId,
@@ -59,6 +64,8 @@ private:
     bool mNewData = false;
     eWeaponData mWeaponData;
     bool mNewWeaponData = false;
+    eEquipment mEquipment;
+    bool mNewEquipment = false;
     uint32_t mRequestId = 0;
     uint32_t mReceivedId = 0;
 };

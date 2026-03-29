@@ -13,9 +13,7 @@ public:
 
     void initialize(const eAction& dragChange,
                     eEquipment* const eq,
-                    const int dimensions,
-                    const int width,
-                    const int height);
+                    const int dimensions);
 
     bool dropItem(const SDL_Point& mpos);
 protected:

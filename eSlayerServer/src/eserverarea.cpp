@@ -277,24 +277,33 @@ bool eServerArea::removeUnit(const int charId) {
     return mUnits.remove(charId);
 }
 
-void eServerArea::pickupItem(
-    const int clientId, const int itemId) {
+bool eServerArea::pickupItem(
+    const int clientId, const int itemId,
+    const bool drag) {
     const auto u = unit(clientId);
-    if(!u) return;
+    if(!u) return false;
+    const auto item = mItemsOnGround.get(itemId);
+    if(!item) return false;
     auto& eq = u->equipment();
-    eq.fDragged = *mItems.get(itemId);
+    if(drag) {
+        if(eq.fDragged.fType != eItemType::none) return false;
+        eq.fDragged = *item;
+    } else {
+        const bool r = eq.add(*item);
+        if(!r) return false;
+    }
     mGroundItems.remove(itemId);
-    mItems.remove(itemId);
+    mItemsOnGround.remove(itemId);
+    return true;
 }
 
-void eServerArea::dropItem(
-    const int clientId, const int itemId) {
+bool eServerArea::dropItem(const int clientId, const int itemId) {
     const auto u = unit(clientId);
-    if(!u) return;
+    if(!u) return false;
     auto& eq = u->equipment();
     const auto pos = u->fPos;
     const auto item = eq.fDragged;
-    if(item.fType == eItemType::none) return;
+    if(item.fType == eItemType::none) return false;
     eq.fDragged = eItem();
     const auto groundItem = std::make_shared<eGroundItem>();
     groundItem->fItemId = itemId;
@@ -321,7 +330,8 @@ void eServerArea::dropItem(
         if(found) break;
     }
     mGroundItems.add(itemId, groundItem);
-    mItems.add(itemId, std::make_shared<eItem>(item));
+    mItemsOnGround.add(itemId, std::make_shared<eItem>(item));
+    return true;
 }
 
 void eServerArea::rearrangeItems(
