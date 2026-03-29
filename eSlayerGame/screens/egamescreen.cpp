@@ -22,11 +22,7 @@ eGameScreen::eGameScreen(eMainWindow* const window) :
 
 eGameScreen::~eGameScreen() {
     if(mGameWidget) {
-        const auto server = mGameWidget->server();
-        if(server) {
-            const int clientId = mGameWidget->clientId();
-            server->disconnect(clientId);
-        }
+        mGameWidget->disconnect();
     }
 }
 
@@ -175,9 +171,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
         } else if(mDeadMenu) {
-            const auto& server = mGameWidget->server();
-            const int clientId = mGameWidget->clientId();
-            server->respawn(clientId);
+            mGameWidget->respawn();
         } else {
             if(mESCMenu) {
                 hideESCMenu();
@@ -186,10 +180,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             }
         }
     } else if(e.key() == SDL_SCANCODE_R) {
-        auto& action = mGameWidget->mainAction();
-        const bool run = !action.running();
+        const bool run = mGameWidget->switchRunning();
         mRunButton->setChecked(run);
-        action.setRunning(run);
     } else if(e.key() == SDL_SCANCODE_I) {
         if(mInventoryMenu) {
             hideInventoryMenu();
@@ -197,8 +189,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             showInventoryMenu();
         }
     } else if(e.key() == SDL_SCANCODE_W) {
-        const auto eq = mGameWidget->equipment();
-        eq->fWeapons1 = !eq->fWeapons1;
+        mGameWidget->switchWeapons();
         if(mInventoryMenu) {
             mInventoryMenu->updateWeapons();
         }
@@ -242,10 +233,7 @@ void eGameScreen::showESCMenu() {
         hideESCMenu();
     };
     const auto exit = [this]() {
-        const auto server = mGameWidget->server();
-        if(server) {
-            server->disconnect(mGameWidget->clientId());
-        }
+        mGameWidget->disconnect();
         mExitAction();
     };
     mESCMenu->initialize(return_, exit);

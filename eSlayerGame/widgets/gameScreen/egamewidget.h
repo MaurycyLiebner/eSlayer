@@ -74,6 +74,11 @@ public:
     void setMainCharHandler(const eMainCharHandler& h) { mMainCharHandler = h; }
     void setDeathHandler(const eDeathHandler& h) { mDeathHandler = h; }
     void setRespawnHandler(const eRespawnHandler& h) { mRespawnHandler = h; }
+
+    void respawn();
+    bool switchRunning();
+    bool switchWeapons();
+    void disconnect();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

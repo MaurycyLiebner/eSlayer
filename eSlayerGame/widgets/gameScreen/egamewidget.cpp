@@ -99,6 +99,27 @@ void eGameWidget::setRightSkill(const int s) {
     mServer->setSkillId(mClientId, eSkillChoice::right, s);
 }
 
+void eGameWidget::respawn() {
+    mServer->respawn(mClientId);
+}
+
+bool eGameWidget::switchRunning() {
+    const bool run = !mMainAction.running();
+    mMainAction.setRunning(run);
+    return run;
+}
+
+bool eGameWidget::switchWeapons() {
+    mEq.fWeapons1 = !mEq.fWeapons1;
+    return mEq.fWeapons1;
+}
+
+void eGameWidget::disconnect() {
+    if(mServer) {
+        mServer->disconnect(mClientId);
+    }
+}
+
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
