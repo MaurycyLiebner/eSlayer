@@ -53,6 +53,8 @@ public:
     int padding() const { return mPadding; }
     SDL_Rect rect() const { return {0, 0, mWidth, mHeight}; }
     bool visible() const { return mVisible; }
+    SDL_Point mousePos() const;
+    bool hovered() const;
 
     eWidget* parent() const { return mParent; }
 

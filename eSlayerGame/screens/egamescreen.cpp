@@ -169,7 +169,9 @@ void eGameScreen::initialize(const int clientId,
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mSkillMenu) {
+        if(mInventoryMenu) {
+            hideInventoryMenu();
+        } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
         } else if(mDeadMenu) {
@@ -193,6 +195,12 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideInventoryMenu();
         } else {
             showInventoryMenu();
+        }
+    } else if(e.key() == SDL_SCANCODE_W) {
+        const auto eq = mGameWidget->equipment();
+        eq->fWeapons1 = !eq->fWeapons1;
+        if(mInventoryMenu) {
+            mInventoryMenu->updateWeapons();
         }
     }
     return true;

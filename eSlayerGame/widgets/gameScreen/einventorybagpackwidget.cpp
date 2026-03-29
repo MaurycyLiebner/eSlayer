@@ -53,27 +53,18 @@ bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
 }
 
 void eInventoryBagpackWidget::paintEvent(ePainter& p) {
-    SDL_Color hoverColor;
+    SDL_Color fillColor{0, 0, 0, 255};
     SDL_Rect ihoverRect = {0, 0, 0, 0};
     const auto& dragged = mEq->fDragged;
-    SDL_Point ipos;
-    {
-        float mxf;
-        float myf;
-        SDL_GetMouseState(&mxf, &myf);
-        int mx = mxf;
-        int my = myf;
-        mapFromGlobal(mx, my);
-        const SDL_Point mpos{mx, my};
-        ipos = mousePosToItemPos(mpos);
-    }
+    const auto mpos = mousePos();
+    const auto ipos = mousePosToItemPos(mpos);
     if(dragged.fType == eItemType::none) {
         const int itemId = itemIdAt(ipos);
         if(itemId != -1) {
             const auto& item = mEq->fInventory[itemId];
             ihoverRect = SDL_Rect{item.fX, item.fY,
                                   item.fW, item.fH};
-            hoverColor = SDL_Color{0, 255, 0, 128};
+            fillColor = SDL_Color{0, 128, 0, 255};
         }
     } else {
         const auto& itemData = eItemsData::get(dragged.fDataId);
@@ -83,17 +74,17 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
             const auto ids = itemIdsAt(dropRect);
             if(ids.size() > 1) {
                 ihoverRect = dropRect;
-                hoverColor = SDL_Color{255, 0, 0, 128};
+                fillColor = SDL_Color{128, 0, 0, 255};
             } else if(ids.size() == 1) {
                 auto& invItem = mEq->fInventory[ids[0]];
                 ihoverRect.x = invItem.fX;
                 ihoverRect.y = invItem.fY;
                 ihoverRect.w = invItem.fW;
                 ihoverRect.h = invItem.fH;
-                hoverColor = SDL_Color{0, 255, 0, 128};
+                fillColor = SDL_Color{0, 128, 0, 255};
             } else { // 0
                 ihoverRect = dropRect;
-                hoverColor = SDL_Color{0, 255, 0, 128};
+                fillColor = SDL_Color{0, 128, 0, 255};
             }
         }
     }
@@ -106,10 +97,12 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
                                 y*mDimensions,
                                 mDimensions,
                                 mDimensions};
-            p.fillRect(rect, SDL_Color{0, 0, 0, 255});
+            p.fillRect(rect, fillColor);
             const SDL_Point pt{x, y};
             if(SDL_PointInRect(&pt, &ihoverRect)) {
-                p.fillRect(rect, hoverColor);
+                p.fillRect(rect, fillColor);
+            } else {
+                p.fillRect(rect, SDL_Color{0, 0, 0, 255});
             }
             p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
         }
@@ -120,22 +113,17 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         const int y = i.fY*mDimensions;
         const auto& item = i.fItem;
         const int dataId = item.fDataId;
-        const auto itemName = eItemsData::name(dataId);
-        auto& itemTex = eItemsTextures::get(itemName);
+        auto& itemTex = eItemsTextures::getByItemDataId(dataId);
         itemTex.request(r);
         const auto& tex = itemTex.fTex;
-        const SDL_Point pt{i.fX, i.fY};
-        if(SDL_PointInRect(&pt, &ihoverRect)) {
-            tex->setColorMod(hoverColor.r, hoverColor.g, hoverColor.b);
-        }
         const int w = i.fW*mDimensions;
         const int h = i.fH*mDimensions;
         p.drawTexture(SDL_Rect{x, y, w, h}, tex, eAlignment::center);
-        tex->clearColorMod();
     }
 }
 
 bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
+    if(mEq->fDragged.fType != eItemType::none) return true;
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);
     if(itemId == -1) return true;

@@ -154,6 +154,22 @@ void eWidget::align(const eAlignment a) {
     }
 }
 
+SDL_Point eWidget::mousePos() const {
+    float mxf;
+    float myf;
+    SDL_GetMouseState(&mxf, &myf);
+    int mx = mxf;
+    int my = myf;
+    mapFromGlobal(mx, my);
+    return SDL_Point{mx, my};
+}
+
+bool eWidget::hovered() const {
+    const auto wmpos = mousePos();
+    const SDL_Rect wrect = rect();
+    return SDL_PointInRect(&wmpos, &wrect);
+}
+
 bool eWidget::contains(const int x, const int y) const {
     if(x < 0 || y < 0) return false;
     if(x > mWidth || y > mHeight) return false;

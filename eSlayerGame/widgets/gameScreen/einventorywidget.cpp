@@ -1,6 +1,10 @@
 #include "einventorywidget.h"
 
 #include "einventorybagpackwidget.h"
+#include "eitemplacewidget.h"
+#include "eweaponswitch.h"
+
+#include <eSlayerHelpers/eequipment.h>
 
 void eInventoryWidget::initialize(
     const eAction& dragChange,
@@ -20,10 +24,175 @@ void eInventoryWidget::initialize(
         break;
     }
 
+    const auto helmet = new eItemPlaceWidget(window());
+    helmet->intialize(2, 2, dim, mEq,
+                      &eEquipment::fHelmet,
+                      {eItemType::helmet},
+                      dragChange);
+    mItemPalces.emplace_back(helmet);
+
+    const auto armor = new eItemPlaceWidget(window());
+    armor->intialize(2, 3, dim, mEq,
+                      &eEquipment::fArmor,
+                      {eItemType::armor},
+                      dragChange);
+    mItemPalces.emplace_back(armor);
+
+    const auto belt = new eItemPlaceWidget(window());
+    belt->intialize(2, 1, dim, mEq,
+                     &eEquipment::fBelt,
+                     {eItemType::belt},
+                     dragChange);
+    mItemPalces.emplace_back(belt);
+
+    const auto boots = new eItemPlaceWidget(window());
+    boots->intialize(2, 2, dim, mEq,
+                     &eEquipment::fBoots,
+                     {eItemType::boots},
+                     dragChange);
+    mItemPalces.emplace_back(boots);
+
+    const auto gloves = new eItemPlaceWidget(window());
+    gloves->intialize(2, 2, dim, mEq,
+                      &eEquipment::fGloves,
+                      {eItemType::gloves},
+                      dragChange);
+    mItemPalces.emplace_back(gloves);
+
+    const auto ringL = new eItemPlaceWidget(window());
+    ringL->intialize(1, 1, dim, mEq,
+                     &eEquipment::fRingL,
+                     {eItemType::ring},
+                     dragChange);
+    mItemPalces.emplace_back(ringL);
+
+    const auto ringR = new eItemPlaceWidget(window());
+    ringR->intialize(1, 1, dim, mEq,
+                     &eEquipment::fRingR,
+                     {eItemType::ring},
+                     dragChange);
+    mItemPalces.emplace_back(ringR);
+
+    const auto amulet = new eItemPlaceWidget(window());
+    amulet->intialize(1, 1, dim, mEq,
+                      &eEquipment::fAmulet,
+                      {eItemType::amulet},
+                      dragChange);
+    mItemPalces.emplace_back(amulet);
+
+    mWeapon1L = new eItemPlaceWidget(window());
+    mWeapon1L->intialize(2, 4, dim, mEq,
+                      &eEquipment::fWeapon1L,
+                      {eItemType::weapon},
+                      dragChange);
+    mItemPalces.emplace_back(mWeapon1L);
+
+    mWeapon1R = new eItemPlaceWidget(window());
+    mWeapon1R->intialize(2, 4, dim, mEq,
+                        &eEquipment::fWeapon1R,
+                        {eItemType::weapon,
+                         eItemType::shield,
+                         eItemType::arrows},
+                        dragChange);
+    mItemPalces.emplace_back(mWeapon1R);
+
+    mWeapon2L = new eItemPlaceWidget(window());
+    mWeapon2L->intialize(2, 4, dim, mEq,
+                        &eEquipment::fWeapon2L,
+                        {eItemType::weapon},
+                        dragChange);
+    mItemPalces.emplace_back(mWeapon2L);
+
+    mWeapon2R = new eItemPlaceWidget(window());
+    mWeapon2R->intialize(2, 4, dim, mEq,
+                        &eEquipment::fWeapon2R,
+                        {eItemType::weapon,
+                         eItemType::shield,
+                         eItemType::arrows},
+                        dragChange);
+    mItemPalces.emplace_back(mWeapon2R);
+
+    const int p = res.largePadding();
+
+    const auto firstRow = new eWidget(window());
+    firstRow->setNoPadding();
+
+    const auto helmetArmor = new eWidget(window());
+    helmetArmor->setNoPadding();
+    helmetArmor->addWidget(helmet);
+    helmetArmor->addWidget(armor);
+    helmetArmor->stackVertically(p);
+    helmetArmor->fitContent();
+
+    const auto update = [this]() {
+        updateWeapons();
+    };
+
+    const auto lweaponCont = new eWidget(window());
+    lweaponCont->setNoPadding();
+
+    mLWeaponSwitch = new eWeaponSwitch(window());
+    mLWeaponSwitch->initialize(mEq, update);
+    lweaponCont->addWidget(mLWeaponSwitch);
+
+    const auto lweapon = new eWidget(window());
+    lweapon->setNoPadding();
+    lweapon->addWidget(mWeapon1L);
+    lweapon->addWidget(mWeapon2L);
+    lweapon->fitContent();
+
+    lweaponCont->addWidget(lweapon);
+    lweaponCont->stackVertically();
+    lweaponCont->fitContent();
+
+    const auto rweaponCont = new eWidget(window());
+    rweaponCont->setNoPadding();
+
+    mRWeaponSwitch = new eWeaponSwitch(window());
+    mRWeaponSwitch->initialize(mEq, update);
+    rweaponCont->addWidget(mRWeaponSwitch);
+
+    const auto rweapon = new eWidget(window());
+    rweapon->setNoPadding();
+    rweapon->addWidget(mWeapon1R);
+    rweapon->addWidget(mWeapon2R);
+    rweapon->fitContent();
+
+    rweaponCont->addWidget(rweapon);
+    rweaponCont->stackVertically();
+    rweaponCont->fitContent();
+
+    firstRow->addWidget(lweaponCont);
+    firstRow->addWidget(helmetArmor);
+    firstRow->addWidget(amulet);
+    firstRow->addWidget(rweaponCont);
+    firstRow->stackHorizontally(p);
+    firstRow->fitContent();
+    addWidget(firstRow);
+
+    const auto secondRow = new eWidget(window());
+    secondRow->setNoPadding();
+
+    secondRow->addWidget(gloves);
+    secondRow->addWidget(ringL);
+    secondRow->addWidget(belt);
+    secondRow->addWidget(ringR);
+    secondRow->addWidget(boots);
+    secondRow->stackHorizontally(p);
+    secondRow->fitContent();
+    addWidget(secondRow);
+
     mBagpack = new eInventoryBagpackWidget(window());
     mBagpack->initialize(dragChange, mEq, dim, 10, 4);
     addWidget(mBagpack);
-    mBagpack->align(eAlignment::bottom | eAlignment::hcenter);
+
+    layoutVertically();
+
+    firstRow->align(eAlignment::hcenter);
+    secondRow->align(eAlignment::hcenter);
+    mBagpack->align(eAlignment::hcenter);
+
+    updateWeapons();
 }
 
 void eInventoryWidget::paintEvent(ePainter& p) {
@@ -31,11 +200,23 @@ void eInventoryWidget::paintEvent(ePainter& p) {
 }
 
 bool eInventoryWidget::dropItem(const SDL_Point& pos) {
-    {
-        const SDL_Point bpos{pos.x - mBagpack->x(),
-                             pos.y - mBagpack->y()};
-        const bool b = mBagpack->dropItem(bpos);
-        if(b) return true;
+    const auto bmpos = mBagpack->mousePos();
+    const bool b = mBagpack->dropItem(bmpos);
+    if(b) return true;
+    for(const auto w : mItemPalces) {
+        if(!w->visible()) continue;
+        if(!w->hovered()) continue;
+        const bool r = w->dropItem();
+        if(r) return true;
     }
     return false;
+}
+
+void eInventoryWidget::updateWeapons() {
+    mLWeaponSwitch->updateChecked();
+    mRWeaponSwitch->updateChecked();
+    mWeapon1L->setVisible(mEq->fWeapons1);
+    mWeapon1R->setVisible(mEq->fWeapons1);
+    mWeapon2L->setVisible(!mEq->fWeapons1);
+    mWeapon2R->setVisible(!mEq->fWeapons1);
 }

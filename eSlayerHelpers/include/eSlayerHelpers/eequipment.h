@@ -22,13 +22,14 @@ struct ESLAYERHELPERS_API eEquipment {
     eItem fHelmet;
     eItem fArmor;
     eItem fBelt;
-    eItem fRing;
+    eItem fRingL;
+    eItem fRingR;
     eItem fAmulet;
     eItem fWeapon1L;
     eItem fWeapon1R;
     eItem fWeapon2L;
     eItem fWeapon2R;
-    bool fWeapons1;
+    bool fWeapons1 = true;
 
     eItem fDragged;
 

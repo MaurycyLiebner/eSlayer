@@ -24,7 +24,8 @@ eItem eEquipment::get(const int itemId) const {
                           fHelmet,
                           fArmor,
                           fBelt,
-                          fRing,
+                          fRingL,
+                          fRingR,
                           fAmulet,
                           fWeapon1L,
                           fWeapon1R,
@@ -46,7 +47,8 @@ void eEquipment::read(ePacket& p) {
     fHelmet.read(p);
     fArmor.read(p);
     fBelt.read(p);
-    fRing.read(p);
+    fRingL.read(p);
+    fRingR.read(p);
     fAmulet.read(p);
     fWeapon1L.read(p);
     fWeapon1R.read(p);
@@ -69,7 +71,8 @@ void eEquipment::write(ePacket& p) const {
     fHelmet.write(p);
     fArmor.write(p);
     fBelt.write(p);
-    fRing.write(p);
+    fRingL.write(p);
+    fRingR.write(p);
     fAmulet.write(p);
     fWeapon1L.write(p);
     fWeapon1R.write(p);

@@ -16,6 +16,11 @@ eItemTexture& eItemsTextures::get(const int id) {
     return sInstance.getImpl(id);
 }
 
+eItemTexture& eItemsTextures::getByItemDataId(
+    const int itemDataId) {
+    return sInstance.getByItemDataIdImpl(itemDataId);
+}
+
 void eItemsTextures::load() {
     return sInstance.loadImpl();
 }
@@ -36,14 +41,16 @@ void eItemsTextures::loadImpl() {
                     eItemTexture itemTex;
 
                     const auto path = key + "/" + name;
-                    itemTex.fItemDataId = eItemsData::id(path);
+                    const int itemDataId = eItemsData::id(path);
+                    itemTex.fItemDataId = itemDataId;
                     itemTex.fTexPath = path;
 
-                    auto& itemData = eItemsData::get(itemTex.fItemDataId);
+                    auto& itemData = eItemsData::get(itemDataId);
                     itemData.fWidth = data.value("width", 2);
                     itemData.fHeight = data.value("height", 2);
 
-                    mTexs.add(path, itemTex);
+                    const int id = mTexs.add(path, itemTex);
+                    mItemDataIdToTexId[itemDataId] = id;
                 }
             } else if(key == "weapons") {
                 for(auto& [type, items] : value.items()) {
@@ -51,14 +58,16 @@ void eItemsTextures::loadImpl() {
                         eItemTexture itemTex;
 
                         const auto path = key + "/" + type + "/" + name;
-                        itemTex.fItemDataId = eItemsData::id(path);
+                        const int itemDataId = eItemsData::id(path);
+                        itemTex.fItemDataId = itemDataId;
                         itemTex.fTexPath = path;
 
-                        auto& itemData = eItemsData::get(itemTex.fItemDataId);
+                        auto& itemData = eItemsData::get(itemDataId);
                         itemData.fWidth = data.value("width", 2);
                         itemData.fHeight = data.value("height", 2);
 
-                        mTexs.add(path, itemTex);
+                        const int id = mTexs.add(path, itemTex);
+                        mItemDataIdToTexId[itemDataId] = id;
                     }
                 }
             } else {
@@ -66,10 +75,11 @@ void eItemsTextures::loadImpl() {
                 for(const auto& name : value) {
                     eItemTexture itemTex;
                     const auto path = key + "/" + name.get<std::string>();
-                    itemTex.fItemDataId = eItemsData::id(path);
+                    const int itemDataId = eItemsData::id(path);
+                    itemTex.fItemDataId = itemDataId;
                     itemTex.fTexPath = path;
 
-                    auto& itemData = eItemsData::get(itemTex.fItemDataId);
+                    auto& itemData = eItemsData::get(itemDataId);
                     if(key == "amulets" || key == "rings") {
                         itemData.fWidth = 1;
                         itemData.fHeight = 1;
@@ -89,7 +99,8 @@ void eItemsTextures::loadImpl() {
                         eRuntimeThrow("Unrecognized item type " + key);
                     }
 
-                    mTexs.add(path, itemTex);
+                    const int id = mTexs.add(path, itemTex);
+                    mItemDataIdToTexId[itemDataId] = id;
                 }
             }
         }
@@ -108,6 +119,12 @@ eItemTexture& eItemsTextures::getImpl(const int id) {
         eRuntimeThrow("Index out of range.");
     }
     return mTexs.get(id);
+}
+
+eItemTexture& eItemsTextures::getByItemDataIdImpl(
+    const int itemDataId) {
+    const int id = mItemDataIdToTexId[itemDataId];
+    return getImpl(id);
 }
 
 void eItemTexture::request(SDL_Renderer* const r) {
