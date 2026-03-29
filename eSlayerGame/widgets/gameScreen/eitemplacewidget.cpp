@@ -49,6 +49,17 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     return true;
 }
 
+bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
+    const auto& item = mEq->*mItem;
+    eItemDragWidget::sSetHoverItem(item);
+    return true;
+}
+
+bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
+    eItemDragWidget::sSetHoverItem(eItem());
+    return true;
+}
+
 bool eItemPlaceWidget::draggedCompatible() {
     auto& dragged = mEq->fDragged;
     return eVectorHelpers::contains(mAllowedTypes, dragged.fType);

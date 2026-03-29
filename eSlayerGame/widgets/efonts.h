@@ -27,6 +27,9 @@ public:
 
     static eFont defaultFont(const eResolution res);
     static eFont defaultFont(const int fs);
+
+    static eFont textFont(const eResolution res);
+    static eFont textFont(const int fs);
 private:
     static std::map<eFont, TTF_Font*> sFonts;
 };

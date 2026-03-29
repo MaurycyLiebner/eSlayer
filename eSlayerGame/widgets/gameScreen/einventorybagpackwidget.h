@@ -18,6 +18,8 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
+    bool mouseMoveEvent(const eMouseEvent& e) override;
+    bool mouseLeaveEvent(const eMouseEvent& e) override;
 private:
     int itemIdAt(const SDL_Point& ipos) const;
     std::vector<int> itemIdsAt(const SDL_Rect& irect) const;

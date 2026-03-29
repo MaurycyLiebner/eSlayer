@@ -31,3 +31,12 @@ eFont eFonts::defaultFont(const eResolution res) {
 eFont eFonts::defaultFont(const int fs) {
     return {"light.ttf", fs};
 }
+
+eFont eFonts::textFont(const eResolution res) {
+    const int fs = res.largeFontSize();
+    return textFont(fs);
+}
+
+eFont eFonts::textFont(const int fs) {
+    return {"Copperplate-Gothic-Std-29-AB.ttf", fs};
+}

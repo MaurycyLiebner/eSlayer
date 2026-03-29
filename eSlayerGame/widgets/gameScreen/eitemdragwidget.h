@@ -4,6 +4,7 @@
 #include "../ewidget.h"
 
 struct eEquipment;
+struct eItem;
 
 class eItemDragWidget : public eWidget {
 public:
@@ -16,8 +17,11 @@ public:
 
     void setItemDataId(const int dataId);
 
+    void setHoverItem(const eItem& item);
+
     static eItemDragWidget* sInstance;
     static void sUpdateDragItem(const eEquipment& eq);
+    static void sSetHoverItem(const eItem& item);
 protected:
     void paintEvent(ePainter& p) override;
 
@@ -28,6 +32,9 @@ private:
     eDropAction mDropAction;
     SDL_Point mMousePos;
     std::shared_ptr<eTexture> mItem;
+
+    int mHoverItemId = 0;
+    std::shared_ptr<eTexture> mHover;
 };
 
 #endif // EITEMDRAGWIDGET_H

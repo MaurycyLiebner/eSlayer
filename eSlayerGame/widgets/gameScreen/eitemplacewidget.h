@@ -21,6 +21,8 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
+    bool mouseEnterEvent(const eMouseEvent& e) override;
+    bool mouseLeaveEvent(const eMouseEvent& e) override;
 private:
     bool draggedCompatible();
 

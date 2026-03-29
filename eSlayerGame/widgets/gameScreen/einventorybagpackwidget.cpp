@@ -22,7 +22,7 @@ void eInventoryBagpackWidget::initialize(
 
 bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
     if(eInventoryWidget::sBlocked) return false;
-    const auto& dragged = mEq->fDragged;
+    auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
     const auto ipos = mousePosToItemPos(mpos);
     const auto& itemData = eItemsData::get(dragged.fDataId);
@@ -33,20 +33,21 @@ bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
     if(ids.size() > 1) return false;
     if(ids.size() == 1) {
         auto& invItem = mEq->fInventory[ids[0]];
-        std::swap(mEq->fDragged, invItem.fItem);
+        std::swap(dragged, invItem.fItem);
         invItem.fX = dropRect.x;
         invItem.fY = dropRect.y;
         invItem.fW = dropRect.w;
         invItem.fH = dropRect.h;
     } else {
         eInventoryItem invItem;
-        invItem.fItem = mEq->fDragged;
+        invItem.fItem = dragged;
         invItem.fX = dropRect.x;
         invItem.fY = dropRect.y;
         invItem.fW = dropRect.w;
         invItem.fH = dropRect.h;
         mEq->fInventory.push_back(invItem);
-        mEq->fDragged.fType = eItemType::none;
+        eItemDragWidget::sSetHoverItem(dragged);
+        dragged = eItem();
     }
     eItemDragWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
@@ -134,7 +135,26 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     inv.erase(inv.begin() + itemId);
     mEq->fDragged = item;
     eItemDragWidget::sUpdateDragItem(*mEq);
+    eItemDragWidget::sSetHoverItem(eItem());
     eGameWidget::sSendInventoryRearranged();
+    return true;
+}
+
+bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
+    const auto ipos = mousePosToItemPos({e.x(), e.y()});
+    const int itemId = itemIdAt(ipos);
+    if(itemId == -1) {
+        eItemDragWidget::sSetHoverItem(eItem());
+    } else {
+        const auto& inv = mEq->fInventory;
+        const auto& item = inv[itemId].fItem;
+        eItemDragWidget::sSetHoverItem(item);
+    }
+    return true;
+}
+
+bool eInventoryBagpackWidget::mouseLeaveEvent(const eMouseEvent& e) {
+    eItemDragWidget::sSetHoverItem(eItem());
     return true;
 }
 
