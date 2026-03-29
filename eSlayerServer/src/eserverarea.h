@@ -4,6 +4,8 @@
 #include "eserverunit.h"
 #include "eservermissile.h"
 
+#include <eSlayerHelpers/eunitdynamicdata.h>
+
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
@@ -27,10 +29,12 @@ public:
     const eIdMapVector<eServerUnit>&
     units() const { return mUnits; }
 
-    std::vector<eUnitData>
-    unitsData(const int clientId);
-    std::vector<eGroundItem>
-    itemsData(const int clientId);
+    void unitsData(const int clientId,
+                   std::vector<eUnitData>& newUnits,
+                   std::vector<eUnitDynamicData>& updatedUnits);
+    void itemsData(const int clientId,
+                   std::vector<eGroundItem>& newItems,
+                   std::vector<uint32_t>& removedItemIds);
 
     eUnitArea unitArea(const int charId) const;
     eUnitArea unitArea(const eServerUnit& u) const;
@@ -74,6 +78,8 @@ private:
     eUnitAreas mItemAreas;
     std::map<int, eUnitArea> mClientAreas;
     std::set<int> mClientIds;
+    std::map<int, std::set<int>> mClientKnownUnits;
+    std::map<int, std::set<int>> mClientKnownItems;
 
     std::shared_ptr<eMap> mMap;
 };

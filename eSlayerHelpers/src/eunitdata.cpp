@@ -47,3 +47,37 @@ void eUnitData::write(ePacket& p) const {
 
     fModelParts.write(p);
 }
+
+eUnitData eUnitData::toUnitData() const {
+    eUnitData d;
+    d.fPos = fPos;
+    d.fCharId = fCharId;
+    d.fTeamId = fTeamId;
+    d.fTypeId = fTypeId;
+    d.fRadius = fRadius;
+    d.fVel = fVel;
+    d.fAngle = fAngle;
+    d.fAnim = fAnim;
+    d.fAnimId = fAnimId;
+    d.fAnimSpeed = fAnimSpeed;
+    d.fActionTime = fActionTime;
+    d.fHealth = fHealth;
+    d.fMaxHealth = fMaxHealth;
+    d.fModelParts = fModelParts;
+    return d;
+}
+
+eUnitDynamicData eUnitData::toDynamicData() const {
+    eUnitDynamicData d;
+    d.fCharId = fCharId;
+    d.fPos = fPos;
+    d.fVel = fVel;
+    d.fAngle = fAngle;
+    d.fAnim = fAnim;
+    d.fAnimId = fAnimId;
+    d.fAnimSpeed = fAnimSpeed;
+    d.fActionTime = fActionTime;
+    d.fHealth = fHealth;
+    d.fMaxHealth = fMaxHealth;
+    return d;
+}

@@ -8,10 +8,6 @@
 eServerClientHandler::eServerClientHandler(const int clientId) :
     mClientId(clientId) {}
 
-bool eServerClientHandler::requestData() {
-    return true;
-}
-
 bool eServerClientHandler::requestWeaponData() {
     return true;
 }
@@ -24,9 +20,9 @@ bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
-    data.fUnits = mArea->unitsData(mClientId);
+    mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);
-    data.fItems = mArea->itemsData(mClientId);
+    mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
     return true;
 }
 

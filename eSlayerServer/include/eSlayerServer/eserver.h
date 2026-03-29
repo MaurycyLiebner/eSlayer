@@ -39,16 +39,13 @@ public:
                const eEquipment& eq) = 0;
 
     virtual bool
-    requestData(const int clientId) = 0;
+    requestData(const int clientId,
+                eRequestData& data,
+                float& resultTime) = 0;
     virtual bool
     requestWeaponData(const int clientId) = 0;
     virtual bool
     requestEquipment(const int clientId) = 0;
-
-    virtual bool
-    receiveData(const int clientId,
-                eRequestData& data,
-                float& resultTime) = 0;
     virtual bool
     receiveWeaponData(const int clientId,
                       eWeaponData& data) = 0;

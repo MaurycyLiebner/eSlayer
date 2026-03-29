@@ -106,12 +106,10 @@ void eTcpIpHost::increment(const float by) {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                bool r = requestData(charId);
-                if(!r) continue;
                 eRequestData data;
                 p >> data.fRequestId;
                 float time;
-                r = receiveData(charId, data, time);
+                const bool r = requestData(charId, data, time);
                 if(!r) continue;
                 {
                     ePacket p;

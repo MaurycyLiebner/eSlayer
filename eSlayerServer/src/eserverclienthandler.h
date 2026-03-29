@@ -18,7 +18,7 @@ class eServerClientHandler {
 public:
     eServerClientHandler(const int clientId);
 
-    bool requestData();
+
     bool requestWeaponData();
     bool requestEquipment();
     bool receiveData(eRequestData& data,

@@ -134,13 +134,21 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
     }
 }
 
-bool eTcpIpJoin::requestData(const int clientId) {
-    ePacket p;
-    p << ePacketType::request;
-    p << mRequestId++;
-    const bool r = mNet.sendToServer(p);
-    if(!r) failed("Disconnected", "Failed to send a request to the host.");
-    return r;
+bool eTcpIpJoin::requestData(const int clientId,
+                             eRequestData& data,
+                             float& resultTime) {
+    {
+        ePacket p;
+        p << ePacketType::request;
+        p << mRequestId++;
+        const bool r = mNet.sendToServer(p);
+        if(!r) failed("Disconnected", "Failed to send a request to the host.");
+    }
+    if(!mNewData) return false;
+    mReceivedId = mData.fRequestId;
+    std::swap(mData, data);
+    mNewData = false;
+    return true;
 }
 
 bool eTcpIpJoin::requestWeaponData(const int clientId) {
@@ -157,16 +165,6 @@ bool eTcpIpJoin::requestEquipment(const int clientId) {
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a request to the host.");
     return r;
-}
-
-bool eTcpIpJoin::receiveData(const int clientId,
-                             eRequestData& data,
-                             float& resultTime) {
-    if(!mNewData) return false;
-    mReceivedId = mData.fRequestId;
-    std::swap(mData, data);
-    mNewData = false;
-    return true;
 }
 
 bool eTcpIpJoin::receiveWeaponData(const int clientId,

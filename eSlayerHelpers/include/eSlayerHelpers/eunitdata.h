@@ -8,6 +8,7 @@
 #include "epositioned.h"
 #include "evec2.h"
 #include "echardata.h"
+#include "eunitdynamicdata.h"
 
 struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     int32_t fCharId;
@@ -30,6 +31,9 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     uint16_t fMaxHealth;
 
     eModelParts fModelParts;
+
+    eUnitData toUnitData() const;
+    eUnitDynamicData toDynamicData() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

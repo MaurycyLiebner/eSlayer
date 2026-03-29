@@ -17,10 +17,9 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     SDL_Renderer* const r) {
     eProcessResult result;
 
-    server.requestData(clientId);
     eRequestData data;
     float resultTime;
-    const bool b = server.receiveData(clientId, data, resultTime);
+    const bool b = server.requestData(clientId, data, resultTime);
     eWeaponData wdata;
     const bool w = server.receiveWeaponData(clientId, wdata);
     if(w) mainAct.setWeaponData(wdata);
@@ -28,12 +27,15 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     result.fReceived = true;
     mUnitAreas.clear();
-    const auto& units = data.fUnits;
+    const auto& newUnits = data.fNewUnits;
+    const auto& updatedUnits = data.fUpdatedUnits;
     const auto& missiles = data.fMissiles;
-    const auto& items = data.fItems;
+    const auto& newItems = data.fNewItems;
+    const auto& removedItemIds = data.fRemovedItemIds;
     std::set<int> uPresent;
 
-    for(const auto& u : units) {
+    // Process new units — full initialization with textures/models
+    for(const auto& u : newUnits) {
         const int charId = u.fCharId;
         const auto area = mUnitAreas.posArea(u.fPos);
         mUnitAreas.emplace(area, charId);
@@ -43,33 +45,63 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             result.fMainCharData = u;
             continue;
         }
-        const auto unit = mUnits.get(charId);
-        if(unit) {
-            reinterpret_cast<eUnitData&>(*unit) = u;
-            auto& model = unit->model();
-            unit->fPos = u.fPos;
-            model.setAngle(u.fAngle);
-            model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
-        } else {
-            const auto& texs = eCharsTextures::get(u.fTypeId);
-            const auto unitModel = texs.requestModel(u.fModelParts, r);
+        const auto& texs = eCharsTextures::get(u.fTypeId);
+        const auto unitModel = texs.requestModel(u.fModelParts, r);
 
-            const auto unit = std::make_shared<eUnit>();
-            unit->fRadius = u.fRadius;
-            reinterpret_cast<eUnitData&>(*unit) = u;
-            eCharUnitModel model;
-            model.setCharModel(unitModel);
-            model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
-            model.setAngle(u.fAngle);
-            unit->setModel(model);
-            unit->fPos = u.fPos;
-            mUnits.add(charId, unit);
-        }
+        const auto unit = std::make_shared<eUnit>();
+        static_cast<eUnitData&>(*unit) = u;
+        eCharUnitModel model;
+        model.setCharModel(unitModel);
+        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
+        model.setAngle(u.fAngle);
+        unit->setModel(model);
+        mUnits.add(charId, unit);
         if(!result.fAggressive && mainChar.fTeamId != u.fTeamId && u.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;
         }
     }
+
+    // Process updated units — lightweight dynamic data only
+    for(const auto& u : updatedUnits) {
+        const int charId = u.fCharId;
+        const auto area = mUnitAreas.posArea(u.fPos);
+        mUnitAreas.emplace(area, charId);
+        uPresent.emplace(charId);
+        if(charId == clientId) {
+            result.fHasMainCharData = true;
+            result.fMainCharData.fCharId = u.fCharId;
+            result.fMainCharData.fPos = u.fPos;
+            result.fMainCharData.fVel = u.fVel;
+            result.fMainCharData.fAngle = u.fAngle;
+            result.fMainCharData.fAnim = u.fAnim;
+            result.fMainCharData.fAnimId = u.fAnimId;
+            result.fMainCharData.fAnimSpeed = u.fAnimSpeed;
+            result.fMainCharData.fActionTime = u.fActionTime;
+            result.fMainCharData.fHealth = u.fHealth;
+            result.fMainCharData.fMaxHealth = u.fMaxHealth;
+            continue;
+        }
+        const auto unit = mUnits.get(charId);
+        if(!unit) continue;
+        unit->fPos = u.fPos;
+        unit->fVel = u.fVel;
+        unit->fAngle = u.fAngle;
+        unit->fAnim = u.fAnim;
+        unit->fAnimId = u.fAnimId;
+        unit->fAnimSpeed = u.fAnimSpeed;
+        unit->fActionTime = u.fActionTime;
+        unit->fHealth = u.fHealth;
+        unit->fMaxHealth = u.fMaxHealth;
+        auto& model = unit->model();
+        model.setAngle(u.fAngle);
+        model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
+        if(!result.fAggressive && mainChar.fTeamId != unit->fTeamId && u.fHealth > 0) {
+            const float dist = ePointF::distance(mainChar.fPos, u.fPos);
+            if(dist < 5.f) result.fAggressive = true;
+        }
+    }
+
     for(const auto& u : mUnits) {
         const int charId = u->fCharId;
         const auto it = uPresent.find(charId);
@@ -77,10 +109,11 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mUnits.remove(charId);
     }
 
-    mGroundItems.clear();
-    for(const auto& i : items) {
-        const auto itemId = i.fItemId;
-        mGroundItems.add(itemId, std::make_shared<eGroundItem>(i));
+    for(const auto& i : newItems) {
+        mGroundItems.add(i.fItemId, std::make_shared<eGroundItem>(i));
+    }
+    for(const auto id : removedItemIds) {
+        mGroundItems.remove(id);
     }
 
     for(const auto& m : missiles) {

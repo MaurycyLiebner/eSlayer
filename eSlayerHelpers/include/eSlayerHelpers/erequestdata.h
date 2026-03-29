@@ -2,6 +2,7 @@
 #define EREQUESTDATA_H
 
 #include "eunitdata.h"
+#include "eunitdynamicdata.h"
 #include "emissile.h"
 #include "eweapontype.h"
 #include "egrounditem.h"
@@ -20,9 +21,11 @@ struct ESLAYERHELPERS_API eWeaponData {
 
 struct ESLAYERHELPERS_API eRequestData {
     uint32_t fRequestId;
-    std::vector<eUnitData> fUnits;
+    std::vector<eUnitData> fNewUnits;
+    std::vector<eUnitDynamicData> fUpdatedUnits;
     std::vector<eMissile> fMissiles;
-    std::vector<eGroundItem> fItems;
+    std::vector<eGroundItem> fNewItems;
+    std::vector<uint32_t> fRemovedItemIds;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

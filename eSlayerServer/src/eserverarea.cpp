@@ -179,11 +179,14 @@ void eServerArea::increment(const float by) {
     mTime += by;
 }
 
-std::vector<eUnitData>
-eServerArea::unitsData(const int clientId) {
-    std::vector<eUnitData> result;
+void eServerArea::unitsData(
+    const int clientId,
+    std::vector<eUnitData>& newUnits,
+    std::vector<eUnitDynamicData>& updatedUnits) {
     const auto client = unit(clientId);
-    if(!client) return result;
+    if(!client) return;
+    auto& known = mClientKnownUnits[clientId];
+    std::set<int> visible;
     const auto clientArea = unitArea(*client);
     for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
         for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
@@ -192,18 +195,34 @@ eServerArea::unitsData(const int clientId) {
             for(const int charId : units) {
                 const auto u = unit(charId);
                 if(!u) continue;
-                result.emplace_back(reinterpret_cast<eUnitData&>(*u));
+                visible.emplace(charId);
+                if(known.find(charId) == known.end()) {
+                    newUnits.emplace_back(u->toUnitData());
+                    known.emplace(charId);
+                } else {
+                    updatedUnits.emplace_back(u->toDynamicData());
+                }
             }
         }
     }
-    return result;
+    // Remove units no longer visible from the known set
+    for(auto it = known.begin(); it != known.end(); ) {
+        if(visible.find(*it) == visible.end()) {
+            it = known.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
-std::vector<eGroundItem>
-eServerArea::itemsData(const int clientId) {
-    std::vector<eGroundItem> result;
+void eServerArea::itemsData(
+    const int clientId,
+    std::vector<eGroundItem>& newItems,
+    std::vector<uint32_t>& removedItemIds) {
     const auto client = unit(clientId);
-    if(!client) return result;
+    if(!client) return;
+    auto& known = mClientKnownItems[clientId];
+    std::set<int> visible;
     const auto clientArea = mItemAreas.posArea(client->fPos);
     for(int x = -mItemAreaMargin; x <= mItemAreaMargin; x++) {
         for(int y = -mItemAreaMargin; y <= mItemAreaMargin; y++) {
@@ -212,11 +231,22 @@ eServerArea::itemsData(const int clientId) {
             for(const int itemId : items) {
                 const auto i = groundItem(itemId);
                 if(!i) continue;
-                result.emplace_back(*i);
+                visible.emplace(itemId);
+                if(known.find(itemId) == known.end()) {
+                    newItems.emplace_back(*i);
+                    known.emplace(itemId);
+                }
             }
         }
     }
-    return result;
+    for(auto it = known.begin(); it != known.end(); ) {
+        if(visible.find(*it) == visible.end()) {
+            removedItemIds.emplace_back(*it);
+            it = known.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 eUnitArea eServerArea::unitArea(const int charId) const {
@@ -268,6 +298,8 @@ bool eServerArea::removeClient(const int clientId) {
     mClientLatestMissileId.erase(clientId);
     const int r = mClientIds.erase(clientId);
     mClientAreas.erase(clientId);
+    mClientKnownUnits.erase(clientId);
+    mClientKnownItems.erase(clientId);
     return r > 0;
 }
 

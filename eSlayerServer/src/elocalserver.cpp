@@ -52,10 +52,12 @@ std::shared_ptr<eMap> eLocalServer::requestMap(
     return map;
 }
 
-bool eLocalServer::requestData(const int clientId) {
+bool eLocalServer::requestData(const int clientId,
+                               eRequestData& data,
+                               float& resultTime) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->requestData();
+    return h->receiveData(data, resultTime);
 }
 
 bool eLocalServer::requestWeaponData(const int clientId) {
@@ -68,14 +70,6 @@ bool eLocalServer::requestEquipment(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->requestEquipment();
-}
-
-bool eLocalServer::receiveData(const int clientId,
-                               eRequestData& data,
-                               float& resultTime) {
-    const auto h = clientHandler(clientId);
-    if(!h) return false;
-    return h->receiveData(data, resultTime);
 }
 
 bool eLocalServer::receiveWeaponData(

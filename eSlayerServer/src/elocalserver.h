@@ -24,13 +24,11 @@ public:
         const std::string& name,
         const eEquipment& eq) override;
 
-    bool requestData(const int clientId) override;
-    bool requestWeaponData(const int clientId) override;
-    bool requestEquipment(const int clientId) override;
-
-    bool receiveData(const int clientId,
+    bool requestData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
+    bool requestWeaponData(const int clientId) override;
+    bool requestEquipment(const int clientId) override;
     bool receiveWeaponData(const int clientId,
                            eWeaponData& data) override;
     bool receiveEquipment(const int clientId,

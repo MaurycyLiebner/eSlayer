@@ -5,10 +5,17 @@
 void eRequestData::read(ePacket& p) {
     p >> fRequestId;
 
-    uint16_t nUnits;
-    p >> nUnits;
-    for(int i = 0; i < nUnits; i++) {
-        auto& u = fUnits.emplace_back();
+    uint16_t nNewUnits;
+    p >> nNewUnits;
+    for(int i = 0; i < nNewUnits; i++) {
+        auto& u = fNewUnits.emplace_back();
+        u.read(p);
+    }
+
+    uint16_t nUpdatedUnits;
+    p >> nUpdatedUnits;
+    for(int i = 0; i < nUpdatedUnits; i++) {
+        auto& u = fUpdatedUnits.emplace_back();
         u.read(p);
     }
 
@@ -19,20 +26,34 @@ void eRequestData::read(ePacket& p) {
         m.read(p);
     }
 
-    uint16_t nItems;
-    p >> nItems;
-    for(int i = 0; i < nItems; i++) {
-        auto& it = fItems.emplace_back();
+    uint16_t nNewItems;
+    p >> nNewItems;
+    for(int i = 0; i < nNewItems; i++) {
+        auto& it = fNewItems.emplace_back();
         it.read(p);
+    }
+
+    uint16_t nRemovedItems;
+    p >> nRemovedItems;
+    for(int i = 0; i < nRemovedItems; i++) {
+        uint32_t id;
+        p >> id;
+        fRemovedItemIds.emplace_back(id);
     }
 }
 
 void eRequestData::write(ePacket& p) const {
     p << fRequestId;
 
-    const uint16_t nUnits = fUnits.size();
-    p << nUnits;
-    for(const auto& u : fUnits) {
+    const uint16_t nNewUnits = fNewUnits.size();
+    p << nNewUnits;
+    for(const auto& u : fNewUnits) {
+        u.write(p);
+    }
+
+    const uint16_t nUpdatedUnits = fUpdatedUnits.size();
+    p << nUpdatedUnits;
+    for(const auto& u : fUpdatedUnits) {
         u.write(p);
     }
 
@@ -42,10 +63,16 @@ void eRequestData::write(ePacket& p) const {
         m.write(p);
     }
 
-    const uint16_t nItems = fItems.size();
-    p << nItems;
-    for(const auto& i : fItems) {
+    const uint16_t nNewItems = fNewItems.size();
+    p << nNewItems;
+    for(const auto& i : fNewItems) {
         i.write(p);
+    }
+
+    const uint16_t nRemovedItems = fRemovedItemIds.size();
+    p << nRemovedItems;
+    for(const auto id : fRemovedItemIds) {
+        p << id;
     }
 }
 
