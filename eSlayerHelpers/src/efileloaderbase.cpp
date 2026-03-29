@@ -43,7 +43,7 @@ std::vector<std::byte> eFileLoaderBase::load(const std::string& dir,
     } else {
         const auto filePath = sFilePath(dir, path);
         std::ifstream f(filePath);
-        const auto length { std::filesystem::file_size(path) };
+        const auto length { std::filesystem::file_size(filePath) };
         std::vector<std::byte> data(length);
         f.read(reinterpret_cast<char*>(data.data()), static_cast<long>(length));
         return data;

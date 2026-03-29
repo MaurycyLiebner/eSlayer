@@ -1,11 +1,12 @@
-#include "eitemnames.h"
+#include "egrounditemnames.h"
 
 #include "../../textures/etextgenerator.h"
+#include "../../names/eitemnames.h"
 
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/egrounditem.h>
 
-bool eItemNames::add(
+bool eGroundItemNames::add(
     SDL_Renderer* const r,
     const eFont& font,
     const int w, const int h,
@@ -16,7 +17,7 @@ bool eItemNames::add(
     if(it != mTexs.end()) {
         tex = it->second;
     } else {
-        const auto name = eItemsData::name(item.fDataId);
+        const auto name = eItemNames::name(item.fDataId);
         eTextGenerator gen(r, eFontColor::white, font);
         tex = gen.generate(name);
         mTexs[item.fItemId] = tex;
@@ -50,7 +51,7 @@ bool eItemNames::add(
     return false;
 }
 
-bool eItemNames::at(const ePoint& pixel,
+bool eGroundItemNames::at(const ePoint& pixel,
                     uint32_t& itemId) const {
     const SDL_Point pt{pixel.fX, pixel.fY};
     for(const auto& it : *this) {

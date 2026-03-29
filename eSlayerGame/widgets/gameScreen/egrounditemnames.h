@@ -1,5 +1,5 @@
-#ifndef EITEMNAMES_H
-#define EITEMNAMES_H
+#ifndef EGROUNDITEMNAMES_H
+#define EGROUNDITEMNAMES_H
 
 #include "../../textures/etexture.h"
 
@@ -18,7 +18,7 @@ struct eItemName {
     SDL_Rect fRect;
 };
 
-class eItemNames : public std::map<uint32_t, eItemName> {
+class eGroundItemNames : public std::map<uint32_t, eItemName> {
 public:
     bool add(SDL_Renderer* const r,
              const eFont& font,
@@ -31,4 +31,4 @@ private:
     std::map<uint32_t, std::shared_ptr<eTexture>> mTexs;
 };
 
-#endif // EITEMNAMES_H
+#endif // EGROUNDITEMNAMES_H

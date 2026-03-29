@@ -27,6 +27,10 @@ public:
                                 const std::string& path);
     static TTF_Font* loadTTFFont(const int size,
                                  const std::string& dir,
-                                 const std::string& path);};
+                                 const std::string& path);
+    static std::map<std::string, std::string>
+    loadNames(const std::string& dir,
+              const std::string& path);
+};
 
 #endif // EFILELOADER_H

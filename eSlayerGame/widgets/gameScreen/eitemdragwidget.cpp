@@ -3,6 +3,8 @@
 #include "../../textures/eitemstextures.h"
 #include "../../textures/etextgenerator.h"
 
+#include "../../names/eitemnames.h"
+
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
 
@@ -46,13 +48,14 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
         const auto addText = [&](const std::string& text) {
+            if(text.empty()) return;
             eTextGenerator gen(r, eFontColor::white, font);
             const auto tex = gen.generate(text);
             totalHeight += tex->height();
             maxWidth = std::max(maxWidth, tex->width());
             lines.emplace_back(tex);
         };
-        addText(eItemsData::name(item.fDataId));
+        addText(eItemNames::name(item.fDataId));
 
         mHover = std::make_shared<eTexture>();
         mHover->create(r, maxWidth, totalHeight);

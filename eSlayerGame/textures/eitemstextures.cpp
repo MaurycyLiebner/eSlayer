@@ -41,7 +41,7 @@ void eItemsTextures::loadImpl() {
                     eItemTexture itemTex;
 
                     const auto path = key + "/" + name;
-                    const int itemDataId = eItemsData::id(path);
+                    const int itemDataId = eItemsData::id(name);
                     itemTex.fItemDataId = itemDataId;
                     itemTex.fTexPath = path;
 
@@ -49,7 +49,7 @@ void eItemsTextures::loadImpl() {
                     itemData.fWidth = data.value("width", 2);
                     itemData.fHeight = data.value("height", 2);
 
-                    const int id = mTexs.add(path, itemTex);
+                    const int id = mTexs.add(name, itemTex);
                     mItemDataIdToTexId[itemDataId] = id;
                 }
             } else if(key == "weapons") {
@@ -58,7 +58,7 @@ void eItemsTextures::loadImpl() {
                         eItemTexture itemTex;
 
                         const auto path = key + "/" + type + "/" + name;
-                        const int itemDataId = eItemsData::id(path);
+                        const int itemDataId = eItemsData::id(name);
                         itemTex.fItemDataId = itemDataId;
                         itemTex.fTexPath = path;
 
@@ -66,7 +66,7 @@ void eItemsTextures::loadImpl() {
                         itemData.fWidth = data.value("width", 2);
                         itemData.fHeight = data.value("height", 2);
 
-                        const int id = mTexs.add(path, itemTex);
+                        const int id = mTexs.add(name, itemTex);
                         mItemDataIdToTexId[itemDataId] = id;
                     }
                 }
@@ -75,7 +75,7 @@ void eItemsTextures::loadImpl() {
                 for(const auto& name : value) {
                     eItemTexture itemTex;
                     const auto path = key + "/" + name.get<std::string>();
-                    const int itemDataId = eItemsData::id(path);
+                    const int itemDataId = eItemsData::id(name);
                     itemTex.fItemDataId = itemDataId;
                     itemTex.fTexPath = path;
 
@@ -99,7 +99,7 @@ void eItemsTextures::loadImpl() {
                         eRuntimeThrow("Unrecognized item type " + key);
                     }
 
-                    const int id = mTexs.add(path, itemTex);
+                    const int id = mTexs.add(name, itemTex);
                     mItemDataIdToTexId[itemDataId] = id;
                 }
             }

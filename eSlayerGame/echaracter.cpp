@@ -60,7 +60,7 @@ bool eCharacter::load(const std::string& path,
         c.mEquipment.fInventory.push_back(eInventoryItem{item, x, 0, 1, 1});
     }
 
-    const uint8_t armorId = eItemsData::id("armor/quilted_armor");
+    const uint8_t armorId = eItemsData::id("quilted_armor");
     eItem armor{5, armorId, eItemType::armor};
     c.mEquipment.fInventory.push_back(eInventoryItem{armor, 0, 1, 2, 3});
 
@@ -87,8 +87,8 @@ bool eCharacter::write(const std::string& path) const {
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {
-        printf("Character XML SaveFile error %i writing %s.\n",
-               e, path.c_str());
+        eRuntimeThrow("Character XML SaveFile error " + std::to_string(e) +
+                      " writing " + path);
         return false;
     }
     return true;

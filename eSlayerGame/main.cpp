@@ -12,6 +12,8 @@
 #include "textures/emissilestextures.h"
 #include "textures/eitemstextures.h"
 
+#include "names/eitemnames.h"
+
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eskills.h>
@@ -206,6 +208,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eItemsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eItemNames::load();
         });
 
         loadings.emplace_back([&]() {

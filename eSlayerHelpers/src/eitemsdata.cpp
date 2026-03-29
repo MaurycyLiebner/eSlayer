@@ -40,15 +40,13 @@ void eItemsData::loadImpl() {
                 for(auto& [type, types] : value.items()) {
                     for(const auto& name : types) {
                         eItemData itemTex;
-                        const auto path = key + "/" + type + "/" + name.get<std::string>();
-                        mItems.add(path, itemTex);
+                        mItems.add(name, itemTex);
                     }
                 }
             } else {
                 for(const auto& name : value) {
                     eItemData itemTex;
-                    const auto path = key + "/" + name.get<std::string>();
-                    mItems.add(path, itemTex);
+                    mItems.add(name, itemTex);
                 }
             }
         }

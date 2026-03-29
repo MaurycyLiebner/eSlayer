@@ -1,6 +1,7 @@
 #include "efileloader.h"
 
 #include "textures/etexture.h"
+#include "eloadtexthelper.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -89,6 +90,20 @@ TTF_Font* eFileLoader::loadTTFFont(const int size,
         eExceptions::logError(
             "Failed to load font '" + path + "'!",
             SDL_GetError());
+    }
+    return result;
+}
+
+std::map<std::string, std::string>
+eFileLoader::loadNames(const std::string& dir,
+                       const std::string& path) {
+    std::map<std::string, std::string> result;
+    if(eRunSettings::sUseZip) {
+        const auto data = sInstance.load(dir, path);
+        eLoadTextHelper::load(data, result);
+    } else {
+        const auto filePath = sFilePath(dir, path);
+        eLoadTextHelper::load(filePath, result);
     }
     return result;
 }

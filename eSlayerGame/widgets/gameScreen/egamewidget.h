@@ -9,7 +9,7 @@
 #include "../../textures/echarunitmodel.h"
 #include "../../units/eunit.h"
 #include "egamepainter.h"
-#include "eitemnames.h"
+#include "egrounditemnames.h"
 
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
@@ -112,7 +112,7 @@ private:
     std::shared_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eMap> mMap;
 
-    eItemNames mItemNames;
+    eGroundItemNames mItemNames;
 
     int mFrame = 0;
 

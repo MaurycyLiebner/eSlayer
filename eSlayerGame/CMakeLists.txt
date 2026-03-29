@@ -158,7 +158,8 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/eitemdragwidget.h widgets/gameScreen/eitemdragwidget.cpp
     widgets/gameScreen/eitemplacewidget.h widgets/gameScreen/eitemplacewidget.cpp
     widgets/gameScreen/eweaponswitch.h widgets/gameScreen/eweaponswitch.cpp
-    widgets/gameScreen/eitemnames.h widgets/gameScreen/eitemnames.cpp
+    widgets/gameScreen/egrounditemnames.h widgets/gameScreen/egrounditemnames.cpp
+    names/eitemnames.h names/eitemnames.cpp
 
 )
 
