@@ -22,7 +22,9 @@ public:
 
     void addSlot(const eSlot& slot);
 
-    bool shiftPressed() const { return mShiftPressed > 0; }
+    bool shiftPressed() const { return mShiftPressed; }
+    bool altPressed() const { return mAltPressed; }
+    bool ctrlPressed() const { return mCtrlPressed; }
 
     int width() const { return resolution().width(); }
     int height() const { return resolution().height(); }
@@ -45,8 +47,9 @@ private:
 
     std::vector<eSlot> mSlots;
 
-    int mShiftPressed = 0;
-    int mCtrlPressed = 0;
+    bool mShiftPressed = false;
+    bool mAltPressed = false;
+    bool mCtrlPressed = false;
 
     eWidget* mWidget = nullptr;
     SDL_Window* mSdlWindow = nullptr;

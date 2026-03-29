@@ -110,8 +110,10 @@ int eMainWindow::exec() {
             SDL_ConvertEventToRenderCoordinates(mSdlRenderer, &e);
             const float x = e.motion.x;
             const float y = e.motion.y;
-            const bool shift = mShiftPressed > 0;
-            const bool ctrl = mCtrlPressed > 0;
+            const SDL_Keymod mod = SDL_GetModState();
+            mAltPressed = (mod & SDL_KMOD_ALT) != 0;
+            mShiftPressed = (mod & SDL_KMOD_SHIFT) != 0;
+            mCtrlPressed = (mod & SDL_KMOD_CTRL) != 0;
             if(e.type == SDL_EVENT_QUIT) {
                 mQuit = true;
             } else if(e.type == SDL_EVENT_WINDOW_MINIMIZED) {
@@ -124,7 +126,11 @@ int eMainWindow::exec() {
             } else if(e.type == SDL_EVENT_RENDER_TARGETS_RESET ||
                       e.type == SDL_EVENT_RENDER_DEVICE_RESET) {
             } else if(e.type == SDL_EVENT_MOUSE_MOTION) {
-                const eMouseEvent me(x, y, shift, ctrl, buttons, button);
+                const eMouseEvent me(x, y,
+                                     mShiftPressed,
+                                     mAltPressed,
+                                     mCtrlPressed,
+                                     buttons, button);
                 if(mWidget) mWidget->mouseMove(me);
             } else if(e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 switch(e.button.button) {
@@ -141,7 +147,12 @@ int eMainWindow::exec() {
                 }
                 buttons = button | buttons;
 
-                const eMouseEvent me(x, y, shift, ctrl, buttons, button);
+                const eMouseEvent me(x, y,
+                                     mShiftPressed,
+                                     mAltPressed,
+                                     mCtrlPressed,
+                                     buttons,
+                                     button);
                 if(mWidget) mWidget->mousePress(me);
             } else if(e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 switch(e.button.button) {
@@ -157,31 +168,31 @@ int eMainWindow::exec() {
                 default: continue;
                 }
                 buttons = buttons & ~button;
-                const eMouseEvent me(x, y, shift, ctrl, buttons, button);
+                const eMouseEvent me(x, y,
+                                     mShiftPressed,
+                                     mAltPressed,
+                                     mCtrlPressed,
+                                     buttons,
+                                     button);
                 if(mWidget) mWidget->mouseRelease(me);
             } else if(e.type == SDL_EVENT_MOUSE_WHEEL) {
-                const eMouseWheelEvent me(x, y, shift, ctrl, buttons, e.wheel.y);
+                const eMouseWheelEvent me(x, y,
+                                          mShiftPressed,
+                                          mAltPressed,
+                                          mCtrlPressed,
+                                          buttons,
+                                          e.wheel.y);
                 if(mWidget) mWidget->mouseWheel(me);
             } else if(e.type == SDL_EVENT_KEY_DOWN) {
                 const auto k = e.key.scancode;
-                if(k == SDL_Scancode::SDL_SCANCODE_LSHIFT ||
-                   k == SDL_Scancode::SDL_SCANCODE_RSHIFT) {
-                    mShiftPressed++;
-                } else if(k == SDL_Scancode::SDL_SCANCODE_LCTRL ||
-                          k == SDL_Scancode::SDL_SCANCODE_RCTRL) {
-                    mCtrlPressed++;
-                }
-                const eKeyPressEvent ke(x, y, shift, ctrl, buttons, k);
+                const eKeyPressEvent ke(x, y,
+                                        mShiftPressed,
+                                        mAltPressed,
+                                        mCtrlPressed,
+                                        buttons,
+                                        k);
                 if(mWidget) mWidget->keyPress(ke);
             } else if(e.type == SDL_EVENT_KEY_UP) {
-                const auto k = e.key.scancode;
-                if(k == SDL_Scancode::SDL_SCANCODE_LSHIFT ||
-                   k == SDL_Scancode::SDL_SCANCODE_RSHIFT) {
-                    mShiftPressed--;
-                } else if(k == SDL_Scancode::SDL_SCANCODE_LCTRL ||
-                          k == SDL_Scancode::SDL_SCANCODE_RCTRL) {
-                    mCtrlPressed--;
-                }
             }
         }
 
