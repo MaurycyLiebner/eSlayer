@@ -53,6 +53,7 @@ public:
 
     void setMenuVisible(const bool v) { mMenuVisible = v; }
 
+    void stop();
     eMainCharAction& mainAction() { return mMainAction; }
     const std::shared_ptr<eUnit>& mainChar() const { return mMainChar; }
     const std::shared_ptr<eUnit>& highlightUnit() const { return mHighlightUnit; }

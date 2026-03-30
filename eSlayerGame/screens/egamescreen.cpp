@@ -228,6 +228,7 @@ void eGameScreen::showDeadMenu() {
 
 void eGameScreen::showESCMenu() {
     if(mESCMenu) return;
+    mGameWidget->stop();
     mESCMenu = new eESCMenu(window());
     const auto return_ = [this]() {
         hideESCMenu();

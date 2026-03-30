@@ -34,6 +34,7 @@ public:
 
     void mouseRelease(const ePointF& mousePos);
     void stop();
+    void stand();
 
     const ePointF& pos() const { return mMovementHandler.pos(); }
     void setPos(const ePointF& pos) { mMovementHandler.setPos(pos); }

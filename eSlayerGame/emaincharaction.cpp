@@ -195,15 +195,7 @@ bool eMainCharAction::handlePositionAttack(
     mMainChar->fAngle = angle;
     model.setAngle(angle);
 
-    {
-        const bool aggressive = model.aggressive();
-        const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
-
-        mMainChar->fAnim = animId;
-        mMainChar->fAnimId++;
-        mMainChar->fAnimSpeed = 1.f;
-        model.setAnimation(animId, 1.f);
-    }
+    stand();
     mServer->attack(mClientId, mAttackData);
     return true;
 }
@@ -346,6 +338,18 @@ bool eMainCharAction::sCanUseSkill(
         return true;
     }
     return false;
+}
+
+void eMainCharAction::stand() {
+    auto& model = mMainChar->model();
+
+    const bool aggressive = model.aggressive();
+    const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+
+    mMainChar->fAnim = animId;
+    mMainChar->fAnimId++;
+    mMainChar->fAnimSpeed = 1.f;
+    model.setAnimation(animId, 1.f);
 }
 
 bool eMainCharAction::shouldRun() const {

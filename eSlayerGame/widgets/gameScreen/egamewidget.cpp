@@ -86,6 +86,11 @@ void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
     mUnitIndicator = indicator;
 }
 
+void eGameWidget::stop() {
+    mMainAction.stop();
+    mMainAction.stand();
+}
+
 void eGameWidget::dropItem() {
     auto& dragged = mEq.fDragged;
     if(dragged.fType == eItemType::none) return;
