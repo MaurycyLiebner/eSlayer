@@ -54,6 +54,7 @@ public:
     void setAttributes(const eAttributes& attr);
     void setEquipment(const eEquipment& eq);
     eEquipment& equipment() { return mEquipment; }
+    eAttributes& attributes() { return mAttributes; }
     eStats& stats() { return mStats; }
     void recalculateStats();
 private:

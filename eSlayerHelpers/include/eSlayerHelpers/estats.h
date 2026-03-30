@@ -12,6 +12,8 @@ struct eEquipment;
 struct eAttributes;
 
 struct ESLAYERHELPERS_API eStats {
+    float fExperience = 0.f;
+
     float fAttackRatingL = 100.f;
     float fAttackRatingR = 100.f;
     float fDefense = 100.f;

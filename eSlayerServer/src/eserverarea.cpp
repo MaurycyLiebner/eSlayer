@@ -494,3 +494,15 @@ eServerArea::unit(const ePointF& pos) {
     }
     return nullptr;
 }
+
+void eServerArea::unitKilled(const eServerUnit& killed) {
+    for(const auto& c : mClientData) {
+        const int clientId = c.first;
+        const auto u = unit(clientId);
+        if(!u) continue;
+        if(u->fTeamId == killed.fTeamId) continue;
+        const float dist = ePointF::distance(u->fPos, killed.fPos);
+        if(dist > 10.f) continue;
+        u->killed(killed);
+    }
+}

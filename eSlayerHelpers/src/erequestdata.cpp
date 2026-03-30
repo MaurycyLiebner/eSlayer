@@ -42,6 +42,8 @@ void eRequestData::read(ePacket& p) {
     }
 
     p >> fMana;
+    p >> fLevel;
+    p >> fExperience;
 }
 
 void eRequestData::write(ePacket& p) const {
@@ -78,4 +80,6 @@ void eRequestData::write(ePacket& p) const {
     }
 
     p << fMana;
+    p << fLevel;
+    p << fExperience;
 }

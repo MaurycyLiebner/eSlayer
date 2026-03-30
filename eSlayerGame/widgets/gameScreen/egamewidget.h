@@ -62,6 +62,7 @@ public:
     const eGameInput& input() const { return mInput; }
 
     eEquipment& equipment() { return mMainAction.equipment(); }
+    eAttributes& attributes() { return mMainAction.attributes(); }
     eStats& stats() { return mMainAction.stats(); }
     void dropItem();
     void sendInventoryRearranged();

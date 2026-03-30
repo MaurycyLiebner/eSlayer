@@ -192,6 +192,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
 
 void eGameScreen::paintEvent(ePainter&) {
     const auto& stats = mGameWidget->stats();
+    const auto& attrs = mGameWidget->attributes();
 
     mHealthIndicator->setRange(0, stats.fMaxHealth);
     mHealthIndicator->setValue(stats.fHealthF);
@@ -202,6 +203,9 @@ void eGameScreen::paintEvent(ePainter&) {
     const auto& action = mGameWidget->mainAction();
     mStaminaIndicator->setRange(0, action.maxStamina());
     mStaminaIndicator->setValue(action.stamina());
+
+    mExperienceIndicator->setRange(0, attrs.nextLevelExp());
+    mExperienceIndicator->setValue(stats.fExperience);
 }
 
 void eGameScreen::showDeadMenu() {

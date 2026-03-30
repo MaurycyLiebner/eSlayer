@@ -79,6 +79,7 @@ public:
                          const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
+    float experience() const { return mStats.fExperience; }
     float maxHealth() const { return mStats.fMaxHealth; }
 
     void increment(const float by);
@@ -107,6 +108,9 @@ public:
 
     bool canUseSkill(const eSkillChoice schoice,
                      const eWeaponChoice wchoice) const;
+
+    void killed(const eServerUnit& killed);
+    void respawn();
 private:
     void recalculateStats();
 

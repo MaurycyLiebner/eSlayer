@@ -294,6 +294,22 @@ bool eServerUnit::canUseSkill(
     return false;
 }
 
+void eServerUnit::killed(const eServerUnit& killed) {
+    mStats.fExperience += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
+    const float nextLevel = mAttributes.nextLevelExp();
+    if(mStats.fExperience > nextLevel) {
+        mStats.fExperience = 0.f;
+        mAttributes.fLevel += 1.f;
+    }
+}
+
+void eServerUnit::respawn() {
+    fHealth = fMaxHealth;
+    mStats.fHealthF = mStats.fMaxHealth;
+    mStats.fManaF = mStats.fMaxMana;
+    mAction->setChild(nullptr);
+}
+
 eWeaponChoice eServerUnit::useWeapon(const eSkillChoice schoice) {
     const bool canUseL = canUseSkill(schoice, eWeaponChoice::left);
     const bool canUseR = canUseSkill(schoice, eWeaponChoice::right);

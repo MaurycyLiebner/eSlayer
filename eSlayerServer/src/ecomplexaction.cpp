@@ -37,6 +37,7 @@ bool eComplexAction::getHit(const eHitData& data) {
     } else {
         const float dmg = mUnit.takeDamage(data.fDamage);
         if(mUnit.fHealth <= 0) {
+            mArea.unitKilled(mUnit);
             const auto die = std::make_shared<eDieAction>(mUnit, mArea);
             mUnit.setChildAction(die);
         } else if(dmg >= mUnit.maxHealth()/12.f) {

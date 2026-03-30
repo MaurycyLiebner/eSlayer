@@ -12,6 +12,8 @@ struct ESLAYERHELPERS_API eAttributes {
     float fVitality = 10.f;
     float fEnergy = 10.f;
 
+    float nextLevelExp() const;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

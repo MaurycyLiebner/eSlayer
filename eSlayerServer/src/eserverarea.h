@@ -78,6 +78,9 @@ public:
     groundItem(const int itemId) const;
     std::shared_ptr<eServerUnit>
     unit(const ePointF& pos);
+
+    void unitKilled(const eServerUnit& killed);
+
 private:
     float mTime = 0.f;
 

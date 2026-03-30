@@ -16,6 +16,8 @@ struct ESLAYERHELPERS_API eRequestData {
     std::vector<eGroundItem> fNewItems;
     std::vector<uint32_t> fRemovedItemIds;
     uint16_t fMana;
+    uint16_t fLevel;
+    uint16_t fExperience;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

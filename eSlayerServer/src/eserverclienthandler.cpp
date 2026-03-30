@@ -21,6 +21,8 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
     const auto u = mArea->unit(mClientId);
     data.fMana = u ? std::floor(u->mana()) : 0;
+    data.fLevel = u ? std::round(u->level()) : 0;
+    data.fExperience = u ? std::round(u->experience()) : 0;
     return true;
 }
 
@@ -87,9 +89,7 @@ bool eServerClientHandler::respawn() {
     const auto client = mArea->unit(mClientId);
     if(!client) return false;
 
-    const auto a = client->action();
-    a->setChild(nullptr);
-    client->fHealth = client->fMaxHealth;
+    client->respawn();
     client->fPos = ePointF{0.f, 0.f};
     return true;
 }

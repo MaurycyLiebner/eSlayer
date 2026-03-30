@@ -22,6 +22,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const bool b = server.requestData(clientId, data, resultTime);
     if(!b) return result;
     result.fMana = data.fMana;
+    result.fLevel = data.fLevel;
+    result.fExperience = data.fExperience;
 
     result.fReceived = true;
     mUnitAreas.clear();
