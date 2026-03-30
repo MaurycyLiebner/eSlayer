@@ -13,6 +13,10 @@ eCharData& eCharDataInfo::get(const int id) {
     return sInstance.getImpl(id);
 }
 
+int eCharDataInfo::id(const std::string& name) {
+    return sInstance.idImpl(name);
+}
+
 void eCharDataInfo::load() {
     return sInstance.loadImpl();
 }
@@ -63,4 +67,8 @@ eCharData& eCharDataInfo::getImpl(const int id) {
         eRuntimeThrow("Index out of range.");
     }
     return mChars.get(id);
+}
+
+int eCharDataInfo::idImpl(const std::string& name) const {
+    return mChars.id(name);
 }

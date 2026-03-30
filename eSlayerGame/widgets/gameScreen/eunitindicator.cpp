@@ -1,8 +1,8 @@
 #include "eunitindicator.h"
 
-#include "../../elanguage.h"
 #include "../../units/eunit.h"
 #include "../ecolors.h"
+#include "../../names/emonsternames.h"
 
 void eUnitIndicator::initialize() {
     eHealthIndicator::initialize();
@@ -12,7 +12,8 @@ void eUnitIndicator::initialize() {
 void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u) {
     mUnit = u;
     if(mUnit) {
-        const auto name = eLanguage::text(6, mUnit->fTypeId);
+        const int typeId = mUnit->fTypeId;
+        const auto name = eMonsterNames::name(typeId);
         setText(name);
     } else {
         setText("");

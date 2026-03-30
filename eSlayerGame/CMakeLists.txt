@@ -160,6 +160,7 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/eweaponswitch.h widgets/gameScreen/eweaponswitch.cpp
     widgets/gameScreen/egrounditemnames.h widgets/gameScreen/egrounditemnames.cpp
     names/eitemnames.h names/eitemnames.cpp
+    names/emonsternames.h names/emonsternames.cpp
 
 )
 
