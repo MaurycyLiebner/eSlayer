@@ -10,6 +10,8 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/eweapontype.h>
+#include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/estats.h>
 
 #include <memory>
 
@@ -26,33 +28,33 @@ public:
 
     bool aggressive() const { return mAggressive; }
 
-    float level() const { return mLevel; }
+    float level() const { return mAttributes.fLevel; }
 
-    float attackRatingL() const { return mAttackRatingL; }
-    float attackRatingR() const { return mAttackRatingR; }
+    float attackRatingL() const { return mStats.fAttackRatingL; }
+    float attackRatingR() const { return mStats.fAttackRatingR; }
     float defense() const;
 
     float blockChance() const;
 
-    float fasterHitRecovery() const { return mFasterHitRecovery; }
+    float fasterHitRecovery() const { return mStats.fFasterHitRecovery; }
 
-    float fasterBlockRate() const { return mFasterBlockRate; }
+    float fasterBlockRate() const { return mStats.fFasterBlockRate; }
 
-    float weaponMeeleRange() const { return mWeaponMeeleRange; }
+    float weaponMeeleRange() const { return mStats.fWeaponMeeleRange; }
 
-    eWeaponType weaponTypeL() const { return mWeaponTypeL; }
-    eWeaponType weaponTypeR() const { return mWeaponTypeR; }
+    eWeaponType weaponTypeL() const { return mStats.fWeaponTypeL; }
+    eWeaponType weaponTypeR() const { return mStats.fWeaponTypeR; }
     eWeaponType weaponType(const eWeaponChoice wchoice) const;
 
-    int missileIdLWLS() const { return mMissileIdLWLS; }
-    int missileIdRWLS() const { return mMissileIdRWLS; }
-    int missileIdLWRS() const { return mMissileIdLWRS; }
-    int missileIdRWRS() const { return mMissileIdRWRS; }
+    int missileIdLWLS() const { return mStats.fMissileIdLWLS; }
+    int missileIdRWLS() const { return mStats.fMissileIdRWLS; }
+    int missileIdLWRS() const { return mStats.fMissileIdLWRS; }
+    int missileIdRWRS() const { return mStats.fMissileIdRWRS; }
 
     int missileId(const eWeaponChoice wchoice,
                   const eSkillChoice schoice) const;
 
-    float weaponRangedRange() const { return mWeaponRangedRange; }
+    float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
     eWeaponData weaponData() const;
 
@@ -62,7 +64,7 @@ public:
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const eSkillChoice schoice) const;
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;
-    float itemsCastRate() const { return mCastRate; }
+    float itemsCastRate() const { return mStats.fCastRate; }
 
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
@@ -77,7 +79,7 @@ public:
     eDamage attackDamage(const eSkillChoice schoice,
                          const eWeaponChoice wchoice);
 
-    float maxHealth() const { return mMaxHealth; }
+    float maxHealth() const { return mStats.fMaxHealth; }
 
     void increment(const float by);
     int skillId(const eSkillChoice schoice) const;
@@ -113,64 +115,9 @@ private:
     std::shared_ptr<eComplexAction> mAction;
     eMovementHandler mHandler;
 
-    float mLevel = 1.f;
-    float mAttackRatingL = 100.f;
-    float mAttackRatingR = 100.f;
-    float mDefense = 100.f;
-    float mBlockChance = 0.f;
-    float mFasterHitRecovery = 0.f;
-    float mFasterBlockRate = 0.f;
-    float mWalkRun = 0.f;
-
-    float mHealthF = 100.f;
-    float mMaxHealth = 100.f;
-
-    float mManaF = 100.f;
-    float mMaxMana = 100.f;
-
-    // LWLS - left weapon, left skill
-    float mAttackSpeedLW = 0.f;
-    float mAttackSpeedRW = 0.f;
-    float mAttackSpeedLS = 0.f;
-    float mAttackSpeedRS = 0.f;
-
-    float mCastRate = 0.f;
-
-    float mWeaponMeeleRange = 0.f;
-    float mWeaponRangedRange = 0.f;
-
-    eWeaponType mWeaponTypeL = eWeaponType::meele;
-    eWeaponType mWeaponTypeR = eWeaponType::meele;
-
-    int mMissileIdLWLS = -1;
-    int mMissileIdRWLS = -1;
-    int mMissileIdLWRS = -1;
-    int mMissileIdRWRS = -1;
-
-    // LWLS - left weapon, left skill
-    eDamage mDamageMinLWLS;
-    eDamage mDamageMaxLWLS;
-    eDamage mDamageMinRWLS;
-    eDamage mDamageMaxRWLS;
-
-    eDamage mDamageMinLWRS;
-    eDamage mDamageMaxLWRS;
-    eDamage mDamageMinRWRS;
-    eDamage mDamageMaxRWRS;
-
+    eStats mStats;
+    eAttributes mAttributes;
     eEquipment mEquipment;
-
-    std::map<int, float> mCooldowns;
-    std::map<int, int> mSkillLevels;
-
-    int mSkillL = -1;
-    int mSkillR = -1;
-
-    int mMissilesL = 0;
-    int mMissilesR = 0;
-
-    float mPierceL = 0.f;
-    float mPierceR = 0.f;
 
     eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
 };
