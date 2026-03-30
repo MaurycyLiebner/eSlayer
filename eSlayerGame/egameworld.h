@@ -28,6 +28,7 @@ public:
         bool fAggressive = false;
         bool fHasMainCharData = false;
         eUnitData fMainCharData;
+        uint16_t fMana = 0;
     };
 
     eProcessResult processServerData(

@@ -16,6 +16,7 @@ struct eSkillLevel {
     int fLevel;
     int fMissiles;
     float fCooldown;
+    float fManaCost;
     std::map<eModifierType, eModifier>
     fTotalModifiers;
 };

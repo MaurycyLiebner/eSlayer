@@ -40,6 +40,8 @@ void eRequestData::read(ePacket& p) {
         p >> id;
         fRemovedItemIds.emplace_back(id);
     }
+
+    p >> fMana;
 }
 
 void eRequestData::write(ePacket& p) const {
@@ -74,18 +76,6 @@ void eRequestData::write(ePacket& p) const {
     for(const auto id : fRemovedItemIds) {
         p << id;
     }
-}
 
-void eWeaponData::read(ePacket& p) {
-    p >> fWeaponTypeL;
-    p << fWeaponTypeR;
-    p >> fMeeleRange;
-    p >> fRangedRange;
-}
-
-void eWeaponData::write(ePacket& p) const {
-    p << fWeaponTypeL;
-    p << fWeaponTypeR;
-    p << fMeeleRange;
-    p << fRangedRange;
+    p << fMana;
 }

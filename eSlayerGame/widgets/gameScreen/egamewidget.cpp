@@ -189,7 +189,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainChar->fAnimId = u.fAnimId;
                 mMainChar->fAnimSpeed = u.fAnimSpeed;
             }
-            if(mMainCharHandler) mMainCharHandler(u);
+            if(mMainCharHandler) {
+                mMainCharHandler(u.fHealth, worldResult.fMana);
+            }
         }
 
         auto& model = mMainChar->model();

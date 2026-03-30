@@ -145,6 +145,12 @@ float eServerUnit::takeDamage(const eDamage& dmg) {
     return totalDmg;
 }
 
+bool eServerUnit::consumeMana(const float mana) {
+    if(mStats.fManaF < mana) return false;
+    mStats.fManaF = std::max(0.f, mStats.fManaF - mana);
+    return true;
+}
+
 eDamage eServerUnit::attackDamage(const eSkillChoice schoice,
                                   const eWeaponChoice wchoice) {
     switch(schoice) {
@@ -213,6 +219,10 @@ int eServerUnit::skillLevel(const int skillId) const {
 
 bool eServerUnit::skillReady(const eSkillChoice schoice) const {
     const int skillId = eServerUnit::skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int levelId = skillLevel(skillId);
+    const auto& level = skill.fLevels[levelId];
+    if(level.fManaCost > mStats.fManaF) return false;
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
     return it->second <= 0.f;
@@ -221,9 +231,10 @@ bool eServerUnit::skillReady(const eSkillChoice schoice) const {
 void eServerUnit::useSkill(const eSkillChoice schoice) {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
-    const int levelId = mStats.fSkillLevels[skillId];
+    const int levelId = skillLevel(skillId);
     const auto& level = skill.fLevels[levelId];
     mStats.fCooldowns[skillId] = level.fCooldown*eRunSettings::sFPS;
+    mStats.fManaF = std::max(0.f, mStats.fManaF - level.fManaCost);
 }
 
 void eServerUnit::setSkillId(const eSkillChoice schoice,
@@ -301,4 +312,6 @@ eWeaponChoice eServerUnit::useWeapon(const eSkillChoice schoice) {
 
 void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
+    fMaxHealth = std::ceil(mStats.fMaxHealth);
+    fHealth = std::ceil(mStats.fHealthF);
 }

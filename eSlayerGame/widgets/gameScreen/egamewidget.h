@@ -22,7 +22,8 @@
 
 class eUnitIndicator;
 
-using eMainCharHandler = std::function<void(const eUnitData&)>;
+using eMainCharHandler = std::function<void(const int health,
+                                            const int mana)>;
 using eDeathHandler = std::function<void()>;
 using eRespawnHandler = std::function<void()>;
 
@@ -63,6 +64,7 @@ public:
     const eGameInput& input() const { return mInput; }
 
     eEquipment& equipment() { return mMainAction.equipment(); }
+    const eStats& stats() const { return mMainAction.stats(); }
     void dropItem();
     void sendInventoryRearranged();
     bool waitingForEquipment() const { return mWaitngForEq; }

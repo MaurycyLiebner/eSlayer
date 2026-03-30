@@ -54,6 +54,7 @@ public:
     void setAttributes(const eAttributes& attr);
     void setEquipment(const eEquipment& eq);
     eEquipment& equipment() { return mEquipment; }
+    const eStats& stats() const { return mStats; }
     void recalculateStats();
 private:
     void updateWalkRunSpeed();

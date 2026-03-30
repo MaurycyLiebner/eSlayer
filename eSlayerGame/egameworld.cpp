@@ -21,6 +21,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
     if(!b) return result;
+    result.fMana = data.fMana;
 
     result.fReceived = true;
     mUnitAreas.clear();

@@ -40,11 +40,21 @@ void eGameScreen::initialize(const int clientId,
 
     mGameWidget->initialize(clientId, server, map, eq);
 
-    mGameWidget->setMainCharHandler([this](const eUnitData& u) {
-        mHealthIndicator->setValue(u.fHealth);
-        mHealthIndicator->setRange(0, u.fMaxHealth);
-        mStaminaIndicator->setValue(mGameWidget->mainAction().stamina());
-        mStaminaIndicator->setRange(0, mGameWidget->mainAction().maxStamina());
+    mGameWidget->setMainCharHandler([this](const int health,
+                                           const int mana) {
+        const auto& stats = mGameWidget->stats();
+
+        const int maxHealth = stats.fMaxHealth;
+        mHealthIndicator->setRange(0, maxHealth);
+        mHealthIndicator->setValue(health);
+
+        const int maxMana = stats.fMaxMana;
+        mManaIndicator->setRange(0, maxMana);
+        mManaIndicator->setValue(mana);
+
+        const auto& action = mGameWidget->mainAction();
+        mStaminaIndicator->setRange(0, action.maxStamina());
+        mStaminaIndicator->setValue(action.stamina());
     });
 
     mGameWidget->setDeathHandler([this]() {

@@ -89,6 +89,9 @@ float gWeaponMeeleRange(const eWeaponSubtype subtype) {
 
 void eStats::calculate(const eAttributes& attr,
                        const eEquipment& eq) {
+    const float healthFrac = fHealthF/fMaxHealth;
+    const float manaFrac = fManaF/fMaxMana;
+
     const auto& leftW = (eq.fWeapons1 ?
                              eq.fWeapon1L :
                              eq.fWeapon2L);
@@ -447,7 +450,9 @@ void eStats::calculate(const eAttributes& attr,
     fDefense = baseDef*(1.f + ed) + dexterity/4.f;
     fAttackRatingL = fAttackRatingR = (baseAR + flatAR)*(1.f + bonusAR);
     fMaxHealth = baseLife*(1.f + bonusLife);
+    fHealthF = healthFrac*fMaxHealth;
     fMaxMana = baseMana*(1.f + bonusMana);
+    fManaF = manaFrac*fMaxMana;
 
     fDamageMinLWLS = dmgBaseMinLWLS*dmgMultMinLS;
     fDamageMaxLWLS = dmgBaseMaxLWLS*dmgMultMaxLS;

@@ -55,6 +55,7 @@ void eSkills::load() {
         }
 
         float cooldown = jdata.value("cooldown", 0.f);
+        float manaCost = jdata.value("manaCost", 0.f);
 
         skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
         if(jdata.contains("levels")) {
@@ -68,6 +69,9 @@ void eSkills::load() {
 
                 cooldown = levelData.value("cooldown", cooldown);
                 level.fCooldown = cooldown;
+
+                manaCost = levelData.value("manaCost", manaCost);
+                level.fManaCost = manaCost;
 
                 for(auto it = levelData.begin(); it != levelData.end(); ++it) {
                     const auto& key = it.key();

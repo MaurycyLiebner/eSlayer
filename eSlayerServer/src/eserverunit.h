@@ -74,9 +74,11 @@ public:
 
     bool getHit(const eHitData& data);
     float takeDamage(const eDamage& dmg);
+    bool consumeMana(const float mana);
     eDamage attackDamage(const eSkillChoice schoice,
                          const eWeaponChoice wchoice);
 
+    float mana() const { return mStats.fManaF; }
     float maxHealth() const { return mStats.fMaxHealth; }
 
     void increment(const float by);
