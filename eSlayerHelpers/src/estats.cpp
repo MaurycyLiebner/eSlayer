@@ -142,20 +142,20 @@ void eStats::calculate(const eAttributes& attr,
     float vitality = attr.fVitality;
     float energy = attr.fEnergy;
 
-           // defense
+    // defense
     float baseDef = 0.f;
     float ed = 0.f;
 
-           // attack rating
+    // attack rating
     float baseAR = (dexterity - 7.f)*5.f + 20.f;
     float flatAR = 0.f;
     float bonusAR = 0.f;
 
-           // life
+    // life
     float baseLife = 3.f*vitality;
     float bonusLife = 0.f;
 
-           // mana
+    // mana
     float baseMana = 1.5f*energy;
     float bonusMana = 0.f;
 

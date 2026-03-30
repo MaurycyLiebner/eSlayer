@@ -56,9 +56,8 @@ void eGameWidget::initialize(const int clientId,
 
     setRightSkill(0);
     setLeftSkill(0);
-    mServer->requestWeaponData(mClientId);
 
-    mEq = eq;
+    mMainAction.setEquipment(eq);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -92,26 +91,30 @@ void eGameWidget::stop() {
 }
 
 void eGameWidget::dropItem() {
-    auto& dragged = mEq.fDragged;
+    auto& eq = mMainAction.equipment();
+    auto& dragged = eq.fDragged;
     if(dragged.fType == eItemType::none) return;
     mServer->dropItem(mClientId, dragged.fItemId);
     dragged = eItem();
-    eItemDragWidget::sUpdateDragItem(mEq);
+    eItemDragWidget::sUpdateDragItem(eq);
 }
 
 void eGameWidget::sendInventoryRearranged() {
-    mServer->rearrangeItems(mClientId, mEq);
+    const auto& eq = mMainAction.equipment();
+    mServer->rearrangeItems(mClientId, eq);
 }
 
 void eGameWidget::setLeftSkill(const int s) {
     if(mLeftSkill == s) return;
     mLeftSkill = s;
+    mMainAction.setSkillId(eSkillChoice::left, s);
     mServer->setSkillId(mClientId, eSkillChoice::left, s);
 }
 
 void eGameWidget::setRightSkill(const int s) {
     if(mRightSkill == s) return;
     mRightSkill = s;
+    mMainAction.setSkillId(eSkillChoice::right, s);
     mServer->setSkillId(mClientId, eSkillChoice::right, s);
 }
 
@@ -126,8 +129,10 @@ bool eGameWidget::switchRunning() {
 }
 
 bool eGameWidget::switchWeapons() {
-    mEq.fWeapons1 = !mEq.fWeapons1;
-    return mEq.fWeapons1;
+    auto& eq = mMainAction.equipment();
+    eq.fWeapons1 = !eq.fWeapons1;
+    mMainAction.recalculateStats();
+    return eq.fWeapons1;
 }
 
 void eGameWidget::disconnect() {
@@ -138,6 +143,7 @@ void eGameWidget::disconnect() {
 
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
+    sInstance->mMainAction.recalculateStats();
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
@@ -151,10 +157,12 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar, mMainAction, r);
     if(mWaitngForEq) {
-        const bool r = mServer->receiveEquipment(mClientId, mEq);
+        auto& eq = mMainAction.equipment();
+        const bool r = mServer->receiveEquipment(mClientId, eq);
         if(r) {
+            mMainAction.recalculateStats();
             mWaitngForEq = false;
-            eItemDragWidget::sUpdateDragItem(mEq);
+            eItemDragWidget::sUpdateDragItem(eq);
         }
     }
 
@@ -201,8 +209,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                               mInput.rightPressed(),
                               shiftPressed,
                               mouseTilePos,
-                              mInput.rightPressed() ? mRightSkill :
-                                                      mLeftSkill,
                               by);
     }
 
@@ -454,11 +460,9 @@ bool eGameWidget::mouseReleaseEvent(const eMouseEvent& e) {
         button & eMouseButton::right);
     if(leftReleased || rightRelease) {
         mInput.handleMouseRelease(leftReleased, rightRelease);
-        const int skillId = leftReleased ? mLeftSkill : mRightSkill;
-        const auto& skill = eSkills::sSkills.get(skillId);
-        const auto& eq = mMainAction.weaponData();
-        const bool rangeAttack = eMainCharAction::sRangedAttack(
-            skillId, skill.fType, eq);
+        const auto schoice = leftReleased ? eSkillChoice::left :
+                                 eSkillChoice::right;
+        const bool rangeAttack = mMainAction.rangedAttack(schoice);
         if(e.shiftPressed() || (rightRelease && rangeAttack) ||
            (rangeAttack && mPressedUnit)) {
             mMainAction.stop();

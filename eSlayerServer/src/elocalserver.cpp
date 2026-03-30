@@ -65,23 +65,10 @@ bool eLocalServer::requestData(const int clientId,
     return h->receiveData(data, resultTime);
 }
 
-bool eLocalServer::requestWeaponData(const int clientId) {
-    const auto h = clientHandler(clientId);
-    if(!h) return false;
-    return h->requestWeaponData();
-}
-
 bool eLocalServer::requestEquipment(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->requestEquipment();
-}
-
-bool eLocalServer::receiveWeaponData(
-    const int clientId, eWeaponData& data) {
-    const auto h = clientHandler(clientId);
-    if(!h) return false;
-    return h->receiveWeaponData(data);
 }
 
 bool eLocalServer::receiveEquipment(const int clientId,

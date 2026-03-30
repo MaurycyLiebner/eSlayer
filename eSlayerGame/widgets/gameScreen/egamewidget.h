@@ -62,14 +62,12 @@ public:
     eGameInput& input() { return mInput; }
     const eGameInput& input() const { return mInput; }
 
-    eEquipment* equipment() { return &mEq; }
+    eEquipment& equipment() { return mMainAction.equipment(); }
     void dropItem();
     void sendInventoryRearranged();
     bool waitingForEquipment() const { return mWaitngForEq; }
 
-    int leftSkill() const { return mLeftSkill; }
     void setLeftSkill(const int s);
-    int rightSkill() const { return mRightSkill; }
     void setRightSkill(const int s);
 
     const std::shared_ptr<eServer>& server() const { return mServer; }
@@ -107,7 +105,6 @@ private:
 
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
-    eEquipment mEq;
 
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;

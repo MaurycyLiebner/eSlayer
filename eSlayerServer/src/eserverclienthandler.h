@@ -18,12 +18,9 @@ class eServerClientHandler {
 public:
     eServerClientHandler(const int clientId);
 
-
-    bool requestWeaponData();
     bool requestEquipment();
     bool receiveData(eRequestData& data,
                      float& resultTime);
-    bool receiveWeaponData(eWeaponData& data);
     bool receiveEquipment(eEquipment& data);
 
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }

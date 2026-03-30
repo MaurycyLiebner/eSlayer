@@ -28,10 +28,7 @@ public:
     bool requestData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
-    bool requestWeaponData(const int clientId) override;
     bool requestEquipment(const int clientId) override;
-    bool receiveWeaponData(const int clientId,
-                           eWeaponData& data) override;
     bool receiveEquipment(const int clientId,
                           eEquipment& data) override;
 

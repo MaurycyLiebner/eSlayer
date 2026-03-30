@@ -47,12 +47,7 @@ public:
                 eRequestData& data,
                 float& resultTime) = 0;
     virtual bool
-    requestWeaponData(const int clientId) = 0;
-    virtual bool
     requestEquipment(const int clientId) = 0;
-    virtual bool
-    receiveWeaponData(const int clientId,
-                      eWeaponData& data) = 0;
     virtual bool
     receiveEquipment(const int clientId,
                      eEquipment& data) = 0;

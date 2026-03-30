@@ -20,9 +20,6 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     eRequestData data;
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
-    eWeaponData wdata;
-    const bool w = server.receiveWeaponData(clientId, wdata);
-    if(w) mainAct.setWeaponData(wdata);
     if(!b) return result;
 
     result.fReceived = true;

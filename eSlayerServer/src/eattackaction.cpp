@@ -17,15 +17,15 @@ std::shared_ptr<eAttackAction> eAttackAction::sCreate(
     const int animLen = data.animFrames(anim);
     int frames;
     if(type == eAttackType::attack) {
-        const float iasItem = unit.itemsAttackSpeed(wchoice); // all items speed modifiers
+        const float iasItem = 100.f*unit.itemsAttackSpeed(wchoice); // all items speed modifiers
         const float eias = std::floor(iasItem*120.f/(iasItem + 120.f));
-        const float sias = unit.skillsAttackSpeed(schoice); // skill increased attack speed
+        const float sias = 100.f*unit.skillsAttackSpeed(schoice); // skill increased attack speed
         const float wsm = unit.weaponSpeedModifier(wchoice); // weapon speed modifier
         const float animSpeed = 256.f;
         const float animRate = 100.f;
         frames = int(std::ceil(256.f*animLen/std::floor(animSpeed*(animRate + sias + eias - wsm)/100.f))) - 1;
     } else if(type == eAttackType::cast) {
-        const float fcrItem = unit.itemsCastRate(); // all items speed modifiers
+        const float fcrItem = 100.f*unit.itemsCastRate(); // all items speed modifiers
         const float efcr = std::floor(fcrItem*120.f/(fcrItem + 120.f));
         const float animSpeed = 256.f;
         const float animRate = 100.f;

@@ -78,11 +78,6 @@ void eTcpIpJoin::increment(const float by) {
             mData.read(p);
             mNewData = true;
         } break;
-        case ePacketType::weaponData: {
-            mWeaponData = eWeaponData();
-            mWeaponData.read(p);
-            mNewWeaponData = true;
-        } break;
         case ePacketType::equipment: {
             mEquipment = eEquipment();
             mEquipment.read(p);
@@ -167,28 +162,12 @@ bool eTcpIpJoin::requestData(const int clientId,
     return true;
 }
 
-bool eTcpIpJoin::requestWeaponData(const int clientId) {
-    ePacket p;
-    p << ePacketType::weaponData;
-    const bool r = mNet.sendToServer(p);
-    if(!r) failed("Disconnected", "Failed to send a request to the host.");
-    return r;
-}
-
 bool eTcpIpJoin::requestEquipment(const int clientId) {
     ePacket p;
     p << ePacketType::equipment;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a request to the host.");
     return r;
-}
-
-bool eTcpIpJoin::receiveWeaponData(const int clientId,
-                                   eWeaponData& data) {
-    if(!mNewWeaponData) return false;
-    data = mWeaponData;
-    mNewWeaponData = false;
-    return true;
 }
 
 bool eTcpIpJoin::receiveEquipment(const int clientId,

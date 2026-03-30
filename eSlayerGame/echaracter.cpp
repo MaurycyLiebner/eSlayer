@@ -80,12 +80,12 @@ bool eCharacter::load(const std::string& path,
     {
         auto& mod = armor.fModifiers.emplace_back();
         mod.fType = eModifierType::walkRun;
-        mod.fValue1 = 15.f;
+        mod.fValue1 = 1.5f;
     }
     {
         auto& mod = armor.fModifiers.emplace_back();
         mod.fType = eModifierType::defensePercent;
-        mod.fValue1 = 75.f;
+        mod.fValue1 = 0.75f;
     }
     {
         auto& mod = armor.fModifiers.emplace_back();

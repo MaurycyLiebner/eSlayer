@@ -29,10 +29,7 @@ public:
     bool requestData(const int clientId,
                      eRequestData& data,
                      float& resultTime) override;
-    bool requestWeaponData(const int clientId) override;
     bool requestEquipment(const int clientId) override;
-    bool receiveWeaponData(const int clientId,
-                           eWeaponData& data) override;
     bool receiveEquipment(const int clientId,
                           eEquipment& data) override;
 
@@ -60,12 +57,13 @@ private:
     const std::string mIP;
     eTCPNetwork mNet;
     bool mInitialized = false;
+
     eRequestData mData;
     bool mNewData = false;
-    eWeaponData mWeaponData;
-    bool mNewWeaponData = false;
+
     eEquipment mEquipment;
     bool mNewEquipment = false;
+
     uint32_t mRequestId = 0;
     uint32_t mReceivedId = 0;
 };

@@ -56,6 +56,36 @@ std::string floatToString(const float value) {
     return oss.str();
 }
 
+std::string floatToString(const float value,
+                          const eModifierType type) {
+    switch(type) {
+    case eModifierType::walkRun:
+    case eModifierType::attackSpeed:
+    case eModifierType::castRate:
+    case eModifierType::defensePercent:
+    case eModifierType::damagePercent:
+    case eModifierType::attackRatingPercent:
+    case eModifierType::blockChancePercent:
+    case eModifierType::blockRecoverySpeed:
+    case eModifierType::hitRecoverySpeed:
+    case eModifierType::lifePercent:
+    case eModifierType::manaPercent:
+    case eModifierType::pierceChance:
+        return floatToString(100*value);
+    case eModifierType::none:
+    case eModifierType::defenseValue:
+    case eModifierType::damageValue:
+    case eModifierType::damageFire:
+    case eModifierType::damageLightning:
+    case eModifierType::damageCold:
+    case eModifierType::attackRatingValue:
+    case eModifierType::lifeValue:
+    case eModifierType::manaValue:
+        return floatToString(value);
+    }
+    return floatToString(value);
+}
+
 void eItemDragWidget::setHoverItem(const eItem& item) {
     if(item.fType == eItemType::none) {
         mHover = nullptr;
@@ -80,10 +110,11 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         const auto addValue = [&](const int g, const int s,
                                   const float min,
                                   const float max,
-                                  const eFontColor color) {
+                                  const eFontColor color,
+                                  const eModifierType type = eModifierType::none) {
             auto text = eLanguage::text(g, s);
-            text = replaceAll(text, "%1", floatToString(min));
-            text = replaceAll(text, "%2", floatToString(max));
+            text = replaceAll(text, "%1", floatToString(min, type));
+            text = replaceAll(text, "%2", floatToString(max, type));
             addText(text, color);
         };
 
@@ -97,7 +128,8 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             break;
         case eItemType::shield:
             addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
-            addValue(6, 2, 100*item.fValue4, 100*item.fValue4, eFontColor::white);
+            addValue(6, 2, item.fValue4, item.fValue4, eFontColor::white,
+                     eModifierType::blockChancePercent);
             addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
             break;
         case eItemType::boots:
@@ -112,7 +144,7 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
-            addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue);
+            addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);
         }
 
         mHover = std::make_shared<eTexture>();

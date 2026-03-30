@@ -58,11 +58,53 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     mPressedUnit = u;
 }
 
+bool gRangedAttack(
+    const int skillId,
+    const eSkillType skillType,
+    const eStats& stats) {
+    const auto lw = stats.fWeaponTypeL;
+    const auto rw = stats.fWeaponTypeR;
+    return skillType == eSkillType::missile ||
+           skillType == eSkillType::wall ||
+           skillType == eSkillType::shoot ||
+           skillType == eSkillType::throw_ ||
+           (skillId == 0 &&
+            (lw == eWeaponType::ranged ||
+             rw == eWeaponType::ranged));
+}
+
+bool gCanUseSkill(
+    const eSkillType skillType,
+    const eStats& stats) {
+    const auto lw = stats.fWeaponTypeL;
+    const auto rw = stats.fWeaponTypeR;
+    switch(skillType) {
+    case eSkillType::attack:
+        return true;
+    case eSkillType::smite:
+        return lw == eWeaponType::shield ||
+               rw == eWeaponType::shield;
+    case eSkillType::kick:
+        return true;
+    case eSkillType::shoot:
+        return lw == eWeaponType::ranged ||
+               rw == eWeaponType::ranged;
+    case eSkillType::throw_:
+        return lw == eWeaponType::throwable ||
+               rw == eWeaponType::throwable;
+    case eSkillType::missile:
+        return true;
+        break;
+    case eSkillType::wall:
+        return true;
+    }
+    return false;
+}
+
 void eMainCharAction::increment(const bool mousePressed,
                                 const bool rightPressed,
                                 const bool shiftPressed,
                                 const ePointF& mousePos,
-                                const int skillId,
                                 const float by) {
     if(mMainChar->fHealth <= 0) return;
 
@@ -71,14 +113,16 @@ void eMainCharAction::increment(const bool mousePressed,
     const eSkillChoice schoice{rightPressed ?
                                    eSkillChoice::right :
                                    eSkillChoice::left};
+    const int skillId = rightPressed ? mStats.fSkillR :
+                            mStats.fSkillL;
 
     handleAttackStop(mousePressed, rightPressed, shiftPressed, skillId);
 
     if(consumeActionTime(by, model)) return;
 
     const auto& skill = eSkills::sSkills.get(skillId);
-    const bool canUseSkill = sCanUseSkill(skill.fType, mWeaponData);
-    const bool rangeAttack = sRangedAttack(skillId, skill.fType, mWeaponData);
+    const bool canUseSkill = gCanUseSkill(skill.fType, mStats);
+    const bool rangeAttack = gRangedAttack(skillId, skill.fType, mStats);
 
     ePointF targetPos = mousePos;
     bool shouldStopAttack = !canUseSkill;
@@ -136,15 +180,16 @@ bool eMainCharAction::handleUnitAttack(
     const bool rangeAttack,
     eCharUnitModel& model) {
     float attackDist;
-    const float meeleDist = mWeaponData.fMeeleRange + 0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
+    const float meeleDist = mStats.fWeaponMeeleRange +
+                            0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
     if(skill.fType == eSkillType::attack) {
-        if(mWeaponData.fWeaponTypeL == eWeaponType::meele ||
-           mWeaponData.fWeaponTypeL == eWeaponType::throwable ||
-           mWeaponData.fWeaponTypeR == eWeaponType::meele ||
-           mWeaponData.fWeaponTypeR == eWeaponType::throwable) {
+        if(mStats.fWeaponTypeL == eWeaponType::meele ||
+           mStats.fWeaponTypeL == eWeaponType::throwable ||
+           mStats.fWeaponTypeR == eWeaponType::meele ||
+           mStats.fWeaponTypeR == eWeaponType::throwable) {
             attackDist = meeleDist;
         } else {
-            attackDist = mWeaponData.fRangedRange;
+            attackDist = mStats.fWeaponRangedRange;
         }
     } else if(skill.fType == eSkillType::smite ||
               skill.fType == eSkillType::kick) {
@@ -154,7 +199,7 @@ bool eMainCharAction::handleUnitAttack(
         attackDist = skill.fCastRange;
     } else if(skill.fType == eSkillType::throw_ ||
               skill.fType == eSkillType::shoot) {
-        attackDist = mWeaponData.fRangedRange;
+        attackDist = mStats.fWeaponRangedRange;
     } else {
         return false;
     }
@@ -207,8 +252,7 @@ void eMainCharAction::handleMovement(
     eCharUnitModel& model) {
     const bool run = shouldRun();
     mContinueRunning = false;
-
-    mMovementHandler.setSpeed(run ? 0.1f : 0.075f);
+    updateWalkRunSpeed();
 
     bool moved = false;
 
@@ -277,6 +321,17 @@ void eMainCharAction::stopAttack() {
     mServer->stopAttack(mClientId);
 }
 
+void eMainCharAction::recalculateStats() {
+    mStats.calculate(mAttributes, mEquipment);
+    updateWalkRunSpeed();
+}
+
+void eMainCharAction::updateWalkRunSpeed() {
+    const bool run = shouldRun();
+    const float base = run ? 0.1f : 0.075f;
+    mMovementHandler.setSpeed(base*(1.f + mStats.fWalkRun));
+}
+
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
     if(mPressedUnit) {
         mPressedUnit = nullptr;
@@ -297,47 +352,33 @@ void eMainCharAction::incStamina(const float by) {
     mStamina = std::clamp(mStamina + by, 0.f, mMaxStamina);
 }
 
-bool eMainCharAction::sRangedAttack(
-    const int skillId,
-    const eSkillType skillType,
-    const eWeaponData& weapons) {
-    const auto lw = weapons.fWeaponTypeL;
-    const auto rw = weapons.fWeaponTypeR;
-    return skillType == eSkillType::missile ||
-           skillType == eSkillType::wall ||
-           skillType == eSkillType::shoot ||
-           skillType == eSkillType::throw_ ||
-           (skillId == 0 &&
-            (lw == eWeaponType::ranged ||
-             rw == eWeaponType::ranged));
+bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
+    const int skillId = schoice == eSkillChoice::left ?
+                            mStats.fSkillL : mStats.fSkillR;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    return gRangedAttack(skillId, skill.fType, mStats);
 }
 
-bool eMainCharAction::sCanUseSkill(
-    const eSkillType skillType,
-    const eWeaponData& weapons) {
-    const auto lw = weapons.fWeaponTypeL;
-    const auto rw = weapons.fWeaponTypeR;
-    switch(skillType) {
-    case eSkillType::attack:
-        return true;
-    case eSkillType::smite:
-        return lw == eWeaponType::shield ||
-               rw == eWeaponType::shield;
-    case eSkillType::kick:
-        return true;
-    case eSkillType::shoot:
-        return lw == eWeaponType::ranged ||
-               rw == eWeaponType::ranged;
-    case eSkillType::throw_:
-        return lw == eWeaponType::throwable ||
-               rw == eWeaponType::throwable;
-    case eSkillType::missile:
-        return true;
+void eMainCharAction::setSkillId(const eSkillChoice schoice, const int skillId) {
+    switch(schoice) {
+    case eSkillChoice::left:
+        mStats.fSkillL = skillId;
         break;
-    case eSkillType::wall:
-        return true;
+    case eSkillChoice::right:
+        mStats.fSkillR = skillId;
+        break;
     }
-    return false;
+    recalculateStats();
+}
+
+void eMainCharAction::setAttributes(const eAttributes& attr) {
+    mAttributes = attr;
+    recalculateStats();
+}
+
+void eMainCharAction::setEquipment(const eEquipment& eq) {
+    mEquipment = eq;
+    recalculateStats();
 }
 
 void eMainCharAction::stand() {

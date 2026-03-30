@@ -56,8 +56,6 @@ public:
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
-    eWeaponData weaponData() const;
-
     void setEquipment(const eEquipment& eq);
     eEquipment& equipment() { return mEquipment; }
 

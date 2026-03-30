@@ -60,17 +60,9 @@ int eServerUnit::missileId(const eWeaponChoice wchoice,
     return -1;
 }
 
-eWeaponData eServerUnit::weaponData() const {
-    eWeaponData result;
-    result.fWeaponTypeL = mStats.fWeaponTypeL;
-    result.fWeaponTypeR = mStats.fWeaponTypeR;
-    result.fMeeleRange = mStats.fWeaponMeeleRange;
-    result.fRangedRange = mStats.fWeaponRangedRange;
-    return result;
-}
-
 void eServerUnit::setEquipment(const eEquipment& eq) {
     mEquipment = eq;
+    recalculateStats();
 }
 
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {

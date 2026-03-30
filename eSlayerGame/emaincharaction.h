@@ -4,6 +4,9 @@
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/eequipment.h>
+#include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/estats.h>
 
 #include <memory>
 
@@ -29,7 +32,6 @@ public:
                    const bool rightPressed,
                    const bool shiftPressed,
                    const ePointF& mousePos,
-                   const int skillId,
                    const float by);
 
     void mouseRelease(const ePointF& mousePos);
@@ -46,14 +48,15 @@ public:
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
 
-    static bool sRangedAttack(const int skillId,
-                              const eSkillType skillType,
-                              const eWeaponData& weapons);
-    static bool sCanUseSkill(const eSkillType skillType,
-                             const eWeaponData& weapons);
-    const eWeaponData& weaponData() const { return mWeaponData; }
-    void setWeaponData(const eWeaponData& d) { mWeaponData = d; }
+    bool rangedAttack(const eSkillChoice schoice) const;
+
+    void setSkillId(const eSkillChoice schoice, const int skillId);
+    void setAttributes(const eAttributes& attr);
+    void setEquipment(const eEquipment& eq);
+    eEquipment& equipment() { return mEquipment; }
+    void recalculateStats();
 private:
+    void updateWalkRunSpeed();
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
                           const bool rightPressed,
@@ -95,7 +98,10 @@ private:
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
-    eWeaponData mWeaponData;
+
+    eEquipment mEquipment;
+    eAttributes mAttributes;
+    eStats mStats;
 
     bool mRunning = false;
     float mMaxStamina = 100.f;
