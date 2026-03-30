@@ -17,6 +17,8 @@
 #include "../textures/emissilestextures.h"
 #include "../textures/euitextures.h"
 
+#include <eSlayerHelpers/escreendimensions.h>
+
 #include <eSlayerNet/etcpnetwork.h>
 
 eScreenHandler::eScreenHandler(eMainWindow * const window) :
@@ -166,14 +168,20 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto clientId = std::make_shared<int>();
 
     const auto finish = [this, map, server, clientId, c]() {
-        const auto w = new eGameScreen(mWindow);
         const int width = mWindow->width();
         const int height = mWindow->height();
+        const auto& res = mWindow->resolution();
+        const int tileW = res.tileWidth();
+        const int tileH = res.tileHeight();
+        const auto& eq = c.equipment();
+        const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
+                                           int(std::ceil(2.f*height/tileH))};
+        (*server)->spawn(*clientId, eq, screenDims);
+        const auto w = new eGameScreen(mWindow);
         w->resize(width, height);
         w->setExitAction([this]() {
             showMainMenu();
         });
-        const auto& eq = c.equipment();
         w->initialize(*clientId, *server, *map, eq);
         mWindow->setWidget(w);
     };
@@ -192,8 +200,7 @@ void eScreenHandler::showGame(eServerData serverData,
         *clientId = (*server)->connect();
     });
     loading.emplace_back([server, map, clientId, c]() {
-        const auto& eq = c.equipment();
-        *map = (*server)->requestMap(*clientId, "town", eq);
+        *map = (*server)->requestMap(*clientId, "town");
     });
     loading.emplace_back([r]() {
         const int id = eEffectsTextures::sEffects.id("lighting");

@@ -1,18 +1,20 @@
 #include "eserverarea.h"
 
-#include "eclientaction.h"
 #include "../../eSlayerHelpers/include/eSlayerHelpers/echardatainfo.h"
+#include "eclientaction.h"
 #include "eunitbaseaction.h"
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
-
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
+#include <iostream>
+
 eServerArea::eServerArea() :
     mUnitAreas(mUnitAreaDim),
-    mItemAreas(mItemAreaDim) {}
+    mItemAreas(mItemAreaDim),
+    mItemTiles(-mItemTileSubdivision) {}
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
@@ -80,32 +82,38 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 void eServerArea::increment(const float by) {
-    std::map<int, eUnitArea> clientAreas;
-
-    for(const int i : mClientIds) {
+    std::set<eUnitArea> unitAreas;
+    for(auto& it : mClientData) {
+        const int i = it.first;
         const auto u = unit(i);
         if(!u) continue;
-        auto& oldArea = mClientAreas[i];
+        auto& clientData = it.second;
+        auto& oldArea = clientData.fArea;
         const auto newArea = unitArea(*u);
         if(oldArea != newArea) {
             mUnitAreas.erase(oldArea, i);
             mUnitAreas.emplace(newArea, i);
             oldArea = newArea;
         }
-        clientAreas[i] = newArea;
-    }
 
-    std::set<eUnitArea> unitTiles;
-    for(const auto& clientAreaP : clientAreas) {
-        const auto& clientArea = clientAreaP.second;
-        for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
-            for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
-                const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
-                unitTiles.emplace(area);
+        const auto& screenDims = clientData.fScreen;
+        const int halfHeight = std::ceil(0.5f*screenDims.fHeight/mUnitAreaDim);
+        const int halfWidth = std::ceil(0.5f*screenDims.fWidth/mUnitAreaDim);
+        const int dyMin = -halfHeight - 2;
+        const int dyMax = halfHeight + 2;
+        const int dxMin = -halfWidth - 2;
+        const int dxMax = halfWidth + 2;
+        for(int dy = dyMin; dy <= dyMax; dy++) {
+            for(int dx = dxMin; dx <= dxMax; dx++) {
+                const int y = newArea.fY - dx + dy/2;
+                const int x = newArea.fX + dx + dy % 2 + dy/2;
+                const eUnitArea area{x, y};
+                unitAreas.emplace(area);
             }
         }
     }
-    for(const auto& area : unitTiles) {
+
+    for(const auto& area : unitAreas) {
         const auto units = mUnitAreas.at(area);
         for(const int charId : units) {
             const auto u = mUnits.get(charId);
@@ -183,14 +191,24 @@ void eServerArea::unitsData(
     const int clientId,
     std::vector<eUnitData>& newUnits,
     std::vector<eUnitDynamicData>& updatedUnits) {
-    const auto client = unit(clientId);
-    if(!client) return;
-    auto& known = mClientKnownUnits[clientId];
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return;
+    auto& clientData = it->second;
+    auto& known = clientData.fKnownUnits;
     std::set<int> visible;
-    const auto clientArea = unitArea(*client);
-    for(int x = -mUnitAreaMargin; x <= mUnitAreaMargin; x++) {
-        for(int y = -mUnitAreaMargin; y <= mUnitAreaMargin; y++) {
-            const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
+    const auto& clientArea = clientData.fArea;
+    const auto& screenDims = clientData.fScreen;
+    const int halfHeight = std::ceil(0.5f*screenDims.fHeight/mUnitAreaDim);
+    const int halfWidth = std::ceil(0.5f*screenDims.fWidth/mUnitAreaDim);
+    const int dyMin = -halfHeight - 2;
+    const int dyMax = halfHeight + 2;
+    const int dxMin = -halfWidth - 2;
+    const int dxMax = halfWidth + 2;
+    for(int dy = dyMin; dy <= dyMax; dy++) {
+        for(int dx = dxMin; dx <= dxMax; dx++) {
+            const int y = clientArea.fY - dx + dy/2;
+            const int x = clientArea.fX + dx + dy % 2 + dy/2;
+            const eUnitArea area{x, y};
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = unit(charId);
@@ -221,12 +239,23 @@ void eServerArea::itemsData(
     std::vector<uint32_t>& removedItemIds) {
     const auto client = unit(clientId);
     if(!client) return;
-    auto& known = mClientKnownItems[clientId];
+    auto& clientData = mClientData[clientId];
+    auto& known = clientData.fKnownItems;
     std::set<int> visible;
-    const auto clientArea = mItemAreas.posArea(client->fPos);
-    for(int x = -mItemAreaMargin; x <= mItemAreaMargin; x++) {
-        for(int y = -mItemAreaMargin; y <= mItemAreaMargin; y++) {
-            const eUnitArea area{clientArea.fX + x, clientArea.fY + y};
+    const auto& clientPos = client->fPos;
+    const auto clientArea = mItemAreas.posArea(clientPos);
+    const auto& screenDims = clientData.fScreen;
+    const int halfHeight = std::ceil(0.5f*screenDims.fHeight/mItemAreaDim);
+    const int halfWidth = std::ceil(0.5f*screenDims.fWidth/mItemAreaDim);
+    const int dyMin = -halfHeight - 1;
+    const int dyMax = halfHeight + 1;
+    const int dxMin = -halfWidth - 1;
+    const int dxMax = halfWidth + 1;
+    for(int dy = dyMin; dy <= dyMax; dy++) {
+        for(int dx = dxMin; dx <= dxMax; dx++) {
+            const int y = clientArea.fY - dx + dy/2;
+            const int x = clientArea.fX + dx + dy % 2 + dy/2;
+            const eUnitArea area{x, y};
             const auto& items = mItemAreas.at(area);
             for(const int itemId : items) {
                 const auto i = groundItem(itemId);
@@ -260,11 +289,35 @@ eUnitArea eServerArea::unitArea(const eServerUnit& u) const {
     return mUnitAreas.posArea(pos);
 }
 
+eUnitArea eServerArea::itemArea(const int itemId) const {
+    const auto i = groundItem(itemId);
+    if(!i) return {0, 0};
+    return itemArea(*i);
+}
+
+eUnitArea eServerArea::itemArea(const eGroundItem& i) const {
+    const auto& pos = i.fPos;
+    return mItemAreas.posArea(pos);
+}
+
+eUnitArea eServerArea::itemTile(const int itemId) const {
+    const auto i = groundItem(itemId);
+    if(!i) return {0, 0};
+    return itemTile(*i);
+}
+
+eUnitArea eServerArea::itemTile(const eGroundItem& i) const {
+    const auto& pos = i.fPos;
+    return mItemTiles.posArea(pos);
+}
+
 bool eServerArea::addClient(const int clientId,
                             const eEquipment& eq,
-                            const ePointF& pos) {
-    mClientIds.emplace(clientId);
-    mClientLatestMissileId[clientId] = -1;
+                            const ePointF& pos,
+                            const eScreenDimensions& screenDims) {
+    auto& clientData = mClientData[clientId];
+    clientData.fLatestMissile = -1;
+    clientData.fScreen = screenDims;
     const int typeId = 1;
     const auto& data = eCharDataInfo::get(typeId);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
@@ -289,17 +342,13 @@ bool eServerArea::addClient(const int clientId,
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, clientId);
-    mClientAreas[clientId] = area;
+    clientData.fArea = area;
     return true;
 }
 
 bool eServerArea::removeClient(const int clientId) {
     removeUnit(clientId);
-    mClientLatestMissileId.erase(clientId);
-    const int r = mClientIds.erase(clientId);
-    mClientAreas.erase(clientId);
-    mClientKnownUnits.erase(clientId);
-    mClientKnownItems.erase(clientId);
+    const int r = mClientData.erase(clientId);
     return r > 0;
 }
 
@@ -316,6 +365,9 @@ bool eServerArea::pickupItem(
     if(!u) return false;
     const auto item = mItemsOnGround.get(itemId);
     if(!item) return false;
+    const auto gitem = mGroundItems.get(itemId);
+    const auto area = itemArea(itemId);
+    const auto tile = itemTile(itemId);
     auto& eq = u->equipment();
     if(drag) {
         if(eq.fDragged.fType != eItemType::none) return false;
@@ -326,6 +378,8 @@ bool eServerArea::pickupItem(
     }
     mGroundItems.remove(itemId);
     mItemsOnGround.remove(itemId);
+    mItemAreas.erase(area, itemId);
+    mItemTiles.erase(tile, itemId);
     return true;
 }
 
@@ -341,18 +395,18 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
     groundItem->fDataId = item.fDataId;
     groundItem->fType = item.fType;
     groundItem->fSubType = item.fSubType;
-    const auto baseArea = mItemAreas.posArea(pos);
+    const auto baseTile = mItemTiles.posArea(pos);
     bool found = false;
     for(int dist = 0; dist < 100; dist++) {
         for(int x = -dist; x <= dist; x++) {
             for(int y = -dist; y <= dist; y++) {
                 if(std::abs(x) != dist && std::abs(y) != dist) continue;
-                const eUnitArea area{baseArea.fX + x, baseArea.fY + y};
-                const auto items = mItemAreas.at(area);
+                const eUnitArea tile{baseTile.fX + x, baseTile.fY + y};
+                const auto& items = mItemTiles.at(tile);
                 if(!items.empty()) continue;
-                mItemAreas.emplace(area, itemId);
-                groundItem->fPos = ePointF{float(area.fX)/(-mItemAreaDim),
-                                           float(area.fY)/(-mItemAreaDim)};
+                groundItem->fPos = ePointF{float(tile.fX)/mItemTileSubdivision,
+                                           float(tile.fY)/mItemTileSubdivision};
+                mItemTiles.emplace(tile, itemId);
                 found = true;
                 break;
             }
@@ -362,6 +416,8 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
     }
     mGroundItems.add(itemId, groundItem);
     mItemsOnGround.add(itemId, std::make_shared<eItem>(item));
+    const auto area = itemArea(itemId);
+    mItemAreas.emplace(area, itemId);
     item = eItem();
     return true;
 }
@@ -374,12 +430,12 @@ void eServerArea::rearrangeItems(
 }
 
 std::vector<eMissile>
-eServerArea::missileData(const int clientId) const {
+eServerArea::missileData(const int clientId) {
     std::vector<eMissile> result;
     const auto u = unit(clientId);
     if(!u) return result;
     result.reserve(mMissiles.actualSize());
-    const auto latestMissile = mClientLatestMissileId[clientId];
+    auto& latestMissile = mClientData[clientId].fLatestMissile;
     auto newLatestMissile = latestMissile;
     for(const auto& m : mMissiles) {
         if(m->fId <= latestMissile) continue;
@@ -388,7 +444,7 @@ eServerArea::missileData(const int clientId) const {
         if(dist > 20.f) continue;
         result.emplace_back(*m);
     }
-    mClientLatestMissileId[clientId] = newLatestMissile;
+    latestMissile = newLatestMissile;
     return result;
 }
 

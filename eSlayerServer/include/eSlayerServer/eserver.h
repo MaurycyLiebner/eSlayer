@@ -13,6 +13,7 @@ class eRequestData;
 struct eAttackData;
 struct eWeaponData;
 struct eEquipment;
+struct eScreenDimensions;
 
 struct eServerData {
     std::string fName;
@@ -35,8 +36,11 @@ public:
 
     virtual std::shared_ptr<eMap>
     requestMap(const int clientId,
-               const std::string& name,
-               const eEquipment& eq) = 0;
+               const std::string& name) = 0;
+    virtual bool
+    spawn(const int clientId,
+          const eEquipment& eq,
+          const eScreenDimensions& screenDims) = 0;
 
     virtual bool
     requestData(const int clientId,

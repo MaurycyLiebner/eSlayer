@@ -21,6 +21,8 @@ eGameWidget* eGameWidget::sInstance = nullptr;
 
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
+    mInput(resolution().tileWidth(),
+           resolution().tileHeight()),
     mGamePainter(renderer()) {
     sInstance = this;
     setNoPadding();

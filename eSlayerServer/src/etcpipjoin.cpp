@@ -4,6 +4,7 @@
 
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eequipment.h>
+#include <eSlayerHelpers/escreendimensions.h>
 
 eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
     mIP(ip) {}
@@ -73,7 +74,7 @@ void eTcpIpJoin::increment(const float by) {
         p >> type;
         switch(type) {
         case ePacketType::data: {
-            mData = eRequestData();
+            mData.fUpdatedUnits.clear();
             mData.read(p);
             mNewData = true;
         } break;
@@ -97,11 +98,10 @@ void eTcpIpJoin::increment(const float by) {
 }
 
 std::shared_ptr<eMap> eTcpIpJoin::requestMap(
-    const int clientId, const std::string& name,
-    const eEquipment& eq) {
+    const int clientId,
+    const std::string& name) {
     ePacket p;
     p << ePacketType::map;
-    eq.write(p);
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send map request to the host.");
@@ -132,6 +132,22 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
             return nullptr;
         }
     }
+}
+
+bool eTcpIpJoin::spawn(
+    const int clientId,
+    const eEquipment& eq,
+    const eScreenDimensions& screenDims) {
+    ePacket p;
+    p << ePacketType::spawn;
+    eq.write(p);
+    screenDims.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) {
+        failed("Disconnected", "Failed to send spawn request to the host.");
+        return false;
+    }
+    return true;
 }
 
 bool eTcpIpJoin::requestData(const int clientId,

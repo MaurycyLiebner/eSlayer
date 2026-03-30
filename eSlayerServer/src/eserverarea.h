@@ -11,10 +11,20 @@
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/eunitareas.h>
+#include <eSlayerHelpers/escreendimensions.h>
 
 #include <memory>
 #include <map>
 #include <set>
+
+struct eClientData {
+    // in tile dimensions
+    eScreenDimensions fScreen;
+    eUnitArea fArea;
+    std::set<int> fKnownUnits;
+    std::set<int> fKnownItems;
+    int32_t fLatestMissile;
+};
 
 class eServerArea {
 public:
@@ -35,13 +45,22 @@ public:
     void itemsData(const int clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);
+    std::vector<eMissile>
+    missileData(const int clientId);
 
     eUnitArea unitArea(const int charId) const;
     eUnitArea unitArea(const eServerUnit& u) const;
 
+    eUnitArea itemArea(const int itemId) const;
+    eUnitArea itemArea(const eGroundItem& i) const;
+
+    eUnitArea itemTile(const int itemId) const;
+    eUnitArea itemTile(const eGroundItem& i) const;
+
     bool addClient(const int clientId,
                    const eEquipment& eq,
-                   const ePointF& pos);
+                   const ePointF& pos,
+                   const eScreenDimensions& screenDims);
     bool removeClient(const int clientId);
     bool removeUnit(const int charId);
 
@@ -49,9 +68,6 @@ public:
                     const bool drag);
     bool dropItem(const int clientId, const int itemId);
     void rearrangeItems(const int clientId, const eEquipment& eq);
-
-    std::vector<eMissile>
-    missileData(const int clientId) const;
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void removeMissile(const std::shared_ptr<eServerMissile>& m);
@@ -65,23 +81,22 @@ public:
 private:
     float mTime = 0.f;
 
+    std::shared_ptr<eMap> mMap;
+
     eIdMapVector<eServerMissile> mMissiles;
-    mutable std::map<int, int32_t> mClientLatestMissileId;
     eIdMapVector<eServerUnit> mUnits;
     eIdMapVector<eItem> mItemsOnGround;
     eIdMapVector<eGroundItem> mGroundItems;
+
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
     eUnitAreas mUnitAreas;
-    const int mItemAreaDim = -2;
-    const int mItemAreaMargin = 6;
+    const int mItemAreaDim = 4;
     eUnitAreas mItemAreas;
-    std::map<int, eUnitArea> mClientAreas;
-    std::set<int> mClientIds;
-    std::map<int, std::set<int>> mClientKnownUnits;
-    std::map<int, std::set<int>> mClientKnownItems;
+    const int mItemTileSubdivision = 2;
+    eUnitAreas mItemTiles;
 
-    std::shared_ptr<eMap> mMap;
+    std::map<int, eClientData> mClientData;
 };
 
 #endif // ESERVERAREA_H

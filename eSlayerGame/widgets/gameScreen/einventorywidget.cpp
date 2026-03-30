@@ -13,18 +13,7 @@ void eInventoryWidget::initialize(
     eEquipment* const eq) {
     mEq = eq;
     const auto& res = resolution();
-    int dim;
-    switch(res.uiScale()) {
-    case eUIScale::small:
-        dim = 40;
-        break;
-    case eUIScale::medium:
-        dim = 60;
-        break;
-    case eUIScale::large:
-        dim = 80;
-        break;
-    }
+    const int dim = res.inventoryDim();
 
     const auto helmet = new eItemPlaceWidget(window());
     helmet->intialize(2, 2, dim, mEq,

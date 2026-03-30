@@ -21,8 +21,10 @@ public:
 
     std::shared_ptr<eMap>
     requestMap(const int clientId,
-               const std::string& name,
-               const eEquipment& eq) override;
+               const std::string& name) override;
+    bool spawn(const int clientId,
+               const eEquipment& eq,
+               const eScreenDimensions& screenDims) override;
 
     bool requestData(const int clientId,
                      eRequestData& data,

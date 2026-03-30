@@ -1,10 +1,10 @@
 #include "egameinput.h"
 
-ePointF eGameInput::pixelToTilePos(
-    const ePointF& charPos,
-    const ePointF& pixel,
-    const int screenW,
-    const int screenH) const {
+eGameInput::eGameInput(const int tileW, const int tileH) :
+    mTileW(tileW), mTileH(tileH) {}
+
+ePointF eGameInput::pixelToTilePos(const ePointF& charPos, const ePointF& pixel, const int screenW,
+                                   const int screenH) const {
     ePointF result;
     result.fY = charPos.fY +
                 (pixel.fY - mCharacterVerticalPos*screenH)/mTileH +

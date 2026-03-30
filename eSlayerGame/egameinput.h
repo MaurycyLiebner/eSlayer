@@ -5,6 +5,8 @@
 
 class eGameInput {
 public:
+    eGameInput(const int tileW, const int tileH);
+
     int tileWidth() const { return mTileW; }
     int tileHeight() const { return mTileH; }
 
@@ -40,8 +42,8 @@ public:
     float characterHorizontalPos() const { return mCharacterHorizontalPos; }
     void setCharacterHorizontalPos(const float pos) { mCharacterHorizontalPos = pos; }
 private:
-    const int mTileW = 160;
-    const int mTileH = 79;
+    const int mTileW;
+    const int mTileH;
 
     const float mCharacterVerticalPos = 0.45f;
     float mCharacterHorizontalPos = 0.5f;

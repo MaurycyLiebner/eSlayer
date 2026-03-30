@@ -26,8 +26,7 @@ void eLocalServer::increment(const float by) {
 }
 
 std::shared_ptr<eMap> eLocalServer::requestMap(
-    const int clientId, const std::string& name,
-    const eEquipment& eq) {
+    const int clientId, const std::string& name) {
     const auto h = clientHandler(clientId);
     if(!h) return nullptr;
     const auto mapIt = mMaps.find(name);
@@ -48,8 +47,14 @@ std::shared_ptr<eMap> eLocalServer::requestMap(
         area = areaIt->second;
     }
     h->setArea(area);
-    h->spawn(eq);
     return map;
+}
+
+bool eLocalServer::spawn(const int clientId, const eEquipment& eq,
+                         const eScreenDimensions& screenDims) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->spawn(eq, screenDims);
 }
 
 bool eLocalServer::requestData(const int clientId,
