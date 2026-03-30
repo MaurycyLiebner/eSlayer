@@ -40,23 +40,6 @@ void eGameScreen::initialize(const int clientId,
 
     mGameWidget->initialize(clientId, server, map, eq);
 
-    mGameWidget->setMainCharHandler([this](const int health,
-                                           const int mana) {
-        const auto& stats = mGameWidget->stats();
-
-        const int maxHealth = stats.fMaxHealth;
-        mHealthIndicator->setRange(0, maxHealth);
-        mHealthIndicator->setValue(health);
-
-        const int maxMana = stats.fMaxMana;
-        mManaIndicator->setRange(0, maxMana);
-        mManaIndicator->setValue(mana);
-
-        const auto& action = mGameWidget->mainAction();
-        mStaminaIndicator->setRange(0, action.maxStamina());
-        mStaminaIndicator->setValue(action.stamina());
-    });
-
     mGameWidget->setDeathHandler([this]() {
         if(!mDeadMenu) showDeadMenu();
     });
@@ -205,6 +188,20 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         }
     }
     return true;
+}
+
+void eGameScreen::paintEvent(ePainter&) {
+    const auto& stats = mGameWidget->stats();
+
+    mHealthIndicator->setRange(0, stats.fMaxHealth);
+    mHealthIndicator->setValue(stats.fHealthF);
+
+    mManaIndicator->setRange(0, stats.fMaxMana);
+    mManaIndicator->setValue(stats.fManaF);
+
+    const auto& action = mGameWidget->mainAction();
+    mStaminaIndicator->setRange(0, action.maxStamina());
+    mStaminaIndicator->setValue(action.stamina());
 }
 
 void eGameScreen::showDeadMenu() {

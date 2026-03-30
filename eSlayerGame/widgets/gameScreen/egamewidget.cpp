@@ -178,6 +178,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(mRespawnHandler) mRespawnHandler();
             }
             mMainChar->fHealth = u.fHealth;
+            {
+                auto& stats = eGameWidget::stats();
+                stats.fHealthF = u.fHealth;
+                stats.fManaF = worldResult.fMana;
+            }
             if(u.fHealth <= 0) {
                 if(mDeathHandler) mDeathHandler();
                 mMainAction.stop();
@@ -188,9 +193,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;
                 mMainChar->fAnimSpeed = u.fAnimSpeed;
-            }
-            if(mMainCharHandler) {
-                mMainCharHandler(u.fHealth, worldResult.fMana);
             }
         }
 

@@ -28,6 +28,7 @@ public:
 
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
+    void paintEvent(ePainter&) override;
 private:
     void showDeadMenu();
     void showESCMenu();

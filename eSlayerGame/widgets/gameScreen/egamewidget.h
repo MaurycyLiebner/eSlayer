@@ -22,8 +22,6 @@
 
 class eUnitIndicator;
 
-using eMainCharHandler = std::function<void(const int health,
-                                            const int mana)>;
 using eDeathHandler = std::function<void()>;
 using eRespawnHandler = std::function<void()>;
 
@@ -64,7 +62,7 @@ public:
     const eGameInput& input() const { return mInput; }
 
     eEquipment& equipment() { return mMainAction.equipment(); }
-    const eStats& stats() const { return mMainAction.stats(); }
+    eStats& stats() { return mMainAction.stats(); }
     void dropItem();
     void sendInventoryRearranged();
     bool waitingForEquipment() const { return mWaitngForEq; }
@@ -75,7 +73,6 @@ public:
     const std::shared_ptr<eServer>& server() const { return mServer; }
     int clientId() const { return mClientId; }
 
-    void setMainCharHandler(const eMainCharHandler& h) { mMainCharHandler = h; }
     void setDeathHandler(const eDeathHandler& h) { mDeathHandler = h; }
     void setRespawnHandler(const eRespawnHandler& h) { mRespawnHandler = h; }
 
@@ -123,7 +120,6 @@ private:
     int mLeftSkill = -1;
     int mRightSkill = -1;
 
-    eMainCharHandler mMainCharHandler;
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;
 
