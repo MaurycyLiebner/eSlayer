@@ -49,6 +49,10 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     return true;
 }
 
+bool eItemPlaceWidget::mouseMoveEvent(const eMouseEvent& e) {
+    return true;
+}
+
 bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
     const auto& item = mEq->*mItem;
     eItemDragWidget::sSetHoverItem(item);

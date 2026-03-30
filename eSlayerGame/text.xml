@@ -32,10 +32,9 @@
         <string id="4">Press ESC to continue.</string>
     </group>
     <group id="6">
-        <string id="0">Barbarian</string>
-        <string id="1">Paladin</string>
-        <string id="2">Mummy</string>
-        <string id="3">Wendigo</string>
+        <string id="0">Defense: %1</string>
+        <string id="1">Damage: %1 to %2</string>
+        <string id="2">Chance to Block: %1%</string>
     </group>
     <group id="7">
         <string id="0">Life</string>
@@ -54,5 +53,28 @@
     </group>
     <group id="9">
         <string id="0">Press ESC to continue.</string>
+    </group>
+    <group id="10">
+        <string id="0"></string>
+        <string id="1">+%1% Faster Run/Walk</string>
+        <string id="2">+%1% Increased Attack Speed</string>
+        <string id="3">+%1% Faster Cast Rate</string>
+        <string id="4">+%1 to Defense</string>
+        <string id="5">+%1 Enhanced Defense</string>
+        <string id="6">+%1-%2 to Damage</string>
+        <string id="7">+%1%-%2% Enhanced Damage</string>
+        <string id="8">Adds %1 to %2 Fire Damage</string>
+        <string id="9">Adds %1 to %2 Lightning Damage</string>
+        <string id="10">Adds %1 to %2 Cold Damage</string>
+        <string id="11">+%1 to Attack Rating</string>
+        <string id="12">+%1% to Attack Rating</string>
+        <string id="13">%1% Increased Chance of Blocking</string>
+        <string id="14">%1% Faster Block Rate</string>
+        <string id="15">%1% Faster Hit Recovery</string>
+        <string id="16">+%1 to Life</string>
+        <string id="17">+%1% to Life</string>
+        <string id="18">+%1 to Mana</string>
+        <string id="19">+%1% to Mana</string>
+        <string id="20">+%1 Chance to Pierce</string>
     </group>
 </strings>

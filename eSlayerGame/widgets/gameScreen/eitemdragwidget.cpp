@@ -4,9 +4,13 @@
 #include "../../textures/etextgenerator.h"
 
 #include "../../names/eitemnames.h"
+#include "../../elanguage.h"
 
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
+
+#include <sstream>
+#include <iostream>
 
 eItemDragWidget* eItemDragWidget::sInstance = nullptr;
 
@@ -35,6 +39,23 @@ void eItemDragWidget::setItemDataId(const int dataId) {
     }
 }
 
+std::string replaceAll(std::string str,
+                       const std::string& from,
+                       const std::string& to) {
+    auto&& pos = str.find(from, size_t{});
+    while(pos != std::string::npos) {
+        str.replace(pos, from.length(), to);
+        pos = str.find(from, pos + to.length());
+    }
+    return str;
+}
+
+std::string floatToString(const float value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
 void eItemDragWidget::setHoverItem(const eItem& item) {
     if(item.fType == eItemType::none) {
         mHover = nullptr;
@@ -47,15 +68,52 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         const auto res = resolution();
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
-        const auto addText = [&](const std::string& text) {
+        const auto addText = [&](const std::string& text,
+                                 const eFontColor color) {
             if(text.empty()) return;
-            eTextGenerator gen(r, eFontColor::white, font);
+            eTextGenerator gen(r, color, font);
             const auto tex = gen.generate(text);
             totalHeight += tex->height();
             maxWidth = std::max(maxWidth, tex->width());
             lines.emplace_back(tex);
         };
-        addText(eItemNames::name(item.fDataId));
+        const auto addValue = [&](const int g, const int s,
+                                  const float min,
+                                  const float max,
+                                  const eFontColor color) {
+            auto text = eLanguage::text(g, s);
+            text = replaceAll(text, "%1", floatToString(min));
+            text = replaceAll(text, "%2", floatToString(max));
+            addText(text, color);
+        };
+
+        addText(eItemNames::name(item.fDataId), eFontColor::white);
+        switch(item.fType) {
+        case eItemType::armor:
+        case eItemType::gloves:
+        case eItemType::helmet:
+        case eItemType::belt:
+            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            break;
+        case eItemType::shield:
+            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            addValue(6, 2, 100*item.fValue4, 100*item.fValue4, eFontColor::white);
+            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            break;
+        case eItemType::boots:
+            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            break;
+        case eItemType::weapon:
+            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            break;
+        default:
+            break;
+        }
+        for(const auto& mod : item.fModifiers) {
+            const int s = static_cast<int>(mod.fType);
+            addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue);
+        }
 
         mHover = std::make_shared<eTexture>();
         mHover->create(r, maxWidth, totalHeight);
@@ -90,14 +148,21 @@ void eItemDragWidget::paintEvent(ePainter& p) {
         p.drawTexture(mMousePos.x, mMousePos.y,
                       mItem, eAlignment::center);
     } else if(mHover) {
+        const int h = height();
+        const int w = width();
         const auto res = resolution();
-        const int margin = 10*res.multiplier();
-        const SDL_Rect rect{mMousePos.x - mHover->width()/2,
-                            mMousePos.y - mHover->height()/2,
-                            mHover->width(), mHover->height()};
-        const SDL_Rect fillRect{rect.x - margin, rect.y - margin,
-                                rect.w + 2*margin, rect.h + 2*margin};
-        p.fillRect(fillRect, SDL_Color{0, 0, 0, 128});
+        const int screenMargin = 40*res.multiplier();
+        const int fillMargin = 10*res.multiplier();
+        SDL_Rect rect{mMousePos.x - mHover->width()/2,
+                      mMousePos.y - mHover->height(),
+                      mHover->width(), mHover->height()};
+        if(rect.y < screenMargin) rect.y = screenMargin;
+        else if(rect.y + rect.h > h - screenMargin) rect.y = h - screenMargin - rect.h;
+        if(rect.x < screenMargin) rect.x = screenMargin;
+        else if(rect.x + rect.w > w - screenMargin) rect.x = w - screenMargin - rect.w;
+        const SDL_Rect fillRect{rect.x - fillMargin, rect.y - fillMargin,
+                                rect.w + 2*fillMargin, rect.h + 2*fillMargin};
+        p.fillRect(fillRect, SDL_Color{0, 0, 0, 155});
         p.drawTexture(rect, mHover, eAlignment::center);
     }
 }

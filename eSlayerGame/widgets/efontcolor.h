@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 
 enum class eFontColor {
-    white, gray,
+    white, gray, blue,
     whiteBlack, grayBlack, redBlack
 };
 

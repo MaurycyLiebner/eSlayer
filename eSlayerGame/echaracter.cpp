@@ -57,11 +57,41 @@ bool eCharacter::load(const std::string& path,
 
     for(int x = 0; x < 5; x++) {
         eItem item{uint8_t(x), 0, eItemType::amulet};
+        {
+            auto& mod = item.fModifiers.emplace_back();
+            mod.fType = eModifierType::castRate;
+            mod.fValue1 = 15.f;
+        }
+        {
+            auto& mod = item.fModifiers.emplace_back();
+            mod.fType = eModifierType::manaValue;
+            mod.fValue1 = 75.f;
+        }
+        {
+            auto& mod = item.fModifiers.emplace_back();
+            mod.fType = eModifierType::lifeValue;
+            mod.fValue1 = 20.f;
+        }
         c.mEquipment.fInventory.push_back(eInventoryItem{item, x, 0, 1, 1});
     }
 
     const uint8_t armorId = eItemsData::id("quilted_armor");
     eItem armor{5, armorId, eItemType::armor};
+    {
+        auto& mod = armor.fModifiers.emplace_back();
+        mod.fType = eModifierType::walkRun;
+        mod.fValue1 = 15.f;
+    }
+    {
+        auto& mod = armor.fModifiers.emplace_back();
+        mod.fType = eModifierType::defensePercent;
+        mod.fValue1 = 75.f;
+    }
+    {
+        auto& mod = armor.fModifiers.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = 20.f;
+    }
     c.mEquipment.fInventory.push_back(eInventoryItem{armor, 0, 1, 2, 3});
 
     return true;
