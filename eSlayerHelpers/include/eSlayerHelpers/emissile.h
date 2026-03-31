@@ -5,8 +5,6 @@
 
 #include "epositioned.h"
 
-#include "edamage.h"
-
 class ePacket;
 
 #include <set>

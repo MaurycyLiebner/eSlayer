@@ -171,11 +171,14 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             float fRangeTime;
             eDamage fDamage;
         };
+        const auto skillType = skill.fType;
+        const bool alwaysHit = skillType == eSkillType::missile ||
+                               skillType == eSkillType::wall;
         std::vector<eMissileData> missiles;
         const int nMissiles = mUnit.attackMissiles(schoice, wchoice);
         const float pierceChance = mUnit.pierceChance(schoice, wchoice);
         auto baseDir = ePointF::vector(to, mUnit.fPos);
-        if(skill.fType == eSkillType::missile) {
+        if(skillType == eSkillType::missile) {
             const float angleMult = std::clamp(1.f - 3.f*baseDir.length()/skill.fRangeTime, 0.1f, 1.f);
             const float maxAngle = skill.fMaxAngle*angleMult;
             float angle = nMissiles == 1 ? 0.f : -0.5f*maxAngle;
@@ -197,7 +200,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                     angle += maxAngle/(nMissiles - 1);
                 }
             }
-        } else if(skill.fType == eSkillType::wall) {
+        } else if(skillType == eSkillType::wall) {
             eVec2f perp(-baseDir.y, baseDir.x);
             perp.normalize(2*skill.fRadius);
             ePointF pt = to - perp * (nMissiles/2);
@@ -262,7 +265,8 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             const auto damage = continuousDamage ?
                 md.fDamage/eRunSettings::sFPS :
                 md.fDamage;
-            m->fHitAction = [m, damage, skip](eServerUnit& u) {
+            m->fHitAction = [this, m, damage, skip, alwaysHit,
+                             schoice, wchoice](eServerUnit& u) {
                 if(skip) {
                     if(skip->fTime < m->fTime) {
                         skip->fChars.clear();
@@ -276,7 +280,12 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 }
                 eHitData data;
                 data.fBlockMultiplier = 0.f;
-                data.fHitChance = 1.f;
+                if(alwaysHit) {
+                    data.fHitChance = 1.f;
+                } else {
+                    data.fHitChance = eServerUnit::sHitChance(
+                        mUnit, u, schoice, wchoice);
+                }
                 data.fDamage = damage;
                 u.getHit(data);
             };
