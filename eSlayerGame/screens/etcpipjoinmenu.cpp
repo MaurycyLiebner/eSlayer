@@ -8,6 +8,7 @@
 
 void eTcpIpJoinMenu::initialize(const eJoinAction& joinGameA,
                                 const eAction& exitA) {
+    setExit(exitA);
     const auto res = resolution();
 
     const auto inner = eScreenBase::addInner();

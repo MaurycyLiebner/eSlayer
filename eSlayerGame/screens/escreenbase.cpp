@@ -1,5 +1,9 @@
 #include "escreenbase.h"
 
+void eScreenBase::setExit(const eAction& exitA) {
+    mExit = exitA;
+}
+
 eWidget* eScreenBase::addInner() {
     const auto frame = new eWidget(window());
     addWidget(frame);
@@ -20,4 +24,14 @@ eWidget* eScreenBase::addInner() {
     inner->resize(cww - 4*p, cwh - 4*p);
 
     return inner;
+}
+
+bool eScreenBase::keyPressEvent(const eKeyPressEvent& e) {
+    if(e.key() == SDL_SCANCODE_ESCAPE) {
+        if(mExit) {
+            mExit();
+            return true;
+        }
+    }
+    return false;
 }

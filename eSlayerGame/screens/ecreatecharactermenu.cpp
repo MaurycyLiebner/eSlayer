@@ -12,6 +12,7 @@ eCreateCharacterMenu::eCreateCharacterMenu(eMainWindow * const window) :
 void eCreateCharacterMenu::initialize(
     const eAction& exit,
     const eOkAction& ok) {
+    setExit(exit);
     const auto res = resolution();
 
     const auto inner = eScreenBase::addInner();

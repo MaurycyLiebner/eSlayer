@@ -15,6 +15,7 @@ eSettingsMenu::eSettingsMenu(const eWindowSettings& iniSettings,
 void eSettingsMenu::initialize(const eAction& exitA,
                                const eApplyAction& settingsA,
                                const eFullscreenA& fullscreenA) {
+    setExit(exitA);
     const auto inner = eScreenBase::addInner();
 
     const auto res = resolution();

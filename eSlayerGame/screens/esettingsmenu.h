@@ -22,7 +22,6 @@ public:
     void initialize(const eAction& exitA,
                     const eApplyAction& settingsA,
                     const eFullscreenA& fullscreenA);
-
 private:
     const eWindowSettings mIniSettings;
     eWindowSettings mSettings;
