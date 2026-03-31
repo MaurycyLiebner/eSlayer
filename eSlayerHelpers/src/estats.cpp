@@ -241,14 +241,14 @@ struct eSkillStatsHelper {
         fStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
         fStats.fDamageMaxRW = fDmgMaxRWBase*fDmgMultMax;
 
-        fStats.fDamageMinLW.fPoison = fPoisonBitRateLW/256.f;
+        fStats.fDamageMinLW.fPoisonPerFrame = fPoisonBitRateLW/256.f;
         fStats.fDamageMinLW.fPoisonFrameLength = fPoisonFrameLengthLW;
-        fStats.fDamageMaxLW.fPoison = fPoisonBitRateLW/256.f;
+        fStats.fDamageMaxLW.fPoisonPerFrame = fPoisonBitRateLW/256.f;
         fStats.fDamageMaxLW.fPoisonFrameLength = fPoisonFrameLengthLW;
 
-        fStats.fDamageMinRW.fPoison = fPoisonBitRateRW/256.f;
+        fStats.fDamageMinRW.fPoisonPerFrame = fPoisonBitRateRW/256.f;
         fStats.fDamageMinRW.fPoisonFrameLength = fPoisonFrameLengthRW;
-        fStats.fDamageMaxRW.fPoison = fPoisonBitRateRW/256.f;
+        fStats.fDamageMaxRW.fPoisonPerFrame = fPoisonBitRateRW/256.f;
         fStats.fDamageMaxRW.fPoisonFrameLength = fPoisonFrameLengthRW;
 
         fStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);

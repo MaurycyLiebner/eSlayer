@@ -1,6 +1,8 @@
 #include "eserverunit.h"
 
 #include "ecomplexaction.h"
+#include "edieaction.h"
+#include "eserverarea.h"
 
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -8,8 +10,10 @@
 
 int eServerUnit::sNextCharId = 0;
 
-eServerUnit::eServerUnit(const eCharData& data)
-    : mData(data) {
+eServerUnit::eServerUnit(
+    const eCharData& data,
+    eServerArea& area)
+    : mData(data), mArea(area) {
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();
 }
@@ -133,6 +137,11 @@ float eServerUnit::takeDamage(const eDamage& dmg) {
                            dmg.fCold +
                            dmg.fFire +
                            dmg.fLightning;
+    const float ppf = dmg.fPoisonPerFrame;
+    const float pfl = dmg.fPoisonFrameLength;
+    if(ppf > 0.f && pfl > 0.f) {
+        mPoison.emplace_back(ePoisonDamage{ppf, pfl});
+    }
     mStats.fHealthF = std::max(0.f, mStats.fHealthF - totalDmg);
     fHealth = std::ceil(mStats.fHealthF);
     return totalDmg;
@@ -163,16 +172,37 @@ void eServerUnit::increment(const float by) {
     if(mAction) mAction->increment(by);
     const float tmp = fActionTime;
     fActionTime -= by;
-    if(tmp > 0.f) return;
-    const bool r = mHandler.increment(by);
-    if(r) {
-        const auto newPos = mHandler.pos();
-        fVel = ePointF::vector(newPos, fPos);
-        fAngle = fVel.angle();
-        fPos = newPos;
-    } else {
-        mHandler.stopMoving();
-        fVel = eVec2f{0.f, 0.f};
+    if(tmp <= 0.f) {
+        const bool r = mHandler.increment(by);
+        if(r) {
+            const auto newPos = mHandler.pos();
+            fVel = ePointF::vector(newPos, fPos);
+            fAngle = fVel.angle();
+            fPos = newPos;
+        } else {
+            mHandler.stopMoving();
+            fVel = eVec2f{0.f, 0.f};
+        }
+    }
+
+    if(fHealth > 0) {
+        float poisonDmg = 0.f;
+        for(int i = 0; i < mPoison.size(); i++) {
+            auto& p = mPoison[i];
+            p.fFrameLength -= by;
+            poisonDmg = std::max(poisonDmg, p.fPerFrame);
+            if(p.fFrameLength <= 0.f) {
+                mPoison.erase(mPoison.begin() + i);
+                i--;
+            }
+        }
+        mStats.fHealthF = std::max(0.f, mStats.fHealthF - poisonDmg);
+        fHealth = std::ceil(mStats.fHealthF);
+        if(fHealth <= 0) {
+            mArea.unitKilled(*this);
+            const auto die = std::make_shared<eDieAction>(*this, mArea);
+            setChildAction(die);
+        }
     }
 }
 

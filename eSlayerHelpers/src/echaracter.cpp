@@ -131,6 +131,12 @@ bool eCharacter::load(const std::string& path,
     }
     {
         auto& mod = bow.fModifiers.emplace_back();
+        mod.fType = eModifierType::damagePoison;
+        mod.fValue1 = 100.f;
+        mod.fValue2 = 5.f;
+    }
+    {
+        auto& mod = bow.fModifiers.emplace_back();
         mod.fType = eModifierType::damagePercent;
         mod.fValue1 = 0.75f;
         mod.fValue2 = 1.75f;

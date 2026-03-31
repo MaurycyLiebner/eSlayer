@@ -19,12 +19,19 @@ class eUnitAction;
 class eComplexAction;
 class eCharData;
 class eHitData;
+class eServerArea;
+
+struct ePoisonDamage {
+    float fPerFrame = 0.f;
+    float fFrameLength = 0.f;
+};
 
 class eServerUnit : public eUnitData {
 public:
     static int sNextCharId;
 
-    eServerUnit(const eCharData& data);
+    eServerUnit(const eCharData& data,
+                eServerArea& area);
 
     bool aggressive() const { return mAggressive; }
 
@@ -111,6 +118,8 @@ private:
     void recalculateStats();
 
     const eCharData& mData;
+    eServerArea& mArea;
+
     bool mAggressive = false;
     std::shared_ptr<eComplexAction> mAction;
     eMovementHandler mHandler;
@@ -120,6 +129,8 @@ private:
     eEquipment mEquipment;
 
     eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
+
+    std::vector<ePoisonDamage> mPoison;
 };
 
 #endif // ESERVERUNIT_H

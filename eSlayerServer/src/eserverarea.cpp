@@ -9,8 +9,6 @@
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
-#include <iostream>
-
 eServerArea::eServerArea() :
     mUnitAreas(mUnitAreaDim),
     mItemAreas(mItemAreaDim),
@@ -39,7 +37,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 continue;
             }
             const auto modelParts = data.mapToModelParts(partsMap);
-            const auto u = std::make_shared<eServerUnit>(data);
+            const auto u = std::make_shared<eServerUnit>(data, *this);
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
@@ -322,7 +320,7 @@ bool eServerArea::addClient(const int clientId,
     const auto& data = eCharDataInfo::get(typeId);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
-    const auto u = std::make_shared<eServerUnit>(data);
+    const auto u = std::make_shared<eServerUnit>(data, *this);
     u->fCharId = clientId;
     u->fTypeId = typeId;
     u->fRadius = data.radius();

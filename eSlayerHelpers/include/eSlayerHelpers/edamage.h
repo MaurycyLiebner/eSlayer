@@ -8,7 +8,7 @@ struct ESLAYERHELPERS_API eDamage {
     float fFire = 0.f;
     float fCold = 0.f;
     float fLightning = 0.f;
-    float fPoison = 0.f;
+    float fPoisonPerFrame = 0.f;
     float fPoisonFrameLength = 0.f;
 
     eDamage operator/(const float div) const {
@@ -17,7 +17,7 @@ struct ESLAYERHELPERS_API eDamage {
         result.fFire = fFire/div;
         result.fCold = fCold/div;
         result.fLightning = fLightning/div;
-        result.fPoison = fPoison/div;
+        result.fPoisonPerFrame = fPoisonPerFrame/div;
         return result;
     }
 
@@ -27,7 +27,7 @@ struct ESLAYERHELPERS_API eDamage {
         result.fFire = fFire*mult.fFire;
         result.fCold = fCold*mult.fCold;
         result.fLightning = fLightning*mult.fLightning;
-        result.fPoison = fPoison*mult.fPoison;
+        result.fPoisonPerFrame = fPoisonPerFrame*mult.fPoisonPerFrame;
         return result;
     }
 

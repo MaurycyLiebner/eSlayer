@@ -9,7 +9,7 @@ eDamage eDamage::sRandom(const eDamage& min,
     result.fFire = eRand::randF(min.fFire, max.fFire);
     result.fCold = eRand::randF(min.fCold, max.fCold);
     result.fLightning = eRand::randF(min.fLightning, max.fLightning);
-    result.fPoison = eRand::randF(min.fPoison, max.fPoison);
+    result.fPoisonPerFrame = eRand::randF(min.fPoisonPerFrame, max.fPoisonPerFrame);
     result.fPoisonFrameLength = eRand::randF(min.fPoisonFrameLength, max.fPoisonFrameLength);
     return result;
 }
