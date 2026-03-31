@@ -99,7 +99,7 @@ add_executable(eSlayerGame main.cpp
     screens/echoosecharactermenu.h screens/echoosecharactermenu.cpp
     widgets/mainMenu/echoosecharacterwidget.h widgets/mainMenu/echoosecharacterwidget.cpp
     echaracters.h echaracters.cpp
-    echaracter.h echaracter.cpp
+
     widgets/echeckbox.h widgets/echeckbox.cpp
     widgets/mainMenu/echaracterbutton.h widgets/mainMenu/echaracterbutton.cpp
     widgets/escrollwidget.h widgets/escrollwidget.cpp

@@ -117,6 +117,8 @@ add_library(eSlayerHelpers SHARED
     src/eattributes.cpp
     include/eSlayerHelpers/estats.h
     src/estats.cpp
+    src/echaracter.cpp
+    include/eSlayerHelpers/echaracter.h
 )
 
 target_include_directories(eSlayerHelpers

@@ -1,7 +1,7 @@
 #ifndef ECHARACTERS_H
 #define ECHARACTERS_H
 
-#include "echaracter.h"
+#include "eSlayerHelpers/echaracter.h"
 
 #include <vector>
 

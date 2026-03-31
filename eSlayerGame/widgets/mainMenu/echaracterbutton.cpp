@@ -1,6 +1,6 @@
 #include "echaracterbutton.h"
 
-#include "../../echaracter.h"
+#include "eSlayerHelpers/echaracter.h"
 #include "../../textures/echarstextures.h"
 
 void eCharacterButton::initialize(const eCharacter& c) {

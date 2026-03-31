@@ -1,11 +1,11 @@
-#include "echaracter.h"
+#include "eSlayerHelpers/echaracter.h"
+
+#include "eSlayerHelpers/eweapontype.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 #include <algorithm>
 #include <tinyxml2.h>
 using namespace tinyxml2;
-
-#include <eSlayerHelpers/eweapontype.h>
-#include <eSlayerHelpers/eitemsdata.h>
 
 eCharacter::eCharacter(const std::string& name,
                        const bool hardcore) :

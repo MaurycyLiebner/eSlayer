@@ -1,11 +1,13 @@
 #ifndef ECHARACTER_H
 #define ECHARACTER_H
 
-#include <eSlayerHelpers/eequipment.h>
+#include "eslayerhelpersexport.h"
+
+#include "eSlayerHelpers/eequipment.h"
 
 #include <string>
 
-class eCharacter {
+class ESLAYERHELPERS_API eCharacter {
 public:
     eCharacter() {}
     eCharacter(const std::string& name,
