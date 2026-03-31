@@ -90,4 +90,21 @@
         <string id="32">+%1 to Energy</string>
         <string id="33">+%1 to Vitality</string>
     </group>
+    <group id="11">
+        <string id="0">Strength</string>
+        <string id="1">Dexterity</string>
+        <string id="2">Vitality</string>
+        <string id="3">Energy</string>
+        <string id="4">Damage</string>
+        <string id="5">Rating</string>
+        <string id="6">Defense</string>
+        <string id="7">Stamina</string>
+        <string id="8">Life</string>
+        <string id="9">Mana</string>
+        <string id="10">Fire</string>
+        <string id="11">Cold</string>
+        <string id="12">Lightning</string>
+        <string id="13">Poison</string>
+        <string id="14">Resistance</string>
+    </group>
 </strings>

@@ -3,6 +3,8 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "eSlayerHelpers/erunsettings.h"
+
 struct ESLAYERHELPERS_API eDamage {
     float fPhysical = 0.f;
     float fFire = 0.f;
@@ -10,6 +12,14 @@ struct ESLAYERHELPERS_API eDamage {
     float fLightning = 0.f;
     float fPoisonPerFrame = 0.f;
     float fPoisonFrameLength = 0.f;
+
+    float total() const {
+        return fPhysical +
+               fFire +
+               fCold +
+               fLightning +
+               fPoisonPerFrame/eRunSettings::sFPS;
+    }
 
     eDamage operator/(const float div) const {
         eDamage result;

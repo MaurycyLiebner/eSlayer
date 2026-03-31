@@ -14,6 +14,7 @@ class eSkillButton;
 class eTextureCheckButton;
 class eInventoryWidget;
 class eItemDragWidget;
+class eStatsWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -31,10 +32,16 @@ protected:
     void paintEvent(ePainter&) override;
 private:
     void showDeadMenu();
+
     void showESCMenu();
     void hideESCMenu();
+
     void showInventoryMenu();
     void hideInventoryMenu();
+
+    void showStatsMenu();
+    void hideStatsMenu();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar);
@@ -47,6 +54,7 @@ private:
     eWidget* mDeadMenu = nullptr;
     eWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
+    eStatsWidget* mStatsMenu = nullptr;
     eItemDragWidget* mDragWidget = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;

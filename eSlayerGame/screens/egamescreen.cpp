@@ -13,6 +13,7 @@
 #include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/eitemdragwidget.h"
+#include "../widgets/gameScreen/estatswidget.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eunitdata.h>
@@ -186,6 +187,12 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         if(mInventoryMenu) {
             mInventoryMenu->updateWeapons();
         }
+    } else if(e.key() == SDL_SCANCODE_A) {
+        if(mStatsMenu) {
+            hideStatsMenu();
+        } else {
+            showStatsMenu();
+        }
     }
     return true;
 }
@@ -299,6 +306,26 @@ void eGameScreen::hideInventoryMenu() {
     updateCharPos();
 }
 
+void eGameScreen::showStatsMenu() {
+    if(mStatsMenu) return;
+    mStatsMenu = new eStatsWidget(window());
+    const int w = width();
+    const int h = height();
+    mStatsMenu->resize(w/2, h - mBottomWid->height());
+    const auto& stats = mGameWidget->stats();
+    mStatsMenu->initialize(&stats);
+    addWidget(mStatsMenu);
+    mStatsMenu->align(eAlignment::left | eAlignment::top);
+    updateCharPos();
+}
+
+void eGameScreen::hideStatsMenu() {
+    if(!mStatsMenu) return;
+    mStatsMenu->deleteLater();
+    mStatsMenu = nullptr;
+    updateCharPos();
+}
+
 void eGameScreen::openSkillMenu(const eAlignment align,
                                 eSkillButton* const targetButton,
                                 int& targetSkillVar) {
@@ -337,7 +364,11 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
 void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
-    if(mInventoryMenu) {
+    if(mStatsMenu && mInventoryMenu) {
+        input.setCharacterHorizontalPos(0.5f);
+    } else if(mStatsMenu) {
+        input.setCharacterHorizontalPos(0.75f);
+    } else if(mInventoryMenu) {
         input.setCharacterHorizontalPos(0.25f);
     } else {
         input.setCharacterHorizontalPos(0.5f);
