@@ -60,30 +60,52 @@ std::string floatToString(const float value,
                           const eModifierType type) {
     switch(type) {
     case eModifierType::walkRun:
+
     case eModifierType::attackSpeed:
     case eModifierType::castRate:
+
     case eModifierType::defensePercent:
     case eModifierType::damagePercent:
     case eModifierType::attackRatingPercent:
     case eModifierType::blockChancePercent:
     case eModifierType::blockRecoverySpeed:
     case eModifierType::hitRecoverySpeed:
+
     case eModifierType::lifePercent:
     case eModifierType::manaPercent:
+
     case eModifierType::pierceChance:
+
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
     case eModifierType::lightningResitance:
+    case eModifierType::poisonResistance:
+
+    case eModifierType::maxFireResistance:
+    case eModifierType::maxColdResistance:
+    case eModifierType::maxLightningResitance:
+    case eModifierType::maxPoisonResistance:
         return floatToString(100*value);
+
     case eModifierType::none:
+
     case eModifierType::defenseValue:
     case eModifierType::damageValue:
+
     case eModifierType::damageFire:
     case eModifierType::damageLightning:
     case eModifierType::damageCold:
+    case eModifierType::damagePoison:
+
     case eModifierType::attackRatingValue:
+
     case eModifierType::lifeValue:
     case eModifierType::manaValue:
+
+    case eModifierType::strength:
+    case eModifierType::dexterity:
+    case eModifierType::vitality:
+    case eModifierType::energy:
         return floatToString(value);
     }
     return floatToString(value);
@@ -197,7 +219,7 @@ void eItemDragWidget::paintEvent(ePainter& p) {
         else if(rect.x + rect.w > w - screenMargin) rect.x = w - screenMargin - rect.w;
         const SDL_Rect fillRect{rect.x - fillMargin, rect.y - fillMargin,
                                 rect.w + 2*fillMargin, rect.h + 2*fillMargin};
-        p.fillRect(fillRect, SDL_Color{0, 0, 0, 155});
+        p.fillRect(fillRect, SDL_Color{0, 0, 0, 200});
         p.drawTexture(rect, mHover, eAlignment::center);
     }
 }

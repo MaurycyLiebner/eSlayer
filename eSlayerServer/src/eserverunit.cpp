@@ -234,6 +234,8 @@ bool eServerUnit::canUseSkill(
     const eWeaponChoice wchoice) const {
     const auto weapon = wchoice == eWeaponChoice::left ?
         mStats.fWeaponTypeL : mStats.fWeaponTypeR;
+    const auto otherWeapon = wchoice == eWeaponChoice::right ?
+        mStats.fWeaponTypeL : mStats.fWeaponTypeR;
     const auto& skillStats = mStats.skill(schoice);
     const int skillId = skillStats.fSkillId;
     if(skillId == -1) return false;
@@ -241,7 +243,9 @@ bool eServerUnit::canUseSkill(
     const auto skillType = skill.fType;
     switch(skillType) {
     case eSkillType::attack:
-        return true;
+        return weapon != eWeaponType::shield &&
+               (weapon != eWeaponType::none ||
+                otherWeapon == eWeaponType::none);
     case eSkillType::smite:
         return weapon == eWeaponType::shield;
     case eSkillType::kick:

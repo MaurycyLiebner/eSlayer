@@ -31,7 +31,7 @@ void gCalculateWeaponDmg(const eItem& weapon,
 }
 
 int gWeaponMissile(const eWeaponSubtype subtype) {
-    return -1;
+    return 0;
 }
 
 bool gWeaponIsRanged(const eWeaponSubtype subtype) {
@@ -276,6 +276,25 @@ const eSkillStats& eStats::skill(const eSkillChoice schoice) const {
     return leftSkill();
 }
 
+eWeaponType gWeaponType(const eItem& item) {
+    if(item.fType == eItemType::weapon) {
+        const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
+        switch(subtype) {
+        case eWeaponSubtype::bow:
+            return eWeaponType::ranged;
+        case eWeaponSubtype::throwingAxe:
+            return eWeaponType::throwable;
+        case eWeaponSubtype::longSword:
+        case eWeaponSubtype::pike:
+        case eWeaponSubtype::sword:
+            return eWeaponType::meele;
+        }
+    } else if(item.fType == eItemType::shield) {
+        return eWeaponType::shield;
+    }
+    return eWeaponType::none;
+}
+
 void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     const float healthFrac = fHealthF/fMaxHealth;
     const float manaFrac = fManaF/fMaxMana;
@@ -304,9 +323,13 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             fWeaponMeeleRange += range;
         }
     };
+
+    fWeaponTypeL = gWeaponType(leftW);
     if(leftW.fType == eItemType::weapon) {
         handleWeapon(leftW);
     }
+
+    fWeaponTypeR = gWeaponType(rightW);
     if(rightW.fType == eItemType::weapon) {
         handleWeapon(rightW);
     }

@@ -1,10 +1,11 @@
 #include "echaracter.h"
 
-#include <eSlayerHelpers/eitemsdata.h>
-
 #include <algorithm>
 #include <tinyxml2.h>
 using namespace tinyxml2;
+
+#include <eSlayerHelpers/eweapontype.h>
+#include <eSlayerHelpers/eitemsdata.h>
 
 eCharacter::eCharacter(const std::string& name,
                        const bool hardcore) :
@@ -55,28 +56,29 @@ bool eCharacter::load(const std::string& path,
     const std::string deadV(deadE->GetText());
     c.mDead = isTrue(deadV);
 
-    for(int x = 0; x < 5; x++) {
-        eItem item{uint8_t(x), 0, eItemType::amulet};
-        {
-            auto& mod = item.fModifiers.emplace_back();
-            mod.fType = eModifierType::castRate;
-            mod.fValue1 = 15.f;
-        }
-        {
-            auto& mod = item.fModifiers.emplace_back();
-            mod.fType = eModifierType::manaValue;
-            mod.fValue1 = 75.f;
-        }
-        {
-            auto& mod = item.fModifiers.emplace_back();
-            mod.fType = eModifierType::lifeValue;
-            mod.fValue1 = 20.f;
-        }
-        c.mEquipment.fInventory.push_back(eInventoryItem{item, x, 0, 1, 1});
+    int itemId = 0;
+    const uint8_t amuletId = eItemsData::id("amulet3");
+    eItem amulet{uint8_t(itemId++), amuletId, eItemType::amulet};
+    {
+        auto& mod = amulet.fModifiers.emplace_back();
+        mod.fType = eModifierType::castRate;
+        mod.fValue1 = 15.f;
     }
+    {
+        auto& mod = amulet.fModifiers.emplace_back();
+        mod.fType = eModifierType::manaValue;
+        mod.fValue1 = 75.f;
+    }
+    {
+        auto& mod = amulet.fModifiers.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = 20.f;
+    }
+    c.mEquipment.add(amulet);
 
     const uint8_t armorId = eItemsData::id("quilted_armor");
-    eItem armor{5, armorId, eItemType::armor};
+    eItem armor{uint8_t(itemId++), armorId, eItemType::armor};
+    armor.fValue3 = 25.f;
     {
         auto& mod = armor.fModifiers.emplace_back();
         mod.fType = eModifierType::walkRun;
@@ -92,7 +94,53 @@ bool eCharacter::load(const std::string& path,
         mod.fType = eModifierType::lifeValue;
         mod.fValue1 = 20.f;
     }
-    c.mEquipment.fInventory.push_back(eInventoryItem{armor, 0, 1, 2, 3});
+    c.mEquipment.add(armor);
+
+    const uint8_t swordId = eItemsData::id("short_sword");
+    eItem sword{uint8_t(itemId++), swordId, eItemType::weapon,
+                static_cast<uint8_t>(eWeaponSubtype::sword)};
+    sword.fValue1 = 5.f;
+    sword.fValue2 = 10.f;
+    {
+        auto& mod = sword.fModifiers.emplace_back();
+        mod.fType = eModifierType::attackSpeed;
+        mod.fValue1 = 1.5f;
+    }
+    {
+        auto& mod = sword.fModifiers.emplace_back();
+        mod.fType = eModifierType::damagePercent;
+        mod.fValue1 = 0.75f;
+        mod.fValue2 = 1.75f;
+    }
+    {
+        auto& mod = sword.fModifiers.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = 20.f;
+    }
+    c.mEquipment.add(sword);
+
+    const uint8_t bowId = eItemsData::id("long_war_bow");
+    eItem bow{uint8_t(itemId++), bowId, eItemType::weapon,
+              static_cast<uint8_t>(eWeaponSubtype::bow)};
+    bow.fValue1 = 5.f;
+    bow.fValue2 = 10.f;
+    {
+        auto& mod = bow.fModifiers.emplace_back();
+        mod.fType = eModifierType::attackSpeed;
+        mod.fValue1 = 1.5f;
+    }
+    {
+        auto& mod = bow.fModifiers.emplace_back();
+        mod.fType = eModifierType::damagePercent;
+        mod.fValue1 = 0.75f;
+        mod.fValue2 = 1.75f;
+    }
+    {
+        auto& mod = bow.fModifiers.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = 20.f;
+    }
+    c.mEquipment.add(bow);
 
     return true;
 }

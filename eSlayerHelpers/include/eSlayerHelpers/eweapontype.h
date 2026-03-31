@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 enum class eWeaponType : uint8_t {
-    meele, shield, ranged, throwable
+    none, meele, shield, ranged, throwable
 };
 
 enum class eWeaponSubtype : uint8_t {

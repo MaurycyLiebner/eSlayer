@@ -372,18 +372,19 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto iPos = pos.floor();
                     if(iPos.fY != y) continue;
                     if(iPos.fX != x) continue;
-                    const auto pixel = tilePosToPixel(m->fPos);
-                    auto& fireball = eMissilesTextures::sMissiles.get(m->fType);
-                    const int dirs = fireball.nDirs(0);
+                    const auto pixel = tilePosToPixel(pos);
+                    const auto missileType = m->fType;
+                    auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+                    const int dirs = missileTex.nDirs(0);
                     const float ainc = 360.f/dirs;
                     int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
                     dir = (dirs + dir) % dirs;
-                    const float lradius = fireball.lighting();
+                    const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
                         mGamePainter.renderLight(r, pixel.fX, pixel.fY,
                                                  lradius, SDL_Color{255, 255, 255, 255});
                     }
-                    const auto& ftex = fireball.get(0, dir, mFrame % fireball.nFrames(0));
+                    const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
                     mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
                 } else if(e.fType == eRenderElementType::item) {
                     const auto i = std::static_pointer_cast<eGroundItem>(e.fPtr);

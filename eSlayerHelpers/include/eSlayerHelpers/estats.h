@@ -77,8 +77,8 @@ struct ESLAYERHELPERS_API eStats {
     float fMaxLightningResistance = 0.75f;
     float fMaxPoisonResistance = 0.75f;
 
-    eWeaponType fWeaponTypeL = eWeaponType::meele;
-    eWeaponType fWeaponTypeR = eWeaponType::meele;
+    eWeaponType fWeaponTypeL = eWeaponType::none;
+    eWeaponType fWeaponTypeR = eWeaponType::none;
 
     std::map<int, float> fCooldowns;
     std::map<int, int> fSkillLevels;
