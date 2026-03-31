@@ -7,10 +7,10 @@ class ePacket;
 
 struct ESLAYERHELPERS_API eAttributes {
     float fLevel = 1.f;
-    float fStrength = 10.f;
-    float fDexterity = 10.f;
-    float fVitality = 10.f;
-    float fEnergy = 10.f;
+    float fStrength = 20.f;
+    float fDexterity = 20.f;
+    float fVitality = 20.f;
+    float fEnergy = 15.f;
 
     float nextLevelExp() const;
 
