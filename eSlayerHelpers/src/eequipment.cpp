@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/eweapontype.h"
 
 void eInventoryItem::read(ePacket& p) {
     p >> fItem;
@@ -43,44 +44,45 @@ eItem eEquipment::get(const int itemId) const {
 }
 
 bool eEquipment::add(const eItem& item) {
-    const auto tryAdd = [&](eItem& dst, const eItemType type) {
+    const auto tryAdd = [&](eItem& dst) {
         if(dst.fType != eItemType::none) return false;
-        if(item.fType != type) return false;
+        const bool r = canPlace(item, dst);
+        if(!r) return false;
         dst = item;
         return true;
     };
 
-    bool r = tryAdd(fBoots, eItemType::boots);
+    bool r = tryAdd(fBoots);
     if(r) return true;
-    r = tryAdd(fGloves, eItemType::gloves);
+    r = tryAdd(fGloves);
     if(r) return true;
-    r = tryAdd(fHelmet, eItemType::helmet);
+    r = tryAdd(fHelmet);
     if(r) return true;
-    r = tryAdd(fArmor, eItemType::armor);
+    r = tryAdd(fArmor);
     if(r) return true;
-    r = tryAdd(fBelt, eItemType::belt);
+    r = tryAdd(fBelt);
     if(r) return true;
-    r = tryAdd(fRingL, eItemType::ring);
+    r = tryAdd(fRingL);
     if(r) return true;
-    r = tryAdd(fRingR, eItemType::ring);
+    r = tryAdd(fRingR);
     if(r) return true;
-    r = tryAdd(fAmulet, eItemType::amulet);
+    r = tryAdd(fAmulet);
     if(r) return true;
-    r = tryAdd(fWeapon1L, eItemType::weapon);
+    r = tryAdd(fWeapon1L);
     if(r) return true;
-    r = tryAdd(fWeapon1R, eItemType::weapon);
+    r = tryAdd(fWeapon1R);
     if(r) return true;
-    r = tryAdd(fWeapon2L, eItemType::weapon);
+    r = tryAdd(fWeapon2L);
     if(r) return true;
-    r = tryAdd(fWeapon2R, eItemType::weapon);
+    r = tryAdd(fWeapon2R);
     if(r) return true;
-    r = tryAdd(fWeapon1R, eItemType::shield);
+    r = tryAdd(fWeapon1R);
     if(r) return true;
-    r = tryAdd(fWeapon2R, eItemType::shield);
+    r = tryAdd(fWeapon2R);
     if(r) return true;
-    r = tryAdd(fWeapon1R, eItemType::arrows);
+    r = tryAdd(fWeapon1R);
     if(r) return true;
-    r = tryAdd(fWeapon2R, eItemType::arrows);
+    r = tryAdd(fWeapon2R);
     if(r) return true;
     const auto& itemData = eItemsData::get(item.fDataId);
     const int w = itemData.fWidth;
@@ -109,6 +111,146 @@ bool eEquipment::add(const eItem& item) {
         }
     }
     return false;
+}
+
+bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
+    eItemType type = eItemType::none;;
+    if(&dst == &fBoots) {
+        type = eItemType::boots;
+    } else if(&dst == &fGloves) {
+        type = eItemType::gloves;
+    } else if(&dst == &fHelmet) {
+        type = eItemType::helmet;
+    } else if(&dst == &fArmor) {
+        type = eItemType::armor;
+    } else if(&dst == &fBelt) {
+        type = eItemType::belt;
+    } else if(&dst == &fRingL || &dst == &fRingR) {
+        type = eItemType::ring;
+    } else if(&dst == &fAmulet) {
+        type = eItemType::amulet;
+    } else {
+        if(&dst == &fWeapon1L || &dst == &fWeapon2L) {
+            if(item.fType != eItemType::weapon) return false;
+            const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
+            if(subtype == eWeaponSubtype::bow) {
+                if(&dst == &fWeapon1L) {
+                    return fWeapon1R.fType == eItemType::none ||
+                           fWeapon1R.fType == eItemType::arrows;
+                } else { // if(&dst == &fWeapon2L) {
+                    return fWeapon2R.fType == eItemType::none ||
+                           fWeapon2R.fType == eItemType::arrows;
+                }
+            } else if(subtype == eWeaponSubtype::pike) {
+                if(&dst == &fWeapon1L) {
+                    return fWeapon1R.fType == eItemType::none;
+                } else { // if(&dst == &fWeapon2L) {
+                    return fWeapon2R.fType == eItemType::none;
+                }
+            } else {
+                if(&dst == &fWeapon1L) {
+                    return fWeapon1R.fType == eItemType::weapon ||
+                           fWeapon1R.fType == eItemType::none;
+                } else { // if(&dst == &fWeapon2L) {
+                    return fWeapon2R.fType == eItemType::weapon ||
+                           fWeapon2R.fType == eItemType::none;
+                }
+            }
+        } else if(&dst == &fWeapon1R || &dst == &fWeapon2R) {
+            if(item.fType == eItemType::weapon) {
+                const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
+                if(subtype == eWeaponSubtype::bow) {
+                    return false;
+                } else if(subtype == eWeaponSubtype::pike) {
+                    return false;
+                } else {
+                    if(&dst == &fWeapon1R) {
+                        if(fWeapon1L.fType == eItemType::weapon) {
+                            const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
+                            switch(subtypeL) {
+                            case eWeaponSubtype::bow:
+                            case eWeaponSubtype::pike:
+                                return false;
+                            default:
+                                return true;
+                            }
+                        } else {
+                            return true;
+                        }
+                    } else { // if(&dst == &fWeapon2R) {
+                        if(fWeapon2L.fType == eItemType::weapon) {
+                            const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
+                            switch(subtypeL) {
+                            case eWeaponSubtype::bow:
+                            case eWeaponSubtype::pike:
+                                return false;
+                            default:
+                                return true;
+                            }
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+            } else if(item.fType == eItemType::shield) {
+                if(&dst == &fWeapon1R) {
+                    if(fWeapon1L.fType == eItemType::weapon) {
+                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
+                        switch(subtypeL) {
+                        case eWeaponSubtype::bow:
+                        case eWeaponSubtype::pike:
+                            return false;
+                        default:
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
+                } else { // if(&dst == &fWeapon2R) {
+                    if(fWeapon2L.fType == eItemType::weapon) {
+                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
+                        switch(subtypeL) {
+                        case eWeaponSubtype::bow:
+                        case eWeaponSubtype::pike:
+                            return false;
+                        default:
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            } else if(item.fType == eItemType::arrows) {
+                if(&dst == &fWeapon1R) {
+                    if(fWeapon1L.fType == eItemType::weapon) {
+                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
+                        switch(subtypeL) {
+                        case eWeaponSubtype::bow:
+                            return true;
+                        default:
+                            return false;
+                        }
+                    } else {
+                        return true;
+                    }
+                } else { // if(&dst == &fWeapon2R) {
+                    if(fWeapon2L.fType == eItemType::weapon) {
+                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
+                        switch(subtypeL) {
+                        case eWeaponSubtype::bow:
+                            return true;
+                        default:
+                            return false;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    return item.fType == type;
 }
 
 void eEquipment::read(ePacket& p) {

@@ -2,6 +2,7 @@
 
 #include "einventorybagpackwidget.h"
 #include "eitemplacewidget.h"
+#include "eitemdragwidget.h"
 #include "eweaponswitch.h"
 
 #include <eSlayerHelpers/eequipment.h>
@@ -199,4 +200,17 @@ void eInventoryWidget::updateWeapons() {
     mWeapon1R->setVisible(mEq->fWeapons1);
     mWeapon2L->setVisible(!mEq->fWeapons1);
     mWeapon2R->setVisible(!mEq->fWeapons1);
+    if(mWeapon1L->hovered()) {
+        if(mEq->fWeapons1) {
+            eItemDragWidget::sSetHoverItem(mEq->fWeapon1L);
+        } else {
+            eItemDragWidget::sSetHoverItem(mEq->fWeapon2L);
+        }
+    } else if(mWeapon1R->hovered()) {
+        if(mEq->fWeapons1) {
+            eItemDragWidget::sSetHoverItem(mEq->fWeapon1R);
+        } else {
+            eItemDragWidget::sSetHoverItem(mEq->fWeapon2R);
+        }
+    }
 }

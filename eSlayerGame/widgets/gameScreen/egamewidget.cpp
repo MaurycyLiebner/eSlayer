@@ -131,7 +131,7 @@ bool eGameWidget::switchRunning() {
 bool eGameWidget::switchWeapons() {
     auto& eq = mMainAction.equipment();
     eq.fWeapons1 = !eq.fWeapons1;
-    mMainAction.recalculateStats();
+    sSendInventoryRearranged();
     return eq.fWeapons1;
 }
 

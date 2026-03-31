@@ -33,7 +33,7 @@ private:
 
     std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
-    eItem eEquipment::*mItem = nullptr;
+    eItem eEquipment::*mDst = nullptr;
 };
 
 #endif // EITEMPLACEWIDGET_H

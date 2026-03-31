@@ -17,7 +17,7 @@ void eItemPlaceWidget::intialize(
     eItem eEquipment::* const item,
     const std::vector<eItemType>& allowedTypes) {
     mEq = eq;
-    mItem = item;
+    mDst = item;
     mAllowedTypes = allowedTypes;
 
     mWidth = width;
@@ -31,8 +31,8 @@ bool eItemPlaceWidget::dropItem() {
     auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
     if(!draggedCompatible()) return false;
-    auto& item = mEq->*mItem;
-    std::swap(dragged, item);
+    auto& dst = mEq->*mDst;
+    std::swap(dragged, dst);
     eItemDragWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
@@ -42,8 +42,8 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
     if(dragged.fType != eItemType::none) return true;
-    auto& item = mEq->*mItem;
-    std::swap(dragged, item);
+    auto& dst = mEq->*mDst;
+    std::swap(dragged, dst);
     eItemDragWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
@@ -54,7 +54,7 @@ bool eItemPlaceWidget::mouseMoveEvent(const eMouseEvent& e) {
 }
 
 bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
-    const auto& item = mEq->*mItem;
+    const auto& item = mEq->*mDst;
     eItemDragWidget::sSetHoverItem(item);
     return true;
 }
@@ -66,11 +66,12 @@ bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
 
 bool eItemPlaceWidget::draggedCompatible() {
     auto& dragged = mEq->fDragged;
-    return eVectorHelpers::contains(mAllowedTypes, dragged.fType);
+    const auto& dst = mEq->*mDst;
+    return mEq->canPlace(dragged, dst);
 }
 
 void eItemPlaceWidget::paintEvent(ePainter& p) {
-    const auto& item = mEq->*mItem;
+    const auto& item = mEq->*mDst;
     const auto rect = eWidget::rect();
     const bool h = hovered();
     SDL_Color fillColor{0, 0, 0, 255};
