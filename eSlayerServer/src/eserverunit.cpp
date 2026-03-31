@@ -9,7 +9,10 @@
 int eServerUnit::sNextCharId = 0;
 
 eServerUnit::eServerUnit(const eCharData& data)
-    : mData(data) {}
+    : mData(data) {
+    mStats.fSkills.emplace_back();
+    mStats.fSkills.emplace_back();
+}
 
 float eServerUnit::defense() const {
     if(fAnim == mData.runAnimId()) {
@@ -35,29 +38,22 @@ eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
 
 int eServerUnit::missileId(const eWeaponChoice wchoice,
                            const eSkillChoice schoice) const {
+    const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left: {
-        switch(schoice) {
-        case eSkillChoice::left: {
-            return mStats.fMissileIdLWLS;
-        } break;
-        case eSkillChoice::right: {
-            return mStats.fMissileIdLWRS;
-        } break;
-        }
+        return skill.fMissileIdLW;
     } break;
     case eWeaponChoice::right: {
-        switch(schoice) {
-        case eSkillChoice::left: {
-            return mStats.fMissileIdRWLS;
-        } break;
-        case eSkillChoice::right: {
-            return mStats.fMissileIdRWRS;
-        } break;
-        }
+        return skill.fMissileIdRW;
     } break;
     }
     return -1;
+}
+
+float eServerUnit::missileRangeTime(const eWeaponChoice wchoice,
+                                    const eSkillChoice schoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return skill.fMissileRangeTime;
 }
 
 void eServerUnit::setEquipment(const eEquipment& eq) {
@@ -78,15 +74,8 @@ float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
 }
 
 float eServerUnit::skillsAttackSpeed(const eSkillChoice schoice) const {
-    switch(schoice) {
-    case eSkillChoice::left: {
-        return mStats.fAttackSpeedLS;
-    } break;
-    case eSkillChoice::right: {
-        return mStats.fAttackSpeedRS;
-    } break;
-    }
-    return 0.f;
+    const auto& skill = mStats.skill(schoice);
+    return skill.fAttackSpeedS;
 }
 
 float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
@@ -96,12 +85,20 @@ float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
 float eServerUnit::sHitChance(
     const eServerUnit& hit,
     const eServerUnit& by,
-    const eSkillChoice schoice) {
+    const eSkillChoice schoice,
+    const eWeaponChoice wchoice) {
     const float alvl = by.level();
     const float dlvl = hit.level();
-    const float ar = schoice == eSkillChoice::right ?
-                         by.mStats.fAttackRatingR :
-                         by.mStats.fAttackRatingL;
+    const auto& skill = by.mStats.skill(schoice);
+    float ar;
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        ar = skill.fAttackRatingLW;
+        break;
+    case eWeaponChoice::right:
+        ar = skill.fAttackRatingRW;
+        break;
+    }
     const float dr = hit.defense();
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
 }
@@ -109,23 +106,19 @@ float eServerUnit::sHitChance(
 int eServerUnit::attackMissiles(
     const eSkillChoice schoice,
     const eWeaponChoice wchoice) {
-    switch(schoice) {
-    case eSkillChoice::left:
-        return mStats.fMissilesL;
-    case eSkillChoice::right:
-        return mStats.fMissilesR;
-    }
-    return 0;
+    const auto& skill = mStats.skill(schoice);
+    return skill.fMissiles;
 }
 
 float eServerUnit::pierceChance(
     const eSkillChoice schoice,
     const eWeaponChoice wchoice) {
-    switch(schoice) {
-    case eSkillChoice::left:
-        return mStats.fPierceL;
-    case eSkillChoice::right:
-        return mStats.fPierceR;
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fPierceLW;
+    case eWeaponChoice::right:
+        return skill.fPierceRW;
     }
     return 0.f;
 }
@@ -153,27 +146,12 @@ bool eServerUnit::consumeMana(const float mana) {
 
 eDamage eServerUnit::attackDamage(const eSkillChoice schoice,
                                   const eWeaponChoice wchoice) {
-    switch(schoice) {
-    case eSkillChoice::left: {
-        switch(wchoice) {
-        case eWeaponChoice::left: {
-            return eDamage::sRandom(mStats.fDamageMinLWLS, mStats.fDamageMaxLWLS);
-        } break;
-        case eWeaponChoice::right: {
-            return eDamage::sRandom(mStats.fDamageMinRWLS, mStats.fDamageMaxRWLS);
-        } break;
-        }
-    } break;
-    case eSkillChoice::right: {
-        switch(wchoice) {
-        case eWeaponChoice::left: {
-            return eDamage::sRandom(mStats.fDamageMinLWRS, mStats.fDamageMaxLWRS);
-        } break;
-        case eWeaponChoice::right: {
-            return eDamage::sRandom(mStats.fDamageMinRWRS, mStats.fDamageMaxRWRS);
-        } break;
-        }
-    } break;
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return eDamage::sRandom(skill.fDamageMinLW, skill.fDamageMaxLW);
+    case eWeaponChoice::right:
+        return eDamage::sRandom(skill.fDamageMinRW, skill.fDamageMaxRW);
     }
     return eDamage();
 }
@@ -199,16 +177,8 @@ void eServerUnit::increment(const float by) {
 }
 
 int eServerUnit::skillId(const eSkillChoice schoice) const {
-    int skillId;
-    switch(schoice) {
-    case eSkillChoice::left:
-        skillId = mStats.fSkillL;
-        break;
-    case eSkillChoice::right:
-        skillId = mStats.fSkillR;
-        break;
-    }
-    return skillId;
+    const auto& skill = mStats.skill(schoice);
+    return skill.fSkillId;
 }
 
 int eServerUnit::skillLevel(const int skillId) const {
@@ -239,14 +209,8 @@ void eServerUnit::useSkill(const eSkillChoice schoice) {
 
 void eServerUnit::setSkillId(const eSkillChoice schoice,
                              const int skillId) {
-    switch(schoice) {
-    case eSkillChoice::left:
-        mStats.fSkillL = skillId;
-        break;
-    case eSkillChoice::right:
-        mStats.fSkillR = skillId;
-        break;
-    }
+    auto& skill = mStats.skill(schoice);
+    skill.fSkillId = skillId;
     recalculateStats();
 }
 
@@ -270,8 +234,8 @@ bool eServerUnit::canUseSkill(
     const eWeaponChoice wchoice) const {
     const auto weapon = wchoice == eWeaponChoice::left ?
         mStats.fWeaponTypeL : mStats.fWeaponTypeR;
-    const int skillId = schoice == eSkillChoice::left ?
-        mStats.fSkillL : mStats.fSkillR;
+    const auto& skillStats = mStats.skill(schoice);
+    const int skillId = skillStats.fSkillId;
     if(skillId == -1) return false;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;

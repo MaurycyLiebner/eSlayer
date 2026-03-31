@@ -9,26 +9,51 @@ class ePacket;
 
 enum class eModifierType : uint8_t {
     none,
+
     walkRun,
+
     attackSpeed,
     castRate,
+
     defenseValue,
     defensePercent,
+
     damageValue,
     damagePercent,
+
     damageFire,
     damageLightning,
     damageCold,
+    damagePoison,
+
     attackRatingValue,
     attackRatingPercent,
+
     blockChancePercent,
     blockRecoverySpeed,
     hitRecoverySpeed,
+
     lifeValue,
     lifePercent,
     manaValue,
     manaPercent,
-    pierceChance
+
+    pierceChance,
+
+    fireResistance,
+    coldResistance,
+    lightningResitance,
+    poisonResistance,
+
+    maxFireResistance,
+    maxColdResistance,
+    maxLightningResitance,
+    maxPoisonResistance,
+
+    strength,
+    dexterity,
+    energy,
+    vitality
 };
 
 struct ESLAYERHELPERS_API eModifier {

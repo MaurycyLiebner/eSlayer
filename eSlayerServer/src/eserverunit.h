@@ -30,8 +30,6 @@ public:
 
     float level() const { return mAttributes.fLevel; }
 
-    float attackRatingL() const { return mStats.fAttackRatingL; }
-    float attackRatingR() const { return mStats.fAttackRatingR; }
     float defense() const;
 
     float blockChance() const;
@@ -46,13 +44,10 @@ public:
     eWeaponType weaponTypeR() const { return mStats.fWeaponTypeR; }
     eWeaponType weaponType(const eWeaponChoice wchoice) const;
 
-    int missileIdLWLS() const { return mStats.fMissileIdLWLS; }
-    int missileIdRWLS() const { return mStats.fMissileIdRWLS; }
-    int missileIdLWRS() const { return mStats.fMissileIdLWRS; }
-    int missileIdRWRS() const { return mStats.fMissileIdRWRS; }
-
     int missileId(const eWeaponChoice wchoice,
                   const eSkillChoice schoice) const;
+    float missileRangeTime(const eWeaponChoice wchoice,
+                           const eSkillChoice schoice) const;
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
@@ -66,7 +61,8 @@ public:
 
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
-                            const eSkillChoice schoice);
+                            const eSkillChoice schoice,
+                            const eWeaponChoice wchoice);
     int attackMissiles(const eSkillChoice schoice,
                        const eWeaponChoice wchoice);
     float pierceChance(const eSkillChoice schoice,

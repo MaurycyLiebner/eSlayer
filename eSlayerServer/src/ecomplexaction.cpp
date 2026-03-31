@@ -143,7 +143,8 @@ bool eComplexAction::meeleAttack(
 bool eComplexAction::getHit(eServerUnit& target,
                             const eSkillChoice schoice,
                             const eWeaponChoice wchoice) {
-    const float hitChance = eServerUnit::sHitChance(target, mUnit, schoice);
+    const float hitChance = eServerUnit::sHitChance(
+        target, mUnit, schoice, wchoice);
     eHitData data;
     data.fHitChance = hitChance;
     data.fBlockMultiplier = 1.f;
@@ -189,8 +190,8 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 castDispl.normalize(0.5*skill.fRadius);
                 md.fPos = mUnit.fPos + castDispl;
                 md.fTo = mUnit.fPos + dir;
-                md.fMissileId = skill.fMissileId;
-                md.fRangeTime = skill.fRangeTime;
+                md.fMissileId = mUnit.missileId(wchoice, schoice);
+                md.fRangeTime = mUnit.missileRangeTime(wchoice, schoice);
                 md.fDamage = mUnit.attackDamage(schoice, wchoice);
                 if(nMissiles > 1) {
                     angle += maxAngle/(nMissiles - 1);

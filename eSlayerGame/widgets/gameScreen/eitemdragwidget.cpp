@@ -71,6 +71,9 @@ std::string floatToString(const float value,
     case eModifierType::lifePercent:
     case eModifierType::manaPercent:
     case eModifierType::pierceChance:
+    case eModifierType::fireResistance:
+    case eModifierType::coldResistance:
+    case eModifierType::lightningResitance:
         return floatToString(100*value);
     case eModifierType::none:
     case eModifierType::defenseValue:

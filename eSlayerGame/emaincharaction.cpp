@@ -52,6 +52,9 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar->fRadius = radius;
     mMainChar->fTypeId = typeId;
     mMainChar->fModelParts = modelParts;
+
+    mStats.fSkills.emplace_back();
+    mStats.fSkills.emplace_back();
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
@@ -113,8 +116,8 @@ void eMainCharAction::increment(const bool mousePressed,
     const eSkillChoice schoice{rightPressed ?
                                    eSkillChoice::right :
                                    eSkillChoice::left};
-    const int skillId = rightPressed ? mStats.fSkillR :
-                            mStats.fSkillL;
+    const auto& skillStats = mStats.skill(schoice);
+    const int skillId = skillStats.fSkillId;
 
     handleAttackStop(mousePressed, rightPressed, shiftPressed, skillId);
 
@@ -353,21 +356,15 @@ void eMainCharAction::incStamina(const float by) {
 }
 
 bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
-    const int skillId = schoice == eSkillChoice::left ?
-                            mStats.fSkillL : mStats.fSkillR;
+    const auto& skillStats = mStats.skill(schoice);
+    const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     return gRangedAttack(skillId, skill.fType, mStats);
 }
 
 void eMainCharAction::setSkillId(const eSkillChoice schoice, const int skillId) {
-    switch(schoice) {
-    case eSkillChoice::left:
-        mStats.fSkillL = skillId;
-        break;
-    case eSkillChoice::right:
-        mStats.fSkillR = skillId;
-        break;
-    }
+    auto& skillStats = mStats.skill(schoice);
+    skillStats.fSkillId = skillId;
     recalculateStats();
 }
 
