@@ -133,10 +133,12 @@ bool eServerUnit::getHit(const eHitData& data) {
 }
 
 float eServerUnit::takeDamage(const eDamage& dmg) {
-    const float totalDmg = dmg.fPhysical +
-                           dmg.fCold +
-                           dmg.fFire +
-                           dmg.fLightning;
+    float totalDmg = 0.f;
+    totalDmg += dmg.fPhysical;
+    totalDmg += dmg.fFire*(1.f - mStats.fFireResistance);
+    totalDmg += dmg.fCold*(1.f - mStats.fColdResistance);
+    totalDmg += dmg.fLightning*(1.f - mStats.fLightningResistance);
+
     const float ppf = dmg.fPoisonPerFrame;
     const float pfl = dmg.fPoisonFrameLength;
     if(ppf > 0.f && pfl > 0.f) {

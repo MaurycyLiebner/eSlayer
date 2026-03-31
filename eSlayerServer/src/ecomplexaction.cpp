@@ -284,7 +284,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                     data.fHitChance = 1.f;
                 } else {
                     data.fHitChance = eServerUnit::sHitChance(
-                        mUnit, u, schoice, wchoice);
+                        u, mUnit, schoice, wchoice);
                 }
                 data.fDamage = damage;
                 u.getHit(data);
