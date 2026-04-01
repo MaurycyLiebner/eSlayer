@@ -159,7 +159,9 @@ void eGameScreen::initialize(const int clientId,
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mInventoryMenu) {
+        if(mStatsMenu) {
+            hideStatsMenu();
+        } else if(mInventoryMenu) {
             hideInventoryMenu();
         } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
