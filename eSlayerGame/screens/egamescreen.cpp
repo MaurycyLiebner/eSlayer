@@ -293,6 +293,7 @@ void eGameScreen::showInventoryMenu() {
         }
     });
     addWidget(mDragWidget);
+    eItemDragWidget::sUpdateDragItem(eq);
 
     updateCharPos();
 }
