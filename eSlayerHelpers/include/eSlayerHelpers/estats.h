@@ -96,6 +96,9 @@ struct ESLAYERHELPERS_API eStats {
 
     void calculate(const eAttributes& attr,
                    const eEquipment& eq);
+
+    bool canUseSkill(const eSkillChoice schoice) const;
+    bool rangedAttack(const eSkillChoice schoice) const;
 };
 
 #endif // ESTATS_H

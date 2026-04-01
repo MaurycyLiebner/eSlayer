@@ -61,49 +61,6 @@ void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     mPressedUnit = u;
 }
 
-bool gRangedAttack(
-    const int skillId,
-    const eSkillType skillType,
-    const eStats& stats) {
-    const auto lw = stats.fWeaponTypeL;
-    const auto rw = stats.fWeaponTypeR;
-    return skillType == eSkillType::missile ||
-           skillType == eSkillType::wall ||
-           skillType == eSkillType::shoot ||
-           skillType == eSkillType::throw_ ||
-           (skillId == 0 &&
-            (lw == eWeaponType::ranged ||
-             rw == eWeaponType::ranged));
-}
-
-bool gCanUseSkill(
-    const eSkillType skillType,
-    const eStats& stats) {
-    const auto lw = stats.fWeaponTypeL;
-    const auto rw = stats.fWeaponTypeR;
-    switch(skillType) {
-    case eSkillType::attack:
-        return true;
-    case eSkillType::smite:
-        return lw == eWeaponType::shield ||
-               rw == eWeaponType::shield;
-    case eSkillType::kick:
-        return true;
-    case eSkillType::shoot:
-        return lw == eWeaponType::ranged ||
-               rw == eWeaponType::ranged;
-    case eSkillType::throw_:
-        return lw == eWeaponType::throwable ||
-               rw == eWeaponType::throwable;
-    case eSkillType::missile:
-        return true;
-        break;
-    case eSkillType::wall:
-        return true;
-    }
-    return false;
-}
-
 void eMainCharAction::increment(const bool mousePressed,
                                 const bool rightPressed,
                                 const bool shiftPressed,
@@ -124,8 +81,8 @@ void eMainCharAction::increment(const bool mousePressed,
     if(consumeActionTime(by, model)) return;
 
     const auto& skill = eSkills::sSkills.get(skillId);
-    const bool canUseSkill = gCanUseSkill(skill.fType, mStats);
-    const bool rangeAttack = gRangedAttack(skillId, skill.fType, mStats);
+    const bool canUseSkill = mStats.canUseSkill(schoice);
+    const bool rangeAttack = mStats.rangedAttack(schoice);
 
     ePointF targetPos = mousePos;
     bool shouldStopAttack = !canUseSkill;
@@ -356,10 +313,7 @@ void eMainCharAction::incStamina(const float by) {
 }
 
 bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
-    const auto& skillStats = mStats.skill(schoice);
-    const int skillId = skillStats.fSkillId;
-    const auto& skill = eSkills::sSkills.get(skillId);
-    return gRangedAttack(skillId, skill.fType, mStats);
+    return mStats.rangedAttack(schoice);
 }
 
 void eMainCharAction::setSkillId(const eSkillChoice schoice, const int skillId) {

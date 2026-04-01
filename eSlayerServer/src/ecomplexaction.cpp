@@ -296,7 +296,9 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const eAttackType attackType =
         skill.fType == eSkillType::attack ||
         skill.fType == eSkillType::smite ||
-        skill.fType == eSkillType::kick ?
+        skill.fType == eSkillType::kick ||
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_ ?
             eAttackType::attack : eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

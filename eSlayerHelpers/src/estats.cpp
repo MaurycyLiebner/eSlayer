@@ -708,3 +708,49 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         h.apply();
     }
 }
+
+bool eStats::canUseSkill(const eSkillChoice schoice) const {
+    const auto& skillStats = eStats::skill(schoice);
+    const int skillId = skillStats.fSkillId;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto skillType = skill.fType;
+    const auto lw = fWeaponTypeL;
+    const auto rw = fWeaponTypeR;
+    switch(skillType) {
+    case eSkillType::attack:
+        return true;
+    case eSkillType::smite:
+        return lw == eWeaponType::shield ||
+               rw == eWeaponType::shield;
+    case eSkillType::kick:
+        return true;
+    case eSkillType::shoot:
+        return lw == eWeaponType::ranged ||
+               rw == eWeaponType::ranged;
+    case eSkillType::throw_:
+        return lw == eWeaponType::throwable ||
+               rw == eWeaponType::throwable;
+    case eSkillType::missile:
+        return true;
+        break;
+    case eSkillType::wall:
+        return true;
+    }
+    return false;
+}
+
+bool eStats::rangedAttack(const eSkillChoice schoice) const {
+    const auto& skillStats = eStats::skill(schoice);
+    const int skillId = skillStats.fSkillId;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto skillType = skill.fType;
+    const auto lw = fWeaponTypeL;
+    const auto rw = fWeaponTypeR;
+    return skillType == eSkillType::missile ||
+           skillType == eSkillType::wall ||
+           skillType == eSkillType::shoot ||
+           skillType == eSkillType::throw_ ||
+           (skillId == 0 &&
+            (lw == eWeaponType::ranged ||
+             rw == eWeaponType::ranged));
+}
