@@ -1,7 +1,10 @@
 #ifndef EITEMDATA_H
 #define EITEMDATA_H
 
+#include "eslayerhelpersexport.h"
+
 #include <cstdint>
+#include <string>
 
 enum class eItemType : uint8_t {
     none,
@@ -17,13 +20,12 @@ enum class eItemType : uint8_t {
     arrows
 };
 
-enum class eItemRarity : uint8_t {
-    normal,
-    magic,
-    rare,
-    set,
-    unique
-};
+namespace eItemTypeHelpers {
+    ESLAYERHELPERS_API
+    eItemType type(const std::string& name);
+    ESLAYERHELPERS_API
+    std::string name(const eItemType type);
+}
 
 struct eItemData {
     eItemType fType = eItemType::none;

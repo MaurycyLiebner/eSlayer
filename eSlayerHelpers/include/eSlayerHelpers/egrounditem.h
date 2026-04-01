@@ -7,7 +7,7 @@
 
 #include "eitemdata.h"
 
-#include <cstdint>
+#include "eitemrarity.h"
 
 class ePacket;
 

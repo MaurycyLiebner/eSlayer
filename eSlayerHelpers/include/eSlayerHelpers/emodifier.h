@@ -3,7 +3,11 @@
 
 #include "eslayerhelpersexport.h"
 
+#include <nlohmann/json.hpp>
+using namespace nlohmann;
+
 #include <cstdint>
+#include <string>
 
 class ePacket;
 
@@ -60,6 +64,17 @@ struct ESLAYERHELPERS_API eModifier {
     eModifierType fType = eModifierType::none;
     float fValue1 = 0.f; // base / min
     float fValue2 = 0.f; // max
+
+    int valuesUsed() const;
+    void typeFromKey(const std::string& key);
+    std::string typeName() const;
+    void read(const std::string& key,
+              const json& value);
+    void read(const std::string& key,
+              const float value);
+    void read(const std::string& key,
+              const float value1,
+              const float value2);
 
     void read(ePacket& p);
     void write(ePacket& p) const;

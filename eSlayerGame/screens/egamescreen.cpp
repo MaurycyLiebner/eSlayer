@@ -3,18 +3,20 @@
 #include "../elanguage.h"
 #include "../emainwindow.h"
 #include "../textures/euitextures.h"
-#include "../widgets/etexturecheckbutton.h"
 #include "../widgets/ecolors.h"
+#include "../widgets/etexturecheckbutton.h"
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
-#include "../widgets/gameScreen/eplayerhealthindicator.h"
-#include "../widgets/gameScreen/eunitindicator.h"
-#include "../widgets/gameScreen/eskillbutton.h"
-#include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/eitemdragwidget.h"
+#include "../widgets/gameScreen/eplayerhealthindicator.h"
+#include "../widgets/gameScreen/eskillbutton.h"
+#include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/estatswidget.h"
+#include "../widgets/gameScreen/eunitindicator.h"
 
+#include <eSlayerHelpers/egamedir.h>
+#include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eunitdata.h>
 
@@ -254,6 +256,12 @@ void eGameScreen::showESCMenu() {
         hideESCMenu();
     };
     const auto exit = [this]() {
+        eCharacter c("Test", false);
+        const auto path = eGameDir::path("Save/Test.xml");
+        const auto& eq = mGameWidget->equipment();
+        const auto& attrs = mGameWidget->attributes();
+        c.write(path, eq, attrs);
+
         mGameWidget->disconnect();
         mExitAction();
     };

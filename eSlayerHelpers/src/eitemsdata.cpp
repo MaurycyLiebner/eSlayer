@@ -38,15 +38,16 @@ void eItemsData::loadImpl() {
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
             const auto& key = it.key();
             const auto& value = it.value();
-            if(key == "weapons") {
+            const auto itemType = eItemTypeHelpers::type(key);
+            if(key == "weapon") {
                 for(auto& [type, types] : value.items()) {
                     for(const auto& name : types) {
-                        loadImpl(name);
+                        loadImpl(name, itemType);
                     }
                 }
             } else {
                 for(const auto& name : value) {
-                    loadImpl(name);
+                    loadImpl(name, itemType);
                 }
             }
         }
@@ -55,7 +56,8 @@ void eItemsData::loadImpl() {
     }
 }
 
-void eItemsData::loadImpl(const std::string& name) {
+void eItemsData::loadImpl(const std::string& name,
+                          const eItemType type) {
     const auto dir = "Items";
 
     // {
@@ -67,6 +69,7 @@ void eItemsData::loadImpl(const std::string& name) {
     const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
     eItemData itemData;
+    itemData.fType = type;
     itemData.fLevelReq = jdata.value("levelReq", 1);
     itemData.fStrengthReq = jdata.value("strReq", 0);
     itemData.fDexterityReq = jdata.value("dexReq", 0);

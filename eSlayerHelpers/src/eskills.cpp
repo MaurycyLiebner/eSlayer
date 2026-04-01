@@ -80,18 +80,14 @@ void eSkills::load() {
 
                 for(auto it = levelData.begin(); it != levelData.end(); ++it) {
                     const auto& key = it.key();
+                    if(key == "missiles" ||
+                       key == "cooldown" ||
+                       key == "manaCost") continue;
                     const auto& value = it.value();
+
                     eModifier mod;
-                    if(key == "fireDamage") {
-                        mod.fType = eModifierType::damageFire;
-                        mod.fValue1 = value[0];
-                        mod.fValue2 = value[1];
-                    } else if(key == "pierce") {
-                        mod.fType = eModifierType::pierceChance;
-                        mod.fValue1 = value;
-                    } else {
-                        continue;
-                    }
+                    mod.read(key, json(value));
+
                     auto& totalMod = totalMods[mod.fType];
                     totalMod.fType = mod.fType;
                     totalMod.fValue1 += mod.fValue1;

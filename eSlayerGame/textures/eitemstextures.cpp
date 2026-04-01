@@ -38,75 +38,66 @@ void eItemsTextures::loadImpl() {
             const auto& value = it.value();
             if(key == "shields") {
                 for(auto& [name, data] : value.items()) {
-                    eItemTexture itemTex;
-
                     const auto path = key + "/" + name;
-                    const int itemDataId = eItemsData::id(name);
-                    itemTex.fItemDataId = itemDataId;
-                    itemTex.fTexPath = path;
-
-                    auto& itemData = eItemsData::get(itemDataId);
-                    itemData.fWidth = data.value("width", 2);
-                    itemData.fHeight = data.value("height", 2);
-
-                    const int id = mTexs.add(name, itemTex);
-                    mItemDataIdToTexId[itemDataId] = id;
+                    const int w = data.value("width", 2);
+                    const int h = data.value("height", 2);
+                    loadImpl(name, path, w, h);
                 }
             } else if(key == "weapons") {
                 for(auto& [type, items] : value.items()) {
                     for(auto& [name, data] : items.items()) {
-                        eItemTexture itemTex;
-
                         const auto path = key + "/" + type + "/" + name;
-                        const int itemDataId = eItemsData::id(name);
-                        itemTex.fItemDataId = itemDataId;
-                        itemTex.fTexPath = path;
-
-                        auto& itemData = eItemsData::get(itemDataId);
-                        itemData.fWidth = data.value("width", 2);
-                        itemData.fHeight = data.value("height", 2);
-
-                        const int id = mTexs.add(name, itemTex);
-                        mItemDataIdToTexId[itemDataId] = id;
+                        const int w = data.value("width", 2);
+                        const int h = data.value("height", 3);
+                        loadImpl(name, path, w, h);
                     }
                 }
             } else {
                 const std::vector<std::string> names = value;
                 for(const auto& name : value) {
-                    eItemTexture itemTex;
                     const auto path = key + "/" + name.get<std::string>();
-                    const int itemDataId = eItemsData::id(name);
-                    itemTex.fItemDataId = itemDataId;
-                    itemTex.fTexPath = path;
-
-                    auto& itemData = eItemsData::get(itemDataId);
+                    int w;
+                    int h;
                     if(key == "amulets" || key == "rings") {
-                        itemData.fWidth = 1;
-                        itemData.fHeight = 1;
+                        w = 1;
+                        h = 1;
                     } else if(key == "armor") {
-                        itemData.fWidth = 2;
-                        itemData.fHeight = 3;
+                        w = 2;
+                        h = 3;
                     } else if(key == "belts") {
-                        itemData.fWidth = 2;
-                        itemData.fHeight = 1;
-                    } else if(key == "boots") {
-                        itemData.fWidth = 2;
-                        itemData.fHeight = 2;
-                    } else if(key == "gloves") {
-                        itemData.fWidth = 2;
-                        itemData.fHeight = 2;
+                        w = 2;
+                        h = 1;
+                    } else if(key == "boots" || key == "gloves") {
+                        w = 2;
+                        h = 2;
                     } else {
                         eRuntimeThrow("Unrecognized item type " + key);
                     }
-
-                    const int id = mTexs.add(name, itemTex);
-                    mItemDataIdToTexId[itemDataId] = id;
+                    loadImpl(name, path, w, h);
                 }
             }
         }
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/ui/items/items.json");
     }
+}
+
+void eItemsTextures::loadImpl(const std::string& name,
+                              const std::string& path,
+                              const int width,
+                              const int height) {
+    eItemTexture itemTex;
+
+    const int itemDataId = eItemsData::id(name);
+    itemTex.fItemDataId = itemDataId;
+    itemTex.fTexPath = path;
+
+    auto& itemData = eItemsData::get(itemDataId);
+    itemData.fWidth = width;
+    itemData.fHeight = height;
+
+    const int id = mTexs.add(name, itemTex);
+    mItemDataIdToTexId[itemDataId] = id;
 }
 
 eItemTexture& eItemsTextures::getImpl(const std::string &name) {

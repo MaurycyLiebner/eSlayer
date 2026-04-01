@@ -1,10 +1,13 @@
 #ifndef EITEMSTEXTURES_H
 #define EITEMSTEXTURES_H
 
+#include "etexture.h"
+
 #include <eSlayerHelpers/estringidmapvector.h>
 #include <eSlayerHelpers/eitemdata.h>
 
-#include "etexture.h"
+#include <nlohmann/json.hpp>
+using namespace nlohmann;
 
 struct eItemTexture {
     int fItemDataId;
@@ -22,6 +25,10 @@ public:
     static void load();
 private:
     void loadImpl();
+    void loadImpl(const std::string& name,
+                  const std::string& path,
+                  const int width,
+                  const int height);
     eItemTexture& getImpl(const std::string& name);
     eItemTexture& getImpl(const int id);
     eItemTexture& getByItemDataIdImpl(const int itemDataId);

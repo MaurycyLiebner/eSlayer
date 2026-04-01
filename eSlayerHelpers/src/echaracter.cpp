@@ -17,6 +17,110 @@ bool isTrue(std::string value) {
     return value == "true";
 }
 
+bool gReadModifier(eModifier& mod, const XMLElement* modE) {
+    if(!modE) return false;
+
+    const auto type = modE->Attribute("type");
+    if(!type) return false;
+    mod.typeFromKey(type);
+
+    if(modE->Attribute("value")) {
+        mod.fValue1 = modE->FloatAttribute("value");
+        mod.fValue2 = mod.fValue1;
+    } else {
+        mod.fValue1 = modE->FloatAttribute("value1");
+        mod.fValue2 = modE->FloatAttribute("value2");
+    }
+
+    return true;
+}
+
+bool gReadItem(eItem& item, const XMLElement* itemE) {
+    if(!itemE) return false;
+
+    const auto typeName = itemE->Attribute("type");
+    if(!typeName) return false;
+    const int dataId = eItemsData::id(typeName);
+    item.fDataId = dataId;
+    const auto& itemData = eItemsData::get(dataId);
+    item.fType = itemData.fType;
+
+    item.fSockets = itemE->IntAttribute("sockets");
+
+    const auto rarityName = itemE->Attribute("rarity");
+    if(!rarityName) return false;
+    item.fRarity = eItemRarityHelpers::type(rarityName);
+
+    item.fValue1 = itemE->FloatAttribute("value1");
+    item.fValue2 = itemE->FloatAttribute("value2");
+    item.fValue3 = itemE->FloatAttribute("value3");
+    item.fValue4 = itemE->FloatAttribute("value4");
+
+    auto modsE = itemE->FirstChildElement("modifiers");
+    if(modsE) {
+        auto modE = modsE->FirstChildElement("modifier");
+        while(modE) {
+            eModifier mod;
+            if(gReadModifier(mod, modE)) {
+                item.fModifiers.push_back(mod);
+            }
+            modE = modE->NextSiblingElement("modifier");
+        }
+    }
+
+    return true;
+}
+
+bool gReadItemSlot(eItem& item,
+                   const std::string& slotName,
+                   const XMLElement* parentE) {
+    if(!parentE) return false;
+
+    const auto slotE = parentE->FirstChildElement(slotName.c_str());
+    if(!slotE) {
+        item = eItem{};
+        return true;
+    }
+
+    const auto itemE = slotE->FirstChildElement("item");
+    if(!itemE) {
+        item = eItem{};
+        return true;
+    }
+
+    return gReadItem(item, itemE);
+}
+
+bool gReadInventory(std::vector<eInventoryItem>& items,
+                    const std::string& name,
+                    const XMLElement* parentE) {
+    if(!parentE) return false;
+
+    const auto invE = parentE->FirstChildElement(name.c_str());
+    if(!invE) return false;
+    auto placeE = invE->FirstChildElement("place");
+    while(placeE) {
+        eInventoryItem inv{};
+
+        inv.fX = placeE->IntAttribute("x");
+        inv.fY = placeE->IntAttribute("y");
+        inv.fW = placeE->IntAttribute("w");
+        inv.fH = placeE->IntAttribute("h");
+
+        const auto itemE = placeE->FirstChildElement("item");
+        if(itemE) {
+            gReadItem(inv.fItem, itemE);
+        } else {
+            inv.fItem = eItem{};
+        }
+
+        items.push_back(inv);
+        placeE = placeE->NextSiblingElement("place");
+    }
+
+    return true;
+}
+
 bool eCharacter::load(const std::string& path,
                       eCharacter& c) {
     XMLDocument doc;
@@ -55,6 +159,35 @@ bool eCharacter::load(const std::string& path,
     c.mHardcore = isTrue(hardcoreV);
     const std::string deadV(deadE->GetText());
     c.mDead = isTrue(deadV);
+
+    // attributes
+    if(const auto attrE = rootE->FirstChildElement("attributes")) {
+        auto& attrs = c.mAttributes;
+        attrs.fStrength  = attrE->FirstChildElement("strength")  ? attrE->FirstChildElement("strength")->IntText()  : 0;
+        attrs.fDexterity = attrE->FirstChildElement("dexterity") ? attrE->FirstChildElement("dexterity")->IntText() : 0;
+        attrs.fVitality  = attrE->FirstChildElement("vitality")  ? attrE->FirstChildElement("vitality")->IntText()  : 0;
+        attrs.fEnergy    = attrE->FirstChildElement("energy")    ? attrE->FirstChildElement("energy")->IntText()    : 0;
+    }
+
+    // equipment
+    if(const auto eqE = rootE->FirstChildElement("equipment")) {
+        auto& eq = c.mEquipment;
+        gReadItemSlot(eq.fBoots,   "boots",   eqE);
+        gReadItemSlot(eq.fGloves,  "gloves",  eqE);
+        gReadItemSlot(eq.fHelmet,  "helmet",  eqE);
+        gReadItemSlot(eq.fArmor,   "armor",   eqE);
+        gReadItemSlot(eq.fBelt,    "belt",    eqE);
+        gReadItemSlot(eq.fRingL,   "ringL",   eqE);
+        gReadItemSlot(eq.fRingR,   "ringR",   eqE);
+        gReadItemSlot(eq.fAmulet,  "amulet",  eqE);
+        gReadItemSlot(eq.fWeapon1L,"weapon1L",eqE);
+        gReadItemSlot(eq.fWeapon1R,"weapon1R",eqE);
+        gReadItemSlot(eq.fWeapon2L,"weapon2L",eqE);
+        gReadItemSlot(eq.fWeapon2R,"weapon2R",eqE);
+        gReadItemSlot(eq.fDragged, "dragged", eqE);
+
+        gReadInventory(eq.fInventory, "inventory", eqE);
+    }
 
     int itemId = 0;
     const uint8_t amuletId = eItemsData::id("amulet3");
@@ -154,7 +287,64 @@ bool eCharacter::load(const std::string& path,
     return true;
 }
 
-bool eCharacter::write(const std::string& path) const {
+void gWriteModifier(const eModifier& mod,
+                    XMLElement* const e) {
+    const auto modE = e->InsertNewChildElement("modifier");
+    const auto type = mod.typeName();
+    modE->SetAttribute("type", type.c_str());
+    const int used = mod.valuesUsed();
+    if(used == 1) {
+        modE->SetAttribute("value", mod.fValue1);
+    } else if(used == 2) {
+        modE->SetAttribute("value1", mod.fValue1);
+        modE->SetAttribute("value2", mod.fValue2);
+    }
+}
+
+void gWriteItem(const eItem& item,
+                XMLElement* const e) {
+    const auto itemE = e->InsertNewChildElement("item");
+    const int itemDataId = item.fDataId;
+    const auto typeName = eItemsData::name(itemDataId);
+    itemE->SetAttribute("type", typeName.c_str());
+    itemE->SetAttribute("sockets", item.fSockets);
+    const auto rarityName = eItemRarityHelpers::name(item.fRarity);
+    itemE->SetAttribute("rarity", rarityName.c_str());
+    itemE->SetAttribute("value1", item.fValue1);
+    itemE->SetAttribute("value2", item.fValue2);
+    itemE->SetAttribute("value3", item.fValue3);
+    itemE->SetAttribute("value4", item.fValue4);
+    const auto modsE = itemE->InsertNewChildElement("modifiers");
+    for(const auto& mod : item.fModifiers) {
+        gWriteModifier(mod, modsE);
+    }
+}
+
+void gWriteItemSlot(const eItem& item,
+                    const std::string& slotName,
+                    XMLElement* const e) {
+    const auto slotE = e->InsertNewChildElement(slotName.c_str());
+    if(item.fType == eItemType::none) return;
+    gWriteItem(item, slotE);
+}
+
+void gWriteInventory(const std::vector<eInventoryItem>& items,
+                     const std::string& name,
+                     XMLElement* const e) {
+    const auto invE = e->InsertNewChildElement(name.c_str());
+    for(const auto& i : items) {
+        const auto placeE = invE->InsertNewChildElement("place");
+        placeE->SetAttribute("x", i.fX);
+        placeE->SetAttribute("y", i.fY);
+        placeE->SetAttribute("w", i.fW);
+        placeE->SetAttribute("h", i.fH);
+        gWriteItem(i.fItem, placeE);
+    }
+}
+
+bool eCharacter::write(const std::string& path,
+                       const eEquipment& eq,
+                       const eAttributes& attrs) const {
     XMLDocument doc;
 
     const auto decl = doc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
@@ -171,6 +361,32 @@ bool eCharacter::write(const std::string& path) const {
 
     const auto deadE = rootE->InsertNewChildElement("dead");
     deadE->SetText(mDead ? "true" : "false");
+
+    const auto attrE = rootE->InsertNewChildElement("attributes");
+    const auto strE = attrE->InsertNewChildElement("strength");
+    strE->SetText(attrs.fStrength);
+    const auto dexE = attrE->InsertNewChildElement("dexterity");
+    dexE->SetText(attrs.fDexterity);
+    const auto vitE = attrE->InsertNewChildElement("vitality");
+    vitE->SetText(attrs.fVitality);
+    const auto eneE = attrE->InsertNewChildElement("energy");
+    eneE->SetText(attrs.fEnergy);
+
+    const auto eqE = rootE->InsertNewChildElement("equipment");
+    gWriteItemSlot(eq.fBoots, "boots", eqE);
+    gWriteItemSlot(eq.fGloves, "gloves", eqE);
+    gWriteItemSlot(eq.fHelmet, "helmet", eqE);
+    gWriteItemSlot(eq.fArmor, "armor", eqE);
+    gWriteItemSlot(eq.fBelt, "belt", eqE);
+    gWriteItemSlot(eq.fRingL, "ringL", eqE);
+    gWriteItemSlot(eq.fRingR, "ringR", eqE);
+    gWriteItemSlot(eq.fAmulet, "amulet", eqE);
+    gWriteItemSlot(eq.fWeapon1L, "weapon1L", eqE);
+    gWriteItemSlot(eq.fWeapon1R, "weapon1R", eqE);
+    gWriteItemSlot(eq.fWeapon2L, "weapon2L", eqE);
+    gWriteItemSlot(eq.fWeapon2R, "weapon2R", eqE);
+    gWriteItemSlot(eq.fDragged, "dragged", eqE);
+    gWriteInventory(eq.fInventory, "inventory", eqE);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {

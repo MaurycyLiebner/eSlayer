@@ -1,6 +1,7 @@
 #ifndef EITEM_H
 #define EITEM_H
 
+#include "eitemrarity.h"
 #include "emodifier.h"
 
 #include "eitemdata.h"

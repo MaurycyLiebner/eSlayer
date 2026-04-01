@@ -119,6 +119,9 @@ add_library(eSlayerHelpers SHARED
     src/estats.cpp
     src/echaracter.cpp
     include/eSlayerHelpers/echaracter.h
+    include/eSlayerHelpers/eitemrarity.h
+    src/eitemrarity.cpp
+    src/eitemdata.cpp
 
 
 )
