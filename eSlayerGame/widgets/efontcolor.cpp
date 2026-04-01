@@ -26,7 +26,7 @@ void eFontColorHelpers::colors(const eFontColor c,
         col2 = SDL_Color{0, 0, 0, 0};
         break;
     case eFontColor::rare:
-        col1 = SDL_Color{255, 215, 0, 255};
+        col1 = SDL_Color{200, 215, 0, 255};
         col2 = SDL_Color{0, 0, 0, 0};
         break;
     case eFontColor::set:
