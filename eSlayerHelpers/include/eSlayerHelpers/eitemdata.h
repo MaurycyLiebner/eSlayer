@@ -29,8 +29,12 @@ struct eItemData {
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;
 
-    int fWidth;
-    int fHeight;
+    uint8_t fWidth;
+    uint8_t fHeight;
+
+    uint8_t fLevelReq = 0;
+    uint8_t fStrengthReq = 0;
+    uint8_t fDexterityReq = 0;
 };
 
 #endif // EITEMDATA_H

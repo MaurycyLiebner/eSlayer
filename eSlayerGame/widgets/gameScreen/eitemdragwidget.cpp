@@ -192,6 +192,19 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         default:
             break;
         }
+        const auto& itemData = eItemsData::get(item.fDataId);
+        if(itemData.fLevelReq > 1) {
+            const int level = itemData.fLevelReq;
+            addValue(6, 4, level, level, eFontColor::white);
+        }
+        if(itemData.fStrengthReq > 0) {
+            const int str = itemData.fStrengthReq;
+            addValue(6, 5, str, str, eFontColor::white);
+        }
+        if(itemData.fDexterityReq > 0) {
+            const int dex = itemData.fDexterityReq;
+            addValue(6, 6, dex, dex, eFontColor::white);
+        }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
             addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);

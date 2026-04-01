@@ -13,6 +13,7 @@ public:
     static void load();
 private:
     void loadImpl();
+    void loadImpl(const std::string& name);
     eItemData& getImpl(const std::string& name);
     eItemData& getImpl(const int id);
     int idImpl(const std::string& name) const;

@@ -36,6 +36,9 @@
         <string id="1">Damage: %1 to %2</string>
         <string id="2">Chance to Block: %1%</string>
         <string id="3">Socketed (%1)</string>
+        <string id="4">Required Level: %1</string>
+        <string id="5">Required Strength: %1</string>
+        <string id="6">Required Dexterity: %1</string>
     </group>
     <group id="7">
         <string id="0">Life</string>

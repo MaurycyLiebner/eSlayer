@@ -3,6 +3,8 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eexceptions.h"
 
+// #include <fstream>
+
 eItemsData eItemsData::sInstance;
 
 eItemData& eItemsData::get(const std::string& name) {
@@ -39,20 +41,36 @@ void eItemsData::loadImpl() {
             if(key == "weapons") {
                 for(auto& [type, types] : value.items()) {
                     for(const auto& name : types) {
-                        eItemData itemTex;
-                        mItems.add(name, itemTex);
+                        loadImpl(name);
                     }
                 }
             } else {
                 for(const auto& name : value) {
-                    eItemData itemTex;
-                    mItems.add(name, itemTex);
+                    loadImpl(name);
                 }
             }
         }
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/items.json");
     }
+}
+
+void eItemsData::loadImpl(const std::string& name) {
+    const auto dir = "Items";
+
+    // {
+    //     const auto filePath = eFileLoaderBase::sFilePath(dir, name + ".json");
+    //     std::ofstream output(filePath);
+    //     output << "{" << std::endl << std::endl << "}";
+    // }
+
+    const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
+
+    eItemData itemData;
+    itemData.fLevelReq = jdata.value("levelReq", 1);
+    itemData.fStrengthReq = jdata.value("strReq", 0);
+    itemData.fDexterityReq = jdata.value("dexReq", 0);
+    mItems.add(name, itemData);
 }
 
 eItemData& eItemsData::getImpl(const std::string &name) {
