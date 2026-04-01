@@ -38,5 +38,5 @@ eFont eFonts::textFont(const eResolution res) {
 }
 
 eFont eFonts::textFont(const int fs) {
-    return {"Copperplate-Gothic-Std-29-AB.ttf", fs};
+    return {"FreeSans.ttf", fs};
 }
