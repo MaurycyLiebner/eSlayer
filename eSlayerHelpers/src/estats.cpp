@@ -256,24 +256,28 @@ struct eSkillStatsHelper {
     }
 };
 
+eSkillStats& eStats::leftSkill() {
+    return fSkills[static_cast<int>(eSkillChoice::left)];
+}
+
+eSkillStats& eStats::rightSkill() {
+    return fSkills[static_cast<int>(eSkillChoice::right)];
+}
+
+const eSkillStats& eStats::leftSkill() const {
+    return fSkills[static_cast<int>(eSkillChoice::left)];
+}
+
+const eSkillStats& eStats::rightSkill() const {
+    return fSkills[static_cast<int>(eSkillChoice::right)];
+}
+
 eSkillStats& eStats::skill(const eSkillChoice schoice) {
-    switch(schoice) {
-    case eSkillChoice::left:
-        return leftSkill();
-    case eSkillChoice::right:
-        return rightSkill();
-    }
-    return leftSkill();
+    return fSkills[static_cast<int>(schoice)];
 }
 
 const eSkillStats& eStats::skill(const eSkillChoice schoice) const {
-    switch(schoice) {
-    case eSkillChoice::left:
-        return leftSkill();
-    case eSkillChoice::right:
-        return rightSkill();
-    }
-    return leftSkill();
+    return fSkills[static_cast<int>(schoice)];
 }
 
 eWeaponType gWeaponType(const eItem& item) {
@@ -709,8 +713,24 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     }
 }
 
+
 bool eStats::canUseSkill(const eSkillChoice schoice) const {
-    const auto& skillStats = eStats::skill(schoice);
+    return canUseSkill(static_cast<int>(schoice));
+}
+
+bool eStats::rangedAttack(const eSkillChoice schoice) const {
+    return rangedAttack(static_cast<int>(schoice));
+}
+
+float eStats::attackRange(const eSkillChoice schoice,
+                          const float unit1Radius,
+                          const float unit2Radius) const {
+    return attackRange(static_cast<int>(schoice),
+                       unit1Radius, unit2Radius);
+}
+
+bool eStats::canUseSkill(const int schoice) const {
+    const auto& skillStats = fSkills[schoice];
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
@@ -739,8 +759,8 @@ bool eStats::canUseSkill(const eSkillChoice schoice) const {
     return false;
 }
 
-bool eStats::rangedAttack(const eSkillChoice schoice) const {
-    const auto& skillStats = eStats::skill(schoice);
+bool eStats::rangedAttack(const int schoice) const {
+    const auto& skillStats = fSkills[schoice];
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
@@ -755,10 +775,10 @@ bool eStats::rangedAttack(const eSkillChoice schoice) const {
              rw == eWeaponType::ranged));
 }
 
-float eStats::attackRange(const eSkillChoice schoice,
+float eStats::attackRange(const int schoice,
                           const float unit1Radius,
                           const float unit2Radius) const {
-    const auto& skillStats = eStats::skill(schoice);
+    const auto& skillStats = fSkills[schoice];
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const float meeleDist = fWeaponMeeleRange +

@@ -85,14 +85,14 @@ struct ESLAYERHELPERS_API eStats {
     std::map<int, float> fCooldowns;
     std::map<int, int> fSkillLevels;
 
-    eSkillStats& leftSkill() { return fSkills[0]; }
-    eSkillStats& rightSkill() { return fSkills[1]; }
+    eSkillStats& leftSkill();
+    eSkillStats& rightSkill();
+
+    const eSkillStats& leftSkill() const;
+    const eSkillStats& rightSkill() const;
 
     eSkillStats& skill(const eSkillChoice schoice);
     const eSkillStats& skill(const eSkillChoice schoice) const;
-
-    const eSkillStats& leftSkill() const { return fSkills[0]; }
-    const eSkillStats& rightSkill() const { return fSkills[1]; }
 
     void calculate(const eAttributes& attr,
                    const eEquipment& eq);
@@ -100,6 +100,12 @@ struct ESLAYERHELPERS_API eStats {
     bool canUseSkill(const eSkillChoice schoice) const;
     bool rangedAttack(const eSkillChoice schoice) const;
     float attackRange(const eSkillChoice schoice,
+                      const float unit1Radius,
+                      const float unit2Radius) const;
+
+    bool canUseSkill(const int schoice) const;
+    bool rangedAttack(const int schoice) const;
+    float attackRange(const int schoice,
                       const float unit1Radius,
                       const float unit2Radius) const;
 };
