@@ -1,12 +1,12 @@
 #ifndef EWIDGET_H
 #define EWIDGET_H
 
-#include <vector>
-#include <functional>
-
 #include "epainter.h"
 #include "emouseevent.h"
 #include "../eresolution.h"
+
+#include <vector>
+#include <functional>
 
 class eMainWindow;
 class eLayout;

@@ -38,6 +38,12 @@ public:
         }
         layoutVertically();
     }
+protected:
+    void paintEvent(ePainter& p) override {
+        const auto res = resolution();
+        const int lineWidth = res.lineWidth();
+        p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
+    }
 private:
     eFont mFont;
 };
@@ -112,6 +118,12 @@ public:
         }
         setText(names, valueStrs);
     }
+protected:
+    void paintEvent(ePainter& p) override {
+        const auto res = resolution();
+        const int lineWidth = res.lineWidth();
+        p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
+    }
 private:
     eStatLabel* mNames = nullptr;
     std::vector<eStatLabel*> mValues;
@@ -123,6 +135,9 @@ void eStatsWidget::initialize(const eStats* const stats) {
     const auto res = resolution();
     const int hp = res.largePadding();
     const int sp = res.tinyPadding();
+
+    const auto innerW = new eWidget(window());
+    innerW->setNoPadding();
 
     const auto strW = new eWidget(window());
     strW->setNoPadding();
@@ -233,13 +248,17 @@ void eStatsWidget::initialize(const eStats* const stats) {
     resWidget->stackVertically(sp);
     resWidget->fitContent();
 
-    addWidget(strW);
-    addWidget(dexW);
-    addWidget(vitW);
-    addWidget(eneW);
-    addWidget(resWidget);
+    innerW->addWidget(strW);
+    innerW->addWidget(dexW);
+    innerW->addWidget(vitW);
+    innerW->addWidget(eneW);
+    innerW->addWidget(resWidget);
 
-    stackVertically(hp);
+    innerW->stackVertically(hp);
+    innerW->fitContent();
+
+    addWidget(innerW);
+    innerW->align(eAlignment::center);
 }
 
 void eStatsWidget::paintEvent(ePainter& p) {
