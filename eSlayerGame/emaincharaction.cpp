@@ -71,16 +71,13 @@ void eMainCharAction::increment(const bool mousePressed,
     auto& model = mMainChar->model();
 
     const eSkillChoice schoice{rightPressed ?
-                                   eSkillChoice::right :
-                                   eSkillChoice::left};
-    const auto& skillStats = mStats.skill(schoice);
-    const int skillId = skillStats.fSkillId;
+                       eSkillChoice::right :
+                       eSkillChoice::left};
 
-    handleAttackStop(mousePressed, rightPressed, shiftPressed, skillId);
+    handleAttackStop(mousePressed, rightPressed, shiftPressed);
 
     if(consumeActionTime(by, model)) return;
 
-    const auto& skill = eSkills::sSkills.get(skillId);
     const bool canUseSkill = mStats.canUseSkill(schoice);
     const bool rangeAttack = mStats.rangedAttack(schoice);
 
@@ -89,7 +86,7 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(!shouldStopAttack) {
         if(mPressedUnit) {
-            shouldStopAttack = !handleUnitAttack(schoice, skill, rangeAttack, model);
+            shouldStopAttack = !handleUnitAttack(schoice, model);
             targetPos = mPressedUnit->fPos;
         } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
             shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
@@ -108,8 +105,7 @@ void eMainCharAction::increment(const bool mousePressed,
 void eMainCharAction::handleAttackStop(
     const bool mousePressed,
     const bool rightPressed,
-    const bool shiftPressed,
-    const int skillId) {
+    const bool shiftPressed) {
     const auto atype = mAttackData.fType;
 
     const bool stop =
@@ -136,33 +132,10 @@ bool eMainCharAction::consumeActionTime(
 
 bool eMainCharAction::handleUnitAttack(
     const eSkillChoice schoice,
-    const eSkill& skill,
-    const bool rangeAttack,
     eCharUnitModel& model) {
-    float attackDist;
-    const float meeleDist = mStats.fWeaponMeeleRange +
-                            0.5f*(mPressedUnit->fRadius + mMainChar->fRadius);
-    if(skill.fType == eSkillType::attack) {
-        if(mStats.fWeaponTypeL == eWeaponType::meele ||
-           mStats.fWeaponTypeL == eWeaponType::throwable ||
-           mStats.fWeaponTypeR == eWeaponType::meele ||
-           mStats.fWeaponTypeR == eWeaponType::throwable) {
-            attackDist = meeleDist;
-        } else {
-            attackDist = mStats.fWeaponRangedRange;
-        }
-    } else if(skill.fType == eSkillType::smite ||
-              skill.fType == eSkillType::kick) {
-        attackDist = meeleDist;
-    }else if(skill.fType == eSkillType::missile ||
-              skill.fType == eSkillType::wall) {
-        attackDist = skill.fCastRange;
-    } else if(skill.fType == eSkillType::throw_ ||
-              skill.fType == eSkillType::shoot) {
-        attackDist = mStats.fWeaponRangedRange;
-    } else {
-        return false;
-    }
+    const float attackDist = mStats.attackRange(
+        schoice, mPressedUnit->fRadius,
+        mMainChar->fRadius);
 
     const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
     if(dist >= attackDist) {

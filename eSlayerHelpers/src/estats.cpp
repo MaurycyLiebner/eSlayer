@@ -754,3 +754,33 @@ bool eStats::rangedAttack(const eSkillChoice schoice) const {
             (lw == eWeaponType::ranged ||
              rw == eWeaponType::ranged));
 }
+
+float eStats::attackRange(const eSkillChoice schoice,
+                          const float unit1Radius,
+                          const float unit2Radius) const {
+    const auto& skillStats = eStats::skill(schoice);
+    const int skillId = skillStats.fSkillId;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const float meeleDist = fWeaponMeeleRange +
+                            0.5f*(unit1Radius + unit2Radius);
+    if(skill.fType == eSkillType::attack) {
+        if(fWeaponTypeL == eWeaponType::meele ||
+           fWeaponTypeL == eWeaponType::throwable ||
+           fWeaponTypeR == eWeaponType::meele ||
+           fWeaponTypeR == eWeaponType::throwable) {
+            return meeleDist;
+        } else {
+            return fWeaponRangedRange;
+        }
+    } else if(skill.fType == eSkillType::smite ||
+               skill.fType == eSkillType::kick) {
+        return meeleDist;
+    }else if(skill.fType == eSkillType::missile ||
+               skill.fType == eSkillType::wall) {
+        return skill.fCastRange;
+    } else if(skill.fType == eSkillType::throw_ ||
+               skill.fType == eSkillType::shoot) {
+        return fWeaponRangedRange;
+    }
+    return meeleDist;
+}

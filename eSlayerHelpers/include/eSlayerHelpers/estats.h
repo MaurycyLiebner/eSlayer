@@ -99,6 +99,9 @@ struct ESLAYERHELPERS_API eStats {
 
     bool canUseSkill(const eSkillChoice schoice) const;
     bool rangedAttack(const eSkillChoice schoice) const;
+    float attackRange(const eSkillChoice schoice,
+                      const float unit1Radius,
+                      const float unit2Radius) const;
 };
 
 #endif // ESTATS_H

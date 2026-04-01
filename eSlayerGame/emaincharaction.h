@@ -62,15 +62,12 @@ private:
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
                           const bool rightPressed,
-                          const bool shiftPressed,
-                          const int skillId);
+                          const bool shiftPressed);
 
     bool consumeActionTime(const float by,
                            eCharUnitModel& model);
 
     bool handleUnitAttack(const eSkillChoice schoice,
-                          const eSkill& skill,
-                          const bool rangeAttack,
                           eCharUnitModel& model);
 
     bool handlePositionAttack(const ePointF& mousePos,
