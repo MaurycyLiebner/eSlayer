@@ -114,9 +114,9 @@ public:
 
     void killed(const eServerUnit& killed);
     void respawn();
-private:
-    void recalculateStats();
 
+    void recalculateStats();
+private:
     const eCharData& mData;
     eServerArea& mArea;
 

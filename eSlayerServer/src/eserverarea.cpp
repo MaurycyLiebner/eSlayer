@@ -373,6 +373,7 @@ bool eServerArea::pickupItem(
     } else {
         const bool r = eq.add(*item);
         if(!r) return false;
+        u->recalculateStats();
     }
     mGroundItems.remove(itemId);
     mItemsOnGround.remove(itemId);
