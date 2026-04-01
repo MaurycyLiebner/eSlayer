@@ -24,6 +24,7 @@ public:
     static eItemDragWidget* sDragWidget;
 protected:
     void paintEvent(ePainter& p) override;
+    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eInventoryBagpackWidget* mBagpack = nullptr;
     std::vector<eItemPlaceWidget*> mItemPalces;

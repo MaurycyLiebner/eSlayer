@@ -13,6 +13,7 @@ public:
     void initialize(const eStats* const stats);
 protected:
     void paintEvent(ePainter& p) override;
+    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     const eStats* mStats = nullptr;
 

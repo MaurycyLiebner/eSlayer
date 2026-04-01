@@ -261,8 +261,16 @@ void eStatsWidget::initialize(const eStats* const stats) {
     innerW->align(eAlignment::center);
 }
 
+bool eStatsWidget::mousePressEvent(const eMouseEvent& e) {
+    return true;
+}
+
 void eStatsWidget::paintEvent(ePainter& p) {
     updateStats();
+    p.fillRect(rect(), SDL_Color{0, 0, 0, 255});
+    const auto& res = resolution();
+    const int lineWidth = res.lineWidth();
+    p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
 }
 
 void eStatsWidget::updateStats() {

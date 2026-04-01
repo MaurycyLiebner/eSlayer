@@ -176,7 +176,14 @@ void eInventoryWidget::initialize(
 }
 
 void eInventoryWidget::paintEvent(ePainter& p) {
+    p.fillRect(rect(), SDL_Color{0, 0, 0, 255});
+    const auto& res = resolution();
+    const int lineWidth = res.lineWidth();
+    p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
+}
 
+bool eInventoryWidget::mousePressEvent(const eMouseEvent& e) {
+    return true;
 }
 
 bool eInventoryWidget::dropItem(const SDL_Point& pos) {
