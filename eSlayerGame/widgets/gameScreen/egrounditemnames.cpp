@@ -18,8 +18,30 @@ bool eGroundItemNames::add(
         tex = it->second;
     } else {
         const auto name = eItemNames::name(item.fDataId);
-        eTextGenerator gen(r, eFontColor::white, font);
-        tex = gen.generate(name);
+        eFontColor color{eFontColor::normal};
+        switch(item.fRarity) {
+        case eItemRarity::normal:
+            color = eFontColor::normal;
+            break;
+        case eItemRarity::magic:
+            color = eFontColor::magic;
+            break;
+        case eItemRarity::rare:
+            color = eFontColor::rare;
+            break;
+        case eItemRarity::set:
+            color = eFontColor::set;
+            break;
+        case eItemRarity::unique:
+            color = eFontColor::unique;
+            break;
+        }
+
+        eTextGenerator gen(r, color, font);
+        const auto socketsText = item.fSockets > 0 ?
+            " [" + std::to_string(item.fSockets) + "]" :
+            "";
+        tex = gen.generate(name + socketsText);
         mTexs[item.fItemId] = tex;
     }
     const int tw = tex->width();

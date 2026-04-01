@@ -16,6 +16,28 @@ void eFontColorHelpers::colors(const eFontColor c,
         col1 = SDL_Color{97, 97, 232, 255};
         col2 = SDL_Color{0, 0, 0, 0};
         break;
+
+    case eFontColor::normal:
+        col1 = SDL_Color{255, 255, 255, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
+    case eFontColor::magic:
+        col1 = SDL_Color{97, 97, 232, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
+    case eFontColor::rare:
+        col1 = SDL_Color{255, 215, 0, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
+    case eFontColor::set:
+        col1 = SDL_Color{75, 220, 75, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
+    case eFontColor::unique:
+        col1 = SDL_Color{188, 160, 75, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
+
     case eFontColor::whiteBlack:
         col1 = SDL_Color{255, 255, 255, 255};
         col2 = SDL_Color{0, 0, 0, 255};

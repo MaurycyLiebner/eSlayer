@@ -6,6 +6,8 @@
 
 enum class eFontColor {
     white, gray, blue,
+    // items
+    normal, magic, rare, set, unique,
     whiteBlack, grayBlack, redBlack
 };
 

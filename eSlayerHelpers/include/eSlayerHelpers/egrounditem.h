@@ -17,6 +17,9 @@ struct ESLAYERHELPERS_API eGroundItem : public ePositioned {
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;
 
+    eItemRarity fRarity = eItemRarity::normal;
+    uint8_t fSockets = 0;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

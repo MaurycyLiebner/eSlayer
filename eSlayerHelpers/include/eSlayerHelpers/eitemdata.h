@@ -17,6 +17,14 @@ enum class eItemType : uint8_t {
     arrows
 };
 
+enum class eItemRarity : uint8_t {
+    normal,
+    magic,
+    rare,
+    set,
+    unique
+};
+
 struct eItemData {
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;

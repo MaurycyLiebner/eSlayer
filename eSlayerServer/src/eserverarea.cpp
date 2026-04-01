@@ -393,6 +393,8 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
     groundItem->fDataId = item.fDataId;
     groundItem->fType = item.fType;
     groundItem->fSubType = item.fSubType;
+    groundItem->fRarity = item.fRarity;
+    groundItem->fSockets = item.fSockets;
     const auto baseTile = mItemTiles.posArea(pos);
     bool found = false;
     for(int dist = 0; dist < 100; dist++) {

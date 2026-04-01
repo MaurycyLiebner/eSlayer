@@ -8,6 +8,8 @@ void eGroundItem::read(ePacket& p) {
     p >> fType;
     p >> fSubType;
     p >> fPos;
+    p >> fRarity;
+    p >> fSockets;
 }
 
 void eGroundItem::write(ePacket& p) const {
@@ -16,4 +18,6 @@ void eGroundItem::write(ePacket& p) const {
     p << fType;
     p << fSubType;
     p << fPos;
+    p << fRarity;
+    p << fSockets;
 }

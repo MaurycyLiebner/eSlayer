@@ -143,7 +143,32 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             addText(text, color);
         };
 
-        addText(eItemNames::name(item.fDataId), eFontColor::white);
+        {
+            const auto name = eItemNames::name(item.fDataId);
+            const auto socketsText = item.fSockets > 0 ?
+                " [" + std::to_string(item.fSockets) + "]" :
+                "";
+            eFontColor color{eFontColor::normal};
+            switch(item.fRarity) {
+            case eItemRarity::normal:
+                color = eFontColor::normal;
+                break;
+            case eItemRarity::magic:
+                color = eFontColor::magic;
+                break;
+            case eItemRarity::rare:
+                color = eFontColor::rare;
+                break;
+            case eItemRarity::set:
+                color = eFontColor::set;
+                break;
+            case eItemRarity::unique:
+                color = eFontColor::unique;
+                break;
+            }
+
+            addText(name + socketsText, color);
+        }
         switch(item.fType) {
         case eItemType::armor:
         case eItemType::gloves:
@@ -170,6 +195,9 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
             addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);
+        }
+        if(item.fSockets > 0) {
+            addValue(6, 3, item.fSockets, item.fSockets, eFontColor::blue);
         }
 
         mHover = std::make_shared<eTexture>();

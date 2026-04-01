@@ -12,6 +12,10 @@ struct ESLAYERHELPERS_API eItem {
     uint8_t fDataId = 0;
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;
+
+    eItemRarity fRarity = eItemRarity::normal;
+    uint8_t fSockets = 0;
+
     float fValue1 = 0.f; // min weapon / shield / boots damage
     float fValue2 = 0.f; // max weapon weapon / shield / boots damage
     float fValue3 = 0.f; // armor defense

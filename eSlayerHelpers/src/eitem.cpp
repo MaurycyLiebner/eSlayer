@@ -6,6 +6,10 @@ void eItem::read(ePacket& p) {
     p >> fDataId;
     p >> fType;
     p >> fSubType;
+
+    p >> fRarity;
+    p >> fSockets;
+
     p >> fValue1;
     p >> fValue2;
     p >> fValue3;
@@ -23,6 +27,10 @@ void eItem::write(ePacket& p) const {
     p << fDataId;
     p << fType;
     p << fSubType;
+
+    p << fRarity;
+    p << fSockets;
+
     p << fValue1;
     p << fValue2;
     p << fValue3;

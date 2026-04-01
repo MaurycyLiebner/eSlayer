@@ -59,6 +59,7 @@ bool eCharacter::load(const std::string& path,
     int itemId = 0;
     const uint8_t amuletId = eItemsData::id("amulet3");
     eItem amulet{uint8_t(itemId++), amuletId, eItemType::amulet};
+    amulet.fRarity = eItemRarity::rare;
     {
         auto& mod = amulet.fModifiers.emplace_back();
         mod.fType = eModifierType::castRate;
@@ -78,6 +79,8 @@ bool eCharacter::load(const std::string& path,
 
     const uint8_t armorId = eItemsData::id("quilted_armor");
     eItem armor{uint8_t(itemId++), armorId, eItemType::armor};
+    armor.fRarity = eItemRarity::unique;
+    armor.fSockets = 2;
     armor.fValue3 = 25.f;
     {
         auto& mod = armor.fModifiers.emplace_back();

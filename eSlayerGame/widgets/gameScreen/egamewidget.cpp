@@ -249,7 +249,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         mItemNames.clear();
         const auto res = resolution();
         const int fontSize = res.smallFontSize();
-        const auto font = eFonts::defaultFont(fontSize);
+        const auto font = eFonts::textFont(fontSize);
 
         enum class eRenderElementType {
             unit, missile, item
