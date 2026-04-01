@@ -396,17 +396,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto pixel = tilePosToPixel(i->fPos);
                     mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
                                                    4, 4}, SDL_Color{255, 0, 0, 255});
-                    if(altPressed) {
-                        const int w = width();
-                        const int h = height();
-                        mItemNames.add(r, font, w, h, pixel.floor(), *i);
-                    }
                 }
                 nextElement = eleId + 1;
             }
         });
 
         if(altPressed) {
+            std::map<float, eGroundItem*> items;
+            for(const auto& i : mWorld.groundItems()) {
+                const float dist = ePointF::distance(i->fPos, mMainChar->fPos);
+                items[dist] = i.get();
+            }
+            for(const auto& it : items) {
+                const int w = width();
+                const int h = height();
+                const auto i = it.second;
+                const auto pixel = tilePosToPixel(i->fPos);
+                mItemNames.add(r, font, w, h, pixel.floor(), *i);
+            }
             const SDL_Point impos{int(mpos.fX), int(mpos.fY)};
             for(const auto& it : mItemNames) {
                 const auto& item = it.second;

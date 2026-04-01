@@ -28,6 +28,7 @@ public:
     bool at(const ePoint& pixel,
             uint32_t& itemId) const;
 private:
+    int mYShift = 0;
     std::map<uint32_t, std::shared_ptr<eTexture>> mTexs;
 };
 

@@ -49,9 +49,11 @@ bool eGroundItemNames::add(
     const int ww = tw + font.fPtSize;
     const int wh = th + font.fPtSize;
     const int yinc = wh + font.fPtSize;
-    for(int y = pixel.fY - yinc; y > 0; y -= yinc) {
-        const SDL_Rect rect{pixel.fX - tw/2, y,
-                            ww, wh};
+    if(empty()) {
+        mYShift = pixel.fY % yinc - yinc;
+    }
+    for(int y = mYShift + pixel.fY/yinc*yinc; y > 0; y -= yinc) {
+        const SDL_Rect rect{pixel.fX - ww/2, y, ww, wh};
         bool empty = true;
         for(const auto& it : *this) {
             const auto& i = it.second;
