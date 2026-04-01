@@ -36,12 +36,12 @@ void eGameScreen::setExitAction(const eAction& a) {
 void eGameScreen::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eEquipment& eq) {
+                             const eCharacter& c) {
     mGameWidget = new eGameWidget(window());
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
 
-    mGameWidget->initialize(clientId, server, map, eq);
+    mGameWidget->initialize(clientId, server, map, c);
 
     mGameWidget->setDeathHandler([this]() {
         if(!mDeadMenu) showDeadMenu();
@@ -256,12 +256,7 @@ void eGameScreen::showESCMenu() {
         hideESCMenu();
     };
     const auto exit = [this]() {
-        eCharacter c("Test", false);
-        const auto path = eGameDir::path("Save/Test.xml");
-        const auto& eq = mGameWidget->equipment();
-        const auto& attrs = mGameWidget->attributes();
-        c.write(path, eq, attrs);
-
+        mGameWidget->save();
         mGameWidget->disconnect();
         mExitAction();
     };

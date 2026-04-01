@@ -11,11 +11,13 @@
 
 #include <eSlayerMissiles/emissileincrement.h>
 
+#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/echaracter.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -36,7 +38,8 @@ eGameWidget::~eGameWidget() {
 void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eEquipment& eq) {
+                             const eCharacter& c) {
+    mCName = c.name();
     mClientId = clientId;
     mServer = server;
     mMap = map;
@@ -58,6 +61,7 @@ void eGameWidget::initialize(const int clientId,
     setRightSkill(0);
     setLeftSkill(0);
 
+    const auto& eq = c.equipment();
     mMainAction.setEquipment(eq);
 }
 
@@ -140,6 +144,15 @@ void eGameWidget::disconnect() {
     if(mServer) {
         mServer->disconnect(mClientId);
     }
+}
+
+void eGameWidget::save() {
+    const eCharacter c(mCName, false);
+    const auto path = eGameDir::path(
+        "Save/" + mCName + ".xml");
+    const auto& eq = equipment();
+    const auto& attrs = attributes();
+    c.write(path, eq, attrs);
 }
 
 void eGameWidget::sSendInventoryRearranged() {

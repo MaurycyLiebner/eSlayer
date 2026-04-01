@@ -21,6 +21,7 @@
 #include <eSlayerHelpers/eequipment.h>
 
 class eUnitIndicator;
+class eCharacter;
 
 using eDeathHandler = std::function<void()>;
 using eRespawnHandler = std::function<void()>;
@@ -33,7 +34,7 @@ public:
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eEquipment& eq);
+                    const eCharacter& c);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }
@@ -81,6 +82,7 @@ public:
     bool switchRunning();
     bool switchWeapons();
     void disconnect();
+    void save();
 
     static eGameWidget* sInstance;
     static void sSendInventoryRearranged();
@@ -95,6 +97,8 @@ private:
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     eWalkable walkable() const;
+
+    std::string mCName;
 
     eGameWorld mWorld;
     eGameInput mInput;

@@ -15,6 +15,7 @@ class eTextureCheckButton;
 class eInventoryWidget;
 class eItemDragWidget;
 class eStatsWidget;
+class eCharacter;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -25,7 +26,7 @@ public:
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eEquipment& eq);
+                    const eCharacter& c);
 
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;

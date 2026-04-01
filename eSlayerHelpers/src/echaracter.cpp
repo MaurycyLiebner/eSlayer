@@ -189,100 +189,100 @@ bool eCharacter::load(const std::string& path,
         gReadInventory(eq.fInventory, "inventory", eqE);
     }
 
-    int itemId = 0;
-    const uint8_t amuletId = eItemsData::id("amulet3");
-    eItem amulet{uint8_t(itemId++), amuletId, eItemType::amulet};
-    amulet.fRarity = eItemRarity::rare;
-    {
-        auto& mod = amulet.fModifiers.emplace_back();
-        mod.fType = eModifierType::castRate;
-        mod.fValue1 = 15.f;
-    }
-    {
-        auto& mod = amulet.fModifiers.emplace_back();
-        mod.fType = eModifierType::manaValue;
-        mod.fValue1 = 75.f;
-    }
-    {
-        auto& mod = amulet.fModifiers.emplace_back();
-        mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = 20.f;
-    }
-    c.mEquipment.add(amulet);
+    // int itemId = 0;
+    // const uint8_t amuletId = eItemsData::id("amulet3");
+    // eItem amulet{uint8_t(itemId++), amuletId, eItemType::amulet};
+    // amulet.fRarity = eItemRarity::rare;
+    // {
+    //     auto& mod = amulet.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::castRate;
+    //     mod.fValue1 = 15.f;
+    // }
+    // {
+    //     auto& mod = amulet.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::manaValue;
+    //     mod.fValue1 = 75.f;
+    // }
+    // {
+    //     auto& mod = amulet.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::lifeValue;
+    //     mod.fValue1 = 20.f;
+    // }
+    // c.mEquipment.add(amulet);
 
-    const uint8_t armorId = eItemsData::id("quilted_armor");
-    eItem armor{uint8_t(itemId++), armorId, eItemType::armor};
-    armor.fRarity = eItemRarity::unique;
-    armor.fSockets = 2;
-    armor.fValue3 = 25.f;
-    {
-        auto& mod = armor.fModifiers.emplace_back();
-        mod.fType = eModifierType::walkRun;
-        mod.fValue1 = 1.5f;
-    }
-    {
-        auto& mod = armor.fModifiers.emplace_back();
-        mod.fType = eModifierType::defensePercent;
-        mod.fValue1 = 0.75f;
-    }
-    {
-        auto& mod = armor.fModifiers.emplace_back();
-        mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = 20.f;
-    }
-    c.mEquipment.add(armor);
+    // const uint8_t armorId = eItemsData::id("quilted_armor");
+    // eItem armor{uint8_t(itemId++), armorId, eItemType::armor};
+    // armor.fRarity = eItemRarity::unique;
+    // armor.fSockets = 2;
+    // armor.fValue3 = 25.f;
+    // {
+    //     auto& mod = armor.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::walkRun;
+    //     mod.fValue1 = 1.5f;
+    // }
+    // {
+    //     auto& mod = armor.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::defensePercent;
+    //     mod.fValue1 = 0.75f;
+    // }
+    // {
+    //     auto& mod = armor.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::lifeValue;
+    //     mod.fValue1 = 20.f;
+    // }
+    // c.mEquipment.add(armor);
 
-    const uint8_t swordId = eItemsData::id("short_sword");
-    eItem sword{uint8_t(itemId++), swordId, eItemType::weapon,
-                static_cast<uint8_t>(eWeaponSubtype::sword)};
-    sword.fValue1 = 5.f;
-    sword.fValue2 = 10.f;
-    {
-        auto& mod = sword.fModifiers.emplace_back();
-        mod.fType = eModifierType::attackSpeed;
-        mod.fValue1 = 1.5f;
-    }
-    {
-        auto& mod = sword.fModifiers.emplace_back();
-        mod.fType = eModifierType::damagePercent;
-        mod.fValue1 = 0.75f;
-        mod.fValue2 = 1.75f;
-    }
-    {
-        auto& mod = sword.fModifiers.emplace_back();
-        mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = 20.f;
-    }
-    c.mEquipment.add(sword);
+    // const uint8_t swordId = eItemsData::id("short_sword");
+    // eItem sword{uint8_t(itemId++), swordId, eItemType::weapon,
+    //             static_cast<uint8_t>(eWeaponSubtype::sword)};
+    // sword.fValue1 = 5.f;
+    // sword.fValue2 = 10.f;
+    // {
+    //     auto& mod = sword.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::attackSpeed;
+    //     mod.fValue1 = 1.5f;
+    // }
+    // {
+    //     auto& mod = sword.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::damagePercent;
+    //     mod.fValue1 = 0.75f;
+    //     mod.fValue2 = 1.75f;
+    // }
+    // {
+    //     auto& mod = sword.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::lifeValue;
+    //     mod.fValue1 = 20.f;
+    // }
+    // c.mEquipment.add(sword);
 
-    const uint8_t bowId = eItemsData::id("long_war_bow");
-    eItem bow{uint8_t(itemId++), bowId, eItemType::weapon,
-              static_cast<uint8_t>(eWeaponSubtype::bow)};
-    bow.fValue1 = 5.f;
-    bow.fValue2 = 10.f;
-    {
-        auto& mod = bow.fModifiers.emplace_back();
-        mod.fType = eModifierType::attackSpeed;
-        mod.fValue1 = 1.5f;
-    }
-    {
-        auto& mod = bow.fModifiers.emplace_back();
-        mod.fType = eModifierType::damagePoison;
-        mod.fValue1 = 100.f;
-        mod.fValue2 = 5.f;
-    }
-    {
-        auto& mod = bow.fModifiers.emplace_back();
-        mod.fType = eModifierType::damagePercent;
-        mod.fValue1 = 0.75f;
-        mod.fValue2 = 1.75f;
-    }
-    {
-        auto& mod = bow.fModifiers.emplace_back();
-        mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = 20.f;
-    }
-    c.mEquipment.add(bow);
+    // const uint8_t bowId = eItemsData::id("long_war_bow");
+    // eItem bow{uint8_t(itemId++), bowId, eItemType::weapon,
+    //           static_cast<uint8_t>(eWeaponSubtype::bow)};
+    // bow.fValue1 = 5.f;
+    // bow.fValue2 = 10.f;
+    // {
+    //     auto& mod = bow.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::attackSpeed;
+    //     mod.fValue1 = 1.5f;
+    // }
+    // {
+    //     auto& mod = bow.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::damagePoison;
+    //     mod.fValue1 = 100.f;
+    //     mod.fValue2 = 5.f;
+    // }
+    // {
+    //     auto& mod = bow.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::damagePercent;
+    //     mod.fValue1 = 0.75f;
+    //     mod.fValue2 = 1.75f;
+    // }
+    // {
+    //     auto& mod = bow.fModifiers.emplace_back();
+    //     mod.fType = eModifierType::lifeValue;
+    //     mod.fValue1 = 20.f;
+    // }
+    // c.mEquipment.add(bow);
 
     return true;
 }

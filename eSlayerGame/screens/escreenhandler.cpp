@@ -182,7 +182,7 @@ void eScreenHandler::showGame(eServerData serverData,
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*clientId, *server, *map, eq);
+        w->initialize(*clientId, *server, *map, c);
         mWindow->setWidget(w);
     };
 
