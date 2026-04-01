@@ -252,6 +252,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
             m->fTo = md.fTo;
             const bool continuousDamage = skill.fType == eSkillType::wall;
             m->fContinuousDamage = continuousDamage;
+            m->fEnemyFindRange = skill.fMissileEnemyFindRange;
             m->fTime = 0.f;
             struct eCharSkipper {
                 float fTime = 0.f;

@@ -32,6 +32,7 @@ struct eSkill {
     int fPathId;
 
     float fRangeTime;
+    float fMissileEnemyFindRange;
     float fRadius;
     float fSpeed;
     float fTime;

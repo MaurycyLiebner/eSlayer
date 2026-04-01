@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/eunitareas.h>
+#include <eSlayerHelpers/eunitdata.h>
 
 eMissileIncrementer::eMissileIncrementer(
     eUnitAreas& unitAreas) :
@@ -23,6 +24,39 @@ void eMissileIncrementer::initialize(
 }
 
 bool eMissileIncrementer::increment(eMissile& m, const float by) const {
+    if(m.fEnemyFindRange > 0.f) {
+        const float aabbMinX = m.fPos.fX - m.fEnemyFindRange;
+        const float aabbMaxX = m.fPos.fX + m.fEnemyFindRange;
+        const float aabbMinY = m.fPos.fY - m.fEnemyFindRange;
+        const float aabbMaxY = m.fPos.fY + m.fEnemyFindRange;
+
+        // Determine which unit areas overlap this AABB
+        const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
+        const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
+
+        float closestUnit = m.fEnemyFindRange + 0.1f;
+        m.fEnemy = false;
+
+        for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+            for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+                const eUnitArea area{ax, ay};
+                const auto& units = mUnitAreas.at(area);
+                for(const int charId : units) {
+                    const auto u = mGetUnit(charId);
+                    if(!u) continue;
+                    if(u->fHealth <= 0) continue;
+                    if(u->fTeamId == m.fTeamId) continue;
+                    const float dist = ePointF::distance(u->fPos, m.fPos);
+                    if(dist < closestUnit) {
+                        closestUnit = dist;
+                        m.fEnemyPos = u->fPos;
+                        m.fEnemy = true;
+                    }
+                }
+            }
+        }
+    }
+
     const auto oldPos = m.fPos;
     eMissileIncrement::increment(m, by);
     const auto& newPos = m.fPos;

@@ -4,14 +4,29 @@
 
 eIncrementorsMap eMissileIncrement::sIncrementors;
 
+void moveInDir(eVec2f dir, eMissile& m, const float dist) {
+    dir.normalize(dist);
+    if(m.fEnemy) {
+        auto edir = ePointF::vector(m.fEnemyPos, m.fPos);
+        const float edist = dist*std::pow(m.fTime/10.f, 1.5f);
+        if(dist > edir.length()) {
+            dir = edir;
+        } else {
+            edir.normalize(edist);
+            dir = dir + edir;
+            dir.normalize(dist);
+        }
+    }
+    m.fPos = m.fPos + dir;
+}
+
 void linear(eMissile& m, const float by) {
     m.fTime += by;
     const float dist = std::min(m.fRemDistTime, by*m.fSpeed);
     auto dir = ePointF::vector(m.fTo, m.fFrom);
-    if(dir.length() == 0.0f) return;
-    dir.normalize();
+    if(dir.length() == 0.f) return;
+    moveInDir(dir, m, dist);
     m.fRemDistTime -= dist;
-    m.fPos = m.fPos + dir * dist;
 }
 
 void wave(eMissile& m, const float by) {
@@ -35,8 +50,7 @@ void wave(eMissile& m, const float by) {
     const auto forwardMove = dir * dist;
     const auto waveMove = perp * (currOffset - prevOffset);
 
-    m.fPos = m.fPos + forwardMove + waveMove;
-
+    moveInDir(forwardMove + waveMove, m, dist);
     m.fRemDistTime -= dist;
 }
 
@@ -53,8 +67,7 @@ void jitter(eMissile& m, const float by) {
     const float perpDist = dist;
     const float perpMult = eRand::randF(seed, -perpDist, perpDist);
 
-    m.fPos = m.fPos + dir * dist + perp * perpMult;
-
+    moveInDir(dir * dist + perp * perpMult, m, dist);
     m.fRemDistTime -= dist;
 }
 
@@ -85,14 +98,19 @@ void spiral(eMissile& m, const float by) {
     angle += dTheta;
     r += dRadius;
 
-    m.fPos.fX = m.fFrom.fX + r * std::cos(angle);
-    m.fPos.fY = m.fFrom.fY + r * std::sin(angle);
+    eVec2f dir;
+    dir.x = m.fFrom.fX + r * std::cos(angle) - m.fPos.fX;
+    dir.y = m.fFrom.fY + r * std::sin(angle) - m.fPos.fY;
+
+    moveInDir(dir, m, dist);
 
     m.fRemDistTime -= dist;
 }
 
 void staticF(eMissile& m, const float by) {
     m.fTime += by;
+    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    moveInDir(eVec2f{0.f, 0.f}, m, dist);
     m.fRemDistTime -= by;
 }
 

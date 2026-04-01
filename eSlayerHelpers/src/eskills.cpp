@@ -27,6 +27,7 @@ void eSkills::load() {
 
         skill.fPath = jdata.value("path", "linear");
         skill.fMissile = jdata.value("missile", "none");
+        skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
         int nMissiles = jdata.value("missiles", 1);
         skill.fRadius = jdata.value("radius", 0.5f);
         skill.fSpeed = jdata.value("speed", 0.25f);
@@ -45,6 +46,10 @@ void eSkills::load() {
             skill.fType = eSkillType::missile;
             skill.fRangeTime = jdata.value("range", 8.f);
             skill.fCastRange = 8.f;
+        } else if(typeStr == "shoot") {
+            skill.fType = eSkillType::shoot;
+        } else if(typeStr == "throw") {
+            skill.fType = eSkillType::throw_;
         } else if(typeStr == "wall") {
             skill.fType = eSkillType::wall;
             skill.fRangeTime = jdata.value("time", 100.f)*eRunSettings::sFPS;

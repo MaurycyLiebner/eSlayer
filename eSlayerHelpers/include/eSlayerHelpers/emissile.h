@@ -23,6 +23,7 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     float fRemDistTime;
     float fRadius;
     float fEnemyFindRange = 0.f;
+    bool fEnemy = false;
     ePointF fEnemyPos;
     float fTime = 0.f;
 
