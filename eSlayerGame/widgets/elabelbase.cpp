@@ -8,7 +8,7 @@
 
 eLabelBase::eLabelBase(eMainWindow* const window) :
     mWindow(window) {
-    const auto res = eLabelBase::res();
+    const auto& res = eLabelBase::res();
     mFont = eFonts::defaultFont(res);
 }
 

@@ -7,7 +7,7 @@ void eLoadingScreen::initialize(
     const eAction& finish) {
     const auto inner = eScreenBase::addInner();
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int width = inner->width();
     const int height = 4*res.largePadding();
 

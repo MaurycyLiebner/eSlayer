@@ -234,7 +234,7 @@ void eGameScreen::showDeadMenu() {
     line2->fitContent();
     mDeadMenu->addWidget(line2);
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int p = res.hugePadding();
     mDeadMenu->stackVertically(p);
     mDeadMenu->fitContent();
@@ -356,7 +356,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
     addWidget(w);
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const float mult = res.multiplier();
     const int margin = 100*mult;
     w->move(align == eAlignment::left ? margin : width() - w->width() - margin,

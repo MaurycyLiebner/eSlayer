@@ -16,7 +16,7 @@ void eChooseCharacterMenu::initialize(
     const eDeleteAction& deleteCharacter,
     const eCharacters& chars) {
     setExit(exit);
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const auto inner = eScreenBase::addInner();
 

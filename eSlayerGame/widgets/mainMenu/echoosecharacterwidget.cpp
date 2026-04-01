@@ -10,7 +10,7 @@ void eChooseCharacterWidget::initialize(
     const eAction& changeAction) {
     const auto& chars2 = chars.get();
 
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const int w1 = totWidth/2;
     const int w2 = totWidth - w1;

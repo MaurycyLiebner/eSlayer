@@ -11,7 +11,7 @@ void eMainMenu::initialize(const eAction& singlePlayer,
                            const eAction& tcpIpGame,
                            const eAction& settings,
                            const eAction& exitGame) {
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const auto inner = eScreenBase::addInner();
 

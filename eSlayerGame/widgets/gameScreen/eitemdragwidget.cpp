@@ -120,7 +120,7 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         int maxWidth = 0;
         std::vector<std::shared_ptr<eTexture>> lines;
         const auto r = renderer();
-        const auto res = resolution();
+        const auto& res = resolution();
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
         const auto addText = [&](const std::string& text,
@@ -235,7 +235,7 @@ void eItemDragWidget::paintEvent(ePainter& p) {
     } else if(mHover) {
         const int h = height();
         const int w = width();
-        const auto res = resolution();
+        const auto& res = resolution();
         const int screenMargin = 40*res.multiplier();
         const int fillMargin = 10*res.multiplier();
         SDL_Rect rect{mMousePos.x - mHover->width()/2,

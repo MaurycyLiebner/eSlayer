@@ -13,7 +13,7 @@ void eErrorScreen::initialize(
 
     const auto inner = eScreenBase::addInner();
 
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const auto msgLabel = new eLabel(w);
     const int width = inner->width();

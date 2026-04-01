@@ -17,7 +17,7 @@ public:
 
     void initialize(const int width) {
         setNoPadding();
-        const auto res = resolution();
+        const auto& res = resolution();
         const int fontSize = res.tinyFontSize();
         mFont = eFonts::textFont(fontSize);
 
@@ -40,7 +40,7 @@ public:
     }
 protected:
     void paintEvent(ePainter& p) override {
-        const auto res = resolution();
+        const auto& res = resolution();
         const int lineWidth = res.lineWidth();
         p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
     }
@@ -55,7 +55,7 @@ public:
     void initialize(const int nValues = 1) {
         setNoPadding();
 
-        const auto res = resolution();
+        const auto& res = resolution();
 
         mNames = new eStatLabel(window());
         mNames->initialize(100);
@@ -120,7 +120,7 @@ public:
     }
 protected:
     void paintEvent(ePainter& p) override {
-        const auto res = resolution();
+        const auto& res = resolution();
         const int lineWidth = res.lineWidth();
         p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
     }
@@ -132,7 +132,7 @@ private:
 void eStatsWidget::initialize(const eStats* const stats) {
     mStats = stats;
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int hp = res.largePadding();
     const int sp = res.tinyPadding();
 

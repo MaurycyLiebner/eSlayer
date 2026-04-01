@@ -164,7 +164,7 @@ void eLineEdit::paintEvent(ePainter& p) {
     if(tex) {
         auto r = rect();
         {
-            const auto res = resolution();
+            const auto& res = resolution();
             const int p = res.smallPadding();
             r.x += p;
             r.y += p;
@@ -206,7 +206,7 @@ void eLineEdit::paintEvent(ePainter& p) {
 
 void eLineEdit::sizeHint(int& w, int& h) {
     eLabel::sizeHint(w, h);
-    const auto res = resolution();
+    const auto& res = resolution();
     const int p = res.smallPadding();
     w += 2*p;
     h += 2*p;

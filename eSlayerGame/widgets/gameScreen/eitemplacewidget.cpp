@@ -87,7 +87,7 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
         }
     }
     p.fillRect(rect, fillColor);
-    const auto res = resolution();
+    const auto& res = resolution();
     const int lineWidth = res.lineWidth();
     p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
     if(item.fType == eItemType::none) return;

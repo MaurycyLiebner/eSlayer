@@ -9,7 +9,7 @@ void eTcpIpGameMenu::initialize(const eAction& hostGameA,
                                 const eAction& joinGameA,
                                 const eAction& exitA) {
     setExit(exitA);
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const auto inner = eScreenBase::addInner();
 

@@ -26,7 +26,7 @@ eWidget::~eWidget() {
 }
 
 void eWidget::iResAndMult(int& iRes, int& mult) const {
-    const auto res = resolution();
+    const auto& res = resolution();
     const auto uiScale = res.uiScale();
     iRes = static_cast<int>(uiScale);
     mult = iRes + 1;

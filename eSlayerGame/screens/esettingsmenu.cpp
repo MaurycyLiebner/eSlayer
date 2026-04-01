@@ -18,7 +18,7 @@ void eSettingsMenu::initialize(const eAction& exitA,
     setExit(exitA);
     const auto inner = eScreenBase::addInner();
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int p = res.largePadding();
 
     const int colm = 2*p;
@@ -46,7 +46,7 @@ void eSettingsMenu::initialize(const eAction& exitA,
     col3->setX(2*colw + 2*p + 2*colm);
 
     {
-        const auto res = mSettings.fRes;
+        const auto& res = mSettings.fRes;
         const auto& ress = eResolution::sResolutions;
         int y = 0;
         eWidget* col = col2;

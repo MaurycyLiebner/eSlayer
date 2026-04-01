@@ -23,7 +23,7 @@ void eESCMenu::initialize(const eAction& return_,
         if(return_) return_();
     });
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int p = res.hugePadding();
     stackVertically(p);
     fitContent();

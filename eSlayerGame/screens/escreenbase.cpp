@@ -8,7 +8,7 @@ eWidget* eScreenBase::addInner() {
     const auto frame = new eWidget(window());
     addWidget(frame);
 
-    const auto res = resolution();
+    const auto& res = resolution();
 
     const int p = res.largePadding();
     const int cww = res.centralWidgetLargeWidth();

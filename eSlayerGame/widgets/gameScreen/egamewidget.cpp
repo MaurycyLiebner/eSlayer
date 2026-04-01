@@ -247,7 +247,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto window = eWidget::window();
         const bool altPressed = window->altPressed();
         mItemNames.clear();
-        const auto res = resolution();
+        const auto& res = resolution();
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
 

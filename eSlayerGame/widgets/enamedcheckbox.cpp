@@ -13,7 +13,7 @@ void eNamedCheckBox::initialize(const std::string &text) {
     n->fitContent();
     addWidget(n);
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int p = res.smallPadding();
 
     stackHorizontally(p);
