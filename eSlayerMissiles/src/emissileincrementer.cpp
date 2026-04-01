@@ -1,0 +1,81 @@
+#include "eSlayerMissiles/emissileincrementer.h"
+
+#include "eSlayerMissiles/emissileincrement.h"
+#include "eSlayerMissiles/emissilecollision.h"
+
+#include <eSlayerHelpers/emissile.h>
+#include <eSlayerHelpers/eunitarea.h>
+#include <eSlayerHelpers/eunitareas.h>
+
+eMissileIncrementer::eMissileIncrementer(
+    eUnitAreas& unitAreas) :
+    mUnitAreas(unitAreas) {}
+
+void eMissileIncrementer::initialize(
+    const eObsticle& obsticle,
+    const eRemoveMissile& removeMissile,
+    const eGetUnit& getUnit,
+    const eHitAction& hitAction) {
+    mObsticle = obsticle;
+    mRemoveMissile = removeMissile;
+    mGetUnit = getUnit;
+    mHitAction = hitAction;
+}
+
+bool eMissileIncrementer::increment(eMissile& m, const float by) const {
+    const auto oldPos = m.fPos;
+    eMissileIncrement::increment(m, by);
+    const auto& newPos = m.fPos;
+    if(m.fRemDistTime <= 0.0001f) {
+        mRemoveMissile(m);
+        return true;
+    }
+    const bool obsticle = mObsticle(newPos);
+    if(obsticle) {
+        mRemoveMissile(m);
+        return true;
+    }
+
+    // Compute AABB of the travel segment, expanded by max
+    // possible collision radius to cover all candidate units
+    const float maxRadius = m.fRadius + 1.f;
+    const float aabbMinX = std::min(oldPos.fX, newPos.fX) - maxRadius;
+    const float aabbMaxX = std::max(oldPos.fX, newPos.fX) + maxRadius;
+    const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
+    const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
+
+    // Determine which unit areas overlap this AABB
+    const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
+    const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
+
+    eMissileCollision::eResult collResult;
+
+    for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+        for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+            const eUnitArea area{ax, ay};
+            const auto& units = mUnitAreas.at(area);
+            for(const int charId : units) {
+                const auto u = mGetUnit(charId);
+                if(!u) continue;
+                eMissileCollision::test(oldPos, newPos,
+                                        *u, m, collResult);
+                if(m.fContinuousDamage && collResult.fHit) {
+                    const auto hitUnit = mGetUnit(collResult.fCharId);
+                    if(hitUnit && mHitAction) mHitAction(m, *hitUnit);
+                }
+            }
+        }
+    }
+
+    if(!m.fContinuousDamage && collResult.fHit) {
+        const auto hitUnit = mGetUnit(collResult.fCharId);
+        if(hitUnit && mHitAction) mHitAction(m, *hitUnit);
+        m.fPierced.emplace(collResult.fCharId);
+        if(m.fToPierce == 0) return false;
+        if(--m.fToPierce == 0) {
+            mRemoveMissile(m);
+            return true;
+        }
+    }
+    return false;
+}

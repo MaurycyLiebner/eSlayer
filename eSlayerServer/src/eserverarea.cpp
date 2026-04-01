@@ -6,13 +6,41 @@
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+
+#include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
 eServerArea::eServerArea() :
     mUnitAreas(mUnitAreaDim),
     mItemAreas(mItemAreaDim),
-    mItemTiles(-mItemTileSubdivision) {}
+    mItemTiles(-mItemTileSubdivision),
+    mMIncrementer(mUnitAreas) {
+    const auto obsticle = [this](const ePointF& pos) {
+        const auto ipos = pos.floor();
+        return !mMap->walkable(ipos.fX, ipos.fY);
+    };
+
+    const auto removeMissile = [this](const eMissile& m) {
+        mMissiles.remove(m.fId);
+    };
+
+    const auto getUnit = [this](const int charId) {
+        const auto u = mUnits.get(charId);
+        return static_cast<eUnitData*>(u.get());
+    };
+
+    const auto hitAction = [this](const eMissile& m, eUnitData& u) {
+        const auto& sm = static_cast<const eServerMissile&>(m);
+        auto& su = static_cast<eServerUnit&>(u);
+        if(sm.fHitAction) sm.fHitAction(su);
+    };
+
+    mMIncrementer.initialize(obsticle,
+                             removeMissile,
+                             getUnit,
+                             hitAction);
+}
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
@@ -126,60 +154,7 @@ void eServerArea::increment(const float by) {
     }
 
     for(const auto& m : mMissiles) {
-        const auto oldPos = m->fPos;
-        eMissileIncrement::increment(*m, by);
-        const auto newPos = m->fPos;
-        if(m->fRemDistTime <= 0.0001f) {
-            removeMissile(m);
-            continue;
-        }
-        const auto ipos = newPos.floor();
-        const bool obsticle = !mMap->walkable(ipos.fX, ipos.fY);
-        if(obsticle) {
-            mMissiles.remove(m->fId);
-            continue;
-        }
-
-        // Compute AABB of the travel segment, expanded by max
-        // possible collision radius to cover all candidate units
-        const float maxRadius = m->fRadius + 1.f;
-        const float aabbMinX = std::min(oldPos.fX, newPos.fX) - maxRadius;
-        const float aabbMaxX = std::max(oldPos.fX, newPos.fX) + maxRadius;
-        const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
-        const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
-
-        // Determine which unit areas overlap this AABB
-        const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
-        const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
-
-        eMissileCollision::eResult collResult;
-
-        for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
-            for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-                const eUnitArea area{ax, ay};
-                const auto& units = mUnitAreas.at(area);
-                for(const int charId : units) {
-                    const auto u = mUnits.get(charId);
-                    if(!u) continue;
-                    eMissileCollision::test(oldPos, newPos,
-                                            *u, *m, collResult);
-                    if(m->fContinuousDamage && collResult.fHit) {
-                        const auto hitUnit = mUnits.get(collResult.fCharId);
-                        if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
-                    }
-                }
-            }
-        }
-
-        if(!m->fContinuousDamage && collResult.fHit) {
-            const auto hitUnit = mUnits.get(collResult.fCharId);
-            if(hitUnit && m->fHitAction) m->fHitAction(*hitUnit);
-            m->fPierced.emplace(collResult.fCharId);
-            if(m->fToPierce == 0) continue;
-            if(--m->fToPierce == 0) {
-                mMissiles.remove(m->fId);
-            }
-        }
+        mMIncrementer.increment(*m, by);
     }
 
     mTime += by;
@@ -451,10 +426,6 @@ eServerArea::missileData(const int clientId) {
 
 void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
     mMissiles.add(m->fId, m);
-}
-
-void eServerArea::removeMissile(const std::shared_ptr<eServerMissile>& m) {
-    mMissiles.remove(m->fId);
 }
 
 std::shared_ptr<eServerUnit>

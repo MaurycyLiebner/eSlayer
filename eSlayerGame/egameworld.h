@@ -3,8 +3,9 @@
 
 #include "units/eunit.h"
 
-#include <eSlayerHelpers/eunitdata.h>
+#include <eSlayerMissiles/emissileincrementer.h>
 
+#include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/eunitareas.h>
@@ -21,7 +22,7 @@ struct eExtendedMissile : public eMissile {
 
 class eGameWorld {
 public:
-    eGameWorld();
+    eGameWorld(const std::shared_ptr<eMap>& map);
 
     struct eProcessResult {
         bool fReceived = false;
@@ -40,9 +41,7 @@ public:
         eMainCharAction& mainAct,
         SDL_Renderer* const r);
 
-    void simulateMissiles(
-        const float by,
-        const std::shared_ptr<eMap>& map);
+    void simulateMissiles(const float by);
 
     eIdMapVector<eUnit>& units() { return mUnits; }
     const eIdMapVector<eUnit>& units() const { return mUnits; }
@@ -57,10 +56,12 @@ public:
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 private:
+    const std::shared_ptr<eMap>& mMap;
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
     eIdMapVector<eGroundItem> mGroundItems;
     eUnitAreas mUnitAreas;
+    eMissileIncrementer mMIncrementer;
 };
 
 #endif // EGAMEWORLD_H

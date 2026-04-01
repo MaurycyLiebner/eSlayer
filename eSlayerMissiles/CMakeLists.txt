@@ -15,6 +15,8 @@ add_library(eSlayerMissiles SHARED
     include/eSlayerMissiles/eslayermissilesexport.h
     include/eSlayerMissiles/emissileincrement.h src/emissileincrement.cpp
     include/eSlayerMissiles/emissilecollision.h src/emissilecollision.cpp
+    include/eSlayerMissiles/emissileincrementer.h
+    src/emissileincrementer.cpp
 )
 
 target_include_directories(eSlayerMissiles

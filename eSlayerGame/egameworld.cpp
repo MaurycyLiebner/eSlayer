@@ -9,6 +9,30 @@
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
+eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
+    mMap(map),
+    mUnitAreas(1),
+    mMIncrementer(mUnitAreas) {
+    const auto obsticle = [this](const ePointF& pos) {
+        const auto ipos = pos.floor();
+        return !mMap->walkable(ipos.fX, ipos.fY);
+    };
+
+    const auto removeMissile = [this](const eMissile& m) {
+        mMissiles.remove(m.fId);
+    };
+
+    const auto getUnit = [this](const int charId) {
+        const auto u = mUnits.get(charId);
+        return static_cast<eUnitData*>(u.get());
+    };
+
+    mMIncrementer.initialize(obsticle,
+                             removeMissile,
+                             getUnit,
+                             nullptr);
+}
+
 eGameWorld::eProcessResult eGameWorld::processServerData(
     const int clientId,
     eServer& server,
@@ -125,59 +149,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     return result;
 }
 
-eGameWorld::eGameWorld() :
-    mUnitAreas(1) {}
-
-void eGameWorld::simulateMissiles(const float by, const std::shared_ptr<eMap>& map) {
+void eGameWorld::simulateMissiles(const float by) {
     for(const auto& m : mMissiles) {
         const auto oldPos = m->fPos;
-        eMissileIncrement::increment(*m, by);
-        const auto newPos = m->fPos;
+        const bool r = mMIncrementer.increment(*m, by);
+        if(r) continue;
+        const auto& newPos = m->fPos;
         const auto dir = ePointF::vector(oldPos, newPos);
         m->fAngle = dir.angle();
-        if(m->fRemDistTime <= 0.0001f) {
-            mMissiles.remove(m->fId);
-        } else {
-            const auto ipos = m->fPos.floor();
-            const bool obsticle = !map->walkable(ipos.fX, ipos.fY);
-            if(obsticle) {
-                mMissiles.remove(m->fId);
-            } else {
-                // Compute AABB of the travel segment, expanded by max
-                // possible collision radius to cover all candidate units
-                const float maxRadius = m->fRadius + 1.f;
-                const float aabbMinX = std::min(oldPos.fX, newPos.fX) - maxRadius;
-                const float aabbMaxX = std::max(oldPos.fX, newPos.fX) + maxRadius;
-                const float aabbMinY = std::min(oldPos.fY, newPos.fY) - maxRadius;
-                const float aabbMaxY = std::max(oldPos.fY, newPos.fY) + maxRadius;
-
-                // Determine which unit areas overlap this AABB
-                const auto areaMin = mUnitAreas.posArea(ePointF{aabbMinX, aabbMinY});
-                const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
-
-                eMissileCollision::eResult collResult;
-
-                for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
-                    for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-                        const eUnitArea area{ax, ay};
-                        const auto& units = mUnitAreas.at(area);
-                        for(const int charId : units) {
-                            const auto u = mUnits.get(charId);
-                            if(!u) continue;
-                            eMissileCollision::test(oldPos, newPos,
-                                                    *u, *m, collResult);
-                        }
-                    }
-                }
-
-                if(collResult.fHit) {
-                    m->fPierced.emplace(collResult.fCharId);
-                    if(m->fToPierce == 0) continue;
-                    if(--m->fToPierce == 0) {
-                        mMissiles.remove(m->fId);
-                    }
-                }
-            }
-        }
     }
 }

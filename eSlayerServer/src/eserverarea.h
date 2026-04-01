@@ -4,14 +4,16 @@
 #include "eserverunit.h"
 #include "eservermissile.h"
 
-#include <eSlayerHelpers/eunitdynamicdata.h>
+#include <eSlayerMissiles/emissileincrementer.h>
 
-#include <eSlayerMapGenerator/emapgenerator.h>
+#include <eSlayerHelpers/eunitdynamicdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/eunitarea.h>
 #include <eSlayerHelpers/eunitareas.h>
 #include <eSlayerHelpers/escreendimensions.h>
+
+#include <eSlayerMapGenerator/emapgenerator.h>
 
 #include <memory>
 #include <map>
@@ -70,7 +72,6 @@ public:
     void rearrangeItems(const int clientId, const eEquipment& eq);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
-    void removeMissile(const std::shared_ptr<eServerMissile>& m);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
@@ -99,6 +100,8 @@ private:
     eUnitAreas mItemTiles;
 
     std::map<int, eClientData> mClientData;
+
+    eMissileIncrementer mMIncrementer;
 };
 
 #endif // ESERVERAREA_H

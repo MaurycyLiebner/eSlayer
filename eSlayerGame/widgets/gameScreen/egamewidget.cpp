@@ -21,6 +21,7 @@ eGameWidget* eGameWidget::sInstance = nullptr;
 
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
+    mWorld(mMap),
     mInput(resolution().tileWidth(),
            resolution().tileHeight()),
     mGamePainter(renderer()) {
@@ -205,7 +206,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     mServer->changeState(mClientId, *mMainChar);
 
-    mWorld.simulateMissiles(by, mMap);
+    mWorld.simulateMissiles(by);
 
     const auto& mpos = mInput.mousePos();
     if(!mMenuVisible) {

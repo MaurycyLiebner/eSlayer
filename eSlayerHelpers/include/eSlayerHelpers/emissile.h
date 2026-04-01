@@ -22,6 +22,8 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     bool fContinuousDamage;
     float fRemDistTime;
     float fRadius;
+    float fEnemyFindRange = 0.f;
+    ePointF fEnemyPos;
     float fTime = 0.f;
 
     std::set<int32_t> fPierced;
