@@ -58,7 +58,7 @@ add_library(eSlayerHelpers SHARED
     src/emovementhandler.cpp
     include/eSlayerHelpers/emovementgoal.h
     src/emovementgoal.cpp
-    include/eSlayerHelpers/eidpointf.h
+
     include/eSlayerHelpers/eexceptions.h src/eexceptions.cpp
     include/eSlayerHelpers/eunitdata.h
     src/eunitdata.cpp
