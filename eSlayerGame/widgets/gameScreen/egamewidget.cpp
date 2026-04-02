@@ -306,6 +306,15 @@ void eGameWidget::paintEvent(ePainter& p) {
                                         std::static_pointer_cast<ePositioned>(m)});
         }
 
+        const auto typePriority = [](const eRenderElementType t) {
+            switch(t) {
+            case eRenderElementType::item:    return 0;
+            case eRenderElementType::unit:    return 1;
+            case eRenderElementType::missile: return 2;
+            }
+            return 0;
+        };
+
         std::sort(renderElements.begin(), renderElements.end(),
                   [&](const eRenderElement& e1,
                       const eRenderElement& e2) {
@@ -330,7 +339,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto pd1 = tilePosToPixel(p1);
             const auto pd2 = tilePosToPixel(p2);
             if(pd1.fY != pd2.fY) return pd1.fY < pd2.fY;
-            return pd1.fX < pd2.fX;
+            if(pd1.fX != pd2.fX) return pd1.fX < pd2.fX;
+            return typePriority(e1.fType) < typePriority(e2.fType);
         });
 
         int nextElement = 0;
