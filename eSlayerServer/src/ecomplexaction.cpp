@@ -121,9 +121,10 @@ bool eComplexAction::meeleAttack(
     const eWeaponChoice wchoice) {
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
-    const float attackDist = 0.5f*(mUnit.fRadius + u.fRadius) +
-                             mUnit.weaponMeeleRange();
-    if(dist > attackDist) return false;
+    const auto& stats = u.stats();
+    const float attackRange = 1.01f*stats.attackRange(
+        schoice, mUnit.fRadius, u.fRadius);
+    if(dist > attackRange) return false;
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
     const int targetId = u.fCharId;

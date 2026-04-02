@@ -782,7 +782,7 @@ float eStats::attackRange(const int schoice,
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const float meeleDist = fWeaponMeeleRange +
-                            0.5f*(unit1Radius + unit2Radius);
+                            0.75f*(unit1Radius + unit2Radius);
     if(skill.fType == eSkillType::attack) {
         if(fWeaponTypeL == eWeaponType::meele ||
            fWeaponTypeL == eWeaponType::throwable ||
