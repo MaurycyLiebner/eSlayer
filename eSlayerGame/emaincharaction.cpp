@@ -137,6 +137,10 @@ void eMainCharAction::increment(const bool mousePressed,
     handleMovement(mousePressed, targetPos, by, model);
 }
 
+void eMainCharAction::mousePress() {
+    stop();
+}
+
 void eMainCharAction::handleAttackStop(
     const bool mousePressed,
     const bool rightPressed,

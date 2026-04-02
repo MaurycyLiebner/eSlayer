@@ -35,6 +35,7 @@ public:
                    const ePointF& mousePos,
                    const float by);
 
+    void mousePress();
     void mouseRelease(const ePointF& mousePos);
     void stop();
     void stand();
@@ -93,9 +94,12 @@ private:
 
     int mClientId;
     std::shared_ptr<eServer> mServer;
+
     std::shared_ptr<eUnit> mPressedUnit;
+
     bool mItemPickuped = false;
     std::shared_ptr<eGroundItem> mPressedItem;
+
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;

@@ -468,6 +468,7 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
     const bool rightPressed = static_cast<bool>(
         button & eMouseButton::right);
     if(leftPressed || rightPressed) {
+        mMainAction.mousePress();
         if(e.altPreseed()) {
             uint32_t itemId;
             const bool r = mItemNames.at({e.x(), e.y()}, itemId);
