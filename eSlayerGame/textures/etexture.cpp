@@ -15,6 +15,17 @@ void eTexture::reset() {
     mHeight = 0;
 }
 
+std::shared_ptr<eTexture>
+eTexture::scaled(SDL_Renderer* const r,
+                 const int width, const int height) {
+    const auto result = std::make_shared<eTexture>();
+    result->create(r, width, height);
+    const auto holder = result->createTargetHolder(r);
+    render(r, SDL_Rect{0, 0, mWidth, mHeight},
+           SDL_Rect{0, 0, width, height});
+    return result;
+}
+
 bool eTexture::create(SDL_Renderer* const r,
                       const int width, const int height,
                       const SDL_Color& col) {

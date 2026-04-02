@@ -1,6 +1,7 @@
 #include "euitextures.h"
 
 #include "../efileloader.h"
+#include "../textures/etexture.h"
 
 #include <eSlayerHelpers/eskills.h>
 
@@ -25,7 +26,7 @@ void eUITextures::sLoad(SDL_Renderer* const r) {
 
     for(const auto& name : names) {
         const auto tex = eFileLoader::readTexture(r, dir, "ui/skills/" + name + ".png");
-        sSkillIcons.add(name, tex);
+        sSkillIcons.add(name, tex->scaled(r, 100, 100));
     }
 
     for(const auto& it : eSkills::sSkills) {

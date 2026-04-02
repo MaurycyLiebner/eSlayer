@@ -40,6 +40,10 @@ public:
     ~eTexture();
 
     void reset();
+    std::shared_ptr<eTexture> scaled(
+        SDL_Renderer* const r,
+        const int width,
+        const int height);
     bool create(SDL_Renderer* const r,
                 const int width, const int height,
                 const SDL_Color& col = {0, 0, 0, 0});
