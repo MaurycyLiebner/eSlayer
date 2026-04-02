@@ -121,7 +121,7 @@ bool eComplexAction::meeleAttack(
     const eWeaponChoice wchoice) {
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
-    const auto& stats = u.stats();
+    const auto& stats = mUnit.stats();
     const float attackRange = 1.01f*stats.attackRange(
         schoice, mUnit.fRadius, u.fRadius);
     if(dist > attackRange) return false;

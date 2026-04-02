@@ -4,6 +4,7 @@
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/erunsettings.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
@@ -30,66 +31,30 @@ void gCalculateWeaponDmg(const eItem& weapon,
     max = baseMax*(1.f + percentIncMax);
 }
 
-int gWeaponMissile(const eWeaponSubtype subtype) {
-    return 0;
-}
-
-bool gWeaponIsRanged(const eWeaponSubtype subtype) {
+bool gWeaponIsRanged(const eWeaponType subtype) {
     switch(subtype) {
-    case eWeaponSubtype::sword:
-    case eWeaponSubtype::longSword:
-    case eWeaponSubtype::pike:
+    case eWeaponType::none:
+    case eWeaponType::meele:
+    case eWeaponType::shield:
         return false;
-    case eWeaponSubtype::bow:
-    case eWeaponSubtype::throwingAxe:
+    case eWeaponType::ranged:
+    case eWeaponType::throwable:
         return true;
     }
     return false;
 }
 
-bool gWeaponIsMeele(const eWeaponSubtype subtype) {
+bool gWeaponIsMeele(const eWeaponType subtype) {
     switch(subtype) {
-    case eWeaponSubtype::sword:
-    case eWeaponSubtype::longSword:
-    case eWeaponSubtype::pike:
-    case eWeaponSubtype::throwingAxe:
+    case eWeaponType::none:
+    case eWeaponType::meele:
+    case eWeaponType::shield:
+    case eWeaponType::throwable:
         return true;
-    case eWeaponSubtype::bow:
+    case eWeaponType::ranged:
         return false;
     }
     return false;
-}
-
-float gWeaponRangedRange(const eWeaponSubtype subtype) {
-    switch(subtype) {
-    case eWeaponSubtype::sword:
-        return 0.f;
-    case eWeaponSubtype::longSword:
-        return 0.f;
-    case eWeaponSubtype::pike:
-        return 0.f;
-    case eWeaponSubtype::bow:
-        return 8.f;
-    case eWeaponSubtype::throwingAxe:
-        return 4.f;
-    }
-    return 0.f;
-}
-
-float gWeaponMeeleRange(const eWeaponSubtype subtype) {
-    switch(subtype) {
-    case eWeaponSubtype::sword:
-        return 0.f;
-    case eWeaponSubtype::longSword:
-        return 0.2f;
-    case eWeaponSubtype::pike:
-        return 0.4f;
-    case eWeaponSubtype::bow:
-        return 0.f;
-    case eWeaponSubtype::throwingAxe:
-        return 0.f;
-    }
-    return 0.f;
 }
 
 enum class eModifierSource {
@@ -282,17 +247,7 @@ const eSkillStats& eStats::skill(const eSkillChoice schoice) const {
 
 eWeaponType gWeaponType(const eItem& item) {
     if(item.fType == eItemType::weapon) {
-        const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
-        switch(subtype) {
-        case eWeaponSubtype::bow:
-            return eWeaponType::ranged;
-        case eWeaponSubtype::throwingAxe:
-            return eWeaponType::throwable;
-        case eWeaponSubtype::longSword:
-        case eWeaponSubtype::pike:
-        case eWeaponSubtype::sword:
-            return eWeaponType::meele;
-        }
+        return static_cast<eWeaponType>(item.fSubType);
     } else if(item.fType == eItemType::shield) {
         return eWeaponType::shield;
     }
@@ -314,16 +269,16 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     int meeleRangeDiv = 0;
     fWeaponRangedRange = 10000.f;
     const auto handleWeapon = [&](const eItem& w) {
-        const auto subtype = static_cast<eWeaponSubtype>(w.fSubType);
+        const auto subtype = static_cast<eWeaponType>(w.fSubType);
         const bool r = gWeaponIsRanged(subtype);
+        const auto& itemData = eItemsData::get(w.fDataId);
+        const float range = itemData.fRange;
         if(r) {
-            const float range = gWeaponRangedRange(subtype);
             fWeaponRangedRange = std::min(range, fWeaponRangedRange);
         }
         const bool m = gWeaponIsMeele(subtype);
         if(m) {
             meeleRangeDiv++;
-            const float range = gWeaponMeeleRange(subtype);
             fWeaponMeeleRange += range;
         }
     };
@@ -510,10 +465,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
            skill.fType == eSkillType::throw_ ||
            skill.fType == eSkillType::attack) {
             if(skill.fMissileId == -1) {
-                const auto lSubtype = static_cast<eWeaponSubtype>(leftW.fSubType);
-                stats.fMissileIdLW = gWeaponMissile(lSubtype);
-                const auto rSubtype = static_cast<eWeaponSubtype>(leftW.fSubType);
-                stats.fMissileIdRW = gWeaponMissile(rSubtype);
+                const auto& itemDataL = eItemsData::get(leftW.fDataId);
+                stats.fMissileIdLW = itemDataL.fMissileId;
+                const auto& itemDataR = eItemsData::get(rightW.fDataId);
+                stats.fMissileIdRW = itemDataR.fMissileId;
             } else {
                 stats.fMissileIdLW = skill.fMissileId;
                 stats.fMissileIdRW = skill.fMissileId;
@@ -784,7 +739,8 @@ float eStats::attackRange(const int schoice,
     const float meeleDist = fWeaponMeeleRange +
                             0.75f*(unit1Radius + unit2Radius);
     if(skill.fType == eSkillType::attack) {
-        if(fWeaponTypeL == eWeaponType::meele ||
+        if(fWeaponTypeL == eWeaponType::none ||
+           fWeaponTypeL == eWeaponType::meele ||
            fWeaponTypeL == eWeaponType::throwable ||
            fWeaponTypeR == eWeaponType::meele ||
            fWeaponTypeR == eWeaponType::throwable) {
@@ -793,7 +749,7 @@ float eStats::attackRange(const int schoice,
             return fWeaponRangedRange;
         }
     } else if(skill.fType == eSkillType::smite ||
-               skill.fType == eSkillType::kick) {
+              skill.fType == eSkillType::kick) {
         return meeleDist;
     }else if(skill.fType == eSkillType::missile ||
                skill.fType == eSkillType::wall) {

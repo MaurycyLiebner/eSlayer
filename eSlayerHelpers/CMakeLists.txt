@@ -122,6 +122,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eitemrarity.h
     src/eitemrarity.cpp
     src/eitemdata.cpp
+    src/eweapontype.cpp
 
 
 )

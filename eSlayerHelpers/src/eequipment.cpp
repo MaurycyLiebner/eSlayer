@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/eweapontype.h"
 
 void eInventoryItem::read(ePacket& p) {
@@ -116,7 +117,8 @@ bool eEquipment::add(const eItem& item) {
 }
 
 bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
-    eItemType type = eItemType::none;;
+    eItemType type = eItemType::none;
+    const auto& itemData = eItemsData::get(item.fDataId);
     if(&dst == &fBoots) {
         type = eItemType::boots;
     } else if(&dst == &fGloves) {
@@ -134,120 +136,40 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
     } else {
         if(&dst == &fWeapon1L || &dst == &fWeapon2L) {
             if(item.fType != eItemType::weapon) return false;
-            const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
-            if(subtype == eWeaponSubtype::bow) {
-                if(&dst == &fWeapon1L) {
-                    return fWeapon1R.fType == eItemType::none ||
-                           fWeapon1R.fType == eItemType::arrows;
-                } else { // if(&dst == &fWeapon2L) {
-                    return fWeapon2R.fType == eItemType::none ||
-                           fWeapon2R.fType == eItemType::arrows;
-                }
-            } else if(subtype == eWeaponSubtype::pike) {
-                if(&dst == &fWeapon1L) {
-                    return fWeapon1R.fType == eItemType::none;
-                } else { // if(&dst == &fWeapon2L) {
-                    return fWeapon2R.fType == eItemType::none;
-                }
-            } else {
-                if(&dst == &fWeapon1L) {
-                    return fWeapon1R.fType == eItemType::weapon ||
-                           fWeapon1R.fType == eItemType::none;
-                } else { // if(&dst == &fWeapon2L) {
-                    return fWeapon2R.fType == eItemType::weapon ||
-                           fWeapon2R.fType == eItemType::none;
-                }
+            if(itemData.fTwoHanded) {
+                const auto& otherType = &dst == &fWeapon1L ?
+                    fWeapon1R.fType : fWeapon2R.fType;
+                return eVectorHelpers::contains(
+                    itemData.fSecondHand, otherType);
             }
         } else if(&dst == &fWeapon1R || &dst == &fWeapon2R) {
             if(item.fType == eItemType::weapon) {
-                const auto subtype = static_cast<eWeaponSubtype>(item.fSubType);
-                if(subtype == eWeaponSubtype::bow) {
-                    return false;
-                } else if(subtype == eWeaponSubtype::pike) {
-                    return false;
-                } else {
-                    if(&dst == &fWeapon1R) {
-                        if(fWeapon1L.fType == eItemType::weapon) {
-                            const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
-                            switch(subtypeL) {
-                            case eWeaponSubtype::bow:
-                            case eWeaponSubtype::pike:
-                                return false;
-                            default:
-                                return true;
-                            }
-                        } else {
-                            return true;
-                        }
-                    } else { // if(&dst == &fWeapon2R) {
-                        if(fWeapon2L.fType == eItemType::weapon) {
-                            const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
-                            switch(subtypeL) {
-                            case eWeaponSubtype::bow:
-                            case eWeaponSubtype::pike:
-                                return false;
-                            default:
-                                return true;
-                            }
-                        } else {
-                            return true;
-                        }
-                    }
-                }
+                if(itemData.fTwoHanded) return false;
+                const auto& other = &dst == &fWeapon1R ?
+                    fWeapon1L : fWeapon2L;
+                const int itemDataIDL = other.fDataId;
+                const auto& itemDataL = eItemsData::get(itemDataIDL);
+                return !itemDataL.fTwoHanded;
             } else if(item.fType == eItemType::shield) {
-                if(&dst == &fWeapon1R) {
-                    if(fWeapon1L.fType == eItemType::weapon) {
-                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
-                        switch(subtypeL) {
-                        case eWeaponSubtype::bow:
-                        case eWeaponSubtype::pike:
-                            return false;
-                        default:
-                            return true;
-                        }
-                    } else {
-                        return true;
-                    }
-                } else { // if(&dst == &fWeapon2R) {
-                    if(fWeapon2L.fType == eItemType::weapon) {
-                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
-                        switch(subtypeL) {
-                        case eWeaponSubtype::bow:
-                        case eWeaponSubtype::pike:
-                            return false;
-                        default:
-                            return true;
-                        }
-                    } else {
-                        return true;
-                    }
-                }
+                const auto& other = &dst == &fWeapon1R ?
+                    fWeapon1L : fWeapon2L;
+                const int itemDataIDL = other.fDataId;
+                const auto& itemDataL = eItemsData::get(itemDataIDL);
+                return !itemDataL.fTwoHanded;
             } else if(item.fType == eItemType::arrows) {
-                if(&dst == &fWeapon1R) {
-                    if(fWeapon1L.fType == eItemType::weapon) {
-                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon1L.fSubType);
-                        switch(subtypeL) {
-                        case eWeaponSubtype::bow:
-                            return true;
-                        default:
-                            return false;
-                        }
-                    } else {
-                        return true;
-                    }
-                } else { // if(&dst == &fWeapon2R) {
-                    if(fWeapon2L.fType == eItemType::weapon) {
-                        const auto subtypeL = static_cast<eWeaponSubtype>(fWeapon2L.fSubType);
-                        switch(subtypeL) {
-                        case eWeaponSubtype::bow:
-                            return true;
-                        default:
-                            return false;
-                        }
-                    } else {
-                        return true;
-                    }
-                }
+                const auto& other = &dst == &fWeapon1R ?
+                    fWeapon1L : fWeapon2L;
+                const int itemDataIDL = other.fDataId;
+                const auto& itemDataL = eItemsData::get(itemDataIDL);
+                return eVectorHelpers::contains(
+                    itemDataL.fSecondHand, eItemType::arrows);
+            } else if(item.fType == eItemType::bolts) {
+                const auto& other = &dst == &fWeapon1R ?
+                    fWeapon1L : fWeapon2L;
+                const int itemDataIDL = other.fDataId;
+                const auto& itemDataL = eItemsData::get(itemDataIDL);
+                return eVectorHelpers::contains(
+                    itemDataL.fSecondHand, eItemType::bolts);
             }
         }
         return false;

@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eexceptions.h"
+#include "eSlayerHelpers/eweapontype.h"
 
 // #include <fstream>
 
@@ -70,6 +71,12 @@ void eItemsData::loadImpl(const std::string& name,
 
     eItemData itemData;
     itemData.fType = type;
+    if(type == eItemType::weapon) {
+        const std::string subtypeStr = jdata.value("subtype", "meele");
+        const auto weaponType = eWeaponTypeHelpers::type(subtypeStr);
+        itemData.fSubtype = static_cast<uint8_t>(weaponType);
+    }
+    itemData.fRange = jdata.value("range", 0.f);
     itemData.fLevelReq = jdata.value("levelReq", 1);
     itemData.fStrengthReq = jdata.value("strReq", 0);
     itemData.fDexterityReq = jdata.value("dexReq", 0);

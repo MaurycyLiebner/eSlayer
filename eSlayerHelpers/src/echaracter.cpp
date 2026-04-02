@@ -45,6 +45,7 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     item.fDataId = dataId;
     const auto& itemData = eItemsData::get(dataId);
     item.fType = itemData.fType;
+    item.fSubType = itemData.fSubtype;
 
     item.fSockets = itemE->IntAttribute("sockets");
 
@@ -234,8 +235,7 @@ bool eCharacter::load(const std::string& path,
     // c.mEquipment.add(armor);
 
     // const uint8_t swordId = eItemsData::id("short_sword");
-    // eItem sword{uint8_t(itemId++), swordId, eItemType::weapon,
-    //             static_cast<uint8_t>(eWeaponSubtype::sword)};
+    // eItem sword{uint8_t(itemId++), swordId, eItemType::weapon};
     // sword.fValue1 = 5.f;
     // sword.fValue2 = 10.f;
     // {
@@ -257,8 +257,7 @@ bool eCharacter::load(const std::string& path,
     // c.mEquipment.add(sword);
 
     // const uint8_t bowId = eItemsData::id("long_war_bow");
-    // eItem bow{uint8_t(itemId++), bowId, eItemType::weapon,
-    //           static_cast<uint8_t>(eWeaponSubtype::bow)};
+    // eItem bow{uint8_t(itemId++), bowId, eItemType::weapon};
     // bow.fValue1 = 5.f;
     // bow.fValue2 = 10.f;
     // {

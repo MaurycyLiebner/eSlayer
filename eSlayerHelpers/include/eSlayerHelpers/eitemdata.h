@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 enum class eItemType : uint8_t {
     none,
@@ -17,7 +18,8 @@ enum class eItemType : uint8_t {
     amulet,
     weapon,
     shield,
-    arrows
+    arrows,
+    bolts
 };
 
 namespace eItemTypeHelpers {
@@ -29,7 +31,11 @@ namespace eItemTypeHelpers {
 
 struct eItemData {
     eItemType fType = eItemType::none;
-    uint8_t fSubType = 0;
+    uint8_t fSubtype = 0;
+    bool fTwoHanded = false;
+    std::vector<eItemType> fSecondHand;
+    float fRange = 0.f;
+    int fMissileId = 0;
 
     uint8_t fWidth;
     uint8_t fHeight;
