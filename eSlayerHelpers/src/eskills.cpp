@@ -26,7 +26,7 @@ void eSkills::load() {
         skill.fIcon = jdata["icon"];
 
         skill.fPath = jdata.value("path", "linear");
-        skill.fMissile = jdata.value("missile", "none");
+        skill.fMissileStr = jdata.value("missile", "none");
         skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
         int nMissiles = jdata.value("missiles", 1);
         skill.fRadius = jdata.value("radius", 0.5f);

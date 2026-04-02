@@ -11,19 +11,13 @@ public:
     static int id(const std::string& name);
     static std::string name(const int id);
     static void load();
+
+    static eStringIdMapVector<eItemData> sItems;
 private:
-    void loadImpl();
-    void loadImpl(const std::string& name,
-                  const eItemType type);
-    eItemData& getImpl(const std::string& name);
-    eItemData& getImpl(const int id);
-    int idImpl(const std::string& name) const;
-    std::string nameImpl(const int id) const;
+    static void load(const std::string& name,
+                     const eItemType type);
 
-    static eItemsData sInstance;
-
-    bool mLoaded = false;
-    eStringIdMapVector<eItemData> mItems;
+    static bool sLoaded;
 };
 
 #endif // EITEMSDATA_H

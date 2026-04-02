@@ -26,7 +26,7 @@ struct eSkill {
 
     std::string fIcon;
     int fIconId;
-    std::string fMissile;
+    std::string fMissileStr;
     int fMissileId;
     std::string fPath;
     int fPathId;

@@ -35,7 +35,11 @@ struct eItemData {
     bool fTwoHanded = false;
     std::vector<eItemType> fSecondHand;
     float fRange = 0.f;
-    int fMissileId = 0;
+
+    std::string fMissileStr;
+    int fMissileId = -1;
+    float fMissileSpeed = 0.f;
+    float fMissileRadius = 0.f;
 
     uint8_t fWidth;
     uint8_t fHeight;

@@ -4,6 +4,7 @@
 #include "espriteloader.h"
 
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/eitemsdata.h>
 
 eStringIdMapVector<eMissileTextures>
 eMissilesTextures::sMissiles;
@@ -65,7 +66,7 @@ void eMissilesTextures::loadData() {
         const auto pathBase = "missiles/" + name;
         const auto jdata = eFileLoader::parse(dir, "missiles/" + name + ".json");
         const int dirs = jdata["directions"];
-        const float lighting = jdata.value("lighting", 0);
+        const float lighting = jdata.value("lighting", 0.f);
         const auto& anims = jdata["animations"];
         eMissileTextures texs;
         texs.setLighting(lighting);
@@ -82,7 +83,12 @@ void eMissilesTextures::loadData() {
 
     for(const auto& it : eSkills::sSkills) {
         auto& skill = it.fValue;
-        skill.fMissileId = sMissiles.id(skill.fMissile);
+        skill.fMissileId = sMissiles.id(skill.fMissileStr);
+    }
+
+    for(const auto& it : eItemsData::sItems) {
+        auto& item = it.fValue;
+        item.fMissileId = sMissiles.id(item.fMissileStr);
     }
 }
 
