@@ -29,6 +29,7 @@ public:
     const ePointF& pos() const { return mPos; }
     void setPos(const ePointF& pos) { mPos = pos; }
     float angle() const { return mAngle; }
+    float speed() const { return mSpeed; }
     void setSpeed(const float s) { mSpeed = s; }
     void setRadius(const float r);
     void setMoveRandom(const float r) { mMoveRandom = r; }

@@ -258,10 +258,13 @@ void eMainCharAction::updateMovementAnimation(
     const bool aggressive = model.aggressive();
     int animId;
 
+    float speed = 1.f;
+
     if(moved) {
         mMainChar->fPos = mMovementHandler.pos();
 
         const float angle = mMovementHandler.angle();
+        speed = 0.5f*(1.f + mStats.fWalkRun);
         mMainChar->fAngle = angle;
         model.setAngle(angle);
 
@@ -283,8 +286,8 @@ void eMainCharAction::updateMovementAnimation(
     }
 
     mMainChar->fAnim = animId;
-    mMainChar->fAnimSpeed = 1.f;
-    model.setAnimation(animId, 1.f);
+    mMainChar->fAnimSpeed = speed;
+    model.setAnimation(animId, speed);
 }
 
 void eMainCharAction::stopAttack() {
@@ -300,8 +303,9 @@ void eMainCharAction::recalculateStats() {
 
 void eMainCharAction::updateWalkRunSpeed() {
     const bool run = shouldRun();
-    const float base = run ? 0.1f : 0.075f;
-    mMovementHandler.setSpeed(base*(1.f + mStats.fWalkRun));
+    const float base = run ? 0.1f : 0.07f;
+    const float speed = base*(1.f + mStats.fWalkRun);
+    mMovementHandler.setSpeed(speed);
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
