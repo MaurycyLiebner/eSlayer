@@ -175,27 +175,28 @@ void eStatsWidget::initialize(const std::string& name,
     const auto innerW = new eWidget(window());
     innerW->setNoPadding();
 
+    const auto topW = new eWidget(window());
+    topW->setNoPadding();
+
     mName = new eStatLabel(window());
-    mName->initialize(300);
+    mName->initialize(200);
     mName->setValues({name});
 
-    const auto expW = new eWidget(window());
-    expW->setNoPadding();
-
     mLevel = new eStatLabel(window());
-    mLevel->initialize(100);
+    mLevel->initialize(50);
 
     mExp = new eStatLabel(window());
-    mExp->initialize(200);
+    mExp->initialize(100);
 
     mNextLevel = new eStatLabel(window());
-    mNextLevel->initialize(200);
+    mNextLevel->initialize(100);
 
-    expW->addWidget(mLevel);
-    expW->addWidget(mExp);
-    expW->addWidget(mNextLevel);
-    expW->stackHorizontally(hp);
-    expW->fitContent();
+    topW->addWidget(mName);
+    topW->addWidget(mLevel);
+    topW->addWidget(mExp);
+    topW->addWidget(mNextLevel);
+    topW->stackHorizontally(hp);
+    topW->fitContent();
 
     const auto strW = new eWidget(window());
     strW->setNoPadding();
@@ -354,8 +355,7 @@ void eStatsWidget::initialize(const std::string& name,
     resStatPointsWidget->stackHorizontally(hp);
     resStatPointsWidget->fitContent();
 
-    innerW->addWidget(mName);
-    innerW->addWidget(expW);
+    innerW->addWidget(topW);
     innerW->addWidget(strW);
     innerW->addWidget(dexW);
     innerW->addWidget(vitW);
