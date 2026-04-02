@@ -22,6 +22,7 @@
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/eattributes.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -239,6 +240,10 @@ int main(int argc, char* argv[]) {
         loadings.emplace_back([&]() {
             eMissilesTextures::loadData();
             eMissileIncrement::initialize();
+        });
+
+        loadings.emplace_back([&]() {
+            eAttributes::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

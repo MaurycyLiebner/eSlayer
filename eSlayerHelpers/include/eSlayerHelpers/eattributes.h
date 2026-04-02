@@ -3,20 +3,28 @@
 
 #include "eslayerhelpersexport.h"
 
+#include <cstdint>
+#include <vector>
+
 class ePacket;
 
 struct ESLAYERHELPERS_API eAttributes {
-    float fLevel = 1.f;
+    uint8_t fLevel = 1;
     float fExp = 0.f;
-    float fStrength = 20.f;
-    float fDexterity = 20.f;
-    float fVitality = 20.f;
-    float fEnergy = 15.f;
+    uint16_t fStrength = 20;
+    uint16_t fDexterity = 20;
+    uint16_t fVitality = 20;
+    uint16_t fEnergy = 15;
 
-    float nextLevelExp() const;
+    uint32_t nextLevelExp() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+
+    static void load();
+private:
+    static uint8_t sMaxLevel;
+    static std::vector<uint32_t> sLevelExperience;
 };
 
 #endif // EATTRIBUTES_H
