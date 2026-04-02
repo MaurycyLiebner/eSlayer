@@ -72,6 +72,7 @@ public:
                     const bool drag);
     bool dropItem(const int clientId, const int itemId);
     void rearrangeItems(const int clientId, const eEquipment& eq);
+    void changeAttributes(const int clientId, const eAttributes& attrs);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
 

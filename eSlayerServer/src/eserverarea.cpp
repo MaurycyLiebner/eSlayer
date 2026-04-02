@@ -413,6 +413,13 @@ void eServerArea::rearrangeItems(
     u->setEquipment(eq);
 }
 
+void eServerArea::changeAttributes(
+    const int clientId, const eAttributes& attrs) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    u->setAttributes(attrs);
+}
+
 std::vector<eMissile>
 eServerArea::missileData(const int clientId) {
     std::vector<eMissile> result;

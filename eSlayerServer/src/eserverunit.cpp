@@ -300,11 +300,11 @@ bool eServerUnit::canUseSkill(
 }
 
 void eServerUnit::killed(const eServerUnit& killed) {
-    mStats.fExperience += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
-    const float nextLevel = mAttributes.nextLevelExp();
-    if(mStats.fExperience > nextLevel) {
-        mStats.fExperience = 0.f;
-        mAttributes.fLevel += 1.f;
+    mAttributes.fExp += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
+    const auto nextLevel = mAttributes.nextLevelExp();
+    if(nextLevel && mAttributes.fExp > nextLevel) {
+        mAttributes.fExp = 0.f;
+        mAttributes.fLevel++;
     }
 }
 

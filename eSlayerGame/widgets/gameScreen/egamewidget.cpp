@@ -203,7 +203,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 stats.fHealthF = u.fHealth;
                 stats.fManaF = worldResult.fMana;
                 attrs.fLevel = worldResult.fLevel;
-                stats.fExperience = worldResult.fExperience;
+                attrs.fExp = worldResult.fExperience;
             }
             if(u.fHealth <= 0) {
                 if(mDeathHandler) mDeathHandler();

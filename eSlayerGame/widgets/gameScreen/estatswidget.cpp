@@ -3,13 +3,44 @@
 #include "../../elanguage.h"
 #include "../../names/eskillnames.h"
 #include "../elabel.h"
+#include "../ebuttonbase.h"
+#include "../../emainwindow.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/eattributes.h>
 
 #include <iostream>
 #include <sstream>
 #include <cmath>
+
+class eAttrIncButton : public eButtonBase {
+public:
+    eAttrIncButton(eMainWindow * const window) :
+        eButtonBase(window) {
+        setFontColor(eFontColor::white);
+        setText("+");
+        setNoPadding();
+        setHugeFontSize();
+        const auto& res = resolution();
+        const auto mult = res.multiplier();
+        const int dim = 35*mult;
+        resize(dim, dim);
+    }
+
+    void paintEvent(ePainter& p) {
+        if(enabled()) {
+            setFontColor(eFontColor::white);
+            if(hovered()) {
+                const SDL_Color white{255, 255, 255, 255};
+                p.drawRect(rect(), white, lineWidth());
+            }
+        } else {
+            setFontColor(eFontColor::gray);
+        }
+        return eButtonBase::paintEvent(p);
+    }
+};
 
 class eStatLabel : public eWidget {
 public:
@@ -129,8 +160,13 @@ private:
     std::vector<eStatLabel*> mValues;
 };
 
-void eStatsWidget::initialize(const eStats* const stats) {
-    mStats = stats;
+void eStatsWidget::initialize(const std::string& name,
+                              eStats& stats,
+                              const eEquipment& eq,
+                              eAttributes& attrs) {
+    mStats = &stats;
+    mEq = &eq;
+    mAttrs = &attrs;
 
     const auto& res = resolution();
     const int hp = res.largePadding();
@@ -139,11 +175,51 @@ void eStatsWidget::initialize(const eStats* const stats) {
     const auto innerW = new eWidget(window());
     innerW->setNoPadding();
 
+    mName = new eStatLabel(window());
+    mName->initialize(300);
+    mName->setValues({name});
+
+    const auto expW = new eWidget(window());
+    expW->setNoPadding();
+
+    mLevel = new eStatLabel(window());
+    mLevel->initialize(100);
+
+    mExp = new eStatLabel(window());
+    mExp->initialize(200);
+
+    mNextLevel = new eStatLabel(window());
+    mNextLevel->initialize(200);
+
+    expW->addWidget(mLevel);
+    expW->addWidget(mExp);
+    expW->addWidget(mNextLevel);
+    expW->stackHorizontally(hp);
+    expW->fitContent();
+
     const auto strW = new eWidget(window());
     strW->setNoPadding();
 
     mStrength = new eStatWidget(window());
     mStrength->initialize();
+
+    const auto incAttr = [this](uint16_t eAttributes::*attr) {
+        const auto w = window();
+        uint16_t inc = 1;
+        if(w->shiftPressed()) {
+            inc = 10;
+        }
+        inc = std::clamp(inc, uint16_t(0), mAttrs->fStatPoints);
+        mAttrs->*attr += inc;
+        mAttrs->fStatPoints -= inc;
+
+        mStats->calculate(*mAttrs, *mEq);
+    };
+
+    mStrIncButton = new eAttrIncButton(window());
+    mStrIncButton->setPressAction([incAttr]() {
+        incAttr(&eAttributes::fStrength);
+    });
 
     const auto dmgWidget = new eWidget(window());
     dmgWidget->setNoPadding();
@@ -159,6 +235,7 @@ void eStatsWidget::initialize(const eStats* const stats) {
     dmgWidget->fitContent();
 
     strW->addWidget(mStrength);
+    strW->addWidget(mStrIncButton);
     strW->addWidget(dmgWidget);
     strW->stackHorizontally(hp);
     strW->fitContent();
@@ -168,6 +245,11 @@ void eStatsWidget::initialize(const eStats* const stats) {
 
     mDexterity = new eStatWidget(window());
     mDexterity->initialize();
+
+    mDexIncButton = new eAttrIncButton(window());
+    mDexIncButton->setPressAction([incAttr]() {
+        incAttr(&eAttributes::fDexterity);
+    });
 
     const auto arDefenseWidget = new eWidget(window());
     arDefenseWidget->setNoPadding();
@@ -187,6 +269,7 @@ void eStatsWidget::initialize(const eStats* const stats) {
     arDefenseWidget->fitContent();
 
     dexW->addWidget(mDexterity);
+    dexW->addWidget(mDexIncButton);
     dexW->addWidget(arDefenseWidget);
     dexW->stackHorizontally(hp);
     dexW->fitContent();
@@ -196,6 +279,11 @@ void eStatsWidget::initialize(const eStats* const stats) {
 
     mVitality = new eStatWidget(window());
     mVitality->initialize();
+
+    mVitIncButton = new eAttrIncButton(window());
+    mVitIncButton->setPressAction([incAttr]() {
+        incAttr(&eAttributes::fVitality);
+    });
 
     const auto staminaLifeWidget = new eWidget(window());
     staminaLifeWidget->setNoPadding();
@@ -211,6 +299,7 @@ void eStatsWidget::initialize(const eStats* const stats) {
     staminaLifeWidget->fitContent();
 
     vitW->addWidget(mVitality);
+    vitW->addWidget(mVitIncButton);
     vitW->addWidget(staminaLifeWidget);
     vitW->stackHorizontally(hp);
     vitW->fitContent();
@@ -221,13 +310,22 @@ void eStatsWidget::initialize(const eStats* const stats) {
     mEnergy = new eStatWidget(window());
     mEnergy->initialize();
 
+    mEneIncButton = new eAttrIncButton(window());
+    mEneIncButton->setPressAction([incAttr]() {
+        incAttr(&eAttributes::fEnergy);
+    });
+
     mMana = new eStatWidget(window());
     mMana->initialize(2);
 
     eneW->addWidget(mEnergy);
+    eneW->addWidget(mEneIncButton);
     eneW->addWidget(mMana);
     eneW->stackHorizontally(hp);
     eneW->fitContent();
+
+    const auto resStatPointsWidget = new eWidget(window());
+    resStatPointsWidget->setNoPadding();
 
     const auto resWidget = new eWidget(window());
     resWidget->setNoPadding();
@@ -248,11 +346,21 @@ void eStatsWidget::initialize(const eStats* const stats) {
     resWidget->stackVertically(sp);
     resWidget->fitContent();
 
+    mStatPointsRem = new eStatWidget(window());
+    mStatPointsRem->initialize();
+
+    resStatPointsWidget->addWidget(resWidget);
+    resStatPointsWidget->addWidget(mStatPointsRem);
+    resStatPointsWidget->stackHorizontally(hp);
+    resStatPointsWidget->fitContent();
+
+    innerW->addWidget(mName);
+    innerW->addWidget(expW);
     innerW->addWidget(strW);
     innerW->addWidget(dexW);
     innerW->addWidget(vitW);
     innerW->addWidget(eneW);
-    innerW->addWidget(resWidget);
+    innerW->addWidget(resStatPointsWidget);
 
     innerW->stackVertically(hp);
     innerW->fitContent();
@@ -274,6 +382,13 @@ void eStatsWidget::paintEvent(ePainter& p) {
 }
 
 void eStatsWidget::updateStats() {
+    mLevel->setValues({eLanguage::text(11, 16),
+                       std::to_string(mAttrs->fLevel)});
+    mExp->setValues({eLanguage::text(11, 17),
+                     std::to_string(int(mAttrs->fExp))});
+    mNextLevel->setValues({eLanguage::text(11, 18),
+                           std::to_string(mAttrs->nextLevelExp())});
+
     mStrength->setText({eLanguage::text(11, 0)},
                        std::vector<float>{mStats->fStrength});
     mDexterity->setText({eLanguage::text(11, 1)},
@@ -349,4 +464,12 @@ void eStatsWidget::updateStats() {
     mPoisonResistance->setText({eLanguage::text(11, 13),
                                 eLanguage::text(11, 14)},
                                std::vector<float>{100*mStats->fPoisonResistance});
+
+    mStatPointsRem->setText({eLanguage::text(11, 15)},
+                            std::vector<float>{float(mAttrs->fStatPoints)});
+
+    mStrIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    mDexIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    mVitIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    mEneIncButton->setEnabled(mAttrs->fStatPoints > 0);
 }

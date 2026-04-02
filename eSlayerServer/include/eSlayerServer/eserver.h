@@ -14,6 +14,7 @@ class eCharacter;
 struct eAttackData;
 struct eWeaponData;
 struct eEquipment;
+struct eAttributes;
 struct eScreenDimensions;
 
 struct eServerData {
@@ -80,6 +81,9 @@ public:
     virtual bool
     rearrangeItems(const int clientId,
                    const eEquipment& eq) = 0;
+    virtual bool
+    changeAttributes(const int clientId,
+                     const eAttributes& attrs) = 0;
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);

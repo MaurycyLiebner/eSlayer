@@ -135,6 +135,13 @@ bool eLocalServer::rearrangeItems(
     return h->rearrangeItems(eq);
 }
 
+bool eLocalServer::changeAttributes(
+    const int clientId, const eAttributes& attrs) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->changeAttributes(attrs);
+}
+
 eServerClientHandler*
 eLocalServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

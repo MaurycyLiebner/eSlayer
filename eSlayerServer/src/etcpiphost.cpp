@@ -211,6 +211,15 @@ void eTcpIpHost::increment(const float by) {
                 rearrangeItems(charId, eq);
             }
         } break;
+        case ePacketType::attributes: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                eAttributes attrs;
+                attrs.read(p);
+                changeAttributes(charId, attrs);
+            }
+        } break;
         }
     }
     const auto tcpIds = mNet.removeDisconnectedClients();

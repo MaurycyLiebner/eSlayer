@@ -110,5 +110,9 @@
         <string id="12">Lightning</string>
         <string id="13">Poison</string>
         <string id="14">Resistance</string>
+        <string id="15">Stat Points</string>
+        <string id="16">Level</string>
+        <string id="17">Experience</string>
+        <string id="18">Next Level</string>
     </group>
 </strings>

@@ -137,3 +137,10 @@ bool eServerClientHandler::rearrangeItems(
     mArea->rearrangeItems(mClientId, eq);
     return true;
 }
+
+bool eServerClientHandler::changeAttributes(
+    const eAttributes& attrs) {
+    if(!mArea) return false;
+    mArea->changeAttributes(mClientId, attrs);
+    return true;
+}

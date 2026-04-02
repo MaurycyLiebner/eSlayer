@@ -26,6 +26,7 @@ void eAttributes::read(ePacket& p) {
     p >> fDexterity;
     p >> fVitality;
     p >> fEnergy;
+    p >> fStatPoints;
 }
 
 void eAttributes::write(ePacket& p) const {
@@ -35,6 +36,7 @@ void eAttributes::write(ePacket& p) const {
     p << fDexterity;
     p << fVitality;
     p << fEnergy;
+    p << fStatPoints;
 }
 
 void eAttributes::load() {

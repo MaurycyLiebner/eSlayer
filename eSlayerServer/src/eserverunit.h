@@ -87,7 +87,7 @@ public:
                          const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
-    float experience() const { return mStats.fExperience; }
+    float experience() const { return mAttributes.fExp; }
     float maxHealth() const { return mStats.fMaxHealth; }
 
     void increment(const float by);

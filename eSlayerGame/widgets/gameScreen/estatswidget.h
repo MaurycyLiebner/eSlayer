@@ -4,25 +4,45 @@
 #include "../ewidget.h"
 
 struct eStats;
+struct eAttributes;
+struct eEquipment;
+class eStatLabel;
 class eStatWidget;
+class eAttrIncButton;
 
 class eStatsWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const eStats* const stats);
+    void initialize(const std::string& name,
+                    eStats& stats,
+                    const eEquipment& eq,
+                    eAttributes& attrs);
+
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
-    const eStats* mStats = nullptr;
+    eStats* mStats = nullptr;
+    const eEquipment* mEq = nullptr;
+    eAttributes* mAttrs = nullptr;
 
     void updateStats();
 
+    eStatLabel* mName = nullptr;
+
+    eStatLabel* mLevel = nullptr;
+    eStatLabel* mExp = nullptr;
+    eStatLabel* mNextLevel = nullptr;
+
     eStatWidget* mStrength = nullptr;
+    eAttrIncButton* mStrIncButton = nullptr;
     eStatWidget* mDexterity = nullptr;
+    eAttrIncButton* mDexIncButton = nullptr;
     eStatWidget* mVitality = nullptr;
+    eAttrIncButton* mVitIncButton = nullptr;
     eStatWidget* mEnergy = nullptr;
+    eAttrIncButton* mEneIncButton = nullptr;
 
     eStatWidget* mLeftSkillDmg = nullptr;
     eStatWidget* mRightSkillDmg = nullptr;
@@ -40,6 +60,8 @@ private:
     eStatWidget* mColdResistance = nullptr;
     eStatWidget* mLightningResistance = nullptr;
     eStatWidget* mPoisonResistance = nullptr;
+
+    eStatWidget* mStatPointsRem = nullptr;
 };
 
 #endif // ESTATSWIDGET_H

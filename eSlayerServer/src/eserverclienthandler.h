@@ -37,6 +37,7 @@ public:
     bool pickupItem(const int itemId, const bool drag);
     bool dropItem(const int itemId);
     bool rearrangeItems(const eEquipment& eq);
+    bool changeAttributes(const eAttributes& attrs);
 private:
     const int mClientId;
     std::shared_ptr<eServerArea> mArea;

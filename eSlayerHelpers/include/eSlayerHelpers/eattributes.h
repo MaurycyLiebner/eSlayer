@@ -16,6 +16,8 @@ struct ESLAYERHELPERS_API eAttributes {
     uint16_t fVitality = 20;
     uint16_t fEnergy = 15;
 
+    uint16_t fStatPoints = 10;
+
     uint32_t nextLevelExp() const;
 
     void read(ePacket& p);

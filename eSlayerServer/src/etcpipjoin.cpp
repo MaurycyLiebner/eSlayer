@@ -283,3 +283,13 @@ bool eTcpIpJoin::rearrangeItems(
     if(!r) failed("Disconnected", "Failed to send equipment rearrangement to the host.");
     return true;
 }
+
+bool eTcpIpJoin::changeAttributes(
+    const int clientId, const eAttributes& attrs) {
+    ePacket p;
+    p << ePacketType::attributes;
+    attrs.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send attributes change to the host.");
+    return true;
+}

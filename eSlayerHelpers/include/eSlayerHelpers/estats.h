@@ -38,8 +38,6 @@ struct eSkillStats {
 };
 
 struct ESLAYERHELPERS_API eStats {
-    float fExperience = 0.f;
-
     std::vector<eSkillStats> fSkills;
 
     float fDefense = 100.f;

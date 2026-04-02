@@ -216,7 +216,7 @@ void eGameScreen::paintEvent(ePainter&) {
     mStaminaIndicator->setValue(action.stamina());
 
     mExperienceIndicator->setRange(0, attrs.nextLevelExp());
-    mExperienceIndicator->setValue(stats.fExperience);
+    mExperienceIndicator->setValue(attrs.fExp);
 }
 
 void eGameScreen::showDeadMenu() {
@@ -318,8 +318,11 @@ void eGameScreen::showStatsMenu() {
     const int w = width();
     const int h = height();
     mStatsMenu->resize(w/2, h - mBottomWid->height());
-    const auto& stats = mGameWidget->stats();
-    mStatsMenu->initialize(&stats);
+    const auto& cname = mGameWidget->cname();
+    auto& stats = mGameWidget->stats();
+    const auto& eq = mGameWidget->equipment();
+    auto& attrs = mGameWidget->attributes();
+    mStatsMenu->initialize(cname, stats, eq, attrs);
     addWidget(mStatsMenu);
     mStatsMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();

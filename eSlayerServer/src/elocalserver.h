@@ -52,6 +52,8 @@ public:
                   const int itemId) override;
     bool rearrangeItems(const int clientId,
                         const eEquipment& eq) override;
+    bool changeAttributes(const int clientId,
+                          const eAttributes& attrs) override;
 private:
     eServerClientHandler* clientHandler(const int clientId);
 
