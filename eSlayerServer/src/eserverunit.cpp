@@ -65,6 +65,11 @@ void eServerUnit::setEquipment(const eEquipment& eq) {
     recalculateStats();
 }
 
+void eServerUnit::setAttributes(const eAttributes& attrs) {
+    mAttributes = attrs;
+    recalculateStats();
+}
+
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left: {

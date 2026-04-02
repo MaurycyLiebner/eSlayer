@@ -3,6 +3,7 @@
 #include "epacketdata.h"
 
 #include <eSlayerHelpers/eattackdata.h>
+#include <eSlayerHelpers/echaracter.h>
 
 eTcpIpHost::~eTcpIpHost() {
     if(mInitialized) {
@@ -92,11 +93,18 @@ void eTcpIpHost::increment(const float by) {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                eEquipment eq;
-                eq.read(p);
+                eCharacter c;
+                c.read(p);
                 eScreenDimensions screenDims;
                 screenDims.read(p);
-                spawn(charId, eq, screenDims);
+                spawn(charId, c, screenDims);
+
+                {
+                    ePacket p;
+                    p << ePacketType::spawn;
+                    c.write(p);
+                    mNet.sendToClient(pkt.fClientID, p);
+                }
             }
         } break;
         case ePacketType::state: {

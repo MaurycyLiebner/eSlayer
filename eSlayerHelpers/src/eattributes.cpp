@@ -10,6 +10,7 @@ float eAttributes::nextLevelExp() const {
 
 void eAttributes::read(ePacket& p) {
     p >> fLevel;
+    p >> fExp;
     p >> fStrength;
     p >> fDexterity;
     p >> fVitality;
@@ -18,6 +19,7 @@ void eAttributes::read(ePacket& p) {
 
 void eAttributes::write(ePacket& p) const {
     p << fLevel;
+    p << fExp;
     p << fStrength;
     p << fDexterity;
     p << fVitality;

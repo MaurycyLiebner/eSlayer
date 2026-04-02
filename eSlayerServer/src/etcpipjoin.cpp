@@ -5,6 +5,7 @@
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/escreendimensions.h>
+#include <eSlayerHelpers/echaracter.h>
 
 eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
     mIP(ip) {}
@@ -131,16 +132,41 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
 
 bool eTcpIpJoin::spawn(
     const int clientId,
-    const eEquipment& eq,
+    eCharacter& c,
     const eScreenDimensions& screenDims) {
     ePacket p;
     p << ePacketType::spawn;
-    eq.write(p);
+    c.write(p);
     screenDims.write(p);
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send spawn request to the host.");
         return false;
+    }
+    uint32_t time = 0;
+    while(true) {
+        mNet.update();
+
+        eNetPacket pkt;
+
+        while(mNet.pollPacket(pkt)) {
+            auto& p = pkt.fPacket;
+            ePacketType type;
+            p >> type;
+
+            if(type == ePacketType::spawn) {
+                c = eCharacter();
+                c.read(p);
+                return true;
+            }
+        }
+
+        SDL_Delay(16);
+        time += 16;
+        if(time > 2000) {
+            failed("Disconnected", "Character request timed out.");
+            return false;
+        }
     }
     return true;
 }

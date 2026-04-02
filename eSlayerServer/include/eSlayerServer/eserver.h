@@ -10,6 +10,7 @@
 #include <memory>
 
 class eRequestData;
+class eCharacter;
 struct eAttackData;
 struct eWeaponData;
 struct eEquipment;
@@ -39,7 +40,7 @@ public:
                const std::string& name) = 0;
     virtual bool
     spawn(const int clientId,
-          const eEquipment& eq,
+          eCharacter& c,
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool

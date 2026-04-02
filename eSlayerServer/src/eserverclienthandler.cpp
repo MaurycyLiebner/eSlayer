@@ -94,13 +94,12 @@ bool eServerClientHandler::respawn() {
     return true;
 }
 
-bool eServerClientHandler::spawn(const eEquipment& eq,
+bool eServerClientHandler::spawn(eCharacter& c,
                                  const eScreenDimensions& screenDims) {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, eq, ePointF{0.f, 0.f},
-                     screenDims);
+    mArea->addClient(mClientId, c, ePointF{0.f, 0.f}, screenDims);
     return true;
 }
 

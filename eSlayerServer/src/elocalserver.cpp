@@ -50,11 +50,12 @@ std::shared_ptr<eMap> eLocalServer::requestMap(
     return map;
 }
 
-bool eLocalServer::spawn(const int clientId, const eEquipment& eq,
+bool eLocalServer::spawn(const int clientId,
+                         eCharacter& c,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->spawn(eq, screenDims);
+    return h->spawn(c, screenDims);
 }
 
 bool eLocalServer::requestData(const int clientId,

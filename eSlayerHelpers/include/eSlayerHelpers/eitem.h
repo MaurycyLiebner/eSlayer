@@ -9,7 +9,8 @@
 #include <vector>
 
 struct ESLAYERHELPERS_API eItem {
-    uint32_t fItemId;
+    uint32_t fItemId = 0;
+
     uint8_t fDataId = 0;
     eItemType fType = eItemType::none;
     uint8_t fSubType = 0;

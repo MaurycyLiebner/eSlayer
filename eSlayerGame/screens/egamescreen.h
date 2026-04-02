@@ -27,7 +27,6 @@ public:
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
                     const eCharacter& c);
-
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;

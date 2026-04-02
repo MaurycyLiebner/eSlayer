@@ -19,6 +19,8 @@
 #include <map>
 #include <set>
 
+class eCharacter;
+
 struct eClientData {
     // in tile dimensions
     eScreenDimensions fScreen;
@@ -60,7 +62,7 @@ public:
     eUnitArea itemTile(const eGroundItem& i) const;
 
     bool addClient(const int clientId,
-                   const eEquipment& eq,
+                   eCharacter& c,
                    const ePointF& pos,
                    const eScreenDimensions& screenDims);
     bool removeClient(const int clientId);
@@ -85,6 +87,8 @@ private:
     float mTime = 0.f;
 
     std::shared_ptr<eMap> mMap;
+
+    static uint32_t sNextItemId;
 
     eIdMapVector<eServerMissile> mMissiles;
     eIdMapVector<eServerUnit> mUnits;

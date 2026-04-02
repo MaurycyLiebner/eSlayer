@@ -6,10 +6,13 @@
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+#include <eSlayerHelpers/echaracter.h>
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
+
+uint32_t eServerArea::sNextItemId = 1;
 
 eServerArea::eServerArea() :
     mUnitAreas(mUnitAreaDim),
@@ -285,7 +288,7 @@ eUnitArea eServerArea::itemTile(const eGroundItem& i) const {
 }
 
 bool eServerArea::addClient(const int clientId,
-                            const eEquipment& eq,
+                            eCharacter& c,
                             const ePointF& pos,
                             const eScreenDimensions& screenDims) {
     auto& clientData = mClientData[clientId];
@@ -311,7 +314,12 @@ bool eServerArea::addClient(const int clientId,
     u->fModelParts = modelParts;
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
+    auto& eq = c.equipment();
+    eq.iterateOverAll([](eItem& item) {
+        item.fItemId = sNextItemId++;
+    });
     u->setEquipment(eq);
+    u->setAttributes(c.attributes());
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, clientId);

@@ -61,6 +61,9 @@ public:
     void setEquipment(const eEquipment& eq);
     eEquipment& equipment() { return mEquipment; }
 
+    void setAttributes(const eAttributes& attrs);
+    eAttributes& attributes() { return mAttributes; }
+
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const eSkillChoice schoice) const;
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;

@@ -1,7 +1,8 @@
 #include "eSlayerHelpers/echaracter.h"
 
-#include "eSlayerHelpers/eweapontype.h"
+#include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/eweapontype.h"
 
 #include <algorithm>
 #include <tinyxml2.h>
@@ -395,4 +396,20 @@ bool eCharacter::write(const std::string& path,
         return false;
     }
     return true;
+}
+
+void eCharacter::read(ePacket& p) {
+    p >> mName;
+    p >> mHardcore;
+    p >> mDead;
+    mEquipment.read(p);
+    mAttributes.read(p);
+}
+
+void eCharacter::write(ePacket& p) const {
+    p << mName;
+    p << mHardcore;
+    p << mDead;
+    mEquipment.write(p);
+    mAttributes.write(p);
 }

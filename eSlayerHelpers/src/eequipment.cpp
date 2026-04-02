@@ -34,10 +34,12 @@ eItem eEquipment::get(const int itemId) const {
                           fWeapon2L,
                           fWeapon2R,
                           fDragged}) {
+        if(it.fType == eItemType::none) continue;
         if(it.fItemId == itemId) return it;
     }
     for(const auto& it : fInventory) {
         const auto& item = it.fItem;
+        if(item.fType == eItemType::none) continue;
         if(item.fItemId == itemId) return item;
     }
     return eItem{0, 0, eItemType::none};
@@ -251,6 +253,26 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
         return false;
     }
     return item.fType == type;
+}
+
+void eEquipment::iterateOverAll(const eIter& iter) {
+    iter(fBoots);
+    iter(fGloves);
+    iter(fHelmet);
+    iter(fArmor);
+    iter(fBelt);
+    iter(fRingL);
+    iter(fRingR);
+    iter(fAmulet);
+    iter(fWeapon1L);
+    iter(fWeapon1R);
+    iter(fWeapon2L);
+    iter(fWeapon2R);
+    iter(fDragged);
+
+    for(auto& item : fInventory) {
+        iter(item.fItem);
+    }
 }
 
 void eEquipment::read(ePacket& p) {

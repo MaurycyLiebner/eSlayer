@@ -3,6 +3,8 @@
 #include "eSlayerHelpers/epacket.h"
 
 void eItem::read(ePacket& p) {
+    p >> fItemId;
+
     p >> fDataId;
     p >> fType;
     p >> fSubType;
@@ -24,6 +26,8 @@ void eItem::read(ePacket& p) {
 }
 
 void eItem::write(ePacket& p) const {
+    p << fItemId;
+
     p << fDataId;
     p << fType;
     p << fSubType;

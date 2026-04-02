@@ -23,9 +23,16 @@ public:
     const std::string& name() const { return mName; }
     bool hardcore() const { return mHardcore; }
     bool dead() const { return mDead; }
+    void setDead(const bool d) { mDead = d; }
 
     const eEquipment& equipment() const { return mEquipment; }
     const eAttributes& attributes() const { return mAttributes; }
+
+    eEquipment& equipment() { return mEquipment; }
+    eAttributes& attributes() { return mAttributes; }
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
 private:
     std::string mName;
     bool mHardcore;

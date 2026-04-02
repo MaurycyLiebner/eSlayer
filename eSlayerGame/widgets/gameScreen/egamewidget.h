@@ -99,6 +99,7 @@ private:
     eWalkable walkable() const;
 
     std::string mCName;
+    bool mHardcore;
 
     eGameWorld mWorld;
     eGameInput mInput;

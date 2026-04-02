@@ -40,6 +40,8 @@ void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eMap>& map,
                              const eCharacter& c) {
     mCName = c.name();
+    mHardcore = c.hardcore();
+
     mClientId = clientId;
     mServer = server;
     mMap = map;
@@ -63,6 +65,8 @@ void eGameWidget::initialize(const int clientId,
 
     const auto& eq = c.equipment();
     mMainAction.setEquipment(eq);
+    const auto& attrs = c.attributes();
+    mMainAction.setAttributes(attrs);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -147,7 +151,7 @@ void eGameWidget::disconnect() {
 }
 
 void eGameWidget::save() {
-    const eCharacter c(mCName, false);
+    const eCharacter c(mCName, mHardcore);
     const auto path = eGameDir::path(
         "Save/" + mCName + ".xml");
     const auto& eq = equipment();

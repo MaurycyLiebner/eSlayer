@@ -41,6 +41,9 @@ struct ESLAYERHELPERS_API eEquipment {
     bool add(const eItem& item);
     bool canPlace(const eItem& item, const eItem& dst);
 
+    using eIter = std::function<void(eItem& item)>;
+    void iterateOverAll(const eIter& iter);
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

@@ -166,23 +166,17 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
     const auto map = std::make_shared<std::shared_ptr<eMap>>();
     const auto clientId = std::make_shared<int>();
+    const auto serverC = std::make_shared<eCharacter>(c);
 
-    const auto finish = [this, map, server, clientId, c]() {
+    const auto finish = [this, map, server, clientId, serverC]() {
         const int width = mWindow->width();
         const int height = mWindow->height();
-        const auto& res = mWindow->resolution();
-        const int tileW = res.tileWidth();
-        const int tileH = res.tileHeight();
-        const auto& eq = c.equipment();
-        const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
-                                           int(std::ceil(2.f*height/tileH))};
-        (*server)->spawn(*clientId, eq, screenDims);
         const auto w = new eGameScreen(mWindow);
         w->resize(width, height);
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*clientId, *server, *map, c);
+        w->initialize(*clientId, *server, *map, *serverC);
         mWindow->setWidget(w);
     };
 
@@ -199,7 +193,7 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([server, map, clientId, c]() {
+    loading.emplace_back([server, map, clientId]() {
         *map = (*server)->requestMap(*clientId, "town");
     });
     loading.emplace_back([r]() {
@@ -226,6 +220,16 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([r]() {
         eUITextures::sLoad(r);
+    });
+    loading.emplace_back([this, server, clientId, serverC]() {
+        const int width = mWindow->width();
+        const int height = mWindow->height();
+        const auto& res = mWindow->resolution();
+        const int tileW = res.tileWidth();
+        const int tileH = res.tileHeight();
+        const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
+                                           int(std::ceil(2.f*height/tileH))};
+        (*server)->spawn(*clientId, *serverC, screenDims);
     });
     showLoadingScreen(loading, finish);
 }
