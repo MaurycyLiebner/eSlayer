@@ -362,19 +362,20 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
             for(int eleId = nextElement; eleId < (int)renderElements.size(); eleId++) {
                 const auto& e = renderElements[eleId];
+                const auto& ePtr = e.fPtr;
+                if(!ePtr) continue;
+                const auto& pos = ePtr->fPos;
+                const auto iPos = pos.floor();
+                if(iPos.fY != y) continue;
+                if(iPos.fX != x) continue;
+                const auto pixel = tilePosToPixel(pos);
                 if(e.fType == eRenderElementType::unit) {
-                    const auto u = std::static_pointer_cast<eUnit>(e.fPtr);
-                    if(!u) continue;
-                    const auto& pos = u->fPos;
-                    const auto iPos = pos.floor();
-                    if(iPos.fY != y) continue;
-                    if(iPos.fX != x) continue;
+                    const auto u = std::static_pointer_cast<eUnit>(ePtr);
                     mGamePainter.save();
-                    const auto displ = tilePosToPixel(pos);
-                    const auto idispl = displ.round();
+                    const auto idispl = pixel.round();
                     mGamePainter.translate(idispl.fX, idispl.fY);
                     auto& model = u->model();
-                    model.incFrame(1.f);
+                    model.incFrame(by);
                     bool highlight = false;
                     if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
@@ -395,13 +396,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     model.draw(mGamePainter, highlight);
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
-                    const auto m = std::static_pointer_cast<eExtendedMissile>(e.fPtr);
-                    if(!m) continue;
-                    const auto& pos = m->fPos;
-                    const auto iPos = pos.floor();
-                    if(iPos.fY != y) continue;
-                    if(iPos.fX != x) continue;
-                    const auto pixel = tilePosToPixel(pos);
+                    const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);
                     const auto missileType = m->fType;
                     auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
                     const int dirs = missileTex.nDirs(0);
@@ -416,13 +411,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
                     mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
                 } else if(e.fType == eRenderElementType::item) {
-                    const auto i = std::static_pointer_cast<eGroundItem>(e.fPtr);
-                    if(!i) continue;
-                    const auto& pos = i->fPos;
-                    const auto iPos = pos.floor();
-                    if(iPos.fY != y) continue;
-                    if(iPos.fX != x) continue;
-                    const auto pixel = tilePosToPixel(i->fPos);
+                    const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
                     mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
                                                    4, 4}, SDL_Color{255, 0, 0, 255});
                 }
