@@ -414,6 +414,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     const float minFistDmg = 1.f;
     const float maxFistDmg = 6.f;
 
+    const float minFootDmg = 1.f;
+    const float maxFootDmg = 6.f;
+
     for(auto& h : skillHelpers) {
         auto& stats = h.fStats;
         const int skillId = stats.fSkillId;
@@ -458,6 +461,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                 gCalculateWeaponDmg(boots, min, max);
                 h.fDmgMinRWBase.fPhysical += min;
                 h.fDmgMaxRWBase.fPhysical += max;
+            } else {
+                h.fDmgMinRWBase.fPhysical += minFootDmg;
+                h.fDmgMaxRWBase.fPhysical += maxFootDmg;
             }
         }
         if(skill.fType == eSkillType::missile ||
