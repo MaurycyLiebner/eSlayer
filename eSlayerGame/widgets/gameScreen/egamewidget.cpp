@@ -540,7 +540,7 @@ void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
         }
     }
 
-    mMainAction.setPressedUnit(u);
+    if(u) mMainAction.setPressedUnit(u);
 }
 
 eWalkable eGameWidget::walkable() const {

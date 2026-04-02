@@ -98,6 +98,9 @@ void eMainCharAction::increment(const bool mousePressed,
         if(mPressedUnit) {
             shouldStopAttack = !handleUnitAttack(schoice, model);
             targetPos = mPressedUnit->fPos;
+            if(!shouldStopAttack && !mousePressed) {
+                stop();
+            }
         } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
             shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
         }
@@ -125,7 +128,7 @@ void eMainCharAction::increment(const bool mousePressed,
         }
     }
 
-    if(shouldStopAttack) {
+    if(shouldStopAttack && mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }
 
@@ -165,13 +168,16 @@ bool eMainCharAction::consumeActionTime(
 bool eMainCharAction::handleUnitAttack(
     const eSkillChoice schoice,
     eCharUnitModel& model) {
-    const float attackDist = mStats.attackRange(
-        schoice, mPressedUnit->fRadius,
-        mMainChar->fRadius);
+    const bool rangedAttack = mStats.rangedAttack(schoice);
+    if(!rangedAttack) {
+        const float attackDist = mStats.attackRange(
+            schoice, mPressedUnit->fRadius,
+            mMainChar->fRadius);
 
-    const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
-    if(dist >= attackDist) {
-        return false;
+        const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
+        if(dist >= attackDist) {
+            return false;
+        }
     }
 
     if(mAttackData.fType == eAttackTargetType::none) {

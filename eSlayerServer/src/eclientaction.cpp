@@ -14,10 +14,21 @@ void eClientAction::increment(const float by) {
 void eClientAction::decide() {
     if(mAttackTarget.fType != eAttackTargetType::none) {
         const bool r = eComplexAction::attack(mAttackTarget);
-        if(!r) mAttackTarget = eAttackData();
+        if(!r || mStopPlanned) mAttackTarget = eAttackData();
     }
+    mStopPlanned = false;
 }
 
 void eClientAction::attack(const eAttackData& target) {
-    mAttackTarget = target;
+    if(mAttackTarget.fType != eAttackTargetType::none &&
+       target.fType == eAttackTargetType::none) {
+        const bool stop = hasChild();
+        if(stop) {
+            mAttackTarget = target;
+        } else {
+            mStopPlanned = true;
+        }
+    } else {
+        mAttackTarget = target;
+    }
 }

@@ -15,6 +15,7 @@ public:
     void attack(const eAttackData& target);
 private:
     eAttackData mAttackTarget;
+    bool mStopPlanned = false;
 };
 
 #endif // ECLIENTACTION_H

@@ -38,7 +38,7 @@ protected:
     bool getHit(eServerUnit& target,
                 const eSkillChoice schoice,
                 const eWeaponChoice wchoice);
-
+    bool hasChild() const { return mChild.get(); }
 private:
     bool spawnMissile(const ePointF& to,
                       const eSkillChoice& schoice,
