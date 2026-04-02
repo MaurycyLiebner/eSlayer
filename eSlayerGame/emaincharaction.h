@@ -27,6 +27,7 @@ public:
                     const int teamId);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
+    void setPressedItem(const std::shared_ptr<eGroundItem>& i);
 
     void increment(const bool mousePressed,
                    const bool rightPressed,
@@ -93,6 +94,8 @@ private:
     int mClientId;
     std::shared_ptr<eServer> mServer;
     std::shared_ptr<eUnit> mPressedUnit;
+    bool mItemPickuped = false;
+    std::shared_ptr<eGroundItem> mPressedItem;
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharData = nullptr;
     eMovementHandler mMovementHandler;

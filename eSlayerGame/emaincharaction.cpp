@@ -4,6 +4,9 @@
 #include "textures/echartextures.h"
 #include "units/eunit.h"
 
+#include "widgets/gameScreen/einventorywidget.h"
+#include "widgets/gameScreen/eitemdragwidget.h"
+
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerServer/eserver.h>
@@ -58,7 +61,14 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
+    if(u) mPressedItem = nullptr;
     mPressedUnit = u;
+}
+
+void eMainCharAction::setPressedItem(const std::shared_ptr<eGroundItem>& i) {
+    if(i) mPressedUnit = nullptr;
+    mPressedItem = i;
+    mItemPickuped = false;
 }
 
 void eMainCharAction::increment(const bool mousePressed,
@@ -90,6 +100,28 @@ void eMainCharAction::increment(const bool mousePressed,
             targetPos = mPressedUnit->fPos;
         } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
             shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
+        }
+    }
+
+    if(mPressedItem) {
+        const auto itemId = mPressedItem->fItemId;
+        const float dist = ePointF::distance(mPressedItem->fPos, mMainChar->fPos);
+        if(!eInventoryWidget::sBlocked && dist < 0.5f) {
+            if(!mItemPickuped) {
+                const bool dragEnabled = eItemDragWidget::sInstance;
+                mServer->pickupItem(mClientId, itemId, dragEnabled);
+                eInventoryWidget::sBlocked = true;
+                if(mousePressed) {
+                    mItemPickuped = true;
+                } else {
+                    mPressedItem = nullptr;
+                    mItemPickuped = false;
+                }
+                stop();
+            }
+            return;
+        } else {
+            targetPos = mPressedItem->fPos;
         }
     }
 
@@ -250,6 +282,7 @@ void eMainCharAction::updateMovementAnimation(
 }
 
 void eMainCharAction::stopAttack() {
+    mPressedUnit = nullptr;
     mAttackData = eAttackData();
     mServer->stopAttack(mClientId);
 }
@@ -266,15 +299,18 @@ void eMainCharAction::updateWalkRunSpeed() {
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
-    if(mPressedUnit) {
-        mPressedUnit = nullptr;
-    } else {
+    if(!mPressedUnit && !mPressedItem) {
         mMovementHandler.moveTo(mousePos);
+    }
+    if(mItemPickuped) {
+        mItemPickuped = false;
+        mPressedItem = nullptr;
     }
 }
 
 void eMainCharAction::stop() {
     mPressedUnit = nullptr;
+    if(!mItemPickuped) mPressedItem = nullptr;
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }

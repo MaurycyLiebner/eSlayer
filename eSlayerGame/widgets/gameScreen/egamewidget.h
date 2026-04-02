@@ -67,7 +67,6 @@ public:
     eStats& stats() { return mMainAction.stats(); }
     void dropItem();
     void sendInventoryRearranged();
-    bool waitingForEquipment() const { return mWaitngForEq; }
 
     void setLeftSkill(const int s);
     void setRightSkill(const int s);
@@ -128,8 +127,6 @@ private:
 
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;
-
-    bool mWaitngForEq = false;
 };
 
 #endif // EGAMEWIDGET_H

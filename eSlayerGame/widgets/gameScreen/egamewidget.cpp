@@ -8,6 +8,7 @@
 #include "../../textures/emissilestextures.h"
 #include "eunitindicator.h"
 #include "eitemdragwidget.h"
+#include "einventorywidget.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -174,12 +175,12 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar, mMainAction, r);
-    if(mWaitngForEq) {
+    if(eInventoryWidget::sBlocked) {
         auto& eq = mMainAction.equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);
         if(r) {
             mMainAction.recalculateStats();
-            mWaitngForEq = false;
+            eInventoryWidget::sBlocked = false;
             eItemDragWidget::sUpdateDragItem(eq);
         }
     }
@@ -468,13 +469,14 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
     const bool rightPressed = static_cast<bool>(
         button & eMouseButton::right);
     if(leftPressed || rightPressed) {
-        if(!mWaitngForEq && e.altPreseed()) {
+        if(e.altPreseed()) {
             uint32_t itemId;
             const bool r = mItemNames.at({e.x(), e.y()}, itemId);
             if(r) {
-                const bool dragEnabled = eItemDragWidget::sInstance;
-                mServer->pickupItem(mClientId, itemId, dragEnabled);
-                mWaitngForEq = true;
+                const auto item = mWorld.getItem(itemId);
+                if(item) {
+                    mMainAction.setPressedItem(item);
+                }
             }
         }
         mInput.handleMousePress(leftPressed, rightPressed,

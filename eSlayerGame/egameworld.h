@@ -53,6 +53,10 @@ public:
         return mUnits.get(id);
     }
 
+    std::shared_ptr<eGroundItem> getItem(const int id) const {
+        return mGroundItems.get(id);
+    }
+
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 private:
