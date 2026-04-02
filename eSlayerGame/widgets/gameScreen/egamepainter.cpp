@@ -1,6 +1,5 @@
 #include "egamepainter.h"
 
-
 std::shared_ptr<eTexture>
 eGamePainter::initialize(const int w, const int h) {
     const auto r = renderer();
@@ -13,6 +12,9 @@ eGamePainter::initialize(const int w, const int h) {
 
     mDisplayTex = std::make_shared<eTexture>();
     mDisplayTex->create(r, w, h, {0, 0, 0, 255});
+
+    mItemNames = std::make_shared<eTexture>();
+    mItemNames->create(r, w, h, {0, 0, 0, 0});
 
     return mDisplayTex;
 }
@@ -27,10 +29,20 @@ eRenderTargetHolder eGamePainter::switchToBase() {
     return mBaseTex->createTargetHolder(r);
 }
 
+eRenderTargetHolder eGamePainter::switchToItemNames() {
+    const auto r = renderer();
+    mRenderItemNames = true;
+    return mItemNames->createTargetHolder(r);
+}
+
 void eGamePainter::clear() {
     const auto r = renderer();
     mLightingTex->clear(r);
     mBaseTex->fill(r, SDL_Color{0, 0, 0, 255});
+    if(mRenderItemNames) {
+        mRenderItemNames = false;
+        mItemNames->fill(r, SDL_Color{0, 0, 0, 0});
+    }
 }
 
 void eGamePainter::renderLight(SDL_Renderer* const r,
@@ -49,4 +61,7 @@ void eGamePainter::finish() {
     mBaseTex->fill(r, SDL_Color{255, 255, 255, 115});
     mBaseTex->setBlendMode(SDL_BLENDMODE_MUL);
     mBaseTex->render(r, 0, 0);
+    if(mRenderItemNames) {
+        mItemNames->render(r, 0, 0);
+    }
 }

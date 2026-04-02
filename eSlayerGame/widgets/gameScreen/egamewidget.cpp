@@ -429,14 +429,15 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mItemNames.add(r, font, w, h, pixel.floor(), *i);
             }
             const SDL_Point impos{int(mpos.fX), int(mpos.fY)};
+            const auto holder = mGamePainter.switchToItemNames();
             for(const auto& it : mItemNames) {
                 const auto& item = it.second;
                 const auto& rect = item.fRect;
                 SDL_Color color;
                 if(SDL_PointInRect(&impos, &rect)) {
-                    color = SDL_Color{0, 0, 255, 128};
+                    color = SDL_Color{0, 0, 255, 200};
                 } else {
-                    color = SDL_Color{0, 0, 0, 128};
+                    color = SDL_Color{0, 0, 0, 150};
                 }
                 mGamePainter.fillRect(rect, color);
                 mGamePainter.drawTexture(rect, item.fName,
