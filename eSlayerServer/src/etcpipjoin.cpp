@@ -96,6 +96,13 @@ void eTcpIpJoin::increment(const float by) {
             p >> clientId;
             mLeftUsers.emplace_back(clientId);
         } break;
+        case ePacketType::message: {
+            int clientId;
+            p >> clientId;
+            std::string msg;
+            p >> msg;
+            mMessages.emplace_back(clientId, msg);
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -313,5 +320,14 @@ bool eTcpIpJoin::changeAttributes(
     attrs.write(p);
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send attributes change to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::sendMessage(const int clientId, const std::string& text) {
+    ePacket p;
+    p << ePacketType::message;
+    p << text;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send a message to the host.");
     return true;
 }

@@ -4,6 +4,9 @@
 #include "elocalserver.h"
 
 class eSinglePlayerServer : public eLocalServer {
+public:
+    bool sendMessage(const int clientId,
+                     const std::string& text) override;
 };
 
 #endif // ESINGLEPLAYERSERVER_H

@@ -6,6 +6,7 @@
 class eCreateCharacterMenu : public eScreenBase {
 public:
     eCreateCharacterMenu(eMainWindow* const window);
+    ~eCreateCharacterMenu();
 
     using eOkAction = std::function<void(const std::string& name,
                                          const bool hardcore)>;

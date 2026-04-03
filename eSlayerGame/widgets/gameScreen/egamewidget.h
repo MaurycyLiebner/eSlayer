@@ -29,7 +29,7 @@ using eRespawnHandler = std::function<void()>;
 struct eScreenMessage {
     std::string fText;
     std::shared_ptr<eTexture> fTex;
-    int fFramesRemaining = 250;
+    int fFramesRemaining;
 };
 
 class eGameWidget : public eLabel {
@@ -90,6 +90,7 @@ public:
     bool switchWeapons();
     void disconnect();
     void save();
+    void sendMessage(const std::string& text);
 
     static eGameWidget* sInstance;
     static void sSendInventoryRearranged();
@@ -102,6 +103,9 @@ private:
     void initializeTextures();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
+
+    void addMessage(SDL_Renderer* const r,
+                    const std::string& msg);
 
     eWalkable walkable() const;
 

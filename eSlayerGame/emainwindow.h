@@ -32,6 +32,9 @@ public:
     SDL_Window* window() const { return mSdlWindow; }
     SDL_Renderer* renderer() const { return mSdlRenderer; }
 
+    void startTextInput();
+    void stopTextInput();
+
     void setResolution(const eResolution& res);
     void setFullscreen(const bool f);
 

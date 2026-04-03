@@ -44,6 +44,7 @@ void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eMap>& map,
                              const eCharacter& c) {
     mCName = c.name();
+    mUserNames[clientId] = mCName;
     mHardcore = c.hardcore();
 
     mClientId = clientId;
@@ -169,6 +170,10 @@ void eGameWidget::save() {
     c.write(path, eq, attrs);
 }
 
+void eGameWidget::sendMessage(const std::string& text) {
+    mServer->sendMessage(mClientId, text);
+}
+
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
     sInstance->mMainAction.recalculateStats();
@@ -183,20 +188,14 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto r = renderer();
 
     {
-        const auto res = resolution();
-        const auto font = eFonts::textFont(res.tinyFontSize());
-        const int w = width()/2;
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {
             const auto& name = u.fName;
             mUserNames[u.fClientId] = name;
             if(u.fJustJoined) {
-                auto& msg = mMessages.emplace_back();
                 auto text = eLanguage::text(12, 0);
                 text = eStringHelpers::replaceAll(text, "%1", name);
-                msg.fText = text;
-                eTextGenerator gen(r, eFontColor::white, font, 1, w);
-                msg.fTex = gen.generate(text);
+                addMessage(r, text);
             }
         }
         const auto leftUsers = mServer->receiveLeftUsers();
@@ -204,10 +203,14 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& name = mUserNames[clientId];
             auto text = eLanguage::text(12, 1);
             text = eStringHelpers::replaceAll(text, "%1", name);
-            auto& msg = mMessages.emplace_back();
-            msg.fText = text;
-            eTextGenerator gen(r, eFontColor::white, font, 1, w);
-            msg.fTex = gen.generate(text);
+            addMessage(r, text);
+        }
+        const auto messages = mServer->receiveMessages();
+        for(const auto& msg : messages) {
+            const int clientId = msg.fClientId;
+            const auto& name = mUserNames[clientId];
+            const auto text = name + ": " + msg.fMsg;
+            addMessage(r, text);
         }
     }
     const auto worldResult = mWorld.processServerData(
@@ -497,7 +500,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         p.drawTexture(rect(), tex, eAlignment::center);
     }
 
-    const auto res = resolution();
+    const auto& res = resolution();
     const int m = res.smallPadding();
     int y = m;
     for(int i = 0; i < mMessages.size(); i++) {
@@ -592,6 +595,18 @@ void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     }
 
     if(u) mMainAction.setPressedUnit(u);
+}
+
+void eGameWidget::addMessage(SDL_Renderer* const r,
+                             const std::string& text) {
+    const auto& res = resolution();
+    const auto font = eFonts::textFont(res.tinyFontSize());
+    const int w = width()/2;
+    auto& msg = mMessages.emplace_back();
+    msg.fText = text;
+    msg.fFramesRemaining = 5*text.size() + 250;
+    eTextGenerator gen(r, eFontColor::white, font, 1, w);
+    msg.fTex = gen.generate(text);
 }
 
 eWalkable eGameWidget::walkable() const {

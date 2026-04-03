@@ -86,4 +86,21 @@ private:
     SDL_Scancode mKey;
 };
 
+class eTextInputEvent : public eMouseEvent {
+public:
+    eTextInputEvent(const int x, const int y,
+                    const bool shift,
+                    const bool alt,
+                    const bool ctrl,
+                    const eMouseButton buttons,
+                    const char* text);
+
+    eTextInputEvent translated(const int x, const int y) const;
+    eTextInputEvent withPosition(const int x, const int y) const;
+
+    const char* text() const { return mText; }
+private:
+    const char* mText;
+};
+
 #endif // EMOUSEEVENT_H

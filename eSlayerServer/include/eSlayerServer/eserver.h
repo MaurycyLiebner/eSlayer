@@ -34,6 +34,15 @@ struct eOtherUsers {
         fJustJoined(joined) {}
 };
 
+struct eMessage {
+    int fClientId;
+    std::string fMsg;
+
+    eMessage(const int id,
+             const std::string& msg) :
+        fClientId(id), fMsg(msg) {}
+};
+
 using eServerFailureHandler = std::function<void(
     const std::string& msg, const std::string& subMsg)>;
 
@@ -97,14 +106,20 @@ public:
     changeAttributes(const int clientId,
                      const eAttributes& attrs) = 0;
 
+    virtual bool
+    sendMessage(const int clientId,
+                const std::string& text) = 0;
+
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
+    std::vector<eMessage> receiveMessages();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
 
     std::vector<eOtherUsers> mNewUsers;
     std::vector<int> mLeftUsers;
+    std::vector<eMessage> mMessages;
 private:
     eServerFailureHandler mFailure;
 };

@@ -69,6 +69,7 @@ public:
 
     void paint(ePainter& p);
     bool keyPress(const eKeyPressEvent& e);
+    bool textInput(const eTextInputEvent& e);
     bool mousePress(const eMouseEvent& e);
     bool mouseRelease(const eMouseEvent& e);
     bool mouseMove(const eMouseEvent& e);
@@ -124,6 +125,11 @@ protected:
     virtual void paintEvent(ePainter& p);
 
     virtual bool keyPressEvent(const eKeyPressEvent& e) {
+        (void)e;
+        return false;
+    }
+
+    virtual bool textInputEvent(const eTextInputEvent& e) {
         (void)e;
         return false;
     }

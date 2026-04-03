@@ -16,7 +16,7 @@ void eTcpIpJoinMenu::initialize(const eJoinAction& joinGameA,
     const auto w = new eWidget(window());
 
     const auto ipEdit = new eLineEdit(window());
-    ipEdit->setMaxLength(62);
+    ipEdit->setMaxLengthAndFit(62);
     ipEdit->grabKeyboard();
     ipEdit->allow('.');
     ipEdit->allow(':');

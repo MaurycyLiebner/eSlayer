@@ -253,6 +253,22 @@ bool eWidget::keyPress(const eKeyPressEvent& e) {
     return handler;
 }
 
+bool eWidget::textInput(const eTextInputEvent& e) {
+    eWidget* override = nullptr;
+    if(sKeyboardGrabber) override = sKeyboardGrabber;
+    else override = sLastPressed;
+    if(override) {
+        int ex = e.x();
+        int ey = e.y();
+        mapTo(override, ex, ey);
+        const auto ee = e.withPosition(ex, ey);
+        const bool r = override->textInputEvent(ee);
+        if(r) return true;
+    }
+    const auto handler = mouseEvent(e, &eWidget::textInputEvent);
+    return handler;
+}
+
 bool eWidget::mousePress(const eMouseEvent& e) {
     eWidget* override = nullptr;
     if(sMouseGrabber) override = sMouseGrabber;

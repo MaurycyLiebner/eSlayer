@@ -34,6 +34,12 @@ std::vector<int> eServer::receiveLeftUsers() {
     return result;
 }
 
+std::vector<eMessage> eServer::receiveMessages() {
+    std::vector<eMessage> result;
+    std::swap(mMessages, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

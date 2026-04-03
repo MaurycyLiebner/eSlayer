@@ -10,6 +10,7 @@ public:
     void setChangeAction(const eAction a);
 
     void setMaxLength(const int max);
+    void setMaxLengthAndFit(const int max);
 
     void allow(const char c);
     void disallow(const char c);
@@ -18,6 +19,7 @@ protected:
     bool mouseEnterEvent(const eMouseEvent& e) override;
     bool mouseLeaveEvent(const eMouseEvent& e) override;
     bool keyPressEvent(const eKeyPressEvent& e) override;
+    bool textInputEvent(const eTextInputEvent& e) override;
     void paintEvent(ePainter& p) override;
     void sizeHint(int& w, int& h) override;
 private:

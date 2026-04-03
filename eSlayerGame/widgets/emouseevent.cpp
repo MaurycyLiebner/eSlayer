@@ -72,3 +72,27 @@ eKeyPressEvent eKeyPressEvent::withPosition(const int x, const int y) const {
     r.mY = y;
     return r;
 }
+
+eTextInputEvent::eTextInputEvent(const int x, const int y,
+                                 const bool shift,
+                                 const bool alt,
+                                 const bool ctrl,
+                                 const eMouseButton buttons,
+                                 const char* text) :
+    eMouseEvent(x, y, shift, alt, ctrl, buttons), mText(text) {
+
+}
+
+eTextInputEvent eTextInputEvent::translated(const int x, const int y) const {
+    auto r = *this;
+    r.mX += x;
+    r.mY += y;
+    return r;
+}
+
+eTextInputEvent eTextInputEvent::withPosition(const int x, const int y) const {
+    auto r = *this;
+    r.mX = x;
+    r.mY = y;
+    return r;
+}

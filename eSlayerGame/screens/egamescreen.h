@@ -16,6 +16,7 @@ class eInventoryWidget;
 class eItemDragWidget;
 class eStatsWidget;
 class eCharacter;
+class eLineEdit;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -68,6 +69,8 @@ private:
     int mLeftSkill = 0;
     int mRightSkill = 0;
     eTextureCheckButton* mRunButton = nullptr;
+
+    eLineEdit* mMessage = nullptr;
 };
 
 #endif // EGAMESCREEN_H

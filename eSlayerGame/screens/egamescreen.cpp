@@ -14,6 +14,7 @@
 #include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../widgets/elineedit.h"
 
 #include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -160,8 +161,12 @@ void eGameScreen::initialize(const int clientId,
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
-    if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mStatsMenu) {
+    const auto key = e.key();
+    if(key == SDL_SCANCODE_ESCAPE) {
+        if(mMessage) {
+            mMessage->deleteLater();
+            mMessage = nullptr;
+        } else if(mStatsMenu) {
             hideStatsMenu();
         } else if(mInventoryMenu) {
             hideInventoryMenu();
@@ -177,26 +182,81 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
                 showESCMenu();
             }
         }
-    } else if(e.key() == SDL_SCANCODE_R) {
+    } else if(!mMessage && key == SDL_SCANCODE_R) {
         const bool run = mGameWidget->switchRunning();
         mRunButton->setChecked(run);
-    } else if(e.key() == SDL_SCANCODE_I) {
+    } else if(!mMessage && key == SDL_SCANCODE_I) {
         if(mInventoryMenu) {
             hideInventoryMenu();
         } else {
             showInventoryMenu();
         }
-    } else if(e.key() == SDL_SCANCODE_W) {
+    } else if(!mMessage && key == SDL_SCANCODE_W) {
         mGameWidget->switchWeapons();
         if(mInventoryMenu) {
             mInventoryMenu->updateWeapons();
         }
-    } else if(e.key() == SDL_SCANCODE_A) {
+    } else if(!mMessage && key == SDL_SCANCODE_A) {
         if(mStatsMenu) {
             hideStatsMenu();
         } else {
             showStatsMenu();
         }
+    } else if(key == SDL_SCANCODE_RETURN) {
+        if(mMessage) {
+            const auto window = eWidget::window();
+            window->stopTextInput();
+
+            const auto& text = mMessage->text();
+            if(!text.empty()) {
+                mGameWidget->sendMessage(text);
+            }
+            mMessage->deleteLater();
+            mMessage = nullptr;
+        } else {
+            const auto window = eWidget::window();
+            window->startTextInput();
+
+            mMessage = new eLineEdit(window);
+            const int p = mMessage->padding();
+            const auto& res = resolution();
+            const int fontSize = res.smallFontSize();
+            const auto font = eFonts::textFont(fontSize);
+            mMessage->setFont(font);
+            mMessage->allow(' ');
+            mMessage->allow(',');
+            mMessage->allow('.');
+            mMessage->allow('?');
+            mMessage->allow('!');
+            mMessage->allow(';');
+            mMessage->allow(':');
+            mMessage->allow('\'');
+            mMessage->allow('"');
+            mMessage->allow('\\');
+            mMessage->allow('/');
+            mMessage->allow('@');
+            mMessage->allow('#');
+            mMessage->allow('$');
+            mMessage->allow('%');
+            mMessage->allow('&');
+            mMessage->allow('*');
+            mMessage->allow('+');
+            mMessage->allow('(');
+            mMessage->allow(')');
+            mMessage->allow('[');
+            mMessage->allow(']');
+            mMessage->setMaxLength(1000);
+            const int w = width()/2;
+            const int h = height()/10;
+            mMessage->setWrapWidth(w - 2*p);
+            mMessage->resize(w, h);
+            mMessage->setTextAlignment(eAlignment::left | eAlignment::top);
+            mMessage->grabKeyboard();
+            addWidget(mMessage);
+            mMessage->move(w/2, mBottomWid->y() - mMessage->height() - p);
+        }
+    } else {
+        return false;
     }
     return true;
 }

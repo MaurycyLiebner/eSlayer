@@ -12,7 +12,11 @@ public:
     bool initialize() override;
 
     void increment(const float by) override;
+
+    bool sendMessage(const int clientId,
+                     const std::string& text) override;
 private:
+    void sendMessageToAll(const int clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);
 
     eTCPNetwork mNet;

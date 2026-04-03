@@ -153,6 +153,15 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::equipment: {
 
         } break;
+        case ePacketType::message: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                std::string msg;
+                p >> msg;
+                sendMessageToAll(charId, msg);
+            }
+        } break;
         case ePacketType::request: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
@@ -260,6 +269,23 @@ void eTcpIpHost::increment(const float by) {
     for(const int tcpClientId : tcpIds) {
         handleClientDisconnect(tcpClientId);
     }
+}
+
+bool eTcpIpHost::sendMessage(const int clientId,
+                             const std::string& text) {
+    sendMessageToAll(clientId, text);
+    return true;
+}
+
+void eTcpIpHost::sendMessageToAll(
+    const int clientId, const std::string& text) {
+    ePacket p;
+    p << ePacketType::message;
+    p << clientId;
+    p << text;
+    mNet.broadcast(p);
+
+    mMessages.emplace_back(clientId, text);
 }
 
 bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {

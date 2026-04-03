@@ -192,6 +192,15 @@ int eMainWindow::exec() {
                                         buttons,
                                         k);
                 if(mWidget) mWidget->keyPress(ke);
+            } else if(e.type == SDL_EVENT_TEXT_INPUT) {
+                const auto text = e.text.text;
+                const eTextInputEvent te(x, y,
+                                         mShiftPressed,
+                                         mAltPressed,
+                                         mCtrlPressed,
+                                         buttons,
+                                         text);
+                if(mWidget) mWidget->textInput(te);
             } else if(e.type == SDL_EVENT_KEY_UP) {
             }
         }
@@ -245,3 +254,10 @@ void eMainWindow::addSlot(const eSlot &slot) {
     mSlots.push_back(slot);
 }
 
+void eMainWindow::startTextInput() {
+    SDL_StartTextInput(mSdlWindow);
+}
+
+void eMainWindow::stopTextInput() {
+    SDL_StopTextInput(mSdlWindow);
+}

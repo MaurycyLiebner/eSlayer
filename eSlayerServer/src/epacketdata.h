@@ -6,6 +6,7 @@
 enum class ePacketType : uint8_t {
     connect, map, spawn,
     userEntered, userLeft,
+    message,
     data, request, state,
     attack, stopAttack, respawn,
     setSkillId,

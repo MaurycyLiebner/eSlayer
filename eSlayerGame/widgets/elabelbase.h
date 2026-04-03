@@ -17,7 +17,7 @@ public:
 
     bool setFont(const eFont& font);
     bool setFontSize(const int s);
-    std::string text() const { return mText; }
+    const std::string& text() const { return mText; }
     bool setText(const std::string& text);
     bool setTexture(const std::shared_ptr<eTexture>& tex);
     bool setFontColor(const eFontColor color);
