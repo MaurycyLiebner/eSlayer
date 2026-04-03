@@ -3,7 +3,6 @@
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/evectorhelpers.h"
-#include "eSlayerHelpers/eweapontype.h"
 
 void eInventoryItem::read(ePacket& p) {
     p >> fItem;
@@ -141,6 +140,8 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
                     fWeapon1R.fType : fWeapon2R.fType;
                 return eVectorHelpers::contains(
                     itemData.fSecondHand, otherType);
+            } else {
+                return true;
             }
         } else if(&dst == &fWeapon1R || &dst == &fWeapon2R) {
             if(item.fType == eItemType::weapon) {
