@@ -77,8 +77,9 @@ void eMap::read(ePacket& p) {
     uint16_t nTerrTypes;
     p >> nTerrTypes;
     for(int i = 0; i < nTerrTypes; i++) {
-        auto& terrType = mTerrainTypes.emplace_back();
+        uint16_t terrType;
         p >> terrType;
+        mTerrainTypes.emplace(terrType);
     }
 
     p >> mWidth;
@@ -97,8 +98,9 @@ void eMap::read(ePacket& p) {
     uint16_t nObjTypes;
     p >> nObjTypes;
     for(uint16_t i = 0; i < nObjTypes; i++) {
-        auto& objType = mObjectTypes.emplace_back();
+        uint16_t objType;
         p >> objType;
+        mObjectTypes.emplace(objType);
     }
 
     uint16_t nObjs;
@@ -112,6 +114,101 @@ void eMap::read(ePacket& p) {
     }
 
     updateObjectsMap();
+}
+
+void eMap::loadPortion(const eMapPortion& portion) {
+    const auto& area = portion.fArea;
+
+    for(uint16_t y = 0; y < area.fHeight; y++) {
+        for(uint16_t x = 0; x < area.fWidth; x++) {
+            const auto& srcTile = portion.fTiles[y][x];
+            auto& dstTile = mTiles[y + area.fY][x + area.fX];
+            dstTile = srcTile;
+        }
+    }
+
+    for(const auto& o : portion.fObjects) {
+        const int i = mObjects.size();
+        mObjects.emplace_back(o);
+        mObjectsMap[o.fTileY][o.fTileX].emplace_back(i);
+    }
+}
+
+
+void generateTiles(const int w, const int h,
+                   std::vector<std::vector<eTile>>& tiles) {
+    tiles.clear();
+    tiles.reserve(h);
+    for(int y = 0; y < h; y++) {
+        auto& row = tiles.emplace_back();
+        row.reserve(w);
+        for(int x = 0; x < w; x++) {
+            row.emplace_back(eTile{0, 0});
+        }
+    }
+}
+
+bool eMap::extractPortion(
+    eMapPortionArea area,
+    eMapPortion& result) const {
+    if(area.fX < 0) {
+        area.fWidth += area.fX;
+        area.fX = 0;
+    }
+    if(area.fY < 0) {
+        area.fHeight += area.fY;
+        area.fY = 0;
+    }
+    if(area.fX + area.fWidth > mWidth) {
+        area.fWidth = mWidth - area.fX;
+    }
+    if(area.fY + area.fHeight > mHeight) {
+        area.fHeight = mHeight - area.fY;
+    }
+
+    if(area.fWidth <= 0 || area.fHeight <= 0) {
+        return false;
+    }
+
+    result.fArea = area;
+
+    ::generateTiles(area.fWidth, area.fHeight, result.fTiles);
+    for(uint16_t y = 0; y < area.fHeight; y++) {
+        for(uint16_t x = 0; x < area.fWidth; x++) {
+            const auto srcY = y + area.fY;
+            const auto srcX = x + area.fX;
+            const auto& srcTile = mTiles[srcY][srcX];
+            auto& dstTile = result.fTiles[y][x];
+            dstTile = srcTile;
+
+            const auto& objs = objects(srcX, srcY);
+            for(const auto id : objs) {
+                const auto& o = object(id);
+                result.fObjects.emplace_back(o);
+            }
+        }
+    }
+    return true;
+}
+
+void eMap::mapData(eMapData& data) const {
+    data.fTotalWidth = mWidth;
+    data.fTotalHeight = mHeight;
+    data.fObjectTypes = mObjectTypes;
+    data.fTerrainTypes = mTerrainTypes;
+}
+
+void eMap::loadData(const eMapData& data) {
+    mWidth = data.fTotalWidth;
+    mHeight = data.fTotalHeight;
+    generateTiles(mWidth, mHeight);
+    mTerrainTypes = data.fTerrainTypes;
+    mObjectTypes = data.fObjectTypes;
+    updateObjectsMap();
+}
+
+void eMap::generateTiles(const int w, const int h) {
+    ::generateTiles(w, h, mTiles);
 }
 
 void eMap::updateObjectsMap() {
@@ -136,18 +233,11 @@ std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
     const auto result = std::make_shared<eMap>();
     if(name == "town") {
-        const auto townFloorId = eTerrsTexturesData::id("town_floor");
-        result->mTerrainTypes.emplace_back(townFloorId);
+        const uint16_t townFloorId = eTerrsTexturesData::id("town_floor");
+        result->mTerrainTypes.emplace(townFloorId);
         const int w = 80;
         const int h = 80;
-        result->mTiles.reserve(h);
-        for(int y = 0; y < h; y++) {
-            auto& row = result->mTiles.emplace_back();
-            row.reserve(w);
-            for(int x = 0; x < w; x++) {
-                row.emplace_back(eTile{0, 0});
-            }
-        }
+        result->generateTiles(w, h);
         result->mWidth = w;
         result->mHeight = h;
         result->mTiles[0][0].fTileType = 3;
@@ -155,7 +245,7 @@ eMapGenerator::generate(const std::string& name) const {
         result->mTiles[1][0].fTileType = 1;
 
         const auto townFenceId = eObjsTexturesData::id("town_fence");
-        result->mObjectTypes.emplace_back(townFenceId);
+        result->mObjectTypes.emplace(townFenceId);
 
         auto& obj = result->mObjects.emplace_back();
         obj.fObjectType = 0;

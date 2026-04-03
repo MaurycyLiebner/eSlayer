@@ -4,12 +4,12 @@
 #include "eSlayerMissiles/emissilecollision.h"
 
 #include <eSlayerHelpers/emissile.h>
-#include <eSlayerHelpers/eunitarea.h>
-#include <eSlayerHelpers/eunitareas.h>
+#include <eSlayerHelpers/earea.h>
+#include <eSlayerHelpers/esetareas.h>
 #include <eSlayerHelpers/eunitdata.h>
 
 eMissileIncrementer::eMissileIncrementer(
-    eUnitAreas& unitAreas) :
+    eSetAreas& unitAreas) :
     mUnitAreas(unitAreas) {}
 
 void eMissileIncrementer::initialize(
@@ -39,7 +39,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
 
         for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
             for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-                const eUnitArea area{ax, ay};
+                const eArea area{ax, ay};
                 const auto& units = mUnitAreas.at(area);
                 for(const int charId : units) {
                     const auto u = mGetUnit(charId);
@@ -86,7 +86,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
 
     for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
         for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-            const eUnitArea area{ax, ay};
+            const eArea area{ax, ay};
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = mGetUnit(charId);

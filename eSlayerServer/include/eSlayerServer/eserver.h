@@ -57,9 +57,10 @@ public:
 
     virtual void increment(const float by) = 0;
 
-    virtual std::shared_ptr<eMap>
+    virtual bool
     requestMap(const int clientId,
-               const std::string& name) = 0;
+               const std::string& name,
+               eMapData& data) = 0;
     virtual bool
     spawn(const int clientId,
           eCharacter& c,

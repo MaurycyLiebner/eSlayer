@@ -112,15 +112,17 @@ void eTcpIpJoin::increment(const float by) {
     }
 }
 
-std::shared_ptr<eMap> eTcpIpJoin::requestMap(
+bool eTcpIpJoin::requestMap(
     const int clientId,
-    const std::string& name) {
+    const std::string& name,
+    eMapData& data) {
     ePacket p;
     p << ePacketType::map;
+    p << name;
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send map request to the host.");
-        return nullptr;
+        return false;
     }
     uint32_t time = 0;
     while(true) {
@@ -134,9 +136,8 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
             p >> type;
 
             if(type == ePacketType::map) {
-                const auto map = std::make_shared<eMap>();
-                map->read(p);
-                return map;
+                data.read(p);
+                return true;
             }
         }
 
@@ -144,7 +145,7 @@ std::shared_ptr<eMap> eTcpIpJoin::requestMap(
         time += 16;
         if(time > 2000) {
             failed("Disconnected", "Map request timed out.");
-            return nullptr;
+            return false;
         }
     }
 }

@@ -19,9 +19,9 @@ public:
 
     void increment(const float by) override;
 
-    std::shared_ptr<eMap>
-    requestMap(const int clientId,
-               const std::string& name) override;
+    bool requestMap(const int clientId,
+                    const std::string& name,
+                    eMapData& data) override;
     bool spawn(const int clientId,
                eCharacter& c,
                const eScreenDimensions& screenDims) override;

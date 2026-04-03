@@ -1,0 +1,55 @@
+#ifndef EMAPPORTION_H
+#define EMAPPORTION_H
+
+#include "eslayerhelpersexport.h"
+
+#include <cstdint>
+#include <vector>
+#include <set>
+
+class ePacket;
+
+struct eTile {
+    uint16_t fTerrainType;
+    uint16_t fTileType;
+};
+
+struct eObject {
+    uint16_t fObjectType;
+    uint16_t fTileType;
+
+    uint16_t fTileX;
+    uint16_t fTileY;
+};
+
+struct eMapPortionArea {
+    int fX = 0;
+    int fY = 0;
+    int fWidth = 0;
+    int fHeight = 0;
+};
+
+struct ESLAYERHELPERS_API eMapData {
+    uint16_t fTotalWidth = 0;
+    uint16_t fTotalHeight = 0;
+
+    std::set<uint16_t> fTerrainTypes;
+    std::set<uint16_t> fObjectTypes;
+
+    void write(ePacket& p) const;
+    void read(ePacket& p);
+};
+
+struct ESLAYERHELPERS_API eMapPortion {
+    static const uint16_t sBaseDim = 32;
+
+    eMapPortionArea fArea;
+
+    std::vector<std::vector<eTile>> fTiles;
+    std::vector<eObject> fObjects;
+
+    void write(ePacket& p) const;
+    void read(ePacket& p);
+};
+
+#endif // EMAPPORTION_H

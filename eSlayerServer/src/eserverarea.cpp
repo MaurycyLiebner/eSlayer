@@ -111,7 +111,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 void eServerArea::increment(const float by) {
-    std::set<eUnitArea> unitAreas;
+    std::set<eArea> unitAreas;
     for(auto& it : mClientData) {
         const int i = it.first;
         const auto u = unit(i);
@@ -136,7 +136,7 @@ void eServerArea::increment(const float by) {
             for(int dx = dxMin; dx <= dxMax; dx++) {
                 const int y = newArea.fY - dx + dy/2;
                 const int x = newArea.fX + dx + dy % 2 + dy/2;
-                const eUnitArea area{x, y};
+                const eArea area{x, y};
                 unitAreas.emplace(area);
             }
         }
@@ -184,7 +184,7 @@ void eServerArea::unitsData(
         for(int dx = dxMin; dx <= dxMax; dx++) {
             const int y = clientArea.fY - dx + dy/2;
             const int x = clientArea.fX + dx + dy % 2 + dy/2;
-            const eUnitArea area{x, y};
+            const eArea area{x, y};
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = unit(charId);
@@ -231,7 +231,7 @@ void eServerArea::itemsData(
         for(int dx = dxMin; dx <= dxMax; dx++) {
             const int y = clientArea.fY - dx + dy/2;
             const int x = clientArea.fX + dx + dy % 2 + dy/2;
-            const eUnitArea area{x, y};
+            const eArea area{x, y};
             const auto& items = mItemAreas.at(area);
             for(const int itemId : items) {
                 const auto i = groundItem(itemId);
@@ -254,37 +254,68 @@ void eServerArea::itemsData(
     }
 }
 
-eUnitArea eServerArea::unitArea(const int charId) const {
+eArea eServerArea::unitArea(const int charId) const {
     const auto u = unit(charId);
     if(!u) return {0, 0};
     return unitArea(*u);
 }
 
-eUnitArea eServerArea::unitArea(const eServerUnit& u) const {
+eArea eServerArea::unitArea(const eServerUnit& u) const {
     const auto& pos = u.fPos;
     return mUnitAreas.posArea(pos);
 }
 
-eUnitArea eServerArea::itemArea(const int itemId) const {
+eArea eServerArea::itemArea(const int itemId) const {
     const auto i = groundItem(itemId);
     if(!i) return {0, 0};
     return itemArea(*i);
 }
 
-eUnitArea eServerArea::itemArea(const eGroundItem& i) const {
+eArea eServerArea::itemArea(const eGroundItem& i) const {
     const auto& pos = i.fPos;
     return mItemAreas.posArea(pos);
 }
 
-eUnitArea eServerArea::itemTile(const int itemId) const {
+eArea eServerArea::itemTile(const int itemId) const {
     const auto i = groundItem(itemId);
     if(!i) return {0, 0};
     return itemTile(*i);
 }
 
-eUnitArea eServerArea::itemTile(const eGroundItem& i) const {
+eArea eServerArea::itemTile(const eGroundItem& i) const {
     const auto& pos = i.fPos;
     return mItemTiles.posArea(pos);
+}
+
+bool eServerArea::mapPortion(
+    const int clientId, eMapPortion& result) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& clientData = it->second;
+    auto& known = clientData.fKnownMap;
+    const auto area = known.posArea(u->fPos);
+    const int m = 1;
+    for(int x = area.fX - m; x <= area.fX + m; x++) {
+        for(int y = area.fY - m; y <= area.fY + m; y++) {
+            const eArea xyArea{x, y};
+            const bool r = known.hasArea(xyArea);
+            if(!r) {
+                const auto pos = known.areaPos(xyArea).round();
+                const eMapPortionArea mapArea{pos.fX,
+                                              pos.fY,
+                                              eMapPortion::sBaseDim,
+                                              eMapPortion::sBaseDim};
+                const bool r = mMap->extractPortion(mapArea, result);
+                if(r) {
+                    known.emplace(xyArea);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool eServerArea::addClient(const int clientId,
@@ -385,7 +416,7 @@ bool eServerArea::dropItem(const int clientId, const int itemId) {
         for(int x = -dist; x <= dist; x++) {
             for(int y = -dist; y <= dist; y++) {
                 if(std::abs(x) != dist && std::abs(y) != dist) continue;
-                const eUnitArea tile{baseTile.fX + x, baseTile.fY + y};
+                const eArea tile{baseTile.fX + x, baseTile.fY + y};
                 const auto& items = mItemTiles.at(tile);
                 if(!items.empty()) continue;
                 groundItem->fPos = ePointF{float(tile.fX)/mItemTileSubdivision,
@@ -468,7 +499,7 @@ eServerArea::unit(const ePointF& pos) {
 
     for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
         for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-            const eUnitArea area{ax, ay};
+            const eArea area{ax, ay};
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = unit(charId);
@@ -493,3 +524,6 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         u->killed(killed);
     }
 }
+
+eClientData::eClientData() :
+    fKnownMap(eMapPortion::sBaseDim) {}

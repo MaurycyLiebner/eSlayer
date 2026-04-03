@@ -5,6 +5,7 @@
 #include "eunitdynamicdata.h"
 #include "emissile.h"
 #include "egrounditem.h"
+#include "emapportion.h"
 
 class ePacket;
 
@@ -15,6 +16,8 @@ struct ESLAYERHELPERS_API eRequestData {
     std::vector<eMissile> fMissiles;
     std::vector<eGroundItem> fNewItems;
     std::vector<uint32_t> fRemovedItemIds;
+    bool fHasMap = false;
+    eMapPortion fMapPortion;
     uint16_t fMana;
     uint16_t fLevel;
     uint16_t fExperience;

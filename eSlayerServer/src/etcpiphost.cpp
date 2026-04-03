@@ -81,12 +81,17 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::map: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
+                std::string mapName;
+                p >> mapName;
                 const int charId = it->second;
-                const auto map = requestMap(charId, "town");
-                ePacket p;
-                p << ePacketType::map;
-                map->write(p);
-                mNet.sendToClient(tcpClientId, p);
+                eMapData data;
+                const bool r = requestMap(charId, mapName, data);
+                if(r) {
+                    ePacket p;
+                    p << ePacketType::map;
+                    data.write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
             }
         } break;
         case ePacketType::spawn: {

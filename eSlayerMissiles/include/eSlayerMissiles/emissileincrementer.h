@@ -6,13 +6,13 @@
 #include <functional>
 
 struct eMissile;
-class eUnitAreas;
+class eSetAreas;
 struct ePointF;
 struct eUnitData;
 
 class ESLAYERMISSILES_API eMissileIncrementer {
 public:
-   eMissileIncrementer(eUnitAreas& unitAreas);
+   eMissileIncrementer(eSetAreas& unitAreas);
 
     using eObsticle = std::function<bool(const ePointF& pos)>;
     using eRemoveMissile = std::function<void(const eMissile& m)>;
@@ -25,7 +25,7 @@ public:
 
     bool increment(eMissile& m, const float by) const;
 private:
-    eUnitAreas& mUnitAreas;
+    eSetAreas& mUnitAreas;
     eObsticle mObsticle;
     eRemoveMissile mRemoveMissile;
     eGetUnit mGetUnit;

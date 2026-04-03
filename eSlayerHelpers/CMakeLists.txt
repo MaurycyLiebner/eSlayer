@@ -86,13 +86,13 @@ add_library(eSlayerHelpers SHARED
     src/emissile.cpp
     include/eSlayerHelpers/epositioned.h
     include/eSlayerHelpers/estringidmapvector.h
-    include/eSlayerHelpers/eunitarea.h
+    include/eSlayerHelpers/earea.h
 
     include/eSlayerHelpers/eskills.h
     src/eskills.cpp
 
-    include/eSlayerHelpers/eunitareas.h
-    src/eunitareas.cpp
+    include/eSlayerHelpers/esetareas.h
+    src/esetareas.cpp
     include/eSlayerHelpers/edamage.h
     src/edamage.cpp
     src/echardatainfo.cpp
@@ -131,6 +131,10 @@ add_library(eSlayerHelpers SHARED
     src/eterrstexturesdata.cpp
     include/eSlayerHelpers/eobjstexturesdata.h
     src/eobjstexturesdata.cpp
+    include/eSlayerHelpers/emapportion.h
+    src/emapportion.cpp
+    include/eSlayerHelpers/eareas.h
+    src/eareas.cpp
 
 
 )

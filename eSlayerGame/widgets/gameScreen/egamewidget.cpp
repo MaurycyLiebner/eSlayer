@@ -17,7 +17,7 @@
 #include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erequestdata.h>
-#include <eSlayerHelpers/eunitarea.h>
+#include <eSlayerHelpers/earea.h>
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -286,17 +286,15 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
-        const int iMax = terrTypes.size() - 1;
 
         eTilesIterator iterator;
         iterator.initialize(this);
-        for(int i = 0; i <= iMax; i++) {
-            const auto terrType = terrTypes[i];
+        for(const auto terrType : terrTypes) {
             const auto& floor = eTerrsTextures::get(terrType);
             iterator.iterate([&](const int x, const int y,
                                  const int px, const int py) {
                 const auto& tile = mMap->tile(x, y);
-                if(tile.fTerrainType != i) return;
+                if(tile.fTerrainType != terrType) return;
                 const auto& tex = floor.getTexture(tile.fTileType);
                 mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
@@ -395,7 +393,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& iobjs = mMap->objects(x, y);
             for(const auto& iobj : iobjs) {
                 const auto& obj = mMap->object(iobj);
-                const auto& objType = objTypes[obj.fObjectType];
+                const auto objType = obj.fObjectType;
                 const auto& object = eObjsTextures::get(objType);
                 const auto& tex = object.getTexture(obj.fTileType);
                 p.drawTexture(px, py + tileH, tex, eAlignment::top | eAlignment::hcenter);

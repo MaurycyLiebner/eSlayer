@@ -44,6 +44,11 @@ void eRequestData::read(ePacket& p) {
     p >> fMana;
     p >> fLevel;
     p >> fExperience;
+
+    p >> fHasMap;
+    if(fHasMap) {
+        fMapPortion.read(p);
+    }
 }
 
 void eRequestData::write(ePacket& p) const {
@@ -82,4 +87,9 @@ void eRequestData::write(ePacket& p) const {
     p << fMana;
     p << fLevel;
     p << fExperience;
+
+    p << fHasMap;
+    if(fHasMap) {
+        fMapPortion.write(p);
+    }
 }

@@ -4,29 +4,17 @@
 #include "eslayermapgeneratorexport.h"
 
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/emapportion.h>
 
 #include <string>
 #include <memory>
 #include <vector>
 
-struct ESLAYERMAPGENERATOR_API eTile {
-    uint16_t fTerrainType;
-    uint16_t fTileType;
-};
-
-struct ESLAYERMAPGENERATOR_API eObject {
-    uint16_t fObjectType;
-    uint16_t fTileType;
-
-    uint16_t fTileX;
-    uint16_t fTileY;
-};
-
 class ePacket;
 
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
-    friend class eMapPortion;
+    friend class eServer;
 public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
@@ -35,27 +23,36 @@ public:
     const std::vector<uint16_t>& objects(const int x, const int y) const;
     const eObject& object(const int id) const;
 
-    const std::vector<uint16_t>&
+    const ePoint& spawnPos() const { return mSpawnPos; }
+
+    const std::set<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
 
-    const std::vector<uint16_t>&
+    const std::set<uint16_t>&
     objectTypes() const { return mObjectTypes; }
 
     bool walkable(const int x, const int y) const;
 
     void write(ePacket& p) const;
     void read(ePacket& p);
+
+    void loadPortion(const eMapPortion& portion);
+    bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
+    void mapData(eMapData& data) const;
+    void loadData(const eMapData& data);
 private:
+    void generateTiles(const int w, const int h);
     void updateObjectsMap();
 
-    ePointF mSpawnPos{0.f, 0.f};
+    ePoint mSpawnPos{0, 0};
     uint16_t mWidth = 0;
     uint16_t mHeight = 0;
+
     std::vector<std::vector<eTile>> mTiles;
     std::vector<eObject> mObjects;
     std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
-    std::vector<uint16_t> mTerrainTypes;
-    std::vector<uint16_t> mObjectTypes;
+    std::set<uint16_t> mTerrainTypes;
+    std::set<uint16_t> mObjectTypes;
 };
 
 namespace eSlayerMapGenerator {

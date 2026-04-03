@@ -164,7 +164,7 @@ void eScreenHandler::showTcpIpJoinMenu() {
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const auto map = std::make_shared<std::shared_ptr<eMap>>();
+    const auto map = std::make_shared<eMap>();
     const auto clientId = std::make_shared<int>();
     const auto serverC = std::make_shared<eCharacter>(c);
 
@@ -176,7 +176,7 @@ void eScreenHandler::showGame(eServerData serverData,
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*clientId, *server, *map, *serverC);
+        w->initialize(*clientId, *server, map, *serverC);
         mWindow->setWidget(w);
     };
 
@@ -193,8 +193,11 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([server, map, clientId]() {
-        *map = (*server)->requestMap(*clientId, "town");
+    loading.emplace_back([this, server, map, clientId]() {
+        eMapData data;
+        const bool r = (*server)->requestMap(*clientId, "town", data);
+        if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
+        else map->loadData(data);
     });
     loading.emplace_back([r]() {
         const int id = eEffectsTextures::sEffects.id("lighting");
@@ -205,14 +208,14 @@ void eScreenHandler::showGame(eServerData serverData,
         eMissilesTextures::loadTextures(r);
     });
     loading.emplace_back([r, map]() {
-        const auto& terrTypes = (*map)->terrainTypes();
+        const auto& terrTypes = map->terrainTypes();
         for(const auto& terrType : terrTypes) {
             auto& texs = eTerrsTextures::get(terrType);
             texs.load(r);
         }
     });
     loading.emplace_back([r, map]() {
-        const auto& objTypes = (*map)->objectTypes();
+        const auto& objTypes = map->objectTypes();
         for(const auto& objType : objTypes) {
             auto& texs = eObjsTextures::get(objType);
             texs.load(r);

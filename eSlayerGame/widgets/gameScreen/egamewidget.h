@@ -16,7 +16,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerServer/eserver.h>
 #include <eSlayerHelpers/emissile.h>
-#include <eSlayerHelpers/eunitarea.h>
+#include <eSlayerHelpers/earea.h>
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eequipment.h>
 

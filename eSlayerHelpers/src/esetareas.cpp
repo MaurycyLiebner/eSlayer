@@ -1,10 +1,10 @@
-#include "eSlayerHelpers/eunitareas.h"
+#include "eSlayerHelpers/esetareas.h"
 
-eUnitAreas::eUnitAreas(const int areaDim) :
+eSetAreas::eSetAreas(const int areaDim) :
     mAreaDim(areaDim) {}
 
-eUnitArea eUnitAreas::posArea(const ePointF& pos) const {
-    eUnitArea result;
+eArea eSetAreas::posArea(const ePointF& pos) const {
+    eArea result;
     if(mAreaDim > 0) {
         reinterpret_cast<ePoint&>(result) = pos.floor()/mAreaDim;
     } else {
@@ -13,24 +13,24 @@ eUnitArea eUnitAreas::posArea(const ePointF& pos) const {
     return result;
 }
 
-void eUnitAreas::clear() {
+void eSetAreas::clear() {
     mAreas.clear();
 }
 
-bool eUnitAreas::hasArea(const eUnitArea& tile) {
+bool eSetAreas::hasArea(const eArea& tile) {
     const auto it = mAreas.find(tile);
     if(it == mAreas.end()) return false;
     return true;
 }
 
-void eUnitAreas::erase(const eUnitArea& area, const int id) {
+void eSetAreas::erase(const eArea& area, const int id) {
     mAreas[area].erase(id);
 }
 
-void eUnitAreas::emplace(const eUnitArea& area, const int id) {
+void eSetAreas::emplace(const eArea& area, const int id) {
     mAreas[area].emplace(id);
 }
 
-const std::set<int>& eUnitAreas::at(const eUnitArea& area) const {
+const std::set<int>& eSetAreas::at(const eArea& area) const {
     return mAreas[area];
 }

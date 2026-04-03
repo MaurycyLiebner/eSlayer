@@ -45,6 +45,10 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
     if(!b) return result;
+    if(data.fHasMap) {
+        mMap->loadPortion(data.fMapPortion);
+    }
+
     result.fMana = data.fMana;
     result.fLevel = data.fLevel;
     result.fExperience = data.fExperience;

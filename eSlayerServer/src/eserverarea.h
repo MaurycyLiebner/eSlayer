@@ -9,8 +9,9 @@
 #include <eSlayerHelpers/eunitdynamicdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eidmapvector.h>
-#include <eSlayerHelpers/eunitarea.h>
-#include <eSlayerHelpers/eunitareas.h>
+#include <eSlayerHelpers/earea.h>
+#include <eSlayerHelpers/eareas.h>
+#include <eSlayerHelpers/esetareas.h>
 #include <eSlayerHelpers/escreendimensions.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
@@ -22,12 +23,14 @@
 class eCharacter;
 
 struct eClientData {
+    eClientData();
     // in tile dimensions
     eScreenDimensions fScreen;
-    eUnitArea fArea;
+    eArea fArea;
     std::set<int> fKnownUnits;
     std::set<int> fKnownItems;
     int32_t fLatestMissile;
+    eAreas fKnownMap;
 };
 
 class eServerArea {
@@ -52,14 +55,17 @@ public:
     std::vector<eMissile>
     missileData(const int clientId);
 
-    eUnitArea unitArea(const int charId) const;
-    eUnitArea unitArea(const eServerUnit& u) const;
+    eArea unitArea(const int charId) const;
+    eArea unitArea(const eServerUnit& u) const;
 
-    eUnitArea itemArea(const int itemId) const;
-    eUnitArea itemArea(const eGroundItem& i) const;
+    eArea itemArea(const int itemId) const;
+    eArea itemArea(const eGroundItem& i) const;
 
-    eUnitArea itemTile(const int itemId) const;
-    eUnitArea itemTile(const eGroundItem& i) const;
+    eArea itemTile(const int itemId) const;
+    eArea itemTile(const eGroundItem& i) const;
+
+    bool mapPortion(const int clientId,
+                    eMapPortion& result);
 
     bool addClient(const int clientId,
                    eCharacter& c,
@@ -98,11 +104,11 @@ private:
 
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
-    eUnitAreas mUnitAreas;
+    eSetAreas mUnitAreas;
     const int mItemAreaDim = 4;
-    eUnitAreas mItemAreas;
+    eSetAreas mItemAreas;
     const int mItemTileSubdivision = 2;
-    eUnitAreas mItemTiles;
+    eSetAreas mItemTiles;
 
     std::map<int, eClientData> mClientData;
 
