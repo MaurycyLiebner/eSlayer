@@ -69,7 +69,8 @@ private:
     bool consumeActionTime(const float by,
                            eCharUnitModel& model);
 
-    bool handleUnitAttack(const eSkillChoice schoice,
+    bool handleUnitAttack(eUnit& u,
+                          const eSkillChoice schoice,
                           eCharUnitModel& model);
 
     bool handlePositionAttack(const ePointF& mousePos,
@@ -95,10 +96,10 @@ private:
     int mClientId;
     std::shared_ptr<eServer> mServer;
 
-    std::shared_ptr<eUnit> mPressedUnit;
+    std::weak_ptr<eUnit> mPressedUnit;
 
     bool mItemPickuped = false;
-    std::shared_ptr<eGroundItem> mPressedItem;
+    std::weak_ptr<eGroundItem> mPressedItem;
 
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharData = nullptr;

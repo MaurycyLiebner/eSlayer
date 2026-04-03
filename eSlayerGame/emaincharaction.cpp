@@ -61,12 +61,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
-    if(u) mPressedItem = nullptr;
+    if(u) mPressedItem.reset();
     mPressedUnit = u;
 }
 
 void eMainCharAction::setPressedItem(const std::shared_ptr<eGroundItem>& i) {
-    if(i) mPressedUnit = nullptr;
+    if(i) mPressedUnit.reset();
     mPressedItem = i;
     mItemPickuped = false;
 }
@@ -95,9 +95,9 @@ void eMainCharAction::increment(const bool mousePressed,
     bool shouldStopAttack = !canUseSkill;
 
     if(!shouldStopAttack) {
-        if(mPressedUnit) {
-            shouldStopAttack = !handleUnitAttack(schoice, model);
-            targetPos = mPressedUnit->fPos;
+        if(const auto u = mPressedUnit.lock()) {
+            shouldStopAttack = !handleUnitAttack(*u, schoice, model);
+            targetPos = u->fPos;
             if(!shouldStopAttack && !mousePressed) {
                 stop();
             }
@@ -106,9 +106,9 @@ void eMainCharAction::increment(const bool mousePressed,
         }
     }
 
-    if(mPressedItem) {
-        const auto itemId = mPressedItem->fItemId;
-        const float dist = ePointF::distance(mPressedItem->fPos, mMainChar->fPos);
+    if(const auto item = mPressedItem.lock()) {
+        const auto itemId = item->fItemId;
+        const float dist = ePointF::distance(item->fPos, mMainChar->fPos);
         if(!eInventoryWidget::sBlocked && dist < 0.5f) {
             if(!mItemPickuped) {
                 const bool dragEnabled = eItemDragWidget::sInstance;
@@ -117,14 +117,14 @@ void eMainCharAction::increment(const bool mousePressed,
                 if(mousePressed) {
                     mItemPickuped = true;
                 } else {
-                    mPressedItem = nullptr;
+                    mPressedItem.reset();
                     mItemPickuped = false;
                 }
                 stop();
             }
             return;
         } else {
-            targetPos = mPressedItem->fPos;
+            targetPos = item->fPos;
         }
     }
 
@@ -148,7 +148,7 @@ void eMainCharAction::handleAttackStop(
     const auto atype = mAttackData.fType;
 
     const bool stop =
-        (atype == eAttackTargetType::character && !mPressedUnit) ||
+        (atype == eAttackTargetType::character && mPressedUnit.expired()) ||
         (atype == eAttackTargetType::position && (!mousePressed || (!shiftPressed && !rightPressed)));
 
     if(stop) {
@@ -170,25 +170,25 @@ bool eMainCharAction::consumeActionTime(
 }
 
 bool eMainCharAction::handleUnitAttack(
+    eUnit& u,
     const eSkillChoice schoice,
     eCharUnitModel& model) {
     const bool rangedAttack = mStats.rangedAttack(schoice);
     if(!rangedAttack) {
         const float attackDist = mStats.attackRange(
-            schoice, mPressedUnit->fRadius,
-            mMainChar->fRadius);
+            schoice, u.fRadius, mMainChar->fRadius);
 
-        const float dist = ePointF::distance(mMainChar->fPos, mPressedUnit->fPos);
+        const float dist = ePointF::distance(mMainChar->fPos, u.fPos);
         if(dist >= attackDist) {
             return false;
         }
     }
 
     if(mAttackData.fType == eAttackTargetType::none) {
-        const int targetId = mPressedUnit->fCharId;
+        const int targetId = u.fCharId;
         mAttackData = eAttackData(targetId, schoice);
 
-        const auto vec = ePointF::vector(mPressedUnit->fPos, mMainChar->fPos);
+        const auto vec = ePointF::vector(u.fPos, mMainChar->fPos);
         const float angle = vec.angle();
         mMainChar->fAngle = angle;
         model.setAngle(angle);
@@ -295,7 +295,7 @@ void eMainCharAction::updateMovementAnimation(
 }
 
 void eMainCharAction::stopAttack() {
-    mPressedUnit = nullptr;
+    mPressedUnit.reset();
     mAttackData = eAttackData();
     mServer->stopAttack(mClientId);
 }
@@ -313,18 +313,18 @@ void eMainCharAction::updateWalkRunSpeed() {
 }
 
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
-    if(!mPressedUnit && !mPressedItem) {
+    if(mPressedUnit.expired() && mPressedItem.expired()) {
         mMovementHandler.moveTo(mousePos);
     }
     if(mItemPickuped) {
         mItemPickuped = false;
-        mPressedItem = nullptr;
+        mPressedItem.reset();
     }
 }
 
 void eMainCharAction::stop() {
-    mPressedUnit = nullptr;
-    if(!mItemPickuped) mPressedItem = nullptr;
+    mPressedUnit.reset();
+    if(!mItemPickuped) mPressedItem.reset();
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }
