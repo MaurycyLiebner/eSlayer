@@ -61,6 +61,7 @@ bool eComplexAction::attack(const eAttackData& target) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
         if(!u) return false;
+        if(u->fTeamId == mUnit.fTeamId) return false;
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
@@ -90,7 +91,7 @@ bool eComplexAction::attack(const eAttackData& target) {
                 const auto a = [this, targetPos, schoice, wchoice]() {
                     const auto u = mArea.unit(targetPos);
                     if(!u) return;
-                    if(u.get() == &mUnit) return;
+                    if(u->fTeamId == mUnit.fTeamId) return;
                     getHit(*u, schoice, wchoice);
                 };
                 const auto attack = eAttackAction::sCreate(
