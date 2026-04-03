@@ -69,6 +69,7 @@ public:
     const eGameInput& input() const { return mInput; }
 
     const std::string& cname() const { return mCName; }
+    std::string userName(const int clientId) const;
     eEquipment& equipment() { return mMainAction.equipment(); }
     eAttributes& attributes() { return mMainAction.attributes(); }
     eStats& stats() { return mMainAction.stats(); }

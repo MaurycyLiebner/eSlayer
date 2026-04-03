@@ -56,12 +56,12 @@ public:
                           const eAttributes& attrs) override;
 protected:
     eServerClientHandler* clientHandler(const int clientId);
+    std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 private:
     float mTime = 0.f;
 
     std::map<std::string, std::shared_ptr<eServerArea>> mAreas;
     std::map<std::string, std::shared_ptr<eMap>> mMaps;
-    std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 };
 
 #endif // ELOCALSERVER_H

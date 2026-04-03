@@ -9,12 +9,18 @@ void eUnitIndicator::initialize() {
     setColor(eColors::sHealth);
 }
 
-void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u) {
+void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
+                             const std::map<int, std::string>& names) {
     mUnit = u;
     if(mUnit) {
-        const int typeId = mUnit->fTypeId;
-        const auto name = eMonsterNames::name(typeId);
-        setText(name);
+        const auto it = names.find(u->fCharId);
+        if(it == names.end()) {
+            const int typeId = mUnit->fTypeId;
+            const auto name = eMonsterNames::name(typeId);
+            setText(name);
+        } else {
+            setText(it->second);
+        }
     } else {
         setText("");
     }

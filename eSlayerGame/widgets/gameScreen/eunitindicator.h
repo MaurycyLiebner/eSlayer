@@ -11,7 +11,8 @@ public:
 
     void initialize();
 
-    void setUnit(const std::shared_ptr<eUnit>& u);
+    void setUnit(const std::shared_ptr<eUnit>& u,
+                 const std::map<int, std::string>& names);
 protected:
     void paintEvent(ePainter& p) override;
 private:

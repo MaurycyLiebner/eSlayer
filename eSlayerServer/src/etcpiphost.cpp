@@ -104,12 +104,12 @@ void eTcpIpHost::increment(const float by) {
                         ePacket p;
                         p << ePacketType::spawn;
 
-                        const uint8_t nClients = mClientIdMap.size();
+                        const uint8_t nClients = mClientHandlers.size();
                         p << nClients;
-                        for(const auto& it : mClientIdMap) {
-                            const int clientId = it.second;
+                        for(const auto& it : mClientHandlers) {
+                            const int clientId = it.first;
                             p << clientId;
-                            const auto h = clientHandler(clientId);
+                            const auto h = it.second;
                             const auto name = h ? h->name() : "";
                             p << name;
                         }

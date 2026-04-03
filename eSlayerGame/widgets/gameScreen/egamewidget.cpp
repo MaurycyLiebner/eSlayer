@@ -103,6 +103,12 @@ void eGameWidget::stop() {
     mMainAction.stand();
 }
 
+std::string eGameWidget::userName(const int clientId) const {
+    const auto it = mUserNames.find(clientId);
+    if(it == mUserNames.end()) return "";
+    return it->second;
+}
+
 void eGameWidget::dropItem() {
     auto& eq = mMainAction.equipment();
     auto& dragged = eq.fDragged;
@@ -571,7 +577,7 @@ void eGameWidget::initializeTextures() {
 void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
     if(mUnitIndicator && !mPressedUnit) {
-        mUnitIndicator->setUnit(u);
+        mUnitIndicator->setUnit(u, mUserNames);
     }
 }
 
@@ -579,9 +585,9 @@ void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     mPressedUnit = u;
     if(mUnitIndicator) {
         if(mPressedUnit) {
-            mUnitIndicator->setUnit(mPressedUnit);
+            mUnitIndicator->setUnit(mPressedUnit, mUserNames);
         } else {
-            mUnitIndicator->setUnit(mHighlightUnit);
+            mUnitIndicator->setUnit(mHighlightUnit, mUserNames);
         }
     }
 
