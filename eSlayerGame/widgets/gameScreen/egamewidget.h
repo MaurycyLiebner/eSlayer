@@ -26,6 +26,12 @@ class eCharacter;
 using eDeathHandler = std::function<void()>;
 using eRespawnHandler = std::function<void()>;
 
+struct eScreenMessage {
+    std::string fText;
+    std::shared_ptr<eTexture> fTex;
+    int fFramesRemaining = 250;
+};
+
 class eGameWidget : public eLabel {
 public:
     eGameWidget(eMainWindow* const window);
@@ -110,6 +116,9 @@ private:
 
     eMainCharAction mMainAction;
     std::shared_ptr<eUnit> mMainChar;
+
+    std::map<int, std::string> mUserNames;
+    std::vector<eScreenMessage> mMessages;
 
     std::shared_ptr<eUnit> mHighlightUnit;
     std::shared_ptr<eUnit> mPressedUnit;

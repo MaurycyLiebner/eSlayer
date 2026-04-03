@@ -84,6 +84,18 @@ void eTcpIpJoin::increment(const float by) {
             mEquipment.read(p);
             mNewEquipment = true;
         } break;
+        case ePacketType::userEntered: {
+            int clientId;
+            p >> clientId;
+            std::string name;
+            p >> name;
+            mNewUsers.emplace_back(clientId, name, true);
+        } break;
+        case ePacketType::userLeft: {
+            int clientId;
+            p >> clientId;
+            mLeftUsers.emplace_back(clientId);
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -155,6 +167,16 @@ bool eTcpIpJoin::spawn(
             p >> type;
 
             if(type == ePacketType::spawn) {
+                uint8_t nClients;
+                p >> nClients;
+                for(uint8_t i = 0; i < nClients; i++) {
+                    int clientId;
+                    p >> clientId;
+                    std::string name;
+                    p >> name;
+                    mNewUsers.emplace_back(clientId, name, false);
+                }
+
                 c = eCharacter();
                 c.read(p);
                 return true;

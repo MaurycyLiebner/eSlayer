@@ -6,9 +6,11 @@
 #include "../../textures/eterrstextures.h"
 #include "../../textures/etilesiterator.h"
 #include "../../textures/emissilestextures.h"
+#include "../../textures/etextgenerator.h"
 #include "eunitindicator.h"
 #include "eitemdragwidget.h"
 #include "einventorywidget.h"
+#include "../../elanguage.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -19,6 +21,7 @@
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/estringhelpers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -173,6 +176,34 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     const auto r = renderer();
 
+    {
+        const auto res = resolution();
+        const auto font = eFonts::textFont(res.tinyFontSize());
+        const int w = width()/2;
+        const auto newUsers = mServer->receiveNewUsers();
+        for(const auto& u : newUsers) {
+            const auto& name = u.fName;
+            mUserNames[u.fClientId] = name;
+            if(u.fJustJoined) {
+                auto& msg = mMessages.emplace_back();
+                auto text = eLanguage::text(12, 0);
+                text = eStringHelpers::replaceAll(text, "%1", name);
+                msg.fText = text;
+                eTextGenerator gen(r, eFontColor::white, font, 1, w);
+                msg.fTex = gen.generate(text);
+            }
+        }
+        const auto leftUsers = mServer->receiveLeftUsers();
+        for(const int clientId : leftUsers) {
+            const auto& name = mUserNames[clientId];
+            auto text = eLanguage::text(12, 1);
+            text = eStringHelpers::replaceAll(text, "%1", name);
+            auto& msg = mMessages.emplace_back();
+            msg.fText = text;
+            eTextGenerator gen(r, eFontColor::white, font, 1, w);
+            msg.fTex = gen.generate(text);
+        }
+    }
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar, mMainAction, r);
     if(eInventoryWidget::sBlocked) {
@@ -458,6 +489,20 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto& tex = texture();
     if(tex) {
         p.drawTexture(rect(), tex, eAlignment::center);
+    }
+
+    const auto res = resolution();
+    const int m = res.smallPadding();
+    int y = m;
+    for(int i = 0; i < mMessages.size(); i++) {
+        auto& msg = mMessages[i];
+        if(msg.fFramesRemaining-- <= 0) {
+            mMessages.erase(mMessages.begin() + i);
+            i--;
+        } else {
+            p.drawTexture(m, y, msg.fTex);
+            y += msg.fTex->height() + m;
+        }
     }
 }
 

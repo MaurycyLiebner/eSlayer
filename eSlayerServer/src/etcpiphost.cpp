@@ -97,13 +97,38 @@ void eTcpIpHost::increment(const float by) {
                 c.read(p);
                 eScreenDimensions screenDims;
                 screenDims.read(p);
-                spawn(charId, c, screenDims);
+                const bool r = spawn(charId, c, screenDims);
 
-                {
-                    ePacket p;
-                    p << ePacketType::spawn;
-                    c.write(p);
-                    mNet.sendToClient(pkt.fClientID, p);
+                if(r) {
+                    {
+                        ePacket p;
+                        p << ePacketType::spawn;
+
+                        const uint8_t nClients = mClientIdMap.size();
+                        p << nClients;
+                        for(const auto& it : mClientIdMap) {
+                            const int clientId = it.second;
+                            p << clientId;
+                            const auto h = clientHandler(clientId);
+                            const auto name = h ? h->name() : "";
+                            p << name;
+                        }
+
+                        c.write(p);
+                        mNet.sendToClient(pkt.fClientID, p);
+                    }
+
+                    {
+                        ePacket p;
+                        p << ePacketType::userEntered;
+                        p << charId;
+                        const auto name = c.name();
+                        p << name;
+                        c.write(p);
+                        mNet.broadcast(p);
+
+                        mNewUsers.emplace_back(charId, name, true);
+                    }
                 }
             }
         } break;
@@ -117,6 +142,15 @@ void eTcpIpHost::increment(const float by) {
             }
         } break;
         case ePacketType::data: {
+
+        } break;
+        case ePacketType::userEntered: {
+
+        } break;
+        case ePacketType::userLeft: {
+
+        } break;
+        case ePacketType::equipment: {
 
         } break;
         case ePacketType::request: {
@@ -234,5 +268,13 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     mClientIdMap.erase(tcpClientId);
     const int charId = it->second;
     disconnect(charId);
+    {
+        ePacket p;
+        p << ePacketType::userLeft;
+        p << charId;
+        mNet.broadcast(p);
+
+        mLeftUsers.emplace_back(charId);
+    }
     return true;
 }

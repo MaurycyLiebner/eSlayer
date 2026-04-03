@@ -8,9 +8,7 @@
 
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
-
-#include <sstream>
-#include <iostream>
+#include <eSlayerHelpers/estringhelpers.h>
 
 eItemDragWidget* eItemDragWidget::sInstance = nullptr;
 
@@ -37,23 +35,6 @@ void eItemDragWidget::setItemDataId(const int dataId) {
         itemTex.request(r);
         mItem = itemTex.fTex;
     }
-}
-
-std::string replaceAll(std::string str,
-                       const std::string& from,
-                       const std::string& to) {
-    auto&& pos = str.find(from, size_t{});
-    while(pos != std::string::npos) {
-        str.replace(pos, from.length(), to);
-        pos = str.find(from, pos + to.length());
-    }
-    return str;
-}
-
-std::string floatToString(const float value) {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
 }
 
 std::string floatToString(const float value,
@@ -85,7 +66,7 @@ std::string floatToString(const float value,
     case eModifierType::maxColdResistance:
     case eModifierType::maxLightningResitance:
     case eModifierType::maxPoisonResistance:
-        return floatToString(100*value);
+        return eStringHelpers::floatToString(100*value);
 
     case eModifierType::none:
 
@@ -106,9 +87,9 @@ std::string floatToString(const float value,
     case eModifierType::dexterity:
     case eModifierType::vitality:
     case eModifierType::energy:
-        return floatToString(value);
+        return eStringHelpers::floatToString(value);
     }
-    return floatToString(value);
+    return eStringHelpers::floatToString(value);
 }
 
 void eItemDragWidget::setHoverItem(const eItem& item) {
@@ -138,8 +119,8 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
                                   const eFontColor color,
                                   const eModifierType type = eModifierType::none) {
             auto text = eLanguage::text(g, s);
-            text = replaceAll(text, "%1", floatToString(min, type));
-            text = replaceAll(text, "%2", floatToString(max, type));
+            text = eStringHelpers::replaceAll(text, "%1", floatToString(min, type));
+            text = eStringHelpers::replaceAll(text, "%2", floatToString(max, type));
             addText(text, color);
         };
 

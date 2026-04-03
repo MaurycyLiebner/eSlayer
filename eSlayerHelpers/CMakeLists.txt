@@ -123,6 +123,8 @@ add_library(eSlayerHelpers SHARED
     src/eitemrarity.cpp
     src/eitemdata.cpp
     src/eweapontype.cpp
+    include/eSlayerHelpers/estringhelpers.h
+    src/estringhelpers.cpp
 
 
 )

@@ -22,6 +22,18 @@ void eServer::setFailureHandler(const eServerFailureHandler& h) {
     mFailure = h;
 }
 
+std::vector<eOtherUsers> eServer::receiveNewUsers() {
+    std::vector<eOtherUsers> result;
+    std::swap(mNewUsers, result);
+    return result;
+}
+
+std::vector<int> eServer::receiveLeftUsers() {
+    std::vector<int> result;
+    std::swap(mLeftUsers, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

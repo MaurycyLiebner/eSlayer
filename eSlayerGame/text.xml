@@ -115,4 +115,8 @@
         <string id="17">Experience</string>
         <string id="18">Next Level</string>
     </group>
+    <group id="12">
+        <string id="0">%1 has just entered the game.</string>
+        <string id="1">%1 has just left the game.</string>
+    </group>
 </strings>

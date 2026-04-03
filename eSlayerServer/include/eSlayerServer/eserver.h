@@ -22,8 +22,20 @@ struct eServerData {
     std::string fIp;
 };
 
-using eServerFailureHandler = std::function<void(const std::string& msg,
-                                                 const std::string& subMsg)>;
+struct eOtherUsers {
+    int fClientId;
+    std::string fName;
+    bool fJustJoined;
+
+    eOtherUsers(const int id,
+                const std::string& name,
+                const bool joined) :
+        fClientId(id), fName(name),
+        fJustJoined(joined) {}
+};
+
+using eServerFailureHandler = std::function<void(
+    const std::string& msg, const std::string& subMsg)>;
 
 class ESLAYERSERVER_API eServer {
 public:
@@ -84,10 +96,15 @@ public:
     virtual bool
     changeAttributes(const int clientId,
                      const eAttributes& attrs) = 0;
+
+    std::vector<eOtherUsers> receiveNewUsers();
+    std::vector<int> receiveLeftUsers();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
 
+    std::vector<eOtherUsers> mNewUsers;
+    std::vector<int> mLeftUsers;
 private:
     eServerFailureHandler mFailure;
 };

@@ -1,5 +1,7 @@
 #include "elocalserver.h"
 
+#include <eSlayerHelpers/echaracter.h>
+
 bool eLocalServer::initialize() {
     return true;
 }
@@ -55,6 +57,7 @@ bool eLocalServer::spawn(const int clientId,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
+    h->setName(c.name());
     return h->spawn(c, screenDims);
 }
 

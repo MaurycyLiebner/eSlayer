@@ -38,8 +38,12 @@ public:
     bool dropItem(const int itemId);
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
+
+    const std::string& name() const { return mName; }
+    void setName(const std::string& name) { mName = name; }
 private:
     const int mClientId;
+    std::string mName;
     std::shared_ptr<eServerArea> mArea;
     std::vector<eDataRequest> mDataRequests;
 };

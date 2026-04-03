@@ -54,9 +54,9 @@ public:
                         const eEquipment& eq) override;
     bool changeAttributes(const int clientId,
                           const eAttributes& attrs) override;
-private:
+protected:
     eServerClientHandler* clientHandler(const int clientId);
-
+private:
     float mTime = 0.f;
 
     std::map<std::string, std::shared_ptr<eServerArea>> mAreas;
