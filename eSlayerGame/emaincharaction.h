@@ -98,7 +98,6 @@ private:
 
     std::weak_ptr<eUnit> mPressedUnit;
 
-    bool mItemPickuped = false;
     std::weak_ptr<eGroundItem> mPressedItem;
 
     std::shared_ptr<eUnit> mMainChar;
@@ -109,6 +108,8 @@ private:
     eEquipment mEquipment;
     eAttributes mAttributes;
     eStats mStats;
+
+    bool mClickAction = false;
 
     bool mRunning = false;
     float mMaxStamina = 100.f;
