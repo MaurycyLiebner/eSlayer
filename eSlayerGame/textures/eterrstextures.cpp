@@ -1,14 +1,27 @@
 #include "eterrstextures.h"
 
-eTerrsTextures eTerrsTextures::sInstance;
+#include <eSlayerHelpers/eterrstexturesdata.h>
 
-eTerrsTextures::eTerrsTextures() :
-    eTilesTextures("terrain") {}
+eStringIdMapVector<eTileTextures>
+eTerrsTextures::sInstance;
 
-eTileTextures* eTerrsTextures::get(const std::string& name) {
-    return sInstance.getImpl(name);
+int eTerrsTextures::id(const std::string& name) {
+    return sInstance.id(name);
+}
+
+eTileTextures& eTerrsTextures::get(const std::string& name) {
+    return get(id(name));
+}
+
+eTileTextures& eTerrsTextures::get(const int id) {
+    return sInstance.get(id);
 }
 
 void eTerrsTextures::load() {
-    return sInstance.loadImpl();
+    eTerrsTexturesData::forEach([](const eTileTexturesData::eIt& it) {
+        eTileTextures texs;
+        const auto& data = it.fValue;
+        texs.initialize(data.fDirName, data.fName);
+        sInstance.add(it.fName, texs);
+    });
 }

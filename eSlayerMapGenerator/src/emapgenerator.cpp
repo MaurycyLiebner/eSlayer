@@ -1,6 +1,8 @@
 #include "eSlayerMapGenerator/emapgenerator.h"
 
 #include <eSlayerHelpers/epacket.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
+#include <eSlayerHelpers/eobjstexturesdata.h>
 
 class eMapGenerator {
 public:
@@ -20,7 +22,7 @@ const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
-const std::vector<int>& eMap::objects(const int x, const int y) const {
+const std::vector<uint16_t>& eMap::objects(const int x, const int y) const {
     return mObjectsMap[y][x];
 }
 
@@ -39,10 +41,10 @@ bool eMap::walkable(const int x, const int y) const {
 }
 
 void eMap::write(ePacket& p) const {
-    const int32_t nTerrTypes = mTerrainTypes.size();
+    const uint16_t nTerrTypes = mTerrainTypes.size();
     p << nTerrTypes;
     for(const auto& terrType : mTerrainTypes) {
-        p << terrType.fName;
+        p << terrType;
     }
 
     p << mWidth;
@@ -55,13 +57,13 @@ void eMap::write(ePacket& p) const {
         }
     }
 
-    const int32_t nObjTypes = mObjectTypes.size();
+    const uint16_t nObjTypes = mObjectTypes.size();
     p << nObjTypes;
     for(const auto& objType : mObjectTypes) {
-        p << objType.fName;
+        p << objType;
     }
 
-    const int32_t nObjs = mObjects.size();
+    const uint16_t nObjs = mObjects.size();
     p << nObjs;
     for(const auto& obj : mObjects) {
         p << obj.fObjectType;
@@ -72,17 +74,17 @@ void eMap::write(ePacket& p) const {
 }
 
 void eMap::read(ePacket& p) {
-    int32_t nTerrTypes;
+    uint16_t nTerrTypes;
     p >> nTerrTypes;
     for(int i = 0; i < nTerrTypes; i++) {
         auto& terrType = mTerrainTypes.emplace_back();
-        p >> terrType.fName;
+        p >> terrType;
     }
 
     p >> mWidth;
     p >> mHeight;
     mTiles.reserve(mHeight);
-    for(int y = 0; y < mHeight; y++) {
+    for(uint16_t y = 0; y < mHeight; y++) {
         auto& row = mTiles.emplace_back();
         row.reserve(mWidth);
         for(int x = 0; x < mWidth; x++) {
@@ -92,16 +94,16 @@ void eMap::read(ePacket& p) {
         }
     }
 
-    int32_t nObjTypes;
+    uint16_t nObjTypes;
     p >> nObjTypes;
-    for(int i = 0; i < nObjTypes; i++) {
+    for(uint16_t i = 0; i < nObjTypes; i++) {
         auto& objType = mObjectTypes.emplace_back();
-        p >> objType.fName;
+        p >> objType;
     }
 
-    int32_t nObjs;
+    uint16_t nObjs;
     p >> nObjs;
-    for(int i = 0; i < nObjs; i++) {
+    for(uint16_t i = 0; i < nObjs; i++) {
         auto& obj = mObjects.emplace_back();
         p >> obj.fObjectType;
         p >> obj.fTileType;
@@ -134,8 +136,8 @@ std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
     const auto result = std::make_shared<eMap>();
     if(name == "town") {
-        auto& terrType = result->mTerrainTypes.emplace_back();
-        terrType.fName = "town_floor";
+        const auto townFloorId = eTerrsTexturesData::id("town_floor");
+        result->mTerrainTypes.emplace_back(townFloorId);
         const int w = 80;
         const int h = 80;
         result->mTiles.reserve(h);
@@ -152,8 +154,8 @@ eMapGenerator::generate(const std::string& name) const {
         result->mTiles[0][1].fTileType = 2;
         result->mTiles[1][0].fTileType = 1;
 
-        auto& objType = result->mObjectTypes.emplace_back();
-        objType.fName = "town_fence";
+        const auto townFenceId = eObjsTexturesData::id("town_fence");
+        result->mObjectTypes.emplace_back(townFenceId);
 
         auto& obj = result->mObjects.emplace_back();
         obj.fObjectType = 0;

@@ -3,47 +3,42 @@
 
 #include "eslayermapgeneratorexport.h"
 
+#include <eSlayerHelpers/epoint.h>
+
 #include <string>
 #include <memory>
 #include <vector>
 
-struct ESLAYERMAPGENERATOR_API eTerrainType {
-    std::string fName;
-};
-
-struct ESLAYERMAPGENERATOR_API eObjectType {
-    std::string fName;
-};
-
 struct ESLAYERMAPGENERATOR_API eTile {
-    int32_t fTerrainType;
-    int32_t fTileType;
+    uint16_t fTerrainType;
+    uint16_t fTileType;
 };
 
 struct ESLAYERMAPGENERATOR_API eObject {
-    int32_t fObjectType;
-    int32_t fTileType;
+    uint16_t fObjectType;
+    uint16_t fTileType;
 
-    int32_t fTileX;
-    int32_t fTileY;
+    uint16_t fTileX;
+    uint16_t fTileY;
 };
 
 class ePacket;
 
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
+    friend class eMapPortion;
 public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
 
     const eTile& tile(const int x, const int y) const;
-    const std::vector<int>& objects(const int x, const int y) const;
+    const std::vector<uint16_t>& objects(const int x, const int y) const;
     const eObject& object(const int id) const;
 
-    const std::vector<eTerrainType>&
+    const std::vector<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
 
-    const std::vector<eObjectType>&
+    const std::vector<uint16_t>&
     objectTypes() const { return mObjectTypes; }
 
     bool walkable(const int x, const int y) const;
@@ -53,13 +48,14 @@ public:
 private:
     void updateObjectsMap();
 
-    int32_t mWidth = 0;
-    int32_t mHeight = 0;
+    ePointF mSpawnPos{0.f, 0.f};
+    uint16_t mWidth = 0;
+    uint16_t mHeight = 0;
     std::vector<std::vector<eTile>> mTiles;
     std::vector<eObject> mObjects;
-    std::vector<std::vector<std::vector<int>>> mObjectsMap;
-    std::vector<eTerrainType> mTerrainTypes;
-    std::vector<eObjectType> mObjectTypes;
+    std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
+    std::vector<uint16_t> mTerrainTypes;
+    std::vector<uint16_t> mObjectTypes;
 };
 
 namespace eSlayerMapGenerator {

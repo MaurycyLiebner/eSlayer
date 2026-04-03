@@ -291,13 +291,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         eTilesIterator iterator;
         iterator.initialize(this);
         for(int i = 0; i <= iMax; i++) {
-            const auto& terrType = terrTypes[i];
-            const auto floor = eTerrsTextures::get(terrType.fName);
+            const auto terrType = terrTypes[i];
+            const auto& floor = eTerrsTextures::get(terrType);
             iterator.iterate([&](const int x, const int y,
                                  const int px, const int py) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != i) return;
-                const auto& tex = floor->getTexture(tile.fTileType);
+                const auto& tex = floor.getTexture(tile.fTileType);
                 mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
             });
@@ -396,8 +396,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             for(const auto& iobj : iobjs) {
                 const auto& obj = mMap->object(iobj);
                 const auto& objType = objTypes[obj.fObjectType];
-                const auto object = eObjsTextures::get(objType.fName);
-                const auto& tex = object->getTexture(obj.fTileType);
+                const auto& object = eObjsTextures::get(objType);
+                const auto& tex = object.getTexture(obj.fTileType);
                 p.drawTexture(px, py + tileH, tex, eAlignment::top | eAlignment::hcenter);
             }
             for(int eleId = nextElement; eleId < (int)renderElements.size(); eleId++) {

@@ -16,13 +16,21 @@ void eTilesTextures::loadImpl() {
     const auto names = jdata.get<std::vector<std::string>>();
 
     for(const auto& name : names) {
-        auto& texs = mTexs[name];
+        eTileTextures texs;
         texs.initialize(mDirName, name);
+        mTexs.add(name, texs);
     }
 }
 
-eTileTextures* eTilesTextures::getImpl(const std::string& name) {
-    const auto it = mTexs.find(name);
-    if(it == mTexs.end()) return nullptr;
-    return &it->second;
+int eTilesTextures::idImpl(const std::string& name) {
+    return mTexs.id(name);
+}
+
+eTileTextures& eTilesTextures::getImpl(const std::string& name) {
+    const int id = mTexs.id(name);
+    return getImpl(id);
+}
+
+eTileTextures& eTilesTextures::getImpl(const int id) {
+    return mTexs.get(id);
 }

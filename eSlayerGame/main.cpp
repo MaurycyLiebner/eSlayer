@@ -23,6 +23,8 @@
 #include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
+#include <eSlayerHelpers/eobjstexturesdata.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -226,10 +228,12 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
+            eTerrsTexturesData::load();
             eTerrsTextures::load();
         });
 
         loadings.emplace_back([&]() {
+            eObjsTexturesData::load();
             eObjsTextures::load();
         });
 

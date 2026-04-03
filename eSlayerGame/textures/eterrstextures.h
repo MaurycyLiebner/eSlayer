@@ -1,16 +1,18 @@
 #ifndef ETERRSTEXTURES_H
 #define ETERRSTEXTURES_H
 
-#include "etilestextures.h"
+#include "etiletextures.h"
 
-class eTerrsTextures : public eTilesTextures {
+#include <eSlayerHelpers/estringidmapvector.h>
+
+class eTerrsTextures {
 public:
-    eTerrsTextures();
-
-    static eTileTextures* get(const std::string& name);
+    static int id(const std::string& name);
+    static eTileTextures& get(const std::string& name);
+    static eTileTextures& get(const int id);
     static void load();
 private:
-    static eTerrsTextures sInstance;
+    static eStringIdMapVector<eTileTextures> sInstance;
 };
 
 #endif // ETERRSTEXTURES_H

@@ -5,12 +5,12 @@
 
 class eObjsTextures : public eTilesTextures {
 public:
-    eObjsTextures();
-
-    static eTileTextures* get(const std::string& name);
+    static int id(const std::string& name);
+    static eTileTextures& get(const std::string& name);
+    static eTileTextures& get(const int id);
     static void load();
 private:
-    static eObjsTextures sInstance;
+    static eStringIdMapVector<eTileTextures> sInstance;
 };
 
 #endif // EOBJSTEXTURES_H

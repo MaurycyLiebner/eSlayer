@@ -207,15 +207,15 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([r, map]() {
         const auto& terrTypes = (*map)->terrainTypes();
         for(const auto& terrType : terrTypes) {
-            const auto texs = eTerrsTextures::get(terrType.fName);
-            texs->load(r);
+            auto& texs = eTerrsTextures::get(terrType);
+            texs.load(r);
         }
     });
     loading.emplace_back([r, map]() {
         const auto& objTypes = (*map)->objectTypes();
         for(const auto& objType : objTypes) {
-            const auto texs = eObjsTextures::get(objType.fName);
-            texs->load(r);
+            auto& texs = eObjsTextures::get(objType);
+            texs.load(r);
         }
     });
     loading.emplace_back([r]() {
