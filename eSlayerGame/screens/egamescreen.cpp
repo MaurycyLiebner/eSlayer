@@ -204,56 +204,13 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         }
     } else if(key == SDL_SCANCODE_RETURN) {
         if(mMessage) {
-            const auto window = eWidget::window();
-            window->stopTextInput();
-
             const auto& text = mMessage->text();
             if(!text.empty()) {
                 mGameWidget->sendMessage(text);
             }
-            mMessage->deleteLater();
-            mMessage = nullptr;
+            hideMessageBox();
         } else {
-            const auto window = eWidget::window();
-            window->startTextInput();
-
-            mMessage = new eLineEdit(window);
-            const int p = mMessage->padding();
-            const auto& res = resolution();
-            const int fontSize = res.smallFontSize();
-            const auto font = eFonts::textFont(fontSize);
-            mMessage->setFont(font);
-            mMessage->allow(' ');
-            mMessage->allow(',');
-            mMessage->allow('.');
-            mMessage->allow('?');
-            mMessage->allow('!');
-            mMessage->allow(';');
-            mMessage->allow(':');
-            mMessage->allow('\'');
-            mMessage->allow('"');
-            mMessage->allow('\\');
-            mMessage->allow('/');
-            mMessage->allow('@');
-            mMessage->allow('#');
-            mMessage->allow('$');
-            mMessage->allow('%');
-            mMessage->allow('&');
-            mMessage->allow('*');
-            mMessage->allow('+');
-            mMessage->allow('(');
-            mMessage->allow(')');
-            mMessage->allow('[');
-            mMessage->allow(']');
-            mMessage->setMaxLength(1000);
-            const int w = width()/2;
-            const int h = height()/10;
-            mMessage->setWrapWidth(w - 2*p);
-            mMessage->resize(w, h);
-            mMessage->setTextAlignment(eAlignment::left | eAlignment::top);
-            mMessage->grabKeyboard();
-            addWidget(mMessage);
-            mMessage->move(w/2, mBottomWid->y() - mMessage->height() - p);
+            showMessageBox();
         }
     } else {
         return false;
@@ -393,6 +350,58 @@ void eGameScreen::hideStatsMenu() {
     mStatsMenu->deleteLater();
     mStatsMenu = nullptr;
     updateCharPos();
+}
+
+void eGameScreen::showMessageBox() {
+    if(mMessage) return;
+    const auto window = eWidget::window();
+    window->startTextInput();
+
+    mMessage = new eLineEdit(window);
+    const int p = mMessage->padding();
+    const auto& res = resolution();
+    const int fontSize = res.smallFontSize();
+    const auto font = eFonts::textFont(fontSize);
+    mMessage->setFont(font);
+    mMessage->allow(' ');
+    mMessage->allow(',');
+    mMessage->allow('.');
+    mMessage->allow('?');
+    mMessage->allow('!');
+    mMessage->allow(';');
+    mMessage->allow(':');
+    mMessage->allow('\'');
+    mMessage->allow('"');
+    mMessage->allow('\\');
+    mMessage->allow('/');
+    mMessage->allow('@');
+    mMessage->allow('#');
+    mMessage->allow('$');
+    mMessage->allow('%');
+    mMessage->allow('&');
+    mMessage->allow('*');
+    mMessage->allow('+');
+    mMessage->allow('(');
+    mMessage->allow(')');
+    mMessage->allow('[');
+    mMessage->allow(']');
+    mMessage->setMaxLength(1000);
+    const int w = width()/2;
+    const int h = height()/10;
+    mMessage->setWrapWidth(w - 2*p);
+    mMessage->resize(w, h);
+    mMessage->setTextAlignment(eAlignment::left | eAlignment::top);
+    mMessage->grabKeyboard();
+    addWidget(mMessage);
+    mMessage->move(w/2, mBottomWid->y() - mMessage->height() - p);
+}
+
+void eGameScreen::hideMessageBox() {
+    if(!mMessage) return;
+    const auto window = eWidget::window();
+    window->stopTextInput();
+    mMessage->deleteLater();
+    mMessage = nullptr;
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,

@@ -43,6 +43,9 @@ private:
     void showStatsMenu();
     void hideStatsMenu();
 
+    void showMessageBox();
+    void hideMessageBox();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar);
