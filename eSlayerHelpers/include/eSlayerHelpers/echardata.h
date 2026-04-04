@@ -58,23 +58,10 @@ protected:
     int mId;
     int mDirs;
 
-    float mRadius;
+    int mRunId;
+    std::map<std::string, int> mAnimIds;
 
-    static const std::unordered_map<std::string, int eCharData::*>
-    sAnimFields;
-    int mStandId = -1;
-    int mStandReadyId = -1;
-    int mWalkId = -1;
-    int mWalkReadyId = -1;
-    int mRunId = -1;
-    int mAttack1Id = -1;
-    int mAttack2Id = -1;
-    int mBlockId = -1;
-    int mCastId = -1;
-    int mHitRecoveryId = -1;
-    int mDeathId = -1;
-    int mBodyId = -1;
-    std::map<std::string, int> mCustomIds;
+    float mRadius;
 
     struct eAnimation {
         int fFrames;

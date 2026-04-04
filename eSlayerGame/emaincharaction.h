@@ -82,10 +82,6 @@ private:
                         const float by,
                         eCharUnitModel& model);
 
-    int chooseAnim(const int normal,
-                   const int aggressive,
-                   const bool isAggressive);
-
     void updateMovementAnimation(const bool moved,
                                  const bool run,
                                  const float by,

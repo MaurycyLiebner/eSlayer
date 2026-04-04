@@ -48,20 +48,8 @@ void eMoveToEnemyAction::setTarget(const eServerUnit& u) {
     mTargetPos = u.fPos;
     const bool a = mUnit.aggressive();
     const auto& data = mUnit.data();
-    const int naId = data.animId("walk");
-    const int aId = data.animId("walkReady");
-    if(a) {
-        if(aId != -1) {
-            mUnit.fAnim = aId;
-        } else {
-            mUnit.fAnim = naId;
-        }
-    } else {
-        if(naId != -1) {
-            mUnit.fAnim = naId;
-        } else {
-            mUnit.fAnim = aId;
-        }
-    }
+    const int normal = data.animId("walk");
+    const int aggressive = data.animId("walkReady");
+    mUnit.fAnim = eMovementHandler::sChooseAnim(normal, aggressive, a);
     mUnit.fAnimId++;
 }

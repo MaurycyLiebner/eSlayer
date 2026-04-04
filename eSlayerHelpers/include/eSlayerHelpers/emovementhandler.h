@@ -1,8 +1,9 @@
 #ifndef EMOVEMENTHANDLER_H
 #define EMOVEMENTHANDLER_H
 
-#include "evec2.h"
 #include "eslayerhelpersexport.h"
+
+#include "evec2.h"
 #include "emovementgoal.h"
 
 #include <functional>
@@ -43,6 +44,11 @@ public:
     bool moveTo(const ePointF& pos);
     void moveInDirection(const ePointF& pos);
     bool moveInDirectionIfClearPath(const ePointF& pos);
+
+    static int sChooseAnim(const int normal,
+                           const int aggressive,
+                           const bool isAggressive);
+
 private:
     bool walkable(const ePointF& pos) const;
     bool walkable(const ePointF& from, const ePointF& to) const;

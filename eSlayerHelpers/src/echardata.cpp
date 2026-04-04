@@ -2,22 +2,6 @@
 
 #include "eSlayerHelpers/epacket.h"
 
-const std::unordered_map<std::string, int eCharData::*>
-eCharData::sAnimFields = {
-    {"stand", &eCharData::mStandId},
-    {"standReady", &eCharData::mStandReadyId},
-    {"walk", &eCharData::mWalkId},
-    {"walkReady", &eCharData::mWalkReadyId},
-    {"run", &eCharData::mRunId},
-    {"attack1", &eCharData::mAttack1Id},
-    {"attack2", &eCharData::mAttack2Id},
-    {"block", &eCharData::mBlockId},
-    {"cast", &eCharData::mCastId},
-    {"hitRecovery", &eCharData::mHitRecoveryId},
-    {"death", &eCharData::mDeathId},
-    {"body", &eCharData::mBodyId},
-};
-
 eCharData::eCharData() {}
 
 void eCharData::load(ordered_json& jdata) {
@@ -74,18 +58,9 @@ void eCharData::load(ordered_json& jdata) {
 }
 
 int eCharData::animId(const std::string& name) const {
-    {
-        const auto it = sAnimFields.find(name);
-        if(it != sAnimFields.end()) {
-            return this->*(it->second);
-        }
-    }
-
-    {
-        const auto it = mCustomIds.find(name);
-        if(it == mCustomIds.end()) return -1;
-        return it->second;
-    }
+    const auto it = mAnimIds.find(name);
+    if(it == mAnimIds.end()) return -1;
+    return it->second;
 }
 
 int eCharData::animFrames(const int id) const {
@@ -145,15 +120,8 @@ const eUnitSkill& eCharData::getSkill(const int id) const {
 }
 
 void eCharData::setAnimId(const std::string& name, const int id) {
-    {
-        const auto it = sAnimFields.find(name);
-        if(it != sAnimFields.end()) {
-            this->*(it->second) = id;
-            return;
-        }
-    }
-
-    mCustomIds[name] = id;
+    if(name == "run") mRunId = id;
+    mAnimIds[name] = id;
 }
 
 void eModelParts::read(ePacket& p) {

@@ -134,6 +134,16 @@ bool eMovementHandler::moveInDirectionIfClearPath(const ePointF& pos) {
     return r;
 }
 
+int eMovementHandler::sChooseAnim(const int normal,
+                                  const int aggressive,
+                                  const bool isAggressive) {
+    if(isAggressive) {
+        return (aggressive != -1) ? aggressive : normal;
+    } else {
+        return (normal != -1) ? normal : aggressive;
+    }
+}
+
 bool eMovementHandler::walkable(const ePointF& pos) const {
     bool walkable = true;
     mOtherIterator([&](const eUnitData& other) {

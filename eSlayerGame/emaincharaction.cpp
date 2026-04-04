@@ -41,7 +41,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const auto model = mMainCharData->requestModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
-    const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, false);
+    const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, false);
     umodel.setAnimation(animId, 1.f);
     umodel.setDirection(0);
 
@@ -238,16 +238,6 @@ void eMainCharAction::handleMovement(
     updateMovementAnimation(moved, run, by, model);
 }
 
-int eMainCharAction::chooseAnim(const int normal,
-                                const int aggressive,
-                                const bool isAggressive) {
-    if(isAggressive) {
-        return (aggressive != -1) ? aggressive : normal;
-    } else {
-        return (normal != -1) ? normal : aggressive;
-    }
-}
-
 void eMainCharAction::updateMovementAnimation(
     const bool moved,
     const bool run,
@@ -272,11 +262,11 @@ void eMainCharAction::updateMovementAnimation(
             animId = mRunAnimId;
         } else {
             incStamina(by * 0.05f);
-            animId = chooseAnim(mWalkAnimId, mWalkReadyAnimId, aggressive);
+            animId = eMovementHandler::sChooseAnim(mWalkAnimId, mWalkReadyAnimId, aggressive);
         }
     } else {
         incStamina(by * 0.05f);
-        animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+        animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
     }
 
     if(mMainChar->fAnim != animId) {
@@ -351,7 +341,7 @@ void eMainCharAction::stand() {
     auto& model = mMainChar->model();
 
     const bool aggressive = model.aggressive();
-    const int animId = chooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+    const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
 
     mMainChar->fAnim = animId;
     mMainChar->fAnimId++;
