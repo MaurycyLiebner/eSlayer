@@ -34,7 +34,7 @@ void eUnitActionBase::setup(
     mUnit.fAnimId += 5;
     const int baseFrames = data.animFrames(anim);
     if(frames == -1) frames = baseFrames;
-    const float speed = float(baseFrames)/frames;
+    const float speed = frames == 0 ? 1.f : float(baseFrames)/frames;
     mUnit.fAnimSpeed = speed;
     setDuration(frames);
 

@@ -17,7 +17,7 @@ void eCharUnitModel::setCharModel(const std::shared_ptr<eCharModel>& model) {
 
 eTextureKey eCharUnitModel::key() const {
     const int fMax = mModel->nFrames(mAnim);
-    const int frame = int(std::round(mFrame)) % fMax;
+    const int frame = fMax == 0 ? -1 : int(std::round(mFrame)) % fMax;
     return eTextureKey{mAnim, frame, mDir};
 }
 
@@ -40,9 +40,11 @@ void eCharUnitModel::incFrame(const float by) {
 }
 
 void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
+    const auto key = eCharUnitModel::key();
+    if(key.fFrame == -1) return;
     const auto r = p.renderer();
-    const auto tex = mModel->requestTexture(r, key());
-    const auto texRect = mModel->requestBoundingRect(key());
+    const auto tex = mModel->requestTexture(r, key);
+    const auto texRect = mModel->requestBoundingRect(key);
 
     p.save();
     const auto& offset = mModel->animOffset(mAnim);
