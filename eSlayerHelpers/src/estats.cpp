@@ -784,6 +784,15 @@ bool eStats::attackRangeSkill(const float minRange,
     for(int i = 0; i < fSkills.size(); i++) {
         schoices[i] = i;
     }
+    return attackRangeSkill(minRange, resultSchoice,
+                            unit1Radius, unit2Radius);
+}
+
+bool eStats::attackRangeSkill(const float minRange,
+                              int& resultSchoice,
+                              const float unit1Radius,
+                              const float unit2Radius,
+                              std::vector<int>& schoices) const {
     eRand::randomShuffle(schoices);
     for(const int schoice : schoices) {
         const float r = attackRange(

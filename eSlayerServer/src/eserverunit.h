@@ -133,6 +133,8 @@ public:
     void recalculateStats();
 
     int addSkill();
+
+    std::vector<int> readySkills() const;
 private:
     const eCharData& mData;
     eServerArea& mArea;

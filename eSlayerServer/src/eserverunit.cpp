@@ -362,3 +362,12 @@ int eServerUnit::addSkill() {
     mStats.fSkills.emplace_back();
     return mStats.fSkills.size() - 1;
 }
+
+std::vector<int> eServerUnit::readySkills() const {
+    std::vector<int> result;
+    for(int i = 0; i < mStats.fSkills.size(); i++) {
+        const bool r = skillReady(i);
+        if(r) result.emplace_back(i);
+    }
+    return result;
+}
