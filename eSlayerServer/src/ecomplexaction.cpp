@@ -161,6 +161,9 @@ int piercedFromPierceChance(const float p) {
 bool eComplexAction::spawnMissile(const ePointF& to,
                                   const int schoice,
                                   const eWeaponChoice wchoice) {
+    const auto& from = mUnit.fPos;
+    const auto dir = ePointF::vector(to, from);
+    mUnit.fAngle = dir.angle();
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto a = [this, to, skill, schoice, wchoice]() {
