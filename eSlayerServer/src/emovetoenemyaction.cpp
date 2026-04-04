@@ -31,6 +31,7 @@ void eMoveToEnemyAction::increment(const float by) {
     }
 
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        if(u->fHealth <= 0) return false;
         if(mUnit.fTeamId == u->fTeamId) return false;
         setTarget(*u);
         return true;

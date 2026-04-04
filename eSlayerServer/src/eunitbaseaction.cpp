@@ -14,6 +14,7 @@ void eUnitBaseAction::decide() {
     const float maxRange = stats.maxRangeSkill(
         maxRangeSchoice, 1.f, mUnit.fRadius);
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        if(u->fHealth <= 0) return false;
         if(mUnit.fTeamId == u->fTeamId) return false;
         const float dist = ePointF::distance(mUnit.fPos, u->fPos);
         int schoice;
