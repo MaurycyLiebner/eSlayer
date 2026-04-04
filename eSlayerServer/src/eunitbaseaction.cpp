@@ -18,6 +18,10 @@ void eUnitBaseAction::increment(const float by) {
 }
 
 void eUnitBaseAction::decide() {
+    if(mUnit.fHealth <= 0) {
+        mArea.removeUnit(mUnit.fCharId);
+        return;
+    }
     mAttacking = false;
     const bool r = lookForAttackTarget();
     if(r) return;
