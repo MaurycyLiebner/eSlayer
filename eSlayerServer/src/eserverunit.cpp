@@ -10,10 +10,10 @@
 
 int eServerUnit::sNextCharId = 0;
 
-eServerUnit::eServerUnit(
-    const eCharData& data,
-    eServerArea& area)
-    : mData(data), mArea(area) {}
+eServerUnit::eServerUnit(const bool client,
+                         const eCharData& data,
+                         eServerArea& area) :
+    mData(data), mArea(area), mClient(client) {}
 
 float eServerUnit::defense() const {
     if(fAnim == mData.runAnimId()) {
@@ -38,7 +38,7 @@ eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
 }
 
 int eServerUnit::missileId(const eWeaponChoice wchoice,
-                           const eSkillChoice schoice) const {
+                           const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left: {
@@ -52,7 +52,7 @@ int eServerUnit::missileId(const eWeaponChoice wchoice,
 }
 
 float eServerUnit::missileRangeTime(const eWeaponChoice wchoice,
-                                    const eSkillChoice schoice) const {
+                                    const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fMissileRangeTime;
 }
@@ -81,7 +81,7 @@ float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     return 0.f;
 }
 
-float eServerUnit::skillsAttackSpeed(const eSkillChoice schoice) const {
+float eServerUnit::skillsAttackSpeed(const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fAttackSpeedS;
 }
@@ -93,7 +93,7 @@ float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
 float eServerUnit::sHitChance(
     const eServerUnit& hit,
     const eServerUnit& by,
-    const eSkillChoice schoice,
+    const int schoice,
     const eWeaponChoice wchoice) {
     const float alvl = by.level();
     const float dlvl = hit.level();
@@ -112,15 +112,14 @@ float eServerUnit::sHitChance(
 }
 
 int eServerUnit::attackMissiles(
-    const eSkillChoice schoice,
+    const int schoice,
     const eWeaponChoice wchoice) {
     const auto& skill = mStats.skill(schoice);
     return skill.fMissiles;
 }
 
-float eServerUnit::pierceChance(
-    const eSkillChoice schoice,
-    const eWeaponChoice wchoice) {
+float eServerUnit::pierceChance(const int schoice,
+                                const eWeaponChoice wchoice) {
     const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left:
@@ -159,7 +158,7 @@ bool eServerUnit::consumeMana(const float mana) {
     return true;
 }
 
-eDamage eServerUnit::attackDamage(const eSkillChoice schoice,
+eDamage eServerUnit::attackDamage(const int schoice,
                                   const eWeaponChoice wchoice) {
     const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
@@ -213,6 +212,10 @@ void eServerUnit::increment(const float by) {
 }
 
 int eServerUnit::skillId(const eSkillChoice schoice) const {
+    return skillId(static_cast<int>(schoice));
+}
+
+int eServerUnit::skillId(const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fSkillId;
 }
@@ -224,23 +227,36 @@ int eServerUnit::skillLevel(const int skillId) const {
 }
 
 bool eServerUnit::skillReady(const eSkillChoice schoice) const {
+    return skillReady(static_cast<int>(schoice));
+}
+
+bool eServerUnit::skillReady(const int schoice) const {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
     const auto& level = skill.fLevels[levelId];
-    if(level.fManaCost > mStats.fManaF) return false;
+    if(mClient && level.fManaCost > mStats.fManaF) return false;
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
     return it->second <= 0.f;
 }
 
 void eServerUnit::useSkill(const eSkillChoice schoice) {
+    useSkill(static_cast<int>(schoice));
+}
+
+void eServerUnit::useSkill(const int schoice) {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
     const auto& level = skill.fLevels[levelId];
-    mStats.fCooldowns[skillId] = level.fCooldown*eRunSettings::sFPS;
-    mStats.fManaF = std::max(0.f, mStats.fManaF - level.fManaCost);
+    const float cooldown = level.fCooldown;
+    if(cooldown > 0.f) {
+        mStats.fCooldowns[skillId] = cooldown*eRunSettings::sFPS;
+    }
+    if(mClient) {
+        mStats.fManaF = std::max(0.f, mStats.fManaF - level.fManaCost);
+    }
 }
 
 void eServerUnit::setSkillId(const eSkillChoice schoice,
@@ -265,7 +281,7 @@ void eServerUnit::setChildAction(const std::shared_ptr<eUnitAction>& a) {
     if(mAction) mAction->setChild(a);
 }
 
-std::vector<int> eServerUnit::castAnims(const eSkillChoice schoice) const {
+std::vector<int> eServerUnit::castAnims(const int schoice) const {
     const int skillId = eServerUnit::skillId(schoice);
     if(skillId == -1) return {};
     const auto& uskill = mData.getSkill(skillId);
@@ -273,7 +289,7 @@ std::vector<int> eServerUnit::castAnims(const eSkillChoice schoice) const {
 }
 
 bool eServerUnit::canUseSkill(
-    const eSkillChoice schoice,
+    const int schoice,
     const eWeaponChoice wchoice) const {
     const auto weapon = wchoice == eWeaponChoice::left ?
         mStats.fWeaponTypeL : mStats.fWeaponTypeR;
@@ -320,7 +336,7 @@ void eServerUnit::respawn() {
     mAction->setChild(nullptr);
 }
 
-eWeaponChoice eServerUnit::useWeapon(const eSkillChoice schoice) {
+eWeaponChoice eServerUnit::useWeapon(const int schoice) {
     const bool canUseL = canUseSkill(schoice, eWeaponChoice::left);
     const bool canUseR = canUseSkill(schoice, eWeaponChoice::right);
     eWeaponChoice use;

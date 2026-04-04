@@ -17,16 +17,26 @@ struct eAttackData {
     eAttackData(const int c,
                 const eSkillChoice skill) :
         fType(eAttackTargetType::character),
-        fSkill(skill),
+        fSkill(static_cast<int>(skill)),
         fChar(c) {}
     eAttackData(const ePointF& pos,
                 const eSkillChoice skill) :
+        fType(eAttackTargetType::position),
+        fSkill(static_cast<int>(skill)),
+        fPos(pos) {}
+    eAttackData(const int c,
+                const int skill) :
+        fType(eAttackTargetType::character),
+        fSkill(skill),
+        fChar(c) {}
+    eAttackData(const ePointF& pos,
+                const int skill) :
         fType(eAttackTargetType::position),
         fSkill(skill),
         fPos(pos) {}
 
     eAttackTargetType fType;
-    eSkillChoice fSkill;
+    int fSkill;
     int32_t fChar;
     ePointF fPos;
 

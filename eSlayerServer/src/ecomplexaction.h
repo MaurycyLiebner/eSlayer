@@ -33,16 +33,16 @@ public:
 protected:
     bool attack(const eAttackData& target);
     bool meeleAttack(const eServerUnit& u,
-                     const eSkillChoice schoice,
+                     const int schoice,
                      const eWeaponChoice wchoice);
     bool getHit(eServerUnit& target,
-                const eSkillChoice schoice,
+                const int schoice,
                 const eWeaponChoice wchoice);
     bool hasChild() const { return mChild.get(); }
 private:
     bool spawnMissile(const ePointF& to,
-                      const eSkillChoice& schoice,
-                      const eWeaponChoice& wchoice);
+                      const int schoice,
+                      const eWeaponChoice wchoice);
 
     std::shared_ptr<eUnitAction> mChild;
 };

@@ -9,7 +9,7 @@ std::shared_ptr<eAttackAction> eAttackAction::sCreate(
     eServerUnit& unit, eServerArea& area,
     const std::vector<int>& anims,
     const eAttackType type, const eAction& a,
-    const eSkillChoice schoice,
+    const int schoice,
     const eWeaponChoice wchoice) {
     const auto& data = unit.data();
     if(anims.empty()) return nullptr;

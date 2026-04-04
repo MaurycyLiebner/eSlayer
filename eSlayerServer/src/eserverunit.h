@@ -30,7 +30,8 @@ class eServerUnit : public eUnitData {
 public:
     static int sNextCharId;
 
-    eServerUnit(const eCharData& data,
+    eServerUnit(const bool client,
+                const eCharData& data,
                 eServerArea& area);
 
     bool aggressive() const { return mAggressive; }
@@ -52,9 +53,9 @@ public:
     eWeaponType weaponType(const eWeaponChoice wchoice) const;
 
     int missileId(const eWeaponChoice wchoice,
-                  const eSkillChoice schoice) const;
+                  const int schoice) const;
     float missileRangeTime(const eWeaponChoice wchoice,
-                           const eSkillChoice schoice) const;
+                           const int schoice) const;
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
@@ -69,23 +70,23 @@ public:
     eAttributes& attributes() { return mAttributes; }
 
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
-    float skillsAttackSpeed(const eSkillChoice schoice) const;
+    float skillsAttackSpeed(const int schoice) const;
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;
     float itemsCastRate() const { return mStats.fCastRate; }
 
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
-                            const eSkillChoice schoice,
+                            const int schoice,
                             const eWeaponChoice wchoice);
-    int attackMissiles(const eSkillChoice schoice,
+    int attackMissiles(const int schoice,
                        const eWeaponChoice wchoice);
-    float pierceChance(const eSkillChoice schoice,
+    float pierceChance(const int schoice,
                        const eWeaponChoice wchoice);
 
     bool getHit(const eHitData& data);
     float takeDamage(const eDamage& dmg);
     bool consumeMana(const float mana);
-    eDamage attackDamage(const eSkillChoice schoice,
+    eDamage attackDamage(const int schoice,
                          const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
@@ -94,9 +95,12 @@ public:
 
     void increment(const float by);
     int skillId(const eSkillChoice schoice) const;
+    int skillId(const int schoice) const;
     int skillLevel(const int skillId) const;
     bool skillReady(const eSkillChoice schoice) const;
+    bool skillReady(const int schoice) const;
     void useSkill(const eSkillChoice schoice);
+    void useSkill(const int schoice);
     void setSkillId(const eSkillChoice schoice,
                     const int skillId,
                     const bool recalc = true);
@@ -116,11 +120,11 @@ public:
 
     const eCharData& data() const { return mData; }
 
-    std::vector<int> castAnims(const eSkillChoice schoice) const;
+    std::vector<int> castAnims(const int schoice) const;
 
-    eWeaponChoice useWeapon(const eSkillChoice schoice);
+    eWeaponChoice useWeapon(const int schoice);
 
-    bool canUseSkill(const eSkillChoice schoice,
+    bool canUseSkill(const int schoice,
                      const eWeaponChoice wchoice) const;
 
     void killed(const eServerUnit& killed);
@@ -132,6 +136,7 @@ public:
 private:
     const eCharData& mData;
     eServerArea& mArea;
+    const bool mClient;
 
     bool mAggressive = false;
     std::shared_ptr<eComplexAction> mAction;

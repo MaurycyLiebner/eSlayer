@@ -1,6 +1,5 @@
 #include "ecomplexaction.h"
 
-#include "eSlayerHelpers/eskillchoice.h"
 #include "eattackaction.h"
 #include "eblockaction.h"
 #include "edieaction.h"
@@ -118,7 +117,7 @@ bool eComplexAction::attack(const eAttackData& target) {
 
 bool eComplexAction::meeleAttack(
     const eServerUnit& u,
-    const eSkillChoice schoice,
+    const int schoice,
     const eWeaponChoice wchoice) {
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
@@ -143,7 +142,7 @@ bool eComplexAction::meeleAttack(
 }
 
 bool eComplexAction::getHit(eServerUnit& target,
-                            const eSkillChoice schoice,
+                            const int schoice,
                             const eWeaponChoice wchoice) {
     const float hitChance = eServerUnit::sHitChance(
         target, mUnit, schoice, wchoice);
@@ -160,8 +159,8 @@ int piercedFromPierceChance(const float p) {
 }
 
 bool eComplexAction::spawnMissile(const ePointF& to,
-                                  const eSkillChoice& schoice,
-                                  const eWeaponChoice& wchoice) {
+                                  const int schoice,
+                                  const eWeaponChoice wchoice) {
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto a = [this, to, skill, schoice, wchoice]() {

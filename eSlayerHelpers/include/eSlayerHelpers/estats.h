@@ -109,6 +109,13 @@ struct ESLAYERHELPERS_API eStats {
     float attackRange(const int schoice,
                       const float unit1Radius,
                       const float unit2Radius) const;
+    bool attackRangeSkill(const float minRange,
+                          int& resultSchoice,
+                          const float unit1Radius,
+                          const float unit2Radius) const;
+    float maxRangeSkill(int& resultSchoice,
+                        const float unit1Radius,
+                        const float unit2Radius) const;
 };
 
 #endif // ESTATS_H

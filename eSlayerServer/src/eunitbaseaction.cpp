@@ -9,12 +9,23 @@
 
 void eUnitBaseAction::decide() {
     bool attack = false;
+    int maxRangeSchoice;
+    const auto& stats = mUnit.stats();
+    const float maxRange = stats.maxRangeSkill(
+        maxRangeSchoice, 1.f, mUnit.fRadius);
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
         if(mUnit.fTeamId == u->fTeamId) return false;
-        attack = meeleAttack(*u, eSkillChoice::left, eWeaponChoice::left);
-        return attack;
+        const float dist = ePointF::distance(mUnit.fPos, u->fPos);
+        int schoice;
+        const bool r = stats.attackRangeSkill(dist, schoice, u->fRadius, mUnit.fRadius);
+        if(r) {
+            const eAttackData data(u->fCharId, schoice);
+            attack = eComplexAction::attack(data);
+            return attack;
+        }
+        return false;
     };
-    mArea.iterateOverUnits(mUnit.fPos, 1.f, iter);
+    mArea.iterateOverUnits(mUnit.fPos, maxRange, iter);
     if(attack) return;
     if(eRand::rand() % 2) {
         const auto move = std::make_shared<eMoveToEnemyAction>(mUnit, mArea);

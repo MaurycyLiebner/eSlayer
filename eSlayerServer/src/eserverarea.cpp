@@ -68,7 +68,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 continue;
             }
             const auto modelParts = data.mapToModelParts(partsMap);
-            const auto u = std::make_shared<eServerUnit>(data, *this);
+            const auto u = std::make_shared<eServerUnit>(false, data, *this);
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
@@ -84,8 +84,15 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
             u->fAngle = 0.f;
-            const int schoice = u->addSkill();
-            u->setSkillId(schoice, 0, false);
+            {
+                const int schoice = u->addSkill();
+                u->setSkillId(schoice, 0, false);
+            }
+            {
+                const int schoice = u->addSkill();
+                const int skillId = eSkills::sSkills.id("fireball");
+                u->setSkillId(schoice, skillId, false);
+            }
             u->recalculateStats();
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
@@ -332,7 +339,7 @@ bool eServerArea::addClient(const int clientId,
     const auto& data = eCharDataInfo::get(typeId);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
-    const auto u = std::make_shared<eServerUnit>(data, *this);
+    const auto u = std::make_shared<eServerUnit>(true, data, *this);
     u->addSkill();
     u->addSkill();
     u->fCharId = clientId;

@@ -5,6 +5,7 @@
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/erunsettings.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/erand.h"
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
@@ -772,4 +773,40 @@ float eStats::attackRange(const int schoice,
         return fWeaponRangedRange;
     }
     return meeleDist;
+}
+
+bool eStats::attackRangeSkill(const float minRange,
+                              int& resultSchoice,
+                              const float unit1Radius,
+                              const float unit2Radius) const {
+    std::vector<int> schoices;
+    schoices.resize(fSkills.size());
+    for(int i = 0; i < fSkills.size(); i++) {
+        schoices[i] = i;
+    }
+    eRand::randomShuffle(schoices);
+    for(const int schoice : schoices) {
+        const float r = attackRange(
+            schoice, unit1Radius, unit2Radius);
+        if(r >= minRange) {
+            resultSchoice = schoice;
+            return true;
+        }
+    }
+    return false;
+}
+
+float eStats::maxRangeSkill(int& resultSchoice,
+                            const float unit1Radius,
+                            const float unit2Radius) const {
+    float maxRange = 0.f;
+    for(int schoice = 0; schoice < fSkills.size(); schoice++) {
+        const float r = attackRange(
+            schoice, unit1Radius, unit2Radius);
+        if(r > maxRange) {
+            maxRange = r;
+            resultSchoice = schoice;
+        }
+    }
+    return maxRange;
 }
