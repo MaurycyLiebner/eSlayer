@@ -57,14 +57,16 @@ float eServerUnit::missileRangeTime(const eWeaponChoice wchoice,
     return skill.fMissileRangeTime;
 }
 
-void eServerUnit::setEquipment(const eEquipment& eq) {
+void eServerUnit::setEquipment(const eEquipment& eq,
+                               const bool recalc) {
     mEquipment = eq;
-    recalculateStats();
+    if(recalc) recalculateStats();
 }
 
-void eServerUnit::setAttributes(const eAttributes& attrs) {
+void eServerUnit::setAttributes(const eAttributes& attrs,
+                                const bool recalc) {
     mAttributes = attrs;
-    recalculateStats();
+    if(recalc) recalculateStats();
 }
 
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
@@ -242,17 +244,17 @@ void eServerUnit::useSkill(const eSkillChoice schoice) {
 }
 
 void eServerUnit::setSkillId(const eSkillChoice schoice,
-                             const int skillId) {
-    auto& skill = mStats.skill(schoice);
-    skill.fSkillId = skillId;
-    recalculateStats();
+                             const int skillId,
+                             const bool recalc) {
+    setSkillId(static_cast<int>(schoice), skillId, recalc);
 }
 
 void eServerUnit::setSkillId(const int schoice,
-                             const int skillId) {
+                             const int skillId,
+                             const bool recalc) {
     auto& skill = mStats.skill(schoice);
     skill.fSkillId = skillId;
-    recalculateStats();
+    if(recalc) recalculateStats();
 }
 
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {
@@ -279,7 +281,6 @@ bool eServerUnit::canUseSkill(
         mStats.fWeaponTypeL : mStats.fWeaponTypeR;
     const auto& skillStats = mStats.skill(schoice);
     const int skillId = skillStats.fSkillId;
-    if(skillId == -1) return false;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
     switch(skillType) {

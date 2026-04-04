@@ -60,10 +60,12 @@ public:
 
     const eStats& stats() const { return mStats; }
 
-    void setEquipment(const eEquipment& eq);
+    void setEquipment(const eEquipment& eq,
+                      const bool recalc = true);
     eEquipment& equipment() { return mEquipment; }
 
-    void setAttributes(const eAttributes& attrs);
+    void setAttributes(const eAttributes& attrs,
+                       const bool recalc = true);
     eAttributes& attributes() { return mAttributes; }
 
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
@@ -96,9 +98,11 @@ public:
     bool skillReady(const eSkillChoice schoice) const;
     void useSkill(const eSkillChoice schoice);
     void setSkillId(const eSkillChoice schoice,
-                    const int skillId);
+                    const int skillId,
+                    const bool recalc = true);
     void setSkillId(const int schoice,
-                    const int skillId);
+                    const int skillId,
+                    const bool recalc = true);
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);

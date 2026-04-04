@@ -428,7 +428,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     for(auto& h : skillHelpers) {
         auto& stats = h.fStats;
         const int skillId = stats.fSkillId;
-        if(skillId == -1) continue;
         const auto& skill = eSkills::sSkills.get(skillId);
         const int skillLevelId = fSkillLevels[skillId];
         const auto& skillLevel = skill.fLevels[skillLevelId];

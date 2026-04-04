@@ -14,7 +14,7 @@ struct eEquipment;
 struct eAttributes;
 
 struct eSkillStats {
-    int fSkillId = -1;
+    int fSkillId = 0;
 
     eDamage fDamageMinLW;
     eDamage fDamageMaxLW;

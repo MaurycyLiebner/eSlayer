@@ -85,7 +85,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fPos = pos;
             u->fAngle = 0.f;
             const int schoice = u->addSkill();
-            u->setSkillId(schoice, 0);
+            u->setSkillId(schoice, 0, false);
+            u->recalculateStats();
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
             mUnitAreas.emplace(area, charId);
@@ -353,8 +354,10 @@ bool eServerArea::addClient(const int clientId,
     eq.iterateOverAll([](eItem& item) {
         item.fItemId = sNextItemId++;
     });
-    u->setEquipment(eq);
-    u->setAttributes(c.attributes());
+    u->setEquipment(eq, false);
+    const auto& attrs = c.attributes();
+    u->setAttributes(attrs, false);
+    u->recalculateStats();
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, clientId);
