@@ -488,6 +488,59 @@ void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
     mMissiles.add(m->fId, m);
 }
 
+void eServerArea::summon(const eServerUnit& by,
+                         const ePointF& to,
+                         const int charDataId) {
+    const auto& data = eCharDataInfo::get(charDataId);
+    const auto name = data.name();
+    std::map<std::string, std::string> partsMap = {
+        {"wolf", "whole"}
+    };
+    const auto modelParts = data.mapToModelParts(partsMap);
+    const auto u = std::make_shared<eServerUnit>(false, data, *this);
+    const int charId = eServerUnit::sNextCharId++;
+    u->fCharId = charId;
+    u->fTeamId = by.fTeamId;
+    u->fTypeId = charDataId;
+    u->fModelParts = modelParts;
+    u->fHealth = 100;
+    u->fMaxHealth = 100;
+    u->fRadius = data.radius();
+    u->fAnim = data.animId("stand");
+    u->fAnimSpeed = 1.f;
+    u->fActionTime = 0.f;
+    u->fAnimId = 0;
+    u->fPos = to;
+    u->fAngle = 0.f;
+    {
+        const int schoice = u->addSkill();
+        u->setSkillId(schoice, 0, false);
+    }
+    u->recalculateStats();
+    mUnits.add(charId, u);
+    const auto area = unitArea(*u);
+    mUnitAreas.emplace(area, charId);
+
+    auto& m = u->movementHandler();
+    m.setSpeed(0.025f);
+
+    const auto w = [this](const int x, const int y) {
+        return mMap->walkable(x, y);
+    };
+    const auto iter = [this, charId](const eOtherHandler& handler) {
+        for(const auto& u : mUnits) {
+            if(charId == u->fCharId) continue;
+            handler(*u);
+        }
+    };
+    m.intialize(w, iter, charId, by.fTeamId);
+    m.setRadius(u->fRadius);
+    m.setPos(to);
+
+    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
+    u->setAction(a);
+}
+
 std::shared_ptr<eServerUnit>
 eServerArea::unit(const int charId) const {
     return mUnits.get(charId);

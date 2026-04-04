@@ -74,6 +74,8 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(u->fPos, schoice, wchoice);
+        } else if(skill.fType == eSkillType::summon) {
+            return summon(u->fPos, schoice);
         }
     } break;
     case eAttackTargetType::position: {
@@ -105,6 +107,8 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(target.fPos, schoice, wchoice);
+        } else if(skill.fType == eSkillType::summon) {
+            return summon(target.fPos, schoice);
         }
 
     } break;
@@ -311,4 +315,26 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     return attack.get();
 
     return true;
+}
+
+bool eComplexAction::summon(const ePointF& to,
+                            const int schoice) {
+    const auto& from = mUnit.fPos;
+    const auto dir = ePointF::vector(to, from);
+    mUnit.fAngle = dir.angle();
+    const int skillId = mUnit.skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto a = [this, skill, dir, from]() {
+        auto toDir = dir;
+        if(toDir.length() > skill.fCastRange) {
+            toDir.normalize(skill.fCastRange);
+        }
+        const auto to = from + toDir;
+        mArea.summon(mUnit, to, skill.fCharacterId);
+    };
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, mUnit.castAnims(schoice),
+        eAttackType::cast, a, schoice, eWeaponChoice::left);
+    if(attack) setChild(attack);
+    return attack.get();
 }

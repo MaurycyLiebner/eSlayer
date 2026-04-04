@@ -55,6 +55,11 @@ void eCharDataInfo::loadImpl() {
             eExceptions::showDialog(e);
         }
     }
+
+    for(const auto& it : eSkills::sSkills) {
+        auto& skill = it.fValue;
+        skill.fCharacterId = mChars.id(skill.fCharacterStr);
+    }
 }
 
 eCharData& eCharDataInfo::getImpl(const std::string &name) {

@@ -9,12 +9,13 @@
 enum class eSkillType : uint8_t {
     attack, smite, kick,
     shoot, throw_,
-    missile, wall
+    missile, wall,
+    summon
 };
 
 struct eSkillLevel {
     int fLevel;
-    int fMissiles;
+    int fCount;
     float fCooldown;
     float fManaCost;
     std::map<eModifierType, eModifier>
@@ -28,6 +29,8 @@ struct eSkill {
     int fIconId;
     std::string fMissileStr;
     int fMissileId;
+    std::string fCharacterStr;
+    int fCharacterId;
     std::string fPath;
     int fPathId;
 

@@ -316,6 +316,8 @@ bool eServerUnit::canUseSkill(
         return true;
     case eSkillType::wall:
         return true;
+    case eSkillType::summon:
+        return true;
     }
     return false;
 }

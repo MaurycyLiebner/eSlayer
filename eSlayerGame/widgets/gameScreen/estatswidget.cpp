@@ -418,9 +418,10 @@ void eStatsWidget::updateStats() {
 
     const auto& leftSkill = eSkills::sSkills.get(leftSkillId);
     const auto leftSkillType = leftSkill.fType;
-    const bool alwaysHitL = leftSkillType == eSkillType::missile ||
-                            leftSkillType == eSkillType::wall;
-    if(alwaysHitL) {
+    const bool noARL = leftSkillType == eSkillType::missile ||
+                       leftSkillType == eSkillType::wall ||
+                       leftSkillType == eSkillType::summon;
+    if(noARL) {
         mLeftSkillAR->setText(std::vector<std::string>{},
                               std::vector<std::string>{});
     } else {
@@ -431,15 +432,16 @@ void eStatsWidget::updateStats() {
 
     const auto& rightSkill = eSkills::sSkills.get(rightSkillId);
     const auto rightSkillType = rightSkill.fType;
-    const bool alwaysHitR = rightSkillType == eSkillType::missile ||
-                            rightSkillType == eSkillType::wall;
-    if(alwaysHitR) {
+    const bool noARR = rightSkillType == eSkillType::missile ||
+                       rightSkillType == eSkillType::wall ||
+                       rightSkillType == eSkillType::summon;
+    if(noARR) {
         mRightSkillAR->setText(std::vector<std::string>{},
                                std::vector<std::string>{});
     } else {
         mRightSkillAR->setText({rightSkillName, eLanguage::text(11, 5)},
-                              {rightSkillStats.fAttackRatingLW,
-                               rightSkillStats.fAttackRatingRW});
+                               {rightSkillStats.fAttackRatingLW,
+                                rightSkillStats.fAttackRatingRW});
     }
 
     mDefense->setText({eLanguage::text(11, 6)},

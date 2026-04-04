@@ -81,6 +81,7 @@ public:
     void changeAttributes(const int clientId, const eAttributes& attrs);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
+    void summon(const eServerUnit& by, const ePointF& to, const int charDataId);
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;

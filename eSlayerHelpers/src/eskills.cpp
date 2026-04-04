@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/erunsettings.h"
+#include "eSlayerHelpers/echardatainfo.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
@@ -27,8 +28,9 @@ void eSkills::load() {
 
         skill.fPath = jdata.value("path", "linear");
         skill.fMissileStr = jdata.value("missile", "none");
+        skill.fCharacterStr = jdata.value("character", "none");
         skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
-        int nMissiles = jdata.value("missiles", 1);
+        int count = jdata.value("count", 1);
         skill.fRadius = jdata.value("radius", 0.5f);
         skill.fSpeed = jdata.value("speed", 0.25f);
         skill.fMaxAngle = jdata.value("maxAngle", 0.f);
@@ -55,6 +57,9 @@ void eSkills::load() {
             skill.fRangeTime = jdata.value("time", 100.f)*eRunSettings::sFPS;
             skill.fPath = "static";
             skill.fCastRange = 8.f;
+        } else if(typeStr == "summon") {
+            skill.fType = eSkillType::summon;
+            skill.fCastRange = 8.f;
         } else {
             eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
         }
@@ -69,8 +74,8 @@ void eSkills::load() {
             for(auto& [name, levelData] : levels.items()) {
                 eSkillLevel level;
 
-                nMissiles = levelData.value("missiles", nMissiles);
-                level.fMissiles = nMissiles;
+                count = levelData.value("count", count);
+                level.fCount = count;
 
                 cooldown = levelData.value("cooldown", cooldown);
                 level.fCooldown = cooldown;
@@ -80,7 +85,7 @@ void eSkills::load() {
 
                 for(auto it = levelData.begin(); it != levelData.end(); ++it) {
                     const auto& key = it.key();
-                    if(key == "missiles" ||
+                    if(key == "count" ||
                        key == "cooldown" ||
                        key == "manaCost") continue;
                     const auto& value = it.value();

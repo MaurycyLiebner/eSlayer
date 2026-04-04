@@ -43,6 +43,8 @@ private:
     bool spawnMissile(const ePointF& to,
                       const int schoice,
                       const eWeaponChoice wchoice);
+    bool summon(const ePointF& to,
+                const int schoice);
 
     std::shared_ptr<eUnitAction> mChild;
 };
