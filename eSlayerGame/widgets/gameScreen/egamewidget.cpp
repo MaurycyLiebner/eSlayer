@@ -72,6 +72,8 @@ void eGameWidget::initialize(const int clientId,
     mMainAction.setEquipment(eq);
     const auto& attrs = c.attributes();
     mMainAction.setAttributes(attrs);
+
+    mWorld.initialize(clientId, mMainChar);
 }
 
 const ePointF& eGameWidget::characterPos() const {

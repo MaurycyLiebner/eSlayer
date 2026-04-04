@@ -24,6 +24,9 @@ class eGameWorld {
 public:
     eGameWorld(const std::shared_ptr<eMap>& map);
 
+    void initialize(const int clientId,
+                    const std::shared_ptr<eUnit>& mainChar);
+
     struct eProcessResult {
         bool fReceived = false;
         bool fAggressive = false;
@@ -61,6 +64,8 @@ public:
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 private:
     const std::shared_ptr<eMap>& mMap;
+    int mClientId;
+    std::shared_ptr<eUnit> mMainChar;
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
     eIdMapVector<eGroundItem> mGroundItems;

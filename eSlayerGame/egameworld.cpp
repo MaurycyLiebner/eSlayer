@@ -23,6 +23,9 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     };
 
     const auto getUnit = [this](const int charId) {
+        if(charId == mClientId) {
+            return static_cast<eUnitData*>(mMainChar.get());
+        }
         const auto u = mUnits.get(charId);
         return static_cast<eUnitData*>(u.get());
     };
@@ -31,6 +34,12 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
                              removeMissile,
                              getUnit,
                              nullptr);
+}
+
+void eGameWorld::initialize(const int clientId,
+                            const std::shared_ptr<eUnit>& mainChar) {
+    mClientId = clientId;
+    mMainChar = mainChar;
 }
 
 eGameWorld::eProcessResult eGameWorld::processServerData(
