@@ -97,6 +97,8 @@ public:
     void useSkill(const eSkillChoice schoice);
     void setSkillId(const eSkillChoice schoice,
                     const int skillId);
+    void setSkillId(const int schoice,
+                    const int skillId);
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);
@@ -121,6 +123,8 @@ public:
     void respawn();
 
     void recalculateStats();
+
+    int addSkill();
 private:
     const eCharData& mData;
     eServerArea& mArea;

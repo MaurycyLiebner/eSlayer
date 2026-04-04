@@ -13,10 +13,7 @@ int eServerUnit::sNextCharId = 0;
 eServerUnit::eServerUnit(
     const eCharData& data,
     eServerArea& area)
-    : mData(data), mArea(area) {
-    mStats.fSkills.emplace_back();
-    mStats.fSkills.emplace_back();
-}
+    : mData(data), mArea(area) {}
 
 float eServerUnit::defense() const {
     if(fAnim == mData.runAnimId()) {
@@ -251,6 +248,13 @@ void eServerUnit::setSkillId(const eSkillChoice schoice,
     recalculateStats();
 }
 
+void eServerUnit::setSkillId(const int schoice,
+                             const int skillId) {
+    auto& skill = mStats.skill(schoice);
+    skill.fSkillId = skillId;
+    recalculateStats();
+}
+
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {
     mAction = a;
 }
@@ -335,4 +339,9 @@ void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     fMaxHealth = std::ceil(mStats.fMaxHealth);
     fHealth = std::ceil(mStats.fHealthF);
+}
+
+int eServerUnit::addSkill() {
+    mStats.fSkills.emplace_back();
+    return mStats.fSkills.size() - 1;
 }

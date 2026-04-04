@@ -238,11 +238,19 @@ const eSkillStats& eStats::rightSkill() const {
 }
 
 eSkillStats& eStats::skill(const eSkillChoice schoice) {
-    return fSkills[static_cast<int>(schoice)];
+    return skill(static_cast<int>(schoice));
 }
 
 const eSkillStats& eStats::skill(const eSkillChoice schoice) const {
-    return fSkills[static_cast<int>(schoice)];
+    return skill(static_cast<int>(schoice));
+}
+
+eSkillStats& eStats::skill(const int schoice) {
+    return fSkills[schoice];
+}
+
+const eSkillStats& eStats::skill(const int schoice) const {
+    return fSkills[schoice];
 }
 
 eWeaponType gWeaponType(const eItem& item) {

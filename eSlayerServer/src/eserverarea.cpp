@@ -84,7 +84,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
             u->fAngle = 0.f;
-            u->setSkillId(eSkillChoice::left, 0);
+            const int schoice = u->addSkill();
+            u->setSkillId(schoice, 0);
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
             mUnitAreas.emplace(area, charId);
@@ -331,6 +332,8 @@ bool eServerArea::addClient(const int clientId,
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto u = std::make_shared<eServerUnit>(data, *this);
+    u->addSkill();
+    u->addSkill();
     u->fCharId = clientId;
     u->fTypeId = typeId;
     u->fRadius = data.radius();

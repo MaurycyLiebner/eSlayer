@@ -92,6 +92,9 @@ struct ESLAYERHELPERS_API eStats {
     eSkillStats& skill(const eSkillChoice schoice);
     const eSkillStats& skill(const eSkillChoice schoice) const;
 
+    eSkillStats& skill(const int schoice);
+    const eSkillStats& skill(const int schoice) const;
+
     void calculate(const eAttributes& attr,
                    const eEquipment& eq);
 
