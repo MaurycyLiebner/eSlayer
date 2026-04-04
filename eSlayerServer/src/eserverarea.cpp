@@ -78,6 +78,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fMaxHealth = 100;
             u->fRadius = data.radius();
             u->fAnim = data.animId("stand");
+            u->fAnimSpeed = 1.f;
             u->fActionTime = 0.f;
             u->fAnimId = 0;
             const ePointF pos{float(x), float(y)};
