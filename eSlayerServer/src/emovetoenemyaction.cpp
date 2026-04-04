@@ -29,15 +29,14 @@ void eMoveToEnemyAction::increment(const float by) {
             mTargetId = -1;
         }
     }
-    for(const auto& unit : mArea.units()) {
-        if(mUnit.fTeamId == unit->fTeamId) continue;
-        const float dist = ePointF::distance(mUnit.fPos, unit->fPos);
-        if(dist < 5.f) {
-            setTarget(*unit);
-            return;
-        }
-    }
-    finishAction();
+
+    const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        if(mUnit.fTeamId == u->fTeamId) return false;
+        setTarget(*u);
+        return true;
+    };
+    const bool r = mArea.iterateOverUnits(mUnit.fPos, 10.f, iter);
+    if(!r) finishAction();
 }
 
 void eMoveToEnemyAction::setTarget(const eServerUnit& u) {

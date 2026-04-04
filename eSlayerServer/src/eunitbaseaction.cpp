@@ -8,14 +8,14 @@
 #include <eSlayerHelpers/erand.h>
 
 void eUnitBaseAction::decide() {
-    for(const auto& unit : mArea.units()) {
-        if(mUnit.fTeamId == unit->fTeamId) continue;
-        const auto& data = mUnit.data();
-        const int skillId = eSkills::sSkills.id("attack");
-        const auto& skill = data.getSkill(skillId);
-        const bool r = meeleAttack(*unit, eSkillChoice::left, eWeaponChoice::left);
-        if(r) return;
-    }
+    bool attack = false;
+    const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        if(mUnit.fTeamId == u->fTeamId) return false;
+        attack = meeleAttack(*u, eSkillChoice::left, eWeaponChoice::left);
+        return attack;
+    };
+    mArea.iterateOverUnits(mUnit.fPos, 1.f, iter);
+    if(attack) return;
     if(eRand::rand() % 2) {
         const auto move = std::make_shared<eMoveToEnemyAction>(mUnit, mArea);
         setChild(move);

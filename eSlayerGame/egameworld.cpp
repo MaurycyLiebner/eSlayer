@@ -123,7 +123,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         unit->fMaxHealth = u.fMaxHealth;
         auto& model = unit->model();
         model.setAngle(u.fAngle);
-        model.setAnimation(unit->fAnim, unit->fAnimId, u.fAnimSpeed);
+        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
         if(!result.fAggressive && mainChar.fTeamId != unit->fTeamId && u.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;

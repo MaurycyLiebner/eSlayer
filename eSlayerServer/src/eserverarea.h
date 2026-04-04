@@ -88,6 +88,13 @@ public:
     groundItem(const int itemId) const;
     std::shared_ptr<eServerUnit>
     unit(const ePointF& pos);
+    using eUnitIter = std::function<bool(const std::shared_ptr<eServerUnit>&)>;
+    bool iterateOverUnits(const eArea& areaMin,
+                          const eArea& areaMax,
+                          const eUnitIter& iter) const;
+    bool iterateOverUnits(const ePointF& pos,
+                          const float maxRadius,
+                          const eUnitIter& iter) const;
 
     void unitKilled(const eServerUnit& killed);
 private:

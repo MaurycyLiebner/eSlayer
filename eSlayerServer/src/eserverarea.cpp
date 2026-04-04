@@ -486,17 +486,26 @@ eServerArea::groundItem(const int itemId) const {
 
 std::shared_ptr<eServerUnit>
 eServerArea::unit(const ePointF& pos) {
-    const auto centralArea = mUnitAreas.posArea(pos);
+    std::shared_ptr<eServerUnit> result;
+
+    const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        const auto& upos = u->fPos;
+        const float dist = ePointF::distance(pos, upos);
+        if(dist <= u->fRadius) {
+            result = u;
+            return true;
+        }
+        return false;
+    };
 
     const float maxRadius = 1.f;
-    const float minX = centralArea.fX - maxRadius;
-    const float maxX = centralArea.fX + maxRadius;
-    const float minY = centralArea.fY - maxRadius;
-    const float maxY = centralArea.fY + maxRadius;
+    iterateOverUnits(pos, maxRadius, iter);
+    return result;
+}
 
-    const auto areaMin = mUnitAreas.posArea(ePointF{minX, minY});
-    const auto areaMax = mUnitAreas.posArea(ePointF{maxX, maxY});
-
+bool eServerArea::iterateOverUnits(const eArea& areaMin,
+                                   const eArea& areaMax,
+                                   const eUnitIter& iter) const {
     for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
         for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
             const eArea area{ax, ay};
@@ -504,13 +513,25 @@ eServerArea::unit(const ePointF& pos) {
             for(const int charId : units) {
                 const auto u = unit(charId);
                 if(!u) continue;
-                const auto& upos = u->fPos;
-                const float dist = ePointF::distance(pos, upos);
-                if(dist <= u->fRadius) return u;
+                const bool r = iter(u);
+                if(r) return true;
             }
         }
     }
-    return nullptr;
+    return false;
+}
+
+bool eServerArea::iterateOverUnits(const ePointF& pos,
+                                   const float maxRadius,
+                                   const eUnitIter& iter) const {
+    const float minX = pos.fX - maxRadius;
+    const float maxX = pos.fX + maxRadius;
+    const float minY = pos.fY - maxRadius;
+    const float maxY = pos.fY + maxRadius;
+
+    const auto areaMin = mUnitAreas.posArea(ePointF{minX, minY});
+    const auto areaMax = mUnitAreas.posArea(ePointF{maxX, maxY});
+    return iterateOverUnits(areaMin, areaMax, iter);
 }
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
