@@ -88,11 +88,11 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const int schoice = u->addSkill();
                 u->setSkillId(schoice, 0, false);
             }
-            {
-                const int schoice = u->addSkill();
-                const int skillId = eSkills::sSkills.id("fireball");
-                u->setSkillId(schoice, skillId, false);
-            }
+            // {
+            //     const int schoice = u->addSkill();
+            //     const int skillId = eSkills::sSkills.id("fireball");
+            //     u->setSkillId(schoice, skillId, false);
+            // }
             u->recalculateStats();
             mUnits.add(charId, u);
             const auto area = unitArea(*u);
@@ -606,6 +606,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         const int clientId = c.first;
         const auto u = unit(clientId);
         if(!u) continue;
+        if(u->fHealth <= 0) continue;
         if(u->fTeamId == killed.fTeamId) continue;
         const float dist = ePointF::distance(u->fPos, killed.fPos);
         if(dist > 10.f) continue;
