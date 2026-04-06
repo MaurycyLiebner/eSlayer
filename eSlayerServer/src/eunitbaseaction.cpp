@@ -7,6 +7,17 @@
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
 
+eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
+                                 eServerArea& area) :
+    eComplexAction(unit, area) {
+    const auto& data = mUnit.data();
+    mRunAnimId = data.animId("run");
+    mWalkAnimId = data.animId("walk");
+    mWalkReadyAnimId = data.animId("walkReady");
+    mStandAnimId = data.animId("stand");
+    mStandReadyAnimId = data.animId("standReady");
+}
+
 void eUnitBaseAction::increment(const float by) {
     if(mAttacking) return eComplexAction::increment(by);
     mAttackCounter += by;
@@ -23,15 +34,31 @@ void eUnitBaseAction::decide() {
         return;
     }
     mAttacking = false;
-    const bool r = lookForAttackTarget();
-    if(r) return;
-    if(eRand::rand() % 2) {
-        const auto move = std::make_shared<eMoveToEnemyAction>(mUnit, mArea);
-        setChild(move);
-    } else {
-        const auto wait = eWaitAction::sCreateStand(mUnit, mArea, 100.f);
-        setChild(wait);
+    {
+        const bool r = lookForAttackTarget();
+        if(r) return;
     }
+    {
+        const bool r = moveToEnemy(10.f);
+        if(r) return;
+    }
+    wait(100.f);
+}
+
+bool eUnitBaseAction::moveToEnemy(const float maxDist) {
+    const auto move = std::make_shared<eMoveToEnemyAction>(
+        mUnit, mArea,
+        mRunAnimId, mWalkAnimId, mWalkReadyAnimId,
+        maxDist);
+    setChild(move);
+    const bool r = move->findNewTarget();
+    return r;
+}
+
+void eUnitBaseAction::wait(const float time) {
+    const auto wait = eWaitAction::sCreateStand(
+        mUnit, mArea, mStandAnimId, mStandReadyAnimId, time);
+    setChild(wait);
 }
 
 bool eUnitBaseAction::lookForAttackTarget() {

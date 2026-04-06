@@ -7,12 +7,21 @@
 
 class eUnitBaseAction : public eComplexAction {
 public:
-    using eComplexAction::eComplexAction;
+    eUnitBaseAction(eServerUnit& unit,
+                    eServerArea& area);
 
     void increment(const float by) override;
+protected:
     void decide() override;
-private:
+    bool moveToEnemy(const float maxDist);
+    void wait(const float time);
     bool lookForAttackTarget();
+private:
+    int mRunAnimId;
+    int mWalkAnimId;
+    int mWalkReadyAnimId;
+    int mStandAnimId;
+    int mStandReadyAnimId;
 
     constexpr static const float sAttackCounterMax = 25.f;
     float mAttackCounter = eRand::randF(0.f, sAttackCounterMax);

@@ -6,25 +6,12 @@
 
 std::shared_ptr<eWaitAction>
 eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
+                          const int standId, const int standReadyId,
                           const float time) {
     const bool a = unit.aggressive();
     const auto& data = unit.data();
-    const int naId = data.animId("stand");
-    const int aId = data.animId("standReady");
-    int anim;
-    if(a) {
-        if(aId != -1) {
-            anim = aId;
-        } else {
-            anim = naId;
-        }
-    } else {
-        if(naId != -1) {
-            anim = naId;
-        } else {
-            anim = aId;
-        }
-    }
+    const int anim = eMovementHandler::sChooseAnim(
+        standId, standReadyId, a);
     const auto result = sCreate(unit, area, anim);
     if(result) result->setDuration(time);
     return result;

@@ -25,12 +25,12 @@ public:
     using eUnitAction::eUnitAction;
 
     void increment(const float by) override;
-    virtual void decide() = 0;
 
     void setChild(const std::shared_ptr<eUnitAction>& c);
 
     bool getHit(const eHitData& data);
 protected:
+    virtual void decide() = 0;
     bool attack(const eAttackData& target);
     bool meeleAttack(const eServerUnit& u,
                      const int schoice,
