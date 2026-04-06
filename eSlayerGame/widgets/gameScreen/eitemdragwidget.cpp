@@ -186,6 +186,24 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             const int dex = itemData.fDexterityReq;
             addValue(6, 6, dex, dex, eFontColor::white);
         }
+        if(itemData.fType == eItemType::weapon) {
+            const float wsm = itemData.fWSM;
+            int s;
+            if(wsm < -20.f) {
+                s = 11;
+            } else if(wsm < -10.f) {
+                s = 10;
+            } else if(wsm < 0.f) {
+                s = 9;
+            } else if(wsm < 10.f) {
+                s = 8;
+            } else if(wsm < 20.f) {
+                s = 7;
+            } else {
+                s = 7;
+            }
+            addValue(6, s, 0.f, 0.f, eFontColor::white);
+        }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
             addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);

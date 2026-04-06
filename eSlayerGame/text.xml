@@ -39,6 +39,11 @@
         <string id="4">Required Level: %1</string>
         <string id="5">Required Strength: %1</string>
         <string id="6">Required Dexterity: %1</string>
+        <string id="7">Very Slow Attack Speed</string>
+        <string id="8">Slow Attack Speed</string>
+        <string id="9">Normal Attack Speed</string>
+        <string id="10">Fast Attack Speed</string>
+        <string id="11">Very Fast Attack Speed</string>
     </group>
     <group id="7">
         <string id="0">Life</string>
