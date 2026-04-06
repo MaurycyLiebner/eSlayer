@@ -238,11 +238,14 @@ eMapGenerator::generate(const std::string& name) const {
         const int w = 80;
         const int h = 80;
         result->generateTiles(w, h);
+        for(auto& row : result->mTiles) {
+            for(auto& tile : row) {
+                tile.fTerrainType = 1;
+                tile.fTileType = 5;
+            }
+        }
         result->mWidth = w;
         result->mHeight = h;
-        result->mTiles[0][0].fTileType = 3;
-        result->mTiles[0][1].fTileType = 2;
-        result->mTiles[1][0].fTileType = 1;
 
         const auto townFenceId = eObjsTexturesData::id("town_fence");
         result->mObjectTypes.emplace(townFenceId);

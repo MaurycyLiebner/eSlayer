@@ -292,12 +292,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         eTilesIterator iterator;
         iterator.initialize(this);
         for(const auto terrType : terrTypes) {
-            const auto& floor = eTerrsTextures::get(terrType);
+            if(terrType == 0) continue;
+            const auto& texs = eTerrsTextures::get(terrType);
             iterator.iterate([&](const int x, const int y,
                                  const int px, const int py) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != terrType) return;
-                const auto& tex = floor.getTexture(tile.fTileType);
+                const auto& tex = texs.getTexture(tile.fTileType);
                 mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
             });
