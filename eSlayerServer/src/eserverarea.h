@@ -81,14 +81,16 @@ public:
     void changeAttributes(const int clientId, const eAttributes& attrs);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
-    void summon(const eServerUnit& by, const ePointF& to, const int charDataId);
+    void summon(const eServerUnit& by, ePointF to, const int charDataId);
+
+    ePointF emptyPlaceNear(const ePointF& pos) const;
 
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
     std::shared_ptr<eGroundItem>
     groundItem(const int itemId) const;
     std::shared_ptr<eServerUnit>
-    unit(const ePointF& pos);
+    unit(const ePointF& pos) const;
     using eUnitIter = std::function<bool(const std::shared_ptr<eServerUnit>&)>;
     bool iterateOverUnits(const eArea& areaMin,
                           const eArea& areaMax,

@@ -5,6 +5,10 @@
 
 #include <eSlayerHelpers/epoint.h>
 
+enum class eUnitStrategy {
+    attack, move
+};
+
 class eUnitBaseAction : public eComplexAction {
 public:
     eUnitBaseAction(eServerUnit& unit,
@@ -13,15 +17,27 @@ public:
     void increment(const float by) override;
 protected:
     void decide() override;
+
+    void setStrategy(const eUnitStrategy s)
+    { mStrategy = s; }
+
+    bool attacking() const { return mAttacking; }
+
+    bool checkForAttackIncrement(const float by);
     bool moveToEnemy(const float maxDist);
     void wait(const float time);
     bool lookForAttackTarget();
-private:
+
+    void setAttackDist(const float dist) { mAttackDist = dist; }
+
     int mRunAnimId;
     int mWalkAnimId;
     int mWalkReadyAnimId;
     int mStandAnimId;
     int mStandReadyAnimId;
+private:
+    float mAttackDist = 10.f;
+    eUnitStrategy mStrategy = eUnitStrategy::attack;
 
     constexpr static const float sAttackCounterMax = 25.f;
     float mAttackCounter = eRand::randF(0.f, sAttackCounterMax);

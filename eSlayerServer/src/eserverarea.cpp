@@ -3,6 +3,7 @@
 #include "../../eSlayerHelpers/include/eSlayerHelpers/echardatainfo.h"
 #include "eclientaction.h"
 #include "eunitbaseaction.h"
+#include "efolloweraction.h"
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
@@ -489,8 +490,9 @@ void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
 }
 
 void eServerArea::summon(const eServerUnit& by,
-                         const ePointF& to,
+                         ePointF to,
                          const int charDataId) {
+    to = emptyPlaceNear(to);
     const auto& data = eCharDataInfo::get(charDataId);
     const auto name = data.name();
     std::map<std::string, std::string> partsMap = {
@@ -537,8 +539,27 @@ void eServerArea::summon(const eServerUnit& by,
     m.setRadius(u->fRadius);
     m.setPos(to);
 
-    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
+    const auto byPtr = unit(by.fCharId);
+    const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);
     u->setAction(a);
+}
+
+ePointF eServerArea::emptyPlaceNear(const ePointF& pos) const {
+    for(int dist = 0; dist < 100; dist++) {
+        for(int x = -dist; x <= dist; x++) {
+            for(int y = -dist; y <= dist; y++) {
+                if(std::abs(x) != dist && std::abs(y) != dist) continue;
+                const ePointF p{pos.fX + x*0.5f, pos.fY + y*0.5f};
+                const auto ipos = p.floor();
+                const bool r = mMap->walkable(ipos.fX, ipos.fY);
+                if(!r) continue;
+                const auto u = unit(p);
+                if(u) continue;
+                return p;
+            }
+        }
+    }
+    return pos;
 }
 
 std::shared_ptr<eServerUnit>
@@ -551,8 +572,7 @@ eServerArea::groundItem(const int itemId) const {
     return mGroundItems.get(itemId);
 }
 
-std::shared_ptr<eServerUnit>
-eServerArea::unit(const ePointF& pos) {
+std::shared_ptr<eServerUnit> eServerArea::unit(const ePointF& pos) const {
     std::shared_ptr<eServerUnit> result;
 
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {

@@ -37,6 +37,8 @@ add_library(eSlayerServer SHARED
     src/epacketdata.h
     src/etcpipjoin.h src/etcpipjoin.cpp
     src/eservermissile.h src/eservermissile.cpp
+    src/efolloweraction.h src/efolloweraction.cpp
+    src/emovetotarget.h src/emovetotarget.cpp
 
 )
 

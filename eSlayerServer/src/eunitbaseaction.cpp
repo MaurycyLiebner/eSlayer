@@ -19,13 +19,20 @@ eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
 }
 
 void eUnitBaseAction::increment(const float by) {
-    if(mAttacking) return eComplexAction::increment(by);
+    if(mStrategy == eUnitStrategy::attack) {
+        checkForAttackIncrement(by);
+    }
+    eComplexAction::increment(by);
+}
+
+bool eUnitBaseAction::checkForAttackIncrement(const float by) {
+    if(mAttacking) return true;
     mAttackCounter += by;
     if(mAttackCounter >= sAttackCounterMax) {
         mAttackCounter = 0.f;
-        lookForAttackTarget();
+        return lookForAttackTarget();
     }
-    eComplexAction::increment(by);
+    return false;
 }
 
 void eUnitBaseAction::decide() {
@@ -34,21 +41,24 @@ void eUnitBaseAction::decide() {
         return;
     }
     mAttacking = false;
-    {
-        const bool r = lookForAttackTarget();
-        if(r) return;
-    }
-    {
-        const bool r = moveToEnemy(10.f);
-        if(r) return;
+    mAttackCounter = 0.f;
+    if(mStrategy == eUnitStrategy::attack) {
+        {
+            const bool r = lookForAttackTarget();
+            if(r) return;
+        }
+        {
+            const bool r = moveToEnemy(mAttackDist);
+            if(r) return;
+        }
     }
     wait(100.f);
 }
 
 bool eUnitBaseAction::moveToEnemy(const float maxDist) {
     const auto move = std::make_shared<eMoveToEnemyAction>(
-        mUnit, mArea,
-        mRunAnimId, mWalkAnimId, mWalkReadyAnimId,
+        mUnit, mArea, mRunAnimId,
+        mWalkAnimId, mWalkReadyAnimId,
         maxDist);
     setChild(move);
     const bool r = move->findNewTarget();

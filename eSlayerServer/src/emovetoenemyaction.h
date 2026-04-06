@@ -1,11 +1,9 @@
 #ifndef EMOVETOENEMYACTION_H
 #define EMOVETOENEMYACTION_H
 
-#include "eunitaction.h"
+#include "emovetotarget.h"
 
-#include <eSlayerHelpers/epoint.h>
-
-class eMoveToEnemyAction : public eUnitAction {
+class eMoveToEnemyAction : public eMoveToTarget {
 public:
     eMoveToEnemyAction(eServerUnit& unit,
                        eServerArea& area,
@@ -19,15 +17,7 @@ public:
     void setMaxDist(const float maxDist);
     bool findNewTarget();
 private:
-    void setTarget(const eServerUnit& u);
-
-    const int mRunAnimId;
-    const int mWalkAnimId;
-    const int mWalkReadyAnimId;
-
-    int mTargetId = -1;
     float mMaxDist = 10.f;
-    ePointF mTargetPos{0.f, 0.f};
 };
 
 #endif // EMOVETOENEMYACTION_H
