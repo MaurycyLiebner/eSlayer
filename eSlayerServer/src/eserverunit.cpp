@@ -87,6 +87,14 @@ float eServerUnit::skillsAttackSpeed(const int schoice) const {
 }
 
 float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
+    switch(wchoice) {
+    case eWeaponChoice::left: {
+        return mStats.fWSMLW;
+    } break;
+    case eWeaponChoice::right: {
+        return mStats.fWSMRW;
+    } break;
+    }
     return 0.f;
 }
 

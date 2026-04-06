@@ -35,6 +35,8 @@ struct eItemData {
     bool fTwoHanded = false;
     std::vector<eItemType> fSecondHand;
     float fRange = 0.f;
+    // Weapon speed modifier
+    float fWSM = 0.f;
 
     std::string fMissileStr;
     int fMissileId = -1;

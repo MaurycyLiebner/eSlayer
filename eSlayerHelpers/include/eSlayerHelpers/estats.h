@@ -62,6 +62,10 @@ struct ESLAYERHELPERS_API eStats {
     float fAttackSpeedLW = 0.f;
     float fAttackSpeedRW = 0.f;
 
+    // Weapon speed modifier
+    float fWSMLW = 0.f;
+    float fWSMRW = 0.f;
+
     float fCastRate = 0.f;
 
     float fWeaponMeeleRange = 0.f;

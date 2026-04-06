@@ -91,6 +91,7 @@ void eItemsData::load(const std::string& name,
         itemData.fMissileSpeed = jdata.value("missileSpeed", 0.25f);
     }
     itemData.fRange = jdata.value("range", 0.f);
+    itemData.fWSM = jdata.value("WSM", 0.f);
     itemData.fLevelReq = jdata.value("levelReq", 1);
     itemData.fStrengthReq = jdata.value("strReq", 0);
     itemData.fDexterityReq = jdata.value("dexReq", 0);

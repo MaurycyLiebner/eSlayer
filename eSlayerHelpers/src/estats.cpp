@@ -278,10 +278,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fWeaponMeeleRange = 0.f;
     int meeleRangeDiv = 0;
     fWeaponRangedRange = 10000.f;
-    const auto handleWeapon = [&](const eItem& w) {
+    const auto handleWeapon = [&](const eItem& w, float& WSM) {
         const auto subtype = static_cast<eWeaponType>(w.fSubType);
         const bool r = gWeaponIsRanged(subtype);
         const auto& itemData = eItemsData::get(w.fDataId);
+        WSM = itemData.fWSM;
         const float range = itemData.fRange;
         if(r) {
             fWeaponRangedRange = std::min(range, fWeaponRangedRange);
@@ -294,13 +295,15 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     };
 
     fWeaponTypeL = gWeaponType(leftW);
+    fWSMLW = 0.f;
     if(leftW.fType == eItemType::weapon) {
-        handleWeapon(leftW);
+        handleWeapon(leftW, fWSMLW);
     }
 
     fWeaponTypeR = gWeaponType(rightW);
+    fWSMRW = 0.f;
     if(rightW.fType == eItemType::weapon) {
-        handleWeapon(rightW);
+        handleWeapon(rightW, fWSMRW);
     }
 
     if(meeleRangeDiv > 0) {
