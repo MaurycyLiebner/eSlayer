@@ -119,11 +119,11 @@ float eServerUnit::sHitChance(
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
 }
 
-int eServerUnit::attackMissiles(
+int eServerUnit::skillCount(
     const int schoice,
     const eWeaponChoice wchoice) {
     const auto& skill = mStats.skill(schoice);
-    return skill.fMissiles;
+    return skill.fCount;
 }
 
 float eServerUnit::pierceChance(const int schoice,
@@ -378,6 +378,26 @@ std::vector<int> eServerUnit::readySkills() const {
     for(int i = 0; i < mStats.fSkills.size(); i++) {
         const bool r = skillReady(i);
         if(r) result.emplace_back(i);
+    }
+    return result;
+}
+
+std::vector<int> eServerUnit::followers(const int charDataId) const {
+    std::vector<int> result;
+    for(const int charId : mFollowers) {
+        const auto u = mArea.unit(charId);
+        if(!u) continue;
+        if(u->fTypeId == charDataId) result.emplace_back(charId);
+    }
+    return result;
+}
+
+int eServerUnit::countFollowers(const int charDataId) const {
+    int result = 0;
+    for(const int charId : mFollowers) {
+        const auto u = mArea.unit(charId);
+        if(!u) continue;
+        if(u->fTypeId == charDataId) result++;
     }
     return result;
 }

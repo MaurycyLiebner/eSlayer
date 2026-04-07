@@ -28,7 +28,7 @@ void eFollowerAction::increment(const float by) {
             }
         }
     } else {
-        mArea.removeUnit(mUnit.fCharId);
+        mArea.planRemoveUnit(mUnit.fCharId);
     }
     eUnitBaseAction::increment(by);
 }

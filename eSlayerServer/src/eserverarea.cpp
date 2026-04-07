@@ -152,11 +152,13 @@ void eServerArea::increment(const float by) {
             }
         }
 
-        auto followers = clientData.fFollowers;
-        for(const int charId : followers) {
+        auto& followers = u->followers();
+        for(int i = 0; i < followers.size(); i++) {
+            const int charId = followers[i];
             const auto u = unit(charId);
             if(!u || u->fMaxHealth <= 0) {
-                clientData.fFollowers.erase(charId);
+                followers.erase(followers.begin() + i);
+                i--;
             } else {
                 const auto area = unitArea(*u);
                 unitAreas.emplace(area);
@@ -181,6 +183,8 @@ void eServerArea::increment(const float by) {
     for(const auto& m : mMissiles) {
         mMIncrementer.increment(*m, by);
     }
+
+    removePlannedUnits();
 
     mTime += by;
 }
@@ -385,15 +389,14 @@ bool eServerArea::addClient(const int clientId,
 }
 
 bool eServerArea::removeClient(const int clientId) {
-    removeUnit(clientId);
+    planRemoveUnit(clientId);
     const int r = mClientData.erase(clientId);
     return r > 0;
 }
 
-bool eServerArea::removeUnit(const int charId) {
-    const auto area = unitArea(charId);
-    mUnitAreas.erase(area, charId);
-    return mUnits.remove(charId);
+bool eServerArea::planRemoveUnit(const int charId) {
+    mUnitsToRemove.emplace_back(charId);
+    return true;
 }
 
 bool eServerArea::pickupItem(
@@ -500,9 +503,16 @@ void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
     mMissiles.add(m->fId, m);
 }
 
-void eServerArea::summon(const eServerUnit& by,
+void eServerArea::summon(eServerUnit& by,
                          ePointF to,
-                         const int charDataId) {
+                         const int charDataId,
+                         const int maxCount) {
+    auto& followers = by.followers();
+    if(followers.size() >= maxCount && maxCount > 0) {
+        const int removeCharId = followers[0];
+        planRemoveUnit(removeCharId);
+        followers.erase(followers.begin());
+    }
     to = emptyPlaceNear(to);
     const auto& data = eCharDataInfo::get(charDataId);
     const auto name = data.name();
@@ -512,8 +522,7 @@ void eServerArea::summon(const eServerUnit& by,
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto u = std::make_shared<eServerUnit>(false, data, *this);
     const int charId = eServerUnit::sNextCharId++;
-    auto& clientData = mClientData[by.fCharId];
-    clientData.fFollowers.emplace(charId);
+    followers.emplace_back(charId);
     u->fCharId = charId;
     u->fTeamId = by.fTeamId;
     u->fTypeId = charDataId;
@@ -537,7 +546,7 @@ void eServerArea::summon(const eServerUnit& by,
     mUnitAreas.emplace(area, charId);
 
     auto& m = u->movementHandler();
-    m.setSpeed(0.025f);
+    m.setSpeed(0.075f);
 
     const auto w = [this](const int x, const int y) {
         return mMap->walkable(x, y);
@@ -645,6 +654,15 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         if(dist > 10.f) continue;
         u->killed(killed);
     }
+}
+
+void eServerArea::removePlannedUnits() {
+    for(const int charId : mUnitsToRemove) {
+        const auto area = unitArea(charId);
+        mUnitAreas.erase(area, charId);
+        mUnits.remove(charId);
+    }
+    mUnitsToRemove.clear();
 }
 
 eClientData::eClientData() :

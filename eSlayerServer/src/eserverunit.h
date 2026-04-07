@@ -78,7 +78,7 @@ public:
                             const eServerUnit& by,
                             const int schoice,
                             const eWeaponChoice wchoice);
-    int attackMissiles(const int schoice,
+    int skillCount(const int schoice,
                        const eWeaponChoice wchoice);
     float pierceChance(const int schoice,
                        const eWeaponChoice wchoice);
@@ -135,6 +135,13 @@ public:
     int addSkill();
 
     std::vector<int> readySkills() const;
+
+    const std::vector<int>& followers() const
+    { return mFollowers; }
+    std::vector<int>& followers()
+    { return mFollowers; }
+    std::vector<int> followers(const int charDataId) const;
+    int countFollowers(const int charDataId) const;
 private:
     const eCharData& mData;
     eServerArea& mArea;
@@ -151,6 +158,7 @@ private:
     eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
 
     std::vector<ePoisonDamage> mPoison;
+    std::vector<int> mFollowers;
 };
 
 #endif // ESERVERUNIT_H

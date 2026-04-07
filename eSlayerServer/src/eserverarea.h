@@ -31,7 +31,6 @@ struct eClientData {
     std::set<int> fKnownItems;
     int32_t fLatestMissile;
     eAreas fKnownMap;
-    std::set<int> fFollowers;
 };
 
 class eServerArea {
@@ -73,7 +72,7 @@ public:
                    const ePointF& pos,
                    const eScreenDimensions& screenDims);
     bool removeClient(const int clientId);
-    bool removeUnit(const int charId);
+    bool planRemoveUnit(const int charId);
 
     bool pickupItem(const int clientId, const int itemId,
                     const bool drag);
@@ -82,7 +81,10 @@ public:
     void changeAttributes(const int clientId, const eAttributes& attrs);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
-    void summon(const eServerUnit& by, ePointF to, const int charDataId);
+    void summon(eServerUnit& by,
+                ePointF to,
+                const int charDataId,
+                const int maxCount);
 
     ePointF emptyPlaceNear(const ePointF& pos) const;
 
@@ -102,6 +104,8 @@ public:
 
     void unitKilled(const eServerUnit& killed);
 private:
+    void removePlannedUnits();
+
     float mTime = 0.f;
 
     std::shared_ptr<eMap> mMap;
@@ -121,6 +125,7 @@ private:
     const int mItemTileSubdivision = 2;
     eSetAreas mItemTiles;
 
+    std::vector<int> mUnitsToRemove;
     std::map<int, eClientData> mClientData;
 
     eMissileIncrementer mMIncrementer;

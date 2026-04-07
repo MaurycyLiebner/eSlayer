@@ -183,7 +183,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         const bool alwaysHit = skillType == eSkillType::missile ||
                                skillType == eSkillType::wall;
         std::vector<eMissileData> missiles;
-        const int nMissiles = mUnit.attackMissiles(schoice, wchoice);
+        const int nMissiles = mUnit.skillCount(schoice, wchoice);
         const float pierceChance = mUnit.pierceChance(schoice, wchoice);
         auto baseDir = ePointF::vector(to, mUnit.fPos);
         if(skillType == eSkillType::missile) {
@@ -324,13 +324,15 @@ bool eComplexAction::summon(const ePointF& to,
     mUnit.fAngle = dir.angle();
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
-    const auto a = [this, skill, dir, from]() {
+    const int maxCount = mUnit.skillCount(
+        schoice, eWeaponChoice::left);
+    const auto a = [this, skill, dir, from, maxCount]() {
         auto toDir = dir;
         if(toDir.length() > skill.fCastRange) {
             toDir.normalize(skill.fCastRange);
         }
         const auto to = from + toDir;
-        mArea.summon(mUnit, to, skill.fCharacterId);
+        mArea.summon(mUnit, to, skill.fCharacterId, maxCount);
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

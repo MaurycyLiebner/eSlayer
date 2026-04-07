@@ -364,7 +364,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         s.fAttackSpeedS = 0.f;
         s.fAttackRatingLW = 0.f;
         s.fAttackRatingRW = 0.f;
-        s.fMissiles = 0;
+        s.fCount = 0;
         s.fPierceLW = 0.f;
         s.fPierceRW = 0.f;
 
@@ -492,7 +492,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                 stats.fMissileIdRW = skill.fMissileId;
             }
         }
-        stats.fMissiles = skillLevel.fCount;
+        stats.fCount = skillLevel.fCount;
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::shoot ||
            skill.fType == eSkillType::throw_) {

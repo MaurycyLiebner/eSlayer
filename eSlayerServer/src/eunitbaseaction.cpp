@@ -37,7 +37,7 @@ bool eUnitBaseAction::checkForAttackIncrement(const float by) {
 
 void eUnitBaseAction::decide() {
     if(mUnit.fHealth <= 0) {
-        mArea.removeUnit(mUnit.fCharId);
+        mArea.planRemoveUnit(mUnit.fCharId);
         return;
     }
     mAttacking = false;

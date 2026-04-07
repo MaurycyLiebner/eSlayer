@@ -34,7 +34,7 @@ struct eSkillStats {
 
     float fMissileRangeTime = 0.f;
 
-    int fMissiles = 0;
+    int fCount = 0;
 };
 
 struct ESLAYERHELPERS_API eStats {

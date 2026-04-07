@@ -2,7 +2,6 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/erunsettings.h"
-#include "eSlayerHelpers/echardatainfo.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
