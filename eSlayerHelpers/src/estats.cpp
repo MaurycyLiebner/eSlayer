@@ -292,6 +292,22 @@ eWeaponType gWeaponType(const eItem& item) {
 }
 
 void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
+    fStrength = attr.fStrength;
+    fDexterity = attr.fDexterity;
+    fVitality = attr.fVitality;
+    fEnergy = attr.fEnergy;
+
+    const auto itemReqsMet = [&](const eItem& item) {
+        const auto& data = eItemsData::get(item.fDataId);
+        const int level = std::max(data.fLevelReq, item.fRequiredLevel);
+        const int str = data.fStrengthReq;
+        const int dex = data.fDexterityReq;
+        if(attr.fLevel < level) return false;
+        if(fStrength < str) return false;
+        if(fDexterity < dex) return false;
+        return true;
+    };
+
     const float healthFrac = fHealthF/fMaxHealth;
     const float manaFrac = fManaF/fMaxMana;
 
@@ -301,41 +317,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     const auto& rightW = (eq.fWeapons1 ?
                               eq.fWeapon1R :
                               eq.fWeapon2R);
-
-    fWeaponMeeleRange = 0.f;
-    int meeleRangeDiv = 0;
-    fWeaponRangedRange = 10000.f;
-    const auto handleWeapon = [&](const eItem& w, float& WSM) {
-        const auto subtype = static_cast<eWeaponType>(w.fSubType);
-        const bool r = gWeaponIsRanged(subtype);
-        const auto& itemData = eItemsData::get(w.fDataId);
-        WSM = itemData.fWSM;
-        const float range = itemData.fRange;
-        if(r) {
-            fWeaponRangedRange = std::min(range, fWeaponRangedRange);
-        }
-        const bool m = gWeaponIsMeele(subtype);
-        if(m) {
-            meeleRangeDiv++;
-            fWeaponMeeleRange += range;
-        }
-    };
-
-    fWeaponTypeL = gWeaponType(leftW);
-    fWSMLW = 0.f;
-    if(leftW.fType == eItemType::weapon) {
-        handleWeapon(leftW, fWSMLW);
-    }
-
-    fWeaponTypeR = gWeaponType(rightW);
-    fWSMRW = 0.f;
-    if(rightW.fType == eItemType::weapon) {
-        handleWeapon(rightW, fWSMRW);
-    }
-
-    if(meeleRangeDiv > 0) {
-        fWeaponMeeleRange /= meeleRangeDiv;
-    }
 
     const auto items = {
         eq.fBoots,
@@ -349,11 +330,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         leftW,
         rightW,
     };
-
-    fStrength = attr.fStrength;
-    fDexterity = attr.fDexterity;
-    fVitality = attr.fVitality;
-    fEnergy = attr.fEnergy;
 
     // defense
     float baseDef = 0.f;
@@ -542,6 +518,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                            h, true, true);
         }
         for(const auto& item : items) {
+            if(!itemReqsMet(item)) continue;
             switch(item.fType) {
             case eItemType::shield:
                 fBlockChance += item.fValue4;
@@ -574,6 +551,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     };
 
     for(const auto& item : items) {
+        if(!itemReqsMet(item)) continue;
         switch(item.fType) {
         case eItemType::shield:
             fBlockChance += item.fValue4;
@@ -691,6 +669,49 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     }
 
+    fWeaponMeeleRange = 0.f;
+    int meeleRangeDiv = 0;
+    fWeaponRangedRange = 10000.f;
+    const auto handleWeapon = [&](const eItem& w, float& WSM) {
+        const auto subtype = static_cast<eWeaponType>(w.fSubType);
+        const bool r = gWeaponIsRanged(subtype);
+        const auto& itemData = eItemsData::get(w.fDataId);
+        WSM = itemData.fWSM;
+        const float range = itemData.fRange;
+        if(r) {
+            fWeaponRangedRange = std::min(range, fWeaponRangedRange);
+        }
+        const bool m = gWeaponIsMeele(subtype);
+        if(m) {
+            meeleRangeDiv++;
+            fWeaponMeeleRange += range;
+        }
+    };
+
+    fWSMLW = 0.f;
+    if(itemReqsMet(leftW)) {
+        fWeaponTypeL = gWeaponType(leftW);
+        if(leftW.fType == eItemType::weapon) {
+            handleWeapon(leftW, fWSMLW);
+        }
+    } else {
+        fWeaponTypeL = eWeaponType::none;
+    }
+
+    fWSMRW = 0.f;
+    if(itemReqsMet(rightW)) {
+        fWeaponTypeR = gWeaponType(rightW);
+        if(rightW.fType == eItemType::weapon) {
+            handleWeapon(rightW, fWSMRW);
+        }
+    } else {
+        fWeaponTypeR = eWeaponType::none;
+    }
+
+    if(meeleRangeDiv > 0) {
+        fWeaponMeeleRange /= meeleRangeDiv;
+    }
+
     baseLife += 3.f*fVitality;
     baseMana += 1.5f*fEnergy;
 
@@ -716,6 +737,12 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             h.fDmgMultMin.fPhysical += attrMult;
             h.fDmgMultMax.fPhysical += attrMult;
         } else if(skillType == eSkillType::kick) {
+            h.fDmgMultMin.fPhysical += attrMult;
+            h.fDmgMultMax.fPhysical += attrMult;
+        } else if(skillType == eSkillType::shoot) {
+            h.fDmgMultMin.fPhysical += attrMult;
+            h.fDmgMultMax.fPhysical += attrMult;
+        } else if(skillType == eSkillType::throw_) {
             h.fDmgMultMin.fPhysical += attrMult;
             h.fDmgMultMax.fPhysical += attrMult;
         }
