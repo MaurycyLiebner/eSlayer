@@ -151,6 +151,17 @@ void eServerArea::increment(const float by) {
                 unitAreas.emplace(area);
             }
         }
+
+        auto followers = clientData.fFollowers;
+        for(const int charId : followers) {
+            const auto u = unit(charId);
+            if(!u || u->fMaxHealth <= 0) {
+                clientData.fFollowers.erase(charId);
+            } else {
+                const auto area = unitArea(*u);
+                unitAreas.emplace(area);
+            }
+        }
     }
 
     for(const auto& area : unitAreas) {
@@ -501,6 +512,8 @@ void eServerArea::summon(const eServerUnit& by,
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto u = std::make_shared<eServerUnit>(false, data, *this);
     const int charId = eServerUnit::sNextCharId++;
+    auto& clientData = mClientData[by.fCharId];
+    clientData.fFollowers.emplace(charId);
     u->fCharId = charId;
     u->fTeamId = by.fTeamId;
     u->fTypeId = charDataId;

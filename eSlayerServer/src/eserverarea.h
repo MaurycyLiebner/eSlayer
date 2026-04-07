@@ -31,6 +31,7 @@ struct eClientData {
     std::set<int> fKnownItems;
     int32_t fLatestMissile;
     eAreas fKnownMap;
+    std::set<int> fFollowers;
 };
 
 class eServerArea {
