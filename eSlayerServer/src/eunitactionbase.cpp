@@ -6,7 +6,11 @@
 
 void eUnitActionBase::increment(const float by) {
     mRemTime -= by;
-    mUnit.fActionTime = mRemTime;
+    if(mBlockingAction) {
+        mUnit.fBlockingActionTime = mRemTime;
+    } else {
+        mUnit.fBlockingActionTime = 0.f;
+    }
     mActionTime -= by;
     if(mAction && mActionTime <= 0) {
         mAction();
@@ -17,18 +21,18 @@ void eUnitActionBase::increment(const float by) {
 
 void eUnitActionBase::setDuration(const float d) {
     mRemTime = d;
-    mUnit.fActionTime = d;
+    if(mBlockingAction) {
+        mUnit.fBlockingActionTime = d;
+    } else {
+        mUnit.fBlockingActionTime = 0.f;
+    }
 }
 
-void eUnitActionBase::setAction(const float time, const eAction& a) {
-    mActionTime = time;
-    mAction = a;
-}
-
-void eUnitActionBase::setup(
-    const int anim,
-    int frames,
-    const eAction& a) {
+void eUnitActionBase::setup(const int anim,
+                            int frames,
+                            bool blocking,
+                            const eAction& a) {
+    mBlockingAction = blocking;
     const auto& data = mUnit.data();
     mUnit.fAnim = anim;
     mUnit.fAnimId += 5;
@@ -41,6 +45,7 @@ void eUnitActionBase::setup(
     if(a) {
         const int baseFrame = data.animActionFrame(anim);
         const float frame = baseFrame/speed;
-        setAction(frame, a);
+        mActionTime = frame;
+        mAction = a;
     }
 }

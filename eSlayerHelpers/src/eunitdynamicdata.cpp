@@ -13,7 +13,7 @@ void eUnitDynamicData::read(ePacket& p) {
     p >> fAnimId;
     p >> fAnimSpeed;
 
-    p >> fActionTime;
+    p >> fBlockingActionTime;
 
     p >> fHealth;
     p >> fMaxHealth;
@@ -30,7 +30,7 @@ void eUnitDynamicData::write(ePacket& p) const {
     p << fAnimId;
     p << fAnimSpeed;
 
-    p << fActionTime;
+    p << fBlockingActionTime;
 
     p << fHealth;
     p << fMaxHealth;

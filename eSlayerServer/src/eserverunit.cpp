@@ -183,9 +183,7 @@ void eServerUnit::increment(const float by) {
         it.second = std::max(0.f, it.second - by);
     }
     if(mAction) mAction->increment(by);
-    const float tmp = fActionTime;
-    fActionTime -= by;
-    if(tmp <= 0.f) {
+    if(fBlockingActionTime <= 0.f) {
         const bool r = mHandler.increment(by);
         if(r) {
             const auto newPos = mHandler.pos();

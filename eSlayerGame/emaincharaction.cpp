@@ -157,8 +157,8 @@ void eMainCharAction::handleAttackStop(
 bool eMainCharAction::consumeActionTime(
     const float by,
     eCharUnitModel& model) {
-    const float prev = mMainChar->fActionTime;
-    mMainChar->fActionTime -= by;
+    const float prev = mMainChar->fBlockingActionTime;
+    mMainChar->fBlockingActionTime -= by;
 
     if(prev > 0.f) {
         model.setAnimation(mMainChar->fAnim, mMainChar->fAnimSpeed);

@@ -44,7 +44,7 @@ bool eServerClientHandler::changeState(
     unit->fVel = u.fVel;
     unit->fAngle = u.fAngle;
 
-    if(unit->fActionTime <= 0.f) {
+    if(unit->fBlockingActionTime <= 0.f) {
         unit->fAnim = u.fAnim;
         unit->fAnimId = u.fAnimId;
         unit->fAnimSpeed = u.fAnimSpeed;

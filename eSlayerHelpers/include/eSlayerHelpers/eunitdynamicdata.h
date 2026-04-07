@@ -18,7 +18,7 @@ struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
     uint32_t fAnimId;
     float fAnimSpeed;
 
-    float fActionTime;
+    float fBlockingActionTime;
 
     uint16_t fHealth;
     uint16_t fMaxHealth;

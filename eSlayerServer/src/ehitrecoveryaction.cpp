@@ -16,7 +16,7 @@ eHitRecoveryAction::sCreate(
         const float animSpeed = 256.f;
         const int frames = int(std::ceil(256.f*hitBase/std::floor(animSpeed*(50.f + efhr)/100.f))) - 1;
         const auto a = std::make_shared<eHitRecoveryAction>(unit, area);
-        a->setup(anim, frames, nullptr);
+        a->setup(anim, frames, true, nullptr);
         return a;
     } else {
         return nullptr;

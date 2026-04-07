@@ -252,7 +252,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainAction.stop();
             }
             mMainChar->fMaxHealth = u.fMaxHealth;
-            mMainChar->fActionTime = u.fActionTime;
+            mMainChar->fBlockingActionTime = u.fBlockingActionTime;
             if(u.fAnimId > mMainChar->fAnimId) {
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;

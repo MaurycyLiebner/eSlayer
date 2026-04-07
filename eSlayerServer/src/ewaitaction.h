@@ -17,9 +17,9 @@ public:
     sCreateDeath(eServerUnit& unit, eServerArea& area);
     static std::shared_ptr<eWaitAction>
     sCreateBody(eServerUnit& unit, eServerArea& area);
-    static std::shared_ptr<eWaitAction>
-    sCreate(eServerUnit& unit, eServerArea& area,
-            const int anim);
+    static std::shared_ptr<eWaitAction> sCreate(
+        eServerUnit& unit, eServerArea& area,
+        const int anim, const bool blocking);
 };
 
 #endif // EWAITACTION_H

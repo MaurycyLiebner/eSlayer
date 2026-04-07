@@ -114,7 +114,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             result.fMainCharData.fAnim = u.fAnim;
             result.fMainCharData.fAnimId = u.fAnimId;
             result.fMainCharData.fAnimSpeed = u.fAnimSpeed;
-            result.fMainCharData.fActionTime = u.fActionTime;
+            result.fMainCharData.fBlockingActionTime = u.fBlockingActionTime;
             result.fMainCharData.fHealth = u.fHealth;
             result.fMainCharData.fMaxHealth = u.fMaxHealth;
             continue;
@@ -127,7 +127,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         unit->fAnim = u.fAnim;
         unit->fAnimId = u.fAnimId;
         unit->fAnimSpeed = u.fAnimSpeed;
-        unit->fActionTime = u.fActionTime;
+        unit->fBlockingActionTime = u.fBlockingActionTime;
         unit->fHealth = u.fHealth;
         unit->fMaxHealth = u.fMaxHealth;
         auto& model = unit->model();

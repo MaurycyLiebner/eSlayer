@@ -16,7 +16,7 @@ eBlockAction::sCreate(
         const float animSpeed = 256.f;
         const int frames = int(std::ceil(256.f*blockBase/std::floor(animSpeed*(50.f + efbr)/100.f))) - 1;
         const auto a = std::make_shared<eBlockAction>(unit, area);
-        a->setup(anim, frames, nullptr);
+        a->setup(anim, frames, true, nullptr);
         return a;
     } else {
         return nullptr;

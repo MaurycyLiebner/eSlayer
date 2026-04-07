@@ -14,14 +14,14 @@ public:
     void increment(const float by) override;
 
     void setDuration(const float d);
-    void setAction(const float time, const eAction& a);
 protected:
     void setup(const int anim,
                int frames,
+               bool blocking,
                const eAction& a);
-
 private:
     float mRemTime;
+    bool mBlockingAction;
     float mActionTime;
 
     eAction mAction;

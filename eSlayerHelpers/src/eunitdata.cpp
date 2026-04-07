@@ -16,7 +16,7 @@ void eUnitData::read(ePacket& p) {
     p >> fAnimId;
     p >> fAnimSpeed;
 
-    p >> fActionTime;
+    p >> fBlockingActionTime;
 
     p >> fHealth;
     p >> fMaxHealth;
@@ -40,7 +40,7 @@ void eUnitData::write(ePacket& p) const {
     p << fAnimId;
     p << fAnimSpeed;
 
-    p << fActionTime;
+    p << fBlockingActionTime;
 
     p << fHealth;
     p << fMaxHealth;
@@ -60,7 +60,7 @@ eUnitData eUnitData::toUnitData() const {
     d.fAnim = fAnim;
     d.fAnimId = fAnimId;
     d.fAnimSpeed = fAnimSpeed;
-    d.fActionTime = fActionTime;
+    d.fBlockingActionTime = fBlockingActionTime;
     d.fHealth = fHealth;
     d.fMaxHealth = fMaxHealth;
     d.fModelParts = fModelParts;
@@ -76,7 +76,7 @@ eUnitDynamicData eUnitData::toDynamicData() const {
     d.fAnim = fAnim;
     d.fAnimId = fAnimId;
     d.fAnimSpeed = fAnimSpeed;
-    d.fActionTime = fActionTime;
+    d.fBlockingActionTime = fBlockingActionTime;
     d.fHealth = fHealth;
     d.fMaxHealth = fMaxHealth;
     return d;

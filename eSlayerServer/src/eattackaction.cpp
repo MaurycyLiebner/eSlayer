@@ -34,6 +34,6 @@ std::shared_ptr<eAttackAction> eAttackAction::sCreate(
         frames = animLen;
     }
     const auto result = std::make_shared<eAttackAction>(unit, area);
-    result->setup(anim, frames, a);
+    result->setup(anim, frames, true, a);
     return result;
 }

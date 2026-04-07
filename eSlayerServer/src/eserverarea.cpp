@@ -82,7 +82,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             u->fRadius = udata.fRadius;
             u->fAnim = data.animId("stand");
             u->fAnimSpeed = 1.f;
-            u->fActionTime = 0.f;
+            u->fBlockingActionTime = 0.f;
             u->fAnimId = 0;
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
@@ -372,7 +372,7 @@ bool eServerArea::addClient(const int clientId,
     u->fAngle = 0.f;
     u->fMaxHealth = 100;
     u->fHealth = 100;
-    u->fActionTime = 0.f;
+    u->fBlockingActionTime = 0.f;
     u->fModelParts = modelParts;
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
@@ -536,7 +536,7 @@ void eServerArea::summon(eServerUnit& by,
     u->fRadius = udata.fRadius;
     u->fAnim = data.animId("stand");
     u->fAnimSpeed = 1.f;
-    u->fActionTime = 0.f;
+    u->fBlockingActionTime = 0.f;
     u->fAnimId = 0;
     u->fPos = to;
     u->fAngle = 0.f;

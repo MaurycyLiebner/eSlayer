@@ -12,7 +12,7 @@ eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
     const auto& data = unit.data();
     const int anim = eMovementHandler::sChooseAnim(
         standId, standReadyId, a);
-    const auto result = sCreate(unit, area, anim);
+    const auto result = sCreate(unit, area, anim, false);
     if(result) result->setDuration(time);
     return result;
 }
@@ -22,7 +22,7 @@ eWaitAction::sCreateDeath(
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();
     const int anim = data.animId("death");
-    return sCreate(unit, area, anim);
+    return sCreate(unit, area, anim, true);
 }
 
 std::shared_ptr<eWaitAction>
@@ -30,17 +30,17 @@ eWaitAction::sCreateBody(
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();
     const int anim = data.animId("body");
-    const auto result = sCreate(unit, area, anim);
+    const auto result = sCreate(unit, area, anim, true);
     if(result) result->setDuration(std::numeric_limits<float>::max());
     return result;
 }
 
 std::shared_ptr<eWaitAction> eWaitAction::sCreate(
     eServerUnit& unit, eServerArea& area,
-    const int anim) {
+    const int anim, const bool blocking) {
     if(anim != -1) {
         const auto wait = std::make_shared<eWaitAction>(unit, area);
-        wait->setup(anim, -1, nullptr);
+        wait->setup(anim, -1, blocking, nullptr);
         return wait;
     } else {
         return nullptr;
