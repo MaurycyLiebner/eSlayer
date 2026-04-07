@@ -93,7 +93,7 @@ void eCharTextures::setCharDataId(const int id) {
     mCharDataId = id;
 }
 
-void eCharTextures::load(ordered_json& jdata) {
+void eCharTextures::load(const ordered_json& jdata) {
     const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0, 0});
     if(colorKey.size() == 3) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};

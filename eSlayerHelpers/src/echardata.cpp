@@ -4,7 +4,7 @@
 
 eCharData::eCharData() {}
 
-void eCharData::load(ordered_json& jdata) {
+void eCharData::load(const ordered_json& jdata) {
     mDirs = jdata["directions"];
     const auto& anims = jdata["animations"];
     for(auto& [name, animData] : anims.items()) {

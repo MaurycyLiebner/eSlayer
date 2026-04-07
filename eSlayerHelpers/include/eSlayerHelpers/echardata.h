@@ -26,7 +26,7 @@ class ESLAYERHELPERS_API eCharData {
 public:
     eCharData();
 
-    virtual void load(ordered_json& jdata);
+    virtual void load(const ordered_json& jdata);
 
     void setTypeId(const int id) { mId = id; }
     int typeId() const { return mId; }

@@ -19,7 +19,7 @@ struct eCharTextureKey {
 class eCharTextures {
 public:
     void setCharDataId(const int id);
-    void load(ordered_json& jdata);
+    void load(const ordered_json& jdata);
 
     std::shared_ptr<eCharModel> requestModel(
         const eModelParts& modelParts,
