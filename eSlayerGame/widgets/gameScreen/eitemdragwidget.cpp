@@ -9,11 +9,17 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/estats.h>
 
 eItemDragWidget* eItemDragWidget::sInstance = nullptr;
 
-eItemDragWidget::eItemDragWidget(eMainWindow* const w) :
-    eWidget(w) {
+eItemDragWidget::eItemDragWidget(const eAttributes& attrs,
+                                 const eStats& stats,
+                                 eMainWindow* const w) :
+    eWidget(w),
+    mAttrs(attrs),
+    mStats(stats) {
     sInstance = this;
 }
 
@@ -179,17 +185,23 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             break;
         }
         const auto& itemData = eItemsData::get(item.fDataId);
-        if(itemData.fLevelReq > 1) {
-            const int level = itemData.fLevelReq;
-            addValue(6, 4, level, level, eFontColor::white);
+        const int level = std::max(itemData.fLevelReq, item.fRequiredLevel);
+        if(level > 1) {
+            const auto color = level > mAttrs.fLevel ?
+                eFontColor::red : eFontColor::white;
+            addValue(6, 4, level, level, color);
         }
         if(itemData.fStrengthReq > 0) {
             const int str = itemData.fStrengthReq;
-            addValue(6, 5, str, str, eFontColor::white);
+            const auto color = str > mStats.fStrength ?
+                eFontColor::red : eFontColor::white;
+            addValue(6, 5, str, str, color);
         }
         if(itemData.fDexterityReq > 0) {
             const int dex = itemData.fDexterityReq;
-            addValue(6, 6, dex, dex, eFontColor::white);
+            const auto color = dex > mStats.fDexterity ?
+                eFontColor::red : eFontColor::white;
+            addValue(6, 6, dex, dex, color);
         }
         if(itemData.fType == eItemType::weapon) {
             const float wsm = itemData.fWSM;

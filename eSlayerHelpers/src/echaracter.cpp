@@ -49,6 +49,8 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
 
     item.fSockets = itemE->IntAttribute("sockets");
 
+    item.fRequiredLevel = itemE->IntAttribute("requiredLevel");
+
     const auto rarityName = itemE->Attribute("rarity");
     if(!rarityName) return false;
     item.fRarity = eItemRarityHelpers::type(rarityName);
@@ -308,6 +310,7 @@ void gWriteItem(const eItem& item,
     const auto typeName = eItemsData::name(itemDataId);
     itemE->SetAttribute("type", typeName.c_str());
     itemE->SetAttribute("sockets", item.fSockets);
+    itemE->SetAttribute("requiredLevel", item.fRequiredLevel);
     const auto rarityName = eItemRarityHelpers::name(item.fRarity);
     itemE->SetAttribute("rarity", rarityName.c_str());
     itemE->SetAttribute("value1", item.fValue1);

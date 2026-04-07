@@ -5,10 +5,14 @@
 
 struct eEquipment;
 struct eItem;
+struct eAttributes;
+struct eStats;
 
 class eItemDragWidget : public eWidget {
 public:
-    eItemDragWidget(eMainWindow* const w);
+    eItemDragWidget(const eAttributes& attrs,
+                    const eStats& stats,
+                    eMainWindow* const w);
     ~eItemDragWidget();
 
     using eDropAction = std::function<void(const SDL_Point& pos)>;
@@ -29,6 +33,9 @@ protected:
 
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
+    const eAttributes& mAttrs;
+    const eStats& mStats;
+
     eDropAction mDropAction;
     SDL_Point mMousePos;
     std::shared_ptr<eTexture> mItem;

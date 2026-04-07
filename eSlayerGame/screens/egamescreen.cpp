@@ -303,7 +303,10 @@ void eGameScreen::showInventoryMenu() {
     addWidget(mInventoryMenu);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
 
-    mDragWidget = new eItemDragWidget(window());
+    const auto& attrs = mGameWidget->attributes();
+    const auto& stats = mGameWidget->stats();
+
+    mDragWidget = new eItemDragWidget(attrs, stats, window());
     mDragWidget->resize(w, h);
     mDragWidget->initialize([this](SDL_Point pos) {
         pos.x -= mInventoryMenu->x();

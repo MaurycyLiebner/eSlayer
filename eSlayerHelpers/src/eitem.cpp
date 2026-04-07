@@ -12,6 +12,8 @@ void eItem::read(ePacket& p) {
     p >> fRarity;
     p >> fSockets;
 
+    p >> fRequiredLevel;
+
     p >> fValue1;
     p >> fValue2;
     p >> fValue3;
@@ -34,6 +36,8 @@ void eItem::write(ePacket& p) const {
 
     p << fRarity;
     p << fSockets;
+
+    p << fRequiredLevel;
 
     p << fValue1;
     p << fValue2;
