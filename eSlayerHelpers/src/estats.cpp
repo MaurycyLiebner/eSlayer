@@ -197,6 +197,22 @@ struct eSkillStatsHelper {
                 fBonusARRW += mod.fValue1;
             }
         } break;
+        case eModifierType::lifeSteal: {
+            if(lw) {
+                fStats.fLifeStealLW += mod.fValue1;
+            }
+            if(rw) {
+                fStats.fLifeStealRW += mod.fValue1;
+            }
+        } break;
+        case eModifierType::manaSteal: {
+            if(lw) {
+                fStats.fManaStealLW += mod.fValue1;
+            }
+            if(rw) {
+                fStats.fManaStealRW += mod.fValue1;
+            }
+        } break;
         default:
             break;
         }
@@ -362,11 +378,17 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     for(auto& s : fSkills) {
         s.fAttackSpeedS = 0.f;
+
         s.fAttackRatingLW = 0.f;
         s.fAttackRatingRW = 0.f;
+
         s.fCount = 0;
+
         s.fPierceLW = 0.f;
         s.fPierceRW = 0.f;
+
+        s.fLifeStealLW = 0.f;
+        s.fManaStealRW = 0.f;
 
         skillHelpers.emplace_back(eSkillStatsHelper{s});
     }
@@ -386,6 +408,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::damageLightning:
         case eModifierType::damagePoison:
         case eModifierType::pierceChance:
+        case eModifierType::lifeSteal:
+        case eModifierType::manaSteal:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -645,6 +669,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                 case eModifierType::damageLightning:
                 case eModifierType::damagePoison:
                 case eModifierType::pierceChance:
+                case eModifierType::lifeSteal:
+                case eModifierType::manaSteal:
                     break;
                 }
             }

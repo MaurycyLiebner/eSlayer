@@ -47,7 +47,12 @@ gModifierTypeToString = {
     { eModifierType::strength, "strength" },
     { eModifierType::dexterity, "dexterity" },
     { eModifierType::energy, "energy" },
-    { eModifierType::vitality, "vitality" }
+    { eModifierType::vitality, "vitality" },
+
+    { eModifierType::lifeSteal, "lifeSteal" },
+    { eModifierType::manaSteal, "manaSteal" },
+
+    { eModifierType::meeleSplashDamage, "meeleSplashDamage" }
 };
 
 std::map<std::string, eModifierType>
@@ -105,6 +110,11 @@ int eModifier::valuesUsed() const {
     case eModifierType::dexterity:
     case eModifierType::energy:
     case eModifierType::vitality:
+
+    case eModifierType::lifeSteal:
+    case eModifierType::manaSteal:
+
+    case eModifierType::meeleSplashDamage:
         return 1;
     }
     return 0;

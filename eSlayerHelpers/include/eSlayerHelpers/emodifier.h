@@ -57,7 +57,12 @@ enum class eModifierType : uint8_t {
     strength,
     dexterity,
     energy,
-    vitality
+    vitality,
+
+    lifeSteal,
+    manaSteal,
+
+    meeleSplashDamage
 };
 
 struct ESLAYERHELPERS_API eModifier {

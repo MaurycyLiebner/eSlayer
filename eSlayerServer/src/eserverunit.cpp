@@ -119,6 +119,38 @@ float eServerUnit::sHitChance(
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
 }
 
+float eServerUnit::sLifeSteal(
+    const eServerUnit& hit,
+    const eServerUnit& by,
+    const int schoice,
+    const eWeaponChoice wchoice) {
+    const auto& skill = by.mStats.skill(schoice);
+    float ls;
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fLifeStealLW;
+    case eWeaponChoice::right:
+        return skill.fLifeStealRW;
+    }
+    return 0.f;
+}
+
+float eServerUnit::sManaSteal(
+    const eServerUnit& hit,
+    const eServerUnit& by,
+    const int schoice,
+    const eWeaponChoice wchoice) {
+    const auto& skill = by.mStats.skill(schoice);
+    float ls;
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fManaStealLW;
+    case eWeaponChoice::right:
+        return skill.fManaStealRW;
+    }
+    return 0.f;
+}
+
 int eServerUnit::skillCount(
     const int schoice,
     const eWeaponChoice wchoice) {
@@ -158,6 +190,15 @@ float eServerUnit::takeDamage(const eDamage& dmg) {
     mStats.fHealthF = std::max(0.f, mStats.fHealthF - totalDmg);
     fHealth = std::ceil(mStats.fHealthF);
     return totalDmg;
+}
+
+void eServerUnit::restoreHealth(const float by) {
+    mStats.fHealthF = std::min(mStats.fMaxHealth, mStats.fHealthF + by);
+    fHealth = std::ceil(mStats.fHealthF);
+}
+
+void eServerUnit::restoreMana(const float by) {
+    mStats.fManaF = std::min(mStats.fMaxMana, mStats.fManaF + by);
 }
 
 bool eServerUnit::consumeMana(const float mana) {

@@ -154,7 +154,20 @@ bool eComplexAction::getHit(eServerUnit& target,
     data.fHitChance = hitChance;
     data.fBlockMultiplier = 1.f;
     data.fDamage = mUnit.attackDamage(schoice, wchoice);
-    return target.getHit(data);
+    const bool r = target.getHit(data);
+    if(r) {
+        const float physDmg = data.fDamage.fPhysical;
+        const float lifeSteal = eServerUnit::sLifeSteal(
+            target, mUnit, schoice, wchoice);
+        const float lifeStolen = physDmg*lifeSteal;
+        mUnit.restoreHealth(lifeStolen);
+
+        const float manaSteal = eServerUnit::sManaSteal(
+            target, mUnit, schoice, wchoice);
+        const float manaStolen = physDmg*manaSteal;
+        mUnit.restoreMana(manaStolen);
+    }
+    return r;
 }
 
 int piercedFromPierceChance(const float p) {

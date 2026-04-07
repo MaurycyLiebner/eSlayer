@@ -34,6 +34,12 @@ struct eSkillStats {
 
     float fMissileRangeTime = 0.f;
 
+    float fLifeStealLW = 0.f;
+    float fLifeStealRW = 0.f;
+
+    float fManaStealLW = 0.f;
+    float fManaStealRW = 0.f;
+
     int fCount = 0;
 };
 

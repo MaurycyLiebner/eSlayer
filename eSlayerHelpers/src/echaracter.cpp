@@ -2,11 +2,11 @@
 
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/eitemsdata.h"
-#include "eSlayerHelpers/eweapontype.h"
 
-#include <algorithm>
 #include <tinyxml2.h>
 using namespace tinyxml2;
+
+#include <algorithm>
 
 eCharacter::eCharacter(const std::string& name,
                        const bool hardcore) :
@@ -189,6 +189,7 @@ bool eCharacter::load(const std::string& path,
         gReadItemSlot(eq.fDragged, "dragged", eqE);
 
         gReadInventory(eq.fInventory, "inventory", eqE);
+        eq.fWeapon1L.fModifiers.emplace_back(eModifier{eModifierType::lifeSteal, 0.05f, 0.05f});
     }
 
     // int itemId = 0;

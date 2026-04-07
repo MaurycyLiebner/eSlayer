@@ -98,6 +98,9 @@
         <string id="31">+%1 to Dexterity</string>
         <string id="32">+%1 to Energy</string>
         <string id="33">+%1 to Vitality</string>
+        <string id="34">%1% Life Stolen Per Hit</string>
+        <string id="35">%1% Mana Stolen Per Hit</string>
+        <string id="36">Meele Attacks Deal +%1% Splash Damage</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

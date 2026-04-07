@@ -78,6 +78,15 @@ public:
                             const eServerUnit& by,
                             const int schoice,
                             const eWeaponChoice wchoice);
+    static float sLifeSteal(const eServerUnit& hit,
+                            const eServerUnit& by,
+                            const int schoice,
+                            const eWeaponChoice wchoice);
+    static float sManaSteal(const eServerUnit& hit,
+                            const eServerUnit& by,
+                            const int schoice,
+                            const eWeaponChoice wchoice);
+
     int skillCount(const int schoice,
                        const eWeaponChoice wchoice);
     float pierceChance(const int schoice,
@@ -85,6 +94,10 @@ public:
 
     bool getHit(const eHitData& data);
     float takeDamage(const eDamage& dmg);
+
+    void restoreHealth(const float by);
+    void restoreMana(const float by);
+
     bool consumeMana(const float mana);
     eDamage attackDamage(const int schoice,
                          const eWeaponChoice wchoice);
