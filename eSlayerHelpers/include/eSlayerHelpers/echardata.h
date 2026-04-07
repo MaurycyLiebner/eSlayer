@@ -34,8 +34,6 @@ public:
     void setName(const std::string& name) { mName = name; }
     const std::string& name() const { return mName; }
 
-    float radius() const { return mRadius; }
-
     int animId(const std::string& name) const;
     int runAnimId() const { return mRunId; }
 
@@ -60,8 +58,6 @@ protected:
 
     int mRunId;
     std::map<std::string, int> mAnimIds;
-
-    float mRadius;
 
     struct eAnimation {
         int fFrames;

@@ -7,9 +7,12 @@
 #include "widgets/gameScreen/einventorywidget.h"
 #include "widgets/gameScreen/eitemdragwidget.h"
 
+#include <eSlayerServer/eserver.h>
+
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eattackdata.h>
-#include <eSlayerServer/eserver.h>
+#include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/echardatainfo.h>
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
@@ -25,20 +28,21 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const std::map<std::string, std::string> partsMap {
         {"whole", "light"}
     };
-    const int typeId = 1;
-    mMainCharData = &eCharsTextures::get(typeId);
-    const auto& info = mMainCharData->charData();
-    const float radius = info.radius();
+    const int typeId = 0;
+    const auto& udata = eUnitsInfo::sUnits.get(typeId);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
+    mMainCharTexs = &eCharsTextures::get(typeId);
+    const float radius = udata.fRadius;
     mMovementHandler.setRadius(radius);
-    const auto modelParts = mMainCharData->mapToModelParts(partsMap);
+    const auto modelParts = mMainCharTexs->mapToModelParts(partsMap);
 
-    mRunAnimId = info.animId("run");
-    mWalkAnimId = info.animId("walk");
-    mWalkReadyAnimId = info.animId("walkReady");
-    mStandAnimId = info.animId("stand");
-    mStandReadyAnimId = info.animId("standReady");
+    mRunAnimId = data.animId("run");
+    mWalkAnimId = data.animId("walk");
+    mWalkReadyAnimId = data.animId("walkReady");
+    mStandAnimId = data.animId("stand");
+    mStandReadyAnimId = data.animId("standReady");
 
-    const auto model = mMainCharData->requestModel(modelParts, r);
+    const auto model = mMainCharTexs->requestModel(modelParts, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
     const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, false);
@@ -53,7 +57,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
     mMainChar->fRadius = radius;
-    mMainChar->fTypeId = typeId;
+    mMainChar->fCharDataId = typeId;
     mMainChar->fModelParts = modelParts;
 
     mStats.fSkills.emplace_back();

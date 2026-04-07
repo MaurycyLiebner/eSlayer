@@ -387,7 +387,7 @@ std::vector<int> eServerUnit::followers(const int charDataId) const {
     for(const int charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
-        if(u->fTypeId == charDataId) result.emplace_back(charId);
+        if(u->fCharDataId == charDataId) result.emplace_back(charId);
     }
     return result;
 }
@@ -397,7 +397,7 @@ int eServerUnit::countFollowers(const int charDataId) const {
     for(const int charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
-        if(u->fTypeId == charDataId) result++;
+        if(u->fCharDataId == charDataId) result++;
     }
     return result;
 }

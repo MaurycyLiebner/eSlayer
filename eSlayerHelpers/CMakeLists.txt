@@ -135,6 +135,9 @@ add_library(eSlayerHelpers SHARED
     src/emapportion.cpp
     include/eSlayerHelpers/eareas.h
     src/eareas.cpp
+    include/eSlayerHelpers/eunitinfo.h
+    include/eSlayerHelpers/eunitsinfo.h
+    src/eunitsinfo.cpp
 
 
 )

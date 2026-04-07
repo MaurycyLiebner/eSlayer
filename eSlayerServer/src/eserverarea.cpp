@@ -8,6 +8,7 @@
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/emissilecollision.h>
@@ -53,8 +54,9 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         if(x == 40) x += 20;
         for(int y = 24; y < 75; y++) {
             if(y == 40) y += 20;
-            const int typeId = 2 + eRand::rand() % 2;
-            const auto& data = eCharDataInfo::get(typeId);
+            const int typeId = 1 + eRand::rand() % 2;
+            const auto& udata = eUnitsInfo::sUnits.get(typeId);
+            const auto& data = eCharDataInfo::get(udata.fCharData);
             const auto name = data.name();
             std::map<std::string, std::string> partsMap;
             if(name == "mummy") {
@@ -73,11 +75,11 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const int charId = eServerUnit::sNextCharId++;
             u->fCharId = charId;
             u->fTeamId = -1;
-            u->fTypeId = typeId;
+            u->fCharDataId = udata.fCharData;
             u->fModelParts = modelParts;
             u->fHealth = 100;
             u->fMaxHealth = 100;
-            u->fRadius = data.radius();
+            u->fRadius = udata.fRadius;
             u->fAnim = data.animId("stand");
             u->fAnimSpeed = 1.f;
             u->fActionTime = 0.f;
@@ -100,7 +102,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             mUnitAreas.emplace(area, charId);
 
             auto& m = u->movementHandler();
-            m.setSpeed(0.025f);
+            m.setSpeed(udata.fWalkSpeed);
 
             const auto w = [this](const int x, const int y) {
                 return mMap->walkable(x, y);
@@ -351,16 +353,17 @@ bool eServerArea::addClient(const int clientId,
     auto& clientData = mClientData[clientId];
     clientData.fLatestMissile = -1;
     clientData.fScreen = screenDims;
-    const int typeId = 1;
-    const auto& data = eCharDataInfo::get(typeId);
+    const int typeId = 0;
+    const auto& udata = eUnitsInfo::sUnits.get(typeId);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto u = std::make_shared<eServerUnit>(true, data, *this);
     u->addSkill();
     u->addSkill();
     u->fCharId = clientId;
-    u->fTypeId = typeId;
-    u->fRadius = data.radius();
+    u->fCharDataId = udata.fCharData;
+    u->fRadius = udata.fRadius;
     u->fAnim = data.animId("stand");
     u->fAnimId = 0;
     u->fAnimSpeed = 1.f;
@@ -505,7 +508,7 @@ void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
 
 void eServerArea::summon(eServerUnit& by,
                          ePointF to,
-                         const int charDataId,
+                         const int unitId,
                          const int maxCount) {
     auto& followers = by.followers();
     if(followers.size() >= maxCount && maxCount > 0) {
@@ -514,7 +517,8 @@ void eServerArea::summon(eServerUnit& by,
         followers.erase(followers.begin());
     }
     to = emptyPlaceNear(to);
-    const auto& data = eCharDataInfo::get(charDataId);
+    const auto& udata = eUnitsInfo::sUnits.get(unitId);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
     const auto name = data.name();
     std::map<std::string, std::string> partsMap = {
         {"wolf", "whole"}
@@ -525,11 +529,11 @@ void eServerArea::summon(eServerUnit& by,
     followers.emplace_back(charId);
     u->fCharId = charId;
     u->fTeamId = by.fTeamId;
-    u->fTypeId = charDataId;
+    u->fCharDataId = udata.fCharData;
     u->fModelParts = modelParts;
     u->fHealth = 100;
     u->fMaxHealth = 100;
-    u->fRadius = data.radius();
+    u->fRadius = udata.fRadius;
     u->fAnim = data.animId("stand");
     u->fAnimSpeed = 1.f;
     u->fActionTime = 0.f;
@@ -546,7 +550,7 @@ void eServerArea::summon(eServerUnit& by,
     mUnitAreas.emplace(area, charId);
 
     auto& m = u->movementHandler();
-    m.setSpeed(0.075f);
+    m.setSpeed(udata.fWalkSpeed);
 
     const auto w = [this](const int x, const int y) {
         return mMap->walkable(x, y);

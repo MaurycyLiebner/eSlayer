@@ -332,7 +332,7 @@ bool eComplexAction::summon(const ePointF& to,
             toDir.normalize(skill.fCastRange);
         }
         const auto to = from + toDir;
-        mArea.summon(mUnit, to, skill.fCharacterId, maxCount);
+        mArea.summon(mUnit, to, skill.fUnitId, maxCount);
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

@@ -25,6 +25,7 @@
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjstexturesdata.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -205,6 +206,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eCharsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eUnitsInfo::load();
         });
 
         loadings.emplace_back([&]() {

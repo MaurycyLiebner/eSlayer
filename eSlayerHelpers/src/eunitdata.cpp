@@ -4,7 +4,7 @@ void eUnitData::read(ePacket& p) {
     p >> fCharId;
     p >> fTeamId;
 
-    p >> fTypeId;
+    p >> fCharDataId;
 
     p >> fRadius;
 
@@ -28,7 +28,7 @@ void eUnitData::write(ePacket& p) const {
     p << fCharId;
     p << fTeamId;
 
-    p << fTypeId;
+    p << fCharDataId;
 
     p << fRadius;
 
@@ -53,7 +53,7 @@ eUnitData eUnitData::toUnitData() const {
     d.fPos = fPos;
     d.fCharId = fCharId;
     d.fTeamId = fTeamId;
-    d.fTypeId = fTypeId;
+    d.fCharDataId = fCharDataId;
     d.fRadius = fRadius;
     d.fVel = fVel;
     d.fAngle = fAngle;

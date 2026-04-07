@@ -97,7 +97,7 @@ private:
     std::weak_ptr<eGroundItem> mPressedItem;
 
     std::shared_ptr<eUnit> mMainChar;
-    eCharTextures* mMainCharData = nullptr;
+    eCharTextures* mMainCharTexs = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
 

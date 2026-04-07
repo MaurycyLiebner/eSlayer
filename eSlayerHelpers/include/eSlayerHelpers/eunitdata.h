@@ -14,7 +14,7 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     int32_t fCharId;
     int8_t fTeamId;
 
-    uint8_t fTypeId;
+    uint8_t fCharDataId;
 
     float fRadius;
 

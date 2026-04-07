@@ -82,7 +82,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             result.fMainCharData = u;
             continue;
         }
-        const auto& texs = eCharsTextures::get(u.fTypeId);
+        const auto& texs = eCharsTextures::get(u.fCharDataId);
         const auto unitModel = texs.requestModel(u.fModelParts, r);
 
         const auto unit = std::make_shared<eUnit>();

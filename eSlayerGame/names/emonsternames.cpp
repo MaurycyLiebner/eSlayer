@@ -12,7 +12,7 @@ std::string eMonsterNames::name(const int itemDataId) {
 }
 
 bool eMonsterNames::load() {
-    const auto dir = "Monsters";
+    const auto dir = "Units";
     const auto strMap = eFileLoader::loadNames(dir, "names.txt");
     for(const auto& it : strMap) {
         const auto id = eCharDataInfo::id(it.first);
