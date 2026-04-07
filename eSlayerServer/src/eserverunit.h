@@ -87,6 +87,9 @@ public:
                             const int schoice,
                             const eWeaponChoice wchoice);
 
+    float meeleSplashDamage(const int schoice,
+                            const eWeaponChoice wchoice) const;
+
     int skillCount(const int schoice,
                        const eWeaponChoice wchoice);
     float pierceChance(const int schoice,

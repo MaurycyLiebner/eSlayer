@@ -213,6 +213,14 @@ struct eSkillStatsHelper {
                 fStats.fManaStealRW += mod.fValue1;
             }
         } break;
+        case eModifierType::meeleSplashDamage: {
+            if(lw) {
+                fStats.fMeeleSplashDamageLW += mod.fValue1;
+            }
+            if(rw) {
+                fStats.fMeeleSplashDamageRW += mod.fValue1;
+            }
+        } break;
         default:
             break;
         }
@@ -236,6 +244,9 @@ struct eSkillStatsHelper {
 
         fStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);
         fStats.fAttackRatingRW = (fBaseAR + fFlatARRW)*(1.f + fBonusARRW);
+
+        fStats.fMeeleSplashDamageLW = std::clamp(fStats.fMeeleSplashDamageLW, 0.f, 1.f);
+        fStats.fMeeleSplashDamageRW = std::clamp(fStats.fMeeleSplashDamageRW, 0.f, 1.f);
     }
 };
 
@@ -410,6 +421,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::pierceChance:
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
+        case eModifierType::meeleSplashDamage:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -671,6 +683,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                 case eModifierType::pierceChance:
                 case eModifierType::lifeSteal:
                 case eModifierType::manaSteal:
+                case eModifierType::meeleSplashDamage:
                     break;
                 }
             }

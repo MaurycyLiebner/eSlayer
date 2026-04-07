@@ -31,6 +31,16 @@ struct ESLAYERHELPERS_API eDamage {
         return result;
     }
 
+    eDamage operator*(const float mult) const {
+        eDamage result;
+        result.fPhysical = fPhysical*mult;
+        result.fFire = fFire*mult;
+        result.fCold = fCold*mult;
+        result.fLightning = fLightning*mult;
+        result.fPoisonPerFrame = fPoisonPerFrame*mult;
+        return result;
+    }
+
     eDamage operator*(const eDamage& mult) const {
         eDamage result;
         result.fPhysical = fPhysical*mult.fPhysical;

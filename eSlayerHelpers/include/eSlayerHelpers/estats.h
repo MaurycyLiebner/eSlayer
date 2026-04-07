@@ -40,6 +40,9 @@ struct eSkillStats {
     float fManaStealLW = 0.f;
     float fManaStealRW = 0.f;
 
+    float fMeeleSplashDamageLW = 0.f;
+    float fMeeleSplashDamageRW = 0.f;
+
     int fCount = 0;
 };
 

@@ -125,7 +125,6 @@ float eServerUnit::sLifeSteal(
     const int schoice,
     const eWeaponChoice wchoice) {
     const auto& skill = by.mStats.skill(schoice);
-    float ls;
     switch(wchoice) {
     case eWeaponChoice::left:
         return skill.fLifeStealLW;
@@ -141,12 +140,24 @@ float eServerUnit::sManaSteal(
     const int schoice,
     const eWeaponChoice wchoice) {
     const auto& skill = by.mStats.skill(schoice);
-    float ls;
     switch(wchoice) {
     case eWeaponChoice::left:
         return skill.fManaStealLW;
     case eWeaponChoice::right:
         return skill.fManaStealRW;
+    }
+    return 0.f;
+}
+
+float eServerUnit::meeleSplashDamage(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fMeeleSplashDamageLW;
+    case eWeaponChoice::right:
+        return skill.fMeeleSplashDamageRW;
     }
     return 0.f;
 }

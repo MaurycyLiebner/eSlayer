@@ -147,13 +147,15 @@ bool eComplexAction::meeleAttack(
 
 bool eComplexAction::getHit(eServerUnit& target,
                             const int schoice,
-                            const eWeaponChoice wchoice) {
+                            const eWeaponChoice wchoice,
+                            const bool splash,
+                            const float mult) {
     const float hitChance = eServerUnit::sHitChance(
         target, mUnit, schoice, wchoice);
     eHitData data;
     data.fHitChance = hitChance;
     data.fBlockMultiplier = 1.f;
-    data.fDamage = mUnit.attackDamage(schoice, wchoice);
+    data.fDamage = mUnit.attackDamage(schoice, wchoice)*mult;
     const bool r = target.getHit(data);
     if(r) {
         const float physDmg = data.fDamage.fPhysical;
@@ -166,6 +168,24 @@ bool eComplexAction::getHit(eServerUnit& target,
             target, mUnit, schoice, wchoice);
         const float manaStolen = physDmg*manaSteal;
         mUnit.restoreMana(manaStolen);
+    }
+
+    if(splash) {
+        const float splashRange = 1.f;
+        const float splashDmgPer = mUnit.meeleSplashDamage(
+            schoice, wchoice);
+        if(splashDmgPer > 0.f) {
+            const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+                if(u->fHealth <= 0) return false;
+                if(u->fTeamId == mUnit.fTeamId) return false;
+                if(&*u == &target) return false;
+                const float dist = ePointF::distance(u->fPos, target.fPos);
+                if(dist > splashRange) return false;
+                getHit(*u, schoice, wchoice, false, splashDmgPer);
+                return false;
+            };
+            mArea.iterateOverUnits(target.fPos, splashRange, iter);
+        }
     }
     return r;
 }
