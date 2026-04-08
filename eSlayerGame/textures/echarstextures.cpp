@@ -25,7 +25,7 @@ void eCharsTextures::loadImpl() {
 
     std::vector<std::string> chars;
     try {
-        const auto jdata = eFileLoaderBase::parse(dir, "chars/chars.json");
+        const auto jdata = eFileLoaderBase::parse(dir, "units/chars.json");
         chars = jdata.get<std::vector<std::string>>();
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/chars/chars.json");
@@ -43,7 +43,7 @@ void eCharsTextures::loadImpl() {
             eCharTextures texs;
             const int id = mChars.nextId();
             texs.setCharDataId(id);
-            auto jdata = eFileLoaderBase::parse(dir, "chars/" + name + "/" + name + ".json");
+            auto jdata = eFileLoaderBase::parse(dir, "units/" + name + "/" + name + ".json");
             texs.load(jdata);
             mChars.add(name, texs);
         } catch(const std::exception& e) {

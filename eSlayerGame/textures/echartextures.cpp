@@ -24,7 +24,7 @@ eCharTextures::generateModel(
     SDL_Renderer* const r) const {
     const auto& info = eCharDataInfo::get(mCharDataId);
     const auto dir = "Textures";
-    const auto path = "chars/" + info.mName + "/";
+    const auto path = "units/" + info.mName + "/";
     const auto result = std::make_shared<eCharModel>(*this);
     result->mNAnims = info.mAnims.size();
     result->mNGroups = info.mGroups.size();
@@ -67,7 +67,7 @@ eCharTextures::generateModel(
                     }
                     rpart = partMap;
                 } else {
-                    rpart = mTexMap[key];
+                    rpart = it->second;
                 }
             }
         }

@@ -31,6 +31,9 @@ public:
     const std::set<uint16_t>&
     objectTypes() const { return mObjectTypes; }
 
+    const std::set<uint16_t>&
+    unitTypes() const { return mUnitTypes; }
+
     bool walkable(const int x, const int y) const;
 
     void write(ePacket& p) const;
@@ -53,6 +56,7 @@ private:
     std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
     std::set<uint16_t> mTerrainTypes;
     std::set<uint16_t> mObjectTypes;
+    std::set<uint16_t> mUnitTypes;
 };
 
 namespace eSlayerMapGenerator {
