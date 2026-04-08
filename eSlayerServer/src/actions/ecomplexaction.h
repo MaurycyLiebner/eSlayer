@@ -15,10 +15,21 @@ struct eSkillLevel;
 struct eUnitSkill;
 
 struct eHitData {
+    int fAttackerId;
+    int fAttackTeamId;
+
     ePointF fFrom;
-    bool fKnockback;
-    float fHitChance;
-    float fBlockMultiplier;
+    bool fKnockback = false;
+
+    float fLifeSteal = 0.f;
+    float fManaSteal = 0.f;
+
+    bool fAlwaysHit = false;
+    float fAttackRating = 0.f;
+    float fALvl = 1.f;
+    float fBlockMultiplier = 0.f;
+
+    float fSplashDmg = 0.f;
     eDamage fDamage;
 };
 
@@ -30,20 +41,21 @@ public:
 
     void setChild(const std::shared_ptr<eUnitAction>& c);
 
-    bool getHit(const eHitData& data);
+    bool getHit(const eHitData& data, const bool splash = true);
+
 protected:
     virtual void decide() = 0;
     bool attack(const eAttackData& target);
     bool meeleAttack(const eServerUnit& u,
                      const int schoice,
                      const eWeaponChoice wchoice);
-    bool getHit(eServerUnit& target,
-                const int schoice,
-                const eWeaponChoice wchoice,
-                const bool splash = true,
-                const float mult = 1.f);
     bool hasChild() const { return mChild.get(); }
 private:
+    bool hitData(const int schoice,
+                 const eWeaponChoice wchoice,
+                 const float mult,
+                 eHitData& data);
+
     bool spawnMissile(const ePointF& to,
                       const int schoice,
                       const eWeaponChoice wchoice);

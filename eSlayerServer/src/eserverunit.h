@@ -77,18 +77,22 @@ public:
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;
     float itemsCastRate() const { return mStats.fCastRate; }
 
+    float attackRating(const int schoice,
+                       const eWeaponChoice wchoice) const;
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
                             const int schoice,
                             const eWeaponChoice wchoice);
-    static float sLifeSteal(const eServerUnit& hit,
+    static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
-                            const int schoice,
-                            const eWeaponChoice wchoice);
-    static float sManaSteal(const eServerUnit& hit,
-                            const eServerUnit& by,
-                            const int schoice,
-                            const eWeaponChoice wchoice);
+                            const float ar);
+    static float sHitChance(const eServerUnit& hit,
+                            const float alvl,
+                            const float ar);
+    float lifeSteal(const int schoice,
+                    const eWeaponChoice wchoice) const;
+    float manaSteal(const int schoice,
+                    const eWeaponChoice wchoice) const;
 
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;
@@ -98,7 +102,7 @@ public:
     float pierceChance(const int schoice,
                        const eWeaponChoice wchoice);
 
-    bool getHit(const eHitData& data);
+    bool getHit(const eHitData& data, const bool splash = true);
     float takeDamage(const eDamage& dmg);
 
     void restoreHealth(const float by);

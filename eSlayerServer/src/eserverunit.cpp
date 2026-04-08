@@ -107,33 +107,47 @@ float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
     return 0.f;
 }
 
+float eServerUnit::attackRating(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fAttackRatingLW;
+    case eWeaponChoice::right:
+        return skill.fAttackRatingRW;
+    }
+    return 0.f;
+}
+
 float eServerUnit::sHitChance(
     const eServerUnit& hit,
     const eServerUnit& by,
     const int schoice,
     const eWeaponChoice wchoice) {
-    const float alvl = by.level();
-    const float dlvl = hit.level();
-    const auto& skill = by.mStats.skill(schoice);
-    float ar;
-    switch(wchoice) {
-    case eWeaponChoice::left:
-        ar = skill.fAttackRatingLW;
-        break;
-    case eWeaponChoice::right:
-        ar = skill.fAttackRatingRW;
-        break;
-    }
-    const float dr = hit.defense();
-    return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
+    const float ar = by.attackRating(schoice, wchoice);
+    return sHitChance(hit, by, ar);
 }
 
-float eServerUnit::sLifeSteal(
-    const eServerUnit& hit,
-    const eServerUnit& by,
+float eServerUnit::sHitChance(const eServerUnit& hit,
+                              const eServerUnit& by,
+                              const float ar) {
+    return sHitChance(hit, by.level(), ar);
+}
+
+float eServerUnit::sHitChance(const eServerUnit& hit,
+                              const float alvl,
+                              const float ar) {
+    const float dlvl = hit.level();
+    const float dr = hit.defense();
+    return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
+
+}
+
+float eServerUnit::lifeSteal(
     const int schoice,
-    const eWeaponChoice wchoice) {
-    const auto& skill = by.mStats.skill(schoice);
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left:
         return skill.fLifeStealLW;
@@ -143,12 +157,10 @@ float eServerUnit::sLifeSteal(
     return 0.f;
 }
 
-float eServerUnit::sManaSteal(
-    const eServerUnit& hit,
-    const eServerUnit& by,
+float eServerUnit::manaSteal(
     const int schoice,
-    const eWeaponChoice wchoice) {
-    const auto& skill = by.mStats.skill(schoice);
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left:
         return skill.fManaStealLW;
@@ -190,9 +202,10 @@ float eServerUnit::pierceChance(const int schoice,
     return 0.f;
 }
 
-bool eServerUnit::getHit(const eHitData& data) {
+bool eServerUnit::getHit(const eHitData& data,
+                         const bool splash) {
     if(!mAction) return false;
-    return mAction->getHit(data);
+    return mAction->getHit(data, splash);
 }
 
 float eServerUnit::takeDamage(const eDamage& dmg) {
