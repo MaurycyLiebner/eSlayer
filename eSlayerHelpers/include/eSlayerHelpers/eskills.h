@@ -10,7 +10,10 @@ enum class eSkillType : uint8_t {
     attack, smite, kick,
     shoot, throw_,
     missile, wall,
-    summon
+    summon,
+    passive,
+    aura,
+    boostCurse
 };
 
 struct eSkillLevel {

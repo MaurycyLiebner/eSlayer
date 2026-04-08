@@ -279,9 +279,7 @@ int eServerUnit::skillId(const int schoice) const {
 }
 
 int eServerUnit::skillLevel(const int skillId) const {
-    const auto it = mStats.fSkillLevels.find(skillId);
-    if(it == mStats.fSkillLevels.end()) return 0;
-    return it->second;
+    return mStats.skillLevel(skillId);
 }
 
 bool eServerUnit::skillReady(const eSkillChoice schoice) const {
@@ -292,6 +290,7 @@ bool eServerUnit::skillReady(const int schoice) const {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
+    if(levelId < 0) return false;
     const auto& level = skill.fLevels[levelId];
     if(mClient && level.fManaCost > mStats.fManaF) return false;
     const auto it = mStats.fCooldowns.find(skillId);
@@ -307,6 +306,7 @@ void eServerUnit::useSkill(const int schoice) {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
+    if(levelId < 0) return;
     const auto& level = skill.fLevels[levelId];
     const float cooldown = level.fCooldown;
     if(cooldown > 0.f) {

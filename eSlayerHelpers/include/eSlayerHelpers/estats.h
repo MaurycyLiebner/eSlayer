@@ -134,6 +134,7 @@ struct ESLAYERHELPERS_API eStats {
     float maxRangeSkill(int& resultSchoice,
                         const float unit1Radius,
                         const float unit2Radius) const;
+    int skillLevel(const int skillId) const;
 };
 
 #endif // ESTATS_H

@@ -70,6 +70,8 @@ void eSkills::load() {
             } else if(typeStr == "summon") {
                 skill.fType = eSkillType::summon;
                 skill.fCastRange = 8.f;
+            } else if(typeStr == "passive") {
+                skill.fType = eSkillType::passive;
             } else {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }
