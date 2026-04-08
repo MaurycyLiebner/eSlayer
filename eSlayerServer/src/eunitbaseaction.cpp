@@ -19,7 +19,7 @@ eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
 }
 
 void eUnitBaseAction::increment(const float by) {
-    if(mStrategy == eUnitStrategy::attack) {
+    if(mUnit.fHealth > 0 && mStrategy == eUnitStrategy::attack) {
         checkForAttackIncrement(by);
     }
     eComplexAction::increment(by);

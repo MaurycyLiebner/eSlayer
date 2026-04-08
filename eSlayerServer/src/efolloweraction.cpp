@@ -13,18 +13,20 @@ eFollowerAction::eFollowerAction(
 
 void eFollowerAction::increment(const float by) {
     if(const auto f = mFollow.lock()) {
-        const float dist = ePointF::distance(f->fPos, mUnit.fPos);
-        if(dist > 15.f) {
-            teleportTo(*f);
-        } else if(mMoving) {
-        } else {
-            const bool attacking = eUnitBaseAction::attacking();
-            setStrategy(eUnitStrategy::attack);
-            if(dist > 10.f) {
-                setStrategy(eUnitStrategy::move);
-                moveTo(*f);
-            } else if(dist > 5.f && !attacking) {
-                moveTo(*f);
+        if(mUnit.fHealth > 0) {
+            const float dist = ePointF::distance(f->fPos, mUnit.fPos);
+            if(dist > 15.f) {
+                teleportTo(*f);
+            } else if(mMoving) {
+            } else {
+                const bool attacking = eUnitBaseAction::attacking();
+                setStrategy(eUnitStrategy::attack);
+                if(dist > 10.f) {
+                    setStrategy(eUnitStrategy::move);
+                    moveTo(*f);
+                } else if(dist > 5.f && !attacking) {
+                    moveTo(*f);
+                }
             }
         }
     } else {
