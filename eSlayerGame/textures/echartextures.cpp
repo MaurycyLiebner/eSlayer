@@ -99,3 +99,37 @@ void eCharTextures::load(const ordered_json& jdata) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
     }
 }
+
+void eCharTextures::loadAll(SDL_Renderer* const r) {
+    const auto& info = eCharDataInfo::get(mCharDataId);
+    const auto dir = "Textures";
+    const auto path = "units/" + info.mName + "/";
+    for(const auto& anim : info.mAnims) {
+        const int nFrames = anim.fValue.fFrames;
+        const auto animPath = path + anim.fName + "/";
+        for(const auto& parts : info.mGroups) {
+            for(const int partId : parts) {
+                const auto& partOptions = info.mParts.get(partId);
+                const auto partName = info.mParts.name(partId);
+                for(int eqId = 0; eqId < partOptions.size(); ++eqId) {
+                    const auto eqName = partOptions.name(eqId);
+                    const eCharTextureKey key{anim.fId, partId, eqId};
+                    const auto it = mTexMap.find(key);
+                    if(it == mTexMap.end()) {
+                        auto& partMap = mTexMap[key];
+                        partMap.reserve(info.mDirs);
+                        const auto partPath = animPath + partName + "_" + eqName;
+                        eSpriteLoader loader(dir, partPath, r, mColorKey);
+                        for(int i = 0; i < info.mDirs; i++) {
+                            const auto coll = std::make_shared<eTextureCollection>();
+                            for(int f = 0; f < nFrames; f++) {
+                                loader.load(i*nFrames + f, *coll);
+                            }
+                            partMap.emplace_back(coll);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -35,6 +35,7 @@ struct ESLAYERHELPERS_API eMapData {
 
     std::set<uint16_t> fTerrainTypes;
     std::set<uint16_t> fObjectTypes;
+    std::set<uint16_t> fUnitTypes;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

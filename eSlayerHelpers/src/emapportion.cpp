@@ -52,6 +52,12 @@ void eMapData::write(ePacket& p) const {
     for(const auto type : fObjectTypes) {
         p << type;
     }
+
+    const uint16_t nUnitTypes = fUnitTypes.size();
+    p << nUnitTypes;
+    for(const auto& unitType : fUnitTypes) {
+        p << unitType;
+    }
 }
 
 void eMapData::read(ePacket& p) {
@@ -72,5 +78,13 @@ void eMapData::read(ePacket& p) {
         uint16_t t;
         p >> t;
         fObjectTypes.emplace(t);
+    }
+
+    uint16_t nUnitTypes;
+    p >> nUnitTypes;
+    for(uint16_t i = 0; i < nUnitTypes; i++) {
+        uint16_t unitType;
+        p >> unitType;
+        fUnitTypes.emplace(unitType);
     }
 }

@@ -3,6 +3,7 @@
 #include <eSlayerHelpers/epacket.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjstexturesdata.h>
+#include <eSlayerHelpers/echardatainfo.h>
 
 class eMapGenerator {
 public:
@@ -71,6 +72,12 @@ void eMap::write(ePacket& p) const {
         p << obj.fTileX;
         p << obj.fTileY;
     }
+
+    const uint16_t nUnitTypes = mUnitTypes.size();
+    p << nUnitTypes;
+    for(const auto& unitType : mUnitTypes) {
+        p << unitType;
+    }
 }
 
 void eMap::read(ePacket& p) {
@@ -114,6 +121,14 @@ void eMap::read(ePacket& p) {
     }
 
     updateObjectsMap();
+
+    uint16_t nUnitTypes;
+    p >> nUnitTypes;
+    for(uint16_t i = 0; i < nUnitTypes; i++) {
+        uint16_t unitType;
+        p >> unitType;
+        mUnitTypes.emplace(unitType);
+    }
 }
 
 void eMap::loadPortion(const eMapPortion& portion) {
@@ -196,6 +211,7 @@ void eMap::mapData(eMapData& data) const {
     data.fTotalHeight = mHeight;
     data.fObjectTypes = mObjectTypes;
     data.fTerrainTypes = mTerrainTypes;
+    data.fUnitTypes = mUnitTypes;
 }
 
 void eMap::loadData(const eMapData& data) {
@@ -204,6 +220,7 @@ void eMap::loadData(const eMapData& data) {
     generateTiles(mWidth, mHeight);
     mTerrainTypes = data.fTerrainTypes;
     mObjectTypes = data.fObjectTypes;
+    mUnitTypes = data.fUnitTypes;
     updateObjectsMap();
 }
 
@@ -277,6 +294,11 @@ eMapGenerator::generate(const std::string& name) const {
         }
 
         result->updateObjectsMap();
+
+        for(const auto& unitName : {"wendigo", "mummy"}) {
+            const auto unitId = eCharDataInfo::id(unitName);
+            result->mUnitTypes.emplace(unitId);
+        }
     }
     return result;
 }

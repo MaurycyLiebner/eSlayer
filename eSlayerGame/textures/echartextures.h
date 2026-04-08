@@ -21,6 +21,7 @@ public:
     void setCharDataId(const int id);
     void load(const ordered_json& jdata);
 
+    void loadAll(SDL_Renderer* const r);
     std::shared_ptr<eCharModel> requestModel(
         const eModelParts& modelParts,
         SDL_Renderer* const r) const;

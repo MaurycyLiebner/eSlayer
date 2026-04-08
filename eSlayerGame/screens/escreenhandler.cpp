@@ -16,6 +16,7 @@
 #include "../textures/eeffectstextures.h"
 #include "../textures/emissilestextures.h"
 #include "../textures/euitextures.h"
+#include "../textures/echarstextures.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
 
@@ -219,6 +220,13 @@ void eScreenHandler::showGame(eServerData serverData,
         for(const auto& objType : objTypes) {
             auto& texs = eObjsTextures::get(objType);
             texs.load(r);
+        }
+    });
+    loading.emplace_back([r, map]() {
+        const auto& unitTypes = map->unitTypes();
+        for(const auto& unitType : unitTypes) {
+            auto& u = eCharsTextures::get(unitType);
+            u.loadAll(r);
         }
     });
     loading.emplace_back([r]() {
