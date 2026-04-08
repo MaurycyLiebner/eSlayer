@@ -73,9 +73,10 @@ void eGameScreen::initialize(const int clientId,
     mBottomWid->setNoPadding();
 
     mLeftSkillButton = new eSkillButton(window());
-    mLeftSkillButton->initialize();
+    mLeftSkillButton->initialize(static_cast<int>(eSkillChoice::left));
     mLeftSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill);
+        openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill,
+                      eSkillChoice::left);
     });
     mBottomWid->addWidget(mLeftSkillButton);
 
@@ -149,9 +150,10 @@ void eGameScreen::initialize(const int clientId,
     mBottomWid->addWidget(centerWid);
 
     mRightSkillButton = new eSkillButton(window());
-    mRightSkillButton->initialize();
+    mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
     mRightSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill);
+        openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill,
+                      eSkillChoice::right);
     });
     mBottomWid->addWidget(mRightSkillButton);
 
@@ -227,6 +229,22 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else {
             showMessageBox();
         }
+    } else if(key == SDL_SCANCODE_F1) {
+        hotkeyPressed(1);
+    } else if(key == SDL_SCANCODE_F2) {
+        hotkeyPressed(2);
+    } else if(key == SDL_SCANCODE_F3) {
+        hotkeyPressed(3);
+    } else if(key == SDL_SCANCODE_F4) {
+        hotkeyPressed(4);
+    } else if(key == SDL_SCANCODE_F5) {
+        hotkeyPressed(5);
+    } else if(key == SDL_SCANCODE_F6) {
+        hotkeyPressed(6);
+    } else if(key == SDL_SCANCODE_F7) {
+        hotkeyPressed(7);
+    } else if(key == SDL_SCANCODE_F8) {
+        hotkeyPressed(8);
     } else {
         return false;
     }
@@ -249,6 +267,23 @@ void eGameScreen::paintEvent(ePainter&) {
 
     mExperienceIndicator->setRange(0, attrs.nextLevelExp());
     mExperienceIndicator->setValue(attrs.fExp);
+}
+
+void eGameScreen::hotkeyPressed(const int fkey) {
+    const auto itL = eSkillButton::sLeftMap.find(fkey);
+    if(itL != eSkillButton::sLeftMap.end()) {
+        const int skillId = itL->second;
+        mGameWidget->setLeftSkill(skillId);
+        mLeftSkillButton->setSkillId(skillId);
+        return;
+    }
+    const auto itR = eSkillButton::sRightMap.find(fkey);
+    if(itR != eSkillButton::sRightMap.end()) {
+        const int skillId = itR->second;
+        mGameWidget->setRightSkill(skillId);
+        mRightSkillButton->setSkillId(skillId);
+        return;
+    }
 }
 
 void eGameScreen::showDeadMenu() {
@@ -447,7 +482,8 @@ void eGameScreen::hideMessageBox() {
 
 void eGameScreen::openSkillMenu(const eAlignment align,
                                 eSkillButton* const targetButton,
-                                int& targetSkillVar) {
+                                int& targetSkillVar,
+                                const eSkillChoice schoice) {
     if(mSkillMenu) {
         mSkillMenu->deleteLater();
         mSkillMenu = nullptr;
@@ -470,7 +506,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
         mGameWidget->setRightSkill(mRightSkill);
         mSkillMenu = nullptr;
     };
-    w->initialize(skillIds, align, action);
+    w->initialize(skillIds, align, action, schoice);
 
     addWidget(w);
 

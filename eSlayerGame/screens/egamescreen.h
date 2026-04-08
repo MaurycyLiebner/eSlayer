@@ -33,6 +33,8 @@ protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
 private:
+    void hotkeyPressed(const int fkey);
+
     void showDeadMenu();
 
     void showESCMenu();
@@ -52,7 +54,8 @@ private:
 
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
-                       int& targetSkillVar);
+                       int& targetSkillVar,
+                       const eSkillChoice schoice);
     void updateCharPos();
 
     eGameWidget* mGameWidget = nullptr;

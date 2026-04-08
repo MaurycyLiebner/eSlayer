@@ -3,15 +3,48 @@
 
 #include "../ebuttonbase.h"
 
+#include <eSlayerHelpers/eskillchoice.h>
+
 class eSkillButton : public eButtonBase {
 public:
     using eButtonBase::eButtonBase;
+    ~eSkillButton();
 
-    void initialize();
+    void initialize(const int schoice = -1);
 
     void setSkillId(const int skillId);
     int skillId() { return mSkillId; }
+
+    void setTopRightText(const std::string& text);
+    void setBottomRightText(const std::string& text);
+
+    void updateText();
+
+    static std::map<int, int> sLeftMap;
+    static std::map<int, int> sRightMap;
+protected:
+    bool mouseMoveEvent(const eMouseEvent& e) override;
+    bool keyPressEvent(const eKeyPressEvent& e) override;
 private:
+    void setText(eLabel*& ptr,
+                 const std::string& text,
+                 const eAlignment align);
+    void setHotkey(const int fkey);
+    void updateText(const std::map<int, int>& map);
+    static void sRemoveHotkey(const int fkey);
+    static void sRemoveHotkey(std::map<int, int>& map,
+                              const int fkey);
+    static void sAddHotkey(std::map<int, int>& map,
+                           const int skillId,
+                           const int fkey);
+
+    static std::vector<eSkillButton*> sInstances;
+
+    int mSchoice = -1;
+
+    eLabel* mTopRight = nullptr;
+    eLabel* mBottomRight = nullptr;
+
     int mSkillId = 0;
 };
 

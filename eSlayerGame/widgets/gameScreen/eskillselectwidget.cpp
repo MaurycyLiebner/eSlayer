@@ -6,7 +6,8 @@
 
 void eSkillSelectWidget::initialize(const std::vector<int>& skillIds,
                                     const eAlignment align,
-                                    const eChooseAction& action) {
+                                    const eChooseAction& action,
+                                    const eSkillChoice schoice) {
     setNoPadding();
     std::vector<eWidget*> rows;
     const int ncolumns = 4;
@@ -17,7 +18,7 @@ void eSkillSelectWidget::initialize(const std::vector<int>& skillIds,
         row->setNoPadding();
         for(int c = 0; c < ncolumns && id < skillIds.size(); c++) {
             const auto skill = new eSkillButton(window());
-            skill->initialize();
+            skill->initialize(static_cast<int>(schoice));
             const int skillId = skillIds[id];
             skill->setSkillId(skillId);
             skill->setPressAction([this, action, skillId]() {
