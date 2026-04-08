@@ -16,6 +16,7 @@
 #include "names/emonsternames.h"
 #include "names/eskillnames.h"
 #include "names/eskilltreenames.h"
+#include "names/eclassnames.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -213,6 +214,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eClasses::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eClassNames::load();
         });
 
         loadings.emplace_back([&]() {
