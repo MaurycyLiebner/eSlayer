@@ -11,7 +11,6 @@ class ePacket;
 struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
     int32_t fCharId;
 
-    eVec2f fVel;
     float fAngle;
 
     uint8_t fAnim;

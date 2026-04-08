@@ -9,7 +9,6 @@ void eUnitData::read(ePacket& p) {
     p >> fRadius;
 
     p >> fPos;
-    p >> fVel;
     p >> fAngle;
 
     p >> fAnim;
@@ -33,7 +32,6 @@ void eUnitData::write(ePacket& p) const {
     p << fRadius;
 
     p << fPos;
-    p << fVel;
     p << fAngle;
 
     p << fAnim;
@@ -55,7 +53,6 @@ eUnitData eUnitData::toUnitData() const {
     d.fTeamId = fTeamId;
     d.fCharDataId = fCharDataId;
     d.fRadius = fRadius;
-    d.fVel = fVel;
     d.fAngle = fAngle;
     d.fAnim = fAnim;
     d.fAnimId = fAnimId;
@@ -71,7 +68,6 @@ eUnitDynamicData eUnitData::toDynamicData() const {
     eUnitDynamicData d;
     d.fCharId = fCharId;
     d.fPos = fPos;
-    d.fVel = fVel;
     d.fAngle = fAngle;
     d.fAnim = fAnim;
     d.fAnimId = fAnimId;

@@ -6,7 +6,6 @@ void eUnitDynamicData::read(ePacket& p) {
     p >> fCharId;
 
     p >> fPos;
-    p >> fVel;
     p >> fAngle;
 
     p >> fAnim;
@@ -23,7 +22,6 @@ void eUnitDynamicData::write(ePacket& p) const {
     p << fCharId;
 
     p << fPos;
-    p << fVel;
     p << fAngle;
 
     p << fAnim;

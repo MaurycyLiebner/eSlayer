@@ -41,7 +41,6 @@ bool eServerClientHandler::changeState(
     const auto unit = mArea->unit(mClientId);
     if(!unit) return false;
     unit->fPos = u.fPos;
-    unit->fVel = u.fVel;
     unit->fAngle = u.fAngle;
 
     if(unit->fBlockingActionTime <= 0.f) {
@@ -87,12 +86,7 @@ bool eServerClientHandler::stopAttack() {
 
 bool eServerClientHandler::respawn() {
     if(!mArea) return false;
-    const auto client = mArea->unit(mClientId);
-    if(!client) return false;
-
-    client->respawn();
-    client->fPos = ePointF{0.f, 0.f};
-    return true;
+    return mArea->respawn(mClientId);
 }
 
 bool eServerClientHandler::spawn(eCharacter& c,

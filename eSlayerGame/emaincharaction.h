@@ -19,6 +19,8 @@ class eSkill;
 
 class eMainCharAction {
 public:
+    eMainCharAction();
+
     void initialize(const std::shared_ptr<eServer>& s,
                     SDL_Renderer* const r,
                     const eWalkable& w,

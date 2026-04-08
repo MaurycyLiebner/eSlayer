@@ -6,6 +6,9 @@
 
 #include <cstdio>
 
+eMovementHandler::eMovementHandler(ePointF& pos, float& angle) :
+    mPos(pos), mAngle(angle) {}
+
 void eMovementHandler::intialize(const eWalkable& w,
                                  const eOtherIterator& iter,
                                  const int charId,
@@ -200,22 +203,12 @@ bool eMovementHandler::increment(const float by) {
         if(dist < minDist && dist > 0.0001f) {
             separation += diff*(minDist - dist);
         }
-
-        const auto relPos = ePointF::vector(other.fPos, mPos);
-        auto normRelPos = relPos;
-        normRelPos.normalize();
-        const auto relVel = mVel - other.fVel;
-        if(eVec2f::dot(relPos, relVel) < 0) {
-            avoid -= normRelPos;
-        }
     });
 
     auto moveDir = desiredDir*1.0f +
-                   separation*1.5f +
-                   avoid*0.35f;
+                   separation*1.5f;
 
-    const bool addRandom = separation.length() > 0.1f ||
-                           avoid.length() > 0.1f;
+    const bool addRandom = separation.length() > 0.1f;
     if(addRandom) {
         moveDir = moveDir + eVec2f::random()*mMoveRandom;
     }

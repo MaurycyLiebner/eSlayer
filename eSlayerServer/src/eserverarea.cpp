@@ -115,7 +115,6 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             };
             m.intialize(w, iter, charId, -1);
             m.setRadius(u->fRadius);
-            m.setPos(pos);
 
             const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
             u->setAction(a);
@@ -405,8 +404,14 @@ bool eServerArea::addClient(const int clientId,
     };
     m.intialize(w, iter, clientId, 0);
     m.setRadius(u->fRadius);
-    m.setPos(pos);
+    return true;
+}
 
+bool eServerArea::respawn(const int clientId) {
+    const auto client = unit(clientId);
+    if(!client) return false;
+    client->respawn();
+    client->fPos = mMap->spawnPos();
     return true;
 }
 
@@ -589,7 +594,6 @@ void eServerArea::summon(eServerUnit& by,
     };
     m.intialize(w, iter, charId, by.fTeamId);
     m.setRadius(u->fRadius);
-    m.setPos(to);
 
     const auto byPtr = unit(by.fCharId);
     const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);

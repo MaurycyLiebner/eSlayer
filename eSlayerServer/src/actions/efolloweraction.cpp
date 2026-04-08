@@ -42,8 +42,6 @@ void eFollowerAction::decide() {
 
 void eFollowerAction::teleportTo(eServerUnit& follow) {
     const auto pos = mArea.emptyPlaceNear(follow.fPos);
-    auto& handler = mUnit.movementHandler();
-    handler.setPos(pos);
     mUnit.fPos = pos;
     setChild(nullptr);
 }

@@ -14,11 +14,13 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
 
-void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
-                                 SDL_Renderer* const r,
-                                 const eWalkable& w,
-                                 const eOtherIterator& iter,
-                                 const int clientId,
+eMainCharAction::eMainCharAction() :
+    mMainChar(std::make_shared<eUnit>()),
+    mMovementHandler(mMainChar->fPos,
+                     mMainChar->fAngle) {}
+
+void eMainCharAction::initialize(const std::shared_ptr<eServer>& s, SDL_Renderer* const r,
+                                 const eWalkable& w, const eOtherIterator& iter, const int clientId,
                                  const int teamId) {
     mClientId = clientId;
     mServer = s;
@@ -54,7 +56,6 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     //     std::filesystem::remove_all(entry.path());
     // umodel.generatePreview(r);
 
-    mMainChar = std::make_shared<eUnit>();
     mMainChar->setModel(umodel);
     mMainChar->fRadius = radius;
     mMainChar->fCharDataId = typeId;

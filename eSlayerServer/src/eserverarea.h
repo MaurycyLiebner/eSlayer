@@ -71,6 +71,7 @@ public:
                    eCharacter& c,
                    const ePointF& pos,
                    const eScreenDimensions& screenDims);
+    bool respawn(const int clientId);
     bool removeClient(const int clientId);
     bool planRemoveUnit(const int charId);
 

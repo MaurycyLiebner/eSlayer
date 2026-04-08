@@ -109,7 +109,6 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             result.fHasMainCharData = true;
             result.fMainCharData.fCharId = u.fCharId;
             result.fMainCharData.fPos = u.fPos;
-            result.fMainCharData.fVel = u.fVel;
             result.fMainCharData.fAngle = u.fAngle;
             result.fMainCharData.fAnim = u.fAnim;
             result.fMainCharData.fAnimId = u.fAnimId;
@@ -122,7 +121,6 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const auto unit = mUnits.get(charId);
         if(!unit) continue;
         unit->fPos = u.fPos;
-        unit->fVel = u.fVel;
         unit->fAngle = u.fAngle;
         unit->fAnim = u.fAnim;
         unit->fAnimId = u.fAnimId;

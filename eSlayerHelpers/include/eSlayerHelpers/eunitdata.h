@@ -18,7 +18,6 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
 
     float fRadius;
 
-    eVec2f fVel;
     float fAngle;
 
     uint8_t fAnim;

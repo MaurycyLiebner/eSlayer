@@ -13,7 +13,10 @@ int eServerUnit::sNextCharId = 0;
 eServerUnit::eServerUnit(const bool client,
                          const eCharData& data,
                          eServerArea& area) :
-    mData(data), mArea(area), mClient(client) {}
+    mHandler(fPos, fAngle),
+    mData(data),
+    mArea(area),
+    mClient(client) {}
 
 float eServerUnit::defense() const {
     if(fAnim == mData.runAnimId()) {
@@ -242,15 +245,15 @@ void eServerUnit::increment(const float by) {
     }
     if(mAction) mAction->increment(by);
     if(fBlockingActionTime <= 0.f) {
+        const auto oldPos = fPos;
         const bool r = mHandler.increment(by);
         if(r) {
             const auto newPos = mHandler.pos();
-            fVel = ePointF::vector(newPos, fPos);
-            fAngle = fVel.angle();
+            const auto dir = ePointF::vector(newPos, oldPos);
+            fAngle = dir.angle();
             fPos = newPos;
         } else {
             mHandler.stopMoving();
-            fVel = eVec2f{0.f, 0.f};
         }
     }
 
@@ -400,6 +403,7 @@ void eServerUnit::respawn() {
     mStats.fHealthF = mStats.fMaxHealth;
     mStats.fManaF = mStats.fMaxMana;
     mAction->setChild(nullptr);
+    fBlockingActionTime = 0.f;
 }
 
 eWeaponChoice eServerUnit::useWeapon(const int schoice) {

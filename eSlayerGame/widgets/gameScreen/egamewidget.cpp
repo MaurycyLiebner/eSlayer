@@ -256,12 +256,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(worldResult.fHasMainCharData) {
             const auto& u = worldResult.fMainCharData;
             if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
-                mMainChar->fPos = u.fPos;
                 mMainAction.setPos(u.fPos);
                 mMainAction.stop();
                 setPressedUnit(nullptr);
                 setHighlightedUnit(nullptr);
                 if(mRespawnHandler) mRespawnHandler();
+            }
+            if(u.fBlockingActionTime > 0) {
+                mMainChar->fPos = u.fPos;
             }
             mMainChar->fHealth = u.fHealth;
             {

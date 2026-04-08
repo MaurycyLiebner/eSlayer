@@ -4,6 +4,7 @@
 #include "eblockaction.h"
 #include "edieaction.h"
 #include "ehitrecoveryaction.h"
+#include "eknockbackaction.h"
 #include "../eserverarea.h"
 #include "../eserverunit.h"
 
@@ -39,6 +40,12 @@ bool eComplexAction::getHit(const eHitData& data) {
             mArea.unitKilled(mUnit);
             const auto die = std::make_shared<eDieAction>(mUnit, mArea);
             mUnit.setChildAction(die);
+        } else if(data.fKnockback) {
+            const float knockbackDist = 1.f;
+            const auto dir = ePointF::vector(mUnit.fPos, data.fFrom);
+            const auto a = eKnockbackAction::sCreate(
+                mUnit, mArea, dir, knockbackDist);
+            if(a) mUnit.setChildAction(a);
         } else if(dmg >= mUnit.maxHealth()/12.f) {
             const auto a = eHitRecoveryAction::sCreate(mUnit, mArea);
             if(a) mUnit.setChildAction(a);
@@ -134,9 +141,11 @@ bool eComplexAction::meeleAttack(
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.fAngle = dir.angle();
     const int targetId = u.fCharId;
-    const auto a = [this, targetId, schoice, wchoice]() {
+    const auto a = [this, targetId, schoice, wchoice, attackRange]() {
         const auto target = mArea.unit(targetId);
         if(!target) return;
+        const float dist = ePointF::distance(mUnit.fPos, target->fPos);
+        if(dist > attackRange) return;
         getHit(*target, schoice, wchoice);
     };
     const auto attack = eAttackAction::sCreate(
@@ -155,6 +164,8 @@ bool eComplexAction::getHit(eServerUnit& target,
     const float hitChance = eServerUnit::sHitChance(
         target, mUnit, schoice, wchoice);
     eHitData data;
+    data.fFrom = mUnit.fPos;
+    data.fKnockback = true;
     data.fHitChance = hitChance;
     data.fBlockMultiplier = 1.f;
     data.fDamage = mUnit.attackDamage(schoice, wchoice)*mult;
@@ -323,6 +334,8 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                     skip->fChars.emplace(u.fCharId);
                 }
                 eHitData data;
+                data.fFrom = mUnit.fPos;
+                data.fKnockback = false;
                 data.fBlockMultiplier = 0.f;
                 if(alwaysHit) {
                     data.fHitChance = 1.f;

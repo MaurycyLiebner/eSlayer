@@ -15,6 +15,8 @@ struct eSkillLevel;
 struct eUnitSkill;
 
 struct eHitData {
+    ePointF fFrom;
+    bool fKnockback;
     float fHitChance;
     float fBlockMultiplier;
     eDamage fDamage;
