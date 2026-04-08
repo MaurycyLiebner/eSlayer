@@ -25,10 +25,10 @@ void eCharsTextures::loadImpl() {
 
     std::vector<std::string> chars;
     try {
-        const auto jdata = eFileLoaderBase::parse(dir, "units/chars.json");
+        const auto jdata = eFileLoaderBase::parse(dir, "units/units.json");
         chars = jdata.get<std::vector<std::string>>();
     } catch(...) {
-        eRuntimeThrow("Failed to parse " + dir + "/chars/chars.json");
+        eRuntimeThrow("Failed to parse " + dir + "/units/units.json");
     }
 
     mChars.reserve(chars.size());
@@ -36,7 +36,7 @@ void eCharsTextures::loadImpl() {
         try {
             const int oldId = mChars.id(name);
             if(oldId != -1) {
-                eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/chars/chars.json");
+                eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/units/units.json");
                 continue;
             }
 
