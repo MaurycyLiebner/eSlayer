@@ -102,10 +102,17 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(!shouldStopAttack) {
         if(const auto u = mPressedUnit.lock()) {
-            shouldStopAttack = !handleUnitAttack(*u, schoice, model);
+            const bool attacked = handleUnitAttack(*u, schoice, model);
             targetPos = u->fPos;
-            if(!shouldStopAttack && !mousePressed) {
+            if(attacked && !mousePressed) {
                 stop();
+            } else if(!attacked) {
+                // Target is out of range (e.g. knocked back),
+                // clear any active attack so we walk toward it
+                if(mAttackData.fType != eAttackTargetType::none) {
+                    mAttackData = eAttackData();
+                    mServer->stopAttack(mClientId);
+                }
             }
         } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {
             shouldStopAttack = !handlePositionAttack(mousePos, schoice, model);
@@ -133,7 +140,8 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(mAttackData.fType != eAttackTargetType::none) return;
 
-    handleMovement(mousePressed, targetPos, by, model);
+    const bool hasPressedUnit = !mPressedUnit.expired();
+    handleMovement(mousePressed || hasPressedUnit, targetPos, by, model);
 }
 
 void eMainCharAction::mousePress() {
