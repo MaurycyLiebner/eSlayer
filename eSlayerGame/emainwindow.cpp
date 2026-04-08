@@ -103,13 +103,13 @@ int eMainWindow::exec() {
 
     int c = 0;
     int fpsVal = 0;
+    float x = 0.f;
+    float y = 0.f;
     while(!mQuit) {
         const auto fpsStart = high_resolution_clock::now();
 
         while(SDL_PollEvent(&e)) {
             SDL_ConvertEventToRenderCoordinates(mSdlRenderer, &e);
-            const float x = e.motion.x;
-            const float y = e.motion.y;
             const SDL_Keymod mod = SDL_GetModState();
             mAltPressed = (mod & SDL_KMOD_ALT) != 0;
             mShiftPressed = (mod & SDL_KMOD_SHIFT) != 0;
@@ -126,6 +126,8 @@ int eMainWindow::exec() {
             } else if(e.type == SDL_EVENT_RENDER_TARGETS_RESET ||
                       e.type == SDL_EVENT_RENDER_DEVICE_RESET) {
             } else if(e.type == SDL_EVENT_MOUSE_MOTION) {
+                x = e.motion.x;
+                y = e.motion.y;
                 const eMouseEvent me(x, y,
                                      mShiftPressed,
                                      mAltPressed,
