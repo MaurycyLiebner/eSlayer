@@ -579,7 +579,9 @@ ePointF eServerArea::emptyPlaceNear(const ePointF& pos) const {
                 const auto ipos = p.floor();
                 const bool r = mMap->walkable(ipos.fX, ipos.fY);
                 if(!r) continue;
-                const auto u = unit(p);
+                const auto u = unit(p, [](const eServerUnit& u) {
+                    return u.fHealth > 0;
+                });
                 if(u) continue;
                 return p;
             }
@@ -598,10 +600,15 @@ eServerArea::groundItem(const int itemId) const {
     return mGroundItems.get(itemId);
 }
 
-std::shared_ptr<eServerUnit> eServerArea::unit(const ePointF& pos) const {
+std::shared_ptr<eServerUnit> eServerArea::unit(
+    const ePointF& pos, const eValidator& validator) const {
     std::shared_ptr<eServerUnit> result;
 
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+        if(validator) {
+            const bool r = validator(*u);
+            if(!r) return false;
+        }
         const auto& upos = u->fPos;
         const float dist = ePointF::distance(pos, upos);
         if(dist <= u->fRadius) {

@@ -90,10 +90,12 @@ bool eComplexAction::attack(const eAttackData& target) {
                 dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
                 const auto targetPos = mUnit.fPos + dir;
                 const auto a = [this, targetPos, schoice, wchoice]() {
-                    const auto u = mArea.unit(targetPos);
-                    if(!u) return;
-                    if(u->fTeamId == mUnit.fTeamId) return;
-                    getHit(*u, schoice, wchoice);
+                    const auto u = mArea.unit(targetPos, [&](const eServerUnit& u) {
+                        if(u.fHealth <= 0) return false;
+                        if(u.fTeamId == mUnit.fTeamId) return false;
+                        return true;
+                    });
+                    if(u) getHit(*u, schoice, wchoice);
                 };
                 const auto attack = eAttackAction::sCreate(
                     mUnit, mArea, uskill.fCastAnimIds,

@@ -90,8 +90,9 @@ public:
     unit(const int charId) const;
     std::shared_ptr<eGroundItem>
     groundItem(const int itemId) const;
-    std::shared_ptr<eServerUnit>
-    unit(const ePointF& pos) const;
+    using eValidator = std::function<bool(const eServerUnit&)>;
+    std::shared_ptr<eServerUnit> unit(
+        const ePointF& pos, const eValidator& validator) const;
     using eUnitIter = std::function<bool(const std::shared_ptr<eServerUnit>&)>;
     bool iterateOverUnits(const eArea& areaMin,
                           const eArea& areaMax,
