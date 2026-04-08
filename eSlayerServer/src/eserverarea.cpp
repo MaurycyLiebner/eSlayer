@@ -390,6 +390,23 @@ bool eServerArea::addClient(const int clientId,
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, clientId);
     clientData.fArea = area;
+
+    auto& m = u->movementHandler();
+    m.setSpeed(udata.fWalkSpeed);
+
+    const auto w = [this](const int x, const int y) {
+        return mMap->walkable(x, y);
+    };
+    const auto iter = [this, clientId](const eOtherHandler& handler) {
+        for(const auto& u : mUnits) {
+            if(clientId == u->fCharId) continue;
+            handler(*u);
+        }
+    };
+    m.intialize(w, iter, clientId, 0);
+    m.setRadius(u->fRadius);
+    m.setPos(pos);
+
     return true;
 }
 
