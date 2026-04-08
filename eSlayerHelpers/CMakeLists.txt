@@ -138,6 +138,12 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eunitinfo.h
     include/eSlayerHelpers/eunitsinfo.h
     src/eunitsinfo.cpp
+    include/eSlayerHelpers/eskilltrees.h
+    include/eSlayerHelpers/eskilltree.h
+    src/eskilltrees.cpp
+    include/eSlayerHelpers/eclasses.h
+    include/eSlayerHelpers/eclass.h
+    src/eclasses.cpp
 
 
 )

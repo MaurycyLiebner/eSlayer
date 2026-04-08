@@ -26,6 +26,8 @@
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjstexturesdata.h>
 #include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/eskilltrees.h>
+#include <eSlayerHelpers/eclasses.h>
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -198,6 +200,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eSkills::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eSkillTrees::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eClasses::load();
         });
 
         loadings.emplace_back([&]() {
