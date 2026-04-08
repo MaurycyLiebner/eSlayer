@@ -127,4 +127,7 @@
         <string id="0">%1 has just entered the game.</string>
         <string id="1">%1 has just left the game.</string>
     </group>
+    <group id="13">
+        <string id="0">Skill Choices Remaining</string>
+    </group>
 </strings>

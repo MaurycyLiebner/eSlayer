@@ -55,7 +55,9 @@ public:
                         const eEquipment& eq) override;
     bool changeAttributes(const int clientId,
                           const eAttributes& attrs) override;
-
+    bool changeSkillLevels(
+        const int clientId,
+        const eSkillLevels& skillLevels) override;
     bool sendMessage(const int clientId,
                      const std::string& text) override;
 private:

@@ -15,6 +15,7 @@ struct eAttackData;
 struct eWeaponData;
 struct eEquipment;
 struct eAttributes;
+struct eSkillLevels;
 struct eScreenDimensions;
 
 struct eServerData {
@@ -106,7 +107,10 @@ public:
     virtual bool
     changeAttributes(const int clientId,
                      const eAttributes& attrs) = 0;
-
+    virtual bool
+    changeSkillLevels(
+        const int clientId,
+        const eSkillLevels& skillLevels) = 0;
     virtual bool
     sendMessage(const int clientId,
                 const std::string& text) = 0;

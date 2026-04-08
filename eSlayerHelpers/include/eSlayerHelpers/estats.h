@@ -12,6 +12,7 @@
 
 struct eEquipment;
 struct eAttributes;
+class ePacket;
 
 struct eSkillStats {
     int fSkillId = 0;
@@ -46,8 +47,19 @@ struct eSkillStats {
     int fCount = 0;
 };
 
+struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
+    eSkillLevels() : std::map<uint16_t, uint16_t>{{0, 0}} {}
+
+    uint8_t fRemainingPoints = 10;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
+};
+
 struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fSkills;
+
+    int fClass = 0;
 
     float fDefense = 100.f;
     float fBlockChance = 0.f;
@@ -94,7 +106,7 @@ struct ESLAYERHELPERS_API eStats {
     eWeaponType fWeaponTypeR = eWeaponType::none;
 
     std::map<int, float> fCooldowns;
-    std::map<int, int> fSkillLevels;
+    eSkillLevels fSkillLevels;
 
     eSkillStats& leftSkill();
     eSkillStats& rightSkill();
@@ -135,6 +147,7 @@ struct ESLAYERHELPERS_API eStats {
                         const float unit1Radius,
                         const float unit2Radius) const;
     int skillLevel(const int skillId) const;
+    int incSkillLevel(const int skillId);
 };
 
 #endif // ESTATS_H

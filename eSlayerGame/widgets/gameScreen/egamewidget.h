@@ -75,6 +75,8 @@ public:
     eStats& stats() { return mMainAction.stats(); }
     void dropItem();
     void sendInventoryRearranged();
+    void sendAttributesChanged();
+    void sendSkillLevelsChanged();
 
     void setLeftSkill(const int s);
     void setRightSkill(const int s);
@@ -94,6 +96,8 @@ public:
 
     static eGameWidget* sInstance;
     static void sSendInventoryRearranged();
+    static void sSendSkillLevelsChanged();
+    static void sSendAttributesChanged();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

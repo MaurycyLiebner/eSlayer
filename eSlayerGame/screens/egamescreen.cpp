@@ -13,6 +13,7 @@
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/estatswidget.h"
+#include "../widgets/gameScreen/eskilltreeswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/elineedit.h"
 
@@ -170,6 +171,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideStatsMenu();
         } else if(mInventoryMenu) {
             hideInventoryMenu();
+        } else if(mSkillTreesMenu) {
+            hideSkillTreesMenu();
         } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
@@ -189,6 +192,9 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         if(mInventoryMenu) {
             hideInventoryMenu();
         } else {
+            if(mSkillTreesMenu) {
+                hideSkillTreesMenu();
+            }
             showInventoryMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_W) {
@@ -201,6 +207,15 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideStatsMenu();
         } else {
             showStatsMenu();
+        }
+    } else if(!mMessage && key == SDL_SCANCODE_T) {
+        if(mSkillTreesMenu) {
+            hideSkillTreesMenu();
+        } else {
+            if(mInventoryMenu) {
+                hideInventoryMenu();
+            }
+            showSkillTreesMenu();
         }
     } else if(key == SDL_SCANCODE_RETURN) {
         if(mMessage) {
@@ -355,6 +370,29 @@ void eGameScreen::hideStatsMenu() {
     updateCharPos();
 }
 
+void eGameScreen::showSkillTreesMenu() {
+    if(mSkillTreesMenu) return;
+    mSkillTreesMenu = new eSkillTreesWidget(window());
+    const int w = width();
+    const int h = height();
+    mSkillTreesMenu->resize(w/2, h - mBottomWid->height());
+    const auto& cname = mGameWidget->cname();
+    auto& stats = mGameWidget->stats();
+    const auto& eq = mGameWidget->equipment();
+    const auto& attrs = mGameWidget->attributes();
+    mSkillTreesMenu->initialize(stats, attrs, eq);
+    addWidget(mSkillTreesMenu);
+    mSkillTreesMenu->align(eAlignment::right | eAlignment::top);
+    updateCharPos();
+}
+
+void eGameScreen::hideSkillTreesMenu() {
+    if(!mSkillTreesMenu) return;
+    mSkillTreesMenu->deleteLater();
+    mSkillTreesMenu = nullptr;
+    updateCharPos();
+}
+
 void eGameScreen::showMessageBox() {
     if(mMessage) return;
     const auto window = eWidget::window();
@@ -419,8 +457,10 @@ void eGameScreen::openSkillMenu(const eAlignment align,
     const auto w = new eSkillSelectWidget(window());
 
     std::vector<int> skillIds;
-    for(const auto& s : eSkills::sSkills) {
-        skillIds.push_back(s.fId);
+    const auto& stats = mGameWidget->stats();
+    const auto& skillLevels = stats.fSkillLevels;
+    for(const auto& s : skillLevels) {
+        skillIds.push_back(s.first);
     }
 
     const auto action = [this, targetButton, &targetSkillVar](const int skillId) {
@@ -445,11 +485,13 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
 void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
-    if(mStatsMenu && mInventoryMenu) {
+    const bool left = mStatsMenu;
+    const bool right = mInventoryMenu || mSkillTreesMenu;
+    if(left && right) {
         input.setCharacterHorizontalPos(0.5f);
-    } else if(mStatsMenu) {
+    } else if(left) {
         input.setCharacterHorizontalPos(0.75f);
-    } else if(mInventoryMenu) {
+    } else if(right) {
         input.setCharacterHorizontalPos(0.25f);
     } else {
         input.setCharacterHorizontalPos(0.5f);

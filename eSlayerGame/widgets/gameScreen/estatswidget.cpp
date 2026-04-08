@@ -5,6 +5,7 @@
 #include "../elabel.h"
 #include "../ebuttonbase.h"
 #include "../../emainwindow.h"
+#include "egamewidget.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/estats.h>
@@ -211,10 +212,12 @@ void eStatsWidget::initialize(const std::string& name,
             inc = 10;
         }
         inc = std::clamp(inc, uint16_t(0), mAttrs->fStatPoints);
-        mAttrs->*attr += inc;
-        mAttrs->fStatPoints -= inc;
+        if(inc) {
+            mAttrs->*attr += inc;
+            mAttrs->fStatPoints -= inc;
 
-        mStats->calculate(*mAttrs, *mEq);
+            eGameWidget::sSendAttributesChanged();
+        }
     };
 
     mStrIncButton = new eAttrIncButton(window());

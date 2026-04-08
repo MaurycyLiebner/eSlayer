@@ -15,6 +15,7 @@
 #include "names/eitemnames.h"
 #include "names/emonsternames.h"
 #include "names/eskillnames.h"
+#include "names/eskilltreenames.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -204,6 +205,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eSkillTrees::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eSkillTreeNames::load();
         });
 
         loadings.emplace_back([&]() {

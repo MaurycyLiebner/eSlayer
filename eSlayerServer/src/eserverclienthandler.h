@@ -38,6 +38,7 @@ public:
     bool dropItem(const int itemId);
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
+    bool changeSkillLevels(const eSkillLevels& skillLevels);
 
     const std::string& name() const { return mName; }
     void setName(const std::string& name) { mName = name; }

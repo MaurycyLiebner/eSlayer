@@ -324,6 +324,16 @@ bool eTcpIpJoin::changeAttributes(
     return true;
 }
 
+bool eTcpIpJoin::changeSkillLevels(
+    const int clientId, const eSkillLevels& skillLevels) {
+    ePacket p;
+    p << ePacketType::skills;
+    skillLevels.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send skill levels change to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::sendMessage(const int clientId, const std::string& text) {
     ePacket p;
     p << ePacketType::message;

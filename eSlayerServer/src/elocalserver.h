@@ -55,6 +55,8 @@ public:
                         const eEquipment& eq) override;
     bool changeAttributes(const int clientId,
                           const eAttributes& attrs) override;
+    bool changeSkillLevels(const int clientId,
+                           const eSkillLevels& skillLevels) override;
 protected:
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

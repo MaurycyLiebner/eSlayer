@@ -11,6 +11,7 @@ class eGameWidget;
 class eUnitIndicator;
 class ePlayerHealthIndicator;
 class eSkillButton;
+class eSkillTreesWidget;
 class eTextureCheckButton;
 class eInventoryWidget;
 class eItemDragWidget;
@@ -43,6 +44,9 @@ private:
     void showStatsMenu();
     void hideStatsMenu();
 
+    void showSkillTreesMenu();
+    void hideSkillTreesMenu();
+
     void showMessageBox();
     void hideMessageBox();
 
@@ -59,6 +63,7 @@ private:
     eWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
+    eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eItemDragWidget* mDragWidget = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;

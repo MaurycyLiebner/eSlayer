@@ -69,6 +69,12 @@ void eServerUnit::setAttributes(const eAttributes& attrs,
     if(recalc) recalculateStats();
 }
 
+void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
+                                 const bool recalc) {
+    mStats.fSkillLevels = skillLevels;
+    if(recalc) recalculateStats();
+}
+
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left: {

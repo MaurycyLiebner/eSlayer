@@ -6,6 +6,7 @@
 #include "eSlayerHelpers/erunsettings.h"
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/erand.h"
+#include "eSlayerHelpers/epacket.h"
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
@@ -997,6 +998,39 @@ float eStats::maxRangeSkill(int& resultSchoice,
 
 int eStats::skillLevel(const int skillId) const {
     const auto it = fSkillLevels.find(skillId);
-    if(it == fSkillLevels.end()) return 0;
+    if(it == fSkillLevels.end()) return -1;
     return it->second;
+}
+
+int eStats::incSkillLevel(const int skillId) {
+    const int level = skillLevel(skillId);
+    if(fSkillLevels.fRemainingPoints <= 0) return level;
+    fSkillLevels.fRemainingPoints--;
+    fSkillLevels[skillId] = level + 1;
+    return level + 1;
+}
+
+void eSkillLevels::read(ePacket& p) {
+    p >> fRemainingPoints;
+    uint16_t nSkills;
+    p >> nSkills;
+    for(int i = 0; i < nSkills; i++) {
+        uint16_t skillId;
+        p >> skillId;
+        uint16_t level;
+        p >> level;
+        (*this)[skillId] = level;
+    }
+}
+
+void eSkillLevels::write(ePacket& p) const {
+    p << fRemainingPoints;
+    const uint16_t nSkills = size();
+    p << nSkills;
+    for(const auto& skill : *this) {
+        const uint16_t skillId = skill.first;
+        p << skillId;
+        const uint16_t level = skill.second;
+        p << level;
+    }
 }

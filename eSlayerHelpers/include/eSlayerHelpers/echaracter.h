@@ -5,6 +5,7 @@
 
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eattributes.h"
+#include "eSlayerHelpers/estats.h"
 
 #include <string>
 
@@ -18,7 +19,8 @@ public:
                      eCharacter& c);
     bool write(const std::string& path,
                const eEquipment& eq,
-               const eAttributes& attrs) const;
+               const eAttributes& attrs,
+               const eSkillLevels& skillLevels) const;
 
     const std::string& name() const { return mName; }
     bool hardcore() const { return mHardcore; }
@@ -31,6 +33,9 @@ public:
     eEquipment& equipment() { return mEquipment; }
     eAttributes& attributes() { return mAttributes; }
 
+    const eSkillLevels& skillLevels() const { return mSkillLevels; }
+    eSkillLevels& skillLevels() { return mSkillLevels; }
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
@@ -39,6 +44,7 @@ private:
     bool mDead = false;
     eEquipment mEquipment;
     eAttributes mAttributes;
+    eSkillLevels mSkillLevels;
 };
 
 #endif // ECHARACTER_H

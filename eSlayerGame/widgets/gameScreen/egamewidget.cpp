@@ -72,6 +72,8 @@ void eGameWidget::initialize(const int clientId,
     mMainAction.setEquipment(eq);
     const auto& attrs = c.attributes();
     mMainAction.setAttributes(attrs);
+    auto& dstStats = mMainAction.stats();
+    dstStats.fSkillLevels = c.skillLevels();
 
     mWorld.initialize(clientId, mMainChar);
 }
@@ -126,6 +128,17 @@ void eGameWidget::sendInventoryRearranged() {
     mServer->rearrangeItems(mClientId, eq);
 }
 
+void eGameWidget::sendAttributesChanged() {
+    const auto& attrs = mMainAction.attributes();
+    mServer->changeAttributes(mClientId, attrs);
+}
+
+void eGameWidget::sendSkillLevelsChanged() {
+    const auto& stats = mMainAction.stats();
+    const auto& skillLevels = stats.fSkillLevels;
+    mServer->changeSkillLevels(mClientId, skillLevels);
+}
+
 void eGameWidget::setLeftSkill(const int s) {
     if(mLeftSkill == s) return;
     mLeftSkill = s;
@@ -169,7 +182,9 @@ void eGameWidget::save() {
         "Save/" + mCName + ".xml");
     const auto& eq = equipment();
     const auto& attrs = attributes();
-    c.write(path, eq, attrs);
+    const auto& stats = eGameWidget::stats();
+    const auto& skillLevels = stats.fSkillLevels;
+    c.write(path, eq, attrs, skillLevels);
 }
 
 void eGameWidget::sendMessage(const std::string& text) {
@@ -178,6 +193,16 @@ void eGameWidget::sendMessage(const std::string& text) {
 
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
+    sInstance->mMainAction.recalculateStats();
+}
+
+void eGameWidget::sSendSkillLevelsChanged() {
+    sInstance->sendSkillLevelsChanged();
+    sInstance->mMainAction.recalculateStats();
+}
+
+void eGameWidget::sSendAttributesChanged() {
+    sInstance->sendAttributesChanged();
     sInstance->mMainAction.recalculateStats();
 }
 

@@ -148,6 +148,13 @@ bool eLocalServer::changeAttributes(
     return h->changeAttributes(attrs);
 }
 
+bool eLocalServer::changeSkillLevels(
+    const int clientId, const eSkillLevels& skillLevels) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->changeSkillLevels(skillLevels);
+}
+
 eServerClientHandler*
 eLocalServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

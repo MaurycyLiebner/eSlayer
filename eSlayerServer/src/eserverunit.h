@@ -69,6 +69,9 @@ public:
                        const bool recalc = true);
     eAttributes& attributes() { return mAttributes; }
 
+    void setSkillLevels(const eSkillLevels& skillLevels,
+                        const bool recalc = true);
+
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const int schoice) const;
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;

@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/eskills.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -125,6 +126,28 @@ bool gReadInventory(std::vector<eInventoryItem>& items,
     return true;
 }
 
+bool gReadSkillLevels(const XMLElement* parentE,
+                      eSkillLevels& skillLevels) {
+    auto skillsE = parentE->FirstChildElement("skills");
+    if(skillsE) {
+        auto skillE = skillsE->FirstChildElement("skill");
+        while (skillE) {
+            const auto typeStr = skillE->Attribute("type");
+
+            int level = 0;
+            skillE->QueryIntAttribute("level", &level);
+
+            if(typeStr && level > 0) {
+                const int skillId = eSkills::sSkills.id(typeStr);
+                skillLevels[skillId] = level - 1;
+            }
+
+            skillE = skillE->NextSiblingElement("skill");
+        }
+    }
+    return true;
+}
+
 bool eCharacter::load(const std::string& path,
                       eCharacter& c) {
     XMLDocument doc;
@@ -172,6 +195,9 @@ bool eCharacter::load(const std::string& path,
         attrs.fVitality  = attrE->FirstChildElement("vitality")  ? attrE->FirstChildElement("vitality")->IntText()  : 0;
         attrs.fEnergy    = attrE->FirstChildElement("energy")    ? attrE->FirstChildElement("energy")->IntText()    : 0;
     }
+
+    // skills
+    gReadSkillLevels(rootE, c.mSkillLevels);
 
     // equipment
     if(const auto eqE = rootE->FirstChildElement("equipment")) {
@@ -345,9 +371,24 @@ void gWriteInventory(const std::vector<eInventoryItem>& items,
     }
 }
 
+void gWriteSkillLevels(XMLElement* const e,
+                       const eSkillLevels& skillLevels) {
+    const auto skillsE = e->InsertNewChildElement("skills");
+    for(const auto& s : skillLevels) {
+        const auto skillE = skillsE->InsertNewChildElement("skill");
+        const int skillId = s.first;
+        if(skillId == 0) continue;
+        const auto name = eSkills::sSkills.name(skillId);
+        skillE->SetAttribute("type", name.c_str());
+        const int level = s.second;
+        skillE->SetAttribute("level", level + 1);
+    }
+}
+
 bool eCharacter::write(const std::string& path,
                        const eEquipment& eq,
-                       const eAttributes& attrs) const {
+                       const eAttributes& attrs,
+                       const eSkillLevels& skillLevels) const {
     XMLDocument doc;
 
     const auto decl = doc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
@@ -374,6 +415,8 @@ bool eCharacter::write(const std::string& path,
     vitE->SetText(attrs.fVitality);
     const auto eneE = attrE->InsertNewChildElement("energy");
     eneE->SetText(attrs.fEnergy);
+
+    gWriteSkillLevels(rootE, skillLevels);
 
     const auto eqE = rootE->InsertNewChildElement("equipment");
     gWriteItemSlot(eq.fBoots, "boots", eqE);
@@ -406,6 +449,7 @@ void eCharacter::read(ePacket& p) {
     p >> mDead;
     mEquipment.read(p);
     mAttributes.read(p);
+    mSkillLevels.read(p);
 }
 
 void eCharacter::write(ePacket& p) const {
@@ -414,4 +458,5 @@ void eCharacter::write(ePacket& p) const {
     p << mDead;
     mEquipment.write(p);
     mAttributes.write(p);
+    mSkillLevels.write(p);
 }

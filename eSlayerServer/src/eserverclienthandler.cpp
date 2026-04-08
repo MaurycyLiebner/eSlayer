@@ -145,3 +145,10 @@ bool eServerClientHandler::changeAttributes(
     mArea->changeAttributes(mClientId, attrs);
     return true;
 }
+
+bool eServerClientHandler::changeSkillLevels(
+    const eSkillLevels& skillLevels) {
+    if(!mArea) return false;
+    mArea->changeSkillLevels(mClientId, skillLevels);
+    return true;
+}

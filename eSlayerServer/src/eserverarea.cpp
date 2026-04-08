@@ -383,6 +383,8 @@ bool eServerArea::addClient(const int clientId,
     u->setEquipment(eq, false);
     const auto& attrs = c.attributes();
     u->setAttributes(attrs, false);
+    const auto& skillLevels = c.skillLevels();
+    u->setSkillLevels(skillLevels, false);
     u->recalculateStats();
     mUnits.add(clientId, u);
     const auto area = unitArea(*u);
@@ -481,6 +483,13 @@ void eServerArea::changeAttributes(
     const auto u = unit(clientId);
     if(!u) return;
     u->setAttributes(attrs);
+}
+
+void eServerArea::changeSkillLevels(
+    const int clientId, const eSkillLevels& skillLevels) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    u->setSkillLevels(skillLevels);
 }
 
 std::vector<eMissile>
