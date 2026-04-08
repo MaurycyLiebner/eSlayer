@@ -1,6 +1,6 @@
 #include "eserverclienthandler.h"
 
-#include "eclientaction.h"
+#include "actions/eclientaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/eattackdata.h>

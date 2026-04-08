@@ -1,7 +1,7 @@
 #include "efolloweraction.h"
 
-#include "eserverarea.h"
-#include "emovetotarget.h"
+#include "../eserverarea.h"
+#include "../emovetotarget.h"
 
 eFollowerAction::eFollowerAction(
     eServerUnit& unit, eServerArea& area,

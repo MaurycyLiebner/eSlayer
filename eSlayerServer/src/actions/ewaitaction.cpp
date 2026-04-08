@@ -1,6 +1,6 @@
 #include "ewaitaction.h"
 
-#include "eserverunit.h"
+#include "../eserverunit.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -38,6 +38,8 @@ eWaitAction::sCreateBody(
 std::shared_ptr<eWaitAction> eWaitAction::sCreate(
     eServerUnit& unit, eServerArea& area,
     const int anim, const bool blocking) {
+    auto& h = unit.movementHandler();
+    h.stopMoving();
     if(anim != -1) {
         const auto wait = std::make_shared<eWaitAction>(unit, area);
         wait->setup(anim, -1, blocking, nullptr);

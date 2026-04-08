@@ -1,8 +1,9 @@
 #include "eunitbaseaction.h"
 
 #include "emovetoenemyaction.h"
-#include "eserverarea.h"
+#include "../eserverarea.h"
 #include "ewaitaction.h"
+#include "ewalkaroundaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -52,7 +53,11 @@ void eUnitBaseAction::decide() {
             if(r) return;
         }
     }
-    wait(100.f);
+    if(eRand::rand() % 2) {
+        walkAround(200.f);
+    } else {
+        wait(100.f);
+    }
 }
 
 bool eUnitBaseAction::moveToEnemy(const float maxDist) {
@@ -69,6 +74,12 @@ void eUnitBaseAction::wait(const float time) {
     const auto wait = eWaitAction::sCreateStand(
         mUnit, mArea, mStandAnimId, mStandReadyAnimId, time);
     setChild(wait);
+}
+
+void eUnitBaseAction::walkAround(const float time) {
+    const auto walkAround = eWalkAroundAction::sCreate(
+        mUnit, mArea, mWalkAnimId, mWalkReadyAnimId, time);
+    setChild(walkAround);
 }
 
 bool eUnitBaseAction::lookForAttackTarget() {

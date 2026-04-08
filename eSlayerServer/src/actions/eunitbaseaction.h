@@ -26,6 +26,7 @@ protected:
     bool checkForAttackIncrement(const float by);
     bool moveToEnemy(const float maxDist);
     void wait(const float time);
+    void walkAround(const float time);
     bool lookForAttackTarget();
 
     void setAttackDist(const float dist) { mAttackDist = dist; }

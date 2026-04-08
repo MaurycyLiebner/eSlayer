@@ -19,26 +19,27 @@ add_library(eSlayerServer SHARED
     src/eserverclienthandler.h src/eserverclienthandler.cpp
     src/eserverarea.h src/eserverarea.cpp
     src/eserverunit.cpp
-    src/eunitaction.h src/eunitaction.cpp
-    src/eunitbaseaction.h src/eunitbaseaction.cpp
-    src/emovetoenemyaction.h src/emovetoenemyaction.cpp
-    src/ecomplexaction.h src/ecomplexaction.cpp
-    src/eattackaction.h src/eattackaction.cpp
-    src/ewaitaction.h src/ewaitaction.cpp
+    src/actions/eunitaction.h src/actions/eunitaction.cpp
+    src/actions/eunitbaseaction.h src/actions/eunitbaseaction.cpp
+    src/actions/emovetoenemyaction.h src/actions/emovetoenemyaction.cpp
+    src/actions/ecomplexaction.h src/actions/ecomplexaction.cpp
+    src/actions/eattackaction.h src/actions/eattackaction.cpp
+    src/actions/ewaitaction.h src/actions/ewaitaction.cpp
 
     src/eserverfileloader.h src/eserverfileloader.cpp
-    src/edieaction.h src/edieaction.cpp
-    src/ehitrecoveryaction.h src/ehitrecoveryaction.cpp
-    src/eunitactionbase.h src/eunitactionbase.cpp
-    src/eblockaction.h src/eblockaction.cpp
-    src/eclientaction.h src/eclientaction.cpp
+    src/actions/edieaction.h src/actions/edieaction.cpp
+    src/actions/ehitrecoveryaction.h src/actions/ehitrecoveryaction.cpp
+    src/actions/eunitactionbase.h src/actions/eunitactionbase.cpp
+    src/actions/eblockaction.h src/actions/eblockaction.cpp
+    src/actions/eclientaction.h src/actions/eclientaction.cpp
     src/elocalserver.h src/elocalserver.cpp
     src/etcpiphost.h src/etcpiphost.cpp
     src/epacketdata.h
     src/etcpipjoin.h src/etcpipjoin.cpp
     src/eservermissile.h src/eservermissile.cpp
-    src/efolloweraction.h src/efolloweraction.cpp
+    src/actions/efolloweraction.h src/actions/efolloweraction.cpp
     src/emovetotarget.h src/emovetotarget.cpp
+    src/actions/ewalkaroundaction.h src/actions/ewalkaroundaction.cpp
 
 )
 

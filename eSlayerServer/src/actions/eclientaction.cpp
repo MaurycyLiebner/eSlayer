@@ -1,6 +1,6 @@
 #include "eclientaction.h"
 
-#include "eserverunit.h"
+#include "../eserverunit.h"
 
 void eClientAction::increment(const float by) {
     if(mUnit.fHealth <= 0) {

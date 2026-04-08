@@ -1,6 +1,6 @@
 #include "emovetoenemyaction.h"
 
-#include "eserverarea.h"
+#include "../eserverarea.h"
 
 #include <eSlayerHelpers/echardata.h>
 

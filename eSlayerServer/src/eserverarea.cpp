@@ -1,9 +1,9 @@
 #include "eserverarea.h"
 
 #include "../../eSlayerHelpers/include/eSlayerHelpers/echardatainfo.h"
-#include "eclientaction.h"
-#include "eunitbaseaction.h"
-#include "efolloweraction.h"
+#include "actions/eclientaction.h"
+#include "actions/eunitbaseaction.h"
+#include "actions/efolloweraction.h"
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>

@@ -1,6 +1,6 @@
 #include "ehitrecoveryaction.h"
 
-#include "eserverunit.h"
+#include "../eserverunit.h"
 
 #include <eSlayerHelpers/echardata.h>
 

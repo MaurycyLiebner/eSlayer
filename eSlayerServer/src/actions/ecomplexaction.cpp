@@ -4,8 +4,8 @@
 #include "eblockaction.h"
 #include "edieaction.h"
 #include "ehitrecoveryaction.h"
-#include "eserverarea.h"
-#include "eserverunit.h"
+#include "../eserverarea.h"
+#include "../eserverunit.h"
 
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erunsettings.h>

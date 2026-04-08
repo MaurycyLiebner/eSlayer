@@ -1,7 +1,7 @@
 #include "eserverunit.h"
 
-#include "ecomplexaction.h"
-#include "edieaction.h"
+#include "actions/ecomplexaction.h"
+#include "actions/edieaction.h"
 #include "eserverarea.h"
 
 #include <eSlayerHelpers/emovementhandler.h>

@@ -1,7 +1,7 @@
 #ifndef EMOVETOTARGET_H
 #define EMOVETOTARGET_H
 
-#include "eunitaction.h"
+#include "actions/eunitaction.h"
 
 #include <eSlayerHelpers/epoint.h>
 
