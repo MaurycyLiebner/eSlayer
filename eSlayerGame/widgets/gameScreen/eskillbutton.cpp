@@ -59,22 +59,25 @@ bool eSkillButton::mouseMoveEvent(const eMouseEvent& e) {
 }
 
 bool eSkillButton::keyPressEvent(const eKeyPressEvent& e) {
-    if(e.key() == SDL_SCANCODE_F1) {
+    const auto key = e.key();
+    if(key == SDL_SCANCODE_F1) {
         setHotkey(1);
-    } else if(e.key() == SDL_SCANCODE_F2) {
+    } else if(key == SDL_SCANCODE_F2) {
         setHotkey(2);
-    } else if(e.key() == SDL_SCANCODE_F3) {
+    } else if(key == SDL_SCANCODE_F3) {
         setHotkey(3);
-    } else if(e.key() == SDL_SCANCODE_F4) {
+    } else if(key == SDL_SCANCODE_F4) {
         setHotkey(4);
-    } else if(e.key() == SDL_SCANCODE_F5) {
+    } else if(key == SDL_SCANCODE_F5) {
         setHotkey(5);
-    } else if(e.key() == SDL_SCANCODE_F6) {
+    } else if(key == SDL_SCANCODE_F6) {
         setHotkey(6);
-    } else if(e.key() == SDL_SCANCODE_F7) {
+    } else if(key == SDL_SCANCODE_F7) {
         setHotkey(7);
-    } else if(e.key() == SDL_SCANCODE_F8) {
+    } else if(key == SDL_SCANCODE_F8) {
         setHotkey(8);
+    } else {
+        return false;
     }
     return true;
 }
