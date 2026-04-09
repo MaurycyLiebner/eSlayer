@@ -458,7 +458,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         const auto& skill = eSkills::sSkills.get(skillId);
         const int skillLevelId = skillLevel(skillId);
         if(skillLevelId < 0) continue;
-        const auto& skillLevel = skill.fLevels[skillLevelId];
+        const auto& skillLevel = skill.skillLevel(skillLevelId);
         if(skill.fType == eSkillType::attack) {
             if(leftW.fType == eItemType::weapon) {
                 float min;
@@ -566,7 +566,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             if(skillLevelId < 0) continue;
             const auto& skill = eSkills::sSkills.get(skillId);
             if(skill.fType != eSkillType::passive) continue;
-            const auto& skillLevel = skill.fLevels[skillLevelId];
+            const auto& skillLevel = skill.skillLevel(skillLevelId);
             for(const auto& mod : skillLevel.fTotalModifiers) {
                 switch(mod.first) {
                 case eModifierType::defenseValue:

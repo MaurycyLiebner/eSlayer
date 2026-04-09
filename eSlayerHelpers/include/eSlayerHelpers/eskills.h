@@ -47,6 +47,10 @@ struct eSkill {
     std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
     std::vector<eSkillLevel> fLevels;
+
+    const eSkillLevel& skillLevel(const int skillLevelId) const {
+        return fLevels[std::clamp(skillLevelId, 0, int(fLevels.size()) - 1)];
+    }
 };
 
 struct eUnitSkill {

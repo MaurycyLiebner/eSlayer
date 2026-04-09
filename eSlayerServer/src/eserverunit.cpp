@@ -330,7 +330,7 @@ bool eServerUnit::skillReady(const int schoice) const {
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
     if(levelId < 0) return false;
-    const auto& level = skill.fLevels[levelId];
+    const auto& level = skill.skillLevel(levelId);
     if(mClient && level.fManaCost > mStats.fManaF) return false;
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
@@ -346,7 +346,7 @@ void eServerUnit::useSkill(const int schoice) {
     const auto& skill = eSkills::sSkills.get(skillId);
     const int levelId = skillLevel(skillId);
     if(levelId < 0) return;
-    const auto& level = skill.fLevels[levelId];
+    const auto& level = skill.skillLevel(levelId);
     const float cooldown = level.fCooldown;
     if(cooldown > 0.f) {
         mStats.fCooldowns[skillId] = cooldown*eRunSettings::sFPS;
