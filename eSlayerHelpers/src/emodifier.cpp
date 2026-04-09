@@ -117,6 +117,8 @@ int eModifier::valuesUsed() const {
 
     case eModifierType::meeleSplashDamage:
     case eModifierType::knockback:
+
+    case eModifierType::allSkills:
         return 1;
     }
     return 0;

@@ -540,7 +540,8 @@ void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
 void eServerArea::summon(eServerUnit& by,
                          ePointF to,
                          const int unitId,
-                         const int maxCount) {
+                         const int maxCount,
+                         const std::vector<eModifier>& mods) {
     auto& followers = by.followers();
     if(followers.size() >= maxCount && maxCount > 0) {
         const int removeCharId = followers[0];
@@ -571,6 +572,7 @@ void eServerArea::summon(eServerUnit& by,
     u->fAnimId = 0;
     u->fPos = to;
     u->fAngle = 0.f;
+    u->setBoosts(mods, false);
     {
         const int schoice = u->addSkill();
         u->setSkillId(schoice, 0, false);

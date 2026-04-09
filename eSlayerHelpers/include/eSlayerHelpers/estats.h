@@ -1,11 +1,11 @@
 #ifndef ESTATS_H
 #define ESTATS_H
 
-#include "eslayerhelpersexport.h"
-
+#include "emodifier.h"
 #include "edamage.h"
-#include "eweapontype.h"
 #include "eskillchoice.h"
+#include "eslayerhelpersexport.h"
+#include "eweapontype.h"
 
 #include <map>
 #include <vector>
@@ -113,6 +113,8 @@ struct ESLAYERHELPERS_API eStats {
 
     std::map<int, float> fCooldowns;
     eSkillLevels fSkillLevels;
+
+    std::vector<eModifier> fBoosts;
 
     eSkillStats& leftSkill();
     eSkillStats& rightSkill();

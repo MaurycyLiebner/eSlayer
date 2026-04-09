@@ -391,13 +391,20 @@ bool eComplexAction::summon(const ePointF& to,
     const auto& skill = eSkills::sSkills.get(skillId);
     const int maxCount = mUnit.skillCount(
         schoice, eWeaponChoice::left);
-    const auto a = [this, skill, dir, from, maxCount]() {
+    const int charId = mUnit.fCharId;
+    auto& area = mArea;
+    const auto mods = mUnit.skillModifiers(
+        schoice, eWeaponChoice::left);
+    const auto a = [&area, charId, &skill, mods,
+                    dir, from, maxCount]() {
+        const auto unit  = area.unit(charId);
+        if(!unit) return;
         auto toDir = dir;
         if(toDir.length() > skill.fCastRange) {
             toDir.normalize(skill.fCastRange);
         }
         const auto to = from + toDir;
-        mArea.summon(mUnit, to, skill.fUnitId, maxCount);
+        area.summon(*unit, to, skill.fUnitId, maxCount, mods);
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

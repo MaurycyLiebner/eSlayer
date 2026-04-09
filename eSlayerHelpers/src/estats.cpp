@@ -564,6 +564,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     };
 
+    for(const auto& boost : fBoosts) {
+        handleItemPassiveMod(boost, false, false);
+    }
+
     for(const auto& item : items) {
         if(!itemReqsMet(item)) continue;
         switch(item.fType) {
@@ -672,6 +676,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             stats.fMissileRangeTime = fWeaponRangedRange;
         } else {
             stats.fMissileRangeTime = skill.fRangeTime;
+        }
+
+        for(const auto& boost : fBoosts) {
+            handleSkillMod(boost, eModifierSource::skill,
+                           h, true, true);
         }
 
         for(const auto& mod : skillLevel.fTotalModifiers) {

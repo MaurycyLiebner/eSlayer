@@ -101,10 +101,13 @@ public:
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;
 
+    std::vector<eModifier> skillModifiers(
+        const int schoice,
+        const eWeaponChoice wchoice) const;
     int skillCount(const int schoice,
-                       const eWeaponChoice wchoice);
+                   const eWeaponChoice wchoice) const;
     float pierceChance(const int schoice,
-                       const eWeaponChoice wchoice);
+                       const eWeaponChoice wchoice) const;
 
     bool getHit(const eHitData& data, const bool splash = true);
     float takeDamage(const eDamage& dmg);
@@ -134,6 +137,10 @@ public:
     void setSkillId(const int schoice,
                     const int skillId,
                     const bool recalc = true);
+    void setBoosts(const std::vector<eModifier>& mods,
+                   const bool recalc = true);
+    void addBoost(const eModifier& mod,
+                  const bool recalc = true);
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);

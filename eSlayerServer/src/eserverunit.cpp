@@ -200,15 +200,32 @@ float eServerUnit::meeleSplashDamage(
     return 0.f;
 }
 
+std::vector<eModifier>
+eServerUnit::skillModifiers(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const int skillId = eServerUnit::skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int levelId = skillLevel(skillId);
+    if(levelId < 0) return {};
+    const auto& level = skill.skillLevel(levelId);
+    std::vector<eModifier> result;
+    result.reserve(level.fTotalModifiers.size());
+    for(const auto& mod : level.fTotalModifiers) {
+        result.emplace_back(mod.second);
+    }
+    return result;
+}
+
 int eServerUnit::skillCount(
     const int schoice,
-    const eWeaponChoice wchoice) {
+    const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fCount;
 }
 
 float eServerUnit::pierceChance(const int schoice,
-                                const eWeaponChoice wchoice) {
+                                const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
     case eWeaponChoice::left:
@@ -370,6 +387,20 @@ void eServerUnit::setSkillId(const int schoice,
     if(recalc) recalculateStats();
 }
 
+void eServerUnit::setBoosts(
+    const std::vector<eModifier>& mods,
+    const bool recalc) {
+    mStats.fBoosts = mods;
+    if(recalc) recalculateStats();
+}
+
+void eServerUnit::addBoost(
+    const eModifier& mod,
+    const bool recalc) {
+    mStats.fBoosts.emplace_back(mod);
+    if(recalc) recalculateStats();
+}
+
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {
     mAction = a;
 }
@@ -414,6 +445,12 @@ bool eServerUnit::canUseSkill(
     case eSkillType::wall:
         return true;
     case eSkillType::summon:
+        return true;
+    case eSkillType::passive:
+        return false;
+    case eSkillType::aura:
+        return false;
+    case eSkillType::boostCurse:
         return true;
     }
     return false;
