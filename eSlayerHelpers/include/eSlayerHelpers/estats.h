@@ -17,6 +17,10 @@ class ePacket;
 struct eSkillStats {
     int fSkillId = 0;
 
+    int fCount = 0;
+    float fManaCost = 0.f;
+    float fCooldown = 0.f;
+
     eDamage fDamageMinLW;
     eDamage fDamageMaxLW;
     eDamage fDamageMinRW;
@@ -46,8 +50,6 @@ struct eSkillStats {
 
     float fMeeleSplashDamageLW = 0.f;
     float fMeeleSplashDamageRW = 0.f;
-
-    int fCount = 0;
 };
 
 struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
@@ -156,6 +158,8 @@ struct ESLAYERHELPERS_API eStats {
                         const float unit2Radius) const;
     int skillLevel(const int skillId) const;
     int incSkillLevel(const int skillId);
+    float manaCost(const int schoice) const;
+    float cooldown(const int schoice) const;
 };
 
 #endif // ESTATS_H

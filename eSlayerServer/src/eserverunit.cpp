@@ -343,15 +343,12 @@ bool eServerUnit::skillReady(const eSkillChoice schoice) const {
 }
 
 bool eServerUnit::skillReady(const int schoice) const {
+    if(mClient && mStats.manaCost(schoice) > mStats.fManaF) return false;
     const int skillId = eServerUnit::skillId(schoice);
-    const auto& skill = eSkills::sSkills.get(skillId);
-    const int levelId = skillLevel(skillId);
-    if(levelId < 0) return false;
-    const auto& level = skill.skillLevel(levelId);
-    if(mClient && level.fManaCost > mStats.fManaF) return false;
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
-    return it->second <= 0.f;
+    const float wait = it->second;
+    return wait <= 0.f;
 }
 
 void eServerUnit::useSkill(const eSkillChoice schoice) {
@@ -360,16 +357,13 @@ void eServerUnit::useSkill(const eSkillChoice schoice) {
 
 void eServerUnit::useSkill(const int schoice) {
     const int skillId = eServerUnit::skillId(schoice);
-    const auto& skill = eSkills::sSkills.get(skillId);
-    const int levelId = skillLevel(skillId);
-    if(levelId < 0) return;
-    const auto& level = skill.skillLevel(levelId);
-    const float cooldown = level.fCooldown;
+    const float cooldown = mStats.cooldown(schoice);
     if(cooldown > 0.f) {
         mStats.fCooldowns[skillId] = cooldown*eRunSettings::sFPS;
     }
     if(mClient) {
-        mStats.fManaF = std::max(0.f, mStats.fManaF - level.fManaCost);
+        const float manaCost = mStats.manaCost(schoice);
+        mStats.fManaF = std::max(0.f, mStats.fManaF - manaCost);
     }
 }
 

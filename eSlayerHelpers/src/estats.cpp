@@ -670,6 +670,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             }
         }
         stats.fCount = skillLevel.fCount;
+        stats.fManaCost += skillLevel.fManaCost;
+        stats.fCooldown += skillLevel.fCooldown;
+
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::shoot ||
            skill.fType == eSkillType::throw_) {
@@ -723,6 +726,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const int sSkillLevel = skillLevels.skillLevel(sSkillId);
             if(sSkillLevel < 0) continue;
             const auto& boost = s.boostLevel(sSkillLevel);
+            stats.fCount += boost.fCount;
+            stats.fManaCost += boost.fManaCost;
+            stats.fCooldown += boost.fCooldown;
             for(const auto& mod : boost.fTotalModifiers) {
                 handleSkillMod(mod.second, eModifierSource::skill,
                                h, true, true);
@@ -972,6 +978,16 @@ int eStats::incSkillLevel(const int skillId) {
     fSkillLevels.fRemainingPoints--;
     fSkillLevels[skillId] = level + 1;
     return level + 1;
+}
+
+float eStats::manaCost(const int schoice) const {
+    const auto& skillStats = fSkills[schoice];
+    return skillStats.fManaCost;
+}
+
+float eStats::cooldown(const int schoice) const {
+    const auto& skillStats = fSkills[schoice];
+    return skillStats.fCooldown;
 }
 
 void eSkillLevels::read(ePacket& p) {

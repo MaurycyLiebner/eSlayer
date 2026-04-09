@@ -122,8 +122,9 @@ void eSkills::load() {
                 for(auto& [name, synergyData] : synergies.items()) {
                     auto& synergy = skill.fSynergies.emplace_back();
                     synergy.fSkillStr = name;
-                    float cooldown = jdata.value("cooldown", 0.f);
-                    float manaCost = jdata.value("manaCost", 0.f);
+                    int count = 0;
+                    float cooldown = 0.f;
+                    float manaCost = 0.f;
                     for(auto it = synergyData.begin(); it != synergyData.end(); ++it) {
                         eSkillLevel level;
 
