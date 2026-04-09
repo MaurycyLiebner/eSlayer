@@ -53,7 +53,9 @@ gModifierTypeToString = {
     { eModifierType::manaSteal, "manaSteal" },
 
     { eModifierType::meeleSplashDamage, "meeleSplashDamage" },
-    { eModifierType::knockback, "knockback" }
+    { eModifierType::knockback, "knockback" },
+
+    { eModifierType::allSkills, "allSkills" }
 };
 
 std::map<std::string, eModifierType>
