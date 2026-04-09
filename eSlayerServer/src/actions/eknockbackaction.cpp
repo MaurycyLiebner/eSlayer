@@ -36,5 +36,6 @@ void eKnockbackAction::increment(const float by) {
 
 void eKnockbackAction::setupKnockback(eVec2f dir, const float dist) {
     mDir = dir;
+    mDir.normalize();
     mRemDist = dist;
 }

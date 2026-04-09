@@ -77,6 +77,8 @@ public:
     float weaponSpeedModifier(const eWeaponChoice wchoice) const;
     float itemsCastRate() const { return mStats.fCastRate; }
 
+    bool alwaysHit(const int schoice,
+                   const eWeaponChoice wchoice) const;
     float attackRating(const int schoice,
                        const eWeaponChoice wchoice) const;
     static float sHitChance(const eServerUnit& hit,

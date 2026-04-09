@@ -107,6 +107,16 @@ float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
     return 0.f;
 }
 
+bool eServerUnit::alwaysHit(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const int skillId = eServerUnit::skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto skillType = skill.fType;
+    return skillType == eSkillType::missile ||
+           skillType == eSkillType::wall;
+}
+
 float eServerUnit::attackRating(
     const int schoice,
     const eWeaponChoice wchoice) const {

@@ -148,8 +148,8 @@ bool eComplexAction::getHit(const eHitData& data,
     if(!data.fAlwaysHit && eRand::randF() > hitChance) {
         hit = false;
     } else {
-        const float blockChance = data.fBlockMultiplier*mUnit.blockChance();
-        if(eRand::randF() < blockChance) {
+        const float blockChance = mUnit.blockChance();
+        if(!data.fAlwaysHit && eRand::randF() < blockChance) {
             hit = false;
             const auto a = eBlockAction::sCreate(mUnit, mArea);
             if(a) mUnit.setChildAction(a);
@@ -214,10 +214,9 @@ bool eComplexAction::hitData(const int schoice,
     data.fLifeSteal = mUnit.lifeSteal(schoice, wchoice);
     data.fManaSteal = mUnit.manaSteal(schoice, wchoice);
 
-    data.fAlwaysHit = false;
+    data.fAlwaysHit = mUnit.alwaysHit(schoice, wchoice);
     data.fAttackRating = mUnit.attackRating(schoice, wchoice);
     data.fALvl = mUnit.level();
-    data.fBlockMultiplier = 1.f;
 
     data.fSplashDmg = mUnit.meeleSplashDamage(schoice, wchoice);
     data.fDamage = mUnit.attackDamage(schoice, wchoice);
@@ -245,16 +244,10 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const bool continuousDamage = skill.fType == eSkillType::wall;
 
     const auto skillType = skill.fType;
-    const bool alwaysHit = skillType == eSkillType::missile ||
-                           skillType == eSkillType::wall;
     eHitData data;
     hitData(schoice, wchoice, data);
     if(continuousDamage) {
         data.fDamage = data.fDamage/eRunSettings::sFPS;
-    }
-    if(alwaysHit) {
-        data.fAlwaysHit = alwaysHit;
-        data.fBlockMultiplier = 0.f;
     }
 
     auto& area = mArea;

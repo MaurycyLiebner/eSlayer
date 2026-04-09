@@ -27,7 +27,6 @@ struct eHitData {
     bool fAlwaysHit = false;
     float fAttackRating = 0.f;
     float fALvl = 1.f;
-    float fBlockMultiplier = 0.f;
 
     float fSplashDmg = 0.f;
     eDamage fDamage;
