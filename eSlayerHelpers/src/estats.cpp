@@ -717,6 +717,17 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                                h, true, true);
             }
         }
+
+        for(const auto& s : skill.fSynergies) {
+            const int sSkillId = s.fSkillId;
+            const int sSkillLevel = skillLevels.skillLevel(sSkillId);
+            if(sSkillLevel < 0) continue;
+            const auto& boost = s.boostLevel(sSkillLevel);
+            for(const auto& mod : boost.fTotalModifiers) {
+                handleSkillMod(mod.second, eModifierSource::skill,
+                               h, true, true);
+            }
+        }
     };
 
     fWeaponMeeleRange = 0.f;

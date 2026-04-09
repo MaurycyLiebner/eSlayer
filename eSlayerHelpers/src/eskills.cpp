@@ -115,9 +115,65 @@ void eSkills::load() {
                     skill.fLevels.emplace_back(level);
                 }
             }
+            if(jdata.contains("synergies")) {
+                std::map<eModifierType, eModifier> totalMods;
+                const auto& synergies = jdata["synergies"];
+                skill.fSynergies.reserve(synergies.size());
+                for(auto& [name, synergyData] : synergies.items()) {
+                    auto& synergy = skill.fSynergies.emplace_back();
+                    synergy.fSkillStr = name;
+                    float cooldown = jdata.value("cooldown", 0.f);
+                    float manaCost = jdata.value("manaCost", 0.f);
+                    for(auto it = synergyData.begin(); it != synergyData.end(); ++it) {
+                        eSkillLevel level;
+
+                        count += synergyData.value("count", 0);
+                        level.fCount = count;
+
+                        cooldown += synergyData.value("cooldown", 0.f);
+                        level.fCooldown = cooldown;
+
+                        manaCost += synergyData.value("manaCost", 0.f);
+                        level.fManaCost = manaCost;
+
+                        const auto& levelData = it.value();
+                        for(auto it = levelData.begin(); it != levelData.end(); ++it) {
+                            const auto& key = it.key();
+                            if(key == "count" ||
+                               key == "cooldown" ||
+                               key == "manaCost") continue;
+                            const auto& value = it.value();
+
+                            eModifier mod;
+                            mod.read(key, json(value));
+
+                            auto& totalMod = totalMods[mod.fType];
+                            totalMod.fType = mod.fType;
+                            totalMod.fValue1 += mod.fValue1;
+                            totalMod.fValue2 += mod.fValue2;
+                        }
+
+                        level.fTotalModifiers = totalMods;
+                        synergy.fBoostLevels.emplace_back(level);
+                    }
+                }
+            }
             sSkills.add(name, skill);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
+        }
+    }
+
+    for(const auto& it : sSkills) {
+        auto& skill = it.fValue;
+        auto& synergies = skill.fSynergies;
+        for(auto& s : synergies) {
+            const auto& name = s.fSkillStr;
+            const int id = sSkills.id(name);
+            s.fSkillId = id;
+            if(id == -1) {
+                eExceptions::showDialog("Unrecognized synergy \"" + name + "\".");
+            }
         }
     }
 }

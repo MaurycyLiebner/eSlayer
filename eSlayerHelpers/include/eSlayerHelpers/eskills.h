@@ -25,6 +25,16 @@ struct eSkillLevel {
     fTotalModifiers;
 };
 
+struct eSynergy {
+    std::string fSkillStr;
+    int fSkillId;
+    std::vector<eSkillLevel> fBoostLevels;
+
+    const eSkillLevel& boostLevel(const int boostLevelId) const {
+        return fBoostLevels[std::clamp(boostLevelId, 0, int(fBoostLevels.size()) - 1)];
+    }
+};
+
 struct eSkill {
     eSkillType fType;
 
@@ -47,6 +57,7 @@ struct eSkill {
     std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
     std::vector<eSkillLevel> fLevels;
+    std::vector<eSynergy> fSynergies;
 
     const eSkillLevel& skillLevel(const int skillLevelId) const {
         return fLevels[std::clamp(skillLevelId, 0, int(fLevels.size()) - 1)];
