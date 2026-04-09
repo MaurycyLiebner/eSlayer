@@ -78,6 +78,9 @@ private:
     float mNearbyUnits = 1.5f;
 
     float mMoveRandom = 0.05f;
+
+    eVec2f mRandomOffset{0.f, 0.f};
+    float mRandomTimer = 0.f;
 };
 
 #endif // EMOVEMENTHANDLER_H

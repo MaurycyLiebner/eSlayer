@@ -210,7 +210,15 @@ bool eMovementHandler::increment(const float by) {
 
     const bool addRandom = separation.length() > 0.1f;
     if(addRandom) {
-        moveDir = moveDir + eVec2f::random()*mMoveRandom;
+        mRandomTimer += by;
+        if(mRandomTimer > 12.f || mRandomOffset.length() == 0.f) {
+            mRandomTimer = 0.f;
+            mRandomOffset = eVec2f::random() * mMoveRandom;
+        }
+        moveDir = moveDir + mRandomOffset;
+    } else {
+        mRandomTimer = 0.f;
+        mRandomOffset = eVec2f{0.f, 0.f};
     }
     if(moveDir.length() > 0) {
         moveDir.normalize();
@@ -224,14 +232,27 @@ bool eMovementHandler::increment(const float by) {
         speedFactor = distToGoal / slowRadius;
     }
 
-    mVel = moveDir*mSpeed*speedFactor;
+    const auto targetVel = moveDir*mSpeed*speedFactor;
+    const float blendFactor = 0.2f;
+    mVel = mVel*(1.0f - blendFactor) + targetVel*blendFactor;
+
     const float progress = eVec2f::dot(mVel, desiredDir);
     if(progress < 0.1f*mSpeed) {
         mStuckTimer += by;
     } else {
         mStuckTimer = 0.f;
     }
-    mAngle = mVel.angle();
+
+    if(mVel.length() > 0.001f) {
+        const float targetAngle = mVel.angle();
+        float angleDiff = targetAngle - mAngle;
+        while(angleDiff > 180.f) angleDiff -= 360.f;
+        while(angleDiff < -180.f) angleDiff += 360.f;
+        const float angleBlend = 0.3f;
+        mAngle += angleDiff * angleBlend;
+        while(mAngle < 0.f) mAngle += 360.f;
+        while(mAngle >= 360.f) mAngle -= 360.f;
+    }
 
     const auto newPos = mPos + mVel*by;
     if(walkable(newPos)) {
