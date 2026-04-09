@@ -53,7 +53,6 @@ protected:
 private:
     bool hitData(const int schoice,
                  const eWeaponChoice wchoice,
-                 const float mult,
                  eHitData& data);
 
     bool spawnMissile(const ePointF& to,

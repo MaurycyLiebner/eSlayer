@@ -70,7 +70,7 @@ bool eComplexAction::attack(const eAttackData& target) {
                 const auto targetPos = mUnit.fPos + dir;
 
                 eHitData data;
-                hitData(schoice, wchoice, 1.f, data);
+                hitData(schoice, wchoice, data);
 
                 auto& area = mArea;
                 const auto a = [&area, data, targetPos]() {
@@ -121,7 +121,7 @@ bool eComplexAction::meeleAttack(
     mUnit.fAngle = dir.angle();
     const int targetId = u.fCharId;
     eHitData data;
-    hitData(schoice, wchoice, 1.f, data);
+    hitData(schoice, wchoice, data);
     auto& area = mArea;
     const auto a = [&area, targetId, data, attackRange]() {
         const auto attacker = area.unit(data.fAttackerId);
@@ -204,7 +204,6 @@ bool eComplexAction::getHit(const eHitData& data,
 
 bool eComplexAction::hitData(const int schoice,
                              const eWeaponChoice wchoice,
-                             const float mult,
                              eHitData& data) {
     data.fAttackerId = mUnit.fCharId;
     data.fAttackTeamId = mUnit.fTeamId;
@@ -221,7 +220,7 @@ bool eComplexAction::hitData(const int schoice,
     data.fBlockMultiplier = 1.f;
 
     data.fSplashDmg = mUnit.meeleSplashDamage(schoice, wchoice);
-    data.fDamage = mUnit.attackDamage(schoice, wchoice)*mult;
+    data.fDamage = mUnit.attackDamage(schoice, wchoice);
     return true;
 }
 
@@ -249,7 +248,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const bool alwaysHit = skillType == eSkillType::missile ||
                            skillType == eSkillType::wall;
     eHitData data;
-    hitData(schoice, wchoice, 1.f, data);
+    hitData(schoice, wchoice, data);
     if(continuousDamage) {
         data.fDamage = data.fDamage/eRunSettings::sFPS;
     }
