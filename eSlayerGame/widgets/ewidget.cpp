@@ -460,6 +460,15 @@ void eWidget::addWidget(eWidget* const w) {
     w->mParent = this;
 }
 
+void eWidget::bringToFront(eWidget* const w) {
+    removeWidget(w);
+    addWidget(w);
+}
+
+void eWidget::bringToFront() {
+    if(mParent) mParent->bringToFront(this);
+}
+
 void eWidget::removeWidget(eWidget* const w) {
     const bool r = eVectorHelpers::remove(mChildren, w);
     if(r) w->mParent = nullptr;

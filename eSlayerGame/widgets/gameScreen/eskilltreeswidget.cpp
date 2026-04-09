@@ -71,7 +71,7 @@ void eSkillTreesWidget::initialize(
     for(const int skillTreeId : class_.fSkillTrees) {
         const auto skillTreeW = new eSkillTreeWidget(window());
         skillTreeW->resize(w, h);
-        skillTreeW->initialize(skillTreeId, stats, attrs, eq);
+        skillTreeW->initialize(skillTreeId, stats);
         skillTreeWidget->addWidget(skillTreeW);
         skillTreeW->setVisible(mWidgets.empty());
         mWidgets.emplace_back(skillTreeW);

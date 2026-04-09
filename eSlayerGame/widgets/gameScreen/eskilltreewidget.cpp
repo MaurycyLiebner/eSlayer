@@ -9,19 +9,16 @@
 #include <eSlayerHelpers/eequipment.h>
 
 void eSkillTreeWidget::initialize(
-    const int skillTreeId, eStats& stats,
-    const eAttributes& attrs, const eEquipment& eq) {
-    mStats = &stats;
-
+    const int skillTreeId, eStats& stats) {
     const auto& skillTree = eSkillTrees::sTrees.get(skillTreeId);
     for(const int skillId : skillTree.fSkills) {
         const auto button = new eSkillButton(window());
         button->initialize();
         button->setSkillId(skillId);
-        const int level = mStats->skillLevel(skillId);
+        const int level = stats.skillLevel(skillId);
         button->setBottomRightText(std::to_string(level + 1));
-        button->setPressAction([this, button, skillId, &attrs, &eq]() {
-            const int level = mStats->incSkillLevel(skillId);
+        button->setPressAction([&stats, button, skillId]() {
+            const int level = stats.incSkillLevel(skillId);
             button->setBottomRightText(std::to_string(level + 1));
             eGameWidget::sSendSkillLevelsChanged();
         });

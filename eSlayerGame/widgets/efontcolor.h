@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 
 enum class eFontColor {
-    white, gray, blue, red,
+    white, gray, blue, red, green,
     // items
     normal, magic, rare, set, unique,
     whiteBlack, grayBlack, redBlack

@@ -12,12 +12,7 @@ public:
     using eWidget::eWidget;
 
     void initialize(const int skillTreeId,
-                    eStats& stats,
-                    const eAttributes& attrs,
-                    const eEquipment& eq);
-
-private:
-    eStats* mStats = nullptr;
+                    eStats& stats);
 };
 
 #endif // ESKILLTREEWIDGET_H

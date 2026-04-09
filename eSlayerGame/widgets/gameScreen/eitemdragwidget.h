@@ -22,10 +22,14 @@ public:
     void setItemDataId(const int dataId);
 
     void setHoverItem(const eItem& item);
+    void setHoverSkill(const int skillId,
+                       const bool showNextLevel);
 
     static eItemDragWidget* sInstance;
     static void sUpdateDragItem(const eEquipment& eq);
     static void sSetHoverItem(const eItem& item);
+    static void sSetHoverSkill(const int skillId,
+                               const bool showNextLevel);
 protected:
     void paintEvent(ePainter& p) override;
 
@@ -40,7 +44,8 @@ private:
     SDL_Point mMousePos;
     std::shared_ptr<eTexture> mItem;
 
-    int mHoverItemId = 0;
+    int mHoverSkillId = -1;
+    int mHoverItemId = -1;
     std::shared_ptr<eTexture> mHover;
 };
 

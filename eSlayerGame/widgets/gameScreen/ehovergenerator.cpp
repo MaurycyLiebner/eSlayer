@@ -2,6 +2,9 @@
 
 #include "../../textures/etextgenerator.h"
 #include "../epainter.h"
+#include "../../elanguage.h"
+
+#include <eSlayerHelpers/estringhelpers.h>
 
 eHoverGenerator::eHoverGenerator(const eResolution& res) {
     const int fontSize = res.smallFontSize();
@@ -17,6 +20,81 @@ void eHoverGenerator::addText(SDL_Renderer* const r,
     totalHeight += tex->height();
     maxWidth = std::max(maxWidth, tex->width());
     lines.emplace_back(tex);
+}
+
+std::string floatToString(const float value,
+                          const eModifierType type) {
+    switch(type) {
+    case eModifierType::walkRun:
+
+    case eModifierType::attackSpeed:
+    case eModifierType::castRate:
+
+    case eModifierType::defensePercent:
+    case eModifierType::damagePercent:
+    case eModifierType::attackRatingPercent:
+    case eModifierType::blockChancePercent:
+    case eModifierType::blockRecoverySpeed:
+    case eModifierType::hitRecoverySpeed:
+
+    case eModifierType::lifePercent:
+    case eModifierType::manaPercent:
+
+    case eModifierType::pierceChance:
+
+    case eModifierType::fireResistance:
+    case eModifierType::coldResistance:
+    case eModifierType::lightningResitance:
+    case eModifierType::poisonResistance:
+
+    case eModifierType::maxFireResistance:
+    case eModifierType::maxColdResistance:
+    case eModifierType::maxLightningResitance:
+    case eModifierType::maxPoisonResistance:
+
+    case eModifierType::lifeSteal:
+    case eModifierType::manaSteal:
+
+    case eModifierType::meeleSplashDamage:
+    case eModifierType::knockback:
+        return eStringHelpers::floatToString(100*value);
+
+    case eModifierType::none:
+
+    case eModifierType::defenseValue:
+    case eModifierType::damageValue:
+
+    case eModifierType::damageFire:
+    case eModifierType::damageLightning:
+    case eModifierType::damageCold:
+    case eModifierType::damagePoison:
+
+    case eModifierType::attackRatingValue:
+
+    case eModifierType::lifeValue:
+    case eModifierType::manaValue:
+
+    case eModifierType::strength:
+    case eModifierType::dexterity:
+    case eModifierType::vitality:
+    case eModifierType::energy:
+
+    case eModifierType::allSkills:
+        return eStringHelpers::floatToString(value);
+    }
+    return eStringHelpers::floatToString(value);
+}
+
+void eHoverGenerator::addValue(SDL_Renderer* const r,
+                               const int g, const int s,
+                               const float min,
+                               const float max,
+                               const eFontColor color,
+                               const eModifierType type) {
+    auto text = eLanguage::text(g, s);
+    text = eStringHelpers::replaceAll(text, "%1", floatToString(min, type));
+    text = eStringHelpers::replaceAll(text, "%2", floatToString(max, type));
+    addText(r, text, color);
 }
 
 std::shared_ptr<eTexture>

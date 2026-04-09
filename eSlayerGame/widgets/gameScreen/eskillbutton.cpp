@@ -1,6 +1,7 @@
 #include "eskillbutton.h"
 
 #include "../../textures/euitextures.h"
+#include "eitemdragwidget.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/evectorhelpers.h>
@@ -55,6 +56,18 @@ void eSkillButton::updateText() {
 
 bool eSkillButton::mouseMoveEvent(const eMouseEvent& e) {
     (void)e;
+    return true;
+}
+
+bool eSkillButton::mouseEnterEvent(const eMouseEvent& e) {
+    (void)e;
+    eItemDragWidget::sSetHoverSkill(mSkillId, mSchoice == -1);
+    return true;
+}
+
+bool eSkillButton::mouseLeaveEvent(const eMouseEvent& e) {
+    (void)e;
+    eItemDragWidget::sSetHoverSkill(-1, mSchoice == -1);
     return true;
 }
 

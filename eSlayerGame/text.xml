@@ -131,5 +131,13 @@
     </group>
     <group id="13">
         <string id="0">Skill Choices Remaining</string>
+        <string id="1">Current Skill Level: %1</string>
+        <string id="2">Next Level: %1</string>
+        <string id="3">Mana Cost: %1</string>
+        <string id="4">%1 Receives Bonuses From:</string>
+        <string id="5">%1:</string>
+        <string id="6">Mana Cost %1</string>
+        <string id="7">Cooldown %1</string>
+        <string id="8">Count +%1</string>
     </group>
 </strings>

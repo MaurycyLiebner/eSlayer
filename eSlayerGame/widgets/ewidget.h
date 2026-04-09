@@ -104,6 +104,8 @@ public:
     void insertWidget(const int id, eWidget* const w);
     void prependWidget(eWidget* const w);
     void addWidget(eWidget* const w);
+    void bringToFront(eWidget* const w);
+    void bringToFront();
     void removeWidget(eWidget* const w);
     void removeAllWidgets();
 

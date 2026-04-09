@@ -161,6 +161,29 @@ void eGameScreen::initialize(const int clientId,
     mBottomWid->fitContent();
     addWidget(mBottomWid);
     mBottomWid->align(eAlignment::bottom | eAlignment::hcenter);
+
+    const int w = width();
+    const int h = height();
+
+    const auto& attrs = mGameWidget->attributes();
+    const auto& stats = mGameWidget->stats();
+
+    mDragWidget = new eItemDragWidget(attrs, stats, window());
+    mDragWidget->resize(w, h);
+    mDragWidget->initialize([this](SDL_Point pos) {
+        if(mInventoryMenu) {
+            pos.x -= mInventoryMenu->x();
+            pos.y -= mInventoryMenu->y();
+            if(pos.x < 0) {
+                mGameWidget->dropItem();
+            } else {
+                const bool r = mInventoryMenu->dropItem(pos);
+            }
+        } else {
+            mGameWidget->dropItem();
+        }
+    });
+    addWidget(mDragWidget);
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -352,34 +375,18 @@ void eGameScreen::showInventoryMenu() {
     mInventoryMenu->initialize(&eq);
     addWidget(mInventoryMenu);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
-
-    const auto& attrs = mGameWidget->attributes();
-    const auto& stats = mGameWidget->stats();
-
-    mDragWidget = new eItemDragWidget(attrs, stats, window());
-    mDragWidget->resize(w, h);
-    mDragWidget->initialize([this](SDL_Point pos) {
-        pos.x -= mInventoryMenu->x();
-        pos.y -= mInventoryMenu->y();
-        if(pos.x < 0) {
-            mGameWidget->dropItem();
-        } else {
-            const bool r = mInventoryMenu->dropItem(pos);
-        }
-    });
-    addWidget(mDragWidget);
     eItemDragWidget::sUpdateDragItem(eq);
 
     updateCharPos();
+    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideInventoryMenu() {
     if(!mInventoryMenu) return;
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
-    mDragWidget->deleteLater();
-    mDragWidget = nullptr;
     updateCharPos();
+    mDragWidget->setHoverItem(eItem());
 }
 
 void eGameScreen::showStatsMenu() {
@@ -396,6 +403,7 @@ void eGameScreen::showStatsMenu() {
     addWidget(mStatsMenu);
     mStatsMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();
+    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideStatsMenu() {
@@ -419,6 +427,7 @@ void eGameScreen::showSkillTreesMenu() {
     addWidget(mSkillTreesMenu);
     mSkillTreesMenu->align(eAlignment::right | eAlignment::top);
     updateCharPos();
+    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideSkillTreesMenu() {
@@ -426,6 +435,7 @@ void eGameScreen::hideSkillTreesMenu() {
     mSkillTreesMenu->deleteLater();
     mSkillTreesMenu = nullptr;
     updateCharPos();
+    mDragWidget->setHoverSkill(-1, false);
 }
 
 void eGameScreen::showMessageBox() {
@@ -517,6 +527,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
             height() - w->height() - margin);
 
     mSkillMenu = w;
+    mDragWidget->bringToFront();
 }
 
 void eGameScreen::updateCharPos() {

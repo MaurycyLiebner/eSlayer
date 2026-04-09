@@ -24,6 +24,8 @@ public:
     static std::map<int, int> sRightMap;
 protected:
     bool mouseMoveEvent(const eMouseEvent& e) override;
+    bool mouseLeaveEvent(const eMouseEvent& e) override;
+    bool mouseEnterEvent(const eMouseEvent& e) override;
     bool keyPressEvent(const eKeyPressEvent& e) override;
 private:
     void setText(eLabel*& ptr,

@@ -4,6 +4,8 @@
 #include "../efontcolor.h"
 #include "../../textures/etexture.h"
 
+#include <eSlayerHelpers/emodifier.h>
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -17,6 +19,9 @@ public:
     void addText(SDL_Renderer* const r,
                  const std::string& text,
                  const eFontColor color);
+    void addValue(SDL_Renderer* const r, const int g, const int s, const float min, const float max,
+                  const eFontColor color, const eModifierType type = eModifierType::none);
+    ;
 
     std::shared_ptr<eTexture>
     generate(SDL_Renderer* const r) const;

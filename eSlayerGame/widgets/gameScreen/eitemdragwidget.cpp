@@ -5,12 +5,14 @@
 #include "../../names/eitemnames.h"
 #include "../../elanguage.h"
 #include "ehovergenerator.h"
+#include "../../names/eskillnames.h"
 
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/eskills.h>
 
 eItemDragWidget* eItemDragWidget::sInstance = nullptr;
 
@@ -43,87 +45,14 @@ void eItemDragWidget::setItemDataId(const int dataId) {
     }
 }
 
-std::string floatToString(const float value,
-                          const eModifierType type) {
-    switch(type) {
-    case eModifierType::walkRun:
-
-    case eModifierType::attackSpeed:
-    case eModifierType::castRate:
-
-    case eModifierType::defensePercent:
-    case eModifierType::damagePercent:
-    case eModifierType::attackRatingPercent:
-    case eModifierType::blockChancePercent:
-    case eModifierType::blockRecoverySpeed:
-    case eModifierType::hitRecoverySpeed:
-
-    case eModifierType::lifePercent:
-    case eModifierType::manaPercent:
-
-    case eModifierType::pierceChance:
-
-    case eModifierType::fireResistance:
-    case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
-    case eModifierType::poisonResistance:
-
-    case eModifierType::maxFireResistance:
-    case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
-    case eModifierType::maxPoisonResistance:
-
-    case eModifierType::lifeSteal:
-    case eModifierType::manaSteal:
-
-    case eModifierType::meeleSplashDamage:
-    case eModifierType::knockback:
-        return eStringHelpers::floatToString(100*value);
-
-    case eModifierType::none:
-
-    case eModifierType::defenseValue:
-    case eModifierType::damageValue:
-
-    case eModifierType::damageFire:
-    case eModifierType::damageLightning:
-    case eModifierType::damageCold:
-    case eModifierType::damagePoison:
-
-    case eModifierType::attackRatingValue:
-
-    case eModifierType::lifeValue:
-    case eModifierType::manaValue:
-
-    case eModifierType::strength:
-    case eModifierType::dexterity:
-    case eModifierType::vitality:
-    case eModifierType::energy:
-
-    case eModifierType::allSkills:
-        return eStringHelpers::floatToString(value);
-    }
-    return eStringHelpers::floatToString(value);
-}
-
 void eItemDragWidget::setHoverItem(const eItem& item) {
+    mHoverSkillId = -1;
     if(item.fType == eItemType::none) {
         mHover = nullptr;
     } else if(!mHover || item.fItemId != mHoverItemId) {
-        mHoverItemId = item.fItemId;
         const auto& res = resolution();
         const auto r = renderer();
         eHoverGenerator gen(res);
-        const auto addValue = [&](const int g, const int s,
-                                  const float min,
-                                  const float max,
-                                  const eFontColor color,
-                                  const eModifierType type = eModifierType::none) {
-            auto text = eLanguage::text(g, s);
-            text = eStringHelpers::replaceAll(text, "%1", floatToString(min, type));
-            text = eStringHelpers::replaceAll(text, "%2", floatToString(max, type));
-            gen.addText(r, text, color);
-        };
 
         {
             const auto name = eItemNames::name(item.fDataId);
@@ -156,20 +85,20 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         case eItemType::gloves:
         case eItemType::helmet:
         case eItemType::belt:
-            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
             break;
         case eItemType::shield:
-            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
-            addValue(6, 2, item.fValue4, item.fValue4, eFontColor::white,
+            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            gen.addValue(r, 6, 2, item.fValue4, item.fValue4, eFontColor::white,
                      eModifierType::blockChancePercent);
-            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
             break;
         case eItemType::boots:
-            addValue(6, 0, item.fValue3, item.fValue3, eFontColor::white);
-            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
             break;
         case eItemType::weapon:
-            addValue(6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
             break;
         default:
             break;
@@ -179,19 +108,19 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
         if(level > 1) {
             const auto color = level > mAttrs.fLevel ?
                 eFontColor::red : eFontColor::white;
-            addValue(6, 4, level, level, color);
+            gen.addValue(r, 6, 4, level, level, color);
         }
         if(itemData.fStrengthReq > 0) {
             const int str = itemData.fStrengthReq;
             const auto color = str > mStats.fStrength ?
                 eFontColor::red : eFontColor::white;
-            addValue(6, 5, str, str, color);
+            gen.addValue(r, 6, 5, str, str, color);
         }
         if(itemData.fDexterityReq > 0) {
             const int dex = itemData.fDexterityReq;
             const auto color = dex > mStats.fDexterity ?
                 eFontColor::red : eFontColor::white;
-            addValue(6, 6, dex, dex, color);
+            gen.addValue(r, 6, 6, dex, dex, color);
         }
         if(itemData.fType == eItemType::weapon) {
             const float wsm = itemData.fWSM;
@@ -209,18 +138,112 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             } else {
                 s = 7;
             }
-            addValue(6, s, 0.f, 0.f, eFontColor::white);
+            gen.addValue(r, 6, s, 0.f, 0.f, eFontColor::white);
         }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
-            addValue(10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);
+            gen.addValue(r, 10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);
         }
         if(item.fSockets > 0) {
-            addValue(6, 3, item.fSockets, item.fSockets, eFontColor::blue);
+            gen.addValue(r, 6, 3, item.fSockets, item.fSockets, eFontColor::blue);
         }
 
         mHover = gen.generate(r);
     }
+    mHoverItemId = item.fItemId;
+}
+
+void eItemDragWidget::setHoverSkill(
+    const int skillId, const bool showNextLevel) {
+    mHoverItemId = -1;
+    if(skillId < 0) {
+        mHover = nullptr;
+    } else if(!mHover || skillId != mHoverSkillId) {
+        const auto& skill = eSkills::sSkills.get(skillId);
+        const auto name = eSkillNames::name(skillId);
+        const auto& res = resolution();
+        const auto r = renderer();
+        eHoverGenerator gen(res);
+        gen.addText(r, name, eFontColor::green);
+        gen.addText(r, " ", eFontColor::white);
+        const int levelId = mStats.skillLevel(skillId);
+        if(levelId >= 0) {
+            const auto& level = skill.skillLevel(levelId);
+            gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
+                         eFontColor::white, eModifierType::manaValue);
+            for(const auto& it : level.fTotalModifiers) {
+                const auto& mod = it.second;
+                const int s = static_cast<int>(mod.fType);
+                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                             eFontColor::white, mod.fType);
+            }
+            gen.addValue(r, 13, 3, level.fManaCost, level.fManaCost,
+                         eFontColor::white, eModifierType::manaValue);
+        }
+        const int nextLevelId = levelId + 1;
+        if(showNextLevel && nextLevelId >= 0) {
+            gen.addText(r, " ", eFontColor::white);
+            const auto& level = skill.skillLevel(nextLevelId);
+            gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
+                         eFontColor::white, eModifierType::manaValue);
+            for(const auto& it : level.fTotalModifiers) {
+                const auto& mod = it.second;
+                const int s = static_cast<int>(mod.fType);
+                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                             eFontColor::white, mod.fType);
+            }
+            gen.addValue(r, 13, 3, level.fManaCost, level.fManaCost,
+                         eFontColor::white, eModifierType::manaValue);
+        }
+
+        if(showNextLevel && !skill.fSynergies.empty()) {
+            bool addedSynergiesText = false;
+            const auto textBase = eLanguage::text(13, 5);
+            for(const auto& s : skill.fSynergies) {
+                const int sSkillId = s.fSkillId;
+                const int sLevelId = mStats.skillLevel(sSkillId);
+                if(sLevelId + 1 >= s.fBoostLevels.size()) continue;
+                const auto sName = eSkillNames::name(sSkillId);
+                const auto sTextBase = eStringHelpers::replaceAll(textBase, "%1", sName);
+                if(!addedSynergiesText) {
+                    addedSynergiesText = true;
+                    auto text = eLanguage::text(13, 4);
+                    text = eStringHelpers::replaceAll(text, "%1", name);
+                    gen.addText(r, " ", eFontColor::white);
+                    gen.addText(r, text, eFontColor::green);
+                }
+                gen.addText(r, sTextBase, eFontColor::white);
+                const auto& sLevel = s.boostLevel(sLevelId + 1);
+                if(sLevel.fManaCost != 0.f) {
+                    const auto manaCostFloatStr = eStringHelpers::floatToString(sLevel.fManaCost);
+                    auto manaCostStr = eLanguage::text(13, 6);
+                    manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
+                    gen.addText(r, manaCostStr, eFontColor::white);
+                }
+                if(sLevel.fCooldown != 0.f) {
+                    const auto cooldownFloatStr = eStringHelpers::floatToString(sLevel.fCooldown);
+                    auto cooldownStr = eLanguage::text(13, 7);
+                    cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
+                    gen.addText(r, cooldownStr, eFontColor::white);
+                }
+                if(sLevel.fCount != 0) {
+                    const auto countFloatStr = eStringHelpers::floatToString(sLevel.fCount);
+                    auto countStr = eLanguage::text(13, 8);
+                    countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
+                    gen.addText(r, countStr, eFontColor::white);
+                }
+                for(const auto& it : sLevel.fTotalModifiers) {
+                    const auto& mod = it.second;
+                    const int s = static_cast<int>(mod.fType);
+                    gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                                 eFontColor::white, mod.fType);
+                }
+            }
+        }
+
+        mHover = gen.generate(r);
+    }
+    mHoverSkillId = skillId;
 }
 
 void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
@@ -234,7 +257,14 @@ void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
 }
 
 void eItemDragWidget::sSetHoverItem(const eItem& item) {
+    if(!sInstance) return;
     sInstance->setHoverItem(item);
+}
+
+void eItemDragWidget::sSetHoverSkill(
+    const int skillId, const bool showNextLevel) {
+    if(!sInstance) return;
+    sInstance->setHoverSkill(skillId, showNextLevel);
 }
 
 void eItemDragWidget::paintEvent(ePainter& p) {
