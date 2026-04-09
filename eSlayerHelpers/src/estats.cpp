@@ -224,6 +224,15 @@ struct eSkillStatsHelper {
                 fStats.fMeeleSplashDamageRW += mod.fValue1;
             }
         } break;
+        case eModifierType::knockback: {
+            const bool knockback = mod.fValue1 > 0.5f;
+            if(lw) {
+                fStats.fKnockbackLW = fStats.fKnockbackLW || knockback;
+            }
+            if(rw) {
+                fStats.fKnockbackRW = fStats.fKnockbackRW || knockback;
+            }
+        } break;
         case eModifierType::attackSpeed: {
             if(src == eModifierSource::skill) {
                 fStats.fAttackSpeedS += mod.fValue1;
@@ -372,18 +381,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     std::vector<eSkillStatsHelper> skillHelpers;
 
     for(auto& s : fSkills) {
-        s.fAttackSpeedS = 0.f;
-
-        s.fAttackRatingLW = 0.f;
-        s.fAttackRatingRW = 0.f;
-
-        s.fCount = 0;
-
-        s.fPierceLW = 0.f;
-        s.fPierceRW = 0.f;
-
-        s.fLifeStealLW = 0.f;
-        s.fManaStealRW = 0.f;
+        const int skillId = s.fSkillId;
+        s = eSkillStats();
+        s.fSkillId = skillId;
 
         skillHelpers.emplace_back(eSkillStatsHelper{s});
     }
@@ -406,6 +406,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
         case eModifierType::meeleSplashDamage:
+        case eModifierType::knockback:
         case eModifierType::attackSpeed:
             helper.addMod(mod, src, lw, rw);
             break;

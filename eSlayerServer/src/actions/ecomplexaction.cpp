@@ -209,7 +209,7 @@ bool eComplexAction::hitData(const int schoice,
     data.fAttackTeamId = mUnit.fTeamId;
 
     data.fFrom = mUnit.fPos;
-    data.fKnockback = true;
+    data.fKnockback = mUnit.knockback(schoice, wchoice);
 
     data.fLifeSteal = mUnit.lifeSteal(schoice, wchoice);
     data.fManaSteal = mUnit.manaSteal(schoice, wchoice);

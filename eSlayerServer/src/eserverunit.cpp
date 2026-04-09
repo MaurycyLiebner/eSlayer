@@ -44,12 +44,10 @@ int eServerUnit::missileId(const eWeaponChoice wchoice,
                            const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     switch(wchoice) {
-    case eWeaponChoice::left: {
+    case eWeaponChoice::left:
         return skill.fMissileIdLW;
-    } break;
-    case eWeaponChoice::right: {
+    case eWeaponChoice::right:
         return skill.fMissileIdRW;
-    } break;
     }
     return -1;
 }
@@ -80,12 +78,10 @@ void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
 
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     switch(wchoice) {
-    case eWeaponChoice::left: {
+    case eWeaponChoice::left:
         return mStats.fAttackSpeedLW;
-    } break;
-    case eWeaponChoice::right: {
+    case eWeaponChoice::right:
         return mStats.fAttackSpeedRW;
-    } break;
     }
     return 0.f;
 }
@@ -97,14 +93,25 @@ float eServerUnit::skillsAttackSpeed(const int schoice) const {
 
 float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
     switch(wchoice) {
-    case eWeaponChoice::left: {
+    case eWeaponChoice::left:
         return mStats.fWSMLW;
-    } break;
-    case eWeaponChoice::right: {
+    case eWeaponChoice::right:
         return mStats.fWSMRW;
-    } break;
     }
     return 0.f;
+}
+
+bool eServerUnit::knockback(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fKnockbackLW;
+    case eWeaponChoice::right:
+        return skill.fKnockbackRW;
+    }
+    return false;
 }
 
 bool eServerUnit::alwaysHit(

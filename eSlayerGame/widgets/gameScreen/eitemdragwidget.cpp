@@ -77,6 +77,7 @@ std::string floatToString(const float value,
     case eModifierType::manaSteal:
 
     case eModifierType::meeleSplashDamage:
+    case eModifierType::knockback:
         return eStringHelpers::floatToString(100*value);
 
     case eModifierType::none:

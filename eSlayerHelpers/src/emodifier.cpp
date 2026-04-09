@@ -52,7 +52,8 @@ gModifierTypeToString = {
     { eModifierType::lifeSteal, "lifeSteal" },
     { eModifierType::manaSteal, "manaSteal" },
 
-    { eModifierType::meeleSplashDamage, "meeleSplashDamage" }
+    { eModifierType::meeleSplashDamage, "meeleSplashDamage" },
+    { eModifierType::knockback, "knockback" }
 };
 
 std::map<std::string, eModifierType>
@@ -115,6 +116,7 @@ int eModifier::valuesUsed() const {
     case eModifierType::manaSteal:
 
     case eModifierType::meeleSplashDamage:
+    case eModifierType::knockback:
         return 1;
     }
     return 0;

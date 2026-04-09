@@ -27,6 +27,9 @@ struct eSkillStats {
 
     float fAttackSpeedS = 0.f;
 
+    bool fKnockbackLW = false;
+    bool fKnockbackRW = false;
+
     float fAttackRatingLW = 0.f;
     float fAttackRatingRW = 0.f;
 

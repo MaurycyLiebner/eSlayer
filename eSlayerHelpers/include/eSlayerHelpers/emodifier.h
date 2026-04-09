@@ -62,7 +62,8 @@ enum class eModifierType : uint8_t {
     lifeSteal,
     manaSteal,
 
-    meeleSplashDamage
+    meeleSplashDamage,
+    knockback
 };
 
 struct ESLAYERHELPERS_API eModifier {
