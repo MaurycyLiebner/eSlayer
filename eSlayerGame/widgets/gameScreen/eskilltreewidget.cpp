@@ -18,8 +18,11 @@ void eSkillTreeWidget::initialize(
         const auto button = new eSkillButton(window());
         button->initialize();
         button->setSkillId(skillId);
-        button->setPressAction([this, skillId, &attrs, &eq]() {
-            mStats->incSkillLevel(skillId);
+        const int level = mStats->skillLevel(skillId);
+        button->setBottomRightText(std::to_string(level + 1));
+        button->setPressAction([this, button, skillId, &attrs, &eq]() {
+            const int level = mStats->incSkillLevel(skillId);
+            button->setBottomRightText(std::to_string(level + 1));
             eGameWidget::sSendSkillLevelsChanged();
         });
         addWidget(button);
