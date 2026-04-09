@@ -102,6 +102,7 @@
         <string id="35">%1% Mana Stolen Per Hit</string>
         <string id="36">Meele Attacks Deal +%1% Splash Damage</string>
         <string id="37">Knockback</string>
+        <string id="38">+%1 to All Skills</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

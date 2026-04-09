@@ -57,6 +57,9 @@ struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+
+    int skillLevel(const int skillId) const;
+    void incSkillLevels(const int by);
 };
 
 struct ESLAYERHELPERS_API eStats {

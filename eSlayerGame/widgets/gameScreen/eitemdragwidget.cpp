@@ -99,6 +99,8 @@ std::string floatToString(const float value,
     case eModifierType::dexterity:
     case eModifierType::vitality:
     case eModifierType::energy:
+
+    case eModifierType::allSkills:
         return eStringHelpers::floatToString(value);
     }
     return eStringHelpers::floatToString(value);

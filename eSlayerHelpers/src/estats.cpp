@@ -380,6 +380,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     std::vector<eSkillStatsHelper> skillHelpers;
 
+    auto skillLevels = fSkillLevels;
+
     for(auto& s : fSkills) {
         const int skillId = s.fSkillId;
         s = eSkillStats();
@@ -441,6 +443,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::dexterity:
         case eModifierType::vitality:
         case eModifierType::energy:
+
+        case eModifierType::allSkills:
             break;
         }
     };
@@ -451,12 +455,158 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     const float minFootDmg = 1.f;
     const float maxFootDmg = 6.f;
 
+    const auto handleItemPassiveMod = [&](const eModifier& mod,
+                                          const bool lw,
+                                          const bool rw) {
+        switch(mod.fType) {
+        case eModifierType::defenseValue:
+            baseDef += mod.fValue1;
+            break;
+        case eModifierType::defensePercent:
+            ed += mod.fValue1;
+            break;
+
+        case eModifierType::blockChancePercent:
+            fBlockChance += mod.fValue1;
+            break;
+        case eModifierType::walkRun:
+            fWalkRun += mod.fValue1;
+            break;
+        case eModifierType::castRate:
+            fCastRate += mod.fValue1;
+            break;
+        case eModifierType::attackSpeed: {
+            if(lw) {
+                fAttackSpeedLW += mod.fValue1;
+            }
+            if(rw) {
+                fAttackSpeedRW += mod.fValue1;
+            }
+        } break;
+        case eModifierType::blockRecoverySpeed:
+            fFasterBlockRate += mod.fValue1;
+            break;
+        case eModifierType::hitRecoverySpeed:
+            fFasterHitRecovery += mod.fValue1;
+            break;
+
+        case eModifierType::lifeValue:
+            baseLife += mod.fValue1;
+            break;
+        case eModifierType::lifePercent:
+            bonusLife += mod.fValue1;
+            break;
+
+        case eModifierType::manaValue:
+            baseMana += mod.fValue1;
+            break;
+        case eModifierType::manaPercent:
+            bonusMana += mod.fValue1;
+            break;
+
+        case eModifierType::fireResistance:
+            fFireResistance += mod.fValue1;
+            break;
+        case eModifierType::coldResistance:
+            fColdResistance += mod.fValue1;
+            break;
+        case eModifierType::lightningResitance:
+            fLightningResistance += mod.fValue1;
+            break;
+        case eModifierType::poisonResistance:
+            fPoisonResistance += mod.fValue1;
+            break;
+
+        case eModifierType::maxFireResistance:
+            fMaxFireResistance += mod.fValue1;
+            break;
+        case eModifierType::maxColdResistance:
+            fMaxColdResistance += mod.fValue1;
+            break;
+        case eModifierType::maxLightningResitance:
+            fMaxLightningResistance += mod.fValue1;
+            break;
+        case eModifierType::maxPoisonResistance:
+            fMaxPoisonResistance += mod.fValue1;
+            break;
+
+        case eModifierType::strength:
+            fStrength += mod.fValue1;
+            break;
+        case eModifierType::dexterity:
+            fDexterity += mod.fValue1;
+            break;
+        case eModifierType::vitality:
+            fVitality += mod.fValue1;
+            break;
+        case eModifierType::energy:
+            fEnergy += mod.fValue1;
+            break;
+        case eModifierType::allSkills: {
+            const int inc = std::round(mod.fValue1);
+            skillLevels.incSkillLevels(inc);
+        } break;
+        case eModifierType::none:
+        case eModifierType::attackRatingValue:
+        case eModifierType::attackRatingPercent:
+        case eModifierType::damagePercent:
+        case eModifierType::damageValue:
+        case eModifierType::damageFire:
+        case eModifierType::damageCold:
+        case eModifierType::damageLightning:
+        case eModifierType::damagePoison:
+        case eModifierType::pierceChance:
+        case eModifierType::lifeSteal:
+        case eModifierType::manaSteal:
+        case eModifierType::meeleSplashDamage:
+        case eModifierType::knockback:
+            break;
+        }
+    };
+
+    for(const auto& item : items) {
+        if(!itemReqsMet(item)) continue;
+        switch(item.fType) {
+        case eItemType::shield:
+            fBlockChance += item.fValue4;
+            [[fallthrough]];
+        case eItemType::boots:
+        case eItemType::gloves:
+        case eItemType::helmet:
+        case eItemType::armor:
+        case eItemType::belt:
+            baseDef += item.fValue3;
+            [[fallthrough]];
+        default: {
+            const bool lw = &item != &rightW;
+            const bool rw = &item != &leftW;
+            for(const auto& mod : item.fModifiers) {
+                handleItemPassiveMod(mod, lw, rw);
+            }
+        } break;
+        }
+    }
+
+
+    for(const auto& it : skillLevels) {
+        const int skillId = it.first;
+        if(skillId < 0) continue;
+        const int skillLevelId = it.second;
+        if(skillLevelId < 0) continue;
+        const auto& skill = eSkills::sSkills.get(skillId);
+        if(skill.fType != eSkillType::passive) continue;
+        const auto& skillLevel = skill.skillLevel(skillLevelId);
+        for(const auto& mod : skillLevel.fTotalModifiers) {
+            handleItemPassiveMod(mod.second, true, true);
+        }
+    }
+
     for(auto& h : skillHelpers) {
         auto& stats = h.fStats;
         const int skillId = stats.fSkillId;
         if(skillId < 0) continue;
         const auto& skill = eSkills::sSkills.get(skillId);
-        const int skillLevelId = skillLevel(skillId);
+        const int skillLevelId = skillLevels.skillLevel(skillId);
         if(skillLevelId < 0) continue;
         const auto& skillLevel = skill.skillLevel(skillLevelId);
         if(skill.fType == eSkillType::attack) {
@@ -530,36 +680,22 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
         for(const auto& item : items) {
             if(!itemReqsMet(item)) continue;
-            switch(item.fType) {
-            case eItemType::shield:
-                fBlockChance += item.fValue4;
-                [[fallthrough]];
-            case eItemType::boots:
-            case eItemType::gloves:
-            case eItemType::helmet:
-            case eItemType::armor:
-            case eItemType::belt:
-                baseDef += item.fValue3;
-                [[fallthrough]];
-            default: {
-                for(const auto& mod : item.fModifiers) {
-                    if(item.fType == eItemType::weapon ||
-                       item.fType == eItemType::shield ||
-                       item.fType == eItemType::boots) {
-                        if(mod.fType == eModifierType::damagePercent ||
-                           mod.fType == eModifierType::damageValue) {
-                            continue;
-                        }
+            for(const auto& mod : item.fModifiers) {
+                if(item.fType == eItemType::weapon ||
+                    item.fType == eItemType::shield ||
+                    item.fType == eItemType::boots) {
+                    if(mod.fType == eModifierType::damagePercent ||
+                       mod.fType == eModifierType::damageValue) {
+                        continue;
                     }
-                    const bool lw = &item != &rightW;
-                    const bool rw = &item != &leftW;
-                    handleSkillMod(mod, eModifierSource::item,
-                                   h, lw, rw);
                 }
-            } break;
+                const bool lw = &item != &rightW;
+                const bool rw = &item != &leftW;
+                handleSkillMod(mod, eModifierSource::item,
+                               h, lw, rw);
             }
         }
-        for(const auto& it : fSkillLevels) {
+        for(const auto& it : skillLevels) {
             const int skillId = it.first;
             if(skillId < 0) continue;
             const int skillLevelId = it.second;
@@ -568,210 +704,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             if(skill.fType != eSkillType::passive) continue;
             const auto& skillLevel = skill.skillLevel(skillLevelId);
             for(const auto& mod : skillLevel.fTotalModifiers) {
-                switch(mod.first) {
-                case eModifierType::defenseValue:
-                    baseDef += mod.second.fValue1;
-                    break;
-                case eModifierType::defensePercent:
-                    ed += mod.second.fValue1;
-                    break;
-
-                case eModifierType::blockChancePercent:
-                    fBlockChance += mod.second.fValue1;
-                    break;
-                case eModifierType::walkRun:
-                    fWalkRun += mod.second.fValue1;
-                    break;
-                case eModifierType::castRate:
-                    fCastRate += mod.second.fValue1;
-                    break;
-                case eModifierType::blockRecoverySpeed:
-                    fFasterBlockRate += mod.second.fValue1;
-                    break;
-                case eModifierType::hitRecoverySpeed:
-                    fFasterHitRecovery += mod.second.fValue1;
-                    break;
-
-                case eModifierType::lifeValue:
-                    baseLife += mod.second.fValue1;
-                    break;
-                case eModifierType::lifePercent:
-                    bonusLife += mod.second.fValue1;
-                    break;
-
-                case eModifierType::manaValue:
-                    baseMana += mod.second.fValue1;
-                    break;
-                case eModifierType::manaPercent:
-                    bonusMana += mod.second.fValue1;
-                    break;
-
-                case eModifierType::fireResistance:
-                    fFireResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::coldResistance:
-                    fColdResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::lightningResitance:
-                    fLightningResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::poisonResistance:
-                    fPoisonResistance += mod.second.fValue1;
-                    break;
-
-                case eModifierType::maxFireResistance:
-                    fMaxFireResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::maxColdResistance:
-                    fMaxColdResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::maxLightningResitance:
-                    fMaxLightningResistance += mod.second.fValue1;
-                    break;
-                case eModifierType::maxPoisonResistance:
-                    fMaxPoisonResistance += mod.second.fValue1;
-                    break;
-
-                case eModifierType::strength:
-                    fStrength += mod.second.fValue1;
-                    break;
-                case eModifierType::dexterity:
-                    fDexterity += mod.second.fValue1;
-                    break;
-                case eModifierType::vitality:
-                    fVitality += mod.second.fValue1;
-                    break;
-                case eModifierType::energy:
-                    fEnergy += mod.second.fValue1;
-                    break;
-
-                default:
-                    break;
-                }
                 handleSkillMod(mod.second, eModifierSource::skill,
                                h, true, true);
             }
         }
     };
-
-    for(const auto& item : items) {
-        if(!itemReqsMet(item)) continue;
-        switch(item.fType) {
-        case eItemType::shield:
-            fBlockChance += item.fValue4;
-            [[fallthrough]];
-        case eItemType::boots:
-        case eItemType::gloves:
-        case eItemType::helmet:
-        case eItemType::armor:
-        case eItemType::belt:
-            baseDef += item.fValue3;
-            [[fallthrough]];
-        default: {
-            for(const auto& mod : item.fModifiers) {
-                switch(mod.fType) {
-                case eModifierType::defenseValue:
-                    baseDef += mod.fValue1;
-                    break;
-                case eModifierType::defensePercent:
-                    ed += mod.fValue1;
-                    break;
-
-                case eModifierType::blockChancePercent:
-                    fBlockChance += mod.fValue1;
-                    break;
-                case eModifierType::walkRun:
-                    fWalkRun += mod.fValue1;
-                    break;
-                case eModifierType::castRate:
-                    fCastRate += mod.fValue1;
-                    break;
-                case eModifierType::attackSpeed: {
-                    if(&item != &rightW) {
-                        fAttackSpeedLW += mod.fValue1;
-                    }
-                    if(&item != &leftW) {
-                        fAttackSpeedRW += mod.fValue1;
-                    }
-                } break;
-                case eModifierType::blockRecoverySpeed:
-                    fFasterBlockRate += mod.fValue1;
-                    break;
-                case eModifierType::hitRecoverySpeed:
-                    fFasterHitRecovery += mod.fValue1;
-                    break;
-
-                case eModifierType::lifeValue:
-                    baseLife += mod.fValue1;
-                    break;
-                case eModifierType::lifePercent:
-                    bonusLife += mod.fValue1;
-                    break;
-
-                case eModifierType::manaValue:
-                    baseMana += mod.fValue1;
-                    break;
-                case eModifierType::manaPercent:
-                    bonusMana += mod.fValue1;
-                    break;
-
-                case eModifierType::fireResistance:
-                    fFireResistance += mod.fValue1;
-                    break;
-                case eModifierType::coldResistance:
-                    fColdResistance += mod.fValue1;
-                    break;
-                case eModifierType::lightningResitance:
-                    fLightningResistance += mod.fValue1;
-                    break;
-                case eModifierType::poisonResistance:
-                    fPoisonResistance += mod.fValue1;
-                    break;
-
-                case eModifierType::maxFireResistance:
-                    fMaxFireResistance += mod.fValue1;
-                    break;
-                case eModifierType::maxColdResistance:
-                    fMaxColdResistance += mod.fValue1;
-                    break;
-                case eModifierType::maxLightningResitance:
-                    fMaxLightningResistance += mod.fValue1;
-                    break;
-                case eModifierType::maxPoisonResistance:
-                    fMaxPoisonResistance += mod.fValue1;
-                    break;
-
-                case eModifierType::strength:
-                    fStrength += mod.fValue1;
-                    break;
-                case eModifierType::dexterity:
-                    fDexterity += mod.fValue1;
-                    break;
-                case eModifierType::vitality:
-                    fVitality += mod.fValue1;
-                    break;
-                case eModifierType::energy:
-                    fEnergy += mod.fValue1;
-                    break;
-                case eModifierType::none:
-                case eModifierType::attackRatingValue:
-                case eModifierType::attackRatingPercent:
-                case eModifierType::damagePercent:
-                case eModifierType::damageValue:
-                case eModifierType::damageFire:
-                case eModifierType::damageCold:
-                case eModifierType::damageLightning:
-                case eModifierType::damagePoison:
-                case eModifierType::pierceChance:
-                case eModifierType::lifeSteal:
-                case eModifierType::manaSteal:
-                case eModifierType::meeleSplashDamage:
-                    break;
-                }
-            }
-        } break;
-        }
-    }
 
     fWeaponMeeleRange = 0.f;
     int meeleRangeDiv = 0;
@@ -898,6 +835,12 @@ bool eStats::canUseSkill(const int schoice) const {
     case eSkillType::wall:
         return true;
     case eSkillType::summon:
+        return true;
+    case eSkillType::passive:
+        return false;
+    case eSkillType::aura:
+        return false;
+    case eSkillType::boostCurse:
         return true;
     }
     return false;
@@ -1033,5 +976,17 @@ void eSkillLevels::write(ePacket& p) const {
         p << skillId;
         const uint16_t level = skill.second;
         p << level;
+    }
+}
+
+int eSkillLevels::skillLevel(const int skillId) const {
+    const auto it = find(skillId);
+    if(it == end()) return -1;
+    return it->second;
+}
+
+void eSkillLevels::incSkillLevels(const int by) {
+    for(auto& level : *this) {
+        level.second += by;
     }
 }
