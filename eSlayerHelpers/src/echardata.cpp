@@ -120,6 +120,7 @@ const eUnitSkill& eCharData::getSkill(const int id) const {
 
 void eCharData::setAnimId(const std::string& name, const int id) {
     if(name == "run") mRunId = id;
+    else if(name == "hitRecovery") mHitRecoveryId = id;
     mAnimIds[name] = id;
 }
 

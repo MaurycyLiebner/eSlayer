@@ -6,7 +6,6 @@
 #include "epacket.h"
 
 #include "epositioned.h"
-#include "evec2.h"
 #include "echardata.h"
 #include "eunitdynamicdata.h"
 

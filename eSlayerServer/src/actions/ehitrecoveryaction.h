@@ -9,6 +9,7 @@ class eHitRecoveryAction : public eUnitActionBase {
 public:
     using eUnitActionBase::eUnitActionBase;
 
+    static int sRecoveryFrames(const eServerUnit& u);
     static std::shared_ptr<eHitRecoveryAction>
     sCreate(eServerUnit& unit, eServerArea& area);
 };

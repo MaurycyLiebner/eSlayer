@@ -1,6 +1,7 @@
 #include "eknockbackaction.h"
 
 #include "../eserverunit.h"
+#include "ehitrecoveryaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -9,13 +10,9 @@ eKnockbackAction::sCreate(
     eServerUnit& unit, eServerArea& area,
     const eVec2f& dir, const float dist) {
     const auto& data = unit.data();
-    const int anim = data.animId("hitRecovery");
+    const int anim = data.hitRecoveryAnimId();
     if(anim != -1) {
-        const float fhr = unit.fasterHitRecovery();
-        const float efhr = std::floor(fhr*120.f/(fhr + 120.f));
-        const int hitBase = data.animFrames(anim);
-        const float animSpeed = 256.f;
-        const int frames = int(std::ceil(256.f*hitBase/std::floor(animSpeed*(50.f + efhr)/100.f))) - 1;
+        const int frames = eHitRecoveryAction::sRecoveryFrames(unit);
         const auto a = std::make_shared<eKnockbackAction>(unit, area);
         a->setup(anim, frames, true, nullptr);
         a->setupKnockback(dir, dist);
