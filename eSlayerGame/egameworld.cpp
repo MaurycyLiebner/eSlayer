@@ -54,8 +54,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
     if(!b) return result;
-    if(data.fHasMap) {
-        mMap->loadPortion(data.fMapPortion);
+    for(const auto& mp : data.fMapPortions) {
+        mMap->loadPortion(mp);
     }
 
     result.fMana = data.fMana;

@@ -19,7 +19,11 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
-    data.fHasMap = mArea->mapPortion(mClientId, data.fMapPortion);
+    eMapPortion mp;
+    const bool r = mArea->mapPortion(mClientId, mp);
+    if(r) {
+        data.fMapPortions.emplace_back(std::move(mp));
+    }
     const auto u = mArea->unit(mClientId);
     data.fMana = u ? std::floor(u->mana()) : 0;
     data.fLevel = u ? std::round(u->level()) : 0;

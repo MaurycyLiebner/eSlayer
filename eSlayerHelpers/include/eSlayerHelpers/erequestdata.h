@@ -16,8 +16,7 @@ struct ESLAYERHELPERS_API eRequestData {
     std::vector<eMissile> fMissiles;
     std::vector<eGroundItem> fNewItems;
     std::vector<uint32_t> fRemovedItemIds;
-    bool fHasMap = false;
-    eMapPortion fMapPortion;
+    std::vector<eMapPortion> fMapPortions;
     uint16_t fMana;
     uint16_t fLevel;
     uint16_t fExperience;
