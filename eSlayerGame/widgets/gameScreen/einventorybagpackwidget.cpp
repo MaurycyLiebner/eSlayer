@@ -11,9 +11,10 @@
 #include <SDL3/SDL_mouse.h>
 
 void eInventoryBagpackWidget::initialize(
-    eEquipment* const eq,
+    eEquipment& eq, const eStats& stats,
     const int dimensions) {
-    mEq = eq;
+    mEq = &eq;
+    mStats = &stats;
     mDimensions = dimensions;
     mWidth = mEq->fInventoryWidth;
     mHeight = mEq->fInventoryHeight;
@@ -120,7 +121,10 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         const auto& tex = itemTex.fTex;
         const int w = i.fW*mDimensions;
         const int h = i.fH*mDimensions;
+        const bool mod = !mStats->itemReqsMet(item);
+        if(mod) tex->setColorMod(255, 0, 0);
         p.drawTexture(SDL_Rect{x, y, w, h}, tex, eAlignment::center);
+        if(mod) tex->clearColorMod();
     }
 }
 

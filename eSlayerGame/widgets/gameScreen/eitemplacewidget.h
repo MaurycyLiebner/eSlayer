@@ -5,6 +5,7 @@
 
 struct eEquipment;
 struct eItem;
+struct eStats;
 enum class eItemType : uint8_t;
 
 class eItemPlaceWidget : public eWidget {
@@ -13,7 +14,8 @@ public:
 
     void intialize(const int width, const int height,
                    const int dimensions,
-                   eEquipment* const eq,
+                   eEquipment& eq,
+                   const eStats& stats,
                    eItem eEquipment::* const item,
                    const std::vector<eItemType>& allowedTypes);
 
@@ -33,6 +35,7 @@ private:
 
     std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
+    const eStats* mStats = nullptr;
     eItem eEquipment::*mDst = nullptr;
 };
 

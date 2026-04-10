@@ -372,7 +372,8 @@ void eGameScreen::showInventoryMenu() {
     const int h = height();
     mInventoryMenu->resize(w/2, h - mBottomWid->height());
     auto& eq = mGameWidget->equipment();
-    mInventoryMenu->initialize(&eq);
+    auto& stats = mGameWidget->stats();
+    mInventoryMenu->initialize(eq, stats);
     addWidget(mInventoryMenu);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     eItemDragWidget::sUpdateDragItem(eq);

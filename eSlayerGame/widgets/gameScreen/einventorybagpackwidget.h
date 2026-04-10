@@ -6,12 +6,14 @@
 struct eEquipment;
 struct eInventoryItem;
 struct eItemData;
+struct eStats;
 
 class eInventoryBagpackWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(eEquipment* const eq,
+    void initialize(eEquipment& eq,
+                    const eStats& stats,
                     const int dimensions);
 
     bool dropItem(const SDL_Point& mpos);
@@ -34,6 +36,7 @@ private:
     int mDimensions = 0;
 
     eEquipment* mEq = nullptr;
+    const eStats* mStats = nullptr;
 };
 
 #endif // EINVENTORYBAGPACKWIDGET_H

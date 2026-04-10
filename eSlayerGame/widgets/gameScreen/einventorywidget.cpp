@@ -11,67 +11,67 @@ bool eInventoryWidget::sBlocked = false;
 eItemDragWidget* eInventoryWidget::sDragWidget = nullptr;
 
 void eInventoryWidget::initialize(
-    eEquipment* const eq) {
-    mEq = eq;
+    eEquipment& eq, const eStats& stats) {
+    mEq = &eq;
     const auto& res = resolution();
     const int dim = res.inventoryDim();
 
     const auto helmet = new eItemPlaceWidget(window());
-    helmet->intialize(2, 2, dim, mEq,
+    helmet->intialize(2, 2, dim, eq, stats,
                       &eEquipment::fHelmet,
                       {eItemType::helmet});
     mItemPalces.emplace_back(helmet);
 
     const auto armor = new eItemPlaceWidget(window());
-    armor->intialize(2, 3, dim, mEq,
+    armor->intialize(2, 3, dim, eq, stats,
                       &eEquipment::fArmor,
                       {eItemType::armor});
     mItemPalces.emplace_back(armor);
 
     const auto belt = new eItemPlaceWidget(window());
-    belt->intialize(2, 1, dim, mEq,
+    belt->intialize(2, 1, dim, eq, stats,
                      &eEquipment::fBelt,
                      {eItemType::belt});
     mItemPalces.emplace_back(belt);
 
     const auto boots = new eItemPlaceWidget(window());
-    boots->intialize(2, 2, dim, mEq,
+    boots->intialize(2, 2, dim, eq, stats,
                      &eEquipment::fBoots,
                      {eItemType::boots});
     mItemPalces.emplace_back(boots);
 
     const auto gloves = new eItemPlaceWidget(window());
-    gloves->intialize(2, 2, dim, mEq,
+    gloves->intialize(2, 2, dim, eq, stats,
                       &eEquipment::fGloves,
                       {eItemType::gloves});
     mItemPalces.emplace_back(gloves);
 
     const auto ringL = new eItemPlaceWidget(window());
-    ringL->intialize(1, 1, dim, mEq,
+    ringL->intialize(1, 1, dim, eq, stats,
                      &eEquipment::fRingL,
                      {eItemType::ring});
     mItemPalces.emplace_back(ringL);
 
     const auto ringR = new eItemPlaceWidget(window());
-    ringR->intialize(1, 1, dim, mEq,
+    ringR->intialize(1, 1, dim, eq, stats,
                      &eEquipment::fRingR,
                      {eItemType::ring});
     mItemPalces.emplace_back(ringR);
 
     const auto amulet = new eItemPlaceWidget(window());
-    amulet->intialize(1, 1, dim, mEq,
+    amulet->intialize(1, 1, dim, eq, stats,
                       &eEquipment::fAmulet,
                       {eItemType::amulet});
     mItemPalces.emplace_back(amulet);
 
     mWeapon1L = new eItemPlaceWidget(window());
-    mWeapon1L->intialize(2, 4, dim, mEq,
+    mWeapon1L->intialize(2, 4, dim, eq, stats,
                       &eEquipment::fWeapon1L,
                       {eItemType::weapon});
     mItemPalces.emplace_back(mWeapon1L);
 
     mWeapon1R = new eItemPlaceWidget(window());
-    mWeapon1R->intialize(2, 4, dim, mEq,
+    mWeapon1R->intialize(2, 4, dim, eq, stats,
                         &eEquipment::fWeapon1R,
                         {eItemType::weapon,
                          eItemType::shield,
@@ -79,13 +79,13 @@ void eInventoryWidget::initialize(
     mItemPalces.emplace_back(mWeapon1R);
 
     mWeapon2L = new eItemPlaceWidget(window());
-    mWeapon2L->intialize(2, 4, dim, mEq,
+    mWeapon2L->intialize(2, 4, dim, eq, stats,
                         &eEquipment::fWeapon2L,
                         {eItemType::weapon});
     mItemPalces.emplace_back(mWeapon2L);
 
     mWeapon2R = new eItemPlaceWidget(window());
-    mWeapon2R->intialize(2, 4, dim, mEq,
+    mWeapon2R->intialize(2, 4, dim, eq, stats,
                         &eEquipment::fWeapon2R,
                         {eItemType::weapon,
                          eItemType::shield,
@@ -163,7 +163,7 @@ void eInventoryWidget::initialize(
     addWidget(secondRow);
 
     mBagpack = new eInventoryBagpackWidget(window());
-    mBagpack->initialize(mEq, dim);
+    mBagpack->initialize(eq, stats, dim);
     addWidget(mBagpack);
 
     layoutVertically();

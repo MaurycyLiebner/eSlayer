@@ -9,12 +9,13 @@ class eItemPlaceWidget;
 struct eEquipment;
 class eWeaponSwitch;
 class eItemDragWidget;
+struct eStats;
 
 class eInventoryWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(eEquipment* const eq);
+    void initialize(eEquipment& eq, const eStats& stats);
 
     bool dropItem(const SDL_Point& pos);
 

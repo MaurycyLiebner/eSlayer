@@ -13,10 +13,12 @@
 void eItemPlaceWidget::intialize(
     const int width, const int height,
     const int dimensions,
-    eEquipment* const eq,
+    eEquipment& eq,
+    const eStats& stats,
     eItem eEquipment::* const item,
     const std::vector<eItemType>& allowedTypes) {
-    mEq = eq;
+    mEq = &eq;
+    mStats = &stats;
     mDst = item;
     mAllowedTypes = allowedTypes;
 
@@ -94,5 +96,9 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     const auto r = renderer();
     auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);
     itemTex.request(r);
+    const auto& tex = itemTex.fTex;
+    const bool mod = !mStats->itemReqsMet(item);
+    if(mod) tex->setColorMod(255, 0, 0);
     p.drawTexture(rect, itemTex.fTex, eAlignment::center);
+    if(mod) tex->clearColorMod();
 }
