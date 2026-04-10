@@ -7,16 +7,25 @@
 
 eSkillNames eSkillNames::sInstance;
 
-std::string eSkillNames::name(const int itemDataId) {
-    return sInstance.mNames[itemDataId];
+std::string eSkillNames::name(const int skillId) {
+    return sInstance.mNames[skillId];
+}
+
+std::string eSkillNames::description(const int skillId) {
+    return sInstance.mDescriptions[skillId];
 }
 
 bool eSkillNames::load() {
     const auto dir = "Skills";
-    const auto strMap = eFileLoader::loadNames(dir, "names.txt");
-    for(const auto& it : strMap) {
+    const auto nameStrMap = eFileLoader::loadNames(dir, "names.txt");
+    for(const auto& it : nameStrMap) {
         const auto id = eSkills::sSkills.id(it.first);
         sInstance.mNames[id] = it.second;
+    }
+    const auto descStrMap = eFileLoader::loadNames(dir, "descriptions.txt");
+    for(const auto& it : descStrMap) {
+        const auto id = eSkills::sSkills.id(it.first);
+        sInstance.mDescriptions[id] = it.second;
     }
     return true;
 }

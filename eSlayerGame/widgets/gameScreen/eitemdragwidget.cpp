@@ -196,10 +196,12 @@ void eItemDragWidget::setHoverSkill(
     } else if(!mHover || skillId != mHoverSkillId) {
         const auto& skill = eSkills::sSkills.get(skillId);
         const auto name = eSkillNames::name(skillId);
+        const auto desc = eSkillNames::description(skillId);
         const auto& res = resolution();
         const auto r = renderer();
         eHoverGenerator gen(res);
         gen.addText(r, name, eFontColor::green);
+        gen.addText(r, desc, eFontColor::white);
         if(skillId != 0) {
             gen.addSpace(r);
             const int levelId = mStats.effectiveSkillLevel(skillId);
