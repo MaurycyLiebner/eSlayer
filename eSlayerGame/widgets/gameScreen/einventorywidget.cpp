@@ -8,10 +8,18 @@
 #include <eSlayerHelpers/eequipment.h>
 
 bool eInventoryWidget::sBlocked = false;
-eItemDragWidget* eInventoryWidget::sDragWidget = nullptr;
+eInventoryWidget* eInventoryWidget::sInstance = nullptr;
 
-void eInventoryWidget::initialize(
-    eEquipment& eq, const eStats& stats) {
+eInventoryWidget::eInventoryWidget(eMainWindow* const window) :
+    eWidget(window) {
+    sInstance = this;
+}
+
+eInventoryWidget::~eInventoryWidget() {
+    sInstance = nullptr;
+}
+
+void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     mEq = &eq;
     const auto& res = resolution();
     const int dim = res.inventoryDim();

@@ -123,7 +123,7 @@ void eMainCharAction::increment(const bool mousePressed,
         const auto itemId = item->fItemId;
         const float dist = ePointF::distance(item->fPos, mMainChar->fPos);
         if(!eInventoryWidget::sBlocked && dist < 0.5f) {
-            const bool dragEnabled = eItemDragWidget::sInstance;
+            const bool dragEnabled = eInventoryWidget::sInstance;
             mServer->pickupItem(mClientId, itemId, dragEnabled);
             eInventoryWidget::sBlocked = true;
             mClickAction = mousePressed;

@@ -13,7 +13,8 @@ struct eStats;
 
 class eInventoryWidget : public eWidget {
 public:
-    using eWidget::eWidget;
+    eInventoryWidget(eMainWindow* const window);
+    ~eInventoryWidget();
 
     void initialize(eEquipment& eq, const eStats& stats);
 
@@ -22,7 +23,7 @@ public:
     void updateWeapons();
 
     static bool sBlocked;
-    static eItemDragWidget* sDragWidget;
+    static eInventoryWidget* sInstance;
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
