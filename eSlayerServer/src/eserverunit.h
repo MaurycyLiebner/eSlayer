@@ -126,7 +126,6 @@ public:
     void increment(const float by);
     int skillId(const eSkillChoice schoice) const;
     int skillId(const int schoice) const;
-    int skillLevel(const int skillId) const;
     bool skillReady(const eSkillChoice schoice) const;
     bool skillReady(const int schoice) const;
     void useSkill(const eSkillChoice schoice);

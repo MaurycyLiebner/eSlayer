@@ -153,6 +153,41 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
     mHoverItemId = item.fItemId;
 }
 
+std::map<eModifierType, eModifier>
+eItemDragWidget::calculateTotalModifiers(
+    const int skillId, const int levelId,
+    int& count, float& cooldown, float& manaCost) const {
+    if(levelId < 0) return {};
+    std::map<eModifierType, eModifier> result;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto& level = skill.skillLevel(levelId);
+    count = level.fCount;
+    cooldown = level.fCooldown;
+    manaCost = level.fManaCost;
+    result = level.fTotalModifiers;
+    for(const auto& s : skill.fSynergies) {
+        const int sSkillId = s.fSkillId;
+        const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
+        if(sLevelId < 0) continue;
+        const int maxLevel = s.fBoostLevels.size() - 1;
+        const int sMaxLevelId = std::min(sLevelId, maxLevel);
+        for(int level = 0; level <= sMaxLevelId; level++) {
+            const auto& boost = s.fBoostLevels[level];
+            count += boost.fCount;
+            cooldown += boost.fCooldown;
+            manaCost += boost.fManaCost;
+            for(const auto& it : boost.fTotalModifiers) {
+                const auto& mod = it.second;
+                auto& dstMod = result[mod.fType];
+                dstMod.fType = mod.fType;
+                dstMod.fValue1 += mod.fValue1;
+                dstMod.fValue2 += mod.fValue2;
+            }
+        }
+    }
+    return result;
+}
+
 void eItemDragWidget::setHoverSkill(
     const int skillId, const bool showNextLevel) {
     mHoverItemId = -1;
@@ -165,35 +200,50 @@ void eItemDragWidget::setHoverSkill(
         const auto r = renderer();
         eHoverGenerator gen(res);
         gen.addText(r, name, eFontColor::green);
+        if(skillId == 0) return;
         gen.addText(r, " ", eFontColor::white);
-        const int levelId = mStats.skillLevel(skillId);
+        const int levelId = mStats.effectiveSkillLevel(skillId);
         if(levelId >= 0) {
             const auto& level = skill.skillLevel(levelId);
             gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
                          eFontColor::white, eModifierType::manaValue);
-            for(const auto& it : level.fTotalModifiers) {
+            int count;
+            float cooldown;
+            float manaCost;
+            const auto mods = calculateTotalModifiers(
+                skillId, levelId, count, cooldown, manaCost);
+            for(const auto& it : mods) {
                 const auto& mod = it.second;
                 const int s = static_cast<int>(mod.fType);
                 gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                              eFontColor::white, mod.fType);
             }
-            gen.addValue(r, 13, 3, level.fManaCost, level.fManaCost,
-                         eFontColor::white, eModifierType::manaValue);
+            if(manaCost != 0.f) {
+                gen.addValue(r, 13, 3, manaCost, manaCost,
+                             eFontColor::white, eModifierType::manaValue);
+            }
         }
         const int nextLevelId = levelId + 1;
         if(showNextLevel && nextLevelId >= 0) {
-            gen.addText(r, " ", eFontColor::white);
+            if(levelId >= 0) gen.addText(r, " ", eFontColor::white);
             const auto& level = skill.skillLevel(nextLevelId);
             gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
                          eFontColor::white, eModifierType::manaValue);
-            for(const auto& it : level.fTotalModifiers) {
+            int count;
+            float cooldown;
+            float manaCost;
+            const auto mods = calculateTotalModifiers(
+                skillId, nextLevelId, count, cooldown, manaCost);
+            for(const auto& it : mods) {
                 const auto& mod = it.second;
                 const int s = static_cast<int>(mod.fType);
                 gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                              eFontColor::white, mod.fType);
             }
-            gen.addValue(r, 13, 3, level.fManaCost, level.fManaCost,
-                         eFontColor::white, eModifierType::manaValue);
+            if(manaCost != 0.f) {
+                gen.addValue(r, 13, 3, manaCost, manaCost,
+                             eFontColor::white, eModifierType::manaValue);
+            }
         }
 
         if(showNextLevel && !skill.fSynergies.empty()) {
@@ -201,7 +251,7 @@ void eItemDragWidget::setHoverSkill(
             const auto textBase = eLanguage::text(13, 5);
             for(const auto& s : skill.fSynergies) {
                 const int sSkillId = s.fSkillId;
-                const int sLevelId = mStats.skillLevel(sSkillId);
+                const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
                 if(sLevelId + 1 >= s.fBoostLevels.size()) continue;
                 const auto sName = eSkillNames::name(sSkillId);
                 const auto sTextBase = eStringHelpers::replaceAll(textBase, "%1", sName);

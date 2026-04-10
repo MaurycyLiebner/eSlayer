@@ -72,7 +72,7 @@ void eServerUnit::setAttributes(const eAttributes& attrs,
 
 void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
                                  const bool recalc) {
-    mStats.fSkillLevels = skillLevels;
+    mStats.fBaseSkillLevels = skillLevels;
     if(recalc) recalculateStats();
 }
 
@@ -206,13 +206,25 @@ eServerUnit::skillModifiers(
     const eWeaponChoice wchoice) const {
     const int skillId = eServerUnit::skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
-    const int levelId = skillLevel(skillId);
+    const int levelId = mStats.effectiveSkillLevel(skillId);
     if(levelId < 0) return {};
     const auto& level = skill.skillLevel(levelId);
     std::vector<eModifier> result;
-    result.reserve(level.fTotalModifiers.size());
-    for(const auto& mod : level.fTotalModifiers) {
+    const auto& mods = level.fTotalModifiers;
+    result.reserve(mods.size());
+    for(const auto& mod : mods) {
         result.emplace_back(mod.second);
+    }
+    for(const auto& s : skill.fSynergies) {
+        const int sSkillId = s.fSkillId;
+        const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
+        if(levelId < 0) continue;
+        const auto& sBoost = s.boostLevel(sLevelId);
+        const auto& sMods = sBoost.fTotalModifiers;
+        result.reserve(result.size() + sMods.size());
+        for(const auto& mod : sMods) {
+            result.emplace_back(mod.second);
+        }
     }
     return result;
 }
@@ -332,10 +344,6 @@ int eServerUnit::skillId(const eSkillChoice schoice) const {
 int eServerUnit::skillId(const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fSkillId;
-}
-
-int eServerUnit::skillLevel(const int skillId) const {
-    return mStats.skillLevel(skillId);
 }
 
 bool eServerUnit::skillReady(const eSkillChoice schoice) const {

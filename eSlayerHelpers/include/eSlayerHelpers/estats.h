@@ -114,7 +114,8 @@ struct ESLAYERHELPERS_API eStats {
     eWeaponType fWeaponTypeR = eWeaponType::none;
 
     std::map<int, float> fCooldowns;
-    eSkillLevels fSkillLevels;
+    eSkillLevels fBaseSkillLevels;
+    eSkillLevels fEffectiveSkillLevels;
 
     std::vector<eModifier> fBoosts;
 
@@ -156,7 +157,8 @@ struct ESLAYERHELPERS_API eStats {
     float maxRangeSkill(int& resultSchoice,
                         const float unit1Radius,
                         const float unit2Radius) const;
-    int skillLevel(const int skillId) const;
+    int effectiveSkillLevel(const int skillId) const;
+    int baseSkillLevel(const int skillId) const;
     int incSkillLevel(const int skillId);
     float manaCost(const int schoice) const;
     float cooldown(const int schoice) const;

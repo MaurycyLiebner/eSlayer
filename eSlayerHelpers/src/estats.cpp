@@ -2,11 +2,12 @@
 
 #include "eSlayerHelpers/eattributes.h"
 #include "eSlayerHelpers/eequipment.h"
-#include "eSlayerHelpers/eskills.h"
-#include "eSlayerHelpers/erunsettings.h"
 #include "eSlayerHelpers/eitemsdata.h"
-#include "eSlayerHelpers/erand.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/erand.h"
+#include "eSlayerHelpers/erunsettings.h"
+#include "eSlayerHelpers/eskills.h"
+#include "eSlayerHelpers/evectorhelpers.h"
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
@@ -309,6 +310,7 @@ eWeaponType gWeaponType(const eItem& item) {
 }
 
 void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
+    bool statsChanged = true;
     fStrength = attr.fStrength;
     fDexterity = attr.fDexterity;
     fVitality = attr.fVitality;
@@ -380,7 +382,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     std::vector<eSkillStatsHelper> skillHelpers;
 
-    auto skillLevels = fSkillLevels;
+    fEffectiveSkillLevels = fBaseSkillLevels;
 
     for(auto& s : fSkills) {
         const int skillId = s.fSkillId;
@@ -532,9 +534,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         case eModifierType::strength:
             fStrength += mod.fValue1;
+            statsChanged = true;
             break;
         case eModifierType::dexterity:
             fDexterity += mod.fValue1;
+            statsChanged = true;
             break;
         case eModifierType::vitality:
             fVitality += mod.fValue1;
@@ -544,7 +548,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             break;
         case eModifierType::allSkills: {
             const int inc = std::round(mod.fValue1);
-            skillLevels.incSkillLevels(inc);
+            fEffectiveSkillLevels.incSkillLevels(inc);
         } break;
         case eModifierType::none:
         case eModifierType::attackRatingValue:
@@ -568,31 +572,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         handleItemPassiveMod(boost, false, false);
     }
 
-    for(const auto& item : items) {
-        if(!itemReqsMet(item)) continue;
-        switch(item.fType) {
-        case eItemType::shield:
-            fBlockChance += item.fValue4;
-            [[fallthrough]];
-        case eItemType::boots:
-        case eItemType::gloves:
-        case eItemType::helmet:
-        case eItemType::armor:
-        case eItemType::belt:
-            baseDef += item.fValue3;
-            [[fallthrough]];
-        default: {
-            const bool lw = &item != &rightW;
-            const bool rw = &item != &leftW;
-            for(const auto& mod : item.fModifiers) {
-                handleItemPassiveMod(mod, lw, rw);
-            }
-        } break;
-        }
-    }
-
-
-    for(const auto& it : skillLevels) {
+    for(const auto& it : fEffectiveSkillLevels) {
         const int skillId = it.first;
         if(skillId < 0) continue;
         const int skillLevelId = it.second;
@@ -601,7 +581,41 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         if(skill.fType != eSkillType::passive) continue;
         const auto& skillLevel = skill.skillLevel(skillLevelId);
         for(const auto& mod : skillLevel.fTotalModifiers) {
-            handleItemPassiveMod(mod.second, true, true);
+            handleItemPassiveMod(mod.second, false, false);
+        }
+    }
+
+    std::vector<const eItem*> remItems;
+    remItems.reserve(items.size());
+    for(const auto& item : items) {
+        remItems.emplace_back(&item);
+    }
+    while(!remItems.empty() && statsChanged) {
+        statsChanged = false;
+        for(int i = 0; i < remItems.size(); i++) {
+            auto& item = *remItems[i];
+            if(!itemReqsMet(item)) continue;
+            eVectorHelpers::remove(remItems, &item);
+            i--;
+            switch(item.fType) {
+            case eItemType::shield:
+                fBlockChance += item.fValue4;
+                [[fallthrough]];
+            case eItemType::boots:
+            case eItemType::gloves:
+            case eItemType::helmet:
+            case eItemType::armor:
+            case eItemType::belt:
+                baseDef += item.fValue3;
+                [[fallthrough]];
+            default: {
+                const bool lw = &item != &rightW;
+                const bool rw = &item != &leftW;
+                for(const auto& mod : item.fModifiers) {
+                    handleItemPassiveMod(mod, lw, rw);
+                }
+            } break;
+            }
         }
     }
 
@@ -610,7 +624,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         const int skillId = stats.fSkillId;
         if(skillId < 0) continue;
         const auto& skill = eSkills::sSkills.get(skillId);
-        const int skillLevelId = skillLevels.skillLevel(skillId);
+        const int skillLevelId = fEffectiveSkillLevels.skillLevel(skillId);
         if(skillLevelId < 0) continue;
         const auto& skillLevel = skill.skillLevel(skillLevelId);
         if(skill.fType == eSkillType::attack) {
@@ -707,7 +721,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
                                h, lw, rw);
             }
         }
-        for(const auto& it : skillLevels) {
+        for(const auto& it : fEffectiveSkillLevels) {
             const int skillId = it.first;
             if(skillId < 0) continue;
             const int skillLevelId = it.second;
@@ -723,15 +737,19 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         for(const auto& s : skill.fSynergies) {
             const int sSkillId = s.fSkillId;
-            const int sSkillLevel = skillLevels.skillLevel(sSkillId);
-            if(sSkillLevel < 0) continue;
-            const auto& boost = s.boostLevel(sSkillLevel);
-            stats.fCount += boost.fCount;
-            stats.fManaCost += boost.fManaCost;
-            stats.fCooldown += boost.fCooldown;
-            for(const auto& mod : boost.fTotalModifiers) {
-                handleSkillMod(mod.second, eModifierSource::skill,
-                               h, true, true);
+            const int sLevelId = effectiveSkillLevel(sSkillId);
+            if(sLevelId < 0) continue;
+            const int maxLevel = s.fBoostLevels.size() - 1;
+            const int sMaxLevelId = std::min(sLevelId, maxLevel);
+            for(int level = 0; level <= sMaxLevelId; level++) {
+                const auto& boost = s.boostLevel(level);
+                stats.fCount += boost.fCount;
+                stats.fManaCost += boost.fManaCost;
+                stats.fCooldown += boost.fCooldown;
+                for(const auto& mod : boost.fTotalModifiers) {
+                    handleSkillMod(mod.second, eModifierSource::skill,
+                                   h, true, true);
+                }
             }
         }
     };
@@ -966,17 +984,23 @@ float eStats::maxRangeSkill(int& resultSchoice,
     return maxRange;
 }
 
-int eStats::skillLevel(const int skillId) const {
-    const auto it = fSkillLevels.find(skillId);
-    if(it == fSkillLevels.end()) return -1;
+int eStats::baseSkillLevel(const int skillId) const {
+    const auto it = fBaseSkillLevels.find(skillId);
+    if(it == fBaseSkillLevels.end()) return -1;
+    return it->second;
+}
+
+int eStats::effectiveSkillLevel(const int skillId) const {
+    const auto it = fEffectiveSkillLevels.find(skillId);
+    if(it == fEffectiveSkillLevels.end()) return -1;
     return it->second;
 }
 
 int eStats::incSkillLevel(const int skillId) {
-    const int level = skillLevel(skillId);
-    if(fSkillLevels.fRemainingPoints <= 0) return level;
-    fSkillLevels.fRemainingPoints--;
-    fSkillLevels[skillId] = level + 1;
+    const int level = baseSkillLevel(skillId);
+    if(fBaseSkillLevels.fRemainingPoints <= 0) return level;
+    fBaseSkillLevels.fRemainingPoints--;
+    fBaseSkillLevels[skillId] = level + 1;
     return level + 1;
 }
 

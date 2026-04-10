@@ -52,7 +52,7 @@ void eSkillTreesWidget::initialize(
 
     mRemPtsLabel = new eLabel(window());
     mRemPtsLabel->setFont(font);
-    const auto& levels = stats.fSkillLevels;
+    const auto& levels = stats.fBaseSkillLevels;
     const int pts = levels.fRemainingPoints;
     mRemPtsLabel->setText(std::to_string(pts));
     mRemPtsLabel->fitContent();
@@ -106,7 +106,7 @@ void eSkillTreesWidget::paintEvent(ePainter& p) {
     const int lineWidth = res.lineWidth();
     p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
 
-    const auto& levels = mStats->fSkillLevels;
+    const auto& levels = mStats->fBaseSkillLevels;
     const int pts = levels.fRemainingPoints;
     mRemPtsLabel->setText(std::to_string(pts));
     mRemPtsLabel->fitContent();

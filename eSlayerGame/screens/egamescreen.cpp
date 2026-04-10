@@ -504,7 +504,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
     std::vector<int> skillIds;
     const auto& stats = mGameWidget->stats();
-    const auto& skillLevels = stats.fSkillLevels;
+    const auto& skillLevels = stats.fBaseSkillLevels;
     for(const auto& s : skillLevels) {
         skillIds.push_back(s.first);
     }

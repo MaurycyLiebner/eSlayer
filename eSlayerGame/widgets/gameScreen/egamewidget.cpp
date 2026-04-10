@@ -68,12 +68,15 @@ void eGameWidget::initialize(const int clientId,
     setRightSkill(0);
     setLeftSkill(0);
 
-    const auto& eq = c.equipment();
-    mMainAction.setEquipment(eq);
-    const auto& attrs = c.attributes();
-    mMainAction.setAttributes(attrs);
+    const auto& srcEq = c.equipment();
+    auto& dstEq = mMainAction.equipment();
+    dstEq = srcEq;
+    const auto& srcAttrs = c.attributes();
+    auto& dstAttrs = mMainAction.attributes();
+    dstAttrs = srcAttrs;
     auto& dstStats = mMainAction.stats();
-    dstStats.fSkillLevels = c.skillLevels();
+    dstStats.fBaseSkillLevels = c.skillLevels();
+    dstStats.calculate(dstAttrs, dstEq);
 
     mWorld.initialize(clientId, mMainChar);
 }
@@ -135,7 +138,7 @@ void eGameWidget::sendAttributesChanged() {
 
 void eGameWidget::sendSkillLevelsChanged() {
     const auto& stats = mMainAction.stats();
-    const auto& skillLevels = stats.fSkillLevels;
+    const auto& skillLevels = stats.fBaseSkillLevels;
     mServer->changeSkillLevels(mClientId, skillLevels);
 }
 
@@ -183,7 +186,7 @@ void eGameWidget::save() {
     const auto& eq = equipment();
     const auto& attrs = attributes();
     const auto& stats = eGameWidget::stats();
-    const auto& skillLevels = stats.fSkillLevels;
+    const auto& skillLevels = stats.fBaseSkillLevels;
     c.write(path, eq, attrs, skillLevels);
 }
 

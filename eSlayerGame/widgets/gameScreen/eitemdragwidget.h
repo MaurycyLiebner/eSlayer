@@ -3,6 +3,8 @@
 
 #include "../ewidget.h"
 
+#include <eSlayerHelpers/emodifier.h>
+
 struct eEquipment;
 struct eItem;
 struct eAttributes;
@@ -32,11 +34,13 @@ public:
                                const bool showNextLevel);
 protected:
     void paintEvent(ePainter& p) override;
-
     bool mouseMoveEvent(const eMouseEvent& e) override;
-
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
+    std::map<eModifierType, eModifier>
+    calculateTotalModifiers(const int skillId, const int levelId,
+                            int& count, float& cooldown, float& manaCost) const;
+
     const eAttributes& mAttrs;
     const eStats& mStats;
 
