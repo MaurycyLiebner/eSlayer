@@ -61,9 +61,6 @@ public:
 
     void stop();
     eMainCharAction& mainAction() { return mMainAction; }
-    const std::shared_ptr<eUnit>& mainChar() const { return mMainChar; }
-    const std::shared_ptr<eUnit>& highlightUnit() const { return mHighlightUnit; }
-    const std::shared_ptr<eUnit>& pressedUnit() const { return mPressedUnit; }
 
     eGameInput& input() { return mInput; }
     const eGameInput& input() const { return mInput; }
@@ -129,8 +126,8 @@ private:
     std::map<int, std::string> mUserNames;
     std::vector<eScreenMessage> mMessages;
 
-    std::shared_ptr<eUnit> mHighlightUnit;
-    std::shared_ptr<eUnit> mPressedUnit;
+    std::weak_ptr<eUnit> mHighlightUnit;
+    std::weak_ptr<eUnit> mPressedUnit;
     std::shared_ptr<eMap> mMap;
 
     eGroundItemNames mItemNames;

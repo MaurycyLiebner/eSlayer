@@ -422,8 +422,10 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         int nextElement = 0;
         setHighlightedUnit(nullptr);
-        if(mPressedUnit && mPressedUnit->fHealth <= 0) {
-            setPressedUnit(nullptr);
+        if(const auto p = mPressedUnit.lock()) {
+            if(p->fHealth <= 0) {
+                setPressedUnit(nullptr);
+            }
         }
 
         const int tileW = mInput.tileWidth();
@@ -454,7 +456,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     auto& model = u->model();
                     model.incFrame(by);
                     bool highlight = false;
-                    if(!mHighlightUnit && u != mMainChar && u->fHealth > 0) {
+                    if(!mHighlightUnit.lock() && u != mMainChar && u->fHealth > 0) {
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                         const int w = 0.75*u->fRadius*tileW;
                         const int h = 2*w;
@@ -469,7 +471,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                             }
                         }
                     }
-                    if(mPressedUnit) highlight = mPressedUnit == u;
+                    if(const auto p = mPressedUnit.lock()) {
+                        highlight = p == u;
+                    }
                     model.draw(mGamePainter, highlight);
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
@@ -572,8 +576,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
-        if(mHighlightUnit) {
-            setPressedUnit(mHighlightUnit);
+        if(const auto h = mHighlightUnit.lock()) {
+            setPressedUnit(h);
         }
     }
     return true;
@@ -591,7 +595,7 @@ bool eGameWidget::mouseReleaseEvent(const eMouseEvent& e) {
                                  eSkillChoice::right;
         const bool rangeAttack = mMainAction.rangedAttack(schoice);
         if(e.shiftPressed() || (rightRelease && rangeAttack) ||
-           (rangeAttack && mPressedUnit)) {
+           (rangeAttack && mPressedUnit.lock())) {
             mMainAction.stop();
         } else {
             const auto pos = pixelToTilePos(mInput.mousePos());
@@ -616,7 +620,7 @@ void eGameWidget::initializeTextures() {
 
 void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
-    if(mUnitIndicator && !mPressedUnit) {
+    if(mUnitIndicator && !mPressedUnit.lock()) {
         mUnitIndicator->setUnit(u, mUserNames);
     }
 }
@@ -624,10 +628,10 @@ void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
 void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
     mPressedUnit = u;
     if(mUnitIndicator) {
-        if(mPressedUnit) {
-            mUnitIndicator->setUnit(mPressedUnit, mUserNames);
+        if(u) {
+            mUnitIndicator->setUnit(u, mUserNames);
         } else {
-            mUnitIndicator->setUnit(mHighlightUnit, mUserNames);
+            mUnitIndicator->setUnit(mHighlightUnit.lock(), mUserNames);
         }
     }
 
