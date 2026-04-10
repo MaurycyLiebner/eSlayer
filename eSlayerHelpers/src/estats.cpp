@@ -347,10 +347,12 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     // life
     float baseLife = 0.f;
     float bonusLife = 0.f;
+    float lifeRegBonus = 0.f;
 
     // mana
     float baseMana = 0.f;
     float bonusMana = 0.f;
+    float manaRegBonus = 0.f;
 
     fBlockChance = 0.f;
     fWalkRun = 0.f;
@@ -475,6 +477,12 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const int inc = std::round(mod.fValue1);
             fEffectiveSkillLevels.incSkillLevels(inc);
         } break;
+        case eModifierType::replenishLife:
+            lifeRegBonus += mod.fValue1;
+            break;
+        case eModifierType::regenerateMana:
+            manaRegBonus += mod.fValue1;
+            break;
         case eModifierType::none:
         case eModifierType::attackRatingValue:
         case eModifierType::attackRatingPercent:
@@ -604,6 +612,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fColdResistance = std::min(fMaxColdResistance, fColdResistance);
     fLightningResistance = std::min(fMaxLightningResistance, fLightningResistance);
     fPoisonResistance = std::min(fMaxPoisonResistance, fPoisonResistance);
+
+    fManaRegeneration = fMaxMana*(100.f + manaRegBonus)/300000.f;
+    fHealthRegeneration = lifeRegBonus/256.f;
 }
 
 void eStats::calculateSkill(const int schoice,
@@ -673,6 +684,9 @@ void eStats::calculateSkill(const int schoice,
         case eModifierType::energy:
 
         case eModifierType::allSkills:
+
+        case eModifierType::replenishLife:
+        case eModifierType::regenerateMana:
             break;
         }
     };

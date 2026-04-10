@@ -103,6 +103,8 @@
         <string id="36">Meele Attacks Deal +%1% Splash Damage</string>
         <string id="37">Knockback</string>
         <string id="38">+%1 to All Skills</string>
+        <string id="39">Replenish Life +%1</string>
+        <string id="40">Regenerate Mana %1%</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

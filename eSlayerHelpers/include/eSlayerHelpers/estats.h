@@ -85,6 +85,10 @@ struct ESLAYERHELPERS_API eStats {
     float fManaF = 100.f;
     float fMaxMana = 100.f;
 
+    // per frame
+    float fHealthRegeneration = 0.f;
+    float fManaRegeneration = 0.f;
+
     float fStrength = 0.f;
     float fDexterity = 0.f;
     float fVitality = 0.f;

@@ -65,7 +65,10 @@ enum class eModifierType : uint8_t {
     meeleSplashDamage,
     knockback,
 
-    allSkills
+    allSkills,
+
+    replenishLife,
+    regenerateMana
 };
 
 struct ESLAYERHELPERS_API eModifier {

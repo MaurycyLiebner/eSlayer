@@ -327,7 +327,13 @@ void eServerUnit::increment(const float by) {
                 i--;
             }
         }
-        mStats.fHealthF = std::max(0.f, mStats.fHealthF - poisonDmg);
+        const float helathReg = mStats.fHealthRegeneration;
+        const float healthChange = helathReg - poisonDmg;
+        mStats.fHealthF = std::clamp(mStats.fHealthF + healthChange,
+                                     0.f, mStats.fMaxHealth);
+        const float manaChange = mStats.fManaRegeneration;
+        mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
+                                     0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
         if(fHealth <= 0) {
             mArea.unitKilled(*this);

@@ -87,6 +87,9 @@ std::string floatToString(const float value,
     case eModifierType::energy:
 
     case eModifierType::allSkills:
+
+    case eModifierType::replenishLife:
+    case eModifierType::regenerateMana:
         return eStringHelpers::floatToString(value);
     }
     return eStringHelpers::floatToString(value);
