@@ -372,17 +372,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fMaxLightningResistance = 0.75f;
     fMaxPoisonResistance = 0.75f;
 
-    std::vector<eSkillStatsHelper> skillHelpers;
-
     fEffectiveSkillLevels = fBaseSkillLevels;
-
-    for(auto& s : fSkills) {
-        const int skillId = s.fSkillId;
-        s = eSkillStats();
-        s.fSkillId = skillId;
-
-        skillHelpers.emplace_back(eSkillStatsHelper{s});
-    }
 
     const auto handleItemPassiveMod = [&](const eModifier& mod,
                                           const bool lw,

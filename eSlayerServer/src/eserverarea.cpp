@@ -87,6 +87,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const ePointF pos{float(x), float(y)};
             u->fPos = pos;
             u->fAngle = 0.f;
+
+            u->setBoosts(udata.fModifiers, false);
             {
                 const int schoice = u->addSkill();
                 u->setSkillId(schoice, 0, false);

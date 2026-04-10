@@ -38,6 +38,16 @@ void eUnitsInfo::load() {
             u.fRunSpeed = jdata.value("runSpeed", u.fWalkSpeed);
             const auto textures = jdata.value("textures", "none");
             u.fCharData = eCharDataInfo::id(textures);
+            if(jdata.contains("modifiers")) {
+                const auto& mods = jdata["modifiers"];
+                for(auto& [name, modData] : mods.items()) {
+                    const auto& key = name;
+                    const auto& value = modData;
+
+                    auto& mod = u.fModifiers.emplace_back();
+                    mod.read(key, json(value));
+                }
+            }
             sUnits.add(name, u);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
