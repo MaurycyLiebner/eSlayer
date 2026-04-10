@@ -229,7 +229,8 @@ void eWidget::paint(ePainter& p) {
     paintEvent(p);
     p.restore();
 
-    for(const auto w : mChildren) {
+    const auto children = mChildren;
+    for(const auto w : children) {
         if(!w->visible()) continue;
         w->paint(p);
     }
