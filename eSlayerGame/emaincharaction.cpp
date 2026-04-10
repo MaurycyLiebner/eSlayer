@@ -297,6 +297,10 @@ void eMainCharAction::stopAttack() {
     mServer->stopAttack(mClientId);
 }
 
+void eMainCharAction::recalculateSkillStats(const int schoice) {
+    mStats.calculateSkill(schoice, mEquipment);
+}
+
 void eMainCharAction::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     updateWalkRunSpeed();
@@ -337,7 +341,7 @@ bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
 void eMainCharAction::setSkillId(const eSkillChoice schoice, const int skillId) {
     auto& skillStats = mStats.skill(schoice);
     skillStats.fSkillId = skillId;
-    recalculateStats();
+    recalculateSkillStats(static_cast<int>(schoice));
 }
 
 void eMainCharAction::setAttributes(const eAttributes& attr) {

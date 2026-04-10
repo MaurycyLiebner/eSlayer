@@ -16,6 +16,7 @@ class eHoverGenerator {
 public:
     eHoverGenerator(const eResolution& res);
 
+    void addSpace(SDL_Renderer* const r);
     void addText(SDL_Renderer* const r,
                  const std::string& text,
                  const eFontColor color);

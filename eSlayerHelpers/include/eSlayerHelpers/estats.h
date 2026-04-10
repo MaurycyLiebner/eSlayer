@@ -13,6 +13,7 @@
 struct eEquipment;
 struct eAttributes;
 class ePacket;
+struct eItem;
 
 struct eSkillStats {
     int fSkillId = 0;
@@ -68,6 +69,7 @@ struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fSkills;
 
     int fClass = 0;
+    int fLevel = 1;
 
     float fDefense = 100.f;
     float fBlockChance = 0.f;
@@ -134,6 +136,9 @@ struct ESLAYERHELPERS_API eStats {
     void calculate(const eAttributes& attr,
                    const eEquipment& eq);
 
+    void calculateSkill(const int schoice,
+                        const eEquipment& eq);
+
     bool canUseSkill(const eSkillChoice schoice) const;
     bool rangedAttack(const eSkillChoice schoice) const;
     float attackRange(const eSkillChoice schoice,
@@ -162,6 +167,7 @@ struct ESLAYERHELPERS_API eStats {
     int incSkillLevel(const int skillId);
     float manaCost(const int schoice) const;
     float cooldown(const int schoice) const;
+    bool itemReqsMet(const eItem& item) const;
 };
 
 #endif // ESTATS_H

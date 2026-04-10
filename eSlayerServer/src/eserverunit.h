@@ -164,6 +164,7 @@ public:
     void respawn();
 
     void recalculateStats();
+    void recalculateSkillStats(const int schoice);
 
     int addSkill();
 

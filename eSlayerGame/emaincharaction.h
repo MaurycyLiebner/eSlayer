@@ -60,6 +60,7 @@ public:
     eEquipment& equipment() { return mEquipment; }
     eAttributes& attributes() { return mAttributes; }
     eStats& stats() { return mStats; }
+    void recalculateSkillStats(const int schoice);
     void recalculateStats();
 private:
     void updateWalkRunSpeed();

@@ -311,21 +311,11 @@ eWeaponType gWeaponType(const eItem& item) {
 
 void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     bool statsChanged = true;
+    fLevel = attr.fLevel;
     fStrength = attr.fStrength;
     fDexterity = attr.fDexterity;
     fVitality = attr.fVitality;
     fEnergy = attr.fEnergy;
-
-    const auto itemReqsMet = [&](const eItem& item) {
-        const auto& data = eItemsData::get(item.fDataId);
-        const int level = std::max(data.fLevelReq, item.fRequiredLevel);
-        const int str = data.fStrengthReq;
-        const int dex = data.fDexterityReq;
-        if(attr.fLevel < level) return false;
-        if(fStrength < str) return false;
-        if(fDexterity < dex) return false;
-        return true;
-    };
 
     const float healthFrac = fHealthF/fMaxHealth;
     const float manaFrac = fManaF/fMaxMana;
@@ -391,71 +381,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         skillHelpers.emplace_back(eSkillStatsHelper{s});
     }
-
-    const auto handleSkillMod = [&](const eModifier& mod,
-                                    const eModifierSource src,
-                                    eSkillStatsHelper& helper,
-                                    const bool lw, const bool rw) {
-        auto& stats = helper.fStats;
-        switch(mod.fType) {
-        case eModifierType::attackRatingValue:
-        case eModifierType::attackRatingPercent:
-        case eModifierType::damagePercent:
-        case eModifierType::damageValue:
-        case eModifierType::damageFire:
-        case eModifierType::damageCold:
-        case eModifierType::damageLightning:
-        case eModifierType::damagePoison:
-        case eModifierType::pierceChance:
-        case eModifierType::lifeSteal:
-        case eModifierType::manaSteal:
-        case eModifierType::meeleSplashDamage:
-        case eModifierType::knockback:
-        case eModifierType::attackSpeed:
-            helper.addMod(mod, src, lw, rw);
-            break;
-        case eModifierType::none:
-
-        case eModifierType::defenseValue:
-        case eModifierType::defensePercent:
-
-        case eModifierType::blockChancePercent:
-        case eModifierType::walkRun:
-        case eModifierType::castRate:
-        case eModifierType::blockRecoverySpeed:
-        case eModifierType::hitRecoverySpeed:
-
-        case eModifierType::lifeValue:
-        case eModifierType::lifePercent:
-
-        case eModifierType::manaValue:
-        case eModifierType::manaPercent:
-
-        case eModifierType::fireResistance:
-        case eModifierType::coldResistance:
-        case eModifierType::lightningResitance:
-        case eModifierType::poisonResistance:
-
-        case eModifierType::maxFireResistance:
-        case eModifierType::maxColdResistance:
-        case eModifierType::maxLightningResitance:
-        case eModifierType::maxPoisonResistance:
-
-        case eModifierType::strength:
-        case eModifierType::dexterity:
-        case eModifierType::vitality:
-        case eModifierType::energy:
-
-        case eModifierType::allSkills:
-            break;
-        }
-    };
-
-    const float minFistDmg = 1.f;
-    const float maxFistDmg = 6.f;
-
-    const float minFootDmg = 1.f;
-    const float maxFootDmg = 6.f;
 
     const auto handleItemPassiveMod = [&](const eModifier& mod,
                                           const bool lw,
@@ -619,139 +544,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     }
 
-    for(auto& h : skillHelpers) {
-        auto& stats = h.fStats;
-        const int skillId = stats.fSkillId;
-        if(skillId < 0) continue;
-        const auto& skill = eSkills::sSkills.get(skillId);
-        const int skillLevelId = fEffectiveSkillLevels.skillLevel(skillId);
-        if(skillLevelId < 0) continue;
-        const auto& skillLevel = skill.skillLevel(skillLevelId);
-        if(skill.fType == eSkillType::attack) {
-            if(leftW.fType == eItemType::weapon) {
-                float min;
-                float max;
-                gCalculateWeaponDmg(leftW, min, max);
-                h.fDmgMinLWBase.fPhysical += min;
-                h.fDmgMaxLWBase.fPhysical += max;
-            } else if(leftW.fType == eItemType::none) {
-                h.fDmgMinLWBase.fPhysical += minFistDmg;
-                h.fDmgMaxLWBase.fPhysical += maxFistDmg;
-            }
-            if(rightW.fType == eItemType::weapon) {
-                float min;
-                float max;
-                gCalculateWeaponDmg(rightW, min, max);
-                h.fDmgMinRWBase.fPhysical += min;
-                h.fDmgMinRWBase.fPhysical += max;
-            } else if(leftW.fType == eItemType::none) {
-                h.fDmgMinRWBase.fPhysical += minFistDmg;
-                h.fDmgMaxRWBase.fPhysical += maxFistDmg;
-            }
-        } else if(skill.fType == eSkillType::smite) {
-            if(rightW.fType == eItemType::shield) {
-                float min;
-                float max;
-                gCalculateWeaponDmg(rightW, min, max);
-                h.fDmgMinRWBase.fPhysical += min;
-                h.fDmgMaxRWBase.fPhysical += max;
-            }
-        } else if(skill.fType == eSkillType::kick) {
-            const auto& boots = eq.fBoots;
-            if(boots.fType == eItemType::boots) {
-                float min;
-                float max;
-                gCalculateWeaponDmg(boots, min, max);
-                h.fDmgMinRWBase.fPhysical += min;
-                h.fDmgMaxRWBase.fPhysical += max;
-            } else {
-                h.fDmgMinRWBase.fPhysical += minFootDmg;
-                h.fDmgMaxRWBase.fPhysical += maxFootDmg;
-            }
-        }
-        if(skill.fType == eSkillType::missile ||
-           skill.fType == eSkillType::shoot ||
-           skill.fType == eSkillType::throw_ ||
-           skill.fType == eSkillType::attack) {
-            if(skill.fMissileId == -1) {
-                const auto& itemDataL = eItemsData::get(leftW.fDataId);
-                stats.fMissileIdLW = itemDataL.fMissileId;
-                const auto& itemDataR = eItemsData::get(rightW.fDataId);
-                stats.fMissileIdRW = itemDataR.fMissileId;
-            } else {
-                stats.fMissileIdLW = skill.fMissileId;
-                stats.fMissileIdRW = skill.fMissileId;
-            }
-        }
-        stats.fCount = skillLevel.fCount;
-        stats.fManaCost += skillLevel.fManaCost;
-        stats.fCooldown += skillLevel.fCooldown;
-
-        if(skill.fType == eSkillType::attack ||
-           skill.fType == eSkillType::shoot ||
-           skill.fType == eSkillType::throw_) {
-            stats.fMissileRangeTime = fWeaponRangedRange;
-        } else {
-            stats.fMissileRangeTime = skill.fRangeTime;
-        }
-
-        for(const auto& boost : fBoosts) {
-            handleSkillMod(boost, eModifierSource::skill,
-                           h, true, true);
-        }
-
-        for(const auto& mod : skillLevel.fTotalModifiers) {
-            handleSkillMod(mod.second, eModifierSource::skill,
-                           h, true, true);
-        }
-        for(const auto& item : items) {
-            if(!itemReqsMet(item)) continue;
-            for(const auto& mod : item.fModifiers) {
-                if(item.fType == eItemType::weapon ||
-                    item.fType == eItemType::shield ||
-                    item.fType == eItemType::boots) {
-                    if(mod.fType == eModifierType::damagePercent ||
-                       mod.fType == eModifierType::damageValue) {
-                        continue;
-                    }
-                }
-                const bool lw = &item != &rightW;
-                const bool rw = &item != &leftW;
-                handleSkillMod(mod, eModifierSource::item,
-                               h, lw, rw);
-            }
-        }
-        for(const auto& it : fEffectiveSkillLevels) {
-            const int skillId = it.first;
-            if(skillId < 0) continue;
-            const int skillLevelId = it.second;
-            if(skillLevelId < 0) continue;
-            const auto& skill = eSkills::sSkills.get(skillId);
-            if(skill.fType != eSkillType::passive) continue;
-            const auto& skillLevel = skill.skillLevel(skillLevelId);
-            for(const auto& mod : skillLevel.fTotalModifiers) {
-                handleSkillMod(mod.second, eModifierSource::skill,
-                               h, true, true);
-            }
-        }
-
-        for(const auto& s : skill.fSynergies) {
-            const int sSkillId = s.fSkillId;
-            const int sLevelId = effectiveSkillLevel(sSkillId);
-            if(sLevelId < 0) continue;
-            const int maxLevel = s.fBoostLevels.size() - 1;
-            const int sMaxLevelId = std::min(sLevelId, maxLevel);
-            for(int level = 0; level <= sMaxLevelId; level++) {
-                const auto& boost = s.boostLevel(level);
-                stats.fCount += boost.fCount;
-                stats.fManaCost += boost.fManaCost;
-                stats.fCooldown += boost.fCooldown;
-                for(const auto& mod : boost.fTotalModifiers) {
-                    handleSkillMod(mod.second, eModifierSource::skill,
-                                   h, true, true);
-                }
-            }
-        }
+    for(int schoice = 0; schoice < fSkills.size(); schoice++) {
+        calculateSkill(schoice, eq);
     };
 
     fWeaponMeeleRange = 0.f;
@@ -810,33 +604,256 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fColdResistance = std::min(fMaxColdResistance, fColdResistance);
     fLightningResistance = std::min(fMaxLightningResistance, fLightningResistance);
     fPoisonResistance = std::min(fMaxPoisonResistance, fPoisonResistance);
+}
+
+void eStats::calculateSkill(const int schoice,
+                            const eEquipment& eq) {
+    auto& stats = fSkills[schoice];
+    const int skillId = stats.fSkillId;
+    stats = eSkillStats();
+    stats.fSkillId = skillId;
+    if(skillId < 0) return;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int skillLevelId = fEffectiveSkillLevels.skillLevel(skillId);
+    if(skillLevelId < 0) return;
+    const auto& skillLevel = skill.skillLevel(skillLevelId);
+
+    const auto handleSkillMod = [&](const eModifier& mod,
+                                    const eModifierSource src,
+                                    eSkillStatsHelper& helper,
+                                    const bool lw, const bool rw) {
+        auto& stats = helper.fStats;
+        switch(mod.fType) {
+        case eModifierType::attackRatingValue:
+        case eModifierType::attackRatingPercent:
+        case eModifierType::damagePercent:
+        case eModifierType::damageValue:
+        case eModifierType::damageFire:
+        case eModifierType::damageCold:
+        case eModifierType::damageLightning:
+        case eModifierType::damagePoison:
+        case eModifierType::pierceChance:
+        case eModifierType::lifeSteal:
+        case eModifierType::manaSteal:
+        case eModifierType::meeleSplashDamage:
+        case eModifierType::knockback:
+        case eModifierType::attackSpeed:
+            helper.addMod(mod, src, lw, rw);
+            break;
+        case eModifierType::none:
+
+        case eModifierType::defenseValue:
+        case eModifierType::defensePercent:
+
+        case eModifierType::blockChancePercent:
+        case eModifierType::walkRun:
+        case eModifierType::castRate:
+        case eModifierType::blockRecoverySpeed:
+        case eModifierType::hitRecoverySpeed:
+
+        case eModifierType::lifeValue:
+        case eModifierType::lifePercent:
+
+        case eModifierType::manaValue:
+        case eModifierType::manaPercent:
+
+        case eModifierType::fireResistance:
+        case eModifierType::coldResistance:
+        case eModifierType::lightningResitance:
+        case eModifierType::poisonResistance:
+
+        case eModifierType::maxFireResistance:
+        case eModifierType::maxColdResistance:
+        case eModifierType::maxLightningResitance:
+        case eModifierType::maxPoisonResistance:
+
+        case eModifierType::strength:
+        case eModifierType::dexterity:
+        case eModifierType::vitality:
+        case eModifierType::energy:
+
+        case eModifierType::allSkills:
+            break;
+        }
+    };
+
+    const float minFistDmg = 1.f;
+    const float maxFistDmg = 6.f;
+
+    const float minFootDmg = 1.f;
+    const float maxFootDmg = 6.f;
+
+    eSkillStatsHelper helper{stats};
+
+    const auto& leftW = (eq.fWeapons1 ?
+                             eq.fWeapon1L :
+                             eq.fWeapon2L);
+    const auto& rightW = (eq.fWeapons1 ?
+                              eq.fWeapon1R :
+                              eq.fWeapon2R);
+
+    const auto items = {
+        eq.fBoots,
+        eq.fGloves,
+        eq.fHelmet,
+        eq.fArmor,
+        eq.fBelt,
+        eq.fRingL,
+        eq.fRingR,
+        eq.fAmulet,
+        leftW,
+        rightW,
+    };
+
+    if(skill.fType == eSkillType::attack) {
+        if(leftW.fType == eItemType::weapon) {
+            float min;
+            float max;
+            gCalculateWeaponDmg(leftW, min, max);
+            helper.fDmgMinLWBase.fPhysical += min;
+            helper.fDmgMaxLWBase.fPhysical += max;
+        } else if(leftW.fType == eItemType::none) {
+            helper.fDmgMinLWBase.fPhysical += minFistDmg;
+            helper.fDmgMaxLWBase.fPhysical += maxFistDmg;
+        }
+        if(rightW.fType == eItemType::weapon) {
+            float min;
+            float max;
+            gCalculateWeaponDmg(rightW, min, max);
+            helper.fDmgMinRWBase.fPhysical += min;
+            helper.fDmgMinRWBase.fPhysical += max;
+        } else if(leftW.fType == eItemType::none) {
+            helper.fDmgMinRWBase.fPhysical += minFistDmg;
+            helper.fDmgMaxRWBase.fPhysical += maxFistDmg;
+        }
+    } else if(skill.fType == eSkillType::smite) {
+        if(rightW.fType == eItemType::shield) {
+            float min;
+            float max;
+            gCalculateWeaponDmg(rightW, min, max);
+            helper.fDmgMinRWBase.fPhysical += min;
+            helper.fDmgMaxRWBase.fPhysical += max;
+        }
+    } else if(skill.fType == eSkillType::kick) {
+        const auto& boots = eq.fBoots;
+        if(boots.fType == eItemType::boots) {
+            float min;
+            float max;
+            gCalculateWeaponDmg(boots, min, max);
+            helper.fDmgMinRWBase.fPhysical += min;
+            helper.fDmgMaxRWBase.fPhysical += max;
+        } else {
+            helper.fDmgMinRWBase.fPhysical += minFootDmg;
+            helper.fDmgMaxRWBase.fPhysical += maxFootDmg;
+        }
+    }
+    if(skill.fType == eSkillType::missile ||
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_ ||
+        skill.fType == eSkillType::attack) {
+        if(skill.fMissileId == -1) {
+            const auto& itemDataL = eItemsData::get(leftW.fDataId);
+            stats.fMissileIdLW = itemDataL.fMissileId;
+            const auto& itemDataR = eItemsData::get(rightW.fDataId);
+            stats.fMissileIdRW = itemDataR.fMissileId;
+        } else {
+            stats.fMissileIdLW = skill.fMissileId;
+            stats.fMissileIdRW = skill.fMissileId;
+        }
+    }
+    stats.fCount = skillLevel.fCount;
+    stats.fManaCost += skillLevel.fManaCost;
+    stats.fCooldown += skillLevel.fCooldown;
+
+    if(skill.fType == eSkillType::attack ||
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_) {
+        stats.fMissileRangeTime = fWeaponRangedRange;
+    } else {
+        stats.fMissileRangeTime = skill.fRangeTime;
+    }
+
+    for(const auto& boost : fBoosts) {
+        handleSkillMod(boost, eModifierSource::skill,
+                       helper, true, true);
+    }
+
+    for(const auto& mod : skillLevel.fTotalModifiers) {
+        handleSkillMod(mod.second, eModifierSource::skill,
+                       helper, true, true);
+    }
+    for(const auto& item : items) {
+        if(!itemReqsMet(item)) continue;
+        for(const auto& mod : item.fModifiers) {
+            if(item.fType == eItemType::weapon ||
+                item.fType == eItemType::shield ||
+                item.fType == eItemType::boots) {
+                if(mod.fType == eModifierType::damagePercent ||
+                    mod.fType == eModifierType::damageValue) {
+                    continue;
+                }
+            }
+            const bool lw = &item != &rightW;
+            const bool rw = &item != &leftW;
+            handleSkillMod(mod, eModifierSource::item,
+                           helper, lw, rw);
+        }
+    }
+    for(const auto& it : fEffectiveSkillLevels) {
+        const int skillId = it.first;
+        if(skillId < 0) continue;
+        const int skillLevelId = it.second;
+        if(skillLevelId < 0) continue;
+        const auto& skill = eSkills::sSkills.get(skillId);
+        if(skill.fType != eSkillType::passive) continue;
+        const auto& skillLevel = skill.skillLevel(skillLevelId);
+        for(const auto& mod : skillLevel.fTotalModifiers) {
+            handleSkillMod(mod.second, eModifierSource::skill,
+                           helper, true, true);
+        }
+    }
+
+    for(const auto& s : skill.fSynergies) {
+        const int sSkillId = s.fSkillId;
+        const int sLevelId = effectiveSkillLevel(sSkillId);
+        if(sLevelId < 0) continue;
+        const int maxLevel = s.fBoostLevels.size() - 1;
+        const int sMaxLevelId = std::min(sLevelId, maxLevel);
+        for(int level = 0; level <= sMaxLevelId; level++) {
+            const auto& boost = s.boostLevel(level);
+            stats.fCount += boost.fCount;
+            stats.fManaCost += boost.fManaCost;
+            stats.fCooldown += boost.fCooldown;
+            for(const auto& mod : boost.fTotalModifiers) {
+                handleSkillMod(mod.second, eModifierSource::skill,
+                               helper, true, true);
+            }
+        }
+    }
 
     const float baseAR = (fDexterity - 7.f)*5.f + 20.f;
     const float attrMult = 0.01f*(fStrength + fDexterity);
-    for(auto& h : skillHelpers) {
-        const auto skillType = h.fSkillType;
-        if(skillType == eSkillType::attack) {
-            h.fDmgMultMin.fPhysical += attrMult;
-            h.fDmgMultMax.fPhysical += attrMult;
-        } else if(skillType == eSkillType::smite) {
-            h.fDmgMultMin.fPhysical += attrMult;
-            h.fDmgMultMax.fPhysical += attrMult;
-        } else if(skillType == eSkillType::kick) {
-            h.fDmgMultMin.fPhysical += attrMult;
-            h.fDmgMultMax.fPhysical += attrMult;
-        } else if(skillType == eSkillType::shoot) {
-            h.fDmgMultMin.fPhysical += attrMult;
-            h.fDmgMultMax.fPhysical += attrMult;
-        } else if(skillType == eSkillType::throw_) {
-            h.fDmgMultMin.fPhysical += attrMult;
-            h.fDmgMultMax.fPhysical += attrMult;
-        }
-
-        h.fBaseAR += baseAR;
-        h.apply();
+    const auto skillType = helper.fSkillType;
+    if(skillType == eSkillType::attack) {
+        helper.fDmgMultMin.fPhysical += attrMult;
+        helper.fDmgMultMax.fPhysical += attrMult;
+    } else if(skillType == eSkillType::smite) {
+        helper.fDmgMultMin.fPhysical += attrMult;
+        helper.fDmgMultMax.fPhysical += attrMult;
+    } else if(skillType == eSkillType::kick) {
+        helper.fDmgMultMin.fPhysical += attrMult;
+        helper.fDmgMultMax.fPhysical += attrMult;
+    } else if(skillType == eSkillType::shoot) {
+        helper.fDmgMultMin.fPhysical += attrMult;
+        helper.fDmgMultMax.fPhysical += attrMult;
+    } else if(skillType == eSkillType::throw_) {
+        helper.fDmgMultMin.fPhysical += attrMult;
+        helper.fDmgMultMax.fPhysical += attrMult;
     }
-}
 
+    helper.fBaseAR += baseAR;
+    helper.apply();
+}
 
 bool eStats::canUseSkill(const eSkillChoice schoice) const {
     return canUseSkill(static_cast<int>(schoice));
@@ -1012,6 +1029,17 @@ float eStats::manaCost(const int schoice) const {
 float eStats::cooldown(const int schoice) const {
     const auto& skillStats = fSkills[schoice];
     return skillStats.fCooldown;
+}
+
+bool eStats::itemReqsMet(const eItem& item) const {
+    const auto& data = eItemsData::get(item.fDataId);
+    const int level = std::max(data.fLevelReq, item.fRequiredLevel);
+    const int str = data.fStrengthReq;
+    const int dex = data.fDexterityReq;
+    if(fLevel < level) return false;
+    if(fStrength < str) return false;
+    if(fDexterity < dex) return false;
+    return true;
 }
 
 void eSkillLevels::read(ePacket& p) {

@@ -386,7 +386,7 @@ void eServerUnit::setSkillId(const int schoice,
                              const bool recalc) {
     auto& skill = mStats.skill(schoice);
     skill.fSkillId = skillId;
-    if(recalc) recalculateStats();
+    if(recalc) recalculateSkillStats(schoice);
 }
 
 void eServerUnit::setBoosts(
@@ -464,6 +464,9 @@ void eServerUnit::killed(const eServerUnit& killed) {
     if(nextLevel && mAttributes.fExp > nextLevel) {
         mAttributes.fExp = 0.f;
         mAttributes.fLevel++;
+        fHealth = fMaxHealth;
+        mStats.fHealthF = mStats.fMaxHealth;
+        mStats.fManaF = mStats.fMaxMana;
     }
 }
 
@@ -495,6 +498,10 @@ void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     fMaxHealth = std::ceil(mStats.fMaxHealth);
     fHealth = std::ceil(mStats.fHealthF);
+}
+
+void eServerUnit::recalculateSkillStats(const int schoice) {
+    mStats.calculateSkill(schoice, mEquipment);
 }
 
 int eServerUnit::addSkill() {

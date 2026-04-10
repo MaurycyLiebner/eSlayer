@@ -11,6 +11,13 @@ eHoverGenerator::eHoverGenerator(const eResolution& res) {
     font = eFonts::textFont(fontSize);
 }
 
+void eHoverGenerator::addSpace(SDL_Renderer* const r) {
+    const auto space = std::make_shared<eTexture>();
+    space->create(r, 1, font.fPtSize/2);
+    totalHeight += space->height();
+    lines.emplace_back(space);
+}
+
 void eHoverGenerator::addText(SDL_Renderer* const r,
                               const std::string& text,
                               const eFontColor color) {

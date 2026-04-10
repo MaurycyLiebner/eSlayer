@@ -274,8 +274,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                 auto& attrs = eGameWidget::attributes();
                 stats.fHealthF = u.fHealth;
                 stats.fManaF = worldResult.fMana;
-                attrs.fLevel = worldResult.fLevel;
                 attrs.fExp = worldResult.fExperience;
+                const auto oldLevel = attrs.fLevel;
+                const auto newLevel = worldResult.fLevel;
+                if(oldLevel != newLevel) {
+                    attrs.fLevel = newLevel;
+                    const auto& eq = eGameWidget::equipment();
+                    stats.calculate(attrs, eq);
+                }
             }
             if(u.fHealth <= 0) {
                 if(mDeathHandler) mDeathHandler();

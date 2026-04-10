@@ -200,93 +200,94 @@ void eItemDragWidget::setHoverSkill(
         const auto r = renderer();
         eHoverGenerator gen(res);
         gen.addText(r, name, eFontColor::green);
-        if(skillId == 0) return;
-        gen.addText(r, " ", eFontColor::white);
-        const int levelId = mStats.effectiveSkillLevel(skillId);
-        if(levelId >= 0) {
-            const auto& level = skill.skillLevel(levelId);
-            gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
-                         eFontColor::white, eModifierType::manaValue);
-            int count;
-            float cooldown;
-            float manaCost;
-            const auto mods = calculateTotalModifiers(
-                skillId, levelId, count, cooldown, manaCost);
-            for(const auto& it : mods) {
-                const auto& mod = it.second;
-                const int s = static_cast<int>(mod.fType);
-                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                             eFontColor::white, mod.fType);
-            }
-            if(manaCost != 0.f) {
-                gen.addValue(r, 13, 3, manaCost, manaCost,
+        if(skillId != 0) {
+            gen.addSpace(r);
+            const int levelId = mStats.effectiveSkillLevel(skillId);
+            if(levelId >= 0) {
+                const auto& level = skill.skillLevel(levelId);
+                gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
                              eFontColor::white, eModifierType::manaValue);
-            }
-        }
-        const int nextLevelId = levelId + 1;
-        if(showNextLevel && nextLevelId >= 0) {
-            if(levelId >= 0) gen.addText(r, " ", eFontColor::white);
-            const auto& level = skill.skillLevel(nextLevelId);
-            gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
-                         eFontColor::white, eModifierType::manaValue);
-            int count;
-            float cooldown;
-            float manaCost;
-            const auto mods = calculateTotalModifiers(
-                skillId, nextLevelId, count, cooldown, manaCost);
-            for(const auto& it : mods) {
-                const auto& mod = it.second;
-                const int s = static_cast<int>(mod.fType);
-                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                             eFontColor::white, mod.fType);
-            }
-            if(manaCost != 0.f) {
-                gen.addValue(r, 13, 3, manaCost, manaCost,
-                             eFontColor::white, eModifierType::manaValue);
-            }
-        }
-
-        if(showNextLevel && !skill.fSynergies.empty()) {
-            bool addedSynergiesText = false;
-            const auto textBase = eLanguage::text(13, 5);
-            for(const auto& s : skill.fSynergies) {
-                const int sSkillId = s.fSkillId;
-                const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
-                if(sLevelId + 1 >= s.fBoostLevels.size()) continue;
-                const auto sName = eSkillNames::name(sSkillId);
-                const auto sTextBase = eStringHelpers::replaceAll(textBase, "%1", sName);
-                if(!addedSynergiesText) {
-                    addedSynergiesText = true;
-                    auto text = eLanguage::text(13, 4);
-                    text = eStringHelpers::replaceAll(text, "%1", name);
-                    gen.addText(r, " ", eFontColor::white);
-                    gen.addText(r, text, eFontColor::green);
-                }
-                gen.addText(r, sTextBase, eFontColor::white);
-                const auto& sLevel = s.boostLevel(sLevelId + 1);
-                if(sLevel.fManaCost != 0.f) {
-                    const auto manaCostFloatStr = eStringHelpers::floatToString(sLevel.fManaCost);
-                    auto manaCostStr = eLanguage::text(13, 6);
-                    manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
-                    gen.addText(r, manaCostStr, eFontColor::white);
-                }
-                if(sLevel.fCooldown != 0.f) {
-                    const auto cooldownFloatStr = eStringHelpers::floatToString(sLevel.fCooldown);
-                    auto cooldownStr = eLanguage::text(13, 7);
-                    cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
-                    gen.addText(r, cooldownStr, eFontColor::white);
-                }
-                if(sLevel.fCount != 0) {
-                    const auto countFloatStr = eStringHelpers::floatToString(sLevel.fCount);
-                    auto countStr = eLanguage::text(13, 8);
-                    countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
-                    gen.addText(r, countStr, eFontColor::white);
-                }
-                for(const auto& it : sLevel.fTotalModifiers) {
+                int count;
+                float cooldown;
+                float manaCost;
+                const auto mods = calculateTotalModifiers(
+                    skillId, levelId, count, cooldown, manaCost);
+                for(const auto& it : mods) {
                     const auto& mod = it.second;
                     const int s = static_cast<int>(mod.fType);
                     gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                                  eFontColor::white, mod.fType);
+                }
+                if(manaCost != 0.f) {
+                    gen.addValue(r, 13, 3, manaCost, manaCost,
+                                 eFontColor::white, eModifierType::manaValue);
+                }
+            }
+            const int nextLevelId = levelId + 1;
+            if(showNextLevel && nextLevelId >= 0) {
+                if(levelId >= 0) gen.addSpace(r);
+                const auto& level = skill.skillLevel(nextLevelId);
+                gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
+                             eFontColor::white, eModifierType::manaValue);
+                int count;
+                float cooldown;
+                float manaCost;
+                const auto mods = calculateTotalModifiers(
+                    skillId, nextLevelId, count, cooldown, manaCost);
+                for(const auto& it : mods) {
+                    const auto& mod = it.second;
+                    const int s = static_cast<int>(mod.fType);
+                    gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                                 eFontColor::white, mod.fType);
+                }
+                if(manaCost != 0.f) {
+                    gen.addValue(r, 13, 3, manaCost, manaCost,
+                                 eFontColor::white, eModifierType::manaValue);
+                }
+            }
+
+            if(showNextLevel && !skill.fSynergies.empty()) {
+                bool addedSynergiesText = false;
+                const auto textBase = eLanguage::text(13, 5);
+                for(const auto& s : skill.fSynergies) {
+                    const int sSkillId = s.fSkillId;
+                    const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
+                    if(sLevelId + 1 >= s.fBoostLevels.size()) continue;
+                    const auto sName = eSkillNames::name(sSkillId);
+                    const auto sTextBase = eStringHelpers::replaceAll(textBase, "%1", sName);
+                    if(!addedSynergiesText) {
+                        addedSynergiesText = true;
+                        auto text = eLanguage::text(13, 4);
+                        text = eStringHelpers::replaceAll(text, "%1", name);
+                        gen.addSpace(r);
+                        gen.addText(r, text, eFontColor::green);
+                    }
+                    gen.addText(r, sTextBase, eFontColor::white);
+                    const auto& sLevel = s.boostLevel(sLevelId + 1);
+                    if(sLevel.fManaCost != 0.f) {
+                        const auto manaCostFloatStr = eStringHelpers::floatToString(sLevel.fManaCost);
+                        auto manaCostStr = eLanguage::text(13, 6);
+                        manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
+                        gen.addText(r, manaCostStr, eFontColor::white);
+                    }
+                    if(sLevel.fCooldown != 0.f) {
+                        const auto cooldownFloatStr = eStringHelpers::floatToString(sLevel.fCooldown);
+                        auto cooldownStr = eLanguage::text(13, 7);
+                        cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
+                        gen.addText(r, cooldownStr, eFontColor::white);
+                    }
+                    if(sLevel.fCount != 0) {
+                        const auto countFloatStr = eStringHelpers::floatToString(sLevel.fCount);
+                        auto countStr = eLanguage::text(13, 8);
+                        countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
+                        gen.addText(r, countStr, eFontColor::white);
+                    }
+                    for(const auto& it : sLevel.fTotalModifiers) {
+                        const auto& mod = it.second;
+                        const int s = static_cast<int>(mod.fType);
+                        gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                                     eFontColor::white, mod.fType);
+                    }
                 }
             }
         }

@@ -81,6 +81,7 @@ void eItemsData::load(const std::string& name,
 
         const auto secondHand = jdata.value(
             "secondHand", std::vector<std::string>());
+        itemData.fSecondHand.emplace_back(eItemType::none);
         for(const auto& typeStr : secondHand) {
             const auto type = eItemTypeHelpers::type(typeStr);
             itemData.fSecondHand.emplace_back(type);
