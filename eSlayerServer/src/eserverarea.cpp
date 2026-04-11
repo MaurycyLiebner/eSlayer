@@ -93,11 +93,15 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const int schoice = u->addSkill();
                 u->setSkillId(schoice, 0, false);
             }
-            // {
-            //     const int schoice = u->addSkill();
-            //     const int skillId = eSkills::sSkills.id("fireball");
-            //     u->setSkillId(schoice, skillId, false);
-            // }
+            eSkillLevels skillLevels;
+            using sMap = std::map<uint16_t, uint16_t>;
+            reinterpret_cast<sMap&>(skillLevels) = udata.fSkills;
+            u->setSkillLevels(skillLevels, false);
+            for(const auto it : udata.fSkills) {
+                const int skillId = it.first;
+                const int schoice = u->addSkill();
+                u->setSkillId(schoice, skillId, false);
+            }
             u->recalculateStats();
             mUnits.add(charId, u);
             const auto area = unitArea(*u);

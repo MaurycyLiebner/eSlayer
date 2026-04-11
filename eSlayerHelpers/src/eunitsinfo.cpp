@@ -41,11 +41,15 @@ void eUnitsInfo::load() {
             if(jdata.contains("modifiers")) {
                 const auto& mods = jdata["modifiers"];
                 for(auto& [name, modData] : mods.items()) {
-                    const auto& key = name;
-                    const auto& value = modData;
-
                     auto& mod = u.fModifiers.emplace_back();
-                    mod.read(key, json(value));
+                    mod.read(name, json(modData));
+                }
+            }
+            if(jdata.contains("skills")) {
+                const auto& skills = jdata["skills"];
+                for(auto& [name, skillLevel] : skills.items()) {
+                    const int skillId = eSkills::sSkills.id(name);
+                    u.fSkills[skillId] = skillLevel;
                 }
             }
             sUnits.add(name, u);

@@ -9,6 +9,7 @@ struct eUnitInfo {
     float fWalkSpeed;
     float fRunSpeed;
 
+    std::map<uint16_t, uint16_t> fSkills;
     std::vector<eModifier> fModifiers;
 };
 
