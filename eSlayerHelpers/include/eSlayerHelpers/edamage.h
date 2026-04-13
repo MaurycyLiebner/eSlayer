@@ -1,9 +1,10 @@
 #ifndef EDAMAGE_H
 #define EDAMAGE_H
 
+#include "eSlayerHelpers/erunsettings.h"
 #include "eslayerhelpersexport.h"
 
-#include "eSlayerHelpers/erunsettings.h"
+#include <algorithm>
 
 struct ESLAYERHELPERS_API eDamage {
     float fPhysical = 0.f;
@@ -56,6 +57,15 @@ struct ESLAYERHELPERS_API eDamage {
 
     static eDamage sRandom(const eDamage& min,
                            const eDamage& max);
+
+    void clamp() {
+        fPhysical = std::max(0.f, fPhysical);
+        fFire = std::max(0.f, fFire);
+        fCold = std::max(0.f, fCold);
+        fLightning = std::max(0.f, fLightning);
+        fPoisonPerFrame = std::max(0.f, fPoisonPerFrame);
+        if(fPoisonPerFrame == 0.f) fPoisonFrameLength = 0.f;
+    }
 };
 
 #endif // EDAMAGE_H

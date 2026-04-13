@@ -275,6 +275,16 @@ struct eSkillStatsHelper {
         fDmgMaxRWBase.fPoisonPerFrame = fPoisonBitRateRW/256.f;
         fDmgMaxRWBase.fPoisonFrameLength = fPoisonFrameLengthRW;
 
+        fDmgMinLWBase.clamp();
+        fDmgMaxLWBase.clamp();
+        fDmgMinRWBase.clamp();
+        fDmgMaxRWBase.clamp();
+
+        fDmgMultMin.clamp();
+        fDmgMultMax.clamp();
+        fDmgMultMin.clamp();
+        fDmgMultMax.clamp();
+
         fStats.fDamageMinLW = fDmgMinLWBase*fDmgMultMin;
         fStats.fDamageMaxLW = fDmgMaxLWBase*fDmgMultMax;
         fStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
