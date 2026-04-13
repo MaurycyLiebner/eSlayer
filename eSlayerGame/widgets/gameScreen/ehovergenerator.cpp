@@ -64,6 +64,11 @@ std::string floatToString(const float value,
 
     case eModifierType::meeleSplashDamage:
     case eModifierType::knockback:
+
+    case eModifierType::fireSkillDamage:
+    case eModifierType::coldSkillDamage:
+    case eModifierType::lightningSkillDamage:
+    case eModifierType::poisonSkillDamage:
         return eStringHelpers::floatToString(100*value);
 
     case eModifierType::none:

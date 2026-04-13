@@ -28,6 +28,7 @@ struct ESLAYERHELPERS_API eDamage {
         result.fCold = fCold/div;
         result.fLightning = fLightning/div;
         result.fPoisonPerFrame = fPoisonPerFrame/div;
+        result.fPoisonFrameLength = fPoisonFrameLength;
         return result;
     }
 
@@ -38,6 +39,7 @@ struct ESLAYERHELPERS_API eDamage {
         result.fCold = fCold*mult;
         result.fLightning = fLightning*mult;
         result.fPoisonPerFrame = fPoisonPerFrame*mult;
+        result.fPoisonFrameLength = fPoisonFrameLength;
         return result;
     }
 
@@ -48,6 +50,7 @@ struct ESLAYERHELPERS_API eDamage {
         result.fCold = fCold*mult.fCold;
         result.fLightning = fLightning*mult.fLightning;
         result.fPoisonPerFrame = fPoisonPerFrame*mult.fPoisonPerFrame;
+        result.fPoisonFrameLength = fPoisonFrameLength;
         return result;
     }
 

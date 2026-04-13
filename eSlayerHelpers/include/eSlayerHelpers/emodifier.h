@@ -68,7 +68,12 @@ enum class eModifierType : uint8_t {
     allSkills,
 
     replenishLife,
-    regenerateMana
+    regenerateMana,
+
+    fireSkillDamage,
+    coldSkillDamage,
+    lightningSkillDamage,
+    poisonSkillDamage
 };
 
 struct ESLAYERHELPERS_API eModifier {

@@ -61,7 +61,7 @@ bool gWeaponIsMeele(const eWeaponType subtype) {
 }
 
 enum class eModifierSource {
-    item, skill
+    item, skill, boost
 };
 
 struct eSkillStatsHelper {
@@ -92,8 +92,8 @@ struct eSkillStatsHelper {
     eDamage fDmgMinRWBase;
     eDamage fDmgMaxRWBase;
 
-    eDamage fDmgMultMin{1.f, 1.f, 1.f, 1.f};
-    eDamage fDmgMultMax{1.f, 1.f, 1.f, 1.f};
+    eDamage fDmgMultMin{1.f, 1.f, 1.f, 1.f, 1.f};
+    eDamage fDmgMultMax{1.f, 1.f, 1.f, 1.f, 1.f};
 
     float fPoisonBitRateLW = 0.f;
     float fPoisonBitRateRW = 0.f;
@@ -111,7 +111,11 @@ struct eSkillStatsHelper {
         case eSkillType::missile:
         case eSkillType::wall:
         case eSkillType::summon:
-            return src == eModifierSource::skill;
+            return src == eModifierSource::skill ||
+                   type == eModifierType::fireSkillDamage ||
+                   type == eModifierType::coldSkillDamage ||
+                   type == eModifierType::lightningSkillDamage ||
+                   type == eModifierType::poisonSkillDamage;
         case eSkillType::aura:
         case eSkillType::boostCurse:
         case eSkillType::passive:
@@ -239,26 +243,42 @@ struct eSkillStatsHelper {
                 fStats.fAttackSpeedS += mod.fValue1;
             }
         } break;
+        case eModifierType::fireSkillDamage: {
+            fDmgMultMin.fFire += mod.fValue1;
+            fDmgMultMax.fFire += mod.fValue1;
+        } break;
+        case eModifierType::coldSkillDamage: {
+            fDmgMultMin.fCold += mod.fValue1;
+            fDmgMultMax.fCold += mod.fValue1;
+        } break;
+        case eModifierType::lightningSkillDamage: {
+            fDmgMultMin.fLightning += mod.fValue1;
+            fDmgMultMax.fLightning += mod.fValue1;
+        } break;
+        case eModifierType::poisonSkillDamage: {
+            fDmgMultMin.fPoisonPerFrame += mod.fValue1;
+            fDmgMultMax.fPoisonPerFrame += mod.fValue1;
+        } break;
         default:
             break;
         }
     }
 
-    void apply() const {
+    void apply() {
+        fDmgMinLWBase.fPoisonPerFrame = fPoisonBitRateLW/256.f;
+        fDmgMinLWBase.fPoisonFrameLength = fPoisonFrameLengthLW;
+        fDmgMaxLWBase.fPoisonPerFrame = fPoisonBitRateLW/256.f;
+        fDmgMaxLWBase.fPoisonFrameLength = fPoisonFrameLengthLW;
+
+        fDmgMinRWBase.fPoisonPerFrame = fPoisonBitRateRW/256.f;
+        fDmgMinRWBase.fPoisonFrameLength = fPoisonFrameLengthRW;
+        fDmgMaxRWBase.fPoisonPerFrame = fPoisonBitRateRW/256.f;
+        fDmgMaxRWBase.fPoisonFrameLength = fPoisonFrameLengthRW;
+
         fStats.fDamageMinLW = fDmgMinLWBase*fDmgMultMin;
         fStats.fDamageMaxLW = fDmgMaxLWBase*fDmgMultMax;
         fStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
         fStats.fDamageMaxRW = fDmgMaxRWBase*fDmgMultMax;
-
-        fStats.fDamageMinLW.fPoisonPerFrame = fPoisonBitRateLW/256.f;
-        fStats.fDamageMinLW.fPoisonFrameLength = fPoisonFrameLengthLW;
-        fStats.fDamageMaxLW.fPoisonPerFrame = fPoisonBitRateLW/256.f;
-        fStats.fDamageMaxLW.fPoisonFrameLength = fPoisonFrameLengthLW;
-
-        fStats.fDamageMinRW.fPoisonPerFrame = fPoisonBitRateRW/256.f;
-        fStats.fDamageMinRW.fPoisonFrameLength = fPoisonFrameLengthRW;
-        fStats.fDamageMaxRW.fPoisonPerFrame = fPoisonBitRateRW/256.f;
-        fStats.fDamageMaxRW.fPoisonFrameLength = fPoisonFrameLengthRW;
 
         fStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);
         fStats.fAttackRatingRW = (fBaseAR + fFlatARRW)*(1.f + fBonusARRW);
@@ -487,6 +507,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::manaSteal:
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
+        case eModifierType::fireSkillDamage:
+        case eModifierType::coldSkillDamage:
+        case eModifierType::lightningSkillDamage:
+        case eModifierType::poisonSkillDamage:
             break;
         }
     };
@@ -639,6 +663,10 @@ void eStats::calculateSkill(const int schoice,
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
         case eModifierType::attackSpeed:
+        case eModifierType::fireSkillDamage:
+        case eModifierType::coldSkillDamage:
+        case eModifierType::lightningSkillDamage:
+        case eModifierType::poisonSkillDamage:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -778,7 +806,7 @@ void eStats::calculateSkill(const int schoice,
     }
 
     for(const auto& boost : fBoosts) {
-        handleSkillMod(boost, eModifierSource::skill,
+        handleSkillMod(boost, eModifierSource::boost,
                        helper, true, true);
     }
 
@@ -812,7 +840,7 @@ void eStats::calculateSkill(const int schoice,
         if(skill.fType != eSkillType::passive) continue;
         const auto& skillLevel = skill.skillLevel(skillLevelId);
         for(const auto& mod : skillLevel.fTotalModifiers) {
-            handleSkillMod(mod.second, eModifierSource::skill,
+            handleSkillMod(mod.second, eModifierSource::boost,
                            helper, true, true);
         }
     }

@@ -105,6 +105,10 @@
         <string id="38">+%1 to All Skills</string>
         <string id="39">Replenish Life +%1</string>
         <string id="40">Regenerate Mana %1%</string>
+        <string id="41">+%1% to Fire Skill Damage</string>
+        <string id="42">+%1% to Cold Skill Damage</string>
+        <string id="43">+%1% to Lightning Skill Damage</string>
+        <string id="44">+%1% to Poison Skill Damage</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>
