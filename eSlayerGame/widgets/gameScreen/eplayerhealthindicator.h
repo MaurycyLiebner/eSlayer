@@ -7,6 +7,9 @@ class ePlayerHealthIndicator : public eHealthIndicator {
 public:
     using eHealthIndicator::eHealthIndicator;
 
+    void initialize(const std::shared_ptr<eTexture>& bg,
+                    const std::shared_ptr<eTexture>& fg);
+
     void setName(const std::string& name);
 protected:
     void paintEvent(ePainter& p) override;
@@ -20,6 +23,9 @@ private:
     std::string mName;
     bool mHovered = false;
     bool mShowText = false;
+
+    std::shared_ptr<eTexture> mBg;
+    std::shared_ptr<eTexture> mFg;
 };
 
 #endif // EPLAYERHEALTHINDICATOR_H

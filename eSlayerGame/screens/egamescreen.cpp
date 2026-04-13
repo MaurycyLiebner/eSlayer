@@ -66,9 +66,6 @@ void eGameScreen::initialize(const int clientId,
 
     mGameWidget->setUnitIndicator(mUnitIndicator);
 
-    const int indicatorW = 400*m;
-    const int indicatorH = 30*m;
-
     mBottomWid = new eWidget(window());
     mBottomWid->setNoPadding();
 
@@ -86,9 +83,9 @@ void eGameScreen::initialize(const int clientId,
     mExperienceIndicator = new ePlayerHealthIndicator(window());
     mExperienceIndicator->setColor(eColors::sExperience);
     mExperienceIndicator->setName(eLanguage::text(7, 3));
-    mExperienceIndicator->initialize();
+    mExperienceIndicator->initialize(eUITextures::sLifeBar2,
+                                     eUITextures::sLifeBar1);
     centerWid->addWidget(mExperienceIndicator);
-    mExperienceIndicator->resize(2*indicatorW, indicatorH/2);
 
     const auto healthMana = new eWidget(window());
     healthMana->setNoPadding();
@@ -96,16 +93,16 @@ void eGameScreen::initialize(const int clientId,
     mHealthIndicator = new ePlayerHealthIndicator(window());
     mHealthIndicator->setColor(eColors::sHealth);
     mHealthIndicator->setName(eLanguage::text(7, 0));
-    mHealthIndicator->initialize();
+    mHealthIndicator->initialize(eUITextures::sLifeBar2,
+                                 eUITextures::sLifeBar1);
     healthMana->addWidget(mHealthIndicator);
-    mHealthIndicator->resize(indicatorW, indicatorH);
 
     mManaIndicator = new ePlayerHealthIndicator(window());
     mManaIndicator->setColor(eColors::sMana);
     mManaIndicator->setName(eLanguage::text(7, 1));
-    mManaIndicator->initialize();
+    mManaIndicator->initialize(eUITextures::sLifeBar2,
+                               eUITextures::sLifeBar1);
     healthMana->addWidget(mManaIndicator);
-    mManaIndicator->resize(indicatorW, indicatorH);
 
     const int lineWidth = eLabel::lineWidth();
     healthMana->stackHorizontally(-lineWidth);
@@ -130,10 +127,9 @@ void eGameScreen::initialize(const int clientId,
     mStaminaIndicator = new ePlayerHealthIndicator(window());
     mStaminaIndicator->setColor(eColors::sStamina);
     mStaminaIndicator->setName(eLanguage::text(7, 2));
-    mStaminaIndicator->initialize();
+    mStaminaIndicator->initialize(eUITextures::sStaminaBar2,
+                                  eUITextures::sStaminaBar1);
     staminaWid->addWidget(mStaminaIndicator);
-    mStaminaIndicator->resize(indicatorW - mRunButton->width(),
-                              mRunButton->height());
 
     staminaWid->stackHorizontally();
     staminaWid->fitContent();

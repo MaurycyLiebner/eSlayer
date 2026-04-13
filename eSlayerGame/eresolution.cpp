@@ -24,7 +24,7 @@ std::vector<eResolution> eResolution::sResolutions{
 
 eResolution::eResolution(const int width, const int height) :
     mWidth(width), mHeight(height) {
-    if(height <= 800) {
+    if(height <= 800 || width <= 1280) {
         mUIScale = eUIScale::small;
     } else if(height <= 1200) {
         mUIScale = eUIScale::medium;
@@ -136,4 +136,16 @@ int eResolution::centralWidgetLargeHeight() const {
 
 int eResolution::centralWidgetSmallHeight() const {
     return 400*multiplier();
+}
+
+std::string eResolution::textureSuffix() const {
+    switch(mUIScale) {
+    case eUIScale::small:
+        return "_small";
+    case eUIScale::medium:
+        return "_medium";
+    case eUIScale::large:
+        return "_large";
+    }
+    return "_small";
 }

@@ -63,6 +63,8 @@ public:
     friend bool operator<(const eResolution& r1, const eResolution& r2) {
         return r1.mWidth < r2.mWidth;
     }
+
+    std::string textureSuffix() const;
 private:
     int mWidth;
     int mHeight;

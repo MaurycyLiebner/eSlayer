@@ -229,8 +229,9 @@ void eScreenHandler::showGame(eServerData serverData,
             u.loadAll(r);
         }
     });
-    loading.emplace_back([r]() {
-        eUITextures::sLoad(r);
+    loading.emplace_back([this, r]() {
+        const auto& res = mWindow->resolution();
+        eUITextures::sLoad(r, res);
     });
     loading.emplace_back([this, server, clientId, serverC]() {
         const int width = mWindow->width();

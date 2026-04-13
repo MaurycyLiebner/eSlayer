@@ -1,7 +1,8 @@
 #include "euitextures.h"
 
 #include "../efileloader.h"
-#include "../textures/etexture.h"
+#include "etexture.h"
+#include "espriteloader.h"
 
 #include <eSlayerHelpers/eskills.h>
 
@@ -11,11 +12,34 @@ eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
 std::shared_ptr<eTexture> eUITextures::sRunIcon;
 
-void eUITextures::sLoad(SDL_Renderer* const r) {
+std::shared_ptr<eTexture> eUITextures::sLifeBar1;
+std::shared_ptr<eTexture> eUITextures::sLifeBar2;
+
+std::shared_ptr<eTexture> eUITextures::sStaminaBar1;
+std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
+
+void eUITextures::sLoad(SDL_Renderer* const r,
+                        const eResolution& res) {
     if(sLoaded) return;
     sLoaded = true;
 
     const auto dir = "Textures";
+
+    {
+        const auto suffix = res.textureSuffix();
+        {
+            const auto path = "ui/lifeBar/lifeBar" + suffix;
+            eSpriteLoader loader(dir, path, r);
+            sLifeBar1 = loader.load(0);
+            sLifeBar2 = loader.load(1);
+        }
+        {
+            const auto path = "ui/staminaBar/staminaBar" + suffix;
+            eSpriteLoader loader(dir, path, r);
+            sStaminaBar1 = loader.load(0);
+            sStaminaBar2 = loader.load(1);
+        }
+    }
 
     sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk.png");
     sRunIcon = eFileLoader::readTexture(r, dir, "ui/run.png");

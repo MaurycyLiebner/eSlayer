@@ -9,6 +9,7 @@ public:
 
     void initialize();
     void setColor(const SDL_Color& col);
+    const SDL_Color& color() const { return mColor; }
     void showText();
     void hideText();
 protected:
