@@ -29,6 +29,82 @@ void eHoverGenerator::addText(SDL_Renderer* const r,
     lines.emplace_back(tex);
 }
 
+bool addPlus(const float value,
+             const eModifierType type) {
+    if(value < 0.f) return false;
+    switch(type) {
+    case eModifierType::walkRun:
+
+    case eModifierType::attackSpeed:
+    case eModifierType::castRate:
+
+    case eModifierType::defenseValue:
+    case eModifierType::defensePercent:
+
+    case eModifierType::damageValue:
+    case eModifierType::damagePercent:
+
+    case eModifierType::damagePoison:
+
+    case eModifierType::attackRatingValue:
+    case eModifierType::attackRatingPercent:
+
+    case eModifierType::lifeValue:
+    case eModifierType::lifePercent:
+
+    case eModifierType::manaValue:
+    case eModifierType::manaPercent:
+
+    case eModifierType::pierceChance:
+
+    case eModifierType::fireResistance:
+    case eModifierType::coldResistance:
+    case eModifierType::lightningResitance:
+    case eModifierType::poisonResistance:
+
+    case eModifierType::maxFireResistance:
+    case eModifierType::maxColdResistance:
+    case eModifierType::maxLightningResitance:
+    case eModifierType::maxPoisonResistance:
+
+    case eModifierType::strength:
+    case eModifierType::dexterity:
+    case eModifierType::energy:
+    case eModifierType::vitality:
+
+    case eModifierType::meeleSplashDamage:
+
+    case eModifierType::allSkills:
+
+    case eModifierType::replenishLife:
+
+    case eModifierType::fireSkillDamage:
+    case eModifierType::coldSkillDamage:
+    case eModifierType::lightningSkillDamage:
+    case eModifierType::poisonSkillDamage:
+        return true;
+
+    case eModifierType::none:
+
+    case eModifierType::damageFire:
+    case eModifierType::damageLightning:
+    case eModifierType::damageCold:
+
+    case eModifierType::blockChancePercent:
+    case eModifierType::blockRecoverySpeed:
+    case eModifierType::hitRecoverySpeed:
+
+    case eModifierType::lifeSteal:
+    case eModifierType::manaSteal:
+
+    case eModifierType::knockback:
+
+    case eModifierType::regenerateMana:
+        return false;
+    }
+    return false;
+}
+
 std::string floatToString(const float value,
                           const eModifierType type) {
     switch(type) {
@@ -107,8 +183,15 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const eFontColor color,
                                const eModifierType type) {
     auto text = eLanguage::text(g, s);
-    text = eStringHelpers::replaceAll(text, "%1", floatToString(min, type));
-    text = eStringHelpers::replaceAll(text, "%2", floatToString(max, type));
+
+    std::string minStr;
+    if(addPlus(min, type)) minStr = "+";
+    minStr += floatToString(min, type);
+    text = eStringHelpers::replaceAll(text, "%1", minStr);
+
+    const std::string maxStr = floatToString(max, type);
+    text = eStringHelpers::replaceAll(text, "%2", maxStr);
+
     addText(r, text, color);
 }
 
