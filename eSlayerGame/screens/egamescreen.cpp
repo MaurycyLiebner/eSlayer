@@ -58,7 +58,8 @@ void eGameScreen::initialize(const int clientId,
 
     mUnitIndicator = new eUnitIndicator(window());
     mUnitIndicator->initialize();
-    const float m = resolution().multiplier();
+    const auto& res = resolution();
+    const float m = res.multiplier();
     mUnitIndicator->resize(200*m, 40*m);
     addWidget(mUnitIndicator);
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
@@ -83,8 +84,8 @@ void eGameScreen::initialize(const int clientId,
     mExperienceIndicator = new ePlayerHealthIndicator(window());
     mExperienceIndicator->setColor(eColors::sExperience);
     mExperienceIndicator->setName(eLanguage::text(7, 3));
-    mExperienceIndicator->initialize(eUITextures::sLifeBar2,
-                                     eUITextures::sLifeBar1);
+    mExperienceIndicator->initialize(eUITextures::sExpBar,
+                                     nullptr, 7);
     centerWid->addWidget(mExperienceIndicator);
 
     const auto healthMana = new eWidget(window());
@@ -94,18 +95,17 @@ void eGameScreen::initialize(const int clientId,
     mHealthIndicator->setColor(eColors::sHealth);
     mHealthIndicator->setName(eLanguage::text(7, 0));
     mHealthIndicator->initialize(eUITextures::sLifeBar2,
-                                 eUITextures::sLifeBar1);
+                                 eUITextures::sLifeBar1, 1);
     healthMana->addWidget(mHealthIndicator);
 
     mManaIndicator = new ePlayerHealthIndicator(window());
     mManaIndicator->setColor(eColors::sMana);
     mManaIndicator->setName(eLanguage::text(7, 1));
     mManaIndicator->initialize(eUITextures::sLifeBar2,
-                               eUITextures::sLifeBar1);
+                               eUITextures::sLifeBar1, 1);
     healthMana->addWidget(mManaIndicator);
 
-    const int lineWidth = eLabel::lineWidth();
-    healthMana->stackHorizontally(-lineWidth);
+    healthMana->stackHorizontally(0);
     healthMana->fitContent();
     centerWid->addWidget(healthMana);
 
@@ -128,7 +128,7 @@ void eGameScreen::initialize(const int clientId,
     mStaminaIndicator->setColor(eColors::sStamina);
     mStaminaIndicator->setName(eLanguage::text(7, 2));
     mStaminaIndicator->initialize(eUITextures::sStaminaBar2,
-                                  eUITextures::sStaminaBar1);
+                                  eUITextures::sStaminaBar1, 1);
     staminaWid->addWidget(mStaminaIndicator);
 
     staminaWid->stackHorizontally();
@@ -136,12 +136,14 @@ void eGameScreen::initialize(const int clientId,
 
     staminaExperience->addWidget(staminaWid);
 
-    staminaExperience->stackHorizontally(-lineWidth);
+    staminaExperience->stackHorizontally(0);
     staminaExperience->fitContent();
     centerWid->addWidget(staminaExperience);
 
-    centerWid->stackVertically(-lineWidth);
+    const int p = res.largePadding();
+    centerWid->stackVertically(p);
     centerWid->fitContent();
+    mExperienceIndicator->align(eAlignment::hcenter);
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
     mBottomWid->addWidget(centerWid);
 

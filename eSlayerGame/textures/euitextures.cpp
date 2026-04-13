@@ -18,6 +18,8 @@ std::shared_ptr<eTexture> eUITextures::sLifeBar2;
 std::shared_ptr<eTexture> eUITextures::sStaminaBar1;
 std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
 
+std::shared_ptr<eTexture> eUITextures::sExpBar;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
     if(sLoaded) return;
@@ -38,6 +40,10 @@ void eUITextures::sLoad(SDL_Renderer* const r,
             eSpriteLoader loader(dir, path, r);
             sStaminaBar1 = loader.load(0);
             sStaminaBar2 = loader.load(1);
+        }
+        {
+            const auto path = "ui/experienceBar/experienceBar" + suffix + ".png";
+            sExpBar = eFileLoader::readTexture(r, dir, path);
         }
     }
 

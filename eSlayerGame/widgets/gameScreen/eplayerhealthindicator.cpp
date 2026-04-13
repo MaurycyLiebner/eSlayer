@@ -4,13 +4,14 @@
 
 void ePlayerHealthIndicator::initialize(
     const std::shared_ptr<eTexture>& bg,
-    const std::shared_ptr<eTexture>& fg) {
+    const std::shared_ptr<eTexture>& fg,
+    const int nColumns) {
     mBg = bg;
     mFg = fg;
     eHealthIndicator::initialize();
     setNoPadding();
-    setTexture(mFg);
-    fitContent();
+    setHeight(mBg->height());
+    setWidth(nColumns*mBg->width());
 }
 
 void ePlayerHealthIndicator::setName(const std::string& name) {
@@ -24,16 +25,23 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
         setText(mName + ": " + std::to_string(value) + " / " + std::to_string(max));
     }
     const auto& col = color();
-    p.drawTexture(0, 0, mBg);
+    if(col.r + col.g + col.b > 600) {
+        mBg->setColorMod(55, 55, 55);
+    }
+    for(int x = 0; x < width(); x += mBg->width()) {
+        p.drawTexture(x, 0, mBg);
+    }
     mBg->setColorMod(col.r, col.g, col.b);
     const float frac = float(value)/max;
-    const int w = frac*mBg->width();
+    const int w = frac*width();
     const SDL_Rect rect{0, 0, w, height()};
     p.setClipRect(&rect);
-    p.drawTexture(0, 0, mBg);
+    for(int x = 0; x < width(); x += mBg->width()) {
+        p.drawTexture(x, 0, mBg);
+    }
     p.setClipRect(nullptr);
     mBg->clearColorMod();
-    eLabel::paintEvent(p);
+    if(mFg) p.drawTexture(0, 0, mFg);
 }
 
 bool ePlayerHealthIndicator::mouseMoveEvent(const eMouseEvent& e) {

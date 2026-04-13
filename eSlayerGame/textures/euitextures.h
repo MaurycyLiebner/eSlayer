@@ -29,6 +29,8 @@ public:
     sStaminaBar1;
     static std::shared_ptr<eTexture>
     sStaminaBar2;
+    static std::shared_ptr<eTexture>
+    sExpBar;
 private:
     static bool sLoaded;
 };

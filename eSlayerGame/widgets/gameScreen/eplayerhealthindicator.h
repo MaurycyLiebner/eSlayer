@@ -8,7 +8,8 @@ public:
     using eHealthIndicator::eHealthIndicator;
 
     void initialize(const std::shared_ptr<eTexture>& bg,
-                    const std::shared_ptr<eTexture>& fg);
+                    const std::shared_ptr<eTexture>& fg,
+                    const int nColumns);
 
     void setName(const std::string& name);
 protected:
