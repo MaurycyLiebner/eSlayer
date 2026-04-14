@@ -53,8 +53,8 @@ void eUITextures::sLoad(SDL_Renderer* const r,
         }
     }
 
-    sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk.png");
-    sRunIcon = eFileLoader::readTexture(r, dir, "ui/run.png");
+    sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk" + suffix+ ".png");
+    sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix+ ".png");
 
     const auto path = "ui/skills/skills.json";
     const auto jdata = eFileLoader::parse(dir, path);
