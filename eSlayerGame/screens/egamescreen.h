@@ -63,7 +63,7 @@ private:
     eAction mExitAction;
     eESCMenu* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
-    eWidget* mBottomWid = nullptr;
+    eLabel* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;

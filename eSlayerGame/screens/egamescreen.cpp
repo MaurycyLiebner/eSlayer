@@ -67,8 +67,13 @@ void eGameScreen::initialize(const int clientId,
 
     mGameWidget->setUnitIndicator(mUnitIndicator);
 
-    mBottomWid = new eWidget(window());
+    mBottomWid = new eLabel(window());
+    mBottomWid->setTexture(eUITextures::sBottomBar);
     mBottomWid->setNoPadding();
+    mBottomWid->fitContent();
+
+    const auto bottomInnerWidget = new eWidget(window());
+    bottomInnerWidget->setNoPadding();
 
     mLeftSkillButton = new eSkillButton(window());
     mLeftSkillButton->initialize(static_cast<int>(eSkillChoice::left));
@@ -76,7 +81,7 @@ void eGameScreen::initialize(const int clientId,
         openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill,
                       eSkillChoice::left);
     });
-    mBottomWid->addWidget(mLeftSkillButton);
+    bottomInnerWidget->addWidget(mLeftSkillButton);
 
     const auto centerWid = new eWidget(window());
     centerWid->setNoPadding();
@@ -140,12 +145,12 @@ void eGameScreen::initialize(const int clientId,
     staminaExperience->fitContent();
     centerWid->addWidget(staminaExperience);
 
-    const int p = res.largePadding();
+    const int p = res.tinyPadding();
     centerWid->stackVertically(p);
     centerWid->fitContent();
     mExperienceIndicator->align(eAlignment::hcenter);
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
-    mBottomWid->addWidget(centerWid);
+    bottomInnerWidget->addWidget(centerWid);
 
     mRightSkillButton = new eSkillButton(window());
     mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
@@ -153,12 +158,16 @@ void eGameScreen::initialize(const int clientId,
         openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill,
                       eSkillChoice::right);
     });
-    mBottomWid->addWidget(mRightSkillButton);
+    bottomInnerWidget->addWidget(mRightSkillButton);
 
-    mBottomWid->stackHorizontally();
-    mBottomWid->fitContent();
+    bottomInnerWidget->stackHorizontally();
+    bottomInnerWidget->fitContent();
+    mBottomWid->addWidget(bottomInnerWidget);
+    bottomInnerWidget->align(eAlignment::center);
     addWidget(mBottomWid);
     mBottomWid->align(eAlignment::bottom | eAlignment::hcenter);
+    mLeftSkillButton->align(eAlignment::bottom);
+    mRightSkillButton->align(eAlignment::bottom);
 
     const int w = width();
     const int h = height();

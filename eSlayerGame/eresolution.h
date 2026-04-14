@@ -5,7 +5,7 @@
 #include <vector>
 
 enum class eUIScale {
-    small, medium, large
+    small, medium, large, huge
 };
 
 class eResolution {

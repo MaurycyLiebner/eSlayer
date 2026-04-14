@@ -6,7 +6,7 @@
 
 #include <eSlayerHelpers/eskills.h>
 
-bool eUITextures::sLoaded = false;
+std::string eUITextures::sLoaded;
 eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
@@ -20,15 +20,17 @@ std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
 
 std::shared_ptr<eTexture> eUITextures::sExpBar;
 
+std::shared_ptr<eTexture> eUITextures::sBottomBar;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
-    if(sLoaded) return;
-    sLoaded = true;
+    const auto suffix = res.textureSuffix();
+    if(sLoaded == suffix) return;
+    sLoaded = suffix;
 
     const auto dir = "Textures";
 
     {
-        const auto suffix = res.textureSuffix();
         {
             const auto path = "ui/lifeBar/lifeBar" + suffix;
             eSpriteLoader loader(dir, path, r);
@@ -45,6 +47,10 @@ void eUITextures::sLoad(SDL_Renderer* const r,
             const auto path = "ui/experienceBar/experienceBar" + suffix + ".png";
             sExpBar = eFileLoader::readTexture(r, dir, path);
         }
+        {
+            const auto path = "ui/bottomBar/bottomBar" + suffix + ".png";
+            sBottomBar = eFileLoader::readTexture(r, dir, path);
+        }
     }
 
     sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk.png");
@@ -54,9 +60,11 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     const auto jdata = eFileLoader::parse(dir, path);
     const auto names = jdata.get<std::vector<std::string>>();
 
+    sSkillIcons.clear();
     for(const auto& name : names) {
-        const auto tex = eFileLoader::readTexture(r, dir, "ui/skills/" + name + ".png");
-        sSkillIcons.add(name, tex->scaled(r, 100, 100));
+        const auto path = "ui/skills/" + name + suffix + ".png";
+        const auto tex = eFileLoader::readTexture(r, dir, path);
+        sSkillIcons.add(name, tex);
     }
 
     for(const auto& it : eSkills::sSkills) {

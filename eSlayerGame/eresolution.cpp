@@ -28,34 +28,36 @@ eResolution::eResolution(const int width, const int height) :
         mUIScale = eUIScale::small;
     } else if(height <= 1200) {
         mUIScale = eUIScale::medium;
-    } else {
+    } else if(height <= 1600) {
         mUIScale = eUIScale::large;
+    } else {
+        mUIScale = eUIScale::huge;
     }
     mName = std::to_string(mWidth) + "x" + std::to_string(mHeight);
 }
 
 int eResolution::hugePadding() const {
-    return 3*largePadding()/2;
+    return std::round(15.f*multiplier());
 }
 
 int eResolution::largePadding() const {
-    return 10*multiplier();
+    return std::round(10.f*multiplier());
 }
 
 int eResolution::smallPadding() const {
-    return 3*largePadding()/4;
+    return std::round(7.5f*multiplier());
 }
 
 int eResolution::tinyPadding() const {
-    return largePadding()/2;
+    return std::round(5.f*multiplier());
 }
 
 int eResolution::veryTinyPadding() const {
-    return largePadding()/4;
+    return std::round(2.5f*multiplier());
 }
 
 int eResolution::veryVeryTinyPadding() const {
-    return largePadding()/6;
+    return std::round(1.67f*multiplier());
 }
 
 int eResolution::margin() const {
@@ -70,32 +72,34 @@ float eResolution::multiplier() const {
         return 1.5f;
     case eUIScale::large:
         return 2.0f;
+    case eUIScale::huge:
+        return 3.0f;
     }
     return 1.f;
 }
 
 int eResolution::extraHugeFontSize() const {
-    return 3*largeFontSize();
+    return std::round(60*multiplier());
 }
 
 int eResolution::hugeFontSize() const {
-    return 3*largeFontSize()/2;
+    return std::round(30*multiplier());
 }
 
 int eResolution::largeFontSize() const {
-    return 20*multiplier();
+    return std::round(20*multiplier());
 }
 
 int eResolution::smallFontSize() const {
-    return 3*largeFontSize()/4;
+    return std::round(15*multiplier());
 }
 
 int eResolution::verySmallFontSize() const {
-    return 3*largeFontSize()/5;
+    return std::round(12*multiplier());
 }
 
 int eResolution::tinyFontSize() const {
-    return 17*largeFontSize()/30;
+    return std::round(11.33f*multiplier());
 }
 
 int eResolution::lineWidth() const {
@@ -118,6 +122,8 @@ int eResolution::inventoryDim() const {
         return 60;
     case eUIScale::large:
         return 80;
+    case eUIScale::huge:
+        return 120;
     }
     return 40;
 }
@@ -146,6 +152,8 @@ std::string eResolution::textureSuffix() const {
         return "_medium";
     case eUIScale::large:
         return "_large";
+    case eUIScale::huge:
+        return "_huge";
     }
     return "_small";
 }

@@ -88,6 +88,11 @@ public:
     int size() const { return mValues.size(); }
 
     void reserve(const int size) { mValues.reserve(size); }
+
+    void clear() {
+        mMap.clear();
+        mValues.clear();
+    }
 private:
     std::map<std::string, int> mMap;
     std::vector<T> mValues;
