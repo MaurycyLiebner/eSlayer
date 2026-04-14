@@ -1,6 +1,7 @@
 #include "einventorybagpackwidget.h"
 
 #include "../../textures/eitemstextures.h"
+#include "../../textures/euitextures.h"
 #include "einventorywidget.h"
 #include "eitemdragwidget.h"
 #include "egamewidget.h"
@@ -11,11 +12,11 @@
 #include <SDL3/SDL_mouse.h>
 
 void eInventoryBagpackWidget::initialize(
-    eEquipment& eq, const eStats& stats,
-    const int dimensions) {
+    eEquipment& eq, const eStats& stats) {
     mEq = &eq;
     mStats = &stats;
-    mDimensions = dimensions;
+    const auto& boxTex = eUITextures::sEmptySlot;
+    mDimensions = boxTex->width();
     mWidth = mEq->fInventoryWidth;
     mHeight = mEq->fInventoryHeight;
     resize(mWidth*mDimensions, mHeight*mDimensions);
@@ -92,22 +93,20 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         }
     }
 
-    const auto& res = resolution();
-    const int lineWidth = res.lineWidth();
+    const auto& boxTex = eUITextures::sEmptySlot;
     for(int x = 0; x < mWidth; x++) {
         for(int y = 0; y < mHeight; y++) {
             const SDL_Rect rect{x*mDimensions,
                                 y*mDimensions,
                                 mDimensions,
                                 mDimensions};
-            p.fillRect(rect, fillColor);
             const SDL_Point pt{x, y};
             if(SDL_PointInRect(&pt, &ihoverRect)) {
+                boxTex->setColorMod(fillColor.r, fillColor.g, fillColor.b);
                 p.fillRect(rect, fillColor);
-            } else {
-                p.fillRect(rect, SDL_Color{0, 0, 0, 255});
             }
-            p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
+            p.drawTexture(rect.x, rect.y, boxTex);
+            boxTex->clearColorMod();
         }
     }
     const auto r = renderer();

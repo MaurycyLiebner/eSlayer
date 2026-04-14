@@ -114,20 +114,6 @@ int eResolution::tileHeight() const {
     return 79;
 }
 
-int eResolution::inventoryDim() const {
-    switch(mUIScale) {
-    case eUIScale::small:
-        return 40;
-    case eUIScale::medium:
-        return 60;
-    case eUIScale::large:
-        return 80;
-    case eUIScale::huge:
-        return 120;
-    }
-    return 40;
-}
-
 int eResolution::centralWidgetLargeWidth() const {
     return 660*multiplier();
 }

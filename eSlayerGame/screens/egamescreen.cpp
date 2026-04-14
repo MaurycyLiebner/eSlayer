@@ -114,8 +114,8 @@ void eGameScreen::initialize(const int clientId,
     healthMana->fitContent();
     centerWid->addWidget(healthMana);
 
-    const auto staminaExperience = new eWidget(window());
-    staminaExperience->setNoPadding();
+    const auto staminaBelt = new eWidget(window());
+    staminaBelt->setNoPadding();
 
     const auto staminaWid = new eWidget(window());
     staminaWid->setNoPadding();
@@ -139,13 +139,26 @@ void eGameScreen::initialize(const int clientId,
     staminaWid->stackHorizontally();
     staminaWid->fitContent();
 
-    staminaExperience->addWidget(staminaWid);
+    const auto belt = new eWidget(window());
+    belt->setNoPadding();
+    for(int x = 0; x < 4; x++) {
+        const auto slot = new eLabel(window());
+        slot->setNoPadding();
+        slot->setTexture(eUITextures::sEmptySlot);
+        slot->fitContent();
+        belt->addWidget(slot);
+    }
+    belt->stackHorizontally(0);
+    belt->fitContent();
 
-    staminaExperience->stackHorizontally(0);
-    staminaExperience->fitContent();
-    centerWid->addWidget(staminaExperience);
+    staminaBelt->addWidget(staminaWid);
+    staminaBelt->addWidget(belt);
 
     const int p = res.tinyPadding();
+    staminaBelt->stackHorizontally(p);
+    staminaBelt->fitContent();
+    centerWid->addWidget(staminaBelt);
+
     centerWid->stackVertically(p);
     centerWid->fitContent();
     mExperienceIndicator->align(eAlignment::hcenter);

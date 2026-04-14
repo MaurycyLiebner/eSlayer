@@ -39,8 +39,6 @@ public:
     int tileWidth() const;
     int tileHeight() const;
 
-    int inventoryDim() const;
-
     int centralWidgetLargeWidth() const;
     int centralWidgetSmallWidth() const;
     int centralWidgetLargeHeight() const;

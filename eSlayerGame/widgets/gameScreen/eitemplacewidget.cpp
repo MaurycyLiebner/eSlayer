@@ -11,21 +11,20 @@
 #include <eSlayerHelpers/evectorhelpers.h>
 
 void eItemPlaceWidget::intialize(
-    const int width, const int height,
-    const int dimensions,
+    const std::shared_ptr<eTexture>& tex,
     eEquipment& eq,
     const eStats& stats,
     eItem eEquipment::* const item,
     const std::vector<eItemType>& allowedTypes) {
+    setNoPadding();
     mEq = &eq;
     mStats = &stats;
     mDst = item;
     mAllowedTypes = allowedTypes;
 
-    mWidth = width;
-    mHeight = height;
-    mDimensions = dimensions;
-    resize(mWidth*mDimensions, mHeight*mDimensions);
+    setTexture(tex);
+    mTex = tex;
+    fitContent();
 }
 
 bool eItemPlaceWidget::dropItem() {
@@ -88,10 +87,7 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
             fillColor = SDL_Color{128, 0, 0, 255};
         }
     }
-    p.fillRect(rect, fillColor);
-    const auto& res = resolution();
-    const int lineWidth = res.lineWidth();
-    p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
+    p.drawTexture(0, 0, mTex);
     if(item.fType == eItemType::none) return;
     const auto r = renderer();
     auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);

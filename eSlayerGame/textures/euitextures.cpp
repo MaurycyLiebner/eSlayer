@@ -22,6 +22,25 @@ std::shared_ptr<eTexture> eUITextures::sExpBar;
 
 std::shared_ptr<eTexture> eUITextures::sBottomBar;
 
+std::shared_ptr<eTexture>
+eUITextures::sAmuletSlot;
+std::shared_ptr<eTexture>
+eUITextures::sArmorSlot;
+std::shared_ptr<eTexture>
+eUITextures::sBeltSlot;
+std::shared_ptr<eTexture>
+eUITextures::sBootsSlot;
+std::shared_ptr<eTexture>
+eUITextures::sGlovesSlot;
+std::shared_ptr<eTexture>
+eUITextures::sHelmetSlot;
+std::shared_ptr<eTexture>
+eUITextures::sRingSlot;
+std::shared_ptr<eTexture>
+eUITextures::sWeaponSlot;
+std::shared_ptr<eTexture>
+eUITextures::sEmptySlot;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
     const auto suffix = res.textureSuffix();
@@ -53,8 +72,18 @@ void eUITextures::sLoad(SDL_Renderer* const r,
         }
     }
 
-    sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk" + suffix+ ".png");
-    sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix+ ".png");
+    sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk" + suffix + ".png");
+    sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix + ".png");
+
+    sAmuletSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotAmulet" + suffix + ".png");
+    sArmorSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotArmor" + suffix + ".png");
+    sBeltSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotBelt" + suffix + ".png");
+    sBootsSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotBoots" + suffix + ".png");
+    sGlovesSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotGloves" + suffix + ".png");
+    sHelmetSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotHelmet" + suffix + ".png");
+    sRingSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotRing" + suffix + ".png");
+    sWeaponSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotWeapon" + suffix + ".png");
+    sEmptySlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlot" + suffix + ".png");
 
     const auto path = "ui/skills/skills.json";
     const auto jdata = eFileLoader::parse(dir, path);

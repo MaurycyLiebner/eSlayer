@@ -33,6 +33,25 @@ public:
     sExpBar;
     static std::shared_ptr<eTexture>
     sBottomBar;
+
+    static std::shared_ptr<eTexture>
+    sAmuletSlot;
+    static std::shared_ptr<eTexture>
+    sArmorSlot;
+    static std::shared_ptr<eTexture>
+    sBeltSlot;
+    static std::shared_ptr<eTexture>
+    sBootsSlot;
+    static std::shared_ptr<eTexture>
+    sGlovesSlot;
+    static std::shared_ptr<eTexture>
+    sHelmetSlot;
+    static std::shared_ptr<eTexture>
+    sRingSlot;
+    static std::shared_ptr<eTexture>
+    sWeaponSlot;
+    static std::shared_ptr<eTexture>
+    sEmptySlot;
 private:
     static std::string sLoaded;
 };

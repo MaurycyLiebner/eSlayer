@@ -13,8 +13,7 @@ public:
     using eWidget::eWidget;
 
     void initialize(eEquipment& eq,
-                    const eStats& stats,
-                    const int dimensions);
+                    const eStats& stats);
 
     bool dropItem(const SDL_Point& mpos);
 protected:

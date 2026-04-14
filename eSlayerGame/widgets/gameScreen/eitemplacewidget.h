@@ -1,19 +1,18 @@
 #ifndef EITEMPLACEWIDGET_H
 #define EITEMPLACEWIDGET_H
 
-#include "../ewidget.h"
+#include "../elabel.h"
 
 struct eEquipment;
 struct eItem;
 struct eStats;
 enum class eItemType : uint8_t;
 
-class eItemPlaceWidget : public eWidget {
+class eItemPlaceWidget : public eLabel {
 public:
-    using eWidget::eWidget;
+    using eLabel::eLabel;
 
-    void intialize(const int width, const int height,
-                   const int dimensions,
+    void intialize(const std::shared_ptr<eTexture>& tex,
                    eEquipment& eq,
                    const eStats& stats,
                    eItem eEquipment::* const item,
@@ -29,14 +28,11 @@ protected:
 private:
     bool draggedCompatible();
 
-    int mWidth = 0;
-    int mHeight = 0;
-    int mDimensions = 0;
-
     std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
     const eStats* mStats = nullptr;
     eItem eEquipment::*mDst = nullptr;
+    std::shared_ptr<eTexture> mTex;
 };
 
 #endif // EITEMPLACEWIDGET_H

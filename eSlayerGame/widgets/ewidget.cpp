@@ -159,6 +159,8 @@ SDL_Point eWidget::mousePos() const {
     float mxf;
     float myf;
     SDL_GetMouseState(&mxf, &myf);
+    const auto r = renderer();
+    SDL_RenderCoordinatesFromWindow(r, mxf, myf, &mxf, &myf);
     int mx = mxf;
     int my = myf;
     mapFromGlobal(mx, my);
