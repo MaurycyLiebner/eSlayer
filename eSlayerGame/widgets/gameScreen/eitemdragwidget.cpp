@@ -208,7 +208,7 @@ void eItemDragWidget::setHoverSkill(
             if(levelId >= 0) {
                 const auto& level = skill.skillLevel(levelId);
                 gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
-                             eFontColor::white, eModifierType::manaValue);
+                             eFontColor::white, eModifierType::none);
                 int count;
                 float cooldown;
                 float manaCost;
@@ -222,7 +222,7 @@ void eItemDragWidget::setHoverSkill(
                 }
                 if(manaCost != 0.f) {
                     gen.addValue(r, 13, 3, manaCost, manaCost,
-                                 eFontColor::white, eModifierType::manaValue);
+                                 eFontColor::white, eModifierType::none);
                 }
             }
             const int nextLevelId = levelId + 1;
@@ -230,7 +230,7 @@ void eItemDragWidget::setHoverSkill(
                 if(levelId >= 0) gen.addSpace(r);
                 const auto& level = skill.skillLevel(nextLevelId);
                 gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
-                             eFontColor::white, eModifierType::manaValue);
+                             eFontColor::white, eModifierType::none);
                 int count;
                 float cooldown;
                 float manaCost;
@@ -244,7 +244,7 @@ void eItemDragWidget::setHoverSkill(
                 }
                 if(manaCost != 0.f) {
                     gen.addValue(r, 13, 3, manaCost, manaCost,
-                                 eFontColor::white, eModifierType::manaValue);
+                                 eFontColor::white, eModifierType::none);
                 }
             }
 
