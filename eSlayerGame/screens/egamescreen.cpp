@@ -15,6 +15,7 @@
 #include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eskilltreeswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../widgets/gameScreen/ebgwidget.h"
 #include "../widgets/elineedit.h"
 
 #include <eSlayerHelpers/egamedir.h>
@@ -67,10 +68,8 @@ void eGameScreen::initialize(const int clientId,
 
     mGameWidget->setUnitIndicator(mUnitIndicator);
 
-    mBottomWid = new eLabel(window());
-    mBottomWid->setTexture(eUITextures::sBottomBar);
-    mBottomWid->setNoPadding();
-    mBottomWid->fitContent();
+    mBottomWid = new eBgWidget(window());
+    mBottomWid->setHugePadding();
 
     const auto bottomInnerWidget = new eWidget(window());
     bottomInnerWidget->setNoPadding();
@@ -89,8 +88,8 @@ void eGameScreen::initialize(const int clientId,
     mExperienceIndicator = new ePlayerHealthIndicator(window());
     mExperienceIndicator->setColor(eColors::sExperience);
     mExperienceIndicator->setName(eLanguage::text(7, 3));
-    mExperienceIndicator->initialize(eUITextures::sExpBar,
-                                     nullptr, 7);
+    mExperienceIndicator->initialize(eUITextures::sExpBar2,
+                                     eUITextures::sExpBar1, 6);
     centerWid->addWidget(mExperienceIndicator);
 
     const auto healthMana = new eWidget(window());
@@ -176,6 +175,7 @@ void eGameScreen::initialize(const int clientId,
     bottomInnerWidget->stackHorizontally();
     bottomInnerWidget->fitContent();
     mBottomWid->addWidget(bottomInnerWidget);
+    mBottomWid->fitContent();
     bottomInnerWidget->align(eAlignment::center);
     addWidget(mBottomWid);
     mBottomWid->align(eAlignment::bottom | eAlignment::hcenter);

@@ -18,6 +18,7 @@ class eItemDragWidget;
 class eStatsWidget;
 class eCharacter;
 class eLineEdit;
+class eBgWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -63,7 +64,7 @@ private:
     eAction mExitAction;
     eESCMenu* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
-    eLabel* mBottomWid = nullptr;
+    eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;

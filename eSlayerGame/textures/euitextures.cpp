@@ -18,7 +18,8 @@ std::shared_ptr<eTexture> eUITextures::sLifeBar2;
 std::shared_ptr<eTexture> eUITextures::sStaminaBar1;
 std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
 
-std::shared_ptr<eTexture> eUITextures::sExpBar;
+std::shared_ptr<eTexture> eUITextures::sExpBar1;
+std::shared_ptr<eTexture> eUITextures::sExpBar2;
 
 std::shared_ptr<eTexture> eUITextures::sBottomBar;
 
@@ -40,6 +41,9 @@ std::shared_ptr<eTexture>
 eUITextures::sWeaponSlot;
 std::shared_ptr<eTexture>
 eUITextures::sEmptySlot;
+
+eTextureCollection
+eUITextures::sBg;
 
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
@@ -63,8 +67,10 @@ void eUITextures::sLoad(SDL_Renderer* const r,
             sStaminaBar2 = loader.load(1);
         }
         {
-            const auto path = "ui/experienceBar/experienceBar" + suffix + ".png";
-            sExpBar = eFileLoader::readTexture(r, dir, path);
+            const auto path = "ui/experienceBar/experienceBar" + suffix;
+            eSpriteLoader loader(dir, path, r);
+            sExpBar1 = loader.load(0);
+            sExpBar2 = loader.load(1);
         }
         {
             const auto path = "ui/bottomBar/bottomBar" + suffix + ".png";
@@ -84,6 +90,12 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sRingSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotRing" + suffix + ".png");
     sWeaponSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotWeapon" + suffix + ".png");
     sEmptySlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlot" + suffix + ".png");
+
+    const auto bgPath = "ui/widgetBg/widgetBg" + suffix;
+    eSpriteLoader loader(dir, bgPath, r);
+    for(int i = 0; i < 9; i++) {
+        loader.load(i, sBg);
+    }
 
     const auto path = "ui/skills/skills.json";
     const auto jdata = eFileLoader::parse(dir, path);

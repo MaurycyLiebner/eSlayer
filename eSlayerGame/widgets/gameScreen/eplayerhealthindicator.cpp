@@ -10,8 +10,9 @@ void ePlayerHealthIndicator::initialize(
     mFg = fg;
     eHealthIndicator::initialize();
     setNoPadding();
-    setHeight(mBg->height());
-    setWidth(nColumns*mBg->width());
+    setHeight(mFg->height());
+    mNColumns = nColumns;
+    setWidth(nColumns*mFg->width());
 }
 
 void ePlayerHealthIndicator::setName(const std::string& name) {
@@ -24,24 +25,33 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
     if(mHovered || mShowText) {
         setText(mName + ": " + std::to_string(value) + " / " + std::to_string(max));
     }
+    const int baseWidth = mFg->width();
+    for(int x = 0; x < mNColumns; x++) {
+        p.drawTexture(x*baseWidth, 0, mFg);
+    }
     const auto& col = color();
     if(col.r + col.g + col.b > 600) {
         mBg->setColorMod(55, 55, 55);
     }
-    for(int x = 0; x < width(); x += mBg->width()) {
-        p.drawTexture(x, 0, mBg);
+    const int xOffset = mBg->x();
+    for(int x = 0; x < mNColumns; x++) {
+        p.drawTexture(x*baseWidth + xOffset, 0, mBg);
     }
     mBg->setColorMod(col.r, col.g, col.b);
+    const int innerW = mBg->width();
+    const int totalW = mNColumns*innerW;
     const float frac = float(value)/max;
-    const int w = frac*width();
-    const SDL_Rect rect{0, 0, w, height()};
-    p.setClipRect(&rect);
-    for(int x = 0; x < width(); x += mBg->width()) {
-        p.drawTexture(x, 0, mBg);
+    const int h = height();
+    int remW = frac*totalW;
+    for(int x = 0; x < mNColumns; x++) {
+        const SDL_Rect rect{x*baseWidth + xOffset, 0, remW, h};
+        p.setClipRect(&rect);
+        p.drawTexture(rect.x, 0, mBg);
+        remW -= innerW;
+        if(remW <= 0) break;
     }
     p.setClipRect(nullptr);
     mBg->clearColorMod();
-    if(mFg) p.drawTexture(0, 0, mFg);
 }
 
 bool ePlayerHealthIndicator::mouseMoveEvent(const eMouseEvent& e) {

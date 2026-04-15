@@ -1,7 +1,7 @@
 #ifndef ESKILLTREESWIDGET_H
 #define ESKILLTREESWIDGET_H
 
-#include "../ewidget.h"
+#include "ebgwidget.h"
 
 struct eStats;
 struct eAttributes;
@@ -9,9 +9,9 @@ struct eEquipment;
 class eSkillTreeWidget;
 class eLabel;
 
-class eSkillTreesWidget : public eWidget {
+class eSkillTreesWidget : public eBgWidget {
 public:
-    using eWidget::eWidget;
+    using eBgWidget::eBgWidget;
 
     void initialize(eStats& stats,
                     const eAttributes& attrs,

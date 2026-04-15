@@ -168,6 +168,7 @@ add_executable(eSlayerGame main.cpp
     names/eskilltreenames.h names/eskilltreenames.cpp
     names/eclassnames.h names/eclassnames.cpp
     widgets/gameScreen/ehovergenerator.h widgets/gameScreen/ehovergenerator.cpp
+    widgets/gameScreen/ebgwidget.h widgets/gameScreen/ebgwidget.cpp
 
 )
 

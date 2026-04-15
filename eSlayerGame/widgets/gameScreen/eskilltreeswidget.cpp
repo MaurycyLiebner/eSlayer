@@ -100,17 +100,12 @@ void eSkillTreesWidget::initialize(
 }
 
 void eSkillTreesWidget::paintEvent(ePainter& p) {
-    const auto rect = eWidget::rect();
-    p.fillRect(rect, SDL_Color{0, 0, 0, 255});
-    const auto& res = resolution();
-    const int lineWidth = res.lineWidth();
-    p.drawRect(rect, SDL_Color{255, 255, 255, 255}, lineWidth);
-
     const auto& levels = mStats->fBaseSkillLevels;
     const int pts = levels.fRemainingPoints;
     mRemPtsLabel->setText(std::to_string(pts));
     mRemPtsLabel->fitContent();
     mRemPtsLabel->align(eAlignment::hcenter);
+    eBgWidget::paintEvent(p);
 }
 
 bool eSkillTreesWidget::mousePressEvent(const eMouseEvent& e) {

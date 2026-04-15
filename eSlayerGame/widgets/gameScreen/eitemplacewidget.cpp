@@ -67,6 +67,8 @@ bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
 
 bool eItemPlaceWidget::draggedCompatible() {
     auto& dragged = mEq->fDragged;
+    const bool met = mStats->itemReqsMet(dragged);
+    if(!met) return false;
     const auto& dst = mEq->*mDst;
     return mEq->canPlace(dragged, dst);
 }
@@ -75,26 +77,31 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     const auto& item = mEq->*mDst;
     const auto rect = eWidget::rect();
     const bool h = hovered();
-    SDL_Color fillColor{0, 0, 0, 255};
     if(h) {
-        if(mEq->fDragged.fType == eItemType::none) {
+        const bool dragging = mEq->fDragged.fType != eItemType::none;
+        if(!dragging) {
             if(item.fType != eItemType::none) {
-                fillColor = SDL_Color{0, 128, 0, 255};
+                mTex->setColorMod(0, 175, 0);
             }
         } else if(draggedCompatible()) {
-            fillColor = SDL_Color{0, 128, 0, 255};
+            mTex->setColorMod(0, 175, 0);
         } else {
-            fillColor = SDL_Color{128, 0, 0, 255};
+            mTex->setColorMod(175, 0, 0);
+        }
+    } else if(item.fType != eItemType::none) {
+        const bool met = mStats->itemReqsMet(item);
+        if(met) {
+            mTex->setColorMod(100, 100, 100);
+        } else {
+            mTex->setColorMod(175, 0, 0);
         }
     }
     p.drawTexture(0, 0, mTex);
+    mTex->clearColorMod();
     if(item.fType == eItemType::none) return;
     const auto r = renderer();
     auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);
     itemTex.request(r);
     const auto& tex = itemTex.fTex;
-    const bool mod = !mStats->itemReqsMet(item);
-    if(mod) tex->setColorMod(255, 0, 0);
     p.drawTexture(rect, itemTex.fTex, eAlignment::center);
-    if(mod) tex->clearColorMod();
 }

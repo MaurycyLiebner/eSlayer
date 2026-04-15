@@ -1,7 +1,7 @@
 #ifndef ESTATSWIDGET_H
 #define ESTATSWIDGET_H
 
-#include "../ewidget.h"
+#include "ebgwidget.h"
 
 struct eStats;
 struct eAttributes;
@@ -10,15 +10,14 @@ class eStatLabel;
 class eStatWidget;
 class eAttrIncButton;
 
-class eStatsWidget : public eWidget {
+class eStatsWidget : public eBgWidget {
 public:
-    using eWidget::eWidget;
+    using eBgWidget::eBgWidget;
 
     void initialize(const std::string& name,
                     eStats& stats,
                     const eEquipment& eq,
                     eAttributes& attrs);
-
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

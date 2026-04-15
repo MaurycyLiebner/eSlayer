@@ -2,6 +2,7 @@
 #define EUITEXTURES_H
 
 #include "../eresolution.h"
+#include "etexturecollection.h"
 
 #include <eSlayerHelpers/estringidmapvector.h>
 
@@ -30,7 +31,9 @@ public:
     static std::shared_ptr<eTexture>
     sStaminaBar2;
     static std::shared_ptr<eTexture>
-    sExpBar;
+    sExpBar1;
+    static std::shared_ptr<eTexture>
+    sExpBar2;
     static std::shared_ptr<eTexture>
     sBottomBar;
 
@@ -52,6 +55,8 @@ public:
     sWeaponSlot;
     static std::shared_ptr<eTexture>
     sEmptySlot;
+
+    static eTextureCollection sBg;
 private:
     static std::string sLoaded;
 };

@@ -27,6 +27,7 @@ private:
 
     std::shared_ptr<eTexture> mBg;
     std::shared_ptr<eTexture> mFg;
+    int mNColumns = 1;
 };
 
 #endif // EPLAYERHEALTHINDICATOR_H

@@ -1,7 +1,7 @@
 #ifndef EINVENTORYWIDGET_H
 #define EINVENTORYWIDGET_H
 
-#include "../ewidget.h"
+#include "ebgwidget.h"
 
 class eItemDragWidget;
 class eInventoryBagpackWidget;
@@ -11,7 +11,7 @@ class eWeaponSwitch;
 class eItemDragWidget;
 struct eStats;
 
-class eInventoryWidget : public eWidget {
+class eInventoryWidget : public eBgWidget {
 public:
     eInventoryWidget(eMainWindow* const window);
     ~eInventoryWidget();
@@ -25,7 +25,6 @@ public:
     static bool sBlocked;
     static eInventoryWidget* sInstance;
 protected:
-    void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eInventoryBagpackWidget* mBagpack = nullptr;

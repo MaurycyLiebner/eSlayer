@@ -68,7 +68,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
             const auto& item = mEq->fInventory[itemId];
             ihoverRect = SDL_Rect{item.fX, item.fY,
                                   item.fW, item.fH};
-            fillColor = SDL_Color{0, 128, 0, 255};
+            fillColor = SDL_Color{0, 175, 0, 255};
         }
     } else {
         const auto& itemData = eItemsData::get(dragged.fDataId);
@@ -78,17 +78,17 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
             const auto ids = itemIdsAt(dropRect);
             if(ids.size() > 1) {
                 ihoverRect = dropRect;
-                fillColor = SDL_Color{128, 0, 0, 255};
+                fillColor = SDL_Color{175, 0, 0, 255};
             } else if(ids.size() == 1) {
                 auto& invItem = mEq->fInventory[ids[0]];
                 ihoverRect.x = invItem.fX;
                 ihoverRect.y = invItem.fY;
                 ihoverRect.w = invItem.fW;
                 ihoverRect.h = invItem.fH;
-                fillColor = SDL_Color{0, 128, 0, 255};
+                fillColor = SDL_Color{0, 175, 0, 255};
             } else { // 0
                 ihoverRect = dropRect;
-                fillColor = SDL_Color{0, 128, 0, 255};
+                fillColor = SDL_Color{0, 175, 0, 255};
             }
         }
     }
@@ -103,9 +103,17 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
             const SDL_Point pt{x, y};
             if(SDL_PointInRect(&pt, &ihoverRect)) {
                 boxTex->setColorMod(fillColor.r, fillColor.g, fillColor.b);
-                p.fillRect(rect, fillColor);
+            } else {
+                for(const auto& i : mEq->fInventory) {
+                    const SDL_Rect iRect{i.fX, i.fY, i.fW, i.fH};
+                    if(SDL_PointInRect(&pt, &iRect)) {
+                        boxTex->setColorMod(100, 100, 100);
+                        break;
+                    }
+                }
             }
             p.drawTexture(rect.x, rect.y, boxTex);
+            boxTex->clearColorMod();
             boxTex->clearColorMod();
         }
     }
