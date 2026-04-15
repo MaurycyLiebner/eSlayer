@@ -33,12 +33,15 @@ void eSkillTreesWidget::initialize(
     const eEquipment& eq) {
     mStats = &stats;
 
+    const auto inner = new eWidget(window());
+    inner->setNoPadding();
+
     const auto tabWidget = new eWidget(window());
     tabWidget->setNoPadding();
 
     const auto& res = resolution();
     const int tabWidth = 200*res.multiplier();
-    tabWidget->resize(tabWidth, height());
+    tabWidget->setWidth(tabWidth);
 
     const auto font = eFonts::textFont(res.smallFontSize());
     const auto remainingLabel = new eLabel(window());
@@ -63,19 +66,15 @@ void eSkillTreesWidget::initialize(
 
     const auto skillTreeWidget = new eWidget(window());
     skillTreeWidget->setNoPadding();
-    skillTreeWidget->resize(width() - tabWidth, height());
 
-    const int w = width() - tabWidth - 2*p;
-    const int h = height() - 2*p;
     const auto& class_ = eClasses::sClasses.get(stats.fClass);
     for(const int skillTreeId : class_.fSkillTrees) {
         const auto skillTreeW = new eSkillTreeWidget(window());
-        skillTreeW->resize(w, h);
         skillTreeW->initialize(skillTreeId, stats);
+        skillTreeW->fitContent();
         skillTreeWidget->addWidget(skillTreeW);
         skillTreeW->setVisible(mWidgets.empty());
         mWidgets.emplace_back(skillTreeW);
-        skillTreeW->align(eAlignment::center);
 
         const auto skillTreeName = eSkillTreeNames::name(skillTreeId);
 
@@ -94,9 +93,16 @@ void eSkillTreesWidget::initialize(
     }
 
     tabWidget->stackVertically(p);
-    addWidget(tabWidget);
-    tabWidget->align(eAlignment::right);
-    addWidget(skillTreeWidget);
+    tabWidget->fitHeight();
+    skillTreeWidget->fitContent();
+    for(const auto w : mWidgets) {
+        w->align(eAlignment::center);
+    }
+    inner->addWidget(skillTreeWidget);
+    inner->addWidget(tabWidget);
+    inner->stackHorizontally(0);
+    inner->fitContent();
+    setup(inner);
 }
 
 void eSkillTreesWidget::paintEvent(ePainter& p) {

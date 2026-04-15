@@ -378,8 +378,7 @@ void eStatsWidget::initialize(const std::string& name,
     innerW->stackVertically(hp);
     innerW->fitContent();
 
-    addWidget(innerW);
-    innerW->align(eAlignment::center);
+    setup(innerW);
 }
 
 bool eStatsWidget::mousePressEvent(const eMouseEvent& e) {

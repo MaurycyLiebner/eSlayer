@@ -25,5 +25,7 @@ void eSkillTreeWidget::initialize(
         addWidget(button);
     }
 
-    layoutVertically();
+    const auto& res = resolution();
+    const int hp = res.hugePadding();
+    stackVertically(hp);
 }

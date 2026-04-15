@@ -24,6 +24,9 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     mEq = &eq;
     const auto& res = resolution();
 
+    const auto inner = new eWidget(window());
+    inner->setNoPadding();
+
     const auto helmet = new eItemPlaceWidget(window());
     helmet->intialize(eUITextures::sHelmetSlot, eq, stats,
                       &eEquipment::fHelmet,
@@ -156,7 +159,7 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     firstRow->addWidget(rweaponCont);
     firstRow->stackHorizontally(p);
     firstRow->fitContent();
-    addWidget(firstRow);
+    inner->addWidget(firstRow);
 
     const auto secondRow = new eWidget(window());
     secondRow->setNoPadding();
@@ -168,19 +171,20 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     secondRow->addWidget(boots);
     secondRow->stackHorizontally(p);
     secondRow->fitContent();
-    addWidget(secondRow);
+    inner->addWidget(secondRow);
 
     mBagpack = new eInventoryBagpackWidget(window());
     mBagpack->initialize(eq, stats);
-    addWidget(mBagpack);
+    inner->addWidget(mBagpack);
 
-    layoutVertically();
+    inner->stackVertically(p);
+    inner->fitContent();
 
     firstRow->align(eAlignment::hcenter);
     secondRow->align(eAlignment::hcenter);
     mBagpack->align(eAlignment::hcenter);
 
-    updateWeapons();
+    setup(inner);
 }
 
 bool eInventoryWidget::mousePressEvent(const eMouseEvent& e) {

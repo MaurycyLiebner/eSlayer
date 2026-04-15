@@ -4,6 +4,15 @@
 
 #include <cmath>
 
+void eBgWidget::setup(eWidget* const inner) {
+    const auto& res = resolution();
+    const int innerP = 25*res.multiplier();
+    addWidget(inner);
+    resize(inner->width() + 2*innerP,
+           inner->height() + 2*innerP);
+    inner->align(eAlignment::center);
+}
+
 void eBgWidget::paintEvent(ePainter& p) {
     const auto& coll = eUITextures::sBg;
     const auto& first = coll.getTexture(0);

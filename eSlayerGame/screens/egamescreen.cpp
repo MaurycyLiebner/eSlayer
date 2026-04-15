@@ -394,8 +394,9 @@ void eGameScreen::showInventoryMenu() {
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
     addWidget(mInventoryMenu);
-    mInventoryMenu->align(eAlignment::right | eAlignment::top);
     mInventoryMenu->initialize(eq, stats);
+    mInventoryMenu->align(eAlignment::right | eAlignment::top);
+    mInventoryMenu->updateWeapons();
     eItemDragWidget::sUpdateDragItem(eq);
 
     updateCharPos();

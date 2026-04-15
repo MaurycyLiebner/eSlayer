@@ -7,6 +7,8 @@ class eBgWidget : public eWidget {
 public:
     using eWidget::eWidget;
 protected:
+    void setup(eWidget* const inner);
+
     void paintEvent(ePainter& p) override;
 };
 
