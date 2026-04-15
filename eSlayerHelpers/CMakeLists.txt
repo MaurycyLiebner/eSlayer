@@ -144,6 +144,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eclasses.h
     include/eSlayerHelpers/eclass.h
     src/eclasses.cpp
+    include/eSlayerHelpers/epotiontype.h
+    src/epotiontype.cpp
 
 
 )

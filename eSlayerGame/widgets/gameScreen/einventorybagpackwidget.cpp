@@ -2,6 +2,7 @@
 
 #include "../../textures/eitemstextures.h"
 #include "../../textures/euitextures.h"
+#include "../../textures/etextgenerator.h"
 #include "einventorywidget.h"
 #include "eitemdragwidget.h"
 #include "egamewidget.h"
@@ -12,17 +13,23 @@
 #include <SDL3/SDL_mouse.h>
 
 void eInventoryBagpackWidget::initialize(
-    eEquipment& eq, const eStats& stats) {
+    const int w, const int h,
+    std::vector<eInventoryItem>& items,
+    eEquipment& eq, const eStats& stats,
+    const bool belt) {
     mEq = &eq;
     mStats = &stats;
+    mItems = &items;
+    mBelt = belt;
     const auto& boxTex = eUITextures::sEmptySlot;
     mDimensions = boxTex->width();
-    mWidth = mEq->fInventoryWidth;
-    mHeight = mEq->fInventoryHeight;
+    mWidth = w;
+    mHeight = h;
     resize(mWidth*mDimensions, mHeight*mDimensions);
 }
 
-bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
+bool eInventoryBagpackWidget::dropItem() {
+    const auto mpos = mousePos();
     if(eInventoryWidget::sBlocked) return false;
     auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
@@ -32,9 +39,9 @@ bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
     const bool r = rectInBounds(dropRect);
     if(!r) return false;
     const auto ids = itemIdsAt(dropRect);
-    if(ids.size() > 1) return false;
+    if(ids.size() > 1) return true;
     if(ids.size() == 1) {
-        auto& invItem = mEq->fInventory[ids[0]];
+        auto& invItem = (*mItems)[ids[0]];
         std::swap(dragged, invItem.fItem);
         invItem.fX = dropRect.x;
         invItem.fY = dropRect.y;
@@ -47,7 +54,7 @@ bool eInventoryBagpackWidget::dropItem(const SDL_Point& mpos) {
         invItem.fY = dropRect.y;
         invItem.fW = dropRect.w;
         invItem.fH = dropRect.h;
-        mEq->fInventory.push_back(invItem);
+        mItems->push_back(invItem);
         eItemDragWidget::sSetHoverItem(dragged);
         dragged = eItem();
     }
@@ -65,7 +72,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
     if(dragged.fType == eItemType::none) {
         const int itemId = itemIdAt(ipos);
         if(itemId != -1) {
-            const auto& item = mEq->fInventory[itemId];
+            const auto& item = (*mItems)[itemId];
             ihoverRect = SDL_Rect{item.fX, item.fY,
                                   item.fW, item.fH};
             fillColor = SDL_Color{0, 175, 0, 255};
@@ -80,7 +87,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
                 ihoverRect = dropRect;
                 fillColor = SDL_Color{175, 0, 0, 255};
             } else if(ids.size() == 1) {
-                auto& invItem = mEq->fInventory[ids[0]];
+                auto& invItem = (*mItems)[ids[0]];
                 ihoverRect.x = invItem.fX;
                 ihoverRect.y = invItem.fY;
                 ihoverRect.w = invItem.fW;
@@ -104,7 +111,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
             if(SDL_PointInRect(&pt, &ihoverRect)) {
                 boxTex->setColorMod(fillColor.r, fillColor.g, fillColor.b);
             } else {
-                for(const auto& i : mEq->fInventory) {
+                for(const auto& i : *mItems) {
                     const SDL_Rect iRect{i.fX, i.fY, i.fW, i.fH};
                     if(SDL_PointInRect(&pt, &iRect)) {
                         boxTex->setColorMod(100, 100, 100);
@@ -118,13 +125,14 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         }
     }
     const auto r = renderer();
-    for(const auto& i : mEq->fInventory) {
+    const auto& res = resolution();
+    for(const auto& i : *mItems) {
         const int x = i.fX*mDimensions;
         const int y = i.fY*mDimensions;
         const auto& item = i.fItem;
         const int dataId = item.fDataId;
         auto& itemTex = eItemsTextures::getByItemDataId(dataId);
-        itemTex.request(r);
+        itemTex.request(r, res);
         const auto& tex = itemTex.fTex;
         const int w = i.fW*mDimensions;
         const int h = i.fH*mDimensions;
@@ -132,6 +140,29 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         if(mod) tex->setColorMod(255, 0, 0);
         p.drawTexture(SDL_Rect{x, y, w, h}, tex, eAlignment::center);
         if(mod) tex->clearColorMod();
+    }
+
+    if(mBelt) {
+        if(mBeltNumbers.size() < mWidth) {
+            const auto& res = resolution();
+            const int fontSize = res.smallFontSize();
+            const auto font = eFonts::defaultFont(fontSize);
+            const eTextGenerator gen(r, eFontColor::white, font);
+            while(mBeltNumbers.size() < mWidth) {
+                const int id = mBeltNumbers.size() + 1;
+                const auto tex = gen.generate(std::to_string(id));
+                mBeltNumbers.emplace_back(tex);
+            }
+        }
+        for(int x = 0; x < mWidth; x++) {
+            const auto& tex = mBeltNumbers[x];
+            for(int y = 0; y < mHeight; y++) {
+                const SDL_Rect rect{x*mDimensions, y*mDimensions,
+                                    mDimensions, mDimensions};
+                p.drawTexture(rect, tex,
+                              eAlignment::right | eAlignment::bottom);
+            }
+        }
     }
 }
 
@@ -141,7 +172,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);
     if(itemId == -1) return true;
-    auto& inv = mEq->fInventory;
+    auto& inv = *mItems;
     const auto item = inv[itemId].fItem;
     inv.erase(inv.begin() + itemId);
     mEq->fDragged = item;
@@ -157,7 +188,7 @@ bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
     if(itemId == -1) {
         eItemDragWidget::sSetHoverItem(eItem());
     } else {
-        const auto& inv = mEq->fInventory;
+        const auto& inv = *mItems;
         const auto& item = inv[itemId].fItem;
         eItemDragWidget::sSetHoverItem(item);
     }
@@ -171,7 +202,7 @@ bool eInventoryBagpackWidget::mouseLeaveEvent(const eMouseEvent& e) {
 
 int eInventoryBagpackWidget::itemIdAt(const SDL_Point& ipos) const {
     int id = 0;
-    for(const auto& i : mEq->fInventory) {
+    for(const auto& i : *mItems) {
         const SDL_Rect rect{i.fX, i.fY, i.fW, i.fH};
         const bool r = SDL_PointInRect(&ipos, &rect);
         if(r) return id;
@@ -183,7 +214,7 @@ int eInventoryBagpackWidget::itemIdAt(const SDL_Point& ipos) const {
 std::vector<int> eInventoryBagpackWidget::itemIdsAt(const SDL_Rect& irect) const {
     std::vector<int> result;
     int id = 0;
-    for(const auto& i : mEq->fInventory) {
+    for(const auto& i : *mItems) {
         const SDL_Rect rect{i.fX, i.fY, i.fW, i.fH};
         const bool r = SDL_HasRectIntersection(&irect, &rect);
         if(r) result.push_back(id);
@@ -207,5 +238,6 @@ SDL_Rect eInventoryBagpackWidget::itemDropRect(
 
 SDL_Point eInventoryBagpackWidget::mousePosToItemPos(
     const SDL_Point& mpos) {
+    if(mpos.x < 0 || mpos.y < 0) return SDL_Point{-1, -1};
     return SDL_Point{mpos.x/mDimensions, mpos.y/mDimensions};
 }

@@ -38,9 +38,10 @@ void eItemDragWidget::setItemDataId(const int dataId) {
         mItem = nullptr;
     } else {
         const auto r = renderer();
+        const auto& res = resolution();
         const auto name = eItemsData::name(dataId);
         auto& itemTex = eItemsTextures::get(name);
-        itemTex.request(r);
+        itemTex.request(r, res);
         mItem = itemTex.fTex;
     }
 }
@@ -342,6 +343,6 @@ bool eItemDragWidget::mouseMoveEvent(const eMouseEvent& e) {
 
 bool eItemDragWidget::mousePressEvent(const eMouseEvent& e) {
     if(!mItem) return false;
-    mDropAction(mMousePos);
+    mDropAction();
     return true;
 }

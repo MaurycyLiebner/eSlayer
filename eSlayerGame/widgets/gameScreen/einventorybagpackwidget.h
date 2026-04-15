@@ -12,10 +12,12 @@ class eInventoryBagpackWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(eEquipment& eq,
-                    const eStats& stats);
+    void initialize(const int w, const int h,
+                    std::vector<eInventoryItem>& items,
+                    eEquipment& eq, const eStats& stats,
+                    const bool belt = false);
 
-    bool dropItem(const SDL_Point& mpos);
+    bool dropItem();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -34,8 +36,12 @@ private:
     int mHeight = 0;
     int mDimensions = 0;
 
+    bool mBelt = false;
     eEquipment* mEq = nullptr;
+    std::vector<eInventoryItem>* mItems = nullptr;
     const eStats* mStats = nullptr;
+
+    std::vector<std::shared_ptr<eTexture>> mBeltNumbers;
 };
 
 #endif // EINVENTORYBAGPACKWIDGET_H

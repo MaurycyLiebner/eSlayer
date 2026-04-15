@@ -14,6 +14,7 @@ class eSkillButton;
 class eSkillTreesWidget;
 class eTextureCheckButton;
 class eInventoryWidget;
+class eInventoryBagpackWidget;
 class eItemDragWidget;
 class eStatsWidget;
 class eCharacter;
@@ -66,6 +67,7 @@ private:
     eWidget* mDeadMenu = nullptr;
     eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
+    eInventoryBagpackWidget* mBelt = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eItemDragWidget* mDragWidget = nullptr;

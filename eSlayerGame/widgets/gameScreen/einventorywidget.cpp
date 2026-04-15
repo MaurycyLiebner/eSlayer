@@ -174,7 +174,10 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     inner->addWidget(secondRow);
 
     mBagpack = new eInventoryBagpackWidget(window());
-    mBagpack->initialize(eq, stats);
+    mBagpack->initialize(eEquipment::fInventoryWidth,
+                         eEquipment::fInventoryHeight,
+                         eq.fInventory,
+                         eq, stats);
     inner->addWidget(mBagpack);
 
     inner->stackVertically(p);
@@ -191,10 +194,9 @@ bool eInventoryWidget::mousePressEvent(const eMouseEvent& e) {
     return true;
 }
 
-bool eInventoryWidget::dropItem(const SDL_Point& pos) {
+bool eInventoryWidget::dropItem() {
     if(sBlocked) return false;
-    const auto bmpos = mBagpack->mousePos();
-    const bool b = mBagpack->dropItem(bmpos);
+    const bool b = mBagpack->dropItem();
     if(b) return true;
     for(const auto w : mItemPalces) {
         if(!w->visible()) continue;

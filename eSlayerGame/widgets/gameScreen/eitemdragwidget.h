@@ -17,7 +17,7 @@ public:
                     eMainWindow* const w);
     ~eItemDragWidget();
 
-    using eDropAction = std::function<void(const SDL_Point& pos)>;
+    using eDropAction = std::function<void()>;
 
     void initialize(const eDropAction& dropAction);
 

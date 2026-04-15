@@ -58,7 +58,7 @@ void eItemsTextures::loadImpl() {
                     const auto path = key + "/" + name.get<std::string>();
                     int w;
                     int h;
-                    if(key == "amulets" || key == "rings") {
+                    if(key == "amulets" || key == "rings" || key == "potions") {
                         w = 1;
                         h = 1;
                     } else if(key == "armor") {
@@ -70,6 +70,9 @@ void eItemsTextures::loadImpl() {
                     } else if(key == "boots" || key == "gloves") {
                         w = 2;
                         h = 2;
+                    } else if(key == "bolts" || key == "arrows") {
+                        w = 1;
+                        h = 3;
                     } else {
                         eRuntimeThrow("Unrecognized item type " + key);
                     }
@@ -118,9 +121,11 @@ eItemTexture& eItemsTextures::getByItemDataIdImpl(
     return getImpl(id);
 }
 
-void eItemTexture::request(SDL_Renderer* const r) {
+void eItemTexture::request(SDL_Renderer* const r,
+                           const eResolution& res) {
     if(fTex) return;
     const auto dir = "Textures";
-    const auto path = "ui/items/" + fTexPath + ".png";
+    const auto suffix = res.textureSuffix();
+    const auto path = "ui/items/" + fTexPath + suffix + ".png";
     fTex = eFileLoader::readTexture(r, dir, path);
 }

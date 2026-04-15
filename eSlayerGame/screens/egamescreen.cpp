@@ -4,24 +4,27 @@
 #include "../emainwindow.h"
 #include "../textures/euitextures.h"
 #include "../widgets/ecolors.h"
+#include "../widgets/elineedit.h"
 #include "../widgets/etexturecheckbutton.h"
+#include "../widgets/gameScreen/ebgwidget.h"
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
+#include "../widgets/gameScreen/einventorybagpackwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/eitemdragwidget.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
-#include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eskilltreeswidget.h"
+#include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
-#include "../widgets/gameScreen/ebgwidget.h"
-#include "../widgets/elineedit.h"
 
-#include <eSlayerHelpers/egamedir.h>
+#include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eunitdata.h>
+#include <eSlayerHelpers/eitemsdata.h>
 
 eGameScreen::eGameScreen(eMainWindow* const window) :
     eScreenBase(window) {}
@@ -138,20 +141,23 @@ void eGameScreen::initialize(const int clientId,
     staminaWid->stackHorizontally();
     staminaWid->fitContent();
 
-    const auto belt = new eWidget(window());
-    belt->setNoPadding();
-    for(int x = 0; x < 4; x++) {
-        const auto slot = new eLabel(window());
-        slot->setNoPadding();
-        slot->setTexture(eUITextures::sEmptySlot);
-        slot->fitContent();
-        belt->addWidget(slot);
-    }
-    belt->stackHorizontally(0);
-    belt->fitContent();
+    const auto& stats = mGameWidget->stats();
+    auto& eq = mGameWidget->equipment();
+    mBelt = new eInventoryBagpackWidget(window());
+    mBelt->initialize(eEquipment::fBeltHPotionSlots,
+                     1, eq.fBeltPotions,
+                     eq, stats, true);
+    eItem potion;
+    potion.fType = eItemType::potion;
+    potion.fSubType = static_cast<uint8_t>(ePotionType::healing);
+    potion.fDataId = eItemsData::id("healing");
+    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 0, 0, 1, 1});
+    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 1, 0, 1, 1});
+    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 2, 0, 1, 1});
+    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 3, 0, 1, 1});
 
     staminaBelt->addWidget(staminaWid);
-    staminaBelt->addWidget(belt);
+    staminaBelt->addWidget(mBelt);
 
     const int p = res.tinyPadding();
     staminaBelt->stackHorizontally(p);
@@ -186,19 +192,15 @@ void eGameScreen::initialize(const int clientId,
     const int h = height();
 
     const auto& attrs = mGameWidget->attributes();
-    const auto& stats = mGameWidget->stats();
 
     mDragWidget = new eItemDragWidget(attrs, stats, window());
     mDragWidget->resize(w, h);
-    mDragWidget->initialize([this](SDL_Point pos) {
-        if(mInventoryMenu) {
-            pos.x -= mInventoryMenu->x();
-            pos.y -= mInventoryMenu->y();
-            if(pos.x < 0) {
-                mGameWidget->dropItem();
-            } else {
-                const bool r = mInventoryMenu->dropItem(pos);
-            }
+    mDragWidget->initialize([this]() {
+        const bool r = mBelt->dropItem();
+        if(r) {
+        } else if(mInventoryMenu) {
+            const bool r = mInventoryMenu->dropItem();
+            if(!r) mGameWidget->dropItem();
         } else {
             mGameWidget->dropItem();
         }

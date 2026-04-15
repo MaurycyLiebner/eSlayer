@@ -30,8 +30,8 @@ void eItemPlaceWidget::intialize(
 bool eItemPlaceWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
-    if(dragged.fType == eItemType::none) return false;
-    if(!draggedCompatible()) return false;
+    if(dragged.fType == eItemType::none) return true;
+    if(!draggedCompatible()) return true;
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
     eItemDragWidget::sUpdateDragItem(*mEq);
@@ -100,8 +100,9 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     mTex->clearColorMod();
     if(item.fType == eItemType::none) return;
     const auto r = renderer();
+    const auto& res = resolution();
     auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);
-    itemTex.request(r);
+    itemTex.request(r, res);
     const auto& tex = itemTex.fTex;
     p.drawTexture(rect, itemTex.fTex, eAlignment::center);
 }

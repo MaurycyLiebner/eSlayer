@@ -18,7 +18,7 @@ public:
 
     void initialize(eEquipment& eq, const eStats& stats);
 
-    bool dropItem(const SDL_Point& pos);
+    bool dropItem();
 
     void updateWeapons();
 

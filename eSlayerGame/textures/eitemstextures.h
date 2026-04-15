@@ -14,7 +14,8 @@ struct eItemTexture {
     std::string fTexPath;
     std::shared_ptr<eTexture> fTex;
 
-    void request(SDL_Renderer* const r);
+    void request(SDL_Renderer* const r,
+                 const eResolution& res);
 };
 
 class eItemsTextures {
