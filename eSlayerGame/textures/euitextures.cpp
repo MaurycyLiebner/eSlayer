@@ -44,6 +44,13 @@ eUITextures::sEmptySlot;
 
 eTextureCollection
 eUITextures::sBg;
+eTextureCollection
+eUITextures::sStats;
+
+std::shared_ptr<eTexture>
+eUITextures::sStatsPlusButton;
+std::shared_ptr<eTexture>
+eUITextures::sStatsPlusButtonHovered;
 
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
@@ -91,11 +98,22 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sWeaponSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotWeapon" + suffix + ".png");
     sEmptySlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlot" + suffix + ".png");
 
-    const auto bgPath = "ui/widgetBg/widgetBg" + suffix;
-    eSpriteLoader loader(dir, bgPath, r);
-    for(int i = 0; i < 9; i++) {
-        loader.load(i, sBg);
+    {
+        const auto bgPath = "ui/widgetBg/widgetBg" + suffix;
+        eSpriteLoader loader(dir, bgPath, r);
+        for(int i = 0; i < 9; i++) {
+            loader.load(i, sBg);
+        }
     }
+    {
+        const auto bgPath = "ui/stats/statsBox" + suffix;
+        eSpriteLoader loader(dir, bgPath, r);
+        for(int i = 0; i < 4; i++) {
+            loader.load(i, sStats);
+        }
+    }
+    sStatsPlusButton = eFileLoader::readTexture(r, dir, "ui/stats/plusButton" + suffix + ".png");
+    sStatsPlusButtonHovered = eFileLoader::readTexture(r, dir, "ui/stats/plusButtonHovered" + suffix + ".png");
 
     const auto path = "ui/skills/skills.json";
     const auto jdata = eFileLoader::parse(dir, path);

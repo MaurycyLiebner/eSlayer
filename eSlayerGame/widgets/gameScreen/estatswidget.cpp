@@ -6,6 +6,7 @@
 #include "../ebuttonbase.h"
 #include "../../emainwindow.h"
 #include "egamewidget.h"
+#include "../../textures/euitextures.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/estats.h>
@@ -19,27 +20,22 @@ class eAttrIncButton : public eButtonBase {
 public:
     eAttrIncButton(eMainWindow * const window) :
         eButtonBase(window) {
-        setFontColor(eFontColor::white);
-        setText("+");
         setNoPadding();
-        setHugeFontSize();
-        const auto& res = resolution();
-        const auto mult = res.multiplier();
-        const int dim = 35*mult;
-        resize(dim, dim);
+        const auto& tex = eUITextures::sStatsPlusButton;
+        setTexture(tex);
+        fitContent();
     }
 
     void paintEvent(ePainter& p) {
         if(enabled()) {
-            setFontColor(eFontColor::white);
             if(hovered()) {
-                const SDL_Color white{255, 255, 255, 255};
-                p.drawRect(rect(), white, lineWidth());
+                const auto& tex = eUITextures::sStatsPlusButtonHovered;
+                p.drawTexture(0, 0, tex);
+            } else {
+                const auto& tex = eUITextures::sStatsPlusButton;
+                p.drawTexture(0, 0, tex);
             }
-        } else {
-            setFontColor(eFontColor::gray);
         }
-        return eButtonBase::paintEvent(p);
     }
 };
 
@@ -47,14 +43,19 @@ class eStatLabel : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const int width) {
+    void initialize(const int width,
+                    const bool main) {
+        mMain = main;
         setNoPadding();
         const auto& res = resolution();
         const int fontSize = res.tinyFontSize();
         mFont = eFonts::textFont(fontSize);
 
         const auto mult = res.multiplier();
-        resize(width*mult, 35*mult);
+        const auto& coll = eUITextures::sStats;
+        const auto& first = coll.getTexture(0);
+        const int h = first->height();
+        resize(width*mult, h);
     }
 
     void setValues(const std::vector<std::string>& values) {
@@ -72,11 +73,27 @@ public:
     }
 protected:
     void paintEvent(ePainter& p) override {
-        const auto& res = resolution();
-        const int lineWidth = res.lineWidth();
-        p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
+        const auto& coll = eUITextures::sStats;
+        const auto& first = coll.getTexture(0);
+        const int dim = first->width();
+        const int xMax = width()/dim;
+        int id = 0;
+        for(int x = 0; x <= xMax; x++) {
+            if(x == 0) {
+                id = mMain ? 0 : 3;
+            } else if(x == xMax) {
+                id = 2;
+            } else {
+                id = 1;
+            }
+            const auto& tex = coll.getTexture(id);
+            int px = x*dim;
+            if(x == xMax) px = width() - dim;
+            p.drawTexture(px, 0, tex);
+        }
     }
 private:
+    bool mMain = true;
     eFont mFont;
 };
 
@@ -90,18 +107,17 @@ public:
         const auto& res = resolution();
 
         mNames = new eStatLabel(window());
-        mNames->initialize(100);
+        mNames->initialize(100, true);
         addWidget(mNames);
 
         for(int i = 0; i < nValues; i++) {
             const auto values = new eStatLabel(window());
-            values->initialize(50);
+            values->initialize(65, false);
             addWidget(values);
             mValues.emplace_back(values);
         }
 
-        const int p = res.smallPadding();
-        stackHorizontally(p);
+        stackHorizontally(0);
 
         fitContent();
     }
@@ -150,12 +166,6 @@ public:
         }
         setText(names, valueStrs);
     }
-protected:
-    void paintEvent(ePainter& p) override {
-        const auto& res = resolution();
-        const int lineWidth = res.lineWidth();
-        p.drawRect(rect(), SDL_Color{255, 255, 255, 255}, lineWidth);
-    }
 private:
     eStatLabel* mNames = nullptr;
     std::vector<eStatLabel*> mValues;
@@ -180,17 +190,17 @@ void eStatsWidget::initialize(const std::string& name,
     topW->setNoPadding();
 
     mName = new eStatLabel(window());
-    mName->initialize(200);
+    mName->initialize(150, true);
     mName->setValues({name});
 
     mLevel = new eStatLabel(window());
-    mLevel->initialize(50);
+    mLevel->initialize(75, true);
 
     mExp = new eStatLabel(window());
-    mExp->initialize(100);
+    mExp->initialize(100, true);
 
     mNextLevel = new eStatLabel(window());
-    mNextLevel->initialize(100);
+    mNextLevel->initialize(100, true);
 
     topW->addWidget(mName);
     topW->addWidget(mLevel);

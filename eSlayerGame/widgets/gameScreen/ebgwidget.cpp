@@ -38,7 +38,7 @@ void eBgWidget::paintEvent(ePainter& p) {
                     id = 4;
                 }
             }
-            const auto tex = coll.getTexture(id);
+            const auto& tex = coll.getTexture(id);
             int px = x*dim;
             if(x == xMax) px = width() - dim;
             int py = y*dim;

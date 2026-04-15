@@ -57,6 +57,12 @@ public:
     sEmptySlot;
 
     static eTextureCollection sBg;
+    static eTextureCollection sStats;
+
+    static std::shared_ptr<eTexture>
+    sStatsPlusButton;
+    static std::shared_ptr<eTexture>
+    sStatsPlusButtonHovered;
 private:
     static std::string sLoaded;
 };
