@@ -338,6 +338,13 @@ void gWriteItem(const eItem& item,
     const int itemDataId = item.fDataId;
     const auto typeName = eItemsData::name(itemDataId);
     itemE->SetAttribute("type", typeName.c_str());
+    switch(item.fType) {
+    case eItemType::potion:
+        return;
+    default:
+        break;
+    }
+
     itemE->SetAttribute("sockets", item.fSockets);
     itemE->SetAttribute("requiredLevel", item.fRequiredLevel);
     const auto rarityName = eItemRarityHelpers::name(item.fRarity);
