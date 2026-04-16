@@ -42,6 +42,10 @@ struct ESLAYERHELPERS_API eEquipment {
     static const int fInventoryHeight = 4;
     std::vector<eInventoryItem> fInventory;
 
+    static const int fStashWidth = 10;
+    static const int fStashHeight = 8;
+    std::vector<eInventoryItem> fStash;
+
     eItem get(const int itemId) const;
     bool add(const eItem& item);
     bool canPlace(const eItem& item, const eItem& dst);

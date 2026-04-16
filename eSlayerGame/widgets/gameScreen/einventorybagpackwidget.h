@@ -8,6 +8,13 @@ struct eInventoryItem;
 struct eItemData;
 struct eStats;
 
+enum class eBagpackType {
+    inventory,
+    stash,
+    belt,
+    beltExtension
+};
+
 class eInventoryBagpackWidget : public eWidget {
 public:
     using eWidget::eWidget;
@@ -15,7 +22,7 @@ public:
     void initialize(const int w, const int h,
                     std::vector<eInventoryItem>& items,
                     eEquipment& eq, const eStats& stats,
-                    const bool belt = false);
+                    const eBagpackType type);
 
     bool dropItem();
 protected:
@@ -36,7 +43,7 @@ private:
     int mHeight = 0;
     int mDimensions = 0;
 
-    bool mBelt = false;
+    eBagpackType mType = eBagpackType::inventory;
     eEquipment* mEq = nullptr;
     std::vector<eInventoryItem>* mItems = nullptr;
     const eStats* mStats = nullptr;

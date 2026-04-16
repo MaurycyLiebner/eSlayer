@@ -16,11 +16,11 @@ void eInventoryBagpackWidget::initialize(
     const int w, const int h,
     std::vector<eInventoryItem>& items,
     eEquipment& eq, const eStats& stats,
-    const bool belt) {
+    const eBagpackType type) {
     mEq = &eq;
     mStats = &stats;
     mItems = &items;
-    mBelt = belt;
+    mType = type;
     const auto& boxTex = eUITextures::sEmptySlot;
     mDimensions = boxTex->width();
     mWidth = w;
@@ -33,6 +33,15 @@ bool eInventoryBagpackWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return false;
     auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return false;
+    switch(mType) {
+    case eBagpackType::belt:
+    case eBagpackType::beltExtension: {
+        if(dragged.fType != eItemType::potion) return false;
+    } break;
+    default:
+        break;
+    }
+
     const auto ipos = mousePosToItemPos(mpos);
     const auto& itemData = eItemsData::get(dragged.fDataId);
     const auto dropRect = itemDropRect(ipos, itemData);
@@ -142,7 +151,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         if(mod) tex->clearColorMod();
     }
 
-    if(mBelt) {
+    if(mType == eBagpackType::belt) {
         if(mBeltNumbers.size() < mWidth) {
             const auto& res = resolution();
             const int fontSize = res.smallFontSize();

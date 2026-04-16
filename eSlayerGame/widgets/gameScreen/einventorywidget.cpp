@@ -177,7 +177,7 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     mBagpack->initialize(eEquipment::fInventoryWidth,
                          eEquipment::fInventoryHeight,
                          eq.fInventory,
-                         eq, stats);
+                         eq, stats, eBagpackType::inventory);
     inner->addWidget(mBagpack);
 
     inner->stackVertically(p);

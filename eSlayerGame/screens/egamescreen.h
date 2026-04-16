@@ -54,6 +54,9 @@ private:
     void showMessageBox();
     void hideMessageBox();
 
+    void hideBeltExt();
+    void showBeltExt();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar,
@@ -68,6 +71,7 @@ private:
     eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     eInventoryBagpackWidget* mBelt = nullptr;
+    eInventoryBagpackWidget* mBeltExt = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eItemDragWidget* mDragWidget = nullptr;

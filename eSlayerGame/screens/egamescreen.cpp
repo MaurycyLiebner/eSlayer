@@ -145,8 +145,8 @@ void eGameScreen::initialize(const int clientId,
     auto& eq = mGameWidget->equipment();
     mBelt = new eInventoryBagpackWidget(window());
     mBelt->initialize(eEquipment::fBeltHPotionSlots,
-                     1, eq.fBeltPotions,
-                     eq, stats, true);
+                      1, eq.fBeltPotions,
+                      eq, stats, eBagpackType::belt);
     eItem potion;
     potion.fType = eItemType::potion;
     potion.fSubType = static_cast<uint8_t>(ePotionType::healing);
@@ -198,11 +198,15 @@ void eGameScreen::initialize(const int clientId,
     mDragWidget->initialize([this]() {
         const bool r = mBelt->dropItem();
         if(r) {
-        } else if(mInventoryMenu) {
-            const bool r = mInventoryMenu->dropItem();
-            if(!r) mGameWidget->dropItem();
         } else {
-            mGameWidget->dropItem();
+            const bool r = mBeltExt && mBeltExt->dropItem();
+            if(r) {
+            } else if(mInventoryMenu) {
+                const bool r = mInventoryMenu->dropItem();
+                if(!r) mGameWidget->dropItem();
+            } else {
+                mGameWidget->dropItem();
+            }
         }
     });
     addWidget(mDragWidget);
@@ -273,6 +277,22 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideMessageBox();
         } else {
             showMessageBox();
+        }
+    } else if(key == SDL_SCANCODE_RETURN) {
+        if(mMessage) {
+            const auto& text = mMessage->text();
+            if(!text.empty()) {
+                mGameWidget->sendMessage(text);
+            }
+            hideMessageBox();
+        } else {
+            showMessageBox();
+        }
+    } else if(key == SDL_SCANCODE_GRAVE) {
+        if(mBeltExt) {
+            hideBeltExt();
+        } else {
+            showBeltExt();
         }
     } else if(key == SDL_SCANCODE_F1) {
         hotkeyPressed(1);
@@ -512,6 +532,29 @@ void eGameScreen::hideMessageBox() {
     window->stopTextInput();
     mMessage->deleteLater();
     mMessage = nullptr;
+}
+
+void eGameScreen::hideBeltExt() {
+    if(!mBeltExt) return;
+    mBeltExt->deleteLater();
+    mBeltExt = nullptr;
+}
+
+void eGameScreen::showBeltExt() {
+    if(mBeltExt) return;
+    const auto& stats = mGameWidget->stats();
+    auto& eq = mGameWidget->equipment();
+    mBeltExt = new eInventoryBagpackWidget(window());
+    mBeltExt->initialize(eEquipment::fBeltHPotionSlots,
+                         eEquipment::fBeltVPotionSlots - 1,
+                         eq.fBeltHiddenPotions,
+                         eq, stats, eBagpackType::beltExtension);
+    int x = 0;
+    int y = 0;
+    mBelt->mapTo(this, x, y);
+    addWidget(mBeltExt);
+    mBeltExt->move(x, y - mBeltExt->height());
+    mDragWidget->bringToFront();
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,

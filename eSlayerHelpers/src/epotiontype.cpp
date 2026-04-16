@@ -36,3 +36,11 @@ std::string ePotionTypeHelpers::name(const ePotionType type) {
 ePotionType ePotionTypeHelpers::type(const std::string& name) {
     return gStringToPotionType[name];
 }
+
+bool ePotionTypeHelpers::sameCategory(
+    const ePotionType type1, const ePotionType type2) {
+    const int itype1 = static_cast<int>(type1);
+    const int itype2 = static_cast<int>(type2);
+    if(itype1*itype2 == 0) return itype1 == itype2;
+    return (itype1 - 1)/4 == (itype2 - 1)/4;
+}

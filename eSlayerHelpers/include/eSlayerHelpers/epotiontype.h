@@ -30,6 +30,9 @@ namespace ePotionTypeHelpers {
     std::string name(const ePotionType type);
     ESLAYERHELPERS_API
     ePotionType type(const std::string& name);
+    ESLAYERHELPERS_API
+    bool sameCategory(const ePotionType type1,
+                      const ePotionType type2);
 }
 
 #endif // EPOTIONTYPE_H
