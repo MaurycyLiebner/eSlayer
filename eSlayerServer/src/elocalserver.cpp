@@ -155,6 +155,13 @@ bool eLocalServer::changeSkillLevels(
     return h->changeSkillLevels(skillLevels);
 }
 
+bool eLocalServer::consumePotion(
+    const int clientId, const uint32_t itemId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->consumePotion(itemId);
+}
+
 eServerClientHandler*
 eLocalServer::clientHandler(const int clientId) {
     const auto it = mClientHandlers.find(clientId);

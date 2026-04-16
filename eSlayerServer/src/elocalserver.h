@@ -57,6 +57,8 @@ public:
                           const eAttributes& attrs) override;
     bool changeSkillLevels(const int clientId,
                            const eSkillLevels& skillLevels) override;
+    bool consumePotion(const int clientId,
+                       const uint32_t itemId) override;
 protected:
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

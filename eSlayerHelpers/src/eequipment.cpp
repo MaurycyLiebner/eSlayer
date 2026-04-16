@@ -21,22 +21,23 @@ void eInventoryItem::write(ePacket& p) const {
     p << fH;
 }
 
-eItem eEquipment::get(const int itemId) const {
-    for(const auto& it : {fBoots,
-                          fGloves,
-                          fHelmet,
-                          fArmor,
-                          fBelt,
-                          fRingL,
-                          fRingR,
-                          fAmulet,
-                          fWeapon1L,
-                          fWeapon1R,
-                          fWeapon2L,
-                          fWeapon2R,
-                          fDragged}) {
-        if(it.fType == eItemType::none) continue;
-        if(it.fItemId == itemId) return it;
+eItem eEquipment::get(const uint32_t itemId) const {
+    for(const auto it : {&fBoots,
+                         &fGloves,
+                         &fHelmet,
+                         &fArmor,
+                         &fBelt,
+                         &fRingL,
+                         &fRingR,
+                         &fAmulet,
+                         &fWeapon1L,
+                         &fWeapon1R,
+                         &fWeapon2L,
+                         &fWeapon2R,
+                         &fDragged}) {
+        auto& item = *it;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) return item;
     }
     for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
         for(const auto& it : *v) {
@@ -45,32 +46,60 @@ eItem eEquipment::get(const int itemId) const {
             if(item.fItemId == itemId) return item;
         }
     }
-    return eItem{0, 0, eItemType::none};
+    return eItem();
+}
+
+eItem eEquipment::take(const uint32_t itemId) {
+    for(const auto it : {&fBoots,
+                         &fGloves,
+                         &fHelmet,
+                         &fArmor,
+                         &fBelt,
+                         &fRingL,
+                         &fRingR,
+                         &fAmulet,
+                         &fWeapon1L,
+                         &fWeapon1R,
+                         &fWeapon2L,
+                         &fWeapon2R,
+                         &fDragged}) {
+        auto& item = *it;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            const auto result = item;
+            item = eItem();
+            return result;
+        }
+    }
+    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
+        for(int i = 0; i < v->size(); i++) {
+            const auto& it = (*v)[i];
+            const auto& item = it.fItem;
+            if(item.fType == eItemType::none) continue;
+            if(item.fItemId == itemId) {
+                const auto result = item;
+                v->erase(v->begin() + i);
+                return result;
+            }
+        }
+    }
+    return eItem();
 }
 
 bool eEquipment::add(const eItem& item) {
     if(item.fType == eItemType::potion) {
         const auto typeAt = [&](const int x, const int y) {
+            eInventoryItem* at = nullptr;
             if(y == fBeltVPotionSlots) {
-                for(const auto& p : fBeltPotions) {
-                    if(p.fX == x) {
-                        const auto& item = p.fItem;
-                        const auto subtype = item.fSubType;
-                        const auto pType = static_cast<ePotionType>(subtype);
-                        return pType;
-                    }
-                }
+                at = fBeltPotions.at(x, 0);
             } else {
-                for(const auto& p : fBeltHiddenPotions) {
-                    if(p.fX == x && p.fY == y) {
-                        const auto& item = p.fItem;
-                        const auto subtype = item.fSubType;
-                        const auto pType = static_cast<ePotionType>(subtype);
-                        return pType;
-                    }
-                }
+                at = fBeltPotions.at(x, y);
             }
-            return ePotionType::none;
+            if(!at) return ePotionType::none;
+            const auto& item = at->fItem;
+            const auto subtype = item.fSubType;
+            const auto pType = static_cast<ePotionType>(subtype);
+            return pType;
         };
 
         const auto type = static_cast<ePotionType>(item.fSubType);
@@ -253,6 +282,35 @@ void eEquipment::iterateOverAll(const eIter& iter) {
     }
 }
 
+eItem eEquipment::takePotion(const int x) {
+    const auto at = fBeltPotions.takeAt(x, 0);
+    if(at.fType != eItemType::potion) return eItem();
+    for(int y = fBeltVPotionSlots - 2; y >= 0; y--) {
+        const auto at = fBeltHiddenPotions.takeAt(x, y);
+        if(at.fType != eItemType::potion) continue;
+        eInventoryItem* iitem = nullptr;
+        if(y == fBeltVPotionSlots - 2) {
+            iitem = &fBeltPotions.emplace_back();
+            iitem->fY = 0;
+        } else {
+            iitem = &fBeltHiddenPotions.emplace_back();
+            iitem->fY = y + 1;
+        }
+        iitem->fX = x;
+        iitem->fW = 1;
+        iitem->fH = 1;
+        iitem->fItem = at;
+    }
+    return at;
+}
+
+int eEquipment::beltX(const uint32_t itemId) const {
+    for(const auto& it : fBeltPotions) {
+        if(it.fItem.fItemId == itemId) return it.fX;
+    }
+    return -1;
+}
+
 void eEquipment::read(ePacket& p) {
     fBoots.read(p);
     fGloves.read(p);
@@ -269,14 +327,10 @@ void eEquipment::read(ePacket& p) {
     p >> fWeapons1;
     fDragged.read(p);
 
-    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
-        uint16_t nitems;
-        p >> nitems;
-        for(int i = 0; i < nitems; i++) {
-            auto& item = v->emplace_back();
-            item.read(p);
-        }
-    }
+    fInventory.read(p);
+    fBeltPotions.read(p);
+    fBeltHiddenPotions.read(p);
+    fStash.read(p);
 }
 
 void eEquipment::write(ePacket& p) const {
@@ -295,11 +349,56 @@ void eEquipment::write(ePacket& p) const {
     p << fWeapons1;
     fDragged.write(p);
 
-    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
-        const uint16_t nitems = v->size();
-        p << nitems;
-        for(const auto& item : *v) {
-            item.write(p);
-        }
+    fInventory.write(p);
+    fBeltPotions.write(p);
+    fBeltHiddenPotions.write(p);
+    fStash.write(p);
+}
+
+eInventoryItem* eInventoryItems::at(const int x, const int y) {
+    const int w = 1;
+    const int h = 1;
+    for(auto& it : *this) {
+        const bool dontOverlap = x >= it.fX + it.fW ||
+                                 x + w <= it.fX ||
+                                 y >= it.fY + it.fH ||
+                                 y + h <= it.fY;
+        if(dontOverlap) continue;
+        return &it;
+    }
+    return nullptr;
+}
+
+eItem eInventoryItems::takeAt(const int x, const int y) {
+    const int w = 1;
+    const int h = 1;
+    for(int i = 0; i < size(); i++) {
+        const auto& it = (*this)[i];
+        const bool dontOverlap = x >= it.fX + it.fW ||
+                                 x + w <= it.fX ||
+                                 y >= it.fY + it.fH ||
+                                 y + h <= it.fY;
+        if(dontOverlap) continue;
+        const auto result = it.fItem;
+        erase(begin() + i);
+        return result;
+    }
+    return eItem();
+}
+
+void eInventoryItems::read(ePacket& p) {
+    uint16_t nitems;
+    p >> nitems;
+    for(int i = 0; i < nitems; i++) {
+        auto& item = emplace_back();
+        item.read(p);
+    }
+}
+
+void eInventoryItems::write(ePacket& p) const {
+    const uint16_t nitems = size();
+    p << nitems;
+    for(const auto& item : *this) {
+        item.write(p);
     }
 }

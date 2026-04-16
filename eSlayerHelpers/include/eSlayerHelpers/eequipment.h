@@ -16,6 +16,15 @@ struct ESLAYERHELPERS_API eInventoryItem {
     void write(ePacket& p) const;
 };
 
+struct ESLAYERHELPERS_API eInventoryItems :
+    public std::vector<eInventoryItem> {
+    eInventoryItem* at(const int x, const int y);
+    eItem takeAt(const int x, const int y);
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
+};
+
 struct ESLAYERHELPERS_API eEquipment {
     eItem fBoots;
     eItem fGloves;
@@ -35,23 +44,27 @@ struct ESLAYERHELPERS_API eEquipment {
 
     static const int fBeltHPotionSlots = 4;
     static const int fBeltVPotionSlots = 4;
-    std::vector<eInventoryItem> fBeltHiddenPotions;
-    std::vector<eInventoryItem> fBeltPotions;
+    eInventoryItems fBeltHiddenPotions;
+    eInventoryItems fBeltPotions;
 
     static const int fInventoryWidth = 10;
     static const int fInventoryHeight = 4;
-    std::vector<eInventoryItem> fInventory;
+    eInventoryItems fInventory;
 
     static const int fStashWidth = 10;
     static const int fStashHeight = 8;
-    std::vector<eInventoryItem> fStash;
+    eInventoryItems fStash;
 
-    eItem get(const int itemId) const;
+    eItem get(const uint32_t itemId) const;
+    eItem take(const uint32_t itemId);
     bool add(const eItem& item);
     bool canPlace(const eItem& item, const eItem& dst);
 
     using eIter = std::function<void(eItem& item)>;
     void iterateOverAll(const eIter& iter);
+
+    eItem takePotion(const int x);
+    int beltX(const uint32_t itemId) const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

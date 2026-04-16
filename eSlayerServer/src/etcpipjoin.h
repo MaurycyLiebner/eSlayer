@@ -60,6 +60,8 @@ public:
         const eSkillLevels& skillLevels) override;
     bool sendMessage(const int clientId,
                      const std::string& text) override;
+    bool consumePotion(const int clientId,
+                       const uint32_t itemId) override;
 private:
     const std::string mIP;
     eTCPNetwork mNet;

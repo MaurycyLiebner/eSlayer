@@ -259,6 +259,15 @@ void eTcpIpHost::increment(const float by) {
                 rearrangeItems(charId, eq);
             }
         } break;
+        case ePacketType::consumePotion: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                uint32_t itemId;
+                p >> itemId;
+                consumePotion(charId, itemId);
+            }
+        } break;
         case ePacketType::attributes: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {

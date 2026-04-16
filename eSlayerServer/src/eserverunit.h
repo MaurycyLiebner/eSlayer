@@ -12,6 +12,7 @@
 #include <eSlayerHelpers/eweapontype.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/epotiontype.h>
 
 #include <memory>
 
@@ -22,6 +23,11 @@ class eHitData;
 class eServerArea;
 
 struct ePoisonDamage {
+    float fPerFrame = 0.f;
+    float fFrameLength = 0.f;
+};
+
+struct ePotionHealing {
     float fPerFrame = 0.f;
     float fFrameLength = 0.f;
 };
@@ -71,6 +77,7 @@ public:
 
     void setSkillLevels(const eSkillLevels& skillLevels,
                         const bool recalc = true);
+    void consumePotion(const uint32_t itemId);
 
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const int schoice) const;
@@ -192,6 +199,7 @@ private:
     eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
 
     std::vector<ePoisonDamage> mPoison;
+    std::map<ePotionType, ePotionHealing> mPotions;
     std::vector<int> mFollowers;
 };
 

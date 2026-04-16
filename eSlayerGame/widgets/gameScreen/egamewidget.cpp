@@ -194,6 +194,13 @@ void eGameWidget::sendMessage(const std::string& text) {
     mServer->sendMessage(mClientId, text);
 }
 
+void eGameWidget::consumePotion(const int x) {
+    auto& eq = equipment();
+    const auto p = eq.takePotion(x);
+    if(p.fType != eItemType::potion) return;
+    mServer->consumePotion(mClientId, p.fItemId);
+}
+
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
     sInstance->mMainAction.recalculateStats();

@@ -520,6 +520,13 @@ void eServerArea::changeSkillLevels(
     u->setSkillLevels(skillLevels);
 }
 
+void eServerArea::consumePotion(
+    const int clientId, const uint32_t itemId) {
+    const auto u = unit(clientId);
+    if(!u) return;
+    u->consumePotion(itemId);
+}
+
 std::vector<eMissile>
 eServerArea::missileData(const int clientId) {
     std::vector<eMissile> result;

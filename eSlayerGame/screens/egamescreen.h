@@ -36,6 +36,7 @@ protected:
     void paintEvent(ePainter&) override;
 private:
     void hotkeyPressed(const int fkey);
+    void consumePotion(const int x);
 
     void showDeadMenu();
 
@@ -71,6 +72,7 @@ private:
     eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     eInventoryBagpackWidget* mBelt = nullptr;
+    bool mBeltExtTmp = false;
     eInventoryBagpackWidget* mBeltExt = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;

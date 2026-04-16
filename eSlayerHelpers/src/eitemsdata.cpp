@@ -92,8 +92,7 @@ void eItemsData::load(const std::string& name,
         itemData.fMissileRadius = jdata.value("missileRadius", 0.1f);
         itemData.fMissileSpeed = jdata.value("missileSpeed", 0.25f);
     } else if(type == eItemType::potion) {
-        const std::string subtypeStr = jdata.value("subtype", "none");
-        const auto potionType = ePotionTypeHelpers::type(subtypeStr);
+        const auto potionType = ePotionTypeHelpers::type(name);
         itemData.fSubtype = static_cast<uint8_t>(potionType);
     }
     itemData.fRange = jdata.value("range", 0.f);

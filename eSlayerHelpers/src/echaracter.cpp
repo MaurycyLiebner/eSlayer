@@ -217,6 +217,9 @@ bool eCharacter::load(const std::string& path,
         gReadItemSlot(eq.fDragged, "dragged", eqE);
 
         gReadInventory(eq.fInventory, "inventory", eqE);
+        gReadInventory(eq.fBeltPotions, "beltPotions", eqE);
+        gReadInventory(eq.fBeltHiddenPotions, "beltPotionsHidden", eqE);
+        gReadInventory(eq.fStash, "stash", eqE);
     }
 
     // int itemId = 0;
@@ -433,6 +436,9 @@ bool eCharacter::write(const std::string& path,
     gWriteItemSlot(eq.fWeapon2R, "weapon2R", eqE);
     gWriteItemSlot(eq.fDragged, "dragged", eqE);
     gWriteInventory(eq.fInventory, "inventory", eqE);
+    gWriteInventory(eq.fBeltPotions, "beltPotions", eqE);
+    gWriteInventory(eq.fBeltHiddenPotions, "beltPotionsHidden", eqE);
+    gWriteInventory(eq.fStash, "stash", eqE);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {

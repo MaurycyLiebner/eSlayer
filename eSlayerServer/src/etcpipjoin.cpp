@@ -334,11 +334,22 @@ bool eTcpIpJoin::changeSkillLevels(
     return true;
 }
 
-bool eTcpIpJoin::sendMessage(const int clientId, const std::string& text) {
+bool eTcpIpJoin::sendMessage(
+    const int clientId, const std::string& text) {
     ePacket p;
     p << ePacketType::message;
     p << text;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a message to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::consumePotion(
+    const int clientId, const uint32_t itemId) {
+    ePacket p;
+    p << ePacketType::consumePotion;
+    p << itemId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send a potion consumption to the host.");
     return true;
 }

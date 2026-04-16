@@ -147,14 +147,6 @@ void eGameScreen::initialize(const int clientId,
     mBelt->initialize(eEquipment::fBeltHPotionSlots,
                       1, eq.fBeltPotions,
                       eq, stats, eBagpackType::belt);
-    eItem potion;
-    potion.fType = eItemType::potion;
-    potion.fSubType = static_cast<uint8_t>(ePotionType::healing);
-    potion.fDataId = eItemsData::id("healing");
-    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 0, 0, 1, 1});
-    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 1, 0, 1, 1});
-    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 2, 0, 1, 1});
-    eq.fBeltPotions.emplace_back(eInventoryItem{potion, 3, 0, 1, 1});
 
     staminaBelt->addWidget(staminaWid);
     staminaBelt->addWidget(mBelt);
@@ -290,9 +282,15 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         }
     } else if(key == SDL_SCANCODE_GRAVE) {
         if(mBeltExt) {
-            hideBeltExt();
+            if(mBeltExtTmp) {
+                mBeltExtTmp = false;
+            } else {
+                hideBeltExt();
+                mBeltExtTmp = true;
+            }
         } else {
             showBeltExt();
+            mBeltExtTmp = false;
         }
     } else if(key == SDL_SCANCODE_F1) {
         hotkeyPressed(1);
@@ -310,6 +308,18 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         hotkeyPressed(7);
     } else if(key == SDL_SCANCODE_F8) {
         hotkeyPressed(8);
+    } else if(key == SDL_SCANCODE_1) {
+        consumePotion(0);
+    } else if(key == SDL_SCANCODE_2) {
+        consumePotion(1);
+    } else if(key == SDL_SCANCODE_3) {
+        consumePotion(2);
+    } else if(key == SDL_SCANCODE_4) {
+        consumePotion(3);
+    } else if(key == SDL_SCANCODE_5) {
+        consumePotion(4);
+    } else if(key == SDL_SCANCODE_6) {
+        consumePotion(5);
     } else {
         return false;
     }
@@ -332,6 +342,14 @@ void eGameScreen::paintEvent(ePainter&) {
 
     mExperienceIndicator->setRange(0, attrs.nextLevelExp());
     mExperienceIndicator->setValue(attrs.fExp);
+
+    if(!mBeltExt && mBelt->hovered()) {
+        showBeltExt();
+        mBeltExtTmp = true;
+    } else if(mBeltExt && mBeltExtTmp &&
+              !mBelt->hovered() && !mBeltExt->hovered()) {
+        hideBeltExt();
+    }
 }
 
 void eGameScreen::hotkeyPressed(const int fkey) {
@@ -349,6 +367,10 @@ void eGameScreen::hotkeyPressed(const int fkey) {
         mRightSkillButton->setSkillId(skillId);
         return;
     }
+}
+
+void eGameScreen::consumePotion(const int x) {
+    return mGameWidget->consumePotion(x);
 }
 
 void eGameScreen::showDeadMenu() {

@@ -39,6 +39,7 @@ public:
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
     bool changeSkillLevels(const eSkillLevels& skillLevels);
+    bool consumePotion(const uint32_t itemId);
 
     const std::string& name() const { return mName; }
     void setName(const std::string& name) { mName = name; }

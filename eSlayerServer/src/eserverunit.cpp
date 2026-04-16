@@ -76,6 +76,74 @@ void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
     if(recalc) recalculateStats();
 }
 
+void eServerUnit::consumePotion(const uint32_t itemId) {
+    const int x = mEquipment.beltX(itemId);
+    eItem item;
+    if(x != -1) {
+        item = mEquipment.takePotion(x);
+    } else {
+        item = mEquipment.take(itemId);
+    }
+    if(item.fType != eItemType::potion) return;
+    const auto potionType = static_cast<ePotionType>(item.fSubType);
+    if(ePotionTypeHelpers::sameCategory(potionType, ePotionType::minorRejuvenation)) {
+        float frac = 0.f;
+        switch(potionType) {
+        case ePotionType::minorRejuvenation:
+            frac = 0.25f;
+            break;
+        case ePotionType::lightRejuvenation:
+            frac = 0.5f;
+            break;
+        case ePotionType::rejuvenation:
+            frac = 0.75f;
+            break;
+        case ePotionType::greaterRejuvenation:
+            frac = 1.f;
+            break;
+        default:
+            return;
+        }
+        restoreHealth(frac*mStats.fMaxHealth);
+        restoreMana(frac*mStats.fMaxMana);
+        return;
+    }
+    auto& it = mPotions[potionType];
+    float total = 0.f;
+    switch(potionType) {
+    case ePotionType::minorHealing:
+        total = 45.f;
+        break;
+    case ePotionType::lightHealing:
+        total = 90.f;
+        break;
+    case ePotionType::healing:
+        total = 150.f;
+        break;
+    case ePotionType::greaterHealing:
+        total = 270.f;
+        break;
+
+    case ePotionType::minorMana:
+        total = 30.f;
+        break;
+    case ePotionType::lightMana:
+        total = 60.f;
+        break;
+    case ePotionType::mana:
+        total = 120.f;
+        break;
+    case ePotionType::greaterMana:
+        total = 225.f;
+        break;
+    default:
+        return;
+    }
+
+    it.fFrameLength += 128.f;
+    it.fPerFrame = total/128.f;
+}
+
 float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left:
@@ -327,13 +395,48 @@ void eServerUnit::increment(const float by) {
                 i--;
             }
         }
-        const float helathReg = mStats.fHealthRegeneration;
-        const float healthChange = helathReg - poisonDmg;
+        float healthReg = mStats.fHealthRegeneration;
+        float manaReg = mStats.fManaRegeneration;
+        if(!mPotions.empty()) {
+            for(const auto type : {ePotionType::greaterHealing,
+                                   ePotionType::healing,
+                                   ePotionType::lightHealing,
+                                   ePotionType::minorHealing}) {
+                const auto it = mPotions.find(type);
+                if(it == mPotions.end()) continue;
+                auto& p = it->second;
+                if(p.fFrameLength > 0.f) {
+                    p.fFrameLength -= by;
+                    healthReg += p.fPerFrame;
+                    if(p.fFrameLength <= 0.f) {
+                        mPotions.erase(type);
+                    }
+                    break;
+                }
+            }
+            for(const auto type : {ePotionType::greaterMana,
+                                   ePotionType::mana,
+                                   ePotionType::lightMana,
+                                   ePotionType::minorMana}) {
+                const auto it = mPotions.find(type);
+                if(it == mPotions.end()) continue;
+                auto& p = it->second;
+                if(p.fFrameLength > 0.f) {
+                    p.fFrameLength -= by;
+                    manaReg += p.fPerFrame;
+                    if(p.fFrameLength <= 0.f) {
+                        mPotions.erase(type);
+                    }
+                    break;
+                }
+            }
+        }
+        const float healthChange = healthReg - poisonDmg;
         mStats.fHealthF = std::clamp(mStats.fHealthF + healthChange,
                                      0.f, mStats.fMaxHealth);
-        const float manaChange = mStats.fManaRegeneration;
+        const float manaChange = manaReg;
         mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
-                                     0.f, mStats.fMaxMana);
+                                   0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
         if(fHealth <= 0) {
             mArea.unitKilled(*this);

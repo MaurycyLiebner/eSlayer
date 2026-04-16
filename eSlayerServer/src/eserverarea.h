@@ -81,6 +81,7 @@ public:
     void rearrangeItems(const int clientId, const eEquipment& eq);
     void changeAttributes(const int clientId, const eAttributes& attrs);
     void changeSkillLevels(const int clientId, const eSkillLevels& skillLevels);
+    void consumePotion(const int clientId, const uint32_t itemId);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void summon(eServerUnit& by,

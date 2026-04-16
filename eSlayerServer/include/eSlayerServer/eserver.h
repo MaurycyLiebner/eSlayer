@@ -115,6 +115,10 @@ public:
     sendMessage(const int clientId,
                 const std::string& text) = 0;
 
+    virtual bool
+    consumePotion(const int clientId,
+                  const uint32_t itemId) = 0;
+
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
