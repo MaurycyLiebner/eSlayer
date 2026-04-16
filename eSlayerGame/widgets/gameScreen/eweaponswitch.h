@@ -3,7 +3,7 @@
 
 #include "../ewidget.h"
 
-class eCheckButton;
+class eWeaponSwitchButton;
 struct eEquipment;
 
 class eWeaponSwitch : public eWidget {
@@ -15,8 +15,8 @@ public:
     void updateChecked();
 private:
     eEquipment* mEq = nullptr;
-    eCheckButton* mISwitch = nullptr;
-    eCheckButton* mIISwitch = nullptr;
+    eWeaponSwitchButton* mISwitch = nullptr;
+    eWeaponSwitchButton* mIISwitch = nullptr;
 };
 
 #endif // EWEAPONSWITCH_H

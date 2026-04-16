@@ -52,6 +52,9 @@ eUITextures::sStatsPlusButton;
 std::shared_ptr<eTexture>
 eUITextures::sStatsPlusButtonHovered;
 
+std::shared_ptr<eTexture> eUITextures::sWeaponSwitch1;
+std::shared_ptr<eTexture> eUITextures::sWeaponSwitch2;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
     const auto suffix = res.textureSuffix();
@@ -114,6 +117,9 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     }
     sStatsPlusButton = eFileLoader::readTexture(r, dir, "ui/stats/plusButton" + suffix + ".png");
     sStatsPlusButtonHovered = eFileLoader::readTexture(r, dir, "ui/stats/plusButtonHovered" + suffix + ".png");
+
+    sWeaponSwitch1 = eFileLoader::readTexture(r, dir, "ui/inventory/weaponSwitch1" + suffix + ".png");
+    sWeaponSwitch2 = eFileLoader::readTexture(r, dir, "ui/inventory/weaponSwitch2" + suffix + ".png");
 
     const auto path = "ui/skills/skills.json";
     const auto jdata = eFileLoader::parse(dir, path);

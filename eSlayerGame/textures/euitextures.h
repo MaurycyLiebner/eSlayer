@@ -63,6 +63,11 @@ public:
     sStatsPlusButton;
     static std::shared_ptr<eTexture>
     sStatsPlusButtonHovered;
+
+    static std::shared_ptr<eTexture>
+    sWeaponSwitch1;
+    static std::shared_ptr<eTexture>
+    sWeaponSwitch2;
 private:
     static std::string sLoaded;
 };
