@@ -58,6 +58,7 @@ struct ESLAYERHELPERS_API eEquipment {
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);
     bool add(const eItem& item);
+    bool addToBelt(const eItem& item);
     bool canPlace(const eItem& item, const eItem& dst);
 
     using eIter = std::function<void(eItem& item)>;

@@ -88,44 +88,8 @@ eItem eEquipment::take(const uint32_t itemId) {
 
 bool eEquipment::add(const eItem& item) {
     if(item.fType == eItemType::potion) {
-        const auto typeAt = [&](const int x, const int y) {
-            eInventoryItem* at = nullptr;
-            if(y == fBeltVPotionSlots) {
-                at = fBeltPotions.at(x, 0);
-            } else {
-                at = fBeltPotions.at(x, y);
-            }
-            if(!at) return ePotionType::none;
-            const auto& item = at->fItem;
-            const auto subtype = item.fSubType;
-            const auto pType = static_cast<ePotionType>(subtype);
-            return pType;
-        };
-
-        const auto type = static_cast<ePotionType>(item.fSubType);
-        for(int x = 0; x < fBeltHPotionSlots; x++) {
-            const auto colType = typeAt(x, fBeltVPotionSlots);
-            const bool same = ePotionTypeHelpers::sameCategory(colType, type);
-            if(same || colType == ePotionType::none) {
-                for(int y = fBeltVPotionSlots; y >= 0; y--) {
-                    const auto slotType = typeAt(x, y);
-                    if(slotType == ePotionType::none) {
-                        eInventoryItem* iitem = nullptr;
-                        if(y == fBeltVPotionSlots) {
-                            iitem = &fBeltPotions.emplace_back();
-                        } else {
-                            iitem = &fBeltHiddenPotions.emplace_back();
-                        }
-                        iitem->fItem = item;
-                        iitem->fX = x;
-                        iitem->fY = fBeltVPotionSlots - y;
-                        iitem->fW = 1;
-                        iitem->fH = 1;
-                        return true;
-                    }
-                }
-            }
-        }
+        const bool r = addToBelt(item);
+        if(r) return true;
     } else {
         const auto tryAdd = [&](eItem& dst) {
             if(dst.fType != eItemType::none) return false;
@@ -191,6 +155,50 @@ bool eEquipment::add(const eItem& item) {
                 iitem.fW = w;
                 iitem.fH = h;
                 return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool eEquipment::addToBelt(const eItem& item) {
+    if(item.fType != eItemType::potion) return false;
+    const auto typeAt = [&](const int x, const int y) {
+        eInventoryItem* at = nullptr;
+        if(y == fBeltVPotionSlots - 1) {
+            at = fBeltPotions.at(x, 0);
+        } else {
+            at = fBeltHiddenPotions.at(x, y);
+        }
+        if(!at) return ePotionType::none;
+        const auto& item = at->fItem;
+        const auto subtype = item.fSubType;
+        const auto pType = static_cast<ePotionType>(subtype);
+        return pType;
+    };
+
+    const auto type = static_cast<ePotionType>(item.fSubType);
+    for(int x = 0; x < fBeltHPotionSlots; x++) {
+        const auto colType = typeAt(x, fBeltVPotionSlots - 1);
+        const bool same = ePotionTypeHelpers::sameCategory(colType, type);
+        if(same || colType == ePotionType::none) {
+            for(int y = fBeltVPotionSlots - 1; y >= 0; y--) {
+                const auto slotType = typeAt(x, y);
+                if(slotType == ePotionType::none) {
+                    eInventoryItem* iitem = nullptr;
+                    if(y == fBeltVPotionSlots - 1) {
+                        iitem = &fBeltPotions.emplace_back();
+                        iitem->fY = 0;
+                    } else {
+                        iitem = &fBeltHiddenPotions.emplace_back();
+                        iitem->fY = y;
+                    }
+                    iitem->fItem = item;
+                    iitem->fX = x;
+                    iitem->fW = 1;
+                    iitem->fH = 1;
+                    return true;
+                }
             }
         }
     }

@@ -183,11 +183,29 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     if(itemId == -1) return true;
     auto& inv = *mItems;
     const auto item = inv[itemId].fItem;
-    inv.erase(inv.begin() + itemId);
-    mEq->fDragged = item;
-    eItemDragWidget::sUpdateDragItem(*mEq);
-    eItemDragWidget::sSetHoverItem(eItem());
-    eGameWidget::sSendInventoryRearranged();
+    const auto b = e.button();
+    if(b == eMouseButton::right) {
+        if(item.fType == eItemType::potion) {
+            inv.erase(inv.begin() + itemId);
+            const auto gw = eGameWidget::sInstance;
+            gw->consumePotion(item);
+        }
+    } else {
+        if(e.shiftPressed() && item.fType == eItemType::potion) {
+            const bool r = mEq->addToBelt(item);
+            if(r) {
+                inv.erase(inv.begin() + itemId);
+                eItemDragWidget::sSetHoverItem(eItem());
+                eGameWidget::sSendInventoryRearranged();
+            }
+        } else {
+            inv.erase(inv.begin() + itemId);
+            mEq->fDragged = item;
+            eItemDragWidget::sUpdateDragItem(*mEq);
+            eItemDragWidget::sSetHoverItem(eItem());
+            eGameWidget::sSendInventoryRearranged();
+        }
+    }
     return true;
 }
 

@@ -91,6 +91,7 @@ public:
     void save();
     void sendMessage(const std::string& text);
     void consumePotion(const int x);
+    void consumePotion(const eItem& p);
 
     static eGameWidget* sInstance;
     static void sSendInventoryRearranged();

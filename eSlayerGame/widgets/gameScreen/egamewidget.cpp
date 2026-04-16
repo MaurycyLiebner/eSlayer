@@ -197,6 +197,10 @@ void eGameWidget::sendMessage(const std::string& text) {
 void eGameWidget::consumePotion(const int x) {
     auto& eq = equipment();
     const auto p = eq.takePotion(x);
+    return consumePotion(p);
+}
+
+void eGameWidget::consumePotion(const eItem& p) {
     if(p.fType != eItemType::potion) return;
     mServer->consumePotion(mClientId, p.fItemId);
 }
