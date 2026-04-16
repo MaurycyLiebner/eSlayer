@@ -162,13 +162,15 @@ public:
 	}
 
     static eVec2 random(const float len = 1.f) {
-        eVec2 r{0, 0};
-        do {
-            r.x = eRand::randF(-1.f, 1.f);
-            r.y = eRand::randF(-1.f, 1.f);
-        } while(r.length() == 0);
-        r.normalize(len);
-        return r;
+        constexpr float twoPi = 6.28318530718f;
+        const float angle = eRand::randF(0.f, twoPi);
+        return eVec2{std::cos(angle) * len, std::sin(angle) * len};
+    }
+
+    static eVec2 random_seeded(const int seed, const float len = 1.f) {
+        constexpr float twoPi = 6.28318530718f;
+        const float angle = eRand::randF_seeded(seed, 0.f, twoPi);
+        return eVec2{std::cos(angle) * len, std::sin(angle) * len};
     }
 };
 

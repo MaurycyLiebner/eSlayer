@@ -65,7 +65,7 @@ void jitter(eMissile& m, const float by) {
     const eVec2f perp(-dir.y, dir.x);
     const int seed = 100*(m.fId % 100) + int(m.fTime/3.f);
     const float perpDist = dist;
-    const float perpMult = eRand::randF(seed, -perpDist, perpDist);
+    const float perpMult = eRand::randF_seeded(seed, -perpDist, perpDist);
 
     moveInDir(dir * dist + perp * perpMult, m, dist);
     m.fRemDistTime -= dist;
@@ -103,7 +103,6 @@ void spiral(eMissile& m, const float by) {
     dir.y = m.fFrom.fY + r * std::sin(angle) - m.fPos.fY;
 
     moveInDir(dir, m, dist);
-
     m.fRemDistTime -= dist;
 }
 
@@ -114,12 +113,24 @@ void staticF(eMissile& m, const float by) {
     m.fRemDistTime -= by;
 }
 
+void wandering(eMissile& m, const float by) {
+    m.fTime += by;
+
+    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const int seed = 100*(m.fId % 100) + int(m.fTime/3.f);
+    const auto dir = eVec2f::random_seeded(seed);
+
+    moveInDir(dir, m, dist);
+    m.fRemDistTime -= dist;
+}
+
 void eMissileIncrement::initialize() {
     sIncrementors.add("linear", &linear);
     sIncrementors.add("wave", &wave);
     sIncrementors.add("jitter", &jitter);
     sIncrementors.add("spiral", &spiral);
     sIncrementors.add("static", &staticF);
+    sIncrementors.add("wandering", &wandering);
 
     for(const auto& it : eSkills::sSkills) {
         auto& skill = it.fValue;

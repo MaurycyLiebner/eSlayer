@@ -11,12 +11,13 @@ public:
     static int rand();
     static float randF(const float min = 0.f,
                        const float max = 1.f);
-    static int rand(const int seed);
-    static float randF(const int seed,
-                       const float min = 0.f,
-                       const float max = 1.f);
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
+
+    static float randF_seeded(const uint32_t seed,
+                              const float min,
+                              const float max);
+    static uint32_t hash(uint32_t x);
 private:
     static std::random_device sDev;
     static std::mt19937 sRng;
@@ -25,7 +26,7 @@ private:
 
 template<typename T>
 inline void eRand::randomShuffle(std::vector<T> &vec) {
-    std::shuffle(vec.begin(), vec.end(), sDev);
+    std::shuffle(vec.begin(), vec.end(), sRng);
 }
 
 #endif // ERAND_H

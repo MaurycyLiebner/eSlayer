@@ -9,18 +9,23 @@ int eRand::rand() {
 }
 
 float eRand::randF(const float min, const float max) {
-    const int margin = 100000;
-    return min + (max - min)*(rand() % (margin + 1))/margin;
+    static std::uniform_real_distribution<float> dist(0.f, 1.f);
+    return min + (max - min) * dist(sRng);
 }
 
-int eRand::rand(const int seed) {
-    sRng.seed(seed);
-    return rand();
+uint32_t eRand::hash(uint32_t x) {
+    x ^= x >> 16;
+    x *= 0x7feb352d;
+    x ^= x >> 15;
+    x *= 0x846ca68b;
+    x ^= x >> 16;
+    return x;
 }
 
-float eRand::randF(const int seed,
-                   const float min,
-                   const float max) {
-    sRng.seed(seed);
-    return randF(min, max);
+float eRand::randF_seeded(const uint32_t seed,
+                          const float min,
+                          const float max) {
+    const uint32_t h = hash(seed);
+    const float t = (h & 0x00FFFFFF) / float(0x01000000); // [0,1)
+    return min + (max - min) * t;
 }
