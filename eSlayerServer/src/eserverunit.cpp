@@ -579,7 +579,7 @@ void eServerUnit::killed(const eServerUnit& killed) {
 
 void eServerUnit::die() {
     fHealth = 0;
-    mStats.fHealthF = 0.;
+    mStats.fHealthF = 0.f;
 
     for(const auto fId : mFollowers) {
         const auto f = mArea.unit(fId);

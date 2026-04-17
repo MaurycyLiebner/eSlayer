@@ -158,6 +158,9 @@ void eGameWidget::setRightSkill(const int s) {
 
 void eGameWidget::respawn() {
     mServer->respawn(mClientId);
+    auto& eq = equipment();
+    eq = eEquipment();
+    mMainAction.recalculateStats();
 }
 
 bool eGameWidget::switchRunning() {
