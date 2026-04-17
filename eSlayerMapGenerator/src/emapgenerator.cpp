@@ -250,7 +250,7 @@ std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
     const auto result = std::make_shared<eMap>();
     if(name == "town") {
-        const uint16_t townFloorId = eTerrsTexturesData::id("town_floor");
+        const uint16_t townFloorId = eTerrsTexturesData::id("grass");
         result->mTerrainTypes.emplace(townFloorId);
         const int w = 80;
         const int h = 80;
@@ -258,7 +258,7 @@ eMapGenerator::generate(const std::string& name) const {
         for(auto& row : result->mTiles) {
             for(auto& tile : row) {
                 tile.fTerrainType = 1;
-                tile.fTileType = 5;
+                tile.fTileType = eRand::rand() % 20;
             }
         }
         result->mWidth = w;

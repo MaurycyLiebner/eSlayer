@@ -12,11 +12,13 @@ int eEffectTextures::size() const {
     return mColl->size();
 }
 
-void eEffectTextures::load(SDL_Renderer* const r) {
+void eEffectTextures::load(const eResolution& res,
+                           SDL_Renderer* const r) {
     if(mLoaded) return;
     mLoaded = true;
-    eSpriteLoader loader("Textures", "effects/" + mName,
-                         r, SDL_Color{0, 0, 0, 0});
+    const auto suffix = res.textureSuffix();
+    const auto path = "effects/" + mName + suffix;
+    eSpriteLoader loader("Textures", path, r);
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }

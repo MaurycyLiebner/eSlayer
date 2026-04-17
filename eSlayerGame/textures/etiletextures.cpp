@@ -1,6 +1,7 @@
 #include "etiletextures.h"
 
 #include "espriteloader.h"
+#include "../efileloader.h"
 
 eTileTextures::eTileTextures() {}
 
@@ -19,6 +20,27 @@ void eTileTextures::load(SDL_Renderer* const r) {
                          r, SDL_Color{172, 172, 172, 255});
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
+}
+
+void eTileTextures::loadFixedSize(const int w, const int h,
+                                  const eResolution& res,
+                                  SDL_Renderer* const r) {
+    if(mLoaded) return;
+    mLoaded = true;
+    const auto suffix = res.textureSuffix();
+    const auto dir = "Textures";
+    const auto path = mDirName + "/" + mName + suffix + ".png";
+    const auto atlas = eFileLoader::readTexture(r, dir, path);
+    mColl = std::make_shared<eTextureCollection>();
+    const int aw = atlas->width();
+    const int ah = atlas->height();
+    for(int x = 0; x < aw; x += w) {
+        for(int y = 0; y < ah; y += h) {
+            const auto tex = std::make_shared<eTexture>();
+            tex->setParentTexture(SDL_Rect{x, y, w, h}, atlas);
+            mColl->addTexture(tex);
+        }
+    }
 }
 
 void eTileTextures::initialize(

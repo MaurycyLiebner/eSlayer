@@ -13,6 +13,9 @@ public:
     int size() const;
 
     void load(SDL_Renderer * const r);
+    void loadFixedSize(const int w, const int h,
+                       const eResolution& res,
+                       SDL_Renderer * const r);
 
     void initialize(const std::string& dirName,
                     const std::string& name);

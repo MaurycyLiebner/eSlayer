@@ -107,10 +107,30 @@ int eResolution::lineWidth() const {
 }
 
 int eResolution::tileWidth() const {
+    switch(mUIScale) {
+    case eUIScale::small:
+        return 160;
+    case eUIScale::medium:
+        return 240;
+    case eUIScale::large:
+        return 320;
+    case eUIScale::huge:
+        return 480;
+    }
     return 160;
 }
 
 int eResolution::tileHeight() const {
+    switch(mUIScale) {
+    case eUIScale::small:
+        return 79;
+    case eUIScale::medium:
+        return 119;
+    case eUIScale::large:
+        return 159;
+    case eUIScale::huge:
+        return 239;
+    }
     return 79;
 }
 

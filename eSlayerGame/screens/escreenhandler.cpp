@@ -169,9 +169,12 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto clientId = std::make_shared<int>();
     const auto serverC = std::make_shared<eCharacter>(c);
 
-    const auto finish = [this, map, server, clientId, serverC]() {
-        const int width = mWindow->width();
-        const int height = mWindow->height();
+    const auto& res = mWindow->resolution();
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+
+    const auto finish = [this, width, height,
+                         map, server, clientId, serverC]() {
         const auto w = new eGameScreen(mWindow);
         w->resize(width, height);
         w->setExitAction([this]() {
@@ -200,19 +203,21 @@ void eScreenHandler::showGame(eServerData serverData,
         if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
         else map->loadData(data);
     });
-    loading.emplace_back([r]() {
+    loading.emplace_back([&res, r]() {
         const int id = eEffectsTextures::sEffects.id("lighting");
         auto& lighting = eEffectsTextures::sEffects.get(id);
-        lighting.load(r);
+        lighting.load(res, r);
     });
     loading.emplace_back([r]() {
         eMissilesTextures::loadTextures(r);
     });
-    loading.emplace_back([r, map]() {
+    loading.emplace_back([&res, r, map]() {
+        const int w = res.tileWidth();
+        const int h = res.tileHeight();
         const auto& terrTypes = map->terrainTypes();
         for(const auto& terrType : terrTypes) {
             auto& texs = eTerrsTextures::get(terrType);
-            texs.load(r);
+            texs.loadFixedSize(w, h, res, r);
         }
     });
     loading.emplace_back([r, map]() {
@@ -229,14 +234,11 @@ void eScreenHandler::showGame(eServerData serverData,
             u.loadAll(r);
         }
     });
-    loading.emplace_back([this, r]() {
-        const auto& res = mWindow->resolution();
+    loading.emplace_back([&res, r]() {
         eUITextures::sLoad(r, res);
     });
-    loading.emplace_back([this, server, clientId, serverC]() {
-        const int width = mWindow->width();
-        const int height = mWindow->height();
-        const auto& res = mWindow->resolution();
+    loading.emplace_back([&res, width, height,
+                          server, clientId, serverC]() {
         const int tileW = res.tileWidth();
         const int tileH = res.tileHeight();
         const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
