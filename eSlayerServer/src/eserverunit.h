@@ -184,11 +184,15 @@ public:
     { return mFollowers; }
     std::vector<int> followers(const int charDataId) const;
     int countFollowers(const int charDataId) const;
+
+    void setMoving(const bool m) { mMoving = m; }
+    bool moving() const;
 private:
     const eCharData& mData;
     eServerArea& mArea;
     const bool mClient;
 
+    bool mMoving = false;
     bool mAggressive = false;
     std::shared_ptr<eComplexAction> mAction;
     eMovementHandler mHandler;

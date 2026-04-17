@@ -25,6 +25,7 @@ add_library(eSlayerServer SHARED
     src/actions/ecomplexaction.h src/actions/ecomplexaction.cpp
     src/actions/eattackaction.h src/actions/eattackaction.cpp
     src/actions/ewaitaction.h src/actions/ewaitaction.cpp
+    src/actions/eyieldwaitaction.h src/actions/eyieldwaitaction.cpp
 
     src/eserverfileloader.h src/eserverfileloader.cpp
     src/actions/edieaction.h src/actions/edieaction.cpp

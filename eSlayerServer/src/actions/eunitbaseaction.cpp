@@ -2,7 +2,7 @@
 
 #include "emovetoenemyaction.h"
 #include "../eserverarea.h"
-#include "ewaitaction.h"
+#include "eyieldwaitaction.h"
 #include "ewalkaroundaction.h"
 
 #include <eSlayerHelpers/echardata.h>
@@ -71,8 +71,9 @@ bool eUnitBaseAction::moveToEnemy(const float maxDist) {
 }
 
 void eUnitBaseAction::wait(const float time) {
-    const auto wait = eWaitAction::sCreateStand(
-        mUnit, mArea, mStandAnimId, mStandReadyAnimId, time);
+    const auto wait = eYieldWaitAction::sCreateStand(
+        mUnit, mArea, mStandAnimId, mStandReadyAnimId,
+        mWalkAnimId, mWalkReadyAnimId, time);
     setChild(wait);
 }
 

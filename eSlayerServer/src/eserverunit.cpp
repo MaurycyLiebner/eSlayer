@@ -660,3 +660,8 @@ int eServerUnit::countFollowers(const int charDataId) const {
     }
     return result;
 }
+
+bool eServerUnit::moving() const {
+    if(mClient) return mMoving;
+    return mHandler.moving();
+}

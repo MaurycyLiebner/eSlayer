@@ -45,7 +45,12 @@ bool eServerClientHandler::changeState(
     if(!mArea) return false;
     const auto unit = mArea->unit(mClientId);
     if(!unit) return false;
-    unit->fPos = u.fPos;
+    if(ePointF::distance(unit->fPos, u.fPos) > 0.0001f) {
+        unit->fPos = u.fPos;
+        unit->setMoving(true);
+    } else {
+        unit->setMoving(false);
+    }
     unit->fAngle = u.fAngle;
 
     if(unit->fBlockingActionTime <= 0.f) {
