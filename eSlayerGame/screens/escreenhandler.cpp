@@ -10,6 +10,7 @@
 #include "eerrorscreen.h"
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
+#include "../widgets/gameScreen/egamewidget.h"
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
@@ -190,6 +191,8 @@ void eScreenHandler::showGame(eServerData serverData,
         *server = eSlayerServer::generate(serverData);
         (*server)->setFailureHandler([this](const std::string& msg,
                                             const std::string& subMsg) {
+            const auto gw = eGameWidget::sInstance;
+            if(gw) gw->save();
             showErrorMsg(msg, subMsg);
         });
         (*server)->initialize();
