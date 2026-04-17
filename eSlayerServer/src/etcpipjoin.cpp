@@ -143,7 +143,7 @@ bool eTcpIpJoin::requestMap(
 
         SDL_Delay(16);
         time += 16;
-        if(time > 2000) {
+        if(time > 10000) {
             failed("Disconnected", "Map request timed out.");
             return false;
         }
