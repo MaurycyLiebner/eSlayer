@@ -56,6 +56,13 @@ void eRequestData::read(ePacket& p) {
     for(int i = 0; i < nMapPoritons; i++) {
         fMapPortions.emplace_back().read(p);
     }
+
+    uint8_t nBodies;
+    p >> nBodies;
+    fBodies.reserve(fBodies.size() + nBodies);
+    for(int i = 0; i < nBodies; i++) {
+        p >> fBodies.emplace_back();
+    }
 }
 
 void eRequestData::write(ePacket& p) const {
@@ -99,5 +106,11 @@ void eRequestData::write(ePacket& p) const {
     p << nMapPoritons;
     for(const auto& mp : fMapPortions) {
         mp.write(p);
+    }
+
+    const uint8_t nBodies = fBodies.size();
+    p << nBodies;
+    for(const auto b : fBodies) {
+        p << b;
     }
 }

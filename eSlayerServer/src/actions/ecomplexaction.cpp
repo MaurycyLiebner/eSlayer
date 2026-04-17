@@ -157,9 +157,7 @@ bool eComplexAction::getHit(const eHitData& data,
             hit = true;
             const float dmg = mUnit.takeDamage(data.fDamage);
             if(mUnit.fHealth <= 0) {
-                mArea.unitKilled(mUnit);
-                const auto die = std::make_shared<eDieAction>(mUnit, mArea);
-                mUnit.setChildAction(die);
+                mUnit.die();
             } else if(data.fKnockback) {
                 const float knockbackDist = 1.f;
                 const auto dir = ePointF::vector(mUnit.fPos, data.fFrom);

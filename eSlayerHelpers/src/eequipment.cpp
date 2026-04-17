@@ -132,33 +132,7 @@ bool eEquipment::add(const eItem& item) {
         r = tryAdd(fWeapon2R);
         if(r) return true;
     }
-    const auto& itemData = eItemsData::get(item.fDataId);
-    const int w = itemData.fWidth;
-    const int h = itemData.fHeight;
-    for(int x = 0; x <= fInventoryWidth - w; x++) {
-        for(int y = 0; y <= fInventoryHeight - h; y++) {
-            bool overlap = false;
-            for(const auto& it : fInventory) {
-                const bool dontOverlap = x >= it.fX + it.fW ||
-                                         x + w <= it.fX ||
-                                         y >= it.fY + it.fH ||
-                                         y + h <= it.fY;
-                if(dontOverlap) continue;
-                overlap = true;
-                break;
-            }
-            if(!overlap) {
-                auto& iitem = fInventory.emplace_back();
-                iitem.fItem = item;
-                iitem.fX = x;
-                iitem.fY = y;
-                iitem.fW = w;
-                iitem.fH = h;
-                return true;
-            }
-        }
-    }
-    return false;
+    return fInventory.tryAdd(item);
 }
 
 bool eEquipment::addToBelt(const eItem& item) {
@@ -269,25 +243,11 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
 }
 
 void eEquipment::iterateOverAll(const eIter& iter) {
-    iter(fBoots);
-    iter(fGloves);
-    iter(fHelmet);
-    iter(fArmor);
-    iter(fBelt);
-    iter(fRingL);
-    iter(fRingR);
-    iter(fAmulet);
-    iter(fWeapon1L);
-    iter(fWeapon1R);
-    iter(fWeapon2L);
-    iter(fWeapon2R);
-    iter(fDragged);
+    sIterateOverAllImpl(*this, iter);
+}
 
-    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
-        for(auto& item : *v) {
-            iter(item.fItem);
-        }
-    }
+void eEquipment::iterateOverAll(const eCIter& iter) const {
+    sIterateOverAllImpl(*this, iter);
 }
 
 eItem eEquipment::takePotion(const int x) {
@@ -317,6 +277,56 @@ int eEquipment::beltX(const uint32_t itemId) const {
         if(it.fItem.fItemId == itemId) return it.fX;
     }
     return -1;
+}
+
+void eEquipment::moveFrom(eEquipment& srcEq) {
+    fInventory.moveFrom(srcEq.fInventory);
+
+    const auto tryMove = [&](eItem eEquipment::* ptr) {
+        auto& src = srcEq.*ptr;
+        if(src.fType == eItemType::none) return true;
+        auto& dst = this->*ptr;
+        if(dst.fType != eItemType::none) return false;
+        const bool r = canPlace(src, dst);
+        if(r) {
+            std::swap(src, dst);
+        } else {
+            const bool r = fInventory.tryAdd(src);
+            if(!r) return false;
+            src = eItem();
+        }
+        return true;
+    };
+    tryMove(&eEquipment::fBoots);
+    tryMove(&eEquipment::fGloves);
+    tryMove(&eEquipment::fHelmet);
+    tryMove(&eEquipment::fArmor);
+    tryMove(&eEquipment::fBelt);
+    tryMove(&eEquipment::fRingL);
+    tryMove(&eEquipment::fRingR);
+    tryMove(&eEquipment::fAmulet);
+    tryMove(&eEquipment::fWeapon1L);
+    tryMove(&eEquipment::fWeapon1R);
+    tryMove(&eEquipment::fWeapon2L);
+    tryMove(&eEquipment::fWeapon2R);
+    tryMove(&eEquipment::fDragged);
+
+    fBeltPotions.moveFrom(srcEq.fBeltPotions);
+    fBeltHiddenPotions.moveFrom(srcEq.fBeltHiddenPotions);
+    fBeltPotions.moveFrom(srcEq.fBeltHiddenPotions);
+    fBeltHiddenPotions.moveFrom(srcEq.fBeltPotions);
+
+    fInventory.moveFrom(srcEq.fBeltPotions);
+    fInventory.moveFrom(srcEq.fBeltHiddenPotions);
+}
+
+bool eEquipment::empty() const {
+    bool empty = true;
+    iterateOverAll([&](const eItem& item) {
+        if(item.fType == eItemType::none) return;
+        empty = false;
+    });
+    return empty;
 }
 
 void eEquipment::read(ePacket& p) {
@@ -364,17 +374,25 @@ void eEquipment::write(ePacket& p) const {
 }
 
 eInventoryItem* eInventoryItems::at(const int x, const int y) {
-    const int w = 1;
-    const int h = 1;
+    const auto v = at(x, y, 1, 1);
+    if(v.empty()) return nullptr;
+    return v[0];
+}
+
+std::vector<eInventoryItem*> eInventoryItems::at(
+    const int x, const int y,
+    const int w, const int h) {
+    std::vector<eInventoryItem*> result;
     for(auto& it : *this) {
         const bool dontOverlap = x >= it.fX + it.fW ||
                                  x + w <= it.fX ||
                                  y >= it.fY + it.fH ||
                                  y + h <= it.fY;
         if(dontOverlap) continue;
-        return &it;
+        result.emplace_back(&it);
+        if(w == 1 && h == 1) return result;
     }
-    return nullptr;
+    return result;
 }
 
 eItem eInventoryItems::takeAt(const int x, const int y) {
@@ -392,6 +410,48 @@ eItem eInventoryItems::takeAt(const int x, const int y) {
         return result;
     }
     return eItem();
+}
+
+void eInventoryItems::moveFrom(eInventoryItems& src) {
+    for(int i = 0; i < src.size(); i++) {
+        const auto& it = src[i];
+        const auto v = at(it.fX, it.fY, it.fW, it.fH);
+        if(!v.empty()) continue;
+        emplace_back(it);
+        src.erase(src.begin() + i);
+        i--;
+    }
+    for(int i = 0; i < src.size(); i++) {
+        const auto& it = src[i];
+        const bool r = tryAdd(it.fItem);
+        if(r) {
+            src.erase(src.begin() + i);
+            i--;
+        }
+    }
+}
+
+bool eInventoryItems::tryAdd(const eItem& item) {
+    if(item.fType == eItemType::none) return true;
+    const auto& itemData = eItemsData::get(item.fDataId);
+    const int w = itemData.fWidth;
+    const int h = itemData.fHeight;
+    for(int x = 0; x <= mWidth - w; x++) {
+        for(int y = 0; y <= mHeight - h; y++) {
+            const auto v = at(x, y, w, h);
+            const bool overlap = !v.empty();
+            if(!overlap) {
+                auto& iitem = emplace_back();
+                iitem.fItem = item;
+                iitem.fX = x;
+                iitem.fY = y;
+                iitem.fW = w;
+                iitem.fH = h;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void eInventoryItems::read(ePacket& p) {

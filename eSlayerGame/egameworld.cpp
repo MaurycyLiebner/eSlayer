@@ -61,7 +61,9 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     result.fMana = data.fMana;
     result.fLevel = data.fLevel;
     result.fExperience = data.fExperience;
-
+    for(const auto b : data.fBodies) {
+        mBodies.emplace_back(b);
+    }
     result.fReceived = true;
     mUnitAreas.clear();
     const auto& newUnits = data.fNewUnits;

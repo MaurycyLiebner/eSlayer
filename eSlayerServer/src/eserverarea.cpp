@@ -47,6 +47,45 @@ eServerArea::eServerArea() :
                              hitAction);
 }
 
+void eServerArea::iniSetupUnit(
+        const std::shared_ptr<eServerUnit>& u,
+        const int charId,
+        const int teamId,
+        const ePointF& pos,
+        const eUnitInfo& uinfo,
+        const eCharData& data,
+        const eModelParts& modelParts) {
+    u->fCharId = charId;
+    u->fTeamId = teamId;
+    u->fCharDataId = uinfo.fCharData;
+    u->fRadius = uinfo.fRadius;
+    u->fPos = pos;
+    u->fAnim = data.animId("stand");
+    u->fAnimId = 0;
+    u->fAnimSpeed = 1.f;
+    u->fAngle = eRand::randF(0.f, 360.f);
+    u->fBlockingActionTime = 0.f;
+    u->fModelParts = modelParts;
+
+    auto& m = u->movementHandler();
+    m.setSpeed(uinfo.fWalkSpeed);
+    const auto w = [this](const int x, const int y) {
+        return mMap->walkable(x, y);
+    };
+    const auto iter = [this, charId](const eOtherHandler& handler) {
+        for(const auto& u : mUnits) {
+            if(charId == u->fCharId) continue;
+            handler(*u);
+        }
+    };
+    m.intialize(w, iter, charId, 0);
+    m.setRadius(u->fRadius);
+
+    mUnits.add(charId, u);
+    const auto area = unitArea(*u);
+    mUnitAreas.emplace(area, charId);
+}
+
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
@@ -73,20 +112,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const auto modelParts = data.mapToModelParts(partsMap);
             const auto u = std::make_shared<eServerUnit>(false, data, *this);
             const int charId = eServerUnit::sNextCharId++;
-            u->fCharId = charId;
-            u->fTeamId = -1;
-            u->fCharDataId = udata.fCharData;
-            u->fModelParts = modelParts;
-            u->fHealth = 100;
-            u->fMaxHealth = 100;
-            u->fRadius = udata.fRadius;
-            u->fAnim = data.animId("stand");
-            u->fAnimSpeed = 1.f;
-            u->fBlockingActionTime = 0.f;
-            u->fAnimId = 0;
             const ePointF pos{float(x), float(y)};
-            u->fPos = pos;
-            u->fAngle = 0.f;
+            iniSetupUnit(u, charId, -1, pos, udata, data, modelParts);
 
             u->setBoosts(udata.fModifiers, false);
             {
@@ -103,24 +130,6 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 u->setSkillId(schoice, skillId, false);
             }
             u->recalculateStats();
-            mUnits.add(charId, u);
-            const auto area = unitArea(*u);
-            mUnitAreas.emplace(area, charId);
-
-            auto& m = u->movementHandler();
-            m.setSpeed(udata.fWalkSpeed);
-
-            const auto w = [this](const int x, const int y) {
-                return mMap->walkable(x, y);
-            };
-            const auto iter = [this, charId](const eOtherHandler& handler) {
-                for(const auto& u : mUnits) {
-                    if(charId == u->fCharId) continue;
-                    handler(*u);
-                }
-            };
-            m.intialize(w, iter, charId, -1);
-            m.setRadius(u->fRadius);
 
             const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
             u->setAction(a);
@@ -355,9 +364,6 @@ bool eServerArea::addClient(const int clientId,
                             eCharacter& c,
                             const ePointF& pos,
                             const eScreenDimensions& screenDims) {
-    auto& clientData = mClientData[clientId];
-    clientData.fLatestMissile = -1;
-    clientData.fScreen = screenDims;
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
@@ -366,19 +372,7 @@ bool eServerArea::addClient(const int clientId,
     const auto u = std::make_shared<eServerUnit>(true, data, *this);
     u->addSkill();
     u->addSkill();
-    u->fCharId = clientId;
-    u->fCharDataId = udata.fCharData;
-    u->fRadius = udata.fRadius;
-    u->fAnim = data.animId("stand");
-    u->fAnimId = 0;
-    u->fAnimSpeed = 1.f;
-    u->fTeamId = 0;
-    u->fPos = pos;
-    u->fAngle = 0.f;
-    u->fMaxHealth = 100;
-    u->fHealth = 100;
-    u->fBlockingActionTime = 0.f;
-    u->fModelParts = modelParts;
+    iniSetupUnit(u, clientId, 0, pos, udata, data, modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();
@@ -391,31 +385,36 @@ bool eServerArea::addClient(const int clientId,
     const auto& skillLevels = c.skillLevels();
     u->setSkillLevels(skillLevels, false);
     u->recalculateStats();
-    mUnits.add(clientId, u);
+
+    auto& clientData = mClientData[clientId];
+    clientData.fLatestMissile = -1;
+    clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
-    mUnitAreas.emplace(area, clientId);
     clientData.fArea = area;
 
-    auto& m = u->movementHandler();
-    m.setSpeed(udata.fWalkSpeed);
-
-    const auto w = [this](const int x, const int y) {
-        return mMap->walkable(x, y);
-    };
-    const auto iter = [this, clientId](const eOtherHandler& handler) {
-        for(const auto& u : mUnits) {
-            if(clientId == u->fCharId) continue;
-            handler(*u);
-        }
-    };
-    m.intialize(w, iter, clientId, 0);
-    m.setRadius(u->fRadius);
     return true;
 }
 
 bool eServerArea::respawn(const int clientId) {
     const auto client = unit(clientId);
     if(!client) return false;
+    const bool createBody = true;
+    if(createBody) {
+        auto& eq = client->equipment();
+        const auto& data = client->data();
+        const auto u = std::make_shared<eServerUnit>(
+            true, data, *this);
+        u->setEquipment(eq, false);
+        const int typeId = 0;
+        const auto& udata = eUnitsInfo::sUnits.get(typeId);
+        const int charId = eServerUnit::sNextCharId++;
+        const auto& modelParts = client->fModelParts;
+        const auto teamId = client->fTeamId;
+        const auto& pos = client->fPos;
+        iniSetupUnit(u, charId, teamId, pos, udata, data, modelParts);
+        u->fAnim = data.animId("body");
+        client->setEquipment(eEquipment());
+    }
     client->respawn();
     client->fPos = mMap->spawnPos();
     return true;
@@ -429,6 +428,27 @@ bool eServerArea::removeClient(const int clientId) {
 
 bool eServerArea::planRemoveUnit(const int charId) {
     mUnitsToRemove.emplace_back(charId);
+    return true;
+}
+
+bool eServerArea::pickupBody(
+    const int clientId, const int charId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& client = it->second;
+    auto& bodies = client.fBodies;
+    const auto bit = std::find(bodies.begin(), bodies.end(), charId);
+    if(bit == bodies.end()) return false;
+    const auto body = unit(charId);
+    const auto u = unit(clientId);
+    if(!u || u->fHealth <= 0) return false;
+    auto& dst = u->equipment();
+    auto& src = body->equipment();
+    dst.moveFrom(src);
+    if(src.empty()) {
+        bodies.erase(bit);
+        planRemoveUnit(charId);
+    }
     return true;
 }
 
@@ -533,7 +553,10 @@ eServerArea::missileData(const int clientId) {
     const auto u = unit(clientId);
     if(!u) return result;
     result.reserve(mMissiles.actualSize());
-    auto& latestMissile = mClientData[clientId].fLatestMissile;
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return result;
+    auto& clientData = it->second;
+    auto& latestMissile = clientData.fLatestMissile;
     auto newLatestMissile = latestMissile;
     for(const auto& m : mMissiles) {
         if(m->fId <= latestMissile) continue;
@@ -543,6 +566,20 @@ eServerArea::missileData(const int clientId) {
         result.emplace_back(*m);
     }
     latestMissile = newLatestMissile;
+    return result;
+}
+
+std::vector<int>
+eServerArea::bodies(const int clientId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return {};
+    auto& clientData = it->second;
+    std::vector<int> result;
+    const auto& bodies = clientData.fBodies;
+    const int known = clientData.fKnownBodies;
+    for(int i = known; i < bodies.size(); i++) {
+        result.emplace_back(bodies[i]);
+    }
     return result;
 }
 
@@ -572,43 +609,13 @@ void eServerArea::summon(eServerUnit& by,
     const auto u = std::make_shared<eServerUnit>(false, data, *this);
     const int charId = eServerUnit::sNextCharId++;
     followers.emplace_back(charId);
-    u->fCharId = charId;
-    u->fTeamId = by.fTeamId;
-    u->fCharDataId = udata.fCharData;
-    u->fModelParts = modelParts;
-    u->fHealth = 100;
-    u->fMaxHealth = 100;
-    u->fRadius = udata.fRadius;
-    u->fAnim = data.animId("stand");
-    u->fAnimSpeed = 1.f;
-    u->fBlockingActionTime = 0.f;
-    u->fAnimId = 0;
-    u->fPos = to;
-    u->fAngle = 0.f;
+    iniSetupUnit(u, charId, by.fTeamId, to, udata, data, modelParts);
     u->setBoosts(mods, false);
     {
         const int schoice = u->addSkill();
         u->setSkillId(schoice, 0, false);
     }
     u->recalculateStats();
-    mUnits.add(charId, u);
-    const auto area = unitArea(*u);
-    mUnitAreas.emplace(area, charId);
-
-    auto& m = u->movementHandler();
-    m.setSpeed(udata.fWalkSpeed);
-
-    const auto w = [this](const int x, const int y) {
-        return mMap->walkable(x, y);
-    };
-    const auto iter = [this, charId](const eOtherHandler& handler) {
-        for(const auto& u : mUnits) {
-            if(charId == u->fCharId) continue;
-            handler(*u);
-        }
-    };
-    m.intialize(w, iter, charId, by.fTeamId);
-    m.setRadius(u->fRadius);
 
     const auto byPtr = unit(by.fCharId);
     const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);

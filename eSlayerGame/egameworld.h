@@ -71,6 +71,7 @@ private:
     eIdMapVector<eGroundItem> mGroundItems;
     eSetAreas mUnitAreas;
     eMissileIncrementer mMIncrementer;
+    std::vector<int> mBodies;
 };
 
 #endif // EGAMEWORLD_H

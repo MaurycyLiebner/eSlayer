@@ -19,6 +19,7 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
+    data.fBodies = mArea->bodies(mClientId);
     eMapPortion mp;
     const bool r = mArea->mapPortion(mClientId, mp);
     if(r) {

@@ -439,9 +439,7 @@ void eServerUnit::increment(const float by) {
                                    0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
         if(fHealth <= 0) {
-            mArea.unitKilled(*this);
-            const auto die = std::make_shared<eDieAction>(*this, mArea);
-            setChildAction(die);
+            die();
         }
     }
 }
@@ -577,6 +575,22 @@ void eServerUnit::killed(const eServerUnit& killed) {
         mStats.fHealthF = mStats.fMaxHealth;
         mStats.fManaF = mStats.fMaxMana;
     }
+}
+
+void eServerUnit::die() {
+    fHealth = 0;
+    mStats.fHealthF = 0.;
+
+    for(const auto fId : mFollowers) {
+        const auto f = mArea.unit(fId);
+        if(f) f->die();
+    }
+    mFollowers.clear();
+    mPoison.clear();
+    mPotions.clear();
+    mArea.unitKilled(*this);
+    const auto die = std::make_shared<eDieAction>(*this, mArea);
+    setChildAction(die);
 }
 
 void eServerUnit::respawn() {

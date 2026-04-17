@@ -168,6 +168,7 @@ public:
                      const eWeaponChoice wchoice) const;
 
     void killed(const eServerUnit& killed);
+    void die();
     void respawn();
 
     void recalculateStats();

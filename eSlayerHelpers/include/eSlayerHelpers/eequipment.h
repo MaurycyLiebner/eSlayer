@@ -18,11 +18,22 @@ struct ESLAYERHELPERS_API eInventoryItem {
 
 struct ESLAYERHELPERS_API eInventoryItems :
     public std::vector<eInventoryItem> {
+    eInventoryItems(const int width, const int height) :
+        mWidth(width), mHeight(height) {}
+
     eInventoryItem* at(const int x, const int y);
+    std::vector<eInventoryItem*> at(
+        const int x, const int y,
+        const int w, const int h);
     eItem takeAt(const int x, const int y);
+    void moveFrom(eInventoryItems& src);
+    bool tryAdd(const eItem& item);
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+private:
+    int mWidth;
+    int mHeight;
 };
 
 struct ESLAYERHELPERS_API eEquipment {
@@ -44,16 +55,19 @@ struct ESLAYERHELPERS_API eEquipment {
 
     static const int fBeltHPotionSlots = 4;
     static const int fBeltVPotionSlots = 4;
-    eInventoryItems fBeltHiddenPotions;
-    eInventoryItems fBeltPotions;
+    eInventoryItems fBeltHiddenPotions{fBeltHPotionSlots,
+                                       fBeltVPotionSlots - 1};
+    eInventoryItems fBeltPotions{fBeltHPotionSlots, 1};
 
     static const int fInventoryWidth = 10;
     static const int fInventoryHeight = 4;
-    eInventoryItems fInventory;
+    eInventoryItems fInventory{fInventoryWidth,
+                               fInventoryHeight};
 
     static const int fStashWidth = 10;
     static const int fStashHeight = 8;
-    eInventoryItems fStash;
+    eInventoryItems fStash{fStashWidth,
+                           fStashHeight};
 
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);
@@ -63,12 +77,40 @@ struct ESLAYERHELPERS_API eEquipment {
 
     using eIter = std::function<void(eItem& item)>;
     void iterateOverAll(const eIter& iter);
+    using eCIter = std::function<void(const eItem& item)>;
+    void iterateOverAll(const eCIter& iter) const;
 
     eItem takePotion(const int x);
     int beltX(const uint32_t itemId) const;
 
+    void moveFrom(eEquipment& srcEq);
+    bool empty() const;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
+
+    template <typename Self, typename Iter>
+    static void sIterateOverAllImpl(Self& self, Iter&& iter) {
+        iter(self.fBoots);
+        iter(self.fGloves);
+        iter(self.fHelmet);
+        iter(self.fArmor);
+        iter(self.fBelt);
+        iter(self.fRingL);
+        iter(self.fRingR);
+        iter(self.fAmulet);
+        iter(self.fWeapon1L);
+        iter(self.fWeapon1R);
+        iter(self.fWeapon2L);
+        iter(self.fWeapon2R);
+        iter(self.fDragged);
+
+        for(auto v : {&self.fInventory, &self.fBeltPotions, &self.fBeltHiddenPotions, &self.fStash}) {
+            for(auto& item : *v) {
+                iter(item.fItem);
+            }
+        }
+    }
 };
 
 #endif // EEQUIPMENT_H

@@ -21,6 +21,7 @@
 #include <set>
 
 class eCharacter;
+struct eUnitInfo;
 
 struct eClientData {
     eClientData();
@@ -31,6 +32,8 @@ struct eClientData {
     std::set<int> fKnownItems;
     int32_t fLatestMissile;
     eAreas fKnownMap;
+    int fKnownBodies = 0;
+    std::vector<int> fBodies;
 };
 
 class eServerArea {
@@ -54,6 +57,8 @@ public:
                    std::vector<uint32_t>& removedItemIds);
     std::vector<eMissile>
     missileData(const int clientId);
+    std::vector<int>
+    bodies(const int clientId);
 
     eArea unitArea(const int charId) const;
     eArea unitArea(const eServerUnit& u) const;
@@ -74,6 +79,7 @@ public:
     bool respawn(const int clientId);
     bool removeClient(const int clientId);
     bool planRemoveUnit(const int charId);
+    bool pickupBody(const int clientId, const int charId);
 
     bool pickupItem(const int clientId, const int itemId,
                     const bool drag);
@@ -110,6 +116,13 @@ public:
     void unitKilled(const eServerUnit& killed);
 private:
     void removePlannedUnits();
+    void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
+                      const int charId,
+                      const int teamId,
+                      const ePointF& pos,
+                      const eUnitInfo& uinfo,
+                      const eCharData& data,
+                      const eModelParts& modelParts);
 
     float mTime = 0.f;
 
