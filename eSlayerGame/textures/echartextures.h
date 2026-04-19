@@ -21,9 +21,11 @@ public:
     void setCharDataId(const int id);
     void load(const ordered_json& jdata);
 
-    void loadAll(SDL_Renderer* const r);
+    void loadAll(const eResolution& res,
+                 SDL_Renderer* const r);
     std::shared_ptr<eCharModel> requestModel(
         const eModelParts& modelParts,
+        const eResolution& res,
         SDL_Renderer* const r) const;
     using eStringMap = std::map<std::string, std::string>;
     eModelParts mapToModelParts(const eStringMap& m) const;
@@ -34,6 +36,7 @@ public:
 private:
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
+        const eResolution& res,
         SDL_Renderer* const r) const;
 
     int mCharDataId;

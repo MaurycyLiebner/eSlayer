@@ -16,9 +16,10 @@ eMissileAnim::get(const int dir, const int frame) {
     return fDirs[dir].getTexture(frame);
 }
 
-void eMissileAnim::load(SDL_Renderer* const r) {
+void eMissileAnim::load(const eResolution& res,
+                        SDL_Renderer* const r) {
     const auto dir = "Textures";
-    eSpriteLoader loader(dir, fPath, r);
+    eSpriteLoader loader(dir, fPath, res, r);
     fDirs.reserve(fNDirs);
     for(int d = 0; d < fNDirs; d++) {
         auto& coll = fDirs.emplace_back();
@@ -36,9 +37,10 @@ eMissileTextures::get(const int animId,
     return anim.get(dir, frame);
 }
 
-void eMissileTextures::load(SDL_Renderer* const r) {
+void eMissileTextures::load(const eResolution& res,
+                            SDL_Renderer* const r) {
     for(const auto& anim : mAnims) {
-        anim.fValue.load(r);
+        anim.fValue.load(res, r);
     }
 }
 
@@ -92,10 +94,11 @@ void eMissilesTextures::loadData() {
     }
 }
 
-void eMissilesTextures::loadTextures(SDL_Renderer* const r) {
+void eMissilesTextures::loadTextures(const eResolution& res,
+                                     SDL_Renderer* const r) {
     if(sTexsLoaded) return;
     sTexsLoaded = true;
     for(const auto& m : sMissiles) {
-        m.fValue.load(r);
+        m.fValue.load(res, r);
     }
 }

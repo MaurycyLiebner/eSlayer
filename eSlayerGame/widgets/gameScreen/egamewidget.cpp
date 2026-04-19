@@ -54,6 +54,7 @@ void eGameWidget::initialize(const int clientId,
     initializeTextures();
 
     const auto r = renderer();
+    const auto& res = resolution();
 
     const auto w = walkable();
     const auto iter = [this](const eOtherHandler& handler) {
@@ -62,7 +63,7 @@ void eGameWidget::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMainAction.initialize(mServer, r, w, iter, clientId, 0);
+    mMainAction.initialize(mServer, res, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
 
     setRightSkill(0);
@@ -257,8 +258,9 @@ void eGameWidget::paintEvent(ePainter& p) {
             addMessage(r, text);
         }
     }
+    const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
-        mClientId, *mServer, *mMainChar, mMainAction, r);
+        mClientId, *mServer, *mMainChar, mMainAction, res, r);
     if(eInventoryWidget::sBlocked) {
         auto& eq = mMainAction.equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);
@@ -555,7 +557,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         p.drawTexture(rect(), tex, eAlignment::center);
     }
 
-    const auto& res = resolution();
     const int m = res.smallPadding();
     int y = m;
     for(int i = 0; i < mMessages.size(); i++) {

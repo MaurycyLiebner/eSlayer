@@ -8,25 +8,27 @@
 
 eSpriteLoader::eSpriteLoader(const std::string& dir,
                              const std::string& path,
+                             const eResolution& res,
                              SDL_Renderer* const r,
                              const SDL_Color& colorKey) :
-    mDir(dir), mPath(path),
-    mRenderer(r), mColorKey(colorKey) {
-
-}
+    mDir(dir), mPath(path), mRes(res),
+    mRenderer(r), mColorKey(colorKey) {}
 
 std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     initialize();
-    if(mSpriteCoords.size() <= i) {
+    if(mSprites.size() <= i) {
         eExceptions::logError(
             "Texture " + std::to_string(i) + " out of range " +
             mDir + "/" + mPath + ".");
         return nullptr;
     }
     const auto tex = std::make_shared<eTexture>();
-    const auto& off = mSpriteOffsets[i];
+    auto& row = mSprites[i];
+    const auto& off = row.fOffset;
     tex->setOffset(off.x, off.y);
-    tex->setParentTexture(mSpriteCoords[i], mAtlas);
+    const int atlasId = row.fAtlasId;
+    const auto& atlas = mAtlases[atlasId];
+    tex->setParentTexture(row.fCoords, atlas);
     return tex;
 }
 
@@ -40,7 +42,7 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i,
 
 int eSpriteLoader::loadAll(eTextureCollection& coll) {
     initialize();
-    const int n = mSpriteCoords.size();
+    const int n = mSprites.size();
     for(int i = 0; i < n; i++) {
         load(i, coll);
     }
@@ -51,21 +53,30 @@ void eSpriteLoader::initialize() {
     if(mInitialized) return;
     mInitialized = true;
 
-    mAtlas = eFileLoader::readTexture(mRenderer, mDir, mPath + ".png", mColorKey);
+    const auto suffix = mRes.textureSuffix();
+    const auto csvPath = mPath + suffix + ".csv";
+    Document doc;
+    try {
+        doc = eFileLoader::readCsv(mDir, csvPath);
+    } catch(...) {
+        eRuntimeThrow("Failed to read \"" + mDir + "/" + csvPath + "\".");
+    }
 
-    const auto csvPath = mPath + ".csv";
-    const auto doc = eFileLoader::readCsv(mDir, csvPath);
     const int nrows = doc.GetRowCount();
-    mSpriteCoords.reserve(nrows);
+    mSprites.reserve(nrows);
     for(int i = 0; i < nrows; i++) {
-        auto& rect = mSpriteCoords.emplace_back();
-        auto& offset = mSpriteOffsets.emplace_back();
+        auto& sprite = mSprites.emplace_back();
+        auto& atlasId = sprite.fAtlasId;
+        auto& rect = sprite.fCoords;
+        auto& offset = sprite.fOffset;
         const auto row = doc.GetRow<int>(i);
-        if(row.size() != 6) {
+        if(row.size() != 7) {
             eExceptions::logError(
                 "Invalid atlas rect/offset at line " +
                 std::to_string(i + 1) + " in " +
                 csvPath + ".");
+            atlasId = 0;
+
             rect.x = 0;
             rect.y = 0;
             rect.w = 0;
@@ -75,12 +86,25 @@ void eSpriteLoader::initialize() {
             offset.y = 0;
             continue;
         }
-        rect.x = row[0];
-        rect.y = row[1];
-        rect.w = row[2];
-        rect.h = row[3];
 
-        offset.x = row[4];
-        offset.y = row[5];
+        atlasId = row[0];
+
+        if(atlasId < 0) {
+            eRuntimeThrow("Atlas id less than 0 in \"" + mDir + "/" + csvPath + "\".");
+        } else if(atlasId > mAtlases.size()) {
+            eRuntimeThrow("Atlases not in order in \"" + mDir + "/" + csvPath + "\".");
+        } else if(atlasId == mAtlases.size()) {
+            const auto idStr = "_" + std::to_string(atlasId);
+            const auto atlas = eFileLoader::readTexture(mRenderer, mDir, mPath + suffix + idStr + ".png", mColorKey);
+            mAtlases.emplace_back(atlas);
+        }
+
+        rect.x = row[1];
+        rect.y = row[2];
+        rect.w = row[3];
+        rect.h = row[4];
+
+        offset.x = row[5];
+        offset.y = row[6];
     }
 }

@@ -47,6 +47,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     eServer& server,
     const eUnit& mainChar,
     eMainCharAction& mainAct,
+    const eResolution& res,
     SDL_Renderer* const r) {
     eProcessResult result;
 
@@ -85,7 +86,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             continue;
         }
         const auto& texs = eCharsTextures::get(u.fCharDataId);
-        const auto unitModel = texs.requestModel(u.fModelParts, r);
+        const auto unitModel = texs.requestModel(
+            u.fModelParts, res, r);
 
         const auto unit = std::make_shared<eUnit>();
         static_cast<eUnitData&>(*unit) = u;

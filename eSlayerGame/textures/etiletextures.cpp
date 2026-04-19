@@ -13,11 +13,12 @@ int eTileTextures::size() const {
     return mColl->size();
 }
 
-void eTileTextures::load(SDL_Renderer* const r) {
+void eTileTextures::load(const eResolution& res,
+                         SDL_Renderer* const r) {
     if(mLoaded) return;
     mLoaded = true;
     eSpriteLoader loader("Textures", mDirName + "/" + mName,
-                         r, SDL_Color{172, 172, 172, 255});
+                         res, r, SDL_Color{172, 172, 172, 255});
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }
@@ -29,7 +30,7 @@ void eTileTextures::loadFixedSize(const int w, const int h,
     mLoaded = true;
     const auto suffix = res.textureSuffix();
     const auto dir = "Textures";
-    const auto path = mDirName + "/" + mName + suffix + ".png";
+    const auto path = mDirName + "/" + mName + suffix + "_0.png";
     const auto atlas = eFileLoader::readTexture(r, dir, path);
     mColl = std::make_shared<eTextureCollection>();
     const int aw = atlas->width();

@@ -211,8 +211,8 @@ void eScreenHandler::showGame(eServerData serverData,
         auto& lighting = eEffectsTextures::sEffects.get(id);
         lighting.load(res, r);
     });
-    loading.emplace_back([r]() {
-        eMissilesTextures::loadTextures(r);
+    loading.emplace_back([&res, r]() {
+        eMissilesTextures::loadTextures(res, r);
     });
     loading.emplace_back([&res, r, map]() {
         const int w = res.tileWidth();
@@ -223,18 +223,18 @@ void eScreenHandler::showGame(eServerData serverData,
             texs.loadFixedSize(w, h, res, r);
         }
     });
-    loading.emplace_back([r, map]() {
+    loading.emplace_back([&res, r, map]() {
         const auto& objTypes = map->objectTypes();
         for(const auto& objType : objTypes) {
             auto& texs = eObjsTextures::get(objType);
-            texs.load(r);
+            texs.load(res, r);
         }
     });
-    loading.emplace_back([r, map]() {
+    loading.emplace_back([&res, r, map]() {
         const auto& unitTypes = map->unitTypes();
         for(const auto& unitType : unitTypes) {
             auto& u = eCharsTextures::get(unitType);
-            u.loadAll(r);
+            u.loadAll(res, r);
         }
     });
     loading.emplace_back([&res, r]() {

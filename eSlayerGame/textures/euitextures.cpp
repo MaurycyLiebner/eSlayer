@@ -21,8 +21,6 @@ std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
 std::shared_ptr<eTexture> eUITextures::sExpBar1;
 std::shared_ptr<eTexture> eUITextures::sExpBar2;
 
-std::shared_ptr<eTexture> eUITextures::sBottomBar;
-
 std::shared_ptr<eTexture>
 eUITextures::sAmuletSlot;
 std::shared_ptr<eTexture>
@@ -65,26 +63,22 @@ void eUITextures::sLoad(SDL_Renderer* const r,
 
     {
         {
-            const auto path = "ui/lifeBar/lifeBar" + suffix;
-            eSpriteLoader loader(dir, path, r);
+            const auto path = "ui/lifeBar/lifeBar";
+            eSpriteLoader loader(dir, path, res, r);
             sLifeBar1 = loader.load(0);
             sLifeBar2 = loader.load(1);
         }
         {
-            const auto path = "ui/staminaBar/staminaBar" + suffix;
-            eSpriteLoader loader(dir, path, r);
+            const auto path = "ui/staminaBar/staminaBar";
+            eSpriteLoader loader(dir, path, res, r);
             sStaminaBar1 = loader.load(0);
             sStaminaBar2 = loader.load(1);
         }
         {
-            const auto path = "ui/experienceBar/experienceBar" + suffix;
-            eSpriteLoader loader(dir, path, r);
+            const auto path = "ui/experienceBar/experienceBar";
+            eSpriteLoader loader(dir, path, res, r);
             sExpBar1 = loader.load(0);
             sExpBar2 = loader.load(1);
-        }
-        {
-            const auto path = "ui/bottomBar/bottomBar" + suffix + ".png";
-            sBottomBar = eFileLoader::readTexture(r, dir, path);
         }
     }
 
@@ -102,15 +96,15 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sEmptySlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlot" + suffix + ".png");
 
     {
-        const auto bgPath = "ui/widgetBg/widgetBg" + suffix;
-        eSpriteLoader loader(dir, bgPath, r);
+        const auto bgPath = "ui/widgetBg/widgetBg";
+        eSpriteLoader loader(dir, bgPath, res, r);
         for(int i = 0; i < 9; i++) {
             loader.load(i, sBg);
         }
     }
     {
-        const auto bgPath = "ui/stats/statsBox" + suffix;
-        eSpriteLoader loader(dir, bgPath, r);
+        const auto bgPath = "ui/stats/statsBox";
+        eSpriteLoader loader(dir, bgPath, res, r);
         for(int i = 0; i < 4; i++) {
             loader.load(i, sStats);
         }

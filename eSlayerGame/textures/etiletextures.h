@@ -12,7 +12,8 @@ public:
     const std::shared_ptr<eTexture>& getTexture(const int id) const;
     int size() const;
 
-    void load(SDL_Renderer * const r);
+    void load(const eResolution& res,
+              SDL_Renderer * const r);
     void loadFixedSize(const int w, const int h,
                        const eResolution& res,
                        SDL_Renderer * const r);

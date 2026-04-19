@@ -42,6 +42,7 @@ public:
         eServer& server,
         const eUnit& mainChar,
         eMainCharAction& mainAct,
+        const eResolution& res,
         SDL_Renderer* const r);
 
     void simulateMissiles(const float by);

@@ -9,7 +9,8 @@ struct eMissileAnim {
     const std::shared_ptr<eTexture>&
     get(const int dir, const int frame);
 
-    void load(SDL_Renderer* const r);
+    void load(const eResolution& res,
+              SDL_Renderer* const r);
 
     int fNDirs = 0;
     int fNFrames = 0;
@@ -24,7 +25,8 @@ public:
     get(const int animId, const int dir,
         const int frame);
 
-    void load(SDL_Renderer* const r);
+    void load(const eResolution& res,
+              SDL_Renderer* const r);
 
     int nFrames(const int animId) const;
     int nDirs(const int animId) const;
@@ -39,7 +41,8 @@ private:
 class eMissilesTextures {
 public:
     static void loadData();
-    static void loadTextures(SDL_Renderer* const r);
+    static void loadTextures(const eResolution& res,
+                             SDL_Renderer* const r);
 
     static eStringIdMapVector<eMissileTextures>
     sMissiles;

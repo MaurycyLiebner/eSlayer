@@ -19,8 +19,12 @@ eMainCharAction::eMainCharAction() :
     mMovementHandler(mMainChar->fPos,
                      mMainChar->fAngle) {}
 
-void eMainCharAction::initialize(const std::shared_ptr<eServer>& s, SDL_Renderer* const r,
-                                 const eWalkable& w, const eOtherIterator& iter, const int clientId,
+void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
+                                 const eResolution& res,
+                                 SDL_Renderer* const r,
+                                 const eWalkable& w,
+                                 const eOtherIterator& iter,
+                                 const int clientId,
                                  const int teamId) {
     mClientId = clientId;
     mServer = s;
@@ -44,10 +48,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s, SDL_Renderer
     mStandAnimId = data.animId("stand");
     mStandReadyAnimId = data.animId("standReady");
 
-    const auto model = mMainCharTexs->requestModel(modelParts, r);
+    const auto model = mMainCharTexs->requestModel(
+        modelParts, res, r);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
-    const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, false);
+    const int animId = eMovementHandler::sChooseAnim(
+        mStandAnimId, mStandReadyAnimId, false);
     umodel.setAnimation(animId, 1.f);
     umodel.setDirection(0);
 

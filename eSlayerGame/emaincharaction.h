@@ -16,12 +16,14 @@ class eCharTextures;
 class eServer;
 class eCharUnitModel;
 class eSkill;
+class eResolution;
 
 class eMainCharAction {
 public:
     eMainCharAction();
 
     void initialize(const std::shared_ptr<eServer>& s,
+                    const eResolution& res,
                     SDL_Renderer* const r,
                     const eWalkable& w,
                     const eOtherIterator& iter,

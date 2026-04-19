@@ -34,8 +34,6 @@ public:
     sExpBar1;
     static std::shared_ptr<eTexture>
     sExpBar2;
-    static std::shared_ptr<eTexture>
-    sBottomBar;
 
     static std::shared_ptr<eTexture>
     sAmuletSlot;

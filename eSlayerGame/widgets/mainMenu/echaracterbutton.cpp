@@ -18,8 +18,9 @@ void eCharacterButton::initialize(const eCharacter& c) {
     };
     const auto& data = eCharsTextures::get("slayer");
     const auto modelParts = data.mapToModelParts(partsMap);
+    const auto& res = resolution();
     const auto r = renderer();
-    const auto model = data.requestModel(modelParts, r);
+    const auto model = data.requestModel(modelParts, res, r);
     mModel.setCharModel(model);
     mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);

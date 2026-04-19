@@ -16,9 +16,8 @@ void eEffectTextures::load(const eResolution& res,
                            SDL_Renderer* const r) {
     if(mLoaded) return;
     mLoaded = true;
-    const auto suffix = res.textureSuffix();
-    const auto path = "effects/" + mName + suffix;
-    eSpriteLoader loader("Textures", path, r);
+    const auto path = "effects/" + mName;
+    eSpriteLoader loader("Textures", path, res, r);
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }

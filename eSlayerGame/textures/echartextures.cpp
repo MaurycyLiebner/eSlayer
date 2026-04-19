@@ -7,10 +7,11 @@
 std::shared_ptr<eCharModel>
 eCharTextures::requestModel(
     const eModelParts& modelParts,
+    const eResolution& res,
     SDL_Renderer* const r) const {
     const auto it = mModelMap.find(modelParts.fValues);
     if(it == mModelMap.end()) {
-        const auto model = generateModel(modelParts, r);
+        const auto model = generateModel(modelParts, res, r);
         mModelMap[modelParts.fValues] = model;
         return model;
     } else {
@@ -21,6 +22,7 @@ eCharTextures::requestModel(
 std::shared_ptr<eCharModel>
 eCharTextures::generateModel(
     const eModelParts& modelParts,
+    const eResolution& res,
     SDL_Renderer* const r) const {
     const auto& info = eCharDataInfo::get(mCharDataId);
     const auto dir = "Textures";
@@ -57,7 +59,7 @@ eCharTextures::generateModel(
                     auto& partMap = mTexMap[key];
                     partMap.reserve(info.mDirs);
                     const auto partPath = animPath + partName + "_" + eqName;
-                    eSpriteLoader loader(dir, partPath, r, mColorKey);
+                    eSpriteLoader loader(dir, partPath, res, r, mColorKey);
                     for(int i = 0; i < info.mDirs; i++) {
                         const auto coll = std::make_shared<eTextureCollection>();
                         for(int f = 0; f < nFrames; f++) {
@@ -100,7 +102,8 @@ void eCharTextures::load(const ordered_json& jdata) {
     }
 }
 
-void eCharTextures::loadAll(SDL_Renderer* const r) {
+void eCharTextures::loadAll(const eResolution& res,
+                            SDL_Renderer* const r) {
     const auto& info = eCharDataInfo::get(mCharDataId);
     const auto dir = "Textures";
     const auto path = "units/" + info.mName + "/";
@@ -119,7 +122,7 @@ void eCharTextures::loadAll(SDL_Renderer* const r) {
                         auto& partMap = mTexMap[key];
                         partMap.reserve(info.mDirs);
                         const auto partPath = animPath + partName + "_" + eqName;
-                        eSpriteLoader loader(dir, partPath, r, mColorKey);
+                        eSpriteLoader loader(dir, partPath, res, r, mColorKey);
                         for(int i = 0; i < info.mDirs; i++) {
                             const auto coll = std::make_shared<eTextureCollection>();
                             for(int f = 0; f < nFrames; f++) {
