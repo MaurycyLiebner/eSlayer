@@ -15,10 +15,12 @@ public:
 
     eTextureKey key() const;
 
-    SDL_Rect offsetBoundingRect() const;
+    SDL_Rect offsetBoundingRect(const eResolution& res) const;
 
     void incFrame(const float by);
-    void draw(ePainter& p, const bool highligh = false) const;
+    void draw(ePainter& p,
+              const eResolution& res,
+              const bool highligh = false) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
@@ -33,7 +35,8 @@ public:
     void setDirection(const int d);
     void setAngle(const float a);
 
-    void generatePreview(SDL_Renderer* const r);
+    void generatePreview(const eResolution& res,
+                         SDL_Renderer* const r);
 private:
     int mAnim = 0;
     int mAnimId = -1;

@@ -479,7 +479,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
-                            const auto b = model.offsetBoundingRect();
+                            const auto b = model.offsetBoundingRect(res);
                             const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
                             highlight = SDL_PointInRect(&p, &rect);
                             if(highlight) {
@@ -490,7 +490,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     if(const auto p = mPressedUnit.lock()) {
                         highlight = p == u;
                     }
-                    model.draw(mGamePainter, highlight);
+                    model.draw(mGamePainter, res, highlight);
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
                     const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);

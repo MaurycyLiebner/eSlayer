@@ -21,11 +21,13 @@ eTextureKey eCharUnitModel::key() const {
     return eTextureKey{mAnim, frame, mDir};
 }
 
-SDL_Rect eCharUnitModel::offsetBoundingRect() const {
+SDL_Rect eCharUnitModel::offsetBoundingRect(
+    const eResolution& res) const {
     SDL_Rect result = mModel->requestBoundingRect(key());
     const auto& offset = mModel->animOffset(mAnim);
-    result.x += offset.fX;
-    result.y += offset.fY;
+    const float mult = res.multiplier();
+    result.x += std::round(mult*offset.fX);
+    result.y += std::round(mult*offset.fY);
     return result;
 }
 
@@ -39,7 +41,9 @@ void eCharUnitModel::incFrame(const float by) {
     }
 }
 
-void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
+void eCharUnitModel::draw(ePainter& p,
+                          const eResolution& res,
+                          const bool highlight) const {
     const auto key = eCharUnitModel::key();
     if(key.fFrame == -1) return;
     const auto r = p.renderer();
@@ -48,46 +52,50 @@ void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
 
     p.save();
     const auto& offset = mModel->animOffset(mAnim);
-    p.translate(offset.fX, offset.fY);
+    const float mult = res.multiplier();
+    p.translate(std::round(mult*offset.fX),
+                std::round(mult*offset.fY));
 
-    {
+    { // draw shadow
         const float skew = 0.5f;
         const float scaleY = 0.5f;
 
-        const float x = p.x() - tex->width();
-        const float y = p.y() - tex->height()*scaleY;
+        const float x = p.x() + texRect.x;
+        const float y = p.y() + texRect.y * scaleY;
 
-        const float w = tex->width();
-        const float h = tex->height() * scaleY;
+        const float w = texRect.w;
+        const float h = texRect.h * scaleY;
 
-               // Bottom horizontal shift caused by skew
+        // Bottom horizontal shift caused by skew
         const float skewOffset = h * skew;
 
         SDL_Vertex verts[4];
 
-               // Top-left
+        // Top-left
         verts[0].position = { x, y };
         verts[0].tex_coord = { 0.0f, 0.0f };
         verts[0].color = { 0.f, 0.f, 0.f, 0.5f };
 
-               // Top-right
+        // Top-right
         verts[1].position = { x + w, y };
         verts[1].tex_coord = { 1.0f, 0.0f };
         verts[1].color = { 0.f, 0.f, 0.f, 0.5f };
 
-               // Bottom-right (skewed)
+        // Bottom-right (skewed)
         verts[2].position = { x + w + skewOffset, y + h };
         verts[2].tex_coord = { 1.0f, 1.0f };
         verts[2].color = { 0.f, 0.f, 0.f, 0.5f };
 
-               // Bottom-left (skewed)
+        // Bottom-left (skewed)
         verts[3].position = { x + skewOffset, y + h };
         verts[3].tex_coord = { 0.0f, 1.0f };
         verts[3].color = { 0.f, 0.f, 0.f, 0.5f };
 
         const int indices[6] = { 0, 1, 2, 0, 2, 3 };
 
-        SDL_RenderGeometry(p.renderer(), tex->tex(), verts, 4, indices, 6);
+        const auto r = p.renderer();
+        const auto sdlTex = tex->tex();
+        SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
     }
 
     p.drawTexture(texRect.x, texRect.y, tex);
@@ -99,7 +107,7 @@ void eCharUnitModel::draw(ePainter& p, const bool highlight) const {
         tex->clearAlphaMod();
     }
     p.restore();
-    // p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
+    p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 
 void eCharUnitModel::setAnimationSpeed(const float speed) {
@@ -113,7 +121,8 @@ void eCharUnitModel::setAngle(const float a) {
     setDirection((dirs + dir) % dirs);
 }
 
-void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
+void eCharUnitModel::generatePreview(
+    const eResolution& res, SDL_Renderer* const r) {
     const std::string dir = "/home/ailuropoda/.eSlayer/tmp/preview/";
     for(int anim = 0; anim < mModel->nAnims(); anim++) {
         mAnim = anim;
@@ -132,7 +141,7 @@ void eCharUnitModel::generatePreview(SDL_Renderer* const r) {
             const auto holder = tex->createTargetHolder(r);
             ePainter p(r);
             p.translate(dim/2, dim/2);
-            draw(p, true);
+            draw(p, res, true);
         }
         tex->save(r, path);
     }
