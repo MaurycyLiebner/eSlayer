@@ -72,13 +72,18 @@ void eServerArea::iniSetupUnit(
     const auto w = [this](const int x, const int y) {
         return mMap->walkable(x, y);
     };
-    const auto iter = [this, charId](const eOtherHandler& handler) {
-        for(const auto& u : mUnits) {
-            if(charId == u->fCharId) continue;
+    const auto iter = [this, charId](
+        const ePointF& pos,
+        const float dist,
+        const eOtherHandler& handler) {
+        iterateOverUnits(pos, dist, [handler, charId](
+            const std::shared_ptr<eServerUnit>& u) {
+            if(charId == u->fCharId) return false;
             handler(*u);
-        }
+            return false;
+        });
     };
-    m.intialize(w, iter, charId, 0);
+    m.intialize(w, iter, charId, teamId);
     m.setRadius(u->fRadius);
 
     mUnits.add(charId, u);

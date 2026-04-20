@@ -149,7 +149,7 @@ int eMovementHandler::sChooseAnim(const int normal,
 
 bool eMovementHandler::walkable(const ePointF& pos) const {
     bool walkable = true;
-    mOtherIterator([&](const eUnitData& other) {
+    mOtherIterator(pos, 1.f, [&](const eUnitData& other) {
         if(!walkable) return;
         if(other.fCharId == mCharId) return;
         if(other.fTeamId == mTeamId) return;
@@ -190,7 +190,7 @@ bool eMovementHandler::increment(const float by) {
     eVec2f separation{0.f, 0.f};
     eVec2f avoid{0.f, 0.f};
 
-    mOtherIterator([&](const eUnitData& other) {
+    mOtherIterator(mPos, 2.f, [&](const eUnitData& other) {
         if(other.fCharId == mCharId) return;
         if(other.fTeamId != mTeamId) return;
         if(other.fHealth <= 0) return;

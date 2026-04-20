@@ -764,7 +764,7 @@ void eStats::calculateSkill(const int schoice,
             gCalculateWeaponDmg(rightW, min, max);
             helper.fDmgMinRWBase.fPhysical += min;
             helper.fDmgMinRWBase.fPhysical += max;
-        } else if(leftW.fType == eItemType::none) {
+        } else if(rightW.fType == eItemType::none) {
             helper.fDmgMinRWBase.fPhysical += minFistDmg;
             helper.fDmgMaxRWBase.fPhysical += maxFistDmg;
         }
@@ -790,9 +790,9 @@ void eStats::calculateSkill(const int schoice,
         }
     }
     if(skill.fType == eSkillType::missile ||
-        skill.fType == eSkillType::shoot ||
-        skill.fType == eSkillType::throw_ ||
-        skill.fType == eSkillType::attack) {
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_ ||
+       skill.fType == eSkillType::attack) {
         if(skill.fMissileId == -1) {
             const auto& itemDataL = eItemsData::get(leftW.fDataId);
             stats.fMissileIdLW = itemDataL.fMissileId;
@@ -808,8 +808,8 @@ void eStats::calculateSkill(const int schoice,
     stats.fCooldown += skillLevel.fCooldown;
 
     if(skill.fType == eSkillType::attack ||
-        skill.fType == eSkillType::shoot ||
-        skill.fType == eSkillType::throw_) {
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_) {
         stats.fMissileRangeTime = fWeaponRangedRange;
     } else {
         stats.fMissileRangeTime = skill.fRangeTime;

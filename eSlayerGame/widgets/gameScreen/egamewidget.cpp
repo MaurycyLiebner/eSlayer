@@ -57,7 +57,9 @@ void eGameWidget::initialize(const int clientId,
     const auto& res = resolution();
 
     const auto w = walkable();
-    const auto iter = [this](const eOtherHandler& handler) {
+    const auto iter = [this](const ePointF& pos,
+                             const float dist,
+                             const eOtherHandler& handler) {
         for(const auto& u : mWorld.units()) {
             if(!u) continue;
             handler(*u);
