@@ -33,9 +33,8 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
     if(col.r + col.g + col.b > 600) {
         mBg->setColorMod(55, 55, 55);
     }
-    const int xOffset = mBg->x();
     for(int x = 0; x < mNColumns; x++) {
-        p.drawTexture(x*baseWidth + xOffset, 0, mBg);
+        p.drawTexture(x*baseWidth, 0, mBg);
     }
     mBg->setColorMod(col.r, col.g, col.b);
     const int innerW = mBg->width();
@@ -43,10 +42,11 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
     const float frac = float(value)/max;
     const int h = height();
     int remW = frac*totalW;
+    const int xOffset = mBg->offsetX();
     for(int x = 0; x < mNColumns; x++) {
         const SDL_Rect rect{x*baseWidth + xOffset, 0, remW, h};
         p.setClipRect(&rect);
-        p.drawTexture(rect.x, 0, mBg);
+        p.drawTexture(x*baseWidth, 0, mBg);
         remW -= innerW;
         if(remW <= 0) break;
     }
