@@ -4,17 +4,47 @@
 #include <string>
 #include <vector>
 
-enum class eUIScale {
-    small, medium, large, huge
+struct eScreenSize {
+    std::string fName;
+    float fScaling;
+    int fTileWidth;
+    int fTileHeight;
+    int fWidthBreakpoint;
+    int fHeightBreakpoint;
 };
 
-class eResolution {
+struct eResolutionBase {
+    int fWidth;
+    int fHeight;
+
+    std::string name() const {
+        return std::to_string(fWidth) + "x" +
+               std::to_string(fHeight);
+    }
+
+    static std::vector<eResolutionBase> sResolutions;
+
+    bool operator==(const eResolutionBase other) const {
+        return fWidth == other.fWidth &&
+               fHeight == other.fHeight;
+    }
+
+    bool operator!=(const eResolutionBase other) const {
+        return !(*this == other);
+    }
+
+    friend bool operator<(const eResolutionBase& r1,
+                          const eResolutionBase& r2) {
+        return r1.fWidth < r2.fWidth;
+    }
+};
+
+class eResolution : public eResolutionBase {
 public:
-    eResolution() {}
     eResolution(const int width, const int height);
 
-    int width() const { return mWidth; }
-    int height() const { return mHeight; }
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
 
     float multiplier() const;
 
@@ -44,30 +74,15 @@ public:
     int centralWidgetLargeHeight() const;
     int centralWidgetSmallHeight() const;
 
-    static std::vector<eResolution> sResolutions;
-
-    const std::string& name() const { return mName; }
-    eUIScale uiScale() const { return mUIScale; }
-
-    bool operator==(const eResolution other) const {
-        return mWidth == other.mWidth &&
-               mHeight == other.mHeight;
-    }
-
-    bool operator!=(const eResolution other) const {
-        return !(*this == other);
-    }
-
-    friend bool operator<(const eResolution& r1, const eResolution& r2) {
-        return r1.mWidth < r2.mWidth;
-    }
-
     std::string textureSuffix() const;
+
+    static void load();
+
+    static std::vector<eScreenSize> sSizes;
 private:
-    int mWidth;
-    int mHeight;
-    eUIScale mUIScale;
-    std::string mName;
+    eScreenSize mSize;
+    using eResolutionBase::fWidth;
+    using eResolutionBase::fHeight;
 };
 
 #endif // ERESOLUTION_H

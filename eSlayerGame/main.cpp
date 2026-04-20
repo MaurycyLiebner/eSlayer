@@ -140,19 +140,18 @@ int main(int argc, char* argv[]) {
 
     for(const auto& r : resolutions) {
         bool contains = false;
-        for(const auto& rr : eResolution::sResolutions) {
-            contains = r.w == rr.width() &&
-                       r.h == rr.height();
+        for(const auto& rr : eResolutionBase::sResolutions) {
+            contains = r.w == rr.fWidth && r.h == rr.fHeight;
             if(contains) break;
         }
         if(!contains) {
-            const auto res = eResolution(r.w, r.h);
-            eResolution::sResolutions.push_back(res);
+            const auto res = eResolutionBase{r.w, r.h};
+            eResolutionBase::sResolutions.push_back(res);
         }
     }
 
-    std::sort(eResolution::sResolutions.begin(),
-              eResolution::sResolutions.end());
+    std::sort(eResolutionBase::sResolutions.begin(),
+              eResolutionBase::sResolutions.end());
 
     const auto mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
     if(!mixer) {
@@ -162,6 +161,8 @@ int main(int argc, char* argv[]) {
         close();
         return 1;
     }
+
+    eResolution::load();
 
     eWindowSettings settings;
     {

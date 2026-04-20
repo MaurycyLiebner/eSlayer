@@ -75,7 +75,7 @@ void eSettingsMenu::initialize(const eAction& exitA,
                     (*currentButton)->setChecked(false);
                 }
                 *currentButton = b;
-                mSettings.fRes = r;
+                mSettings.fRes = eResolution(r.fWidth, r.fHeight);
             });
             y += b->height() + p;
             if(col->height() - y < b->height()) {

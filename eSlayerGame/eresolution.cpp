@@ -1,39 +1,48 @@
 #include "eresolution.h"
 
+#include <eSlayerHelpers/eexceptions.h>
+#include <eSlayerHelpers/efileloaderbase.h>
+
 #include <cmath>
 
-std::vector<eResolution> eResolution::sResolutions{
-    eResolution{800, 600},
-    eResolution{1024, 768},
-    eResolution{1280, 720},
-    eResolution{1280, 800},
-    eResolution{1280, 1024},
-    eResolution{1360, 768},
-    eResolution{1366, 768},
-    eResolution{1440, 900},
-    eResolution{1600, 900},
-    eResolution{1680, 1050},
-    eResolution{1920, 1080},
-    eResolution{1920, 1200},
-    eResolution{2560, 1080},
-    eResolution{2560, 1440},
-    eResolution{2560, 1600},
-    eResolution{3440, 1440},
-    eResolution{3840, 2160},
+std::vector<eScreenSize> eResolution::sSizes;
+
+std::vector<eResolutionBase>
+eResolutionBase::sResolutions{
+    eResolutionBase{800, 600},
+    eResolutionBase{1024, 768},
+    eResolutionBase{1280, 720},
+    eResolutionBase{1280, 800},
+    eResolutionBase{1280, 1024},
+    eResolutionBase{1360, 768},
+    eResolutionBase{1366, 768},
+    eResolutionBase{1440, 900},
+    eResolutionBase{1600, 900},
+    eResolutionBase{1680, 1050},
+    eResolutionBase{1920, 1080},
+    eResolutionBase{1920, 1200},
+    eResolutionBase{2560, 1080},
+    eResolutionBase{2560, 1440},
+    eResolutionBase{2560, 1600},
+    eResolutionBase{3440, 1440},
+    eResolutionBase{3840, 2160},
 };
 
-eResolution::eResolution(const int width, const int height) :
-    mWidth(width), mHeight(height) {
-    if(height <= 800 || width <= 1280) {
-        mUIScale = eUIScale::small;
-    } else if(height <= 1200) {
-        mUIScale = eUIScale::medium;
-    } else if(height <= 1600) {
-        mUIScale = eUIScale::large;
-    } else {
-        mUIScale = eUIScale::huge;
+eResolution::eResolution(const int width, const int height) {
+    fWidth = width;
+    fHeight = height;
+
+    mSize = sSizes[0];
+    for(int i = 0; i < sSizes.size(); i++) {
+        const auto& size = sSizes[i];
+        const int wb = size.fWidthBreakpoint;
+        const int hb = size.fHeightBreakpoint;
+        if((width <= wb || height <= hb) ||
+           (wb == 0 && hb == 0)) {
+            mSize = sSizes[i];
+            break;
+        }
     }
-    mName = std::to_string(mWidth) + "x" + std::to_string(mHeight);
 }
 
 int eResolution::hugePadding() const {
@@ -65,17 +74,7 @@ int eResolution::margin() const {
 }
 
 float eResolution::multiplier() const {
-    switch(mUIScale) {
-    case eUIScale::small:
-        return 1.0f;
-    case eUIScale::medium:
-        return 1.5f;
-    case eUIScale::large:
-        return 2.0f;
-    case eUIScale::huge:
-        return 3.0f;
-    }
-    return 1.f;
+    return mSize.fScaling;
 }
 
 int eResolution::extraHugeFontSize() const {
@@ -107,31 +106,11 @@ int eResolution::lineWidth() const {
 }
 
 int eResolution::tileWidth() const {
-    switch(mUIScale) {
-    case eUIScale::small:
-        return 160;
-    case eUIScale::medium:
-        return 240;
-    case eUIScale::large:
-        return 320;
-    case eUIScale::huge:
-        return 480;
-    }
-    return 160;
+    return mSize.fTileWidth;
 }
 
 int eResolution::tileHeight() const {
-    switch(mUIScale) {
-    case eUIScale::small:
-        return 79;
-    case eUIScale::medium:
-        return 119;
-    case eUIScale::large:
-        return 159;
-    case eUIScale::huge:
-        return 239;
-    }
-    return 79;
+    return mSize.fTileHeight;
 }
 
 int eResolution::centralWidgetLargeWidth() const {
@@ -151,15 +130,20 @@ int eResolution::centralWidgetSmallHeight() const {
 }
 
 std::string eResolution::textureSuffix() const {
-    switch(mUIScale) {
-    case eUIScale::small:
-        return "_small";
-    case eUIScale::medium:
-        return "_medium";
-    case eUIScale::large:
-        return "_large";
-    case eUIScale::huge:
-        return "_huge";
+    return "_" + mSize.fName;
+}
+
+void eResolution::load() {
+    const auto dir = "Textures";
+    const auto jdata = eFileLoaderBase::parse(dir, "sizes.json");
+    for(auto& [key, value] : jdata.items()) {
+        auto& size = sSizes.emplace_back();
+        size.fName = key;
+        size.fScaling = value.value("scaling", 1.f);
+        size.fTileWidth = value["tileWidth"];
+        size.fTileHeight = value["tileHeight"];
+        size.fWidthBreakpoint = value.value("widthBreakpoint", 0);
+        size.fHeightBreakpoint = value.value("heightBreakpoint", 0);
     }
-    return "_small";
+    if(sSizes.empty()) eRuntimeThrow("No sizes in \"Textures/sizes.json\"");
 }

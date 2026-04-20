@@ -18,8 +18,6 @@ public:
     eWidget(eMainWindow* const window);
 protected:
     virtual ~eWidget();
-
-    void iResAndMult(int& iRes, int& mult) const;
 public:
     void move(const int x, const int y);
     void setX(const int x);
