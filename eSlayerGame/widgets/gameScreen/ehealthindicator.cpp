@@ -20,7 +20,8 @@ void eHealthIndicator::hideText() {
 }
 
 void eHealthIndicator::paintEvent(ePainter& p) {
-    const float per = float(value() - min())/(max() - min());
+    const float range = max() - min();
+    const float per = range == 0.f ? 0.f : float(value() - min())/range;
     const SDL_Rect baseRect = rect();
     const int w = per*baseRect.w;
     const SDL_Rect rect{baseRect.x, baseRect.y,

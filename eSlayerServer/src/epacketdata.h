@@ -11,9 +11,10 @@ enum class ePacketType : uint8_t {
     attack, stopAttack, respawn,
     setSkillId, consumePotion,
     pickupItem, dropItem,
+    pickupBody,
     rearrangeItems, attributes,
     skills,
-    equipment,
+    equipment, unblockEquipment,
     disconnect
 };
 

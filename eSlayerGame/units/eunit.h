@@ -12,7 +12,11 @@ public:
     eCharUnitModel& model() { return mModel; }
     const eCharUnitModel& model() const { return mModel; }
     void setModel(const eCharUnitModel& model) { mModel = model; }
+
+    void setBody(const bool body) { mBody = body; }
+    bool isBody() const { return mBody; }
 private:
+    bool mBody = false;
     eCharUnitModel mModel;
 };
 

@@ -63,6 +63,8 @@ public:
 
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
+
+    bool isBody(const int charId) const;
 private:
     const std::shared_ptr<eMap>& mMap;
     int mClientId;

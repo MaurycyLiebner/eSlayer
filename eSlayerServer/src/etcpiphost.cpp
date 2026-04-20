@@ -247,6 +247,32 @@ void eTcpIpHost::increment(const float by) {
                     p << ePacketType::equipment;
                     data.write(p);
                     mNet.sendToClient(tcpClientId, p);
+                } else {
+                    ePacket p;
+                    p << ePacketType::unblockEquipment;
+                    mNet.sendToClient(tcpClientId, p);
+                }
+            }
+        } break;
+        case ePacketType::pickupBody: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                int32_t bodyId;
+                p >> bodyId;
+                const bool r = pickupBody(charId, bodyId);
+                if(r) {
+                    eEquipment data;
+                    const bool r = receiveEquipment(charId, data);
+                    if(!r) continue;
+                    ePacket p;
+                    p << ePacketType::equipment;
+                    data.write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                } else {
+                    ePacket p;
+                    p << ePacketType::unblockEquipment;
+                    mNet.sendToClient(tcpClientId, p);
                 }
             }
         } break;

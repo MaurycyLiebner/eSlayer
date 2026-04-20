@@ -32,6 +32,7 @@ public:
     bool requestEquipment(const int clientId) override;
     bool receiveEquipment(const int clientId,
                           eEquipment& data) override;
+    bool unblockEquipment(const int clientId) override;
 
     bool changeState(const int clientId,
                      const eUnitData& u) override;
@@ -59,6 +60,8 @@ public:
                            const eSkillLevels& skillLevels) override;
     bool consumePotion(const int clientId,
                        const uint32_t itemId) override;
+    bool pickupBody(const int clientId,
+                    const int32_t bodyId) override;
 protected:
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

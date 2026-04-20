@@ -94,9 +94,9 @@ void eServerArea::iniSetupUnit(
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 24; x < 75; x++) {
+    for(int x = 24; x < 26; x++) {
         if(x == 40) x += 20;
-        for(int y = 24; y < 75; y++) {
+        for(int y = 24; y < 26; y++) {
             if(y == 40) y += 20;
             const int typeId = 1 + eRand::rand() % 2;
             const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -417,8 +417,16 @@ bool eServerArea::respawn(const int clientId) {
         const auto teamId = client->fTeamId;
         const auto& pos = client->fPos;
         iniSetupUnit(u, charId, teamId, pos, udata, data, modelParts);
+        u->fHealth = 0;
         u->fAnim = data.animId("body");
         client->setEquipment(eEquipment());
+        {
+            const auto it = mClientData.find(clientId);
+            if(it != mClientData.end()) {
+                auto& client = it->second;
+                client.fBodies.emplace_back(charId);
+            }
+        }
     }
     client->respawn();
     client->fPos = mMap->spawnPos();
@@ -445,8 +453,11 @@ bool eServerArea::pickupBody(
     const auto bit = std::find(bodies.begin(), bodies.end(), charId);
     if(bit == bodies.end()) return false;
     const auto body = unit(charId);
+    if(!body) return false;
     const auto u = unit(clientId);
     if(!u || u->fHealth <= 0) return false;
+    const float dist = ePointF::distance(body->fPos, u->fPos);
+    if(dist > 1.f) return false;
     auto& dst = u->equipment();
     auto& src = body->equipment();
     dst.moveFrom(src);
@@ -454,6 +465,7 @@ bool eServerArea::pickupBody(
         bodies.erase(bit);
         planRemoveUnit(charId);
     }
+    u->recalculateStats();
     return true;
 }
 

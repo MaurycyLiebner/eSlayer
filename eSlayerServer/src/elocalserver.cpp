@@ -85,6 +85,10 @@ bool eLocalServer::receiveEquipment(const int clientId,
     return h->receiveEquipment(data);
 }
 
+bool eLocalServer::unblockEquipment(const int clientId) {
+    return true;
+}
+
 bool eLocalServer::changeState(
     const int clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);
@@ -160,6 +164,13 @@ bool eLocalServer::consumePotion(
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->consumePotion(itemId);
+}
+
+bool eLocalServer::pickupBody(
+    const int clientId, const int32_t bodyId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->pickupBody(bodyId);
 }
 
 eServerClientHandler*

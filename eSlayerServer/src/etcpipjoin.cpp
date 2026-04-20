@@ -84,6 +84,9 @@ void eTcpIpJoin::increment(const float by) {
             mEquipment.read(p);
             mNewEquipment = true;
         } break;
+        case ePacketType::unblockEquipment: {
+            mUnblockEquipment = true;
+        } break;
         case ePacketType::userEntered: {
             int clientId;
             p >> clientId;
@@ -226,12 +229,18 @@ bool eTcpIpJoin::requestEquipment(const int clientId) {
     return r;
 }
 
-bool eTcpIpJoin::receiveEquipment(const int clientId,
-                                  eEquipment& data) {
+bool eTcpIpJoin::receiveEquipment(
+    const int clientId, eEquipment& data) {
     if(!mNewEquipment) return false;
     data = mEquipment;
     mNewEquipment = false;
     return true;
+}
+
+bool eTcpIpJoin::unblockEquipment(const int clientId) {
+    const bool unblock = mUnblockEquipment;
+    mUnblockEquipment = false;
+    return unblock;
 }
 
 bool eTcpIpJoin::changeState(
@@ -351,5 +360,15 @@ bool eTcpIpJoin::consumePotion(
     p << itemId;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a potion consumption to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::pickupBody(
+    const int clientId, const int32_t bodyId) {
+    ePacket p;
+    p << ePacketType::pickupBody;
+    p << bodyId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send a pickup body to the host.");
     return true;
 }

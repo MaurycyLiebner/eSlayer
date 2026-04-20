@@ -76,6 +76,8 @@ public:
     virtual bool
     receiveEquipment(const int clientId,
                      eEquipment& data) = 0;
+    virtual bool
+    unblockEquipment(const int clientId) = 0;
 
     virtual bool
     changeState(const int clientId,
@@ -118,6 +120,9 @@ public:
     virtual bool
     consumePotion(const int clientId,
                   const uint32_t itemId) = 0;
+    virtual bool
+    pickupBody(const int clientId,
+               const int32_t bodyId) = 0;
 
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();

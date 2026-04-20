@@ -270,6 +270,11 @@ void eGameWidget::paintEvent(ePainter& p) {
             mMainAction.recalculateStats();
             eInventoryWidget::sBlocked = false;
             eItemDragWidget::sUpdateDragItem(eq);
+        } else {
+            const bool r = mServer->unblockEquipment(mClientId);
+            if(r) {
+                eInventoryWidget::sBlocked = false;
+            }
         }
     }
 
@@ -474,7 +479,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     auto& model = u->model();
                     model.incFrame(by);
                     bool highlight = false;
-                    if(!mHighlightUnit.lock() && u != mMainChar && u->fHealth > 0) {
+                    if(!mHighlightUnit.lock() && u != mMainChar &&
+                       (u->fHealth > 0 || u->isBody())) {
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                         const int w = 0.75*u->fRadius*tileW;
                         const int h = 2*w;

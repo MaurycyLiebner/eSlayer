@@ -108,16 +108,25 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(!shouldStopAttack) {
         if(const auto u = mPressedUnit.lock()) {
-            const bool attacked = handleUnitAttack(*u, schoice, model);
             targetPos = u->fPos;
-            if(attacked && !mousePressed) {
-                stop();
-            } else if(!attacked) {
-                // Target is out of range (e.g. knocked back),
-                // clear any active attack so we walk toward it
-                if(mAttackData.fType != eAttackTargetType::none) {
-                    mAttackData = eAttackData();
-                    mServer->stopAttack(mClientId);
+            if(u->isBody()) {
+                const float dist = ePointF::distance(u->fPos, mMainChar->fPos);
+                if(dist < 0.5f) {
+                    mServer->pickupBody(mClientId, u->fCharId);
+                    eInventoryWidget::sBlocked = true;
+                    stop();
+                }
+            } else {
+                const bool attacked = handleUnitAttack(*u, schoice, model);
+                if(attacked && !mousePressed) {
+                    stop();
+                } else if(!attacked) {
+                    // Target is out of range (e.g. knocked back),
+                    // clear any active attack so we walk toward it
+                    if(mAttackData.fType != eAttackTargetType::none) {
+                        mAttackData = eAttackData();
+                        mServer->stopAttack(mClientId);
+                    }
                 }
             }
         } else if(mousePressed && (shiftPressed || (rightPressed && rangeAttack))) {

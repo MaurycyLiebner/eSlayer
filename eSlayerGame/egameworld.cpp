@@ -3,11 +3,13 @@
 #include "emaincharaction.h"
 #include "textures/echarstextures.h"
 
+#include <eSlayerMissiles/emissilecollision.h>
+#include <eSlayerMissiles/emissileincrement.h>
+
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
-#include <eSlayerMissiles/emissilecollision.h>
-#include <eSlayerMissiles/emissileincrement.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mMap(map),
@@ -90,6 +92,9 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             u.fModelParts, res, r);
 
         const auto unit = std::make_shared<eUnit>();
+        if(isBody(charId)) {
+            unit->setBody(true);
+        }
         static_cast<eUnitData&>(*unit) = u;
         eCharUnitModel model;
         model.setCharModel(unitModel);
@@ -173,4 +178,8 @@ void eGameWorld::simulateMissiles(const float by) {
         const auto dir = ePointF::vector(oldPos, newPos);
         m->fAngle = dir.angle();
     }
+}
+
+bool eGameWorld::isBody(const int charId) const {
+    return eVectorHelpers::contains(mBodies, charId);
 }

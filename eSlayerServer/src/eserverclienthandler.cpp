@@ -163,3 +163,10 @@ bool eServerClientHandler::consumePotion(
     mArea->consumePotion(mClientId, itemId);
     return true;
 }
+
+bool eServerClientHandler::pickupBody(
+    const uint32_t bodyId) {
+    if(!mArea) return false;
+    mArea->pickupBody(mClientId, bodyId);
+    return true;
+}
