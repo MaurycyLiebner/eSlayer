@@ -60,14 +60,14 @@ void eCharUnitModel::draw(ePainter& p,
         const float skew = 0.5f;
         const float scaleY = 0.5f;
 
-        const float x = p.x() + texRect.x;
-        const float y = p.y() + texRect.y * scaleY;
-
         const float w = texRect.w;
         const float h = texRect.h * scaleY;
 
         // Bottom horizontal shift caused by skew
         const float skewOffset = h * skew;
+
+        const float x = p.x() + texRect.x - skewOffset;
+        const float y = p.y() + texRect.y + texRect.h - h;
 
         SDL_Vertex verts[4];
 
@@ -97,8 +97,8 @@ void eCharUnitModel::draw(ePainter& p,
         const auto sdlTex = tex->tex();
         SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
     }
-
     p.drawTexture(texRect.x, texRect.y, tex);
+
     if(highlight) {
         tex->setBlendMode(SDL_BLENDMODE_ADD);
         tex->setAlpha(125);
