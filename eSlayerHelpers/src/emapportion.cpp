@@ -58,6 +58,11 @@ void eMapData::write(ePacket& p) const {
     for(const auto& unitType : fUnitTypes) {
         p << unitType;
     }
+
+    p << fLight;
+    p << fContrast;
+
+    p << fSpawnPos;
 }
 
 void eMapData::read(ePacket& p) {
@@ -87,4 +92,9 @@ void eMapData::read(ePacket& p) {
         p >> unitType;
         fUnitTypes.emplace(unitType);
     }
+
+    p >> fLight;
+    p >> fContrast;
+
+    p >> fSpawnPos;
 }

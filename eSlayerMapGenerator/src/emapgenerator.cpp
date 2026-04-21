@@ -1,5 +1,7 @@
 #include "eSlayerMapGenerator/emapgenerator.h"
 
+#include "emapsettings.h"
+
 #include <eSlayerHelpers/epacket.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjstexturesdata.h>
@@ -212,20 +214,26 @@ void eMap::mapData(eMapData& data) const {
     data.fObjectTypes = mObjectTypes;
     data.fTerrainTypes = mTerrainTypes;
     data.fUnitTypes = mUnitTypes;
+    data.fLight = mLight;
+    data.fContrast = mContrast;
+    data.fSpawnPos = mSpawnPos;
 }
 
 void eMap::loadData(const eMapData& data) {
-    mWidth = data.fTotalWidth;
-    mHeight = data.fTotalHeight;
-    generateTiles(mWidth, mHeight);
+    generateTiles(data.fTotalWidth, data.fTotalHeight);
     mTerrainTypes = data.fTerrainTypes;
     mObjectTypes = data.fObjectTypes;
     mUnitTypes = data.fUnitTypes;
+    mLight = data.fLight;
+    mContrast = data.fContrast;
+    mSpawnPos = data.fSpawnPos;
     updateObjectsMap();
 }
 
 void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
+    mWidth = w;
+    mHeight = h;
 }
 
 void eMap::updateObjectsMap() {
@@ -246,59 +254,256 @@ void eMap::updateObjectsMap() {
     }
 }
 
-std::shared_ptr<eMap>
-eMapGenerator::generate(const std::string& name) const {
-    const auto result = std::make_shared<eMap>();
-    if(name == "town") {
-        const uint16_t townFloorId = eTerrsTexturesData::id("grass");
-        result->mTerrainTypes.emplace(townFloorId);
-        const int w = 80;
-        const int h = 80;
-        result->generateTiles(w, h);
-        for(auto& row : result->mTiles) {
-            for(auto& tile : row) {
-                tile.fTerrainType = 1;
-                tile.fTileType = eRand::rand() % 20;
+// --------------------------------------------------
+// Map
+// --------------------------------------------------
+enum Tile {
+    WALL,
+    FLOOR
+};
+
+struct eRect {
+    int x, y, w, h;
+
+    int centerX() const { return x + w / 2; }
+    int centerY() const { return y + h / 2; }
+};
+
+bool intersects(const eRect& a, const eRect& b) {
+    return !(a.x + a.w < b.x || b.x + b.w < a.x ||
+             a.y + a.h < b.y || b.y + b.h < a.y);
+}
+
+// --------------------------------------------------
+// Union-Find (for clustering + MST)
+// --------------------------------------------------
+struct eUnionFind {
+    std::vector<int> parent, rank;
+
+    eUnionFind(int n) : parent(n), rank(n, 0) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a == b) return;
+
+        if (rank[a] < rank[b])
+            parent[a] = b;
+        else {
+            parent[b] = a;
+            if (rank[a] == rank[b])
+                rank[a]++;
+        }
+    }
+};
+
+// --------------------------------------------------
+// eDungeon Generator
+// --------------------------------------------------
+class eDungeon {
+public:
+    int width, height;
+    std::vector<std::vector<Tile>> map;
+    std::vector<eRect> rooms;
+    std::vector<std::vector<eRect>> areas;
+
+    eDungeon(const int w, const int h) : width(w), height(h) {
+        map.resize(width, std::vector<Tile>(height, WALL));
+    }
+
+    eRect randomRoom() {
+        const int w = eRand::rand(10, 20);
+        const int h = eRand::rand(10, 20);
+        const int x = eRand::rand(1, width - w - 2);
+        const int y = eRand::rand(1, height - h - 2);
+        return {x, y, w, h};
+    }
+
+    void generateRooms(int count) {
+        for(int i = 0; i < count; ++i) {
+            rooms.push_back(randomRoom());
+        }
+    }
+
+    void clusterRooms() {
+        eUnionFind uf(rooms.size());
+
+        for(size_t i = 0; i < rooms.size(); ++i) {
+            for(size_t j = i + 1; j < rooms.size(); ++j) {
+                if(intersects(rooms[i], rooms[j])) {
+                    uf.unite(i, j);
+                }
             }
         }
-        result->mWidth = w;
-        result->mHeight = h;
+
+        // Group into areas
+        std::unordered_map<int, std::vector<eRect>> groups;
+        for(size_t i = 0; i < rooms.size(); ++i) {
+            groups[uf.find(i)].push_back(rooms[i]);
+        }
+
+        for(auto& [_, group] : groups) {
+            areas.push_back(group);
+        }
+    }
+
+    void carveRoom(const eRect& r) {
+        for(int x = r.x; x < r.x + r.w; ++x) {
+            for(int y = r.y; y < r.y + r.h; ++y) {
+                map[x][y] = FLOOR;
+            }
+        }
+    }
+
+    void carveRooms() {
+        for(auto& r : rooms) {
+            carveRoom(r);
+        }
+    }
+
+    ePoint areaCenter(const std::vector<eRect>& area) {
+        int sumX = 0, sumY = 0;
+        for(auto& r : area) {
+            sumX += r.centerX();
+            sumY += r.centerY();
+        }
+        return { sumX / (int)area.size(), sumY / (int)area.size() };
+    }
+
+    void carveCorridor(const ePoint& a, const ePoint& b) {
+        int x = a.fX;
+        int y = a.fY;
+
+        if(eRand::randChance(0.5f)) {
+            // horizontal first
+            while(x != b.fX) {
+                map[x][y] = FLOOR;
+                map[x][y + 1] = FLOOR;
+                x += (b.fX > x) ? 1 : -1;
+            }
+            while(y != b.fY) {
+                map[x][y] = FLOOR;
+                map[x][y + 1] = FLOOR;
+                y += (b.fY > y) ? 1 : -1;
+            }
+        } else {
+            // vertical first
+            while(y != b.fY) {
+                map[x][y] = FLOOR;
+                map[x + 1][y] = FLOOR;
+                y += (b.fY > y) ? 1 : -1;
+            }
+            while(x != b.fX) {
+                map[x][y] = FLOOR;
+                map[x + 1][y] = FLOOR;
+                x += (b.fX > x) ? 1 : -1;
+            }
+        }
+    }
+
+    void connectAreas() {
+        if (areas.size() <= 1) return;
+
+        std::vector<ePoint> centers;
+        for(auto& area : areas) {
+            centers.push_back(areaCenter(area));
+        }
+
+        struct eEdge {
+            int a, b;
+            double dist;
+        };
+
+        std::vector<eEdge> edges;
+
+        for(size_t i = 0; i < centers.size(); ++i) {
+            for(size_t j = i + 1; j < centers.size(); ++j) {
+                double d = hypot(centers[i].fX - centers[j].fX,
+                                 centers[i].fY - centers[j].fY);
+                edges.push_back({(int)i, (int)j, d});
+            }
+        }
+
+        sort(edges.begin(), edges.end(), [](const eEdge& a, const eEdge& b) {
+            return a.dist < b.dist;
+        });
+
+        eUnionFind uf(centers.size());
+
+        for(auto& e : edges) {
+            if(uf.find(e.a) != uf.find(e.b)) {
+                uf.unite(e.a, e.b);
+                carveCorridor(centers[e.a], centers[e.b]);
+            }
+        }
+
+        // Optional: add extra loops
+        for(auto& e : edges) {
+            if(eRand::randChance(0.1)) {
+                carveCorridor(centers[e.a], centers[e.b]);
+            }
+        }
+    }
+};
+
+std::shared_ptr<eMap>
+eMapGenerator::generate(const std::string& name) const {
+    eMapSettings::load();
+    const auto it = eMapSettings::sMaps.find(name);
+    if(it == eMapSettings::sMaps.end()) {
+        eRuntimeThrow("No map \"" + name + "\" settings found.");
+    }
+    const auto& settings = it->second;
+    const auto result = std::make_shared<eMap>();
+    if(name == "act1") {
+        const uint16_t townFloorId = eTerrsTexturesData::id("grass");
+        result->mTerrainTypes.emplace(townFloorId);
+
+        const int w = 80;
+        const int h = 80;
+
+        eDungeon dungeon(w, h);
+
+        dungeon.generateRooms(20);
+        dungeon.clusterRooms();
+        dungeon.carveRooms();
+        dungeon.connectAreas();
 
         const auto townFenceId = eObjsTexturesData::id("town_fence");
         result->mObjectTypes.emplace(townFenceId);
 
-        auto& obj = result->mObjects.emplace_back();
-        obj.fObjectType = 0;
-        obj.fTileType = 29;
-        obj.fTileX = 5;
-        obj.fTileY = 5;
-
-        for(int x = 8; x <= 9; x++) {
-            for(int y = 8; y <= 9; y++) {
-                auto& obj = result->mObjects.emplace_back();
-                obj.fObjectType = 0;
-                obj.fTileType = 29;
-                obj.fTileX = x;
-                obj.fTileY = y;
-            }
-        }
-
-        for(int x = 11; x <= 12; x++) {
-            for(int y = 11; y <= 12; y++) {
-                auto& obj = result->mObjects.emplace_back();
-                obj.fObjectType = 0;
-                obj.fTileType = 29;
-                obj.fTileX = x;
-                obj.fTileY = y;
+        result->generateTiles(w, h);
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                auto& dst = result->mTiles[y][x];
+                const auto& src = dungeon.map[x][y];
+                dst.fTerrainType = 1;
+                dst.fTileType = eRand::rand() % 20;
+                if(src == Tile::WALL) {
+                    auto& obj = result->mObjects.emplace_back();
+                    obj.fObjectType = 0;
+                    obj.fTileType = 0;
+                    obj.fTileX = x;
+                    obj.fTileY = y;
+                } else if(result->mSpawnPos == ePoint{0, 0}) {
+                    result->mSpawnPos = {x, y};
+                }
             }
         }
 
         result->updateObjectsMap();
 
-        for(const auto& unitName : {"wendigo", "mummy"}) {
-            const auto unitId = eCharDataInfo::id(unitName);
-            result->mUnitTypes.emplace(unitId);
-        }
+        result->mUnitTypes = settings.fMonsters;
+        result->mLight = settings.fLightness;
+        result->mContrast = settings.fContrast;
     }
     return result;
 }

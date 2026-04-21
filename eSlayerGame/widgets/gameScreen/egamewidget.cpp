@@ -67,6 +67,7 @@ void eGameWidget::initialize(const int clientId,
     };
     mMainAction.initialize(mServer, res, r, w, iter, clientId, 0);
     mMainChar = mMainAction.unit();
+    mMainChar->fPos = map->spawnPos();
 
     setRightSkill(0);
     setLeftSkill(0);
@@ -638,6 +639,8 @@ void eGameWidget::initializeTextures() {
     const int w = width();
     const int h = height();
     const auto tex = mGamePainter.initialize(w, h);
+    mGamePainter.setLightness(mMap->lightness());
+    mGamePainter.setContrast(mMap->contrast());
     setTexture(tex);
 }
 

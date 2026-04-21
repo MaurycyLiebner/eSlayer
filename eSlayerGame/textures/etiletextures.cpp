@@ -17,8 +17,7 @@ void eTileTextures::load(const eResolution& res,
                          SDL_Renderer* const r) {
     if(mLoaded) return;
     mLoaded = true;
-    eSpriteLoader loader("Textures", mDirName + "/" + mName,
-                         res, r, SDL_Color{172, 172, 172, 255});
+    eSpriteLoader loader("Textures", mDirName + "/" + mName, res, r);
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }

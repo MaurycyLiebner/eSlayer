@@ -378,6 +378,7 @@ bool eServerArea::addClient(const int clientId,
     u->addSkill();
     u->addSkill();
     iniSetupUnit(u, clientId, 0, pos, udata, data, modelParts);
+    u->fPos = mMap->spawnPos();
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();

@@ -15,6 +15,10 @@ public:
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
 
+    void setLightness(const Uint8 light);
+    void setContrast(const Uint8 cont)
+    { mContrast = cont; }
+
     void clear();
     void renderLight(SDL_Renderer * const r,
                      const float x, const float y,
@@ -23,6 +27,8 @@ public:
     void finish();
 private:
     bool mRenderItemNames = false;
+    Uint8 mLight = 180;
+    Uint8 mContrast = 140;
     std::shared_ptr<eTexture> mItemNames;
     std::shared_ptr<eTexture> mBaseTex;
     std::shared_ptr<eLightingTexture> mLightingTex;

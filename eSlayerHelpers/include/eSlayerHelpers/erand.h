@@ -9,6 +9,9 @@
 class ESLAYERHELPERS_API eRand {
 public:
     static int rand();
+    static bool randChance(const float chance);
+    static int rand(const int min,
+                    const int max);
     static float randF(const float min = 0.f,
                        const float max = 1.f);
     template <typename T>

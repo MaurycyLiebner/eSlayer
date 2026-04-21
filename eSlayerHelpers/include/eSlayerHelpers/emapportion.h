@@ -3,6 +3,8 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "epoint.h"
+
 #include <cstdint>
 #include <vector>
 #include <set>
@@ -36,6 +38,11 @@ struct ESLAYERHELPERS_API eMapData {
     std::set<uint16_t> fTerrainTypes;
     std::set<uint16_t> fObjectTypes;
     std::set<uint16_t> fUnitTypes;
+
+    uint8_t fLight = 180;
+    uint8_t fContrast = 140;
+
+    ePoint fSpawnPos;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

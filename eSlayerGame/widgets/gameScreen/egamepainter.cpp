@@ -8,7 +8,7 @@ eGamePainter::initialize(const int w, const int h) {
     mBaseTex->create(r, w, h, {0, 0, 0, 255});
 
     mLightingTex = std::make_shared<eLightingTexture>();
-    mLightingTex->initialize(r, w, h, SDL_Color{180, 180, 180, 255});
+    mLightingTex->initialize(r, w, h, SDL_Color{mLight, mLight, mLight, 255});
 
     mDisplayTex = std::make_shared<eTexture>();
     mDisplayTex->create(r, w, h, {0, 0, 0, 255});
@@ -35,6 +35,11 @@ eRenderTargetHolder eGamePainter::switchToItemNames() {
     return mItemNames->createTargetHolder(r);
 }
 
+void eGamePainter::setLightness(const Uint8 light) {
+    mLight = light;
+    mLightingTex->setClearColor(SDL_Color{light, light, light, 255});
+}
+
 void eGamePainter::clear() {
     const auto r = renderer();
     mLightingTex->clear(r);
@@ -49,6 +54,7 @@ void eGamePainter::renderLight(SDL_Renderer* const r,
                                const float x, const float y,
                                const float radius,
                                const SDL_Color& color) {
+    if(mLight == 255) return;
     mLightingTex->renderLight(r, x, y, radius, color);
 }
 
@@ -57,10 +63,15 @@ void eGamePainter::finish() {
     const auto holder = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
-    mLightingTex->render(r, 0, 0);
-    mBaseTex->fill(r, SDL_Color{255, 255, 255, 115});
-    mBaseTex->setBlendMode(SDL_BLENDMODE_MUL);
-    mBaseTex->render(r, 0, 0);
+    if(mLight != 255) {
+        mLightingTex->render(r, 0, 0);
+    }
+    const Uint8 a = 255 - mContrast;
+    if(a != 255) {
+        mBaseTex->fill(r, SDL_Color{255, 255, 255, a});
+        mBaseTex->setBlendMode(SDL_BLENDMODE_MUL);
+        mBaseTex->render(r, 0, 0);
+    }
     if(mRenderItemNames) {
         mItemNames->render(r, 0, 0);
     }
