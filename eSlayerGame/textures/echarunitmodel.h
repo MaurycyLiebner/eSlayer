@@ -15,7 +15,7 @@ public:
 
     eTextureKey key() const;
 
-    SDL_Rect offsetBoundingRect(const eResolution& res) const;
+    SDL_Rect offsetBoundingRect() const;
 
     void incFrame(const float by);
     void draw(ePainter& p,

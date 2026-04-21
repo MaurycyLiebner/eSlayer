@@ -20,10 +20,6 @@ int eCharModel::nFrames(const int anim) const {
     return mAnims[anim].fFrames;
 }
 
-const eOffset& eCharModel::animOffset(const int anim) const {
-    return mAnims[anim].fOffset;
-}
-
 std::shared_ptr<eTexture>
 eCharModel::requestTexture(
     SDL_Renderer* const r,

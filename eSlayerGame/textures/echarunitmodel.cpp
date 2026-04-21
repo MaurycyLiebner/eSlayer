@@ -21,13 +21,8 @@ eTextureKey eCharUnitModel::key() const {
     return eTextureKey{mAnim, frame, mDir};
 }
 
-SDL_Rect eCharUnitModel::offsetBoundingRect(
-    const eResolution& res) const {
-    SDL_Rect result = mModel->requestBoundingRect(key());
-    const auto& offset = mModel->animOffset(mAnim);
-    const float mult = res.multiplier();
-    result.x += std::round(mult*offset.fX);
-    result.y += std::round(mult*offset.fY);
+SDL_Rect eCharUnitModel::offsetBoundingRect() const {
+    const auto result = mModel->requestBoundingRect(key());
     return result;
 }
 
@@ -49,12 +44,6 @@ void eCharUnitModel::draw(ePainter& p,
     const auto r = p.renderer();
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
-
-    p.save();
-    const auto& offset = mModel->animOffset(mAnim);
-    const float mult = res.multiplier();
-    p.translate(std::round(mult*offset.fX),
-                std::round(mult*offset.fY));
 
     { // draw shadow
         const float skew = 0.5f;
@@ -106,7 +95,6 @@ void eCharUnitModel::draw(ePainter& p,
         tex->setBlendMode(SDL_BLENDMODE_BLEND);
         tex->clearAlphaMod();
     }
-    p.restore();
     p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 

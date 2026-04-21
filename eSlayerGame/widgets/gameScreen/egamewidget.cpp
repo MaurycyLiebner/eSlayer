@@ -487,7 +487,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
-                            const auto b = model.offsetBoundingRect(res);
+                            const auto b = model.offsetBoundingRect();
                             const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
                             highlight = SDL_PointInRect(&p, &rect);
                             if(highlight) {

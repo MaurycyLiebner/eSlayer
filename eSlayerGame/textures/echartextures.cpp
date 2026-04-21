@@ -41,7 +41,6 @@ eCharTextures::generateModel(
         const int animId = result->mAnims.size();
         auto& ranim = result->mAnims.emplace_back();
         ranim.fFrames = anim.fValue.fFrames;
-        ranim.fOffset = anim.fValue.fOffset;
         ranim.fClamp = anim.fValue.fClamp;
         ranim.fGroups.reserve(info.mGroups.size());
         for(const auto& parts : info.mGroups) {

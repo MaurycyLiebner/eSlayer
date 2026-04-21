@@ -1,8 +1,6 @@
 #ifndef ECHARDATA_H
 #define ECHARDATA_H
 
-#include "eoffset.h"
-
 #include "estringidmapvector.h"
 #include "eskills.h"
 
@@ -65,7 +63,6 @@ protected:
 
     struct eAnimation {
         int fFrames;
-        eOffset fOffset;
         std::string fClamp;
         int fClampId;
         int fActionFrame;

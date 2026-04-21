@@ -65,7 +65,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eunitdynamicdata.h
     src/eunitdynamicdata.cpp
     include/eSlayerHelpers/echardata.h
-    include/eSlayerHelpers/eoffset.h
+
     src/echardata.cpp
     include/eSlayerHelpers/efileloaderbase.h
     src/efileloaderbase.cpp

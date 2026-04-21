@@ -10,10 +10,8 @@ void eCharData::load(const ordered_json& jdata) {
     for(auto& [name, animData] : anims.items()) {
         const auto overwrite = animData.value("overwrite", "");
         if(overwrite.empty()) {
-            const auto offset = animData.value("offset", std::vector<int>{0, 0});
             eAnimation anim;
             anim.fFrames = animData.value("frames", 0);
-            anim.fOffset = eOffset{offset[0], offset[1]};
             anim.fClamp = animData.value("clamp", "");
             anim.fActionFrame = animData.value("actionFrame", anim.fFrames);
             const int id = mAnims.add(name, anim);

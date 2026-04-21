@@ -3,8 +3,6 @@
 
 #include "etexturecollection.h"
 
-#include <eSlayerHelpers/eoffset.h>
-
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -15,7 +13,6 @@ using eCharTextureGroups = std::vector<eCharTextureParts>;
 
 struct eCharTextureAnim {
     int fFrames;
-    eOffset fOffset;
     std::string fClamp;
     eCharTextureGroups fGroups;
 };
@@ -58,8 +55,6 @@ public:
     int nParts(const int group) const;
     int nDirs() const { return mNDirs; }
     int nFrames(const int anim) const;
-
-    const eOffset& animOffset(const int anim) const;
 
     std::shared_ptr<eTexture> requestTexture(
         SDL_Renderer* const r,
