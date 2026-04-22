@@ -334,14 +334,16 @@ eArea eServerArea::itemTile(const eGroundItem& i) const {
     return mItemTiles.posArea(pos);
 }
 
-bool eServerArea::mapPortion(
-    const int clientId, eMapPortion& result) {
+bool eServerArea::mapPortions(
+    const int clientId,
+    std::vector<eMapPortion>& result) {
     const auto u = unit(clientId);
     if(!u) return false;
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
     auto& known = clientData.fKnownMap;
+    const bool addAll = known.empty();
     const auto area = known.posArea(u->fPos);
     const int m = 1;
     for(int x = area.fX - m; x <= area.fX + m; x++) {
@@ -354,15 +356,17 @@ bool eServerArea::mapPortion(
                                               pos.fY,
                                               eMapPortion::sBaseDim,
                                               eMapPortion::sBaseDim};
-                const bool r = mMap->extractPortion(mapArea, result);
+                eMapPortion p;
+                const bool r = mMap->extractPortion(mapArea, p);
                 if(r) {
+                    result.emplace_back(std::move(p));
                     known.emplace(xyArea);
-                    return true;
+                    if(!addAll) return true;
                 }
             }
         }
     }
-    return false;
+    return addAll;
 }
 
 bool eServerArea::addClient(const int clientId,

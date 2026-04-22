@@ -12,6 +12,8 @@ public:
     eArea posArea(const ePointF& pos) const;
     ePointF areaPos(const eArea& area) const;
 
+    bool empty() const { return mAreas.empty(); }
+
     void clear();
     bool hasArea(const eArea& area);
     void erase(const eArea& area);

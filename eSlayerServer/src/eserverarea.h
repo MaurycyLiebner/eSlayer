@@ -69,8 +69,8 @@ public:
     eArea itemTile(const int itemId) const;
     eArea itemTile(const eGroundItem& i) const;
 
-    bool mapPortion(const int clientId,
-                    eMapPortion& result);
+    bool mapPortions(const int clientId,
+                     std::vector<eMapPortion>& result);
 
     bool addClient(const int clientId,
                    eCharacter& c,

@@ -70,12 +70,6 @@ void eMapData::write(ePacket& p) const {
         p << it.fName;
         p << it.fValue;
     }
-
-    const uint8_t nPortions = fPortions.size();
-    p << nPortions;
-    for(const auto& portion : fPortions) {
-        portion.write(p);
-    }
 }
 
 void eMapData::read(ePacket& p) {
@@ -119,12 +113,5 @@ void eMapData::read(ePacket& p) {
         eMapArea area;
         p >> area;
         fAreas.add(name, area);
-    }
-
-    uint8_t nPortions;
-    p >> nPortions;
-    for(int i = 0; i < nPortions; i++) {
-        auto& portion = fPortions.emplace_back();
-        portion.read(p);
     }
 }

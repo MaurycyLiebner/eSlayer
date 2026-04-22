@@ -66,8 +66,6 @@ struct ESLAYERHELPERS_API eMapData {
 
     eStringIdMapVector<eMapArea> fAreas;
 
-    std::vector<eMapPortion> fPortions;
-
     void write(ePacket& p) const;
     void read(ePacket& p);
 };
