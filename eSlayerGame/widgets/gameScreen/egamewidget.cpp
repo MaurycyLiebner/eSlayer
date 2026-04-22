@@ -334,6 +334,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto area = mMap->area(areaId);
         const auto areaName = eAreaNames::name(areaNameBase);
         eItemDragWidget::sShowAreaName(areaName);
+        mGamePainter.setLightness(area.fLightness);
+        mGamePainter.setContrast(area.fContrast);
     }
 
     mServer->changeState(mClientId, *mMainChar);
