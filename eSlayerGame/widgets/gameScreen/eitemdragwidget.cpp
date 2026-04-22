@@ -1,6 +1,7 @@
 #include "eitemdragwidget.h"
 
 #include "../../textures/eitemstextures.h"
+#include "../../textures/etextgenerator.h"
 
 #include "../../names/eitemnames.h"
 #include "../../elanguage.h"
@@ -189,6 +190,17 @@ eItemDragWidget::calculateTotalModifiers(
     return result;
 }
 
+void eItemDragWidget::showAreaName(const std::string& name) {
+    const auto r = renderer();
+    const auto& res = resolution();
+    const int fs = res.extraHugeFontSize();
+    const auto font = eFonts::defaultFont(fs);
+    const int shift = res.lineWidth();
+    const eTextGenerator gen(r, eFontColor::redBlack, font, shift);
+    mAreaStr = gen.generate(name);
+    mAreaStrCounter = 6*eRunSettings::sFPS;
+}
+
 void eItemDragWidget::setHoverSkill(
     const int skillId, const bool showNextLevel) {
     mHoverItemId = -1;
@@ -321,7 +333,18 @@ void eItemDragWidget::sSetHoverSkill(
     sInstance->setHoverSkill(skillId, showNextLevel);
 }
 
+void eItemDragWidget::sShowAreaName(const std::string& name) {
+    if(!sInstance) return;
+    sInstance->showAreaName(name);
+}
+
 void eItemDragWidget::paintEvent(ePainter& p) {
+    if(mAreaStrCounter-- > 0 && mAreaStr) {
+        const auto& rect = eWidget::rect();
+        p.drawTexture(rect, mAreaStr, eAlignment::center);
+    } else {
+        mAreaStr = nullptr;
+    }
     if(mItem) {
         p.drawTexture(mMousePos.x, mMousePos.y,
                       mItem, eAlignment::center);

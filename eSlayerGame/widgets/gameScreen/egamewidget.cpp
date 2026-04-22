@@ -7,6 +7,7 @@
 #include "../../textures/etilesiterator.h"
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
+#include "../../names/eareanames.h"
 #include "eunitindicator.h"
 #include "eitemdragwidget.h"
 #include "einventorywidget.h"
@@ -324,12 +325,15 @@ void eGameWidget::paintEvent(ePainter& p) {
         model.setAggressive(worldResult.fAggressive);
     }
 
-    const int areaId = mMap->areaAt(mMainChar->fPos.floor());
+    const auto upos = mMainChar->fPos;
+    const auto ipos = upos.floor();
+    const int areaId = mMap->areaAt(ipos);
     if(mLastArea != areaId && areaId >= 0) {
         mLastArea = areaId;
-        const auto areaName = mMap->areaName(areaId);
+        const auto areaNameBase = mMap->areaName(areaId);
         const auto area = mMap->area(areaId);
-        sendMessage(areaName);
+        const auto areaName = eAreaNames::name(areaNameBase);
+        eItemDragWidget::sShowAreaName(areaName);
     }
 
     mServer->changeState(mClientId, *mMainChar);
