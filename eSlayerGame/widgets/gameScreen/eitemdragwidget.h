@@ -32,7 +32,6 @@ public:
     static void sSetHoverItem(const eItem& item);
     static void sSetHoverSkill(const int skillId,
                                const bool showNextLevel);
-    static void sShowAreaName(const std::string& name);
 protected:
     void paintEvent(ePainter& p) override;
     bool mouseMoveEvent(const eMouseEvent& e) override;
@@ -41,7 +40,6 @@ private:
     std::map<eModifierType, eModifier>
     calculateTotalModifiers(const int skillId, const int levelId,
                             int& count, float& cooldown, float& manaCost) const;
-    void showAreaName(const std::string& name);
 
     const eAttributes& mAttrs;
     const eStats& mStats;
@@ -53,9 +51,6 @@ private:
     int mHoverSkillId = -1;
     int mHoverItemId = -1;
     std::shared_ptr<eTexture> mHover;
-
-    int mAreaStrCounter = 0;
-    std::shared_ptr<eTexture> mAreaStr;
 };
 
 #endif // EITEMDRAGWIDGET_H

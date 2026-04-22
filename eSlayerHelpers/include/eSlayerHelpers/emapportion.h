@@ -39,6 +39,18 @@ struct eMapArea {
     uint8_t fContrast = 140;
 };
 
+struct ESLAYERHELPERS_API eMapPortion {
+    static const uint16_t sBaseDim = 32;
+
+    eMapPortionArea fArea;
+
+    std::vector<std::vector<eTile>> fTiles;
+    std::vector<eObject> fObjects;
+
+    void write(ePacket& p) const;
+    void read(ePacket& p);
+};
+
 struct ESLAYERHELPERS_API eMapData {
     uint16_t fTotalWidth = 0;
     uint16_t fTotalHeight = 0;
@@ -54,17 +66,7 @@ struct ESLAYERHELPERS_API eMapData {
 
     eStringIdMapVector<eMapArea> fAreas;
 
-    void write(ePacket& p) const;
-    void read(ePacket& p);
-};
-
-struct ESLAYERHELPERS_API eMapPortion {
-    static const uint16_t sBaseDim = 32;
-
-    eMapPortionArea fArea;
-
-    std::vector<std::vector<eTile>> fTiles;
-    std::vector<eObject> fObjects;
+    std::vector<eMapPortion> fPortions;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

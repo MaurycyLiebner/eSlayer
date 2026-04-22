@@ -226,6 +226,9 @@ void eMap::loadData(const eMapData& data) {
     mUnitTypes = data.fUnitTypes;
     mSpawnPos = data.fSpawnPos;
     mAreas = data.fAreas;
+    for(const auto& p : data.fPortions) {
+        loadPortion(p);
+    }
     updateObjectsMap();
 }
 

@@ -16,6 +16,7 @@ class eTextureCheckButton;
 class eInventoryWidget;
 class eInventoryBagpackWidget;
 class eItemDragWidget;
+class eMiniMap;
 class eStatsWidget;
 class eCharacter;
 class eLineEdit;
@@ -77,6 +78,7 @@ private:
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eItemDragWidget* mDragWidget = nullptr;
+    eMiniMap* mMiniMap = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
     ePlayerHealthIndicator* mManaIndicator = nullptr;

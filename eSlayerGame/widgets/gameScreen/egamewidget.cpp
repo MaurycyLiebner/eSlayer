@@ -12,6 +12,7 @@
 #include "eitemdragwidget.h"
 #include "einventorywidget.h"
 #include "../../elanguage.h"
+#include "eminimap.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -333,7 +334,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto areaNameBase = mMap->areaName(areaId);
         const auto area = mMap->area(areaId);
         const auto areaName = eAreaNames::name(areaNameBase);
-        eItemDragWidget::sShowAreaName(areaName);
+        eMiniMap::sShowAreaName(areaName);
         mGamePainter.setLightness(area.fLightness);
         mGamePainter.setContrast(area.fContrast);
     }

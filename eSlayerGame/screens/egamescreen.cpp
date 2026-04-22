@@ -12,6 +12,7 @@
 #include "../widgets/gameScreen/einventorybagpackwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/eitemdragwidget.h"
+#include "../widgets/gameScreen/eminimap.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
@@ -70,6 +71,12 @@ void eGameScreen::initialize(const int clientId,
     mUnitIndicator->setY(20*m);
 
     mGameWidget->setUnitIndicator(mUnitIndicator);
+
+    mMiniMap = new eMiniMap(window());
+    mMiniMap->resize(width(), height());
+    mMiniMap->setMap(map);
+    addWidget(mMiniMap);
+    mMiniMap->setShowMap(false);
 
     mBottomWid = new eBgWidget(window());
     mBottomWid->setHugePadding();
@@ -292,6 +299,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             showBeltExt();
             mBeltExtTmp = false;
         }
+    } else if(key == SDL_SCANCODE_TAB) {
+        mMiniMap->switchShowMap();
     } else if(key == SDL_SCANCODE_F1) {
         hotkeyPressed(1);
     } else if(key == SDL_SCANCODE_F2) {
@@ -337,6 +346,8 @@ void eGameScreen::paintEvent(ePainter&) {
     mManaIndicator->setValue(stats.fManaF);
 
     const auto& action = mGameWidget->mainAction();
+    const auto& pos = action.pos();
+    mMiniMap->setPos(pos);
     mStaminaIndicator->setRange(0, action.maxStamina());
     mStaminaIndicator->setValue(action.stamina());
 

@@ -52,6 +52,13 @@ bool eLocalServer::requestMap(
     }
     h->setArea(area);
     map->mapData(data);
+    bool finish = false;
+    while(!finish) {
+        eMapPortion p;
+        finish = !area->mapPortion(clientId, p);
+        if(finish) break;
+        data.fPortions.emplace_back(p);
+    }
     return true;
 }
 

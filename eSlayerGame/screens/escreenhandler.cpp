@@ -18,6 +18,7 @@
 #include "../textures/emissilestextures.h"
 #include "../textures/euitextures.h"
 #include "../textures/echarstextures.h"
+#include "../textures/emaptextures.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
 
@@ -247,6 +248,9 @@ void eScreenHandler::showGame(eServerData serverData,
         const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
                                            int(std::ceil(2.f*height/tileH))};
         (*server)->spawn(*clientId, *serverC, screenDims);
+    });
+    loading.emplace_back([r]() {
+        eMapTextures::load(r);
     });
     showLoadingScreen(loading, finish);
 }
