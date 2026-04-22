@@ -4,6 +4,8 @@
 #include "eslayerhelpersexport.h"
 
 #include "epoint.h"
+#include "erect.h"
+#include "estringidmapvector.h"
 
 #include <cstdint>
 #include <vector>
@@ -31,6 +33,12 @@ struct eMapPortionArea {
     int fHeight = 0;
 };
 
+struct eMapArea {
+    eRect fRect;
+    uint8_t fLightness = 180;
+    uint8_t fContrast = 140;
+};
+
 struct ESLAYERHELPERS_API eMapData {
     uint16_t fTotalWidth = 0;
     uint16_t fTotalHeight = 0;
@@ -43,6 +51,8 @@ struct ESLAYERHELPERS_API eMapData {
     uint8_t fContrast = 140;
 
     ePoint fSpawnPos;
+
+    eStringIdMapVector<eMapArea> fAreas;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

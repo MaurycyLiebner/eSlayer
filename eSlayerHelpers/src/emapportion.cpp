@@ -63,6 +63,13 @@ void eMapData::write(ePacket& p) const {
     p << fContrast;
 
     p << fSpawnPos;
+
+    const uint8_t nAreas = fAreas.size();
+    p << nAreas;
+    for(const auto& it : fAreas) {
+        p << it.fName;
+        p << it.fValue;
+    }
 }
 
 void eMapData::read(ePacket& p) {
@@ -97,4 +104,14 @@ void eMapData::read(ePacket& p) {
     p >> fContrast;
 
     p >> fSpawnPos;
+
+    uint8_t nAreas;
+    p >> nAreas;
+    for(int i = 0; i < nAreas; i++) {
+        std::string name;
+        p >> name;
+        eMapArea area;
+        p >> area;
+        fAreas.add(name, area);
+    }
 }

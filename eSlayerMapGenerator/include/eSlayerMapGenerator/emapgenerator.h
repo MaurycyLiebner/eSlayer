@@ -5,6 +5,8 @@
 
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/emapportion.h>
+#include <eSlayerHelpers/erect.h>
+#include <eSlayerHelpers/estringidmapvector.h>
 
 #include <string>
 #include <memory>
@@ -44,18 +46,19 @@ public:
     void mapData(eMapData& data) const;
     void loadData(const eMapData& data);
 
-    uint8_t lightness() const { return mLight; }
-    uint8_t contrast() const { return mContrast; }
+    int areaAt(const ePoint& pos) const;
+    std::string areaName(const int id);
+    eMapArea& area(const int id);
 private:
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
 
     ePoint mSpawnPos{0, 0};
+
     uint16_t mWidth = 0;
     uint16_t mHeight = 0;
 
-    uint8_t mLight = 180;
-    uint8_t mContrast = 140;
+    eStringIdMapVector<eMapArea> mAreas;
 
     std::vector<std::vector<eTile>> mTiles;
     std::vector<eObject> mObjects;

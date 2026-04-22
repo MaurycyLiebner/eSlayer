@@ -324,6 +324,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         model.setAggressive(worldResult.fAggressive);
     }
 
+    const int areaId = mMap->areaAt(mMainChar->fPos.floor());
+    if(mLastArea != areaId && areaId >= 0) {
+        mLastArea = areaId;
+        const auto areaName = mMap->areaName(areaId);
+        const auto area = mMap->area(areaId);
+        sendMessage(areaName);
+    }
+
     mServer->changeState(mClientId, *mMainChar);
 
     mWorld.simulateMissiles(by);
@@ -639,8 +647,6 @@ void eGameWidget::initializeTextures() {
     const int w = width();
     const int h = height();
     const auto tex = mGamePainter.initialize(w, h);
-    mGamePainter.setLightness(mMap->lightness());
-    mGamePainter.setContrast(mMap->contrast());
     setTexture(tex);
 }
 

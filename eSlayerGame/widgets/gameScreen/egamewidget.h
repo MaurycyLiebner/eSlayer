@@ -145,6 +145,8 @@ private:
 
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;
+
+    int mLastArea = -1;
 };
 
 #endif // EGAMEWIDGET_H

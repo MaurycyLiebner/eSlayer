@@ -94,9 +94,9 @@ void eServerArea::iniSetupUnit(
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 24; x < 26; x++) {
+    for(int x = 24; x < 23; x++) {
         if(x == 40) x += 20;
-        for(int y = 24; y < 26; y++) {
+        for(int y = 24; y < 23; y++) {
             if(y == 40) y += 20;
             const int typeId = 1 + eRand::rand() % 2;
             const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -377,8 +377,8 @@ bool eServerArea::addClient(const int clientId,
     const auto u = std::make_shared<eServerUnit>(true, data, *this);
     u->addSkill();
     u->addSkill();
-    iniSetupUnit(u, clientId, 0, pos, udata, data, modelParts);
-    u->fPos = mMap->spawnPos();
+    const auto& spawnPos = mMap->spawnPos();
+    iniSetupUnit(u, clientId, 0, spawnPos, udata, data, modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();
