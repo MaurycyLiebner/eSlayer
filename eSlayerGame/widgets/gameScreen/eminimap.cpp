@@ -48,10 +48,10 @@ void eMiniMap::paintEvent(ePainter& p) {
         const int cx = mPos.fX;
         const int cy = mPos.fY;
 
-        const int margin = 5;
+        const int margin = 8;
 
         const int x0 = std::clamp(cx/areaDim - margin, 0, w - 1);
-        const int x1 = std::clamp(cy/areaDim + margin, 0, w - 1);
+        const int x1 = std::clamp(cx/areaDim + margin, 0, w - 1);
 
         const int y0 = std::clamp(cy/areaDim - margin, 0, h - 1);
         const int y1 = std::clamp(cy/areaDim + margin, 0, h - 1);
@@ -65,7 +65,7 @@ void eMiniMap::paintEvent(ePainter& p) {
                 if(dist < 20.f) {
                     a.setKnown(mPos, x*areaDim, y*areaDim, *mMap);
                 }
-                const auto& tex = a.fResultTex;
+                const auto& tex = a.fTex;
                 if(!tex) continue;
                 const float dx = x*areaDim - mPos.fX;
                 const float dy = y*areaDim - mPos.fY;

@@ -249,8 +249,8 @@ void eScreenHandler::showGame(eServerData serverData,
                                            int(std::ceil(2.f*height/tileH))};
         (*server)->spawn(*clientId, *serverC, screenDims);
     });
-    loading.emplace_back([r]() {
-        eMapTextures::load(r);
+    loading.emplace_back([&res, r]() {
+        eMapTextures::load(res, r);
     });
     showLoadingScreen(loading, finish);
 }

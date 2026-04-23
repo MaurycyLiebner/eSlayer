@@ -36,112 +36,95 @@ private:
                      SDL_Renderer* const r) :
             fRes(res), fR(r) {}
 
-        void initialize(const int x0, const int y0,
-                        const eMap& map) {
+        void initialize() {
             if(fInitialized) return;
             fInitialized = true;
 
-            const int id = eMapTextures::sTexs.id("reveal");
-            fRevealTex = eMapTextures::sTexs.get(id);
+            fKnown.resize(sAreaDim, std::vector<bool>(sAreaDim, false));
 
-            fTileW = fRes->tileWidth()/10;
-            fTileH = fTileW/2;
+            const int id = eMapTextures::sTexs.id("tile");
+            fTileTex = eMapTextures::sTexs.get(id);
+
+            fTileW = fTileTex->width();
+            fTileH = fTileTex->height();
             const int w = sAreaDim*fTileW;
             const int h = sAreaDim*fTileH;
 
             fTex = std::make_shared<eTexture>();
             fTex->create(fR, w, h);
-
-            fClampTex = std::make_shared<eTexture>();
-            fClampTex->create(fR, w, h, SDL_Color{255, 255, 255, 255});
-            fClampTex->setBlendMode(SDL_BLENDMODE_ADD);
-
-            fResultTex = std::make_shared<eTexture>();
-            fResultTex->create(fR, w, h);
-            fResultTex->setBlendMode(SDL_BLENDMODE_MUL);
-
-            {
-                const auto h = fTex->createTargetHolder(fR);
-                ePainter p(fR);
-                const int mw = map.width();
-                const int mh = map.height();
-                for(int dx = 0; dx < sAreaDim; dx++) {
-                    const int x = x0 + dx;
-                    if(x >= mw) break;
-                    for(int dy = 0; dy < sAreaDim; dy++) {
-                        const int y = y0 + dy;
-                        if(y >= mh) break;
-                        const bool w = map.walkable(x, y);
-                        if(w) continue;
-                        const int xx = fTex->width()/2 + (dx - dy) * (fTileW / 2.f);
-                        const int yy = (dx + dy) * (fTileH / 2.f);
-                        const SDL_Rect rect{xx, yy, fTileW, fTileH};
-                        p.fillRect(rect, SDL_Color{0, 0, 0, 255});
-                    }
-                }
-            }
+            fTex->setAlpha(128);
         }
 
         void setKnown(ePointF pos,
                       const int x0, const int y0,
                       const eMap& map) {
+            if(fUnknown <= 0) return;
             pos.fX -= x0;
             pos.fY -= y0;
-            initialize(x0, y0, map);
-            const auto h = fClampTex->createTargetHolder(fR);
+            initialize();
+            const auto h = fTex->createTargetHolder(fR);
             ePainter p(fR);
 
-            const float xOffset = fClampTex->width()/2.f;
-            const float texX = xOffset + (pos.fX - pos.fY) * (fTileW / 2.0f);
-            const float texY = (pos.fX + pos.fY) * (fTileH / 2.0f);
+            const int margin = 9;
 
-            // const int dim = 8*maxDist;
-            // p.fillRect(SDL_Rect{int(texX - dim/2.f),
-            //                     int(texY - dim/2.f),
-            //                     dim, dim},
-            //            SDL_Color{0, 0, 0, 255});
+            const int dx0 = pos.fX - margin;
+            const int dx1 = pos.fX + margin;
 
-            const float mult = fRes->multiplier();
-            const float scale = mult;
-            const float srcW = fRevealTex->width();
-            const float srcH = fRevealTex->height();
-            const float dstW = scale*srcW;
-            const float dstH = scale*srcH;
-            const SDL_FRect dstRect{texX - dstW/2.f,
-                                    texY - dstH/2.f,
-                                    dstW, dstH};
-            const float texW = fClampTex->width();
-            const float texH = fClampTex->height();
-            const SDL_FRect texRect{0.f, 0.f, texW, texH};
-            if(SDL_HasRectIntersectionFloat(&dstRect, &texRect)) {
-                const SDL_FRect srcRect{0.f, 0.f, srcW, srcH};
-                fRevealTex->render(fR, srcRect, dstRect);
+            const int dy0 = pos.fY - margin;
+            const int dy1 = pos.fY + margin;
 
-                updateResultTex();
+            const float xOffset = fTex->width()/2.f;
+            for(int x = dx0; x <= dx1; x++) {
+                if(x < 0) x = 0;
+                else if(x >= sAreaDim) break;
+                for(int y = dy0; y <= dy1; y++) {
+                    if(y < 0) y = 0;
+                    else if(y >= sAreaDim) break;
+                    const ePointF xypos{float(x), float(y)};
+                    const float dist = ePointF::distance(pos, xypos);
+                    if(dist > margin) continue;
+                    const bool known = fKnown[y][x];
+                    if(known) continue;
+                    fKnown[y][x] = true;
+                    fUnknown--;
+                    const int mx = x + x0;
+                    const int my = y + y0;
+                    const bool w = map.walkable(mx, my);
+                    if(w) continue;
+                    bool inner = true;
+                    for(int dx = -1; dx <= 1; dx++) {
+                        for(int dy = -1; dy <= 1; dy++) {
+                            if(dx == 0 && dy == 0) continue;
+                            const int mx2 = mx + dx;
+                            const int my2 = my + dy;
+                            const bool w = map.walkable(mx2, my2);
+                            if(w) {
+                                inner = false;
+                                break;
+                            }
+                        }
+                        if(!inner) break;
+                    }
+                    if(inner) continue;
+                    const float texX = xOffset + (x - y) * (fTileW / 2.0f);
+                    const float texY = (x + y) * (fTileH / 2.0f);
+                    p.drawTexture(texX, texY, fTileTex, eAlignment::hcenter);
+                }
             }
-        }
-
-        void updateResultTex() {
-            fResultTex->fill(fR, SDL_Color{255, 255, 255, 255});
-            const auto h = fResultTex->createTargetHolder(fR);
-            ePainter p(fR);
-            p.drawTexture(0, 0, fTex);
-            p.drawTexture(0, 0, fClampTex);
         }
 
         const eResolution* fRes = nullptr;
         SDL_Renderer* fR = nullptr;
-
-        std::shared_ptr<eTexture> fRevealTex;
 
         bool fInitialized = false;
 
         int fTileW;
         int fTileH;
 
+        int fUnknown = sAreaDim*sAreaDim;
+        std::vector<std::vector<bool>> fKnown;
+        std::shared_ptr<eTexture> fTileTex;
         std::shared_ptr<eTexture> fTex;
-        std::shared_ptr<eTexture> fClampTex;
-        std::shared_ptr<eTexture> fResultTex;
     };
 
     bool mShowMap = false;

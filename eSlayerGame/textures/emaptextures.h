@@ -7,7 +7,8 @@
 
 class eMapTextures {
 public:
-    static void load(SDL_Renderer* const r);
+    static void load(const eResolution& res,
+                     SDL_Renderer* const r);
 
     static eStringIdMapVector<std::shared_ptr<eTexture>> sTexs;
 private:
