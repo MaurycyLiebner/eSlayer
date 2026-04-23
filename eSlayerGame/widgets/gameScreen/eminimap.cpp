@@ -71,8 +71,8 @@ void eMiniMap::paintEvent(ePainter& p) {
                 const float dy = y*areaDim - mPos.fY;
                 const int texW = tex->width();
                 const int texH = tex->height();
-                const int xx = width()/2.f - texW/2.f + (dx - dy) * (a.fTileW / 2.f);
-                const int yy = height()/2.f - texH/2.f + (dx + dy) * (a.fTileH / 2.f);
+                const int xx = mHPos*width() - texW/2.f + (dx - dy) * (a.fTileW / 2.f);
+                const int yy = 0.5f*height() - texH/2.f + (dx + dy) * (a.fTileH / 2.f);
                 if(mShowMap) p.drawTexture(xx, yy, tex);
             }
         }

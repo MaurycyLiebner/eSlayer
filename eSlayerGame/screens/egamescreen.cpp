@@ -634,13 +634,16 @@ void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
     const bool left = mStatsMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
+    float hpos = 0.5f;
     if(left && right) {
-        input.setCharacterHorizontalPos(0.5f);
+        hpos = 0.5f;
     } else if(left) {
-        input.setCharacterHorizontalPos(0.75f);
+        hpos = 0.75f;
     } else if(right) {
-        input.setCharacterHorizontalPos(0.25f);
+        hpos = 0.25f;
     } else {
-        input.setCharacterHorizontalPos(0.5f);
+        hpos = 0.5f;
     }
+    input.setCharacterHorizontalPos(hpos);
+    mMiniMap->setCharacterHorizontalPos(hpos);
 }

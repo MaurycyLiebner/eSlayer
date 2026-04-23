@@ -19,6 +19,9 @@ public:
     void switchShowMap()
     { mShowMap = !mShowMap; }
 
+    void setCharacterHorizontalPos(const float hpos)
+    { mHPos = hpos; }
+
     static void sShowAreaName(const std::string& name);
 protected:
     void paintEvent(ePainter& p) override;
@@ -29,6 +32,7 @@ private:
 
     std::shared_ptr<eMap> mMap;
     ePointF mPos;
+    float mHPos = 0.5f;
 
     struct eMiniMapArea {
         static const int sAreaDim = 10;
