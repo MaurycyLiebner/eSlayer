@@ -289,11 +289,11 @@ void eMainCharAction::updateMovementAnimation(
             incStamina(-by * 0.1f);
             animId = mRunAnimId;
         } else {
-            incStamina(by * 0.05f);
+            incStamina(by * 0.1f);
             animId = eMovementHandler::sChooseAnim(mWalkAnimId, mWalkReadyAnimId, aggressive);
         }
     } else {
-        incStamina(by * 0.05f);
+        incStamina(by * 0.1f);
         animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
     }
 
