@@ -70,7 +70,7 @@ void eServerArea::iniSetupUnit(
     auto& m = u->movementHandler();
     m.setSpeed(uinfo.fWalkSpeed);
     const auto w = [this](const int x, const int y) {
-        return mMap->walkable(x, y);
+        return walkable(x, y);
     };
     const auto iter = [this, charId](
         const ePointF& pos,
@@ -367,6 +367,10 @@ bool eServerArea::mapPortions(
         }
     }
     return addAll;
+}
+
+bool eServerArea::walkable(const int x, const int y) const {
+    return mMap->walkable(x, y);
 }
 
 bool eServerArea::addClient(const int clientId,

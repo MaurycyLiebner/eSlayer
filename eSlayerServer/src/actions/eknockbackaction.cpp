@@ -2,6 +2,7 @@
 
 #include "../eserverunit.h"
 #include "ehitrecoveryaction.h"
+#include "../eserverarea.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -26,7 +27,10 @@ void eKnockbackAction::increment(const float by) {
     if(mRemDist > 0.f) {
         const auto displ = mDir*(0.5f*by);
         mRemDist -= displ.length();
-        mUnit.fPos = mUnit.fPos + displ;
+        const auto newPos = mUnit.fPos + displ;
+        const auto iNewPos = newPos.floor();
+        const bool w = mArea.walkable(iNewPos.fX, iNewPos.fY);
+        if(w) mUnit.fPos = newPos;
     }
     eUnitActionBase::increment(by);
 }
