@@ -42,17 +42,14 @@ private:
 
             fKnown.resize(sAreaDim, std::vector<bool>(sAreaDim, false));
 
-            const int id = eMapTextures::sTexs.id("tile");
-            fTileTex = eMapTextures::sTexs.get(id);
-
-            fTileW = fTileTex->width();
-            fTileH = fTileTex->height();
+            const auto& tex = eMapTextures::sWalls.getTexture(0);
+            fTileW = tex->width();
+            fTileH = tex->height();
             const int w = sAreaDim*fTileW;
             const int h = sAreaDim*fTileH;
 
             fTex = std::make_shared<eTexture>();
             fTex->create(fR, w, h);
-            fTex->setAlpha(128);
         }
 
         void setKnown(ePointF pos,
@@ -91,24 +88,82 @@ private:
                     const int my = y + y0;
                     const bool w = map.walkable(mx, my);
                     if(w) continue;
-                    bool inner = true;
+                    bool walkable[3][3];
                     for(int dx = -1; dx <= 1; dx++) {
                         for(int dy = -1; dy <= 1; dy++) {
-                            if(dx == 0 && dy == 0) continue;
                             const int mx2 = mx + dx;
                             const int my2 = my + dy;
                             const bool w = map.walkable(mx2, my2);
-                            if(w) {
-                                inner = false;
-                                break;
-                            }
+                            walkable[1 + dy][1 + dx] = w;
                         }
-                        if(!inner) break;
                     }
-                    if(inner) continue;
                     const float texX = xOffset + (x - y) * (fTileW / 2.0f);
                     const float texY = (x + y) * (fTileH / 2.0f);
-                    p.drawTexture(texX, texY, fTileTex, eAlignment::hcenter);
+
+                    int texId1 = -1;
+                    int texId2 = -1;
+
+                    int mask = 0;
+
+                    if(!walkable[0][1]) mask |= 1; // top-right
+                    if(!walkable[1][2]) mask |= 2; // bottom-right
+                    if(!walkable[2][1]) mask |= 4; // bottom-left
+                    if(!walkable[1][0]) mask |= 8; // top-left
+
+                    if(mask == 0) {
+                        texId1 = 12; // no surrounding walls (fully open)
+                    } else if(mask == 1) {
+                        texId1 = 8; // wall only top-right
+                    } else if(mask == 2) {
+                        texId1 = 9; // wall only bottom-right
+                    } else if(mask == 3) {
+                        texId1 = 3; // walls top-right + bottom-right (vertical edge on right)
+                    } else if(mask == 4) {
+                        texId1 = 10; // wall only bottom-left
+                    } else if(mask == 5) {
+                        texId1 = 1; // walls top-right + bottom-left (diagonal split)
+                        texId2 = 7;
+                    } else if(mask == 6) {
+                        texId1 = 4; // walls bottom-right + bottom-left (horizontal edge bottom)
+                    } else if(mask == 7) {
+                        texId1 = 7; // walls top-right + bottom-right + bottom-left (missing top-left)
+                    } else if(mask == 8) {
+                        texId1 = 11; // wall only top-left
+                    } else if(mask == 9) {
+                        texId1 = 2; // walls top-left + top-right (horizontal edge top)
+                    } else if(mask == 10) {
+                        texId1 = 0; // walls top-left + bottom-right (diagonal split)
+                        texId2 = 6;
+                    } else if(mask == 11) {
+                        texId1 = 0; // walls top-left + top-right + bottom-right (missing bottom-left)
+                    } else if(mask == 12) {
+                        texId1 = 5; // walls top-left + bottom-left (vertical edge on left)
+                    } else if(mask == 13) {
+                        texId1 = 1; // walls top-left + top-right + bottom-left (missing bottom-right)
+                    } else if(mask == 14) {
+                        texId1 = 6; // walls bottom-left + bottom-right + top-left (missing top-right) → reuse
+                    } else if(mask == 15) {
+                        if(walkable[0][0]) {
+                            texId1 = 13;
+                        } else if(walkable[0][2]) {
+                            texId1 = 14;
+                        } else if(walkable[2][2]) {
+                            texId1 = 15;
+                        } else if(walkable[2][0]) {
+                            texId1 = 16;
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if(texId1 != -1) {
+                        const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
+                        p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
+                    }
+                    if(texId2 != -1) {
+                        const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
+                        p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
+                    }
                 }
             }
         }
@@ -123,7 +178,6 @@ private:
 
         int fUnknown = sAreaDim*sAreaDim;
         std::vector<std::vector<bool>> fKnown;
-        std::shared_ptr<eTexture> fTileTex;
         std::shared_ptr<eTexture> fTex;
     };
 
