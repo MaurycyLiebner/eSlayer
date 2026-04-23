@@ -164,9 +164,6 @@ public:
 
     eWeaponChoice useWeapon(const int schoice);
 
-    bool canUseSkill(const int schoice,
-                     const eWeaponChoice wchoice) const;
-
     void killed(const eServerUnit& killed);
     void die();
     void respawn();

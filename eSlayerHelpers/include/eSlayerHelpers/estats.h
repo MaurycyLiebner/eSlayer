@@ -14,6 +14,7 @@ struct eEquipment;
 struct eAttributes;
 class ePacket;
 struct eItem;
+enum class eWeaponChoice : uint8_t;
 
 struct eSkillStats {
     int fSkillId = 0;
@@ -124,6 +125,9 @@ struct ESLAYERHELPERS_API eStats {
     eSkillLevels fEffectiveSkillLevels;
 
     std::vector<eModifier> fBoosts;
+
+    bool canUseSkill(const int schoice,
+                     const eWeaponChoice wchoice) const;
 
     eSkillStats& leftSkill();
     eSkillStats& rightSkill();

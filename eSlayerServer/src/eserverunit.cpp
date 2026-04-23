@@ -525,46 +525,6 @@ std::vector<int> eServerUnit::castAnims(const int schoice) const {
     return uskill.fCastAnimIds;
 }
 
-bool eServerUnit::canUseSkill(
-    const int schoice,
-    const eWeaponChoice wchoice) const {
-    const auto weapon = wchoice == eWeaponChoice::left ?
-        mStats.fWeaponTypeL : mStats.fWeaponTypeR;
-    const auto otherWeapon = wchoice == eWeaponChoice::right ?
-        mStats.fWeaponTypeL : mStats.fWeaponTypeR;
-    const auto& skillStats = mStats.skill(schoice);
-    const int skillId = skillStats.fSkillId;
-    const auto& skill = eSkills::sSkills.get(skillId);
-    const auto skillType = skill.fType;
-    switch(skillType) {
-    case eSkillType::attack:
-        return weapon != eWeaponType::shield &&
-               (weapon != eWeaponType::none ||
-                otherWeapon == eWeaponType::none);
-    case eSkillType::smite:
-        return weapon == eWeaponType::shield;
-    case eSkillType::kick:
-        return true;
-    case eSkillType::shoot:
-        return weapon == eWeaponType::ranged;
-    case eSkillType::throw_:
-        return weapon == eWeaponType::throwable;
-    case eSkillType::missile:
-        return true;
-    case eSkillType::wall:
-        return true;
-    case eSkillType::summon:
-        return true;
-    case eSkillType::passive:
-        return false;
-    case eSkillType::aura:
-        return false;
-    case eSkillType::boostCurse:
-        return true;
-    }
-    return false;
-}
-
 void eServerUnit::killed(const eServerUnit& killed) {
     mAttributes.fExp += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
     const auto nextLevel = mAttributes.nextLevelExp();
@@ -602,8 +562,8 @@ void eServerUnit::respawn() {
 }
 
 eWeaponChoice eServerUnit::useWeapon(const int schoice) {
-    const bool canUseL = canUseSkill(schoice, eWeaponChoice::left);
-    const bool canUseR = canUseSkill(schoice, eWeaponChoice::right);
+    const bool canUseL = mStats.canUseSkill(schoice, eWeaponChoice::left);
+    const bool canUseR = mStats.canUseSkill(schoice, eWeaponChoice::right);
     eWeaponChoice use;
     if(!canUseL) {
         use = eWeaponChoice::right;

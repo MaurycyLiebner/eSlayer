@@ -8,6 +8,47 @@
 #include "eSlayerHelpers/erunsettings.h"
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/evectorhelpers.h"
+#include "eSlayerHelpers/eweaponchoice.h"
+
+bool eStats::canUseSkill(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto weapon = wchoice == eWeaponChoice::left ?
+        fWeaponTypeL : fWeaponTypeR;
+    const auto otherWeapon = wchoice == eWeaponChoice::right ?
+        fWeaponTypeL : fWeaponTypeR;
+    const auto& skillStats = skill(schoice);
+    const int skillId = skillStats.fSkillId;
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const auto skillType = skill.fType;
+    switch(skillType) {
+    case eSkillType::attack:
+        return weapon != eWeaponType::shield &&
+               (weapon != eWeaponType::none ||
+                otherWeapon == eWeaponType::none);
+    case eSkillType::smite:
+        return weapon == eWeaponType::shield;
+    case eSkillType::kick:
+        return true;
+    case eSkillType::shoot:
+        return weapon == eWeaponType::ranged;
+    case eSkillType::throw_:
+        return weapon == eWeaponType::throwable;
+    case eSkillType::missile:
+        return true;
+    case eSkillType::wall:
+        return true;
+    case eSkillType::summon:
+        return true;
+    case eSkillType::passive:
+        return false;
+    case eSkillType::aura:
+        return false;
+    case eSkillType::boostCurse:
+        return true;
+    }
+    return false;
+}
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
@@ -765,8 +806,10 @@ void eStats::calculateSkill(const int schoice,
             helper.fDmgMinRWBase.fPhysical += min;
             helper.fDmgMinRWBase.fPhysical += max;
         } else if(rightW.fType == eItemType::none) {
-            helper.fDmgMinRWBase.fPhysical += minFistDmg;
-            helper.fDmgMaxRWBase.fPhysical += maxFistDmg;
+            if(leftW.fType == eItemType::none) {
+                helper.fDmgMinRWBase.fPhysical += minFistDmg;
+                helper.fDmgMaxRWBase.fPhysical += maxFistDmg;
+            }
         }
     } else if(skill.fType == eSkillType::smite) {
         if(rightW.fType == eItemType::shield) {

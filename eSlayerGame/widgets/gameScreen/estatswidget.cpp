@@ -11,6 +11,7 @@
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/eweaponchoice.h>
 
 #include <iostream>
 #include <sstream>
@@ -407,51 +408,77 @@ void eStatsWidget::updateStats() {
     mEnergy->setText({eLanguage::text(11, 3)},
                       std::vector<float>{mStats->fEnergy});
 
-    const auto& leftSkillStats = mStats->leftSkill();
-    const int leftSkillId = leftSkillStats.fSkillId;
-    const auto leftSkillName = eSkillNames::name(leftSkillId);
-    mLeftSkillDmg->setText({leftSkillName, eLanguage::text(11, 4)},
-                           {std::pair<float, float>{leftSkillStats.fDamageMinLW.total(),
-                                                    leftSkillStats.fDamageMaxLW.total()},
-                            std::pair<float, float>{leftSkillStats.fDamageMinRW.total(),
-                                                    leftSkillStats.fDamageMaxRW.total()}});
+    const auto handleSkill = [&](const eSkillStats& skillStats,
+                                 const eSkillChoice schoice,
+                                 eStatWidget* const skillDmg,
+                                 eStatWidget* const skillAR) {
+        const int skillId = skillStats.fSkillId;
+        const auto skillName = eSkillNames::name(skillId);
+        const auto& skill = eSkills::sSkills.get(skillId);
+        const auto skillType = skill.fType;
+        bool lw = false;
+        bool rw = false;
+        switch(skillType) {
+        case eSkillType::attack:
+        case eSkillType::throw_:
+        case eSkillType::smite:
+        case eSkillType::kick:
+        case eSkillType::shoot:
+            lw = mStats->canUseSkill(static_cast<int>(schoice),
+                                     eWeaponChoice::left);
+            rw = mStats->canUseSkill(static_cast<int>(schoice),
+                                     eWeaponChoice::right);
+            break;
+        case eSkillType::missile:
+        case eSkillType::wall:
+            lw = mStats->canUseSkill(static_cast<int>(schoice),
+                                     eWeaponChoice::left);
+            break;
+        default:
+            break;
+        }
 
-    const auto& rightSkillStats = mStats->rightSkill();
-    const int rightSkillId = rightSkillStats.fSkillId;
-    const auto rightSkillName = eSkillNames::name(rightSkillId);
-    mRightSkillDmg->setText({rightSkillName, eLanguage::text(11, 4)},
-                           {std::pair<float, float>{rightSkillStats.fDamageMinLW.total(),
-                                                     rightSkillStats.fDamageMaxLW.total()},
-                            std::pair<float, float>{rightSkillStats.fDamageMinRW.total(),
-                                                     rightSkillStats.fDamageMaxRW.total()}});
+        std::vector<std::pair<float, float>> dmg;
+        if(lw) {
+            dmg.emplace_back(skillStats.fDamageMinLW.total(),
+                             skillStats.fDamageMaxLW.total());
+        }
+        if(rw) {
+            dmg.emplace_back(skillStats.fDamageMinRW.total(),
+                             skillStats.fDamageMaxRW.total());
+        }
 
-    const auto& leftSkill = eSkills::sSkills.get(leftSkillId);
-    const auto leftSkillType = leftSkill.fType;
-    const bool noARL = leftSkillType == eSkillType::missile ||
-                       leftSkillType == eSkillType::wall ||
-                       leftSkillType == eSkillType::summon;
-    if(noARL) {
-        mLeftSkillAR->setText(std::vector<std::string>{},
-                              std::vector<std::string>{});
-    } else {
-        mLeftSkillAR->setText({leftSkillName, eLanguage::text(11, 5)},
-                              {leftSkillStats.fAttackRatingLW,
-                               leftSkillStats.fAttackRatingRW});
-    }
+        skillDmg->setText({skillName, eLanguage::text(11, 4)}, dmg);
 
-    const auto& rightSkill = eSkills::sSkills.get(rightSkillId);
-    const auto rightSkillType = rightSkill.fType;
-    const bool noARR = rightSkillType == eSkillType::missile ||
-                       rightSkillType == eSkillType::wall ||
-                       rightSkillType == eSkillType::summon;
-    if(noARR) {
-        mRightSkillAR->setText(std::vector<std::string>{},
-                               std::vector<std::string>{});
-    } else {
-        mRightSkillAR->setText({rightSkillName, eLanguage::text(11, 5)},
-                               {rightSkillStats.fAttackRatingLW,
-                                rightSkillStats.fAttackRatingRW});
-    }
+        const bool noARL = skillType == eSkillType::missile ||
+                           skillType == eSkillType::wall ||
+                           skillType == eSkillType::summon ||
+                           skillType == eSkillType::aura ||
+                           skillType == eSkillType::passive ||
+                           skillType == eSkillType::boostCurse;
+        if(noARL) {
+            skillAR->setText(std::vector<std::string>{},
+                             std::vector<std::string>{});
+        } else {
+            std::vector<float> AR;
+            if(lw) {
+                AR.emplace_back(skillStats.fAttackRatingLW);
+            }
+            if(rw) {
+                AR.emplace_back(skillStats.fAttackRatingRW);
+            }
+            skillAR->setText({skillName, eLanguage::text(11, 5)}, AR);
+        }
+    };
+
+    handleSkill(mStats->leftSkill(),
+                eSkillChoice::left,
+                mLeftSkillDmg,
+                mLeftSkillAR);
+    handleSkill(mStats->rightSkill(),
+                eSkillChoice::right,
+                mRightSkillDmg,
+                mRightSkillAR);
 
     mDefense->setText({eLanguage::text(11, 6)},
                       std::vector<float>{mStats->fDefense});
