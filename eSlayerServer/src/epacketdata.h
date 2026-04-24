@@ -13,7 +13,7 @@ enum class ePacketType : uint8_t {
     pickupItem, dropItem,
     pickupBody,
     rearrangeItems, attributes,
-    skills,
+    skills, teams,
     equipment, unblockEquipment,
     disconnect
 };

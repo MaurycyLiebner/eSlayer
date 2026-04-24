@@ -148,6 +148,7 @@ add_library(eSlayerHelpers SHARED
     src/epotiontype.cpp
     include/eSlayerHelpers/erect.h
     include/eSlayerHelpers/eteamid.h
+    src/eteamid.cpp
 
 
 )

@@ -57,6 +57,7 @@ bool eLocalServer::requestMap(
 
 bool eLocalServer::spawn(const int clientId,
                          eCharacter& c,
+                         eTeamId& teamId,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;

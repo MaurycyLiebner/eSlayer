@@ -43,12 +43,13 @@ void eGameScreen::setExitAction(const eAction& a) {
 void eGameScreen::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eCharacter& c) {
+                             const eCharacter& c,
+                             const eTeamId teamId) {
     mGameWidget = new eGameWidget(window());
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
 
-    mGameWidget->initialize(clientId, server, map, c);
+    mGameWidget->initialize(clientId, server, map, c, teamId);
 
     mGameWidget->setDeathHandler([this]() {
         if(!mDeadMenu) showDeadMenu();

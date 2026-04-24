@@ -106,6 +106,9 @@ void eTcpIpJoin::increment(const float by) {
             p >> msg;
             mMessages.emplace_back(clientId, msg);
         } break;
+        case ePacketType::teams: {
+            eTeams::read(p);
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -156,6 +159,7 @@ bool eTcpIpJoin::requestMap(
 bool eTcpIpJoin::spawn(
     const int clientId,
     eCharacter& c,
+    eTeamId& teamId,
     const eScreenDimensions& screenDims) {
     ePacket p;
     p << ePacketType::spawn;
@@ -190,6 +194,8 @@ bool eTcpIpJoin::spawn(
 
                 c = eCharacter();
                 c.read(p);
+                eTeams::read(p);
+                p >> teamId;
                 return true;
             }
         }

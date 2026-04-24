@@ -44,7 +44,8 @@ eGameWidget::~eGameWidget() {
 void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
-                             const eCharacter& c) {
+                             const eCharacter& c,
+                             const eTeamId teamId) {
     mCName = c.name();
     mUserNames[clientId] = mCName;
     mHardcore = c.hardcore();
@@ -67,7 +68,7 @@ void eGameWidget::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMainAction.initialize(mServer, res, r, w, iter, clientId, 0);
+    mMainAction.initialize(mServer, res, r, w, iter, clientId, teamId);
     mMainChar = mMainAction.unit();
     mMainChar->fPos = map->spawnPos();
 

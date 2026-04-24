@@ -3,7 +3,6 @@
 #include "actions/eclientaction.h"
 #include "actions/eunitbaseaction.h"
 #include "actions/efolloweraction.h"
-#include "eserverteams.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/emissilecollision.h>
@@ -16,6 +15,7 @@
 #include <eSlayerHelpers/echardatainfo.h>
 
 uint32_t eServerArea::sNextItemId = 1;
+eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
 
 eServerArea::eServerArea() :
     mUnitAreas(mUnitAreaDim),
@@ -376,7 +376,6 @@ bool eServerArea::walkable(const int x, const int y) const {
 
 bool eServerArea::addClient(const int clientId,
                             eCharacter& c,
-                            const ePointF& pos,
                             const eScreenDimensions& screenDims) {
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -387,7 +386,8 @@ bool eServerArea::addClient(const int clientId,
     u->addSkill();
     u->addSkill();
     const auto& spawnPos = mMap->spawnPos();
-    iniSetupUnit(u, clientId, eTeamId::playerTeam0, spawnPos, udata, data, modelParts);
+    iniSetupUnit(u, clientId, sNextTeamId, spawnPos, udata, data, modelParts);
+    sNextTeamId = static_cast<eTeamId>(static_cast<int>(sNextTeamId) + 1);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();
@@ -741,7 +741,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         if(u->fHealth <= 0) continue;
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = killed.fTeamId;
-        if(!eServerTeams::areEnemies(t1, t2)) continue;
+        if(!eTeams::areEnemies(t1, t2)) continue;
         const float dist = ePointF::distance(u->fPos, killed.fPos);
         if(dist > 10.f) continue;
         u->killed(killed);

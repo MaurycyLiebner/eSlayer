@@ -102,7 +102,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         model.setAngle(u.fAngle);
         unit->setModel(model);
         mUnits.add(charId, unit);
-        if(!result.fAggressive && mainChar.fTeamId != u.fTeamId && u.fHealth > 0) {
+        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, u.fTeamId) && u.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;
         }
@@ -140,7 +140,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         auto& model = unit->model();
         model.setAngle(u.fAngle);
         model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
-        if(!result.fAggressive && mainChar.fTeamId != unit->fTeamId && u.fHealth > 0) {
+        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unit->fTeamId) && u.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;
         }

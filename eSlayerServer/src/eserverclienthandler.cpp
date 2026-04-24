@@ -100,7 +100,7 @@ bool eServerClientHandler::spawn(eCharacter& c,
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, c, ePointF{0.f, 0.f}, screenDims);
+    mArea->addClient(mClientId, c, screenDims);
     return true;
 }
 

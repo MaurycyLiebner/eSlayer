@@ -6,7 +6,6 @@
 #include "eknockbackaction.h"
 #include "../eserverarea.h"
 #include "../eserverunit.h"
-#include "../eserverteams.h"
 
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -41,7 +40,7 @@ bool eComplexAction::attack(const eAttackData& target) {
         if(!u) return false;
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
-        if(!eServerTeams::areEnemies(t1, t2)) return false;
+        if(!eTeams::areEnemies(t1, t2)) return false;
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
@@ -82,7 +81,7 @@ bool eComplexAction::attack(const eAttackData& target) {
                         if(u.fHealth <= 0) return false;
                         const eTeamId t1 = u.fTeamId;
                         const eTeamId t2 = attacker->fTeamId;
-                        if(!eServerTeams::areEnemies(t1, t2)) return false;
+                        if(!eTeams::areEnemies(t1, t2)) return false;
                         return true;
                     });
                     if(u) u->getHit(data);
@@ -194,7 +193,7 @@ bool eComplexAction::getHit(const eHitData& data,
             if(u->fHealth <= 0) return false;
             const eTeamId t1 = u->fTeamId;
             const eTeamId t2 = data.fAttackTeamId;
-            if(!eServerTeams::areEnemies(t1, t2)) return false;
+            if(!eTeams::areEnemies(t1, t2)) return false;
             if(&*u == attacker.get()) return false;
             const float dist = ePointF::distance(u->fPos, mUnit.fPos);
             if(dist > splashRange) return false;

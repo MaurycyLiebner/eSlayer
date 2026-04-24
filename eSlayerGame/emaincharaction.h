@@ -28,7 +28,7 @@ public:
                     const eWalkable& w,
                     const eOtherIterator& iter,
                     const int clientId,
-                    const int teamId);
+                    const eTeamId teamId);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);

@@ -24,6 +24,7 @@ public:
                     eMapData& data) override;
     bool spawn(const int clientId,
                eCharacter& c,
+               eTeamId& teamId,
                const eScreenDimensions& screenDims) override;
 
     bool requestData(const int clientId,

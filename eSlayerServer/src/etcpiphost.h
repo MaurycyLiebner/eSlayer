@@ -23,6 +23,7 @@ private:
     bool mInitialized = false;
     // maps eTCPNetwork client id to charId
     std::map<int, int> mClientIdMap;
+    int mTeamsVersion = 0;
 };
 
 #endif // ETCPIPHOST_H

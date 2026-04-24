@@ -76,7 +76,6 @@ public:
 
     bool addClient(const int clientId,
                    eCharacter& c,
-                   const ePointF& pos,
                    const eScreenDimensions& screenDims);
     bool respawn(const int clientId);
     bool removeClient(const int clientId);
@@ -131,6 +130,7 @@ private:
     std::shared_ptr<eMap> mMap;
 
     static uint32_t sNextItemId;
+    static eTeamId sNextTeamId;
 
     eIdMapVector<eServerMissile> mMissiles;
     eIdMapVector<eServerUnit> mUnits;

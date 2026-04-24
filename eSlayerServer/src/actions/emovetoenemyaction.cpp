@@ -1,7 +1,6 @@
 #include "emovetoenemyaction.h"
 
 #include "../eserverarea.h"
-#include "../eserverteams.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -34,7 +33,7 @@ bool eMoveToEnemyAction::findNewTarget() {
         if(u->fHealth <= 0) return false;
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
-        if(!eServerTeams::areEnemies(t1, t2)) return false;
+        if(!eTeams::areEnemies(t1, t2)) return false;
         setTarget(*u);
         return true;
     };

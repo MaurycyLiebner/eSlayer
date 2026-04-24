@@ -40,7 +40,8 @@ public:
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eCharacter& c);
+                    const eCharacter& c,
+                    const eTeamId teamId);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }

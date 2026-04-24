@@ -25,10 +25,10 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eWalkable& w,
                                  const eOtherIterator& iter,
                                  const int clientId,
-                                 const int teamId) {
+                                 const eTeamId teamId) {
     mClientId = clientId;
     mServer = s;
-    mMovementHandler.intialize(w, iter, clientId, eTeamId::playerTeam0);
+    mMovementHandler.intialize(w, iter, clientId, teamId);
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {

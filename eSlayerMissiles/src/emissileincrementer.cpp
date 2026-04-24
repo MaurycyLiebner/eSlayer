@@ -45,7 +45,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
                     const auto u = mGetUnit(charId);
                     if(!u) continue;
                     if(u->fHealth <= 0) continue;
-                    if(u->fTeamId == m.fTeamId) continue;
+                    if(!eTeams::areEnemies(u->fTeamId, m.fTeamId)) continue;
                     const float dist = ePointF::distance(u->fPos, m.fPos);
                     if(dist < closestUnit) {
                         closestUnit = dist;

@@ -31,7 +31,8 @@ public:
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
-                    const eCharacter& c);
+                    const eCharacter& c,
+                    const eTeamId teamId);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;

@@ -169,6 +169,7 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
     const auto map = std::make_shared<eMap>();
     const auto clientId = std::make_shared<int>();
+    const auto teamId = std::make_shared<eTeamId>();
     const auto serverC = std::make_shared<eCharacter>(c);
 
     const auto& res = mWindow->resolution();
@@ -176,13 +177,15 @@ void eScreenHandler::showGame(eServerData serverData,
     const int height = mWindow->height();
 
     const auto finish = [this, width, height,
-                         map, server, clientId, serverC]() {
+                         map, server, clientId,
+                         serverC, teamId]() {
         const auto w = new eGameScreen(mWindow);
         w->resize(width, height);
         w->setExitAction([this]() {
             showMainMenu();
         });
-        w->initialize(*clientId, *server, map, *serverC);
+        w->initialize(*clientId, *server, map,
+                      *serverC, *teamId);
         mWindow->setWidget(w);
     };
 
@@ -242,12 +245,13 @@ void eScreenHandler::showGame(eServerData serverData,
         eUITextures::sLoad(r, res);
     });
     loading.emplace_back([&res, width, height,
-                          server, clientId, serverC]() {
+                          server, clientId,
+                          serverC, teamId]() {
         const int tileW = res.tileWidth();
         const int tileH = res.tileHeight();
         const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
                                            int(std::ceil(2.f*height/tileH))};
-        (*server)->spawn(*clientId, *serverC, screenDims);
+        (*server)->spawn(*clientId, *serverC, *teamId, screenDims);
     });
     loading.emplace_back([&res, r]() {
         eMapTextures::load(res, r);

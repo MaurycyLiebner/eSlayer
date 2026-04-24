@@ -58,6 +58,14 @@ void eTcpIpHost::increment(const float by) {
     eLocalServer::increment(by);
     mNet.update();
     eNetPacket pkt;
+
+    if(eTeams::version() > mTeamsVersion) {
+        ePacket p;
+        p << ePacketType::teams;
+        eTeams::write(p);
+        mNet.broadcast(p);
+    }
+
     while(mNet.pollPacket(pkt)) {
         const int tcpClientId = pkt.fClientID;
         auto& p = pkt.fPacket;
@@ -102,7 +110,8 @@ void eTcpIpHost::increment(const float by) {
                 c.read(p);
                 eScreenDimensions screenDims;
                 screenDims.read(p);
-                const bool r = spawn(charId, c, screenDims);
+                eTeamId teamId;
+                const bool r = spawn(charId, c, teamId, screenDims);
 
                 if(r) {
                     {
@@ -120,6 +129,8 @@ void eTcpIpHost::increment(const float by) {
                         }
 
                         c.write(p);
+                        eTeams::write(p);
+                        p << teamId;
                         mNet.sendToClient(pkt.fClientID, p);
                     }
 
@@ -155,7 +166,13 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::userLeft: {
 
         } break;
+        case ePacketType::unblockEquipment: {
+
+        } break;
         case ePacketType::equipment: {
+
+        } break;
+        case ePacketType::teams: {
 
         } break;
         case ePacketType::message: {

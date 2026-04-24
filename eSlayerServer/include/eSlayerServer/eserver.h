@@ -65,6 +65,7 @@ public:
     virtual bool
     spawn(const int clientId,
           eCharacter& c,
+          eTeamId& teamId,
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool
