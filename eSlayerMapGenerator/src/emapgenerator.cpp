@@ -690,6 +690,9 @@ eMapGenerator::generate(const std::string& name) const {
     const auto townFenceId = eObjsTexturesData::id("town_fence");
     result->mObjectTypes.emplace(townFenceId);
 
+    const auto treesId = eObjsTexturesData::id("trees");
+    result->mObjectTypes.emplace(treesId);
+
     result->generateTiles(rect.fW, rect.fH);
     for(const auto& it : areas) {
         const auto& name = it.first;
@@ -711,13 +714,61 @@ eMapGenerator::generate(const std::string& name) const {
                 dst.fTerrainType = 1;
                 dst.fTileType = eRand::rand() % 20;
                 if(src == Tile::WALL) {
-                    auto& obj = result->mObjects.emplace_back();
-                    obj.fObjectType = 0;
-                    obj.fTileType = 0;
-                    obj.fTileX = globalX;
-                    obj.fTileY = globalY;
+                    bool inner = true;
+                    for(int dx = -1; dx <= 1; dx++) {
+
+                        const int srcX = x + dx;
+                        if(srcX < 0) continue;
+                        else if(srcX >= area.width) break;
+
+                        const int dstX = globalX + dx;
+                        if(dstX < 0) continue;
+                        else if(dstX >= result->mWidth) break;
+
+                        for(int dy = -1; dy <= 1; dy++) {
+                            if(dx == 0 && dy == 0) continue;
+
+                            const int srcY = y + dy;
+                            if(srcY < 0) continue;
+                            else if(srcY >= area.height) break;
+
+                            const int dstY = globalY + dy;
+                            if(dstY < 0) continue;
+                            else if(dstY >= result->mHeight) break;
+
+                            const auto& src = area.map[srcX][srcY];
+                            if(src == Tile::FLOOR) {
+                                inner = false;
+                                break;
+                            }
+                        }
+                        if(!inner) break;
+                    }
+                    if(inner) {
+                        if(eRand::randChance(0.1f)) {
+                            auto& obj = result->mObjects.emplace_back();
+                            obj.fObjectType = treesId;
+                            obj.fTileType = eRand::rand(0, 2);
+                            obj.fTileX = globalX;
+                            obj.fTileY = globalY;
+                        }
+                    } else {
+                        auto& obj = result->mObjects.emplace_back();
+                        obj.fObjectType = townFenceId;
+                        obj.fTileType = 0;
+                        obj.fTileX = globalX;
+                        obj.fTileY = globalY;
+                    }
                 } else if(result->mSpawnPos == ePoint{0, 0}) {
                     result->mSpawnPos = {globalX, globalY};
+                } else {
+                    if(eRand::randChance(0.025f)) {
+                        auto& obj = result->mObjects.emplace_back();
+                        obj.fObjectType = treesId;
+                        obj.fTileType = eRand::rand(0, 2);
+                        obj.fTileX = globalX;
+                        obj.fTileY = globalY;
+                    }
                 }
             }
         }
