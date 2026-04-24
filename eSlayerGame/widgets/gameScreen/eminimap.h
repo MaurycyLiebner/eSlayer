@@ -5,7 +5,7 @@
 #include "../ewidget.h"
 
 #include <eSlayerHelpers/epoint.h>
-#include <eSlayerMapGenerator/emapgenerator.h>
+#include <eSlayerMapGenerator/emap.h>
 
 class eMiniMap : public eWidget {
 public:

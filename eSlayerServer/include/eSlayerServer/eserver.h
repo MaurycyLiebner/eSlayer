@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/eskillchoice.h>
+#include <eSlayerHelpers/emapportion.h>
 
 #include <memory>
 

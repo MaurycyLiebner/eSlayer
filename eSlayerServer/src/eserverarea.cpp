@@ -8,6 +8,8 @@
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
 #include <eSlayerHelpers/echaracter.h>

@@ -11,6 +11,8 @@
 #include "egamepainter.h"
 #include "egrounditemnames.h"
 
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerHelpers/epathfinder.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerMapGenerator/emapgenerator.h>

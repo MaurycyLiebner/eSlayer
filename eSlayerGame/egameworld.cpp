@@ -3,6 +3,8 @@
 #include "emaincharaction.h"
 #include "textures/echarstextures.h"
 
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerMissiles/emissilecollision.h>
 #include <eSlayerMissiles/emissileincrement.h>
 

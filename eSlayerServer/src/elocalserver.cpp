@@ -1,5 +1,7 @@
 #include "elocalserver.h"
 
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerHelpers/echaracter.h>
 
 bool eLocalServer::initialize() {
