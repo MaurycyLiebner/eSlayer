@@ -28,8 +28,7 @@ void eKnockbackAction::increment(const float by) {
         const auto displ = mDir*(0.5f*by);
         mRemDist -= displ.length();
         const auto newPos = mUnit.fPos + displ;
-        const auto iNewPos = newPos.floor();
-        const bool w = mArea.walkable(iNewPos.fX, iNewPos.fY);
+        const bool w = mArea.walkable(newPos);
         if(w) mUnit.fPos = newPos;
     }
     eUnitActionBase::increment(by);

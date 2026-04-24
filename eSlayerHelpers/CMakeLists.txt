@@ -149,6 +149,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/erect.h
     include/eSlayerHelpers/eteamid.h
     src/eteamid.cpp
+    include/eSlayerHelpers/efixedsizesetareas.h
+    src/efixedsizesetareas.cpp
 
 
 )

@@ -1,0 +1,51 @@
+#include "eSlayerHelpers/efixedsizesetareas.h"
+
+void eFixedSizeSetAreas::initialize(
+    const int width, const int height,
+    const int areaDim) {
+    mAreaDim = areaDim;
+    if(mAreaDim > 0) {
+        mWidth = (width + areaDim - 1)/areaDim;
+        mHeight = (height + areaDim - 1)/areaDim;
+    } else {
+        mWidth = -mAreaDim*width;
+        mHeight = -mAreaDim*height;
+    }
+    mAreas.resize(mHeight, std::vector<std::set<int>>(mWidth));
+}
+
+eArea eFixedSizeSetAreas::posArea(const ePointF& pos) const {
+    eArea result;
+    if(mAreaDim > 0) {
+        reinterpret_cast<ePoint&>(result) = pos.floor()/mAreaDim;
+    } else {
+        reinterpret_cast<ePoint&>(result) = (pos*(-mAreaDim)).floor();
+    }
+    return result;
+}
+
+void eFixedSizeSetAreas::clear() {
+    for(int x = 0; x < mWidth; x++) {
+        for(int y = 0; y < mHeight; y++) {
+            mAreas[y][x].clear();
+        }
+    }
+}
+
+bool eFixedSizeSetAreas::hasArea(const eArea& area) {
+    if(area.fX < 0 || area.fY < 0) return false;
+    if(area.fX >= mWidth || area.fY >= mHeight) return false;
+    return true;
+}
+
+void eFixedSizeSetAreas::erase(const eArea& area, const int id) {
+    mAreas[area.fY][area.fX].erase(id);
+}
+
+void eFixedSizeSetAreas::emplace(const eArea& area, const int id) {
+    mAreas[area.fY][area.fX].emplace(id);
+}
+
+const std::set<int>& eFixedSizeSetAreas::at(const eArea& area) const {
+    return mAreas[area.fY][area.fX];
+}

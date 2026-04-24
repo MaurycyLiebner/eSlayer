@@ -72,7 +72,7 @@ public:
     bool mapPortions(const int clientId,
                      std::vector<eMapPortion>& result);
 
-    bool walkable(const int x, const int y) const;
+    bool walkable(const ePointF& pos) const;
 
     bool addClient(const int clientId,
                    eCharacter& c,

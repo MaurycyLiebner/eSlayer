@@ -694,7 +694,7 @@ void eGameWidget::addMessage(SDL_Renderer* const r,
 }
 
 eWalkable eGameWidget::walkable() const {
-    return [this](const int x, const int y) {
-        return mMap->walkable(x, y);
+    return [this](const ePointF& pos) {
+        return mMap->walkable(pos);
     };
 }

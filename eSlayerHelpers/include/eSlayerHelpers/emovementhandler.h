@@ -12,8 +12,6 @@
 
 class eUnitData;
 
-using eWalkable = std::function<bool(const int x, const int y)>;
-
 using eOtherHandler = std::function<void(const eUnitData&)>;
 using eOtherIterator = std::function<void(
     const ePointF& pos, const float dist,

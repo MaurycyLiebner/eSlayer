@@ -22,8 +22,8 @@ struct eObject {
     uint16_t fObjectType;
     uint16_t fTileType;
 
-    uint16_t fTileX;
-    uint16_t fTileY;
+    float fSize;
+    ePointF fPos;
 };
 
 struct eMapPortionArea {

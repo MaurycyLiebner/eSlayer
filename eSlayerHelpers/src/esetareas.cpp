@@ -17,8 +17,8 @@ void eSetAreas::clear() {
     mAreas.clear();
 }
 
-bool eSetAreas::hasArea(const eArea& tile) {
-    const auto it = mAreas.find(tile);
+bool eSetAreas::hasArea(const eArea& area) {
+    const auto it = mAreas.find(area);
     if(it == mAreas.end()) return false;
     return true;
 }

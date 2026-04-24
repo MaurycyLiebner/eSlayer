@@ -35,7 +35,7 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
         for(int sy = 0; sy < dim; sy++) {
             const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
             const int y = (iPos.fY + sy - margin)/mTileMoveSubdivision;
-            map.set({sx, sy}, mWalkable(x, y));
+            map.set({sx, sy}, mWalkable(ePointF{float(x), float(y)}));
         }
     }
     bool found;
@@ -111,7 +111,7 @@ bool eMovementHandler::walkable(const ePointF& from, const ePointF& to) const {
                        std::numeric_limits<float>::infinity();
 
     while(true) {
-        const bool r = mWalkable(x, y);
+        const bool r = mWalkable(ePointF{float(x), float(y)});
         if(!r) return false;
 
         if(x == endX && y == endY) {
@@ -161,8 +161,7 @@ bool eMovementHandler::walkable(const ePointF& pos) const {
         walkable = walkable && (dist > minDist || dist < 0.0001f);
     });
     if(!walkable) return false;
-    const auto ipos = pos.floor();
-    return mWalkable(ipos.fX, ipos.fY);
+    return mWalkable(pos);
 }
 
 bool eMovementHandler::increment(const float by) {

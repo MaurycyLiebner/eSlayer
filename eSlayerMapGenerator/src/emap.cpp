@@ -15,104 +15,28 @@ const eObject& eMap::object(const int id) const {
     return mObjects[id];
 }
 
-bool eMap::walkable(const int x, const int y) const {
+bool eMap::walkable(const ePointF& pos) const {
+    const auto iPos = pos.floor();
+    const int x = iPos.fX;
+    const int y = iPos.fY;
     if(x < 0 || x >= mWidth ||
-        y < 0 || y >= mHeight) {
+       y < 0 || y >= mHeight) {
         return false;
     } else {
         const auto& objs = objects(x, y);
-        return objs.empty();
-    }
-}
-
-void eMap::write(ePacket& p) const {
-    const uint16_t nTerrTypes = mTerrainTypes.size();
-    p << nTerrTypes;
-    for(const auto& terrType : mTerrainTypes) {
-        p << terrType;
-    }
-
-    p << mWidth;
-    p << mHeight;
-    for(int y = 0; y < mHeight; y++) {
-        for(int x = 0; x < mWidth; x++) {
-            const auto& tile = mTiles[y][x];
-            p << tile.fTerrainType;
-            p << tile.fTileType;
+        const bool empty = objs.empty();
+        if(empty) return true;
+        for(const auto oid : objs) {
+            const auto& o = object(oid);
+            const auto& opos = o.fPos;
+            if(pos.fX < opos.fX) continue;
+            if(pos.fY < opos.fY) continue;
+            if(pos.fX >= opos.fX + o.fSize) continue;
+            if(pos.fY >= opos.fY + o.fSize) continue;
+            return false;
         }
     }
-
-    const uint16_t nObjTypes = mObjectTypes.size();
-    p << nObjTypes;
-    for(const auto& objType : mObjectTypes) {
-        p << objType;
-    }
-
-    const uint16_t nObjs = mObjects.size();
-    p << nObjs;
-    for(const auto& obj : mObjects) {
-        p << obj.fObjectType;
-        p << obj.fTileType;
-        p << obj.fTileX;
-        p << obj.fTileY;
-    }
-
-    const uint16_t nUnitTypes = mUnitTypes.size();
-    p << nUnitTypes;
-    for(const auto& unitType : mUnitTypes) {
-        p << unitType;
-    }
-}
-
-void eMap::read(ePacket& p) {
-    uint16_t nTerrTypes;
-    p >> nTerrTypes;
-    for(int i = 0; i < nTerrTypes; i++) {
-        uint16_t terrType;
-        p >> terrType;
-        mTerrainTypes.emplace(terrType);
-    }
-
-    p >> mWidth;
-    p >> mHeight;
-    mTiles.reserve(mHeight);
-    for(uint16_t y = 0; y < mHeight; y++) {
-        auto& row = mTiles.emplace_back();
-        row.reserve(mWidth);
-        for(int x = 0; x < mWidth; x++) {
-            auto& tile = row.emplace_back();
-            p >> tile.fTerrainType;
-            p >> tile.fTileType;
-        }
-    }
-
-    uint16_t nObjTypes;
-    p >> nObjTypes;
-    for(uint16_t i = 0; i < nObjTypes; i++) {
-        uint16_t objType;
-        p >> objType;
-        mObjectTypes.emplace(objType);
-    }
-
-    uint16_t nObjs;
-    p >> nObjs;
-    for(uint16_t i = 0; i < nObjs; i++) {
-        auto& obj = mObjects.emplace_back();
-        p >> obj.fObjectType;
-        p >> obj.fTileType;
-        p >> obj.fTileX;
-        p >> obj.fTileY;
-    }
-
-    updateObjectsMap();
-
-    uint16_t nUnitTypes;
-    p >> nUnitTypes;
-    for(uint16_t i = 0; i < nUnitTypes; i++) {
-        uint16_t unitType;
-        p >> unitType;
-        mUnitTypes.emplace(unitType);
-    }
+    return true;
 }
 
 void eMap::loadPortion(const eMapPortion& portion) {
@@ -129,7 +53,8 @@ void eMap::loadPortion(const eMapPortion& portion) {
     for(const auto& o : portion.fObjects) {
         const int i = mObjects.size();
         mObjects.emplace_back(o);
-        mObjectsMap[o.fTileY][o.fTileX].emplace_back(i);
+        const auto iPos = o.fPos.floor();
+        mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }
 }
 
@@ -207,7 +132,6 @@ void eMap::loadData(const eMapData& data) {
     mUnitTypes = data.fUnitTypes;
     mSpawnPos = data.fSpawnPos;
     mAreas = data.fAreas;
-    updateObjectsMap();
 }
 
 int eMap::areaAt(const ePoint& pos) const {
@@ -230,22 +154,14 @@ void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
     mWidth = w;
     mHeight = h;
+    mObjectsMap.resize(mHeight, std::vector<std::vector<uint16_t>>(mWidth));
 }
 
 void eMap::updateObjectsMap() {
-    mObjectsMap.clear();
-
-    for(int y = 0; y < mHeight; y++) {
-        auto& row = mObjectsMap.emplace_back();
-        row.reserve(mWidth);
-        for(int x = 0; x < mWidth; x++) {
-            row.emplace_back();
-        }
-    }
-
     const int iMax = mObjects.size();
     for(int i = 0; i < iMax; i++) {
         const auto& o = mObjects[i];
-        mObjectsMap[o.fTileY][o.fTileX].emplace_back(i);
+        const auto iPos = o.fPos.floor();
+        mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }
 }

@@ -25,8 +25,7 @@ eServerArea::eServerArea() :
     mItemTiles(-mItemTileSubdivision),
     mMIncrementer(mUnitAreas) {
     const auto obsticle = [this](const ePointF& pos) {
-        const auto ipos = pos.floor();
-        return !mMap->walkable(ipos.fX, ipos.fY);
+        return !mMap->walkable(pos);
     };
 
     const auto removeMissile = [this](const eMissile& m) {
@@ -72,8 +71,8 @@ void eServerArea::iniSetupUnit(
 
     auto& m = u->movementHandler();
     m.setSpeed(uinfo.fWalkSpeed);
-    const auto w = [this](const int x, const int y) {
-        return walkable(x, y);
+    const auto w = [this](const ePointF& pos) {
+        return walkable(pos);
     };
     const auto iter = [this, charId](
         const ePointF& pos,
@@ -372,8 +371,8 @@ bool eServerArea::mapPortions(
     return addAll;
 }
 
-bool eServerArea::walkable(const int x, const int y) const {
-    return mMap->walkable(x, y);
+bool eServerArea::walkable(const ePointF& pos) const {
+    return mMap->walkable(pos);
 }
 
 bool eServerArea::addClient(const int clientId,
@@ -657,8 +656,7 @@ ePointF eServerArea::emptyPlaceNear(const ePointF& pos) const {
             for(int y = -dist; y <= dist; y++) {
                 if(std::abs(x) != dist && std::abs(y) != dist) continue;
                 const ePointF p{pos.fX + x*0.5f, pos.fY + y*0.5f};
-                const auto ipos = p.floor();
-                const bool r = mMap->walkable(ipos.fX, ipos.fY);
+                const bool r = mMap->walkable(p);
                 if(!r) continue;
                 const auto u = unit(p, [](const eServerUnit& u) {
                     return u.fHealth > 0;

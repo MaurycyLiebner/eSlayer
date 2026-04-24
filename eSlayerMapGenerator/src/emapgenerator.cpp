@@ -502,15 +502,17 @@ eMapGenerator::generate(const std::string& name) const {
                             auto& obj = result->mObjects.emplace_back();
                             obj.fObjectType = treesId;
                             obj.fTileType = eRand::rand(0, 2);
-                            obj.fTileX = globalX;
-                            obj.fTileY = globalY;
+                            obj.fPos.fX = globalX;
+                            obj.fPos.fY = globalY;
+                            obj.fSize = 1.f;
                         }
                     } else {
                         auto& obj = result->mObjects.emplace_back();
                         obj.fObjectType = townFenceId;
                         obj.fTileType = 0;
-                        obj.fTileX = globalX;
-                        obj.fTileY = globalY;
+                        obj.fPos.fX = globalX;
+                        obj.fPos.fY = globalY;
+                        obj.fSize = 1.f;
                     }
                 } else if(result->mSpawnPos == ePoint{0, 0}) {
                     result->mSpawnPos = {globalX, globalY};
@@ -519,8 +521,9 @@ eMapGenerator::generate(const std::string& name) const {
                         auto& obj = result->mObjects.emplace_back();
                         obj.fObjectType = treesId;
                         obj.fTileType = eRand::rand(0, 2);
-                        obj.fTileX = globalX;
-                        obj.fTileY = globalY;
+                        obj.fPos.fX = globalX;
+                        obj.fPos.fY = globalY;
+                        obj.fSize = 1.f;
                     }
                 }
             }

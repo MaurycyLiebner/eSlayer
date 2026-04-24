@@ -34,10 +34,7 @@ public:
     const std::set<uint16_t>&
     unitTypes() const { return mUnitTypes; }
 
-    bool walkable(const int x, const int y) const;
-
-    void write(ePacket& p) const;
-    void read(ePacket& p);
+    bool walkable(const ePointF& pos) const;
 
     void loadPortion(const eMapPortion& portion);
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
