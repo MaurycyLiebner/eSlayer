@@ -1,5 +1,7 @@
 #include "eSlayerHelpers/eunitdata.h"
 
+#include "eSlayerHelpers/epacket.h"
+
 void eUnitData::read(ePacket& p) {
     p >> fCharId;
     p >> fTeamId;

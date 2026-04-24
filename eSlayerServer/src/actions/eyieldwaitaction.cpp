@@ -2,6 +2,7 @@
 
 #include "../eserverarea.h"
 #include "../eserverunit.h"
+#include "../eserverteams.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -35,7 +36,9 @@ void eYieldWaitAction::increment(const float by) {
     const float detectRadius = 2.f;
     const auto iter = [&](const std::shared_ptr<eServerUnit>& other) {
         if(other->fCharId == mUnit.fCharId) return false;
-        if(other->fTeamId != mUnit.fTeamId) return false;
+        const eTeamId t1 = other->fTeamId;
+        const eTeamId t2 = mUnit.fTeamId;
+        if(eServerTeams::areEnemies(t1, t2)) return false;
         if(other->fHealth <= 0) return false;
         if(!other->moving()) return false;
 

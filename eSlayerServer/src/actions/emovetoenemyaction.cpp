@@ -1,6 +1,7 @@
 #include "emovetoenemyaction.h"
 
 #include "../eserverarea.h"
+#include "../eserverteams.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -31,7 +32,9 @@ void eMoveToEnemyAction::setMaxDist(const float maxDist) {
 bool eMoveToEnemyAction::findNewTarget() {
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
         if(u->fHealth <= 0) return false;
-        if(mUnit.fTeamId == u->fTeamId) return false;
+        const eTeamId t1 = u->fTeamId;
+        const eTeamId t2 = mUnit.fTeamId;
+        if(!eServerTeams::areEnemies(t1, t2)) return false;
         setTarget(*u);
         return true;
     };

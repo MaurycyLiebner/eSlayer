@@ -120,7 +120,7 @@ private:
     void removePlannedUnits();
     void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
                       const int charId,
-                      const int teamId,
+                      const eTeamId teamId,
                       const ePointF& pos,
                       const eUnitInfo& uinfo,
                       const eCharData& data,

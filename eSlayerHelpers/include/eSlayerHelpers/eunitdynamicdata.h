@@ -4,7 +4,6 @@
 #include "eslayerhelpersexport.h"
 
 #include "epositioned.h"
-#include "evec2.h"
 
 class ePacket;
 

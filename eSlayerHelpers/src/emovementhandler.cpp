@@ -12,7 +12,7 @@ eMovementHandler::eMovementHandler(ePointF& pos, float& angle) :
 void eMovementHandler::intialize(const eWalkable& w,
                                  const eOtherIterator& iter,
                                  const int charId,
-                                 const int teamId) {
+                                 const eTeamId teamId) {
     mCharId = charId;
     mTeamId = teamId;
     mWalkable = w;

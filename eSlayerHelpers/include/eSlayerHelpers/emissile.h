@@ -5,13 +5,15 @@
 
 #include "epositioned.h"
 
-class ePacket;
+#include "eSlayerHelpers/eteamid.h"
 
 #include <set>
 
+class ePacket;
+
 struct ESLAYERHELPERS_API eMissile : public ePositioned {
     int32_t fId;
-    int8_t fTeamId;
+    eTeamId fTeamId;
     uint8_t fType;
     uint8_t fPathType;
     ePointF fFrom;

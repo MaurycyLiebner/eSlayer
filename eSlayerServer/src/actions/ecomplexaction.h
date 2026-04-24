@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/edamage.h>
 #include <eSlayerHelpers/eskillchoice.h>
 #include <eSlayerHelpers/eweaponchoice.h>
+#include <eSlayerHelpers/eteamid.h>
 
 #include <memory>
 
@@ -16,7 +17,7 @@ struct eUnitSkill;
 
 struct eHitData {
     int fAttackerId;
-    int fAttackTeamId;
+    eTeamId fAttackTeamId;
 
     ePointF fFrom;
     bool fKnockback = false;

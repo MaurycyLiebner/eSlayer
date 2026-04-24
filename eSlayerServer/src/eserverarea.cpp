@@ -1,18 +1,19 @@
 #include "eserverarea.h"
 
-#include "../../eSlayerHelpers/include/eSlayerHelpers/echardatainfo.h"
 #include "actions/eclientaction.h"
 #include "actions/eunitbaseaction.h"
 #include "actions/efolloweraction.h"
+#include "eserverteams.h"
+
+#include <eSlayerMissiles/emissileincrementer.h>
+#include <eSlayerMissiles/emissilecollision.h>
+#include <eSlayerMissiles/emissileincrement.h>
 
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/evectorhelpers.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/eunitsinfo.h>
-
-#include <eSlayerMissiles/emissileincrementer.h>
-#include <eSlayerMissiles/emissilecollision.h>
-#include <eSlayerMissiles/emissileincrement.h>
+#include <eSlayerHelpers/echardatainfo.h>
 
 uint32_t eServerArea::sNextItemId = 1;
 
@@ -50,7 +51,7 @@ eServerArea::eServerArea() :
 void eServerArea::iniSetupUnit(
         const std::shared_ptr<eServerUnit>& u,
         const int charId,
-        const int teamId,
+        const eTeamId teamId,
         const ePointF& pos,
         const eUnitInfo& uinfo,
         const eCharData& data,
@@ -118,7 +119,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             const auto u = std::make_shared<eServerUnit>(false, data, *this);
             const int charId = eServerUnit::sNextCharId++;
             const ePointF pos{float(x), float(y)};
-            iniSetupUnit(u, charId, -1, pos, udata, data, modelParts);
+            iniSetupUnit(u, charId, eTeamId::neutralHostile, pos, udata, data, modelParts);
 
             u->setBoosts(udata.fModifiers, false);
             {
@@ -386,7 +387,7 @@ bool eServerArea::addClient(const int clientId,
     u->addSkill();
     u->addSkill();
     const auto& spawnPos = mMap->spawnPos();
-    iniSetupUnit(u, clientId, 0, spawnPos, udata, data, modelParts);
+    iniSetupUnit(u, clientId, eTeamId::playerTeam0, spawnPos, udata, data, modelParts);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();
@@ -738,7 +739,9 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         const auto u = unit(clientId);
         if(!u) continue;
         if(u->fHealth <= 0) continue;
-        if(u->fTeamId == killed.fTeamId) continue;
+        const eTeamId t1 = u->fTeamId;
+        const eTeamId t2 = killed.fTeamId;
+        if(!eServerTeams::areEnemies(t1, t2)) continue;
         const float dist = ePointF::distance(u->fPos, killed.fPos);
         if(dist > 10.f) continue;
         u->killed(killed);

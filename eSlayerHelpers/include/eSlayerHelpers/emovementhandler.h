@@ -6,6 +6,8 @@
 #include "evec2.h"
 #include "emovementgoal.h"
 
+#include <eSlayerHelpers/eteamid.h>
+
 #include <functional>
 
 class eUnitData;
@@ -24,7 +26,7 @@ public:
     void intialize(const eWalkable& w,
                    const eOtherIterator& iter,
                    const int charId,
-                   const int teamId);
+                   const eTeamId teamId);
 
     void setPathFindMargin(const int m)
     { mPathFindMargin = m; }
@@ -62,7 +64,7 @@ private:
     float& mAngle;
 
     int mCharId = 0;
-    int mTeamId = 0;
+    eTeamId mTeamId = eTeamId::neutralHostile;
     eWalkable mWalkable;
     eOtherIterator mOtherIterator;
 

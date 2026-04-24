@@ -28,7 +28,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const int teamId) {
     mClientId = clientId;
     mServer = s;
-    mMovementHandler.intialize(w, iter, clientId, 0);
+    mMovementHandler.intialize(w, iter, clientId, eTeamId::playerTeam0);
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {

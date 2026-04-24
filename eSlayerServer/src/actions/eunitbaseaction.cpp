@@ -4,6 +4,7 @@
 #include "../eserverarea.h"
 #include "eyieldwaitaction.h"
 #include "ewalkaroundaction.h"
+#include "../eserverteams.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -92,7 +93,9 @@ bool eUnitBaseAction::lookForAttackTarget() {
     auto readySkills = mUnit.readySkills();
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
         if(u->fHealth <= 0) return false;
-        if(mUnit.fTeamId == u->fTeamId) return false;
+        const eTeamId t1 = u->fTeamId;
+        const eTeamId t2 = mUnit.fTeamId;
+        if(!eServerTeams::areEnemies(t1, t2)) return false;
         const float dist = ePointF::distance(mUnit.fPos, u->fPos);
         int schoice;
         const bool r = stats.attackRangeSkill(

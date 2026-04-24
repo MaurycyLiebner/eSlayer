@@ -42,6 +42,7 @@ add_library(eSlayerServer SHARED
     src/emovetotarget.h src/emovetotarget.cpp
     src/actions/ewalkaroundaction.h src/actions/ewalkaroundaction.cpp
     src/actions/eknockbackaction.h src/actions/eknockbackaction.cpp
+    src/eserverteams.h src/eserverteams.cpp
 
 )
 

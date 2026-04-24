@@ -3,15 +3,16 @@
 
 #include "eslayerhelpersexport.h"
 
-#include "epacket.h"
-
 #include "epositioned.h"
 #include "echardata.h"
 #include "eunitdynamicdata.h"
+#include "eteamid.h"
+
+class ePacket;
 
 struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     int32_t fCharId;
-    int8_t fTeamId;
+    eTeamId fTeamId;
 
     uint8_t fCharDataId;
 
