@@ -5,6 +5,8 @@
 
 #include <string>
 
+class eResolution;
+
 class eEffectTextures {
 public:
     eEffectTextures();

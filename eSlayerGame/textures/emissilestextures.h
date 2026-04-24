@@ -5,6 +5,8 @@
 
 #include <eSlayerHelpers/estringidmapvector.h>
 
+class eResolution;
+
 struct eMissileAnim {
     const std::shared_ptr<eTexture>&
     get(const int dir, const int frame);

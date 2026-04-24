@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+class eResolution;
+
 class eTextureCollection;
 
 class eSpriteLoader {

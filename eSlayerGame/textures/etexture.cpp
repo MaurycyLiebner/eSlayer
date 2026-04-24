@@ -120,8 +120,8 @@ void eTexture::render(SDL_Renderer * const r,
                       const bool flipped) const {
     if(mFlipTex) {
         mFlipTex->render(r, srcRect, dstRect, true);
-    } else if(mParentTex) {
-        mParentTex->render(r, srcRect, dstRect, flipped);
+    } else if(mAtlas) {
+        mAtlas->render(r, srcRect, dstRect, flipped);
     } else if(mTex) {
         if(flipped) {
             SDL_RenderTextureRotated(r, mTex, &srcRect, &dstRect, 0, nullptr,
@@ -151,13 +151,13 @@ void eTexture::setOffset(const int x, const int y) {
 
 bool eTexture::isNull() const {
     if(mFlipTex) return mFlipTex->isNull();
-    else if(mParentTex) mParentTex->isNull();
+    else if(mAtlas) mAtlas->isNull();
     return mWidth <= 0 || mHeight <= 0;
 }
 
 void eTexture::setAlpha(const Uint8 alpha) {
     if(mFlipTex) mFlipTex->setAlpha(alpha);
-    else if(mParentTex) mParentTex->setAlpha(alpha);
+    else if(mAtlas) mAtlas->setAlpha(alpha);
     else SDL_SetTextureAlphaMod(mTex, alpha);
 }
 
@@ -167,7 +167,7 @@ void eTexture::clearAlphaMod() {
 
 void eTexture::setColorMod(const Uint8 r, const Uint8 g, const Uint8 b) {
     if(mFlipTex) mFlipTex->setColorMod(r, g, b);
-    else if(mParentTex) mParentTex->setColorMod(r, g, b);
+    else if(mAtlas) mAtlas->setColorMod(r, g, b);
     else SDL_SetTextureColorMod(mTex, r, g, b);
 }
 
@@ -177,7 +177,7 @@ void eTexture::clearColorMod() {
 
 void eTexture::setBlendMode(const SDL_BlendMode mode) {
     if(mFlipTex) mFlipTex->setBlendMode(mode);
-    else if(mParentTex) mParentTex->setBlendMode(mode);
+    else if(mAtlas) mAtlas->setBlendMode(mode);
     else SDL_SetTextureBlendMode(mTex, mode);
 }
 
@@ -189,9 +189,9 @@ void eTexture::setFlipTex(const std::shared_ptr<eTexture>& tex) {
     mHeight = mFlipTex->height();
 }
 
-void eTexture::setParentTexture(const SDL_Rect& rect,
+void eTexture::setAtlas(const SDL_Rect& rect,
                                 const std::shared_ptr<eTexture>& tex) {
-    mParentTex = tex;
+    mAtlas = tex;
     mX = rect.x;
     mY = rect.y;
     mWidth = rect.w;

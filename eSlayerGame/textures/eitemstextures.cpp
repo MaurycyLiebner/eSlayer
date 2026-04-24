@@ -5,6 +5,7 @@
 #include <eSlayerHelpers/eitemsdata.h>
 
 #include "../efileloader.h"
+#include "../eresolution.h"
 
 eItemsTextures eItemsTextures::sInstance;
 

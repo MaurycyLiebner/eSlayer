@@ -6,6 +6,8 @@
 
 #include <eSlayerHelpers/estringidmapvector.h>
 
+class eResolution;
+
 class eMapTextures {
 public:
     static void load(const eResolution& res,

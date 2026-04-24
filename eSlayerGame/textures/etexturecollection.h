@@ -3,6 +3,8 @@
 
 #include "etexture.h"
 
+#include <vector>
+
 class eTextureCollection {
 public:
     std::shared_ptr<eTexture>& addTexture();

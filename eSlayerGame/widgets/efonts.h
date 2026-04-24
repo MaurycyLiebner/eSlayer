@@ -1,11 +1,12 @@
 #ifndef EFONTS_H
 #define EFONTS_H
 
+#include "../eresolution.h"
+
 #include <SDL3_ttf/SDL_ttf.h>
+
 #include <map>
 #include <string>
-
-#include "../eresolution.h"
 
 struct eFont {
     std::string fPath;

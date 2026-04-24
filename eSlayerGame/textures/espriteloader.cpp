@@ -3,6 +3,7 @@
 #include "etexturecollection.h"
 
 #include "../efileloader.h"
+#include "../eresolution.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 
@@ -28,7 +29,7 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     tex->setOffset(off.x, off.y);
     const int atlasId = row.fAtlasId;
     const auto& atlas = mAtlases[atlasId];
-    tex->setParentTexture(row.fCoords, atlas);
+    tex->setAtlas(row.fCoords, atlas);
     return tex;
 }
 

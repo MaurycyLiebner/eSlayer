@@ -5,6 +5,8 @@
 
 #include <eSlayerHelpers/echardata.h>
 
+class eResolution;
+
 struct eCharTextureKey {
     int fAnimId;
     int fPartId;

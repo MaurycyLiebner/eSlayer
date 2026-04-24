@@ -2,6 +2,7 @@
 
 #include "espriteloader.h"
 #include "../efileloader.h"
+#include "../eresolution.h"
 
 eTileTextures::eTileTextures() {}
 
@@ -37,7 +38,7 @@ void eTileTextures::loadFixedSize(const int w, const int h,
     for(int x = 0; x < aw; x += w) {
         for(int y = 0; y < ah; y += h) {
             const auto tex = std::make_shared<eTexture>();
-            tex->setParentTexture(SDL_Rect{x, y, w, h}, atlas);
+            tex->setAtlas(SDL_Rect{x, y, w, h}, atlas);
             mColl->addTexture(tex);
         }
     }

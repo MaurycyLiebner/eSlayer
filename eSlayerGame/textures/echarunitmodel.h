@@ -5,6 +5,7 @@
 
 class eGamePainter;
 class ePainter;
+class eResolution;
 
 class eCharUnitModel {
 public:

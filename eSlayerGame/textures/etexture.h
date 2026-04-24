@@ -7,10 +7,6 @@
 #include <string>
 #include <memory>
 
-#include "../widgets/efonts.h"
-
-#include "../widgets/efontcolor.h"
-
 #include "erendertargetholder.h"
 
 enum class eAlignment {
@@ -94,21 +90,21 @@ public:
     void setBlendMode(const SDL_BlendMode mode);
 
     void setFlipTex(const std::shared_ptr<eTexture>& tex);
-    void setParentTexture(const SDL_Rect& rect,
-                          const std::shared_ptr<eTexture>& tex);
+    void setAtlas(const SDL_Rect& rect,
+                  const std::shared_ptr<eTexture>& tex);
+    const std::shared_ptr<eTexture>& atlas() const { return mAtlas; }
 
     SDL_Texture* tex() const { return mTex; }
-    const std::shared_ptr<eTexture>& atlas() const { return mParentTex; }
 private:
-    std::shared_ptr<eTexture> mParentTex;
+    SDL_Texture* mTex = nullptr;
+    std::shared_ptr<eTexture> mAtlas;
+    std::shared_ptr<eTexture> mFlipTex;
     int mX = 0;
     int mY = 0;
     int mWidth = 0;
     int mHeight = 0;
     int mOffsetX = 0;
     int mOffsetY = 0;
-    std::shared_ptr<eTexture> mFlipTex;
-    SDL_Texture* mTex = nullptr;
 };
 
 #endif // ETEXTURE_H

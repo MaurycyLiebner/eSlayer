@@ -11,6 +11,7 @@
 
 struct ePoint;
 struct eGroundItem;
+struct eFont;
 
 struct eItemName {
     uint32_t fItemId;

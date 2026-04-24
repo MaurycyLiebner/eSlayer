@@ -9,6 +9,8 @@
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
 
+class eResolution;
+
 struct eItemTexture {
     int fItemDataId;
     std::string fTexPath;

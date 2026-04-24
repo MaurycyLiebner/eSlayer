@@ -1,13 +1,15 @@
 #ifndef EPAINTER_H
 #define EPAINTER_H
 
+#include "../textures/etexture.h"
+#include "efonts.h"
+#include "efontcolor.h"
+
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include <string>
 #include <vector>
 #include <stack>
-
-#include "../textures/etexture.h"
 
 class ePainter {
     struct ePainterSave {

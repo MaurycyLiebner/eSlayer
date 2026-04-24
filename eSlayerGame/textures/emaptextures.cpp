@@ -1,6 +1,7 @@
 #include "emaptextures.h"
 
 #include "../efileloader.h"
+#include "../eresolution.h"
 #include "../textures/espriteloader.h"
 
 eTextureCollection eMapTextures::sWalls;
@@ -21,7 +22,7 @@ void eMapTextures::load(const eResolution& res,
     const int w = aw/17;
     for(int x = 0; x < aw; x += w) {
         const auto tex = std::make_shared<eTexture>();
-        tex->setParentTexture(SDL_Rect{x, 0, w, ah}, atlas);
+        tex->setAtlas(SDL_Rect{x, 0, w, ah}, atlas);
         sWalls.addTexture(tex);
     }
 }

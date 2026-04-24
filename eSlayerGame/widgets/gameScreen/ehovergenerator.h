@@ -1,6 +1,7 @@
 #ifndef EHOVERGENERATOR_H
 #define EHOVERGENERATOR_H
 
+#include "../efonts.h"
 #include "../efontcolor.h"
 #include "../../textures/etexture.h"
 
@@ -11,6 +12,7 @@
 #include <vector>
 
 class ePainter;
+class eResolution;
 
 class eHoverGenerator {
 public:
