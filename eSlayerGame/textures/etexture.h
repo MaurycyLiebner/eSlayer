@@ -98,6 +98,7 @@ public:
                           const std::shared_ptr<eTexture>& tex);
 
     SDL_Texture* tex() const { return mTex; }
+    const std::shared_ptr<eTexture>& atlas() const { return mParentTex; }
 private:
     std::shared_ptr<eTexture> mParentTex;
     int mX = 0;
