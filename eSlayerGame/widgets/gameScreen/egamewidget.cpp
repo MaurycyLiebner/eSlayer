@@ -477,69 +477,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto objType = obj.fObjectType;
                 const auto& object = eObjsTextures::get(objType);
                 const auto& tex = object.getTexture(obj.fTileType);
-
-                { // draw shadow
-                    const float skew = 0.5f;
-                    const float scaleY = 0.5f;
-
-                    const float w = tex->width();
-                    const float h = tex->height() * scaleY;
-
-                    const float skewOffset = h * skew;
-
-                    const float x = p.x() + px - 0.5f*tex->width() - skewOffset;
-                    const float y = p.y() + py + tileH - h;
-
-                    SDL_Vertex verts[4];
-
-                    const auto& atlas = tex->atlas();
-                    const auto r = p.renderer();
-
-                    verts[0].position = { x, y };
-                    verts[1].position = { x + w, y };
-                    verts[2].position = { x + w + skewOffset, y + h };
-                    verts[3].position = { x + skewOffset, y + h };
-
-                    for(auto& v : verts) {
-                        v.color = { 0.f, 0.f, 0.f, 0.5f };
-                    }
-
-                    float u0 = 0.f;
-                    float v0 = 0.f;
-                    float u1 = 1.f;
-                    float v1 = 1.f;
-                    SDL_Texture* sdlTex = nullptr;
-
-                    if(atlas) {
-                        const float invW = 1.f / atlas->width();
-                        const float invH = 1.f / atlas->height();
-
-                        const float tx = tex->x();
-                        const float ty = tex->y();
-                        const float tw = tex->width();
-                        const float th = tex->height();
-
-                        u0 = tx * invW;
-                        v0 = ty * invH;
-                        u1 = (tx + tw) * invW;
-                        v1 = (ty + th) * invH;
-
-                        sdlTex = atlas->tex();
-                    } else {
-                        sdlTex = tex->tex();
-                    }
-
-                    verts[0].tex_coord = { u0, v0 };
-                    verts[1].tex_coord = { u1, v0 };
-                    verts[2].tex_coord = { u1, v1 };
-                    verts[3].tex_coord = { u0, v1 };
-
-                    static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
-
-                    SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
-                }
-
-                p.drawTexture(px, py + tileH, tex, eAlignment::top | eAlignment::hcenter);
+                mGamePainter.drawShadow(px - 0.5f*tex->width(),
+                                        py + tileH, *tex);
+                mGamePainter.drawTexture(px, py + tileH, tex,
+                                         eAlignment::top | eAlignment::hcenter);
             }
             for(int eleId = nextElement; eleId < (int)renderElements.size(); eleId++) {
                 const auto& e = renderElements[eleId];

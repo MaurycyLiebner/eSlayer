@@ -15,6 +15,9 @@ public:
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
 
+    void drawShadow(const int x, const int y,
+                    const eTexture& tex);
+
     void setLightness(const Uint8 light);
     void setContrast(const Uint8 cont)
     { mContrast = cont; }

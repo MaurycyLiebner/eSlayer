@@ -18,9 +18,12 @@ public:
     SDL_Rect offsetBoundingRect() const;
 
     void incFrame(const float by);
+    void draw(eGamePainter& p,
+              const eResolution& res,
+              const bool highlight = false) const;
     void draw(ePainter& p,
               const eResolution& res,
-              const bool highligh = false) const;
+              const bool highlight = false) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
@@ -38,6 +41,12 @@ public:
     void generatePreview(const eResolution& res,
                          SDL_Renderer* const r);
 private:
+    void draw(ePainter& p,
+              const eResolution& res,
+              const bool highlight,
+              const std::shared_ptr<eTexture>& tex,
+              const SDL_Rect& texRect) const;
+
     int mAnim = 0;
     int mAnimId = -1;
     float mAnimSpeed = 1.f;

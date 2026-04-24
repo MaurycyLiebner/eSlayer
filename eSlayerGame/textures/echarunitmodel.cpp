@@ -1,6 +1,7 @@
 #include "echarunitmodel.h"
 
 #include "../widgets/epainter.h"
+#include "../widgets/gameScreen/egamepainter.h"
 #include "echarmodel.h"
 #include "echartextures.h"
 
@@ -36,7 +37,7 @@ void eCharUnitModel::incFrame(const float by) {
     }
 }
 
-void eCharUnitModel::draw(ePainter& p,
+void eCharUnitModel::draw(eGamePainter& p,
                           const eResolution& res,
                           const bool highlight) const {
     const auto key = eCharUnitModel::key();
@@ -45,57 +46,20 @@ void eCharUnitModel::draw(ePainter& p,
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
 
-    { // draw shadow
-        const float skew = 0.5f;
-        const float scaleY = 0.5f;
+    p.drawShadow(texRect.x, texRect.y + texRect.h, *tex);
+    draw(reinterpret_cast<ePainter&>(p),
+         res, highlight, tex, texRect);
+}
 
-        const float w = texRect.w;
-        const float h = texRect.h * scaleY;
-
-        // Bottom horizontal shift caused by skew
-        const float skewOffset = h * skew;
-
-        const float x = p.x() + texRect.x - skewOffset;
-        const float y = p.y() + texRect.y + texRect.h - h;
-
-        SDL_Vertex verts[4];
-
-        // Top-left
-        verts[0].position = { x, y };
-        verts[0].tex_coord = { 0.0f, 0.0f };
-        verts[0].color = { 0.f, 0.f, 0.f, 0.5f };
-
-        // Top-right
-        verts[1].position = { x + w, y };
-        verts[1].tex_coord = { 1.0f, 0.0f };
-        verts[1].color = { 0.f, 0.f, 0.f, 0.5f };
-
-        // Bottom-right (skewed)
-        verts[2].position = { x + w + skewOffset, y + h };
-        verts[2].tex_coord = { 1.0f, 1.0f };
-        verts[2].color = { 0.f, 0.f, 0.f, 0.5f };
-
-        // Bottom-left (skewed)
-        verts[3].position = { x + skewOffset, y + h };
-        verts[3].tex_coord = { 0.0f, 1.0f };
-        verts[3].color = { 0.f, 0.f, 0.f, 0.5f };
-
-        const int indices[6] = { 0, 1, 2, 0, 2, 3 };
-
-        const auto r = p.renderer();
-        const auto sdlTex = tex->tex();
-        SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
-    }
-    p.drawTexture(texRect.x, texRect.y, tex);
-
-    if(highlight) {
-        tex->setBlendMode(SDL_BLENDMODE_ADD);
-        tex->setAlpha(125);
-        p.drawTexture(texRect.x, texRect.y, tex);
-        tex->setBlendMode(SDL_BLENDMODE_BLEND);
-        tex->clearAlphaMod();
-    }
-    p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
+void eCharUnitModel::draw(ePainter& p,
+                          const eResolution& res,
+                          const bool highlight) const {
+    const auto key = eCharUnitModel::key();
+    if(key.fFrame == -1) return;
+    const auto r = p.renderer();
+    const auto tex = mModel->requestTexture(r, key);
+    const auto texRect = mModel->requestBoundingRect(key);
+    draw(p, res, highlight, tex, texRect);
 }
 
 void eCharUnitModel::setAnimationSpeed(const float speed) {
@@ -133,6 +97,23 @@ void eCharUnitModel::generatePreview(
         }
         tex->save(r, path);
     }
+}
+
+void eCharUnitModel::draw(ePainter& p,
+                          const eResolution& res,
+                          const bool highlight,
+                          const std::shared_ptr<eTexture>& tex,
+                          const SDL_Rect& texRect) const {
+    p.drawTexture(texRect.x, texRect.y, tex);
+
+    if(highlight) {
+        tex->setBlendMode(SDL_BLENDMODE_ADD);
+        tex->setAlpha(125);
+        p.drawTexture(texRect.x, texRect.y, tex);
+        tex->setBlendMode(SDL_BLENDMODE_BLEND);
+        tex->clearAlphaMod();
+    }
+    p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
 }
 
 void eCharUnitModel::setAnimation(const int a, const int id,
