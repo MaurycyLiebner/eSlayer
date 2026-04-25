@@ -113,8 +113,6 @@ private:
     void addMessage(SDL_Renderer* const r,
                     const std::string& msg);
 
-    eWalkable walkable() const;
-
     std::string mCName;
     bool mHardcore;
 

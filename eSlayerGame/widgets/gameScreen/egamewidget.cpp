@@ -59,7 +59,9 @@ void eGameWidget::initialize(const int clientId,
     const auto r = renderer();
     const auto& res = resolution();
 
-    const auto w = walkable();
+    const auto w = [this](const ePointF& pos) {
+        return mMap->walkable(pos);
+    };
     const auto iter = [this](const ePointF& pos,
                              const float dist,
                              const eOtherHandler& handler) {
@@ -691,10 +693,4 @@ void eGameWidget::addMessage(SDL_Renderer* const r,
     msg.fFramesRemaining = 5*text.size() + 250;
     eTextGenerator gen(r, eFontColor::white, font, 1, w);
     msg.fTex = gen.generate(text);
-}
-
-eWalkable eGameWidget::walkable() const {
-    return [this](const ePointF& pos) {
-        return mMap->walkable(pos);
-    };
 }
