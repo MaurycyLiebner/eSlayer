@@ -35,69 +35,6 @@ eRenderTargetHolder eGamePainter::switchToItemNames() {
     return mItemNames->createTargetHolder(r);
 }
 
-void eGamePainter::drawShadow(
-    const int drawX, const int drawY,
-    const eTexture& tex) {
-    const float skew = 0.5f;
-    const float scaleY = 0.5f;
-
-    const float w = tex.width();
-    const float h = tex.height() * scaleY;
-
-    const float skewOffset = h * skew;
-
-    const float x = ePainter::x() + drawX - skewOffset;
-    const float y = ePainter::y() + drawY - h;
-
-    SDL_Vertex verts[4];
-
-    const auto& atlas = tex.atlas();
-    const auto r = renderer();
-
-    verts[0].position = { x, y };
-    verts[1].position = { x + w, y };
-    verts[2].position = { x + w + skewOffset, y + h };
-    verts[3].position = { x + skewOffset, y + h };
-
-    for(auto& v : verts) {
-        v.color = { 0.f, 0.f, 0.f, 0.5f };
-    }
-
-    float u0 = 0.f;
-    float v0 = 0.f;
-    float u1 = 1.f;
-    float v1 = 1.f;
-    SDL_Texture* sdlTex = nullptr;
-
-    if(atlas) {
-        const float invW = 1.f / atlas->width();
-        const float invH = 1.f / atlas->height();
-
-        const float tx = tex.x();
-        const float ty = tex.y();
-        const float tw = tex.width();
-        const float th = tex.height();
-
-        u0 = tx * invW;
-        v0 = ty * invH;
-        u1 = (tx + tw) * invW;
-        v1 = (ty + th) * invH;
-
-        sdlTex = atlas->tex();
-    } else {
-        sdlTex = tex.tex();
-    }
-
-    verts[0].tex_coord = { u0, v0 };
-    verts[1].tex_coord = { u1, v0 };
-    verts[2].tex_coord = { u1, v1 };
-    verts[3].tex_coord = { u0, v1 };
-
-    static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
-
-    SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
-}
-
 void eGamePainter::setLightness(const Uint8 light) {
     mLight = light;
     mLightingTex->setClearColor(SDL_Color{light, light, light, 255});
@@ -111,18 +48,22 @@ void eGamePainter::clear() {
         mRenderItemNames = false;
         mItemNames->fill(r, SDL_Color{0, 0, 0, 0});
     }
+    mLightBlockers.clear();
+    mLights.clear();
 }
 
-void eGamePainter::renderLight(SDL_Renderer* const r,
-                               const float x, const float y,
+void eGamePainter::renderLight(const float x, const float y,
                                const float radius,
                                const SDL_Color& color) {
     if(mLight == 255) return;
-    mLightingTex->renderLight(r, x, y, radius, color);
+    mLights.emplace_back(x, y, radius, color);
 }
 
-void eGamePainter::finish() {
+void eGamePainter::finish(const eResolution& res) {
     const auto r = renderer();
+    for(const auto& light : mLights) {
+        mLightingTex->renderLight(res, r, light, mLightBlockers);
+    }
     const auto holder = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
@@ -138,4 +79,12 @@ void eGamePainter::finish() {
     if(mRenderItemNames) {
         mItemNames->render(r, 0, 0);
     }
+}
+
+void eGamePainter::addLightBlocker(
+    const float px, const float py,
+    const float tileCenterY,
+    const float size,
+    const std::shared_ptr<eTexture>& tex) {
+    mLightBlockers.emplace_back(px, py, tileCenterY, size, tex);
 }

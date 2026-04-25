@@ -15,20 +15,23 @@ public:
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
 
-    void drawShadow(const int x, const int y,
-                    const eTexture& tex);
-
     void setLightness(const Uint8 light);
     void setContrast(const Uint8 cont)
     { mContrast = cont; }
 
     void clear();
-    void renderLight(SDL_Renderer * const r,
-                     const float x, const float y,
+    void renderLight(const float x, const float y,
                      const float radius,
                      const SDL_Color& color);
-    void finish();
+    void finish(const eResolution& res);
+
+    void addLightBlocker(const float px, const float py,
+                         const float tileCenterY,
+                         const float size,
+                         const std::shared_ptr<eTexture>& tex);
 private:
+    std::vector<eLightBlocker> mLightBlockers;
+    std::vector<eLight> mLights;
     bool mRenderItemNames = false;
     Uint8 mLight = 180;
     Uint8 mContrast = 140;

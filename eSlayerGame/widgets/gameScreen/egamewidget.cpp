@@ -361,6 +361,9 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     mFrame++;
 
+    const float charPX = mInput.characterHorizontalPos()*width();
+    const float charPY = mInput.characterVerticalPos()*height();
+
     const int tileH = eGameWidget::tileHeight();
     {
         const auto holder = mGamePainter.switchToBase();
@@ -489,6 +492,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& pos = obj.fPos;
                 const float fpx = px + 0.5f*((pos.fX - x) - (pos.fY - y))*tileW;
                 const float fpy = py + 0.5f*((pos.fX - x) + (pos.fY - y))*tileH;
+                if(objectTex.fBlocksLight) {
+                    mGamePainter.addLightBlocker(fpx, fpy + h, fpy + 0.5f*h,
+                                                 object.fSize, tex);
+                }
                 mGamePainter.drawShadow(fpx - 0.5f*tex->width(), fpy + h, *tex);
                 mGamePainter.drawTexture(fpx, fpy + h, tex,
                                          eAlignment::top | eAlignment::hcenter);
@@ -541,7 +548,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     dir = (dirs + dir) % dirs;
                     const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
-                        mGamePainter.renderLight(r, pixel.fX, pixel.fY,
+                        mGamePainter.renderLight(pixel.fX, pixel.fY,
                                                  lradius, SDL_Color{255, 255, 255, 255});
                     }
                     const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
@@ -586,10 +593,9 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
     }
 
-    mGamePainter.renderLight(r, mInput.characterHorizontalPos()*width(),
-                             mInput.characterVerticalPos()*height(),
-                             10.f, SDL_Color{255, 255, 255, 255});
-    mGamePainter.finish();
+    mGamePainter.renderLight(charPX, charPY, 10.f,
+                             SDL_Color{255, 255, 255, 255});
+    mGamePainter.finish(res);
 
     const auto& tex = texture();
     if(tex) {

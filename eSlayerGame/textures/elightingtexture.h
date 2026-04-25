@@ -3,6 +3,42 @@
 
 #include "etexture.h"
 
+#include <vector>
+
+class eResolution;
+
+struct eLight {
+    eLight(const float px,
+           const float py,
+           const float radius,
+           const SDL_Color& color) :
+        fPX(px), fPY(py),
+        fRadius(radius),
+        fColor(color) {}
+
+    float fPX;
+    float fPY;
+    float fRadius;
+    SDL_Color fColor;
+};
+
+struct eLightBlocker {
+    eLightBlocker(const float px,
+                  const float py,
+                  const float cy,
+                  const float size,
+                  const std::shared_ptr<eTexture>& tex) :
+        fPX(px), fPY(py),
+        fTileCenterY(cy),
+        fSize(size),
+        fTex(tex) {}
+    float fPX;
+    float fPY;
+    float fTileCenterY;
+    float fSize;
+    std::shared_ptr<eTexture> fTex;
+};
+
 class eLightingTexture : public eTexture {
 public:
     using eTexture::eTexture;
@@ -12,10 +48,11 @@ public:
                     const SDL_Color& color);
     void setClearColor(const SDL_Color& color);
     void clear(SDL_Renderer * const r);
-    void renderLight(SDL_Renderer * const r,
-                     const float x, const float y,
-                     const float radius,
-                     const SDL_Color& color);
+    void renderLight(
+        const eResolution& res,
+        SDL_Renderer * const r,
+        const eLight& light,
+        const std::vector<eLightBlocker>& blockers);
 private:
     SDL_Color mColor;
     std::shared_ptr<eTexture> mLightingTex;
