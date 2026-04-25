@@ -1,16 +1,42 @@
 #ifndef EOBJSTEXTURES_H
 #define EOBJSTEXTURES_H
 
-#include "etilestextures.h"
+#include <eSlayerHelpers/estringidmapvector.h>
 
-class eObjsTextures : public eTilesTextures {
+#include "etexturecollection.h"
+
+class eResolution;
+
+struct eObjAnim {
+    eObjAnim(const int frames) :
+        fFrames(frames) {}
+
+    int fFrames;
+    eTextureCollection fTexs;
+};
+
+struct eObjTextures {
+    std::string fName;
+
+    using eType = std::vector<eObjAnim>;
+    std::vector<eType> fTypes;
+    std::map<std::string, int> fAnimIds;
+
+    void load(const eResolution& res,
+              SDL_Renderer * const r);
+private:
+    bool mLoaded = false;
+};
+
+class eObjsTextures {
 public:
     static int id(const std::string& name);
-    static eTileTextures& get(const std::string& name);
-    static eTileTextures& get(const int id);
+    static eObjTextures& get(const std::string& name);
+    static eObjTextures& get(const int id);
     static void load();
 private:
-    static eStringIdMapVector<eTileTextures> sInstance;
+    static bool sLoaded;
+    static eStringIdMapVector<eObjTextures> sInstance;
 };
 
 #endif // EOBJSTEXTURES_H

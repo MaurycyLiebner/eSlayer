@@ -9,8 +9,7 @@
 
 #include "erendertargetholder.h"
 
-enum class eAlignment {
-    none = 0x0000,
+enum class eAlignment { none = 0x0000,
     left = 0x0001,
     right = 0x0002,
     hcenter = 0x0004,

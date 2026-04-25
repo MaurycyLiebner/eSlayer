@@ -27,7 +27,7 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
-#include <eSlayerHelpers/eobjstexturesdata.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eskilltrees.h>
 #include <eSlayerHelpers/eclasses.h>
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eObjsTexturesData::load();
+            eObjectsInfo::load();
             eObjsTextures::load();
         });
 

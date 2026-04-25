@@ -24,6 +24,7 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -477,11 +478,19 @@ void eGameWidget::paintEvent(ePainter& p) {
             for(const auto& iobj : iobjs) {
                 const auto& obj = mMap->object(iobj);
                 const auto objType = obj.fObjectType;
-                const auto& object = eObjsTextures::get(objType);
-                const auto& tex = object.getTexture(obj.fTileType);
-                mGamePainter.drawShadow(px - 0.5f*tex->width(),
-                                        py + tileH, *tex);
-                mGamePainter.drawTexture(px, py + tileH, tex,
+                const auto& object = eObjectsInfo::sObjects.get(objType);
+                const auto texObjectId = object.fTexId;
+                const auto& objectTex = eObjsTextures::get(texObjectId);
+                const auto& types = objectTex.fTypes;
+                const auto typeId = obj.fTileType % types.size();
+                const auto& type = types[typeId];
+                const auto& tex = type[0].fTexs.getTexture(0);
+                const int h = object.fSize*tileH;
+                const auto& pos = obj.fPos;
+                const float fpx = px + 0.5f*((pos.fX - x) - (pos.fY - y))*tileW;
+                const float fpy = py + 0.5f*((pos.fX - x) + (pos.fY - y))*tileH;
+                mGamePainter.drawShadow(fpx - 0.5f*tex->width(), fpy + h, *tex);
+                mGamePainter.drawTexture(fpx, fpy + h, tex,
                                          eAlignment::top | eAlignment::hcenter);
             }
             for(int eleId = nextElement; eleId < (int)renderElements.size(); eleId++) {

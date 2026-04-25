@@ -21,6 +21,7 @@
 #include "../textures/emaptextures.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -230,7 +231,9 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([&res, r, map]() {
         const auto& objTypes = map->objectTypes();
         for(const auto& objType : objTypes) {
-            auto& texs = eObjsTextures::get(objType);
+            const auto& objInfo = eObjectsInfo::sObjects.get(objType);
+            const auto objTexId = objInfo.fTexId;
+            auto& texs = eObjsTextures::get(objTexId);
             texs.load(res, r);
         }
     });

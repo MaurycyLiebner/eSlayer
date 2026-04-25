@@ -5,7 +5,7 @@
 
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
-#include <eSlayerHelpers/eobjstexturesdata.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
 
 class eMapGenerator {
@@ -437,14 +437,24 @@ eMapGenerator::generate(const std::string& name) const {
     rect.fX = 0;
     rect.fY = 0;
 
-    const uint16_t townFloorId = eTerrsTexturesData::id("grass");
-    result->mTerrainTypes.emplace(townFloorId);
+    const uint16_t grassId = eTerrsTexturesData::id("grass");
+    result->mTerrainTypes.emplace(grassId);
 
-    const auto townFenceId = eObjsTexturesData::id("town_fence");
+    const auto townFenceId = eObjectsInfo::sObjects.id("town_fence");
     result->mObjectTypes.emplace(townFenceId);
+    const auto& townFenceInfo = eObjectsInfo::sObjects.get(townFenceId);
 
-    const auto treesId = eObjsTexturesData::id("trees");
-    result->mObjectTypes.emplace(treesId);
+    const auto treeId = eObjectsInfo::sObjects.id("tree");
+    result->mObjectTypes.emplace(treeId);
+    const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
+
+    const auto chestId = eObjectsInfo::sObjects.id("chest");
+    result->mObjectTypes.emplace(chestId);
+    const auto& chestInfo = eObjectsInfo::sObjects.get(chestId);
+
+    const auto smallChestId = eObjectsInfo::sObjects.id("small_chest");
+    result->mObjectTypes.emplace(smallChestId);
+    const auto& smallChestInfo = eObjectsInfo::sObjects.get(smallChestId);
 
     result->generateTiles(rect.fW, rect.fH);
     for(const auto& it : areas) {
@@ -500,11 +510,11 @@ eMapGenerator::generate(const std::string& name) const {
                     if(inner) {
                         if(eRand::randChance(0.1f)) {
                             auto& obj = result->mObjects.emplace_back();
-                            obj.fObjectType = treesId;
-                            obj.fTileType = eRand::rand(0, 2);
+                            obj.fObjectType = treeId;
+                            obj.fTileType = eRand::rand();
                             obj.fPos.fX = globalX;
                             obj.fPos.fY = globalY;
-                            obj.fSize = 1.f;
+                            obj.fSize = treeInfo.fSize;
                         }
                     } else {
                         auto& obj = result->mObjects.emplace_back();
@@ -512,18 +522,25 @@ eMapGenerator::generate(const std::string& name) const {
                         obj.fTileType = 0;
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;
-                        obj.fSize = 1.f;
+                        obj.fSize = townFenceInfo.fSize;
                     }
                 } else if(result->mSpawnPos == ePoint{0, 0}) {
                     result->mSpawnPos = {globalX, globalY};
                 } else {
                     if(eRand::randChance(0.025f)) {
                         auto& obj = result->mObjects.emplace_back();
-                        obj.fObjectType = treesId;
-                        obj.fTileType = eRand::rand(0, 2);
+                        obj.fObjectType = treeId;
+                        obj.fTileType = eRand::rand();
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;
-                        obj.fSize = 1.f;
+                        obj.fSize = treeInfo.fSize;
+                    } else if(eRand::randChance(0.01f)) {
+                        auto& obj = result->mObjects.emplace_back();
+                        obj.fObjectType = eRand::randChance(0.5) ? chestId : smallChestId;
+                        obj.fTileType = eRand::rand();
+                        obj.fPos.fX = globalX;
+                        obj.fPos.fY = globalY;
+                        obj.fSize = chestInfo.fSize;
                     }
                 }
             }
