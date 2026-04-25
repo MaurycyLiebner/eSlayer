@@ -172,6 +172,7 @@ add_executable(eSlayerGame main.cpp
     names/eareanames.h names/eareanames.cpp
     widgets/gameScreen/eminimap.h widgets/gameScreen/eminimap.cpp
     textures/emaptextures.h textures/emaptextures.cpp
+    widgets/ealignment.h
 
 
 )

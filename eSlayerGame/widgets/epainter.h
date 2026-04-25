@@ -4,6 +4,7 @@
 #include "../textures/etexture.h"
 #include "efonts.h"
 #include "efontcolor.h"
+#include "ealignment.h"
 
 #include <SDL3_ttf/SDL_ttf.h>
 

@@ -37,16 +37,16 @@ void ePainter::drawTexture(const int x, const int y,
                            const std::shared_ptr<eTexture>& tex,
                            const eAlignment align) const {
     int xx = x;
-    if(static_cast<bool>(align & eAlignment::left)) {
+    if(align & eAlignment::left) {
         xx -= tex->width();
-    } else if(static_cast<bool>(align & eAlignment::hcenter)) {
+    } else if(align & eAlignment::hcenter) {
         xx -= tex->width()/2;
     }
 
     int yy = y;
-    if(static_cast<bool>(align & eAlignment::top)) {
+    if(align & eAlignment::top) {
         yy -= tex->height();
-    } else if(static_cast<bool>(align & eAlignment::vcenter)) {
+    } else if(align & eAlignment::vcenter) {
         yy -= tex->height()/2;
     }
 
@@ -57,18 +57,18 @@ void ePainter::drawTexture(const SDL_Rect& rect,
                            const std::shared_ptr<eTexture>& tex,
                            const eAlignment align) const {
     int xx;
-    if(static_cast<bool>(align & eAlignment::right)) {
+    if(align & eAlignment::right) {
         xx = rect.x + rect.w - tex->width();
-    } else if(static_cast<bool>(align & eAlignment::hcenter)) {
+    } else if(align & eAlignment::hcenter) {
         xx = rect.x + (rect.w - tex->width())/2;
     } else {
         xx = rect.x;
     }
 
     int yy;
-    if(static_cast<bool>(align & eAlignment::bottom)) {
+    if(align & eAlignment::bottom) {
         yy = rect.y + rect.h - tex->height();
-    } else if(static_cast<bool>(align & eAlignment::vcenter)) {
+    } else if(align & eAlignment::vcenter) {
         yy = rect.y + (rect.h - tex->height())/2;
     } else {
         yy = rect.y;

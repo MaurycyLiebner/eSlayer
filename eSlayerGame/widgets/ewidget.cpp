@@ -131,19 +131,19 @@ void eWidget::setNoPadding() {
 
 void eWidget::align(const eAlignment a) {
     if(!mParent) return;
-    if(static_cast<bool>(a & eAlignment::left)) {
+    if(a & eAlignment::left) {
         setX(0);
-    } else if(static_cast<bool>(a & eAlignment::right)) {
+    } else if(a & eAlignment::right) {
         setX(mParent->width() - width());
-    } else if(static_cast<bool>(a & eAlignment::hcenter)) {
+    } else if(a & eAlignment::hcenter) {
         setX((mParent->width() - width())/2);
     }
 
-    if(static_cast<bool>(a & eAlignment::top)) {
+    if(a & eAlignment::top) {
         setY(0);
-    } else if(static_cast<bool>(a & eAlignment::bottom)) {
+    } else if(a & eAlignment::bottom) {
         setY(mParent->height() - height());
-    } else if(static_cast<bool>(a & eAlignment::vcenter)) {
+    } else if(a & eAlignment::vcenter) {
         setY((mParent->height() - height())/2);
     }
 }
