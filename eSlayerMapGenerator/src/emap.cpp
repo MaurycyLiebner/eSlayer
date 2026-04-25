@@ -39,6 +39,14 @@ bool eMap::walkable(const ePointF& pos) const {
     return true;
 }
 
+bool eMap::hasObjects(const int x, const int y) const {
+    if(x < 0 || x >= mWidth ||
+       y < 0 || y >= mHeight) {
+        return false;
+    }
+    return !objects(x, y).empty();
+}
+
 void eMap::loadPortion(const eMapPortion& portion) {
     const auto& area = portion.fArea;
 
