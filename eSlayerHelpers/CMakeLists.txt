@@ -129,8 +129,8 @@ add_library(eSlayerHelpers SHARED
     src/etiletexturesdata.cpp
     include/eSlayerHelpers/eterrstexturesdata.h
     src/eterrstexturesdata.cpp
-    include/eSlayerHelpers/eobjstexturesdata.h
-    src/eobjstexturesdata.cpp
+
+
     include/eSlayerHelpers/emapportion.h
     src/emapportion.cpp
     include/eSlayerHelpers/eareas.h

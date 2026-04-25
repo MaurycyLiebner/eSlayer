@@ -4,7 +4,6 @@
 #include "../efileloader.h"
 
 #include <eSlayerHelpers/eobjectsinfo.h>
-#include <eSlayerHelpers/eobjstexturesdata.h>
 
 bool eObjsTextures::sLoaded = false;
 eStringIdMapVector<eObjTextures>
