@@ -47,7 +47,7 @@ void eLightingTexture::renderLight(
     const SDL_FRect srcRect{0.f, 0.f, srcW, srcH};
     const float dstX = x - dstW/2.f;
     const float dstY = y - dstH/2.f;
-    // const SDL_FRect dstRect{dstX, dstY, dstW, dstH};
+    const SDL_FRect dstRect{dstX, dstY, dstW, dstH};
     const auto lightTex = std::make_shared<eTexture>();
     lightTex->create(r, dstW, dstH, SDL_Color{0, 0, 0, 255});
     lightTex->setBlendMode(SDL_BLENDMODE_ADD);
@@ -64,11 +64,27 @@ void eLightingTexture::renderLight(
         shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
 
         {
+            std::map<float, eLightBlocker> sortedBlockers;
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : blockers) {
-                // const SDL_FPoint pt{b.fPX, b.fTileCenterY};
-                // if(!SDL_PointInRectFloat(&pt, &dstRect)) continue;
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
+                const float bTexH = bTex->height();
+                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
+                                         b.fPY - bTexH,
+                                         bTexW, bTexH};
+                if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
+                const float dx = x - b.fPX;
+                const float dy = y - b.fTileCenterY;
+                const float keyShift = dy > 0 ? -2.f*dstW*dstW : 0.f;
+                const float key = keyShift - (dx*dx + dy*dy);
+                sortedBlockers.emplace(key, b);
+            }
 
+            for(const auto& it : sortedBlockers) {
+                const auto& b = it.second;
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
                 const ePointF objPt{b.fPX - dstX, b.fTileCenterY - dstY};
                 const ePointF lightPt{x - dstX, y - dstY};
 
@@ -83,7 +99,7 @@ void eLightingTexture::renderLight(
                 const float shadowLen = dstW; // or radius * 2
 
                 // Use REAL object width (no scaling)
-                const float halfW = b.fSize*100.f;
+                const float halfW = mult*b.fSize*33.3f;
 
                 // Build perpendicular as before
                 const eVec2f perp{-dir.y, dir.x};
@@ -127,11 +143,10 @@ void eLightingTexture::renderLight(
                 // Render geometry
                 SDL_RenderGeometry(r, nullptr, verts, 6, nullptr, 0);
 
-                const auto& tex = b.fTex;
                 const float dy = y - b.fTileCenterY;
-                const float lightness = std::clamp(0.1f*dy/mult, 0.f, 255.f);
-                p.drawShadow(b.fPX - 0.5f*tex->width() - dstX,
-                             b.fPY - dstY, *tex,
+                const float lightness = std::clamp(0.05f*dy/mult, 0.f, 255.f);
+                p.drawShadow(b.fPX - 0.5f*bTexW - dstX,
+                             b.fPY - dstY, *bTex,
                              0.f, 1.f, lightness, 1.f);
             }
         }
