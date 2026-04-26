@@ -21,7 +21,8 @@ public:
     void incFrame(const float by);
     void draw(eGamePainter& p,
               const eResolution& res,
-              const bool highlight = false) const;
+              const bool highlight = false,
+              const bool fullLight = false) const;
     void draw(ePainter& p,
               const eResolution& res,
               const bool highlight = false) const;

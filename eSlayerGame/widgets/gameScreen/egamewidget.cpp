@@ -536,7 +536,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                     if(const auto p = mPressedUnit.lock()) {
                         highlight = p == u;
                     }
-                    model.draw(mGamePainter, res, highlight);
+                    const bool drawLighting = u == mMainChar;
+                    model.draw(mGamePainter, res, highlight, drawLighting);
+                    if(drawLighting) {
+                        mGamePainter.renderLight(pixel.fX, pixel.fY, 10.f,
+                                                 SDL_Color{255, 255, 255, 255});
+                    }
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
                     const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);
@@ -593,8 +598,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
     }
 
-    mGamePainter.renderLight(charPX, charPY, 10.f,
-                             SDL_Color{255, 255, 255, 255});
     mGamePainter.finish(res);
 
     const auto& tex = texture();
