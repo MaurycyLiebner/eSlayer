@@ -95,7 +95,6 @@ void eLightingTexture::renderLight(
                 eVec2f dir = ePointF::vector(objPt, lightPt);
                 const float len = dir.length();
                 if(len < 0.001f) return;
-
                 dir /= len; // normalize
 
                 // Project both points away from light
@@ -118,100 +117,8 @@ void eLightingTexture::renderLight(
                 const ePointF leftPt  = objPt + perp * halfW;
                 const ePointF rightPt = objPt - perp * halfW;
 
-                // Now project EACH edge independently (this is the key!)
-                auto dirLeft  = ePointF::vector(leftPt, lightPt);
-                auto dirRight = ePointF::vector(rightPt, lightPt);
-
-                dirLeft.normalize(1.f);
-                dirRight.normalize(1.f);
-
-                const ePointF farLeft  = leftPt  + dirLeft  * shadowLen;
-                const ePointF farRight = rightPt + dirRight * shadowLen;
-
-                const float softness = mult*20.f; // tweak this (pixels)
-
-                const ePointF nearLeft  = leftPt  - dirLeft  * softness;
-                const ePointF nearRight = rightPt - dirRight * softness;
-
-                // expand sideways
-                const ePointF leftOuter     = leftPt  + perp * softness;
-                const ePointF rightOuter    = rightPt - perp * softness;
-
-                // expand far edge more (both sideways + forward)
-                const ePointF farLeftOuter  = farLeft  + perp * softness + dirLeft * softness;
-                const ePointF farRightOuter = farRight - perp * softness + dirRight * softness;
-
-                std::vector<SDL_Vertex> verts;
-
-                // helper
-                auto make = [](const ePointF& p, const float a) {
-                    SDL_Vertex v;
-                    v.position = {p.fX, p.fY};
-                    v.color = SDL_FColor{0.f, 0.f, 0.f, a};
-                    v.tex_coord = {0,0};
-                    return v;
-                };
-
-                const float coreA = 1.f;
-                const float edgeA = 0.0f;
-
-                // ---- CORE (same as before, but semi-transparent)
-                verts.push_back(make(leftPt, coreA));
-                verts.push_back(make(rightPt, coreA));
-                verts.push_back(make(farRight, 0.0f));
-
-                verts.push_back(make(leftPt, coreA));
-                verts.push_back(make(farRight, 0.0f));
-                verts.push_back(make(farLeft, 0.0f));
-
-                // ---- NEAR EDGE FEATHER (NEW)
-                verts.push_back(make(nearLeft, edgeA));
-                verts.push_back(make(nearRight, edgeA));
-                verts.push_back(make(rightPt, coreA));
-
-                verts.push_back(make(nearLeft, edgeA));
-                verts.push_back(make(rightPt, coreA));
-                verts.push_back(make(leftPt, coreA));
-
-                // ---- LEFT SIDE FEATHER
-                verts.push_back(make(leftPt, coreA));
-                verts.push_back(make(leftOuter, edgeA));
-                verts.push_back(make(farLeftOuter, edgeA));
-
-                verts.push_back(make(leftPt, coreA));
-                verts.push_back(make(farLeftOuter, edgeA));
-                verts.push_back(make(farLeft, 0.0f));
-
-                // ---- RIGHT SIDE FEATHER
-                verts.push_back(make(rightPt, coreA));
-                verts.push_back(make(farRight, 0.0f));
-                verts.push_back(make(farRightOuter, edgeA));
-
-                verts.push_back(make(rightPt, coreA));
-                verts.push_back(make(farRightOuter, edgeA));
-                verts.push_back(make(rightOuter, edgeA));
-
-                // ---- NEAR-LEFT CORNER
-                verts.push_back(make(nearLeft, edgeA));
-                verts.push_back(make(leftOuter, edgeA));
-                verts.push_back(make(leftPt, coreA));
-
-                // ---- NEAR-RIGHT CORNER
-                verts.push_back(make(nearRight, edgeA));
-                verts.push_back(make(rightPt, coreA));
-                verts.push_back(make(rightOuter, edgeA));
-
-                // ---- FAR EDGE FEATHER
-                verts.push_back(make(farLeft, 0.0f));
-                verts.push_back(make(farRight, 0.0f));
-                verts.push_back(make(farRightOuter, edgeA));
-
-                verts.push_back(make(farLeft, 0.0f));
-                verts.push_back(make(farRightOuter, edgeA));
-                verts.push_back(make(farLeftOuter, edgeA));
-
-                SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-                SDL_RenderGeometry(r, nullptr, verts.data(), verts.size(), nullptr, 0);
+                renderShadow(res, r, lightPt, leftPt, rightPt,
+                             true, true, true, shadowLen);
 
                 const float dy = y - b.fTileCenterY;
                 const float lightness = std::clamp(0.05f*dy/mult, 0.f, 255.f);
@@ -245,4 +152,129 @@ void eLightingTexture::renderLight(
         const auto h = createTargetHolder(r);
         lightTex->render(r, dstX, dstY);
     }
+}
+
+void eLightingTexture::renderShadow(
+    const eResolution& res,
+    SDL_Renderer * const r,
+    const ePointF& lightPt,
+    const ePointF& leftPt,
+    const ePointF& rightPt,
+    const bool rightFeather,
+    const bool leftFeather,
+    const bool nearFeather,
+    const float shadowLen) const {
+    const float mult = res.multiplier();
+    const float softness = mult*20.f;
+    // Direction from light to each edge point
+    eVec2f dirLeft  = ePointF::vector(leftPt, lightPt);
+    eVec2f dirRight = ePointF::vector(rightPt, lightPt);
+
+    if(dirLeft.length() < 0.001f) return;
+    if(dirRight.length() < 0.001f) return;
+
+    dirLeft.normalize(1.f);
+    dirRight.normalize(1.f);
+
+    // Far projected points
+    const ePointF farLeft  = leftPt  + dirLeft  * shadowLen;
+    const ePointF farRight = rightPt + dirRight * shadowLen;
+
+    // Approximate "sideways" direction (not assuming symmetry)
+    eVec2f edgeDir = ePointF::vector(leftPt, rightPt);
+    if(edgeDir.length() < 0.001f) return;
+
+    edgeDir.normalize(1.f);
+    eVec2f perp{-edgeDir.y, edgeDir.x};
+
+    // Ensure perp points away from the light
+    const auto middle = rightPt + ePointF::vector(leftPt, rightPt)*0.5f;
+    const eVec2f toLight = ePointF::vector(lightPt, middle);
+
+    if(eVec2f::dot(perp, toLight) < 0.f) {
+        perp = {-perp.x, -perp.y};
+    }
+
+    // Near softness (towards light)
+    const ePointF nearLeft  = leftPt  - dirLeft  * softness;
+    const ePointF nearRight = rightPt - dirRight * softness;
+
+    // Side expansion
+    const ePointF leftOuter     = leftPt  + perp * softness;
+    const ePointF rightOuter    = rightPt + perp * softness;
+
+    const ePointF farLeftOuter  = farLeft  + perp * softness + dirLeft  * softness;
+    const ePointF farRightOuter = farRight + perp * softness + dirRight * softness;
+
+    std::vector<SDL_Vertex> verts;
+
+    auto make = [](const ePointF& p, float a) {
+        SDL_Vertex v;
+        v.position = {p.fX, p.fY};
+        v.color = SDL_FColor{0.f, 0.f, 0.f, a};
+        v.tex_coord = {0, 0};
+        return v;
+    };
+
+    const float coreA = 1.f;
+    const float edgeA = 0.f;
+
+    // ---- CORE
+    verts.push_back(make(leftPt, coreA));
+    verts.push_back(make(rightPt, coreA));
+    verts.push_back(make(farRight, coreA));
+
+    verts.push_back(make(leftPt, coreA));
+    verts.push_back(make(farRight, coreA));
+    verts.push_back(make(farLeft, coreA));
+
+    // ---- NEAR EDGE FEATHER
+    if(nearFeather) {
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(nearRight, edgeA));
+        verts.push_back(make(rightPt, coreA));
+
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(leftPt, coreA));
+    }
+
+    // ---- LEFT SIDE FEATHER
+    if(leftFeather) {
+        verts.push_back(make(leftPt, coreA));
+        verts.push_back(make(leftOuter, edgeA));
+        verts.push_back(make(farLeftOuter, edgeA));
+
+        verts.push_back(make(leftPt, coreA));
+        verts.push_back(make(farLeftOuter, edgeA));
+        verts.push_back(make(farLeft, coreA));
+    }
+
+    // ---- RIGHT SIDE FEATHER
+    if(rightFeather) {
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(farRight, coreA));
+        verts.push_back(make(farRightOuter, edgeA));
+
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(farRightOuter, edgeA));
+        verts.push_back(make(rightOuter, edgeA));
+    }
+
+    // ---- NEAR CORNERS
+    if(nearFeather && leftFeather) {
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(leftOuter, edgeA));
+        verts.push_back(make(leftPt, coreA));
+    }
+
+    if(nearFeather && rightFeather) {
+        verts.push_back(make(nearRight, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(rightOuter, edgeA));
+    }
+
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_RenderGeometry(r, nullptr, verts.data(),
+                       verts.size(), nullptr, 0);
 }

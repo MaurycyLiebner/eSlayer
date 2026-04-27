@@ -4,6 +4,8 @@
 #include "etexture.h"
 #include "epaintcall.h"
 
+#include <eSlayerHelpers/epoint.h>
+
 #include <vector>
 
 class eResolution;
@@ -57,6 +59,16 @@ public:
         SDL_Renderer * const r,
         const eLight& light,
         const std::vector<eLightBlocker>& blockers);
+    void renderShadow(
+        const eResolution& res,
+        SDL_Renderer * const r,
+        const ePointF& lightPt,
+        const ePointF& leftPt,
+        const ePointF& rightPt,
+        const bool rightFeather,
+        const bool leftFeather,
+        const bool nearFeather,
+        const float shadowLen) const;
 private:
     SDL_Color mColor;
     std::shared_ptr<eTexture> mLightingTex;
