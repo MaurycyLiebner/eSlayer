@@ -4,8 +4,6 @@
 #include "../efileloader.h"
 #include "../eresolution.h"
 
-eTileTextures::eTileTextures() {}
-
 const std::shared_ptr<eTexture>& eTileTextures::getTexture(const int id) const {
     return mColl->getTexture(id);
 }
@@ -14,11 +12,21 @@ int eTileTextures::size() const {
     return mColl->size();
 }
 
+void eTileTextures::load(const int w, const int h,
+                         const eResolution& res,
+                         SDL_Renderer* const r) {
+    if(fFlat) {
+        loadFixedSize(w, h, res, r);
+    } else {
+        load(res, r);
+    }
+}
+
 void eTileTextures::load(const eResolution& res,
                          SDL_Renderer* const r) {
     if(mLoaded) return;
     mLoaded = true;
-    eSpriteLoader loader("Textures", mDirName + "/" + mName, res, r);
+    eSpriteLoader loader("Textures", "terrain/" + fName + "/" + fName, res, r);
     mColl = std::make_shared<eTextureCollection>();
     loader.loadAll(*mColl);
 }
@@ -30,7 +38,7 @@ void eTileTextures::loadFixedSize(const int w, const int h,
     mLoaded = true;
     const auto suffix = res.textureSuffix();
     const auto dir = "Textures";
-    const auto path = mDirName + "/" + mName + suffix + "_0.png";
+    const auto path = "terrain/" + fName + "/" + fName + suffix + "_0.png";
     const auto atlas = eFileLoader::readTexture(r, dir, path);
     mColl = std::make_shared<eTextureCollection>();
     const int aw = atlas->width();
@@ -42,11 +50,4 @@ void eTileTextures::loadFixedSize(const int w, const int h,
             mColl->addTexture(tex);
         }
     }
-}
-
-void eTileTextures::initialize(
-    const std::string& dirName,
-    const std::string& name) {
-    mDirName = dirName;
-    mName = name;
 }

@@ -2,6 +2,7 @@
 
 #include <eSlayerHelpers/epacket.h>
 #include <eSlayerHelpers/erect.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
 
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
@@ -23,6 +24,12 @@ bool eMap::walkable(const ePointF& pos) const {
        y < 0 || y >= mHeight) {
         return false;
     } else {
+        const auto& tile = eMap::tile(x, y);
+        const auto type = tile.fTerrainType;
+        const auto& info = eTerrsTexturesData::get(type);
+        const bool w = info.fWalkable;
+        if(!w) return false;
+
         const auto& objs = objects(x, y);
         const bool empty = objs.empty();
         if(empty) return true;
@@ -37,6 +44,36 @@ bool eMap::walkable(const ePointF& pos) const {
         }
     }
     return true;
+}
+
+bool eMap::obsticle(const ePointF& pos) const {
+    const auto iPos = pos.floor();
+    const int x = iPos.fX;
+    const int y = iPos.fY;
+    if(x < 0 || x >= mWidth ||
+       y < 0 || y >= mHeight) {
+        return false;
+    } else {
+        const auto& tile = eMap::tile(x, y);
+        const auto type = tile.fTerrainType;
+        const auto& info = eTerrsTexturesData::get(type);
+        const bool o = info.fObsticle;
+        if(o) return true;
+
+        const auto& objs = objects(x, y);
+        const bool empty = objs.empty();
+        if(empty) return false;
+        for(const auto oid : objs) {
+            const auto& o = object(oid);
+            const auto& opos = o.fPos;
+            if(pos.fX < opos.fX) continue;
+            if(pos.fY < opos.fY) continue;
+            if(pos.fX >= opos.fX + o.fSize) continue;
+            if(pos.fY >= opos.fY + o.fSize) continue;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool eMap::hasObjects(const int x, const int y) const {

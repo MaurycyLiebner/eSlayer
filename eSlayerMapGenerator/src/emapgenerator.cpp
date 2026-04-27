@@ -440,6 +440,9 @@ eMapGenerator::generate(const std::string& name) const {
     const uint16_t grassId = eTerrsTexturesData::id("grass");
     result->mTerrainTypes.emplace(grassId);
 
+    const uint16_t basementId = eTerrsTexturesData::id("basement");
+    result->mTerrainTypes.emplace(basementId);
+
     const auto townFenceId = eObjectsInfo::sObjects.id("town_fence");
     result->mObjectTypes.emplace(townFenceId);
     const auto& townFenceInfo = eObjectsInfo::sObjects.get(townFenceId);
@@ -474,7 +477,7 @@ eMapGenerator::generate(const std::string& name) const {
                 const int globalY = y + area.fY;
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
-                dst.fTerrainType = 1;
+                dst.fTerrainType = grassId;
                 dst.fTileType = eRand::rand() % 20;
                 if(src == Tile::WALL) {
                     bool inner = true;
@@ -517,12 +520,57 @@ eMapGenerator::generate(const std::string& name) const {
                             obj.fSize = treeInfo.fSize;
                         }
                     } else {
-                        auto& obj = result->mObjects.emplace_back();
-                        obj.fObjectType = townFenceId;
-                        obj.fTileType = 0;
-                        obj.fPos.fX = globalX;
-                        obj.fPos.fY = globalY;
-                        obj.fSize = townFenceInfo.fSize;
+                        if(name == "blood_moor") {
+                            dst.fTerrainType = basementId;
+                            std::vector<std::vector<bool>> walls(
+                                3, std::vector<bool>(3, true));
+                            for(int dx = -1; dx <= 1; dx++) {
+
+                                const int srcX = x + dx;
+                                if(srcX < 0) continue;
+                                else if(srcX >= area.width) break;
+
+                                const int dstX = globalX + dx;
+                                if(dstX < 0) continue;
+                                else if(dstX >= result->mWidth) break;
+
+                                for(int dy = -1; dy <= 1; dy++) {
+                                    if(dx == 0 && dy == 0) continue;
+
+                                    const int srcY = y + dy;
+                                    if(srcY < 0) continue;
+                                    else if(srcY >= area.height) break;
+
+                                    const int dstY = globalY + dy;
+                                    if(dstY < 0) continue;
+                                    else if(dstY >= result->mHeight) break;
+
+                                    const auto& src = area.map[srcX][srcY];
+                                    walls[dy + 1][dx + 1] = src == Tile::WALL;
+                                }
+                            }
+
+                            if(!walls[2][1] && !walls[1][2]) {
+                                dst.fTileType = 1;
+                            } else if(!walls[2][1]) {
+                                dst.fTileType = 5;
+                            } else if(!walls[1][0]) {
+                                dst.fTileType = 2;
+                            } else if(!walls[1][2]) {
+                                dst.fTileType = 3;
+                            } else if(!walls[0][1]) {
+                                dst.fTileType = 4;
+                            } else  {
+                                dst.fTerrainType = 0;
+                            }
+                        } else {
+                            auto& obj = result->mObjects.emplace_back();
+                            obj.fObjectType = townFenceId;
+                            obj.fTileType = 0;
+                            obj.fPos.fX = globalX;
+                            obj.fPos.fY = globalY;
+                            obj.fSize = townFenceInfo.fSize;
+                        }
                     }
                 } else if(result->mSpawnPos == ePoint{0, 0}) {
                     result->mSpawnPos = {globalX, globalY};

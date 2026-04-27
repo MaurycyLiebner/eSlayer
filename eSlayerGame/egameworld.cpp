@@ -18,7 +18,7 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mUnitAreas(1),
     mMIncrementer(mUnitAreas) {
     const auto obsticle = [this](const ePointF& pos) {
-        return !mMap->walkable(pos);
+        return mMap->obsticle(pos);
     };
 
     const auto removeMissile = [this](const eMissile& m) {

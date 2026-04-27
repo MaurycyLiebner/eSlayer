@@ -125,8 +125,8 @@ add_library(eSlayerHelpers SHARED
     src/eweapontype.cpp
     include/eSlayerHelpers/estringhelpers.h
     src/estringhelpers.cpp
-    include/eSlayerHelpers/etiletexturesdata.h
-    src/etiletexturesdata.cpp
+
+
     include/eSlayerHelpers/eterrstexturesdata.h
     src/eterrstexturesdata.cpp
 

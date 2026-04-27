@@ -3,29 +3,27 @@
 
 #include "../textures/etexturecollection.h"
 
-#include <string>
+#include <eSlayerHelpers/eterrstexturesdata.h>
 
 class eResolution;
 
-class eTileTextures  {
+class eTileTextures : public eTileTextureData {
+    friend class eTerrsTextures;
 public:
-    eTileTextures();
-
     const std::shared_ptr<eTexture>& getTexture(const int id) const;
     int size() const;
 
+    void load(const int w, const int h,
+              const eResolution& res,
+              SDL_Renderer * const r);
+private:
     void load(const eResolution& res,
               SDL_Renderer * const r);
     void loadFixedSize(const int w, const int h,
                        const eResolution& res,
                        SDL_Renderer * const r);
 
-    void initialize(const std::string& dirName,
-                    const std::string& name);
-private:
     bool mLoaded = false;
-    std::string mDirName;
-    std::string mName;
     std::shared_ptr<eTextureCollection> mColl;
 };
 

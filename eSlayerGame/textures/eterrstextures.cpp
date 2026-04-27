@@ -18,10 +18,10 @@ eTileTextures& eTerrsTextures::get(const int id) {
 }
 
 void eTerrsTextures::load() {
-    eTerrsTexturesData::forEach([](const eTileTexturesData::eIt& it) {
-        eTileTextures texs;
+    for(const auto& it : eTerrsTexturesData::sTexs) {
         const auto& data = it.fValue;
-        texs.initialize(data.fDirName, data.fName);
+        eTileTextures texs;
+        reinterpret_cast<eTileTextureData&>(texs) = data;
         sInstance.add(it.fName, texs);
-    });
+    }
 }

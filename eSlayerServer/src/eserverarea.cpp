@@ -25,7 +25,7 @@ eServerArea::eServerArea() :
     mItemTiles(-mItemTileSubdivision),
     mMIncrementer(mUnitAreas) {
     const auto obsticle = [this](const ePointF& pos) {
-        return !mMap->walkable(pos);
+        return mMap->obsticle(pos);
     };
 
     const auto removeMissile = [this](const eMissile& m) {

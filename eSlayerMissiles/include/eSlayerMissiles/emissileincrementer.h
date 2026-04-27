@@ -12,7 +12,7 @@ struct eUnitData;
 
 class ESLAYERMISSILES_API eMissileIncrementer {
 public:
-   eMissileIncrementer(eSetAreas& unitAreas);
+    eMissileIncrementer(eSetAreas& unitAreas);
 
     using eObsticle = std::function<bool(const ePointF& pos)>;
     using eRemoveMissile = std::function<void(const eMissile& m)>;

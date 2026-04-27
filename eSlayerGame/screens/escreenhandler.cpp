@@ -225,7 +225,7 @@ void eScreenHandler::showGame(eServerData serverData,
         const auto& terrTypes = map->terrainTypes();
         for(const auto& terrType : terrTypes) {
             auto& texs = eTerrsTextures::get(terrType);
-            texs.loadFixedSize(w, h, res, r);
+            texs.load(w, h, res, r);
         }
     });
     loading.emplace_back([&res, r, map]() {

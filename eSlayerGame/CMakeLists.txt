@@ -133,7 +133,7 @@ add_executable(eSlayerGame main.cpp
     textures/eobjstextures.h textures/eobjstextures.cpp
 
     textures/etiletextures.h textures/etiletextures.cpp
-    textures/etilestextures.h textures/etilestextures.cpp
+
     textures/etilesiterator.h textures/etilesiterator.cpp
     units/eunit.h units/eunit.cpp
     widgets/gameScreen/egamepainter.h widgets/gameScreen/egamepainter.cpp
