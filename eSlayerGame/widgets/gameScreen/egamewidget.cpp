@@ -361,9 +361,6 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     mFrame++;
 
-    const float charPX = mInput.characterHorizontalPos()*width();
-    const float charPY = mInput.characterVerticalPos()*height();
-
     const int tileH = eGameWidget::tileHeight();
     {
         const auto holder = mGamePainter.switchToBase();
@@ -539,7 +536,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                     model.draw(mGamePainter, res, highlight);
                     const bool drawLighting = u == mMainChar;
                     if(drawLighting) {
-                        const auto paintCall = model.paintCall(r);
+                        auto paintCall = model.paintCall(r);
+                        paintCall.fX += mGamePainter.x();
+                        paintCall.fY += mGamePainter.y();
                         mGamePainter.renderLight(pixel.fX, pixel.fY, 10.f,
                                                  SDL_Color{255, 255, 255, 255},
                                                  paintCall);
@@ -556,7 +555,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
                     const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
-                        ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
+                        const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
                         mGamePainter.renderLight(pixel.fX, pixel.fY,
                                                  lradius, SDL_Color{255, 255, 255, 255},
                                                  paintCall);

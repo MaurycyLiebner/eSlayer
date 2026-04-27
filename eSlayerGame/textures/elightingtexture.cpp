@@ -77,7 +77,7 @@ void eLightingTexture::renderLight(
                 if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
                 const float dx = x - b.fPX;
                 const float dy = y - b.fTileCenterY;
-                const float key = dx*dx + dy*dy;
+                const float key = -(dx*dx + dy*dy);
                 if(dy > 0) {
                     aboveBlockers.emplace(key, b);
                 } else {
@@ -101,11 +101,18 @@ void eLightingTexture::renderLight(
                 // Project both points away from light
                 const float shadowLen = dstW; // or radius * 2
 
-                // Use REAL object width (no scaling)
-                const float halfW = mult*b.fSize*33.3f;
-
-                       // Build perpendicular as before
+                // Build perpendicular as before
                 const eVec2f perp{-dir.y, dir.x};
+
+                const float isoScaleX = 1.f;
+                const float isoScaleY = 0.2f; // typical isometric vertical squash
+
+                // project perp into iso space
+                const float projectedScale =
+                    std::sqrt((perp.x * perp.x) * isoScaleX +
+                              (perp.y * perp.y) * isoScaleY);
+
+                const float halfW = mult * b.fSize * 33.3f * projectedScale;
 
                 // Edge points
                 const ePointF leftPt  = objPt + perp * halfW;
@@ -121,30 +128,90 @@ void eLightingTexture::renderLight(
                 const ePointF farLeft  = leftPt  + dirLeft  * shadowLen;
                 const ePointF farRight = rightPt + dirRight * shadowLen;
 
-                // Build quad as two triangles
-                SDL_Vertex verts[6];
+                const float softness = mult*20.f; // tweak this (pixels)
 
-                // Triangle 1
-                verts[0].position = {leftPt.fX, leftPt.fY};
-                verts[1].position = {rightPt.fX, rightPt.fY};
-                verts[2].position = {farRight.fX, farRight.fY};
+                const ePointF nearLeft  = leftPt  - dirLeft  * softness;
+                const ePointF nearRight = rightPt - dirRight * softness;
 
-                // Triangle 2
-                verts[3].position = {leftPt.fX, leftPt.fY};
-                verts[4].position = {farRight.fX, farRight.fY};
-                verts[5].position = {farLeft.fX, farLeft.fY};
+                // expand sideways
+                const ePointF leftOuter     = leftPt  + perp * softness;
+                const ePointF rightOuter    = rightPt - perp * softness;
 
-                // All black
-                for(int i = 0; i < 6; i++) {
-                    verts[i].color = SDL_FColor{0, 0, 0, 1.f};
-                    verts[i].tex_coord = SDL_FPoint{0, 0};
-                }
+                // expand far edge more (both sideways + forward)
+                const ePointF farLeftOuter  = farLeft  + perp * softness + dirLeft * softness;
+                const ePointF farRightOuter = farRight - perp * softness + dirRight * softness;
 
-                // Blend: darken
+                std::vector<SDL_Vertex> verts;
+
+                // helper
+                auto make = [](const ePointF& p, const float a) {
+                    SDL_Vertex v;
+                    v.position = {p.fX, p.fY};
+                    v.color = SDL_FColor{0.f, 0.f, 0.f, a};
+                    v.tex_coord = {0,0};
+                    return v;
+                };
+
+                const float coreA = 1.f;
+                const float edgeA = 0.0f;
+
+                // ---- CORE (same as before, but semi-transparent)
+                verts.push_back(make(leftPt, coreA));
+                verts.push_back(make(rightPt, coreA));
+                verts.push_back(make(farRight, 0.0f));
+
+                verts.push_back(make(leftPt, coreA));
+                verts.push_back(make(farRight, 0.0f));
+                verts.push_back(make(farLeft, 0.0f));
+
+                // ---- NEAR EDGE FEATHER (NEW)
+                verts.push_back(make(nearLeft, edgeA));
+                verts.push_back(make(nearRight, edgeA));
+                verts.push_back(make(rightPt, coreA));
+
+                verts.push_back(make(nearLeft, edgeA));
+                verts.push_back(make(rightPt, coreA));
+                verts.push_back(make(leftPt, coreA));
+
+                // ---- LEFT SIDE FEATHER
+                verts.push_back(make(leftPt, coreA));
+                verts.push_back(make(leftOuter, edgeA));
+                verts.push_back(make(farLeftOuter, edgeA));
+
+                verts.push_back(make(leftPt, coreA));
+                verts.push_back(make(farLeftOuter, edgeA));
+                verts.push_back(make(farLeft, 0.0f));
+
+                // ---- RIGHT SIDE FEATHER
+                verts.push_back(make(rightPt, coreA));
+                verts.push_back(make(farRight, 0.0f));
+                verts.push_back(make(farRightOuter, edgeA));
+
+                verts.push_back(make(rightPt, coreA));
+                verts.push_back(make(farRightOuter, edgeA));
+                verts.push_back(make(rightOuter, edgeA));
+
+                // ---- NEAR-LEFT CORNER
+                verts.push_back(make(nearLeft, edgeA));
+                verts.push_back(make(leftOuter, edgeA));
+                verts.push_back(make(leftPt, coreA));
+
+                // ---- NEAR-RIGHT CORNER
+                verts.push_back(make(nearRight, edgeA));
+                verts.push_back(make(rightPt, coreA));
+                verts.push_back(make(rightOuter, edgeA));
+
+                // ---- FAR EDGE FEATHER
+                verts.push_back(make(farLeft, 0.0f));
+                verts.push_back(make(farRight, 0.0f));
+                verts.push_back(make(farRightOuter, edgeA));
+
+                verts.push_back(make(farLeft, 0.0f));
+                verts.push_back(make(farRightOuter, edgeA));
+                verts.push_back(make(farLeftOuter, edgeA));
+
                 SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-
-                // Render geometry
-                SDL_RenderGeometry(r, nullptr, verts, 6, nullptr, 0);
+                SDL_RenderGeometry(r, nullptr, verts.data(), verts.size(), nullptr, 0);
 
                 const float dy = y - b.fTileCenterY;
                 const float lightness = std::clamp(0.05f*dy/mult, 0.f, 255.f);
@@ -160,9 +227,10 @@ void eLightingTexture::renderLight(
 
             const auto& paintCall = light.fPaintCall;
             if(paintCall.fTex) {
-                p.drawShadow(paintCall.fX, paintCall.fY,
-                             *paintCall.fTex,
-                             0.f, 1.f, 255.f, 1.f);
+                const auto& tex = *paintCall.fTex;
+                p.drawShadow(paintCall.fX - dstX,
+                             paintCall.fY - dstY + tex.height(),
+                             tex, 0.f, 1.f, 255.f, 1.f);
             }
 
             for(const auto& it : belowBlockers) {
