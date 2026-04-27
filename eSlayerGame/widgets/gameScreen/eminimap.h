@@ -90,14 +90,16 @@ private:
                     fUnknown--;
                     const int mx = x + x0;
                     const int my = y + y0;
-                    const bool w = !map.hasObjects(mx, my);
+                    const bool w = !map.hasObjects(mx, my) &&
+                                   map.walkable(ePointF(mx, my));
                     if(w) continue;
                     bool walkable[3][3];
                     for(int dx = -1; dx <= 1; dx++) {
                         for(int dy = -1; dy <= 1; dy++) {
                             const int mx2 = mx + dx;
                             const int my2 = my + dy;
-                            const bool w = !map.hasObjects(mx2, my2);
+                            const bool w = !map.hasObjects(mx2, my2) &&
+                                           map.walkable(ePointF(mx2, my2));
                             walkable[1 + dy][1 + dx] = w;
                         }
                     }
