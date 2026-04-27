@@ -5,6 +5,7 @@
 #include "epaintcall.h"
 
 #include <eSlayerHelpers/epoint.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
 
 #include <vector>
 
@@ -45,6 +46,26 @@ struct eLightBlocker {
     std::shared_ptr<eTexture> fTex;
 };
 
+struct eWallLightBlocker {
+    eWallLightBlocker(const float px,
+                      const float py,
+                      const eBlockLightDirection dir,
+                      const int tileW,
+                      const int tileH,
+                      const std::shared_ptr<eTexture>& tex) :
+        fPX(px), fPY(py),
+        fDir(dir),
+        fTileW(tileW),
+        fTileH(tileH),
+        fTex(tex) {}
+    float fPX;
+    float fPY;
+    eBlockLightDirection fDir;
+    int fTileW;
+    int fTileH;
+    std::shared_ptr<eTexture> fTex;
+};
+
 class eLightingTexture : public eTexture {
 public:
     using eTexture::eTexture;
@@ -58,7 +79,8 @@ public:
         const eResolution& res,
         SDL_Renderer * const r,
         const eLight& light,
-        const std::vector<eLightBlocker>& blockers);
+        const std::vector<eLightBlocker>& blockers,
+        const std::vector<eWallLightBlocker>& walls);
     void renderShadow(
         const eResolution& res,
         SDL_Renderer * const r,

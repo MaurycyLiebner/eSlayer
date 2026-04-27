@@ -34,9 +34,20 @@ void eTerrsTexturesData::load() {
                 const bool flat = jdata.value("flat", true);
                 const bool walkable = jdata.value("walkable", true);
                 const bool obsticle = jdata.value("obsticle", false);
+                const bool blocksLight = jdata.value("blocksLight", false);
                 texs.fFlat = flat;
                 texs.fWalkable = walkable;
                 texs.fObsticle = obsticle;
+                texs.fBlocksLight = blocksLight;
+                if(blocksLight) {
+                    texs.fBlockLightDir[0] = eBlockLightDirection::none;
+                    texs.fBlockLightDir[1] = eBlockLightDirection::sideVertical;
+                    texs.fBlockLightDir[2] = eBlockLightDirection::bottomRight;
+                    texs.fBlockLightDir[3] = eBlockLightDirection::topLeft;
+                    texs.fBlockLightDir[4] = eBlockLightDirection::sideVertical;
+                    texs.fBlockLightDir[5] = eBlockLightDirection::bottomLeft;
+                    texs.fBlockLightDir[6] = eBlockLightDirection::topRight;
+                }
             } catch(...) {
                 eRuntimeThrow("Failed to parse " + dir + "/" + path);
             }

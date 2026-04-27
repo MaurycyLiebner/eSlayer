@@ -30,8 +30,14 @@ public:
                          const float tileCenterY,
                          const float size,
                          const std::shared_ptr<eTexture>& tex);
+    void addLightBlocker(const float px, const float py,
+                         const eBlockLightDirection dir,
+                         const int tileW,
+                         const int tileH,
+                         const std::shared_ptr<eTexture>& tex);
 private:
     std::vector<eLightBlocker> mLightBlockers;
+    std::vector<eWallLightBlocker> mWallLightBlockers;
     std::vector<eLight> mLights;
     bool mRenderItemNames = false;
     Uint8 mLight = 180;

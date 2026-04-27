@@ -49,6 +49,7 @@ void eGamePainter::clear() {
         mItemNames->fill(r, SDL_Color{0, 0, 0, 0});
     }
     mLightBlockers.clear();
+    mWallLightBlockers.clear();
     mLights.clear();
 }
 
@@ -63,7 +64,9 @@ void eGamePainter::renderLight(const float x, const float y,
 void eGamePainter::finish(const eResolution& res) {
     const auto r = renderer();
     for(const auto& light : mLights) {
-        mLightingTex->renderLight(res, r, light, mLightBlockers);
+        mLightingTex->renderLight(res, r, light,
+                                  mLightBlockers,
+                                  mWallLightBlockers);
     }
     const auto holder = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
@@ -88,4 +91,12 @@ void eGamePainter::addLightBlocker(
     const float size,
     const std::shared_ptr<eTexture>& tex) {
     mLightBlockers.emplace_back(px, py, tileCenterY, size, tex);
+}
+void eGamePainter::addLightBlocker(
+    const float px, const float py,
+    const eBlockLightDirection dir,
+    const int tileW,
+    const int tileH,
+    const std::shared_ptr<eTexture>& tex) {
+    mWallLightBlockers.emplace_back(px, py, dir, tileW, tileH, tex);
 }

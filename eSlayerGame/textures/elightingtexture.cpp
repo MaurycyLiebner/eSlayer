@@ -33,7 +33,8 @@ void eLightingTexture::renderLight(
     const eResolution& res,
     SDL_Renderer * const r,
     const eLight& light,
-    const std::vector<eLightBlocker>& blockers) {
+    const std::vector<eLightBlocker>& blockers,
+    const std::vector<eWallLightBlocker>& walls) {
     const float mult = res.multiplier();
     const float radius = light.fRadius;
     const auto& color = light.fColor;
@@ -91,29 +92,29 @@ void eLightingTexture::renderLight(
                 const ePointF objPt{b.fPX - dstX, b.fTileCenterY - dstY};
                 const ePointF lightPt{x - dstX, y - dstY};
 
-                // Direction from light to object
+                       // Direction from light to object
                 eVec2f dir = ePointF::vector(objPt, lightPt);
                 const float len = dir.length();
                 if(len < 0.001f) return;
                 dir /= len; // normalize
 
-                // Project both points away from light
+                       // Project both points away from light
                 const float shadowLen = dstW; // or radius * 2
 
-                // Build perpendicular as before
+                       // Build perpendicular as before
                 const eVec2f perp{-dir.y, dir.x};
 
                 const float isoScaleX = 1.f;
                 const float isoScaleY = 0.2f; // typical isometric vertical squash
 
-                // project perp into iso space
+                       // project perp into iso space
                 const float projectedScale =
                     std::sqrt((perp.x * perp.x) * isoScaleX +
                               (perp.y * perp.y) * isoScaleY);
 
                 const float halfW = mult * b.fSize * 33.3f * projectedScale;
 
-                // Edge points
+                       // Edge points
                 const ePointF leftPt  = objPt + perp * halfW;
                 const ePointF rightPt = objPt - perp * halfW;
 
@@ -141,6 +142,73 @@ void eLightingTexture::renderLight(
             }
 
             for(const auto& it : belowBlockers) {
+                const auto& b = it.second;
+                handleBlocker(b);
+            }
+        }
+        {
+            std::map<float, eWallLightBlocker> wallMap;
+            const auto h = shadowTex->createTargetHolder(r);
+            for(const auto& b : walls) {
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
+                const float bTexH = bTex->height();
+                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
+                                         b.fPY - bTexH,
+                                         bTexW, bTexH};
+                if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
+                const float dx = x - b.fPX;
+                const float dy = y - (b.fPY + 0.5f*b.fTileH);
+                const float key = -(dx*dx + dy*dy);
+                wallMap.emplace(key, b);
+            }
+
+            const auto handleBlocker = [&](const eWallLightBlocker& b) {
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
+                const ePointF lightPt{x - dstX, y - dstY};
+
+                // Project both points away from light
+                const float shadowLen = dstW;
+
+                // Edge points
+                ePointF leftPt;
+                ePointF rightPt;
+                switch(b.fDir) {
+                case eBlockLightDirection::none:
+                    return;
+                case eBlockLightDirection::topRight:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::topLeft:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::bottomRight:
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::bottomLeft:
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::sideVertical:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX, b.fPY};
+                    break;
+                }
+                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                renderShadow(res, r, lightPt, leftPt, rightPt,
+                             true, true, true, shadowLen);
+            };
+
+            for(const auto& it : wallMap) {
                 const auto& b = it.second;
                 handleBlocker(b);
             }

@@ -5,11 +5,20 @@
 
 #include "estringidmapvector.h"
 
+enum eBlockLightDirection {
+    none,
+    topRight, topLeft,
+    bottomRight, bottomLeft,
+    sideVertical
+};
+
 struct eTileTextureData {
     std::string fName;
     bool fFlat;
     bool fWalkable;
     bool fObsticle;
+    bool fBlocksLight;
+    std::map<int, eBlockLightDirection> fBlockLightDir;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {
