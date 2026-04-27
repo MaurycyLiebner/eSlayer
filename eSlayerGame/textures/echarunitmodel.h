@@ -2,6 +2,7 @@
 #define ECHARUNITMODEL_H
 
 #include "echarmodel.h"
+#include "epaintcall.h"
 
 class eGamePainter;
 class ePainter;
@@ -21,11 +22,11 @@ public:
     void incFrame(const float by);
     void draw(eGamePainter& p,
               const eResolution& res,
-              const bool highlight = false,
-              const bool fullLight = false) const;
+              const bool highlight = false) const;
     void draw(ePainter& p,
               const eResolution& res,
               const bool highlight = false) const;
+    ePaintCall paintCall(SDL_Renderer* const r) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }

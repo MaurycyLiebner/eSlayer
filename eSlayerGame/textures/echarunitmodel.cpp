@@ -39,19 +39,12 @@ void eCharUnitModel::incFrame(const float by) {
 
 void eCharUnitModel::draw(eGamePainter& p,
                           const eResolution& res,
-                          const bool highlight,
-                          const bool fullLight) const {
+                          const bool highlight) const {
     const auto key = eCharUnitModel::key();
     if(key.fFrame == -1) return;
     const auto r = p.renderer();
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
-
-    if(fullLight) {
-        const auto h = p.switchToLighting();
-        p.drawShadow(texRect.x, texRect.y + texRect.h, *tex,
-                     0.f, 1.f, 255.f, 1.f);
-    }
     p.drawShadow(texRect.x, texRect.y + texRect.h, *tex);
     draw(reinterpret_cast<ePainter&>(p),
          res, highlight, tex, texRect);
@@ -66,6 +59,14 @@ void eCharUnitModel::draw(ePainter& p,
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
     draw(p, res, highlight, tex, texRect);
+}
+
+ePaintCall eCharUnitModel::paintCall(SDL_Renderer* const r) const {
+    const auto key = eCharUnitModel::key();
+    if(key.fFrame == -1) return ePaintCall();
+    const auto tex = mModel->requestTexture(r, key);
+    const auto texRect = mModel->requestBoundingRect(key);
+    return ePaintCall{float(texRect.x), float(texRect.y), tex};
 }
 
 void eCharUnitModel::setAnimationSpeed(const float speed) {

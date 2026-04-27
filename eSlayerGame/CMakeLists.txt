@@ -173,6 +173,7 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/eminimap.h widgets/gameScreen/eminimap.cpp
     textures/emaptextures.h textures/emaptextures.cpp
     widgets/ealignment.h
+    textures/epaintcall.h textures/epaintcall.cpp
 
 
 )

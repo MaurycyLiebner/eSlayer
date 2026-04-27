@@ -22,7 +22,8 @@ public:
     void clear();
     void renderLight(const float x, const float y,
                      const float radius,
-                     const SDL_Color& color);
+                     const SDL_Color& color,
+                     const ePaintCall& paintCall);
     void finish(const eResolution& res);
 
     void addLightBlocker(const float px, const float py,

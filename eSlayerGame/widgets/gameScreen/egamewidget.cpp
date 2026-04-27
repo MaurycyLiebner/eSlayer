@@ -536,11 +536,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                     if(const auto p = mPressedUnit.lock()) {
                         highlight = p == u;
                     }
+                    model.draw(mGamePainter, res, highlight);
                     const bool drawLighting = u == mMainChar;
-                    model.draw(mGamePainter, res, highlight, drawLighting);
                     if(drawLighting) {
+                        const auto paintCall = model.paintCall(r);
                         mGamePainter.renderLight(pixel.fX, pixel.fY, 10.f,
-                                                 SDL_Color{255, 255, 255, 255});
+                                                 SDL_Color{255, 255, 255, 255},
+                                                 paintCall);
                     }
                     mGamePainter.restore();
                 } else if(e.fType == eRenderElementType::missile) {
@@ -551,12 +553,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const float ainc = 360.f/dirs;
                     int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
                     dir = (dirs + dir) % dirs;
+                    const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
                     const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
+                        ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
                         mGamePainter.renderLight(pixel.fX, pixel.fY,
-                                                 lradius, SDL_Color{255, 255, 255, 255});
+                                                 lradius, SDL_Color{255, 255, 255, 255},
+                                                 paintCall);
                     }
-                    const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
                     mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
                 } else if(e.fType == eRenderElementType::item) {
                     const auto i = std::static_pointer_cast<eGroundItem>(ePtr);

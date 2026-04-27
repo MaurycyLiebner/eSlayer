@@ -54,9 +54,10 @@ void eGamePainter::clear() {
 
 void eGamePainter::renderLight(const float x, const float y,
                                const float radius,
-                               const SDL_Color& color) {
+                               const SDL_Color& color,
+                               const ePaintCall& paintCall) {
     if(mLight == 255) return;
-    mLights.emplace_back(x, y, radius, color);
+    mLights.emplace_back(x, y, radius, color, paintCall);
 }
 
 void eGamePainter::finish(const eResolution& res) {

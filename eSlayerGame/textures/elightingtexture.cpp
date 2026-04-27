@@ -64,7 +64,8 @@ void eLightingTexture::renderLight(
         shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
 
         {
-            std::map<float, eLightBlocker> sortedBlockers;
+            std::map<float, eLightBlocker> aboveBlockers;
+            std::map<float, eLightBlocker> belowBlockers;
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : blockers) {
                 const auto& bTex = b.fTex;
@@ -76,13 +77,15 @@ void eLightingTexture::renderLight(
                 if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
                 const float dx = x - b.fPX;
                 const float dy = y - b.fTileCenterY;
-                const float keyShift = dy > 0 ? -2.f*dstW*dstW : 0.f;
-                const float key = keyShift - (dx*dx + dy*dy);
-                sortedBlockers.emplace(key, b);
+                const float key = dx*dx + dy*dy;
+                if(dy > 0) {
+                    aboveBlockers.emplace(key, b);
+                } else {
+                    belowBlockers.emplace(key, b);
+                }
             }
 
-            for(const auto& it : sortedBlockers) {
-                const auto& b = it.second;
+            const auto handleBlocker = [&](const eLightBlocker& b) {
                 const auto& bTex = b.fTex;
                 const float bTexW = bTex->width();
                 const ePointF objPt{b.fPX - dstX, b.fTileCenterY - dstY};
@@ -91,7 +94,7 @@ void eLightingTexture::renderLight(
                 // Direction from light to object
                 eVec2f dir = ePointF::vector(objPt, lightPt);
                 const float len = dir.length();
-                if(len < 0.001f) continue;
+                if(len < 0.001f) return;
 
                 dir /= len; // normalize
 
@@ -101,7 +104,7 @@ void eLightingTexture::renderLight(
                 // Use REAL object width (no scaling)
                 const float halfW = mult*b.fSize*33.3f;
 
-                // Build perpendicular as before
+                       // Build perpendicular as before
                 const eVec2f perp{-dir.y, dir.x};
 
                 // Edge points
@@ -148,6 +151,23 @@ void eLightingTexture::renderLight(
                 p.drawShadow(b.fPX - 0.5f*bTexW - dstX,
                              b.fPY - dstY, *bTex,
                              0.f, 1.f, lightness, 1.f);
+            };
+
+            for(const auto& it : aboveBlockers) {
+                const auto& b = it.second;
+                handleBlocker(b);
+            }
+
+            const auto& paintCall = light.fPaintCall;
+            if(paintCall.fTex) {
+                p.drawShadow(paintCall.fX, paintCall.fY,
+                             *paintCall.fTex,
+                             0.f, 1.f, 255.f, 1.f);
+            }
+
+            for(const auto& it : belowBlockers) {
+                const auto& b = it.second;
+                handleBlocker(b);
             }
         }
 

@@ -2,6 +2,7 @@
 #define ELIGHTINGTEXTURE_H
 
 #include "etexture.h"
+#include "epaintcall.h"
 
 #include <vector>
 
@@ -11,15 +12,18 @@ struct eLight {
     eLight(const float px,
            const float py,
            const float radius,
-           const SDL_Color& color) :
+           const SDL_Color& color,
+           const ePaintCall& paintCall) :
         fPX(px), fPY(py),
         fRadius(radius),
-        fColor(color) {}
+        fColor(color),
+        fPaintCall(paintCall) {}
 
     float fPX;
     float fPY;
     float fRadius;
     SDL_Color fColor;
+    ePaintCall fPaintCall;
 };
 
 struct eLightBlocker {
