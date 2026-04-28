@@ -6,8 +6,12 @@
 #include "estringidmapvector.h"
 
 enum eBlockLightDirection {
+    none,
     topRight, topLeft,
-    bottomRight, bottomLeft
+    bottomRight, bottomLeft,
+    sideVertical,
+    topLeftCorner,
+    topRightCorner
 };
 
 struct eTileTextureData {
@@ -16,7 +20,7 @@ struct eTileTextureData {
     bool fWalkable;
     bool fObsticle;
     bool fBlocksLight;
-    std::map<int, std::vector<eBlockLightDirection>> fBlockLightDir;
+    std::map<int, eBlockLightDirection> fBlockLightDir;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

@@ -40,19 +40,15 @@ void eTerrsTexturesData::load() {
                 texs.fObsticle = obsticle;
                 texs.fBlocksLight = blocksLight;
                 if(blocksLight) {
-                    texs.fBlockLightDir[0] = {};
-                    texs.fBlockLightDir[1] = {eBlockLightDirection::bottomLeft,
-                                              eBlockLightDirection::bottomRight};
-                    texs.fBlockLightDir[2] = {eBlockLightDirection::topRight,
-                                              eBlockLightDirection::bottomRight};
-                    texs.fBlockLightDir[3] = {eBlockLightDirection::topLeft};
-                    texs.fBlockLightDir[4] = {eBlockLightDirection::topLeft,
-                                              eBlockLightDirection::bottomLeft};
-                    texs.fBlockLightDir[5] = {eBlockLightDirection::bottomRight};
-                    texs.fBlockLightDir[6] = {eBlockLightDirection::topLeft,
-                                              eBlockLightDirection::topRight};
-                    texs.fBlockLightDir[7] = {eBlockLightDirection::topRight};
-                    texs.fBlockLightDir[8] = {eBlockLightDirection::bottomLeft};
+                    texs.fBlockLightDir[0] = eBlockLightDirection::none;
+                    texs.fBlockLightDir[1] = eBlockLightDirection::sideVertical;
+                    texs.fBlockLightDir[2] = eBlockLightDirection::topRightCorner;
+                    texs.fBlockLightDir[3] = eBlockLightDirection::topLeft;
+                    texs.fBlockLightDir[4] = eBlockLightDirection::topLeftCorner;
+                    texs.fBlockLightDir[5] = eBlockLightDirection::bottomRight;
+                    texs.fBlockLightDir[6] = eBlockLightDirection::sideVertical;
+                    texs.fBlockLightDir[7] = eBlockLightDirection::topRight;
+                    texs.fBlockLightDir[8] = eBlockLightDirection::bottomLeft;
                 }
             } catch(...) {
                 eRuntimeThrow("Failed to parse " + dir + "/" + path);

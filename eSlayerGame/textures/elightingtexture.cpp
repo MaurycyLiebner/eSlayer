@@ -65,6 +65,132 @@ void eLightingTexture::renderLight(
         shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
 
         {
+            std::multimap<float, eWallLightBlocker> wallMap;
+            const auto h = shadowTex->createTargetHolder(r);
+            for(const auto& b : walls) {
+                if(b.fDir == eBlockLightDirection::none) continue;
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
+                const float bTexH = bTex->height();
+                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
+                                         b.fPY - bTexH,
+                                         bTexW, bTexH};
+                if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
+                const float dx = x - b.fPX;
+                const float dy = y - (b.fPY + 0.5f*b.fTileH);
+                const float key = -(dx*dx + dy*dy);
+                wallMap.emplace(key, b);
+            }
+
+            // Pass 1: Render all wall shadow geometry first
+            for(const auto& it : wallMap) {
+                const auto& b = it.second;
+                const ePointF lightPt{x - dstX, y - dstY};
+                const float shadowLen = dstW;
+
+                ePointF leftPt;
+                ePointF rightPt;
+                bool feather = false;
+                switch(b.fDir) {
+                case eBlockLightDirection::topRight:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::topLeft:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::bottomRight:
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::bottomLeft:
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::sideVertical: {
+                    if(x < b.fPX) {
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX - b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                    } else {
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX + b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                    }
+                } break;
+                case eBlockLightDirection::topLeftCorner:
+                case eBlockLightDirection::topRightCorner: {
+                    if(y < b.fPY - 0.5f*b.fTileH) {
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX - b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                    } else {
+                        leftPt = {b.fPX, b.fPY};
+                        rightPt = {b.fPX - b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                    }
+                } break;
+                default:
+                    continue;
+                }
+                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                renderShadow(res, r, lightPt, leftPt, rightPt,
+                             feather, feather, feather, shadowLen);
+            }
+
+           // Pass 2: Render all wall textures to clear shadows
+           // from wall surfaces, so adjacent flat walls don't
+           // shadow each other
+            for(const auto& it : wallMap) {
+                const auto& b = it.second;
+                const auto& bTex = b.fTex;
+                const float bTexW = bTex->width();
+                p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
+                             b.fPY + bTex->offsetY() - dstY, *bTex,
+                             0.f, 1.f, 255.f, 1.f);
+            }
+
+            // Pass 1: Render all wall shadow geometry first
+            for(const auto& it : wallMap) {
+                const auto& b = it.second;
+                const ePointF lightPt{x - dstX, y - dstY};
+                const float shadowLen = dstW;
+
+                ePointF leftPt;
+                ePointF rightPt;
+                bool feather = true;
+                switch(b.fDir) {
+                case eBlockLightDirection::sideVertical:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX, b.fPY};
+                    break;
+                case eBlockLightDirection::topLeftCorner:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                case eBlockLightDirection::topRightCorner:
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    break;
+                default:
+                    continue;
+                }
+                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                renderShadow(res, r, lightPt, leftPt, rightPt,
+                             feather, feather, feather, shadowLen);
+            }
+        }
+
+        {
             std::multimap<float, eLightBlocker> aboveBlockers;
             std::multimap<float, eLightBlocker> belowBlockers;
             const auto h = shadowTex->createTargetHolder(r);
@@ -112,7 +238,7 @@ void eLightingTexture::renderLight(
                     std::sqrt((perp.x * perp.x) * isoScaleX +
                               (perp.y * perp.y) * isoScaleY);
 
-                const float halfW = mult * b.fSize * 40.f * projectedScale;
+                const float halfW = mult * b.fSize * 33.f * projectedScale;
 
                 // Edge points
                 const ePointF leftPt  = objPt + perp * halfW;
@@ -142,74 +268,6 @@ void eLightingTexture::renderLight(
             }
 
             for(const auto& it : belowBlockers) {
-                const auto& b = it.second;
-                handleBlocker(b);
-            }
-        }
-        {
-            std::multimap<float, eWallLightBlocker> wallMap;
-            const auto h = shadowTex->createTargetHolder(r);
-            for(const auto& b : walls) {
-                const auto& bTex = b.fTex;
-                const float bTexW = bTex->width();
-                const float bTexH = bTex->height();
-                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
-                                         b.fPY - bTexH,
-                                         bTexW, bTexH};
-                if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
-                const float dx = x - b.fPX;
-                const float dy = y - (b.fPY + 0.5f*b.fTileH);
-                const float key = -(dx*dx + dy*dy);
-                wallMap.emplace(key, b);
-            }
-
-            const auto handleBlocker = [&](const eWallLightBlocker& b) {
-                const auto& bTex = b.fTex;
-                const float bTexW = bTex->width();
-                const ePointF lightPt{x - dstX, y - dstY};
-
-                // Project both points away from light
-                const float shadowLen = dstW;
-
-                for(const auto dir : b.fDir) {
-                    // Edge points
-                    ePointF leftPt;
-                    ePointF rightPt;
-                    bool feather = false;
-                    switch(dir) {
-                    case eBlockLightDirection::topRight:
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        break;
-                    case eBlockLightDirection::topLeft:
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX - b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        break;
-                    case eBlockLightDirection::bottomRight:
-                        leftPt = {b.fPX, b.fPY};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        break;
-                    case eBlockLightDirection::bottomLeft:
-                        leftPt = {b.fPX, b.fPY};
-                        rightPt = {b.fPX - b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        break;
-                    }
-                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                    renderShadow(res, r, lightPt, leftPt, rightPt,
-                                 feather, feather, feather, shadowLen);
-
-                    p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
-                                 b.fPY + bTex->offsetY() - dstY, *bTex,
-                                 0.f, 1.f, 255.f, 1.f);
-                }
-            };
-
-            for(const auto& it : wallMap) {
                 const auto& b = it.second;
                 handleBlocker(b);
             }
@@ -271,14 +329,16 @@ void eLightingTexture::renderShadow(
     if(perpLeft.length() < 0.0001f) return;
     if(perpRight.length() < 0.0001f) return;
 
-    const ePointF leftInner =
-        leftPt - perpLeft * softness + dirLeft * softness;
-    const ePointF rightInner =
-        rightPt - perpRight * softness + dirRight * softness;
-    const ePointF farLeftInner =
-        farLeft - perpLeft * softness - dirLeft * softness;
-    const ePointF farRightInner =
-        farRight - perpRight * softness - dirRight * softness;
+    // Near softness (towards light)
+    const ePointF nearLeft  = leftPt  - dirLeft  * softness;
+    const ePointF nearRight = rightPt - dirRight * softness;
+
+    // Side expansion
+    const ePointF leftOuter     = leftPt  + perpLeft  * softness;
+    const ePointF rightOuter    = rightPt + perpRight * softness;
+
+    const ePointF farLeftOuter  = farLeft  + perpLeft  * softness + dirLeft  * softness;
+    const ePointF farRightOuter = farRight + perpRight * softness + dirRight * softness;
 
     std::vector<SDL_Vertex> verts;
 
@@ -294,46 +354,60 @@ void eLightingTexture::renderShadow(
     const float edgeA = 0.f;
 
     // ---- CORE
-    verts.push_back(make(leftFeather ? leftInner : leftPt, coreA));
-    verts.push_back(make(rightFeather ? rightInner : rightPt, coreA));
-    verts.push_back(make(rightFeather ? farRightInner : farRight, coreA));
+    verts.push_back(make(leftPt, coreA));
+    verts.push_back(make(rightPt, coreA));
+    verts.push_back(make(farRight, coreA));
 
-    verts.push_back(make(leftFeather ? leftInner : leftPt, coreA));
-    verts.push_back(make(rightFeather ? farRightInner : farRight, coreA));
-    verts.push_back(make(leftFeather ? farLeftInner : farLeft, coreA));
+    verts.push_back(make(leftPt, coreA));
+    verts.push_back(make(farRight, coreA));
+    verts.push_back(make(farLeft, coreA));
 
     // ---- NEAR EDGE FEATHER
     if(nearFeather) {
-        verts.push_back(make(leftInner, coreA));
-        verts.push_back(make(leftPt, edgeA));
-        verts.push_back(make(rightPt, edgeA));
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(nearRight, edgeA));
+        verts.push_back(make(rightPt, coreA));
 
-        verts.push_back(make(leftInner, coreA));
-        verts.push_back(make(rightInner, coreA));
-        verts.push_back(make(rightPt, edgeA));
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(leftPt, coreA));
     }
 
     // ---- LEFT SIDE FEATHER
     if(leftFeather) {
-        verts.push_back(make(leftInner, coreA));
-        verts.push_back(make(leftPt, edgeA));
-        verts.push_back(make(farLeft, edgeA));
+        verts.push_back(make(leftPt, coreA));
+        verts.push_back(make(leftOuter, edgeA));
+        verts.push_back(make(farLeftOuter, edgeA));
 
-        verts.push_back(make(leftInner, coreA));
-        verts.push_back(make(farLeft, edgeA));
-        verts.push_back(make(farLeftInner, coreA));
+        verts.push_back(make(leftPt, coreA));
+        verts.push_back(make(farLeftOuter, edgeA));
+        verts.push_back(make(farLeft, coreA));
     }
 
     // ---- RIGHT SIDE FEATHER
     if(rightFeather) {
-        verts.push_back(make(rightInner, coreA));
-        verts.push_back(make(farRightInner, coreA));
-        verts.push_back(make(farRight, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(farRight, coreA));
+        verts.push_back(make(farRightOuter, edgeA));
 
-        verts.push_back(make(rightInner, coreA));
-        verts.push_back(make(farRight, edgeA));
-        verts.push_back(make(rightPt, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(farRightOuter, edgeA));
+        verts.push_back(make(rightOuter, edgeA));
     }
+
+    // ---- NEAR CORNERS
+    if(nearFeather && leftFeather) {
+        verts.push_back(make(nearLeft, edgeA));
+        verts.push_back(make(leftOuter, edgeA));
+        verts.push_back(make(leftPt, coreA));
+    }
+
+    if(nearFeather && rightFeather) {
+        verts.push_back(make(nearRight, edgeA));
+        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(rightOuter, edgeA));
+    }
+
 
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_RenderGeometry(r, nullptr, verts.data(),
