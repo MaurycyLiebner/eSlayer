@@ -29,20 +29,34 @@ void eLightingTexture::clear(SDL_Renderer * const r) {
     fill(r, mColor);
 }
 
-ePointF translateTX(const ePointF& pt, const float by,
-                    const int tileW, const int tileH) {
-    ePointF result;
-    result.fX = pt.fX + by*0.5f*tileW;
-    result.fY = pt.fY + by*0.5f*tileH;
-    return result;
+void translateTX(ePointF& pt, const float by,
+                 const int tileW, const int tileH) {
+    pt.fX = pt.fX + by*0.5f*tileW;
+    pt.fY = pt.fY + by*0.5f*tileH;
 }
 
-ePointF translateTY(const ePointF& pt, const float by,
-                    const int tileW, const int tileH) {
-    ePointF result;
-    result.fX = pt.fX - by*0.5f*tileW;
-    result.fY = pt.fY + by*0.5f*tileH;
-    return result;
+void translateTY(ePointF& pt, const float by,
+                 const int tileW, const int tileH) {
+    pt.fX = pt.fX - by*0.5f*tileW;
+    pt.fY = pt.fY + by*0.5f*tileH;
+}
+
+void translateTXAndScale(ePointF& pt1, ePointF& pt2, const float by,
+                         const int tileW, const int tileH) {
+    translateTX(pt1, by, tileW, tileH);
+    translateTX(pt2, by, tileW, tileH);
+    const auto vec = ePointF::vector(pt1, pt2);
+    pt1 = pt1 + vec*0.5f;
+    pt2 = pt2 - vec*0.5f;
+}
+
+void translateTYAndScale(ePointF& pt1, ePointF& pt2, const float by,
+                         const int tileW, const int tileH) {
+    translateTY(pt1, by, tileW, tileH);
+    translateTY(pt2, by, tileW, tileH);
+    const auto vec = ePointF::vector(pt1, pt2);
+    pt1 = pt1 + vec*std::abs(by);
+    pt2 = pt2 - vec*std::abs(by);
 }
 
 void eLightingTexture::renderLight(
@@ -119,97 +133,50 @@ void eLightingTexture::renderLight(
                 ePointF leftPt;
                 ePointF rightPt;
 
-                const auto set = [&](const eBlockLightDirection dir) {
-                    switch(dir) {
-                    case eBlockLightDirection::topRight:
-                        if(b.fTX == lightITX && b.fTY >= light.fTY) {
-                            maxLightTY = b.fTY;
-                        }
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        leftPt = translateTY(leftPt, 0.5f, b.fTileW, b.fTileH);
-                        rightPt = translateTY(rightPt, 0.5f, b.fTileW, b.fTileH);
-                        break;
-                    case eBlockLightDirection::topLeft:
-                        if(b.fTY == lightITY && b.fTX >= light.fTX) {
-                            maxLightTX = b.fTX;
-                        }
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX - b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        leftPt = translateTX(leftPt, 0.5f, b.fTileW, b.fTileH);
-                        rightPt = translateTX(rightPt, 0.5f, b.fTileW, b.fTileH);
-                        break;
-                    case eBlockLightDirection::bottomRight:
-                        if(b.fTY == lightITY && b.fTX <= light.fTX) {
-                            minLightTX = b.fTX;
-                        }
-                        leftPt = {b.fPX, b.fPY};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        leftPt = translateTX(leftPt, -0.5f, b.fTileW, b.fTileH);
-                        rightPt = translateTX(rightPt, -0.5f, b.fTileW, b.fTileH);
-                        break;
-                    case eBlockLightDirection::bottomLeft:
-                        if(b.fTX == lightITX && b.fTY <= light.fTY) {
-                            minLightTY = b.fTY;
-                        }
-                        leftPt = {b.fPX, b.fPY};
-                        rightPt = {b.fPX - b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        leftPt = translateTY(leftPt, -0.5f, b.fTileW, b.fTileH);
-                        rightPt = translateTY(rightPt, -0.5f, b.fTileW, b.fTileH);
-                        break;
-                    default:
-                        break;
-                    }
-                };
-
                 bool feather = false;
                 switch(b.fDir) {
                 case eBlockLightDirection::topRight:
-                    set(eBlockLightDirection::topRight);
+                    if(b.fTX == lightITX && b.fTY >= light.fTY) {
+                        maxLightTY = b.fTY;
+                    }
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    translateTYAndScale(leftPt, rightPt, 0.5f, b.fTileW, b.fTileH);
                     break;
                 case eBlockLightDirection::topLeft:
-                    set(eBlockLightDirection::topLeft);
+                    if(b.fTY == lightITY && b.fTX >= light.fTX) {
+                        maxLightTX = b.fTX;
+                    }
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    translateTXAndScale(leftPt, rightPt, 0.5f, b.fTileW, b.fTileH);
                     break;
                 case eBlockLightDirection::bottomRight:
-                    set(eBlockLightDirection::bottomRight);
+                    if(b.fTY == lightITY && b.fTX <= light.fTX) {
+                        minLightTX = b.fTX;
+                    }
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    translateTXAndScale(leftPt, rightPt, -0.5f, b.fTileW, b.fTileH);
                     break;
                 case eBlockLightDirection::bottomLeft:
-                    set(eBlockLightDirection::bottomLeft);
+                    if(b.fTX == lightITX && b.fTY <= light.fTY) {
+                        minLightTY = b.fTY;
+                    }
+                    leftPt = {b.fPX, b.fPY};
+                    rightPt = {b.fPX - b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                    translateTYAndScale(leftPt, rightPt, -0.5f, b.fTileW, b.fTileH);
                     break;
-                case eBlockLightDirection::verticalTop: {
-                    if(x < b.fPX) {
-                        set(eBlockLightDirection::topLeft);
-                    } else {
-                        set(eBlockLightDirection::topRight);
-                    }
-                } break;
-                case eBlockLightDirection::verticalBottom: {
-                    if(x < b.fPX) {
-                        set(eBlockLightDirection::bottomLeft);
-                    } else {
-                        set(eBlockLightDirection::bottomRight);
-                    }
-                } break;
-                case eBlockLightDirection::topLeftCorner: {
-                    if(y < b.fPY - 0.5f*b.fTileH) {
-                        set(eBlockLightDirection::topLeft);
-                    } else {
-                        set(eBlockLightDirection::bottomLeft);
-                    }
-                } break;
-                case eBlockLightDirection::topRightCorner: {
-                    if(y < b.fPY - 0.5f*b.fTileH) {
-                        set(eBlockLightDirection::topRight);
-                    } else {
-                        set(eBlockLightDirection::bottomRight);
-                    }
-                } break;
                 case eBlockLightDirection::none:
-                    break;
+                case eBlockLightDirection::topRightCorner:
+                case eBlockLightDirection::topLeftCorner:
+                case eBlockLightDirection::verticalBottom:
+                case eBlockLightDirection::verticalTop:
+                    continue;
                 }
                 leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
                 rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
@@ -286,6 +253,10 @@ void eLightingTexture::renderLight(
                              feather, feather, feather, shadowLen);
             }
         }
+
+        shadowTex->render(r, 0, 0);
+
+        shadowTex->fill(r, SDL_Color{255, 255, 255, 255});
 
         {
             std::multimap<float, eLightBlocker> aboveBlockers;
