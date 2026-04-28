@@ -20,7 +20,8 @@ public:
     { mContrast = cont; }
 
     void clear();
-    void renderLight(const float x, const float y,
+    void renderLight(const float tx, const float ty,
+                     const float x, const float y,
                      const float radius,
                      const SDL_Color& color,
                      const ePaintCall& paintCall);
@@ -30,7 +31,8 @@ public:
                          const float tileCenterY,
                          const float size,
                          const std::shared_ptr<eTexture>& tex);
-    void addLightBlocker(const float px, const float py,
+    void addLightBlocker(const int tx, const int ty,
+                         const float px, const float py,
                          const eBlockLightDirection dir,
                          const int tileW,
                          const int tileH,

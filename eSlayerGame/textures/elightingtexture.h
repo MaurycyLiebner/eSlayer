@@ -12,16 +12,21 @@
 class eResolution;
 
 struct eLight {
-    eLight(const float px,
+    eLight(const float tx,
+           const float ty,
+           const float px,
            const float py,
            const float radius,
            const SDL_Color& color,
            const ePaintCall& paintCall) :
+        fTX(tx), fTY(ty),
         fPX(px), fPY(py),
         fRadius(radius),
         fColor(color),
         fPaintCall(paintCall) {}
 
+    float fTX;
+    float fTY;
     float fPX;
     float fPY;
     float fRadius;
@@ -47,17 +52,22 @@ struct eLightBlocker {
 };
 
 struct eWallLightBlocker {
-    eWallLightBlocker(const float px,
+    eWallLightBlocker(const int tx,
+                      const int ty,
+                      const float px,
                       const float py,
                       const eBlockLightDirection dir,
                       const int tileW,
                       const int tileH,
                       const std::shared_ptr<eTexture>& tex) :
+        fTX(tx), fTY(ty),
         fPX(px), fPY(py),
         fDir(dir),
         fTileW(tileW),
         fTileH(tileH),
         fTex(tex) {}
+    int fTX;
+    int fTY;
     float fPX;
     float fPY;
     eBlockLightDirection fDir;

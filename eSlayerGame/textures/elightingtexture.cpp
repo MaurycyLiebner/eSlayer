@@ -82,61 +82,110 @@ void eLightingTexture::renderLight(
                 wallMap.emplace(key, b);
             }
 
+            const int lightITX = std::floor(light.fTX);
+            const int lightITY = std::floor(light.fTY);
+
+            int maxLightTX = light.fTX + 1000;
+            int minLightTX = light.fTX - 1000;
+
+            int maxLightTY = light.fTY + 1000;
+            int minLightTY = light.fTY - 1000;
+
             // Pass 1: Render all wall shadow geometry first
             for(const auto& it : wallMap) {
                 const auto& b = it.second;
+
+                if(b.fDir == eBlockLightDirection::none) continue;
+
                 const ePointF lightPt{x - dstX, y - dstY};
                 const float shadowLen = dstW;
 
                 ePointF leftPt;
                 ePointF rightPt;
-                bool feather = false;
-                switch(b.fDir) {
-                case eBlockLightDirection::topRight:
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX + b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::topLeft:
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX - b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::bottomRight:
-                    leftPt = {b.fPX, b.fPY};
-                    rightPt = {b.fPX + b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::bottomLeft:
-                    leftPt = {b.fPX, b.fPY};
-                    rightPt = {b.fPX - b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::sideVertical: {
-                    if(x < b.fPX) {
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX - b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                    } else {
+
+                const auto set = [&](const eBlockLightDirection dir) {
+                    switch(dir) {
+                    case eBlockLightDirection::topRight:
+                        if(b.fTX == lightITX && b.fTY >= light.fTY) {
+                            maxLightTY = b.fTY;
+                        }
                         leftPt = {b.fPX, b.fPY - b.fTileH};
                         rightPt = {b.fPX + b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
-                    }
-                } break;
-                case eBlockLightDirection::topLeftCorner:
-                case eBlockLightDirection::topRightCorner: {
-                    if(y < b.fPY - 0.5f*b.fTileH) {
+                        break;
+                    case eBlockLightDirection::topLeft:
+                        if(b.fTY == lightITY && b.fTX >= light.fTX) {
+                            maxLightTX = b.fTX;
+                        }
                         leftPt = {b.fPX, b.fPY - b.fTileH};
                         rightPt = {b.fPX - b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
-                    } else {
+                        break;
+                    case eBlockLightDirection::bottomRight:
+                        if(b.fTY == lightITY && b.fTX <= light.fTX) {
+                            minLightTX = b.fTX;
+                        }
+                        leftPt = {b.fPX, b.fPY};
+                        rightPt = {b.fPX + b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                        break;
+                    case eBlockLightDirection::bottomLeft:
+                        if(b.fTX == lightITX && b.fTY <= light.fTY) {
+                            minLightTY = b.fTY;
+                        }
                         leftPt = {b.fPX, b.fPY};
                         rightPt = {b.fPX - b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
+                        break;
+                    default:
+                        break;
+                    }
+                };
+
+                bool feather = false;
+                switch(b.fDir) {
+                case eBlockLightDirection::topRight:
+                    set(eBlockLightDirection::topRight);
+                    break;
+                case eBlockLightDirection::topLeft:
+                    set(eBlockLightDirection::topLeft);
+                    break;
+                case eBlockLightDirection::bottomRight:
+                    set(eBlockLightDirection::bottomRight);
+                    break;
+                case eBlockLightDirection::bottomLeft:
+                    set(eBlockLightDirection::bottomLeft);
+                    break;
+                case eBlockLightDirection::verticalTop: {
+                    if(x < b.fPX) {
+                        set(eBlockLightDirection::topLeft);
+                    } else {
+                        set(eBlockLightDirection::topRight);
                     }
                 } break;
-                default:
-                    continue;
+                case eBlockLightDirection::verticalBottom: {
+                    if(x < b.fPX) {
+                        set(eBlockLightDirection::bottomLeft);
+                    } else {
+                        set(eBlockLightDirection::bottomRight);
+                    }
+                } break;
+                case eBlockLightDirection::topLeftCorner: {
+                    if(y < b.fPY - 0.5f*b.fTileH) {
+                        set(eBlockLightDirection::topLeft);
+                    } else {
+                        set(eBlockLightDirection::bottomLeft);
+                    }
+                } break;
+                case eBlockLightDirection::topRightCorner: {
+                    if(y < b.fPY - 0.5f*b.fTileH) {
+                        set(eBlockLightDirection::topRight);
+                    } else {
+                        set(eBlockLightDirection::bottomRight);
+                    }
+                } break;
+                case eBlockLightDirection::none:
+                    break;
                 }
                 leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
                 rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
@@ -149,6 +198,14 @@ void eLightingTexture::renderLight(
            // shadow each other
             for(const auto& it : wallMap) {
                 const auto& b = it.second;
+                if(b.fTX < minLightTX) continue;
+                if(b.fTY < minLightTY) continue;
+                if(b.fTX > maxLightTX) continue;
+                if(b.fTY > maxLightTY) continue;
+                if(b.fTX == maxLightTX &&
+                   b.fDir == eBlockLightDirection::topLeftCorner) continue;
+                if(b.fTY == maxLightTY &&
+                   b.fDir == eBlockLightDirection::topRightCorner) continue;
                 const auto& bTex = b.fTex;
                 const float bTexW = bTex->width();
                 p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
@@ -166,16 +223,32 @@ void eLightingTexture::renderLight(
                 ePointF rightPt;
                 bool feather = true;
                 switch(b.fDir) {
-                case eBlockLightDirection::sideVertical:
+                case eBlockLightDirection::verticalTop:
+                    if(light.fTX < b.fTX && light.fTY < b.fTY) {
+                        continue;
+                    }
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX, b.fPY};
+                    break;
+                case eBlockLightDirection::verticalBottom:
+                    if(light.fTX > b.fTX + 1 && light.fTY > b.fTY + 1) {
+                        continue;
+                    }
                     leftPt = {b.fPX, b.fPY - b.fTileH};
                     rightPt = {b.fPX, b.fPY};
                     break;
                 case eBlockLightDirection::topLeftCorner:
+                    if(light.fTX < b.fTX && light.fTY > b.fTY + 1) {
+                        continue;
+                    }
                     leftPt = {b.fPX, b.fPY - b.fTileH};
                     rightPt = {b.fPX - b.fTileW*0.5f,
                                b.fPY - b.fTileH*0.5f};
                     break;
                 case eBlockLightDirection::topRightCorner:
+                    if(light.fTX > b.fTX + 1 && light.fTY < b.fTY) {
+                        continue;
+                    }
                     leftPt = {b.fPX, b.fPY - b.fTileH};
                     rightPt = {b.fPX + b.fTileW*0.5f,
                                b.fPY - b.fTileH*0.5f};

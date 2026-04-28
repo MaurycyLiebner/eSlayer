@@ -388,7 +388,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto it = map.find(tileType);
                     if(it != map.end()) {
                         const auto dir = it->second;
-                        mGamePainter.addLightBlocker(px, py + tileH, dir,
+                        mGamePainter.addLightBlocker(x, y, px, py + tileH, dir,
                                                      tileW, tileH, tex);
                     }
                 }
@@ -551,7 +551,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                         auto paintCall = model.paintCall(r);
                         paintCall.fX += mGamePainter.x();
                         paintCall.fY += mGamePainter.y();
-                        mGamePainter.renderLight(pixel.fX, pixel.fY, 10.f,
+                        mGamePainter.renderLight(pos.fX, pos.fY,
+                                                 pixel.fX, pixel.fY, 10.f,
                                                  SDL_Color{255, 255, 255, 255},
                                                  paintCall);
                     }
@@ -568,7 +569,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
                         const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
-                        mGamePainter.renderLight(pixel.fX, pixel.fY,
+                        mGamePainter.renderLight(pos.fX, pos.fY,
+                                                 pixel.fX, pixel.fY,
                                                  lradius, SDL_Color{255, 255, 255, 255},
                                                  paintCall);
                     }

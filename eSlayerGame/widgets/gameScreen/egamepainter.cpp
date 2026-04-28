@@ -53,12 +53,14 @@ void eGamePainter::clear() {
     mLights.clear();
 }
 
-void eGamePainter::renderLight(const float x, const float y,
+void eGamePainter::renderLight(const float tx, const float ty,
+                               const float x, const float y,
                                const float radius,
                                const SDL_Color& color,
                                const ePaintCall& paintCall) {
     if(mLight == 255) return;
-    mLights.emplace_back(x, y, radius, color, paintCall);
+    mLights.emplace_back(
+        tx, ty, x, y, radius, color, paintCall);
 }
 
 void eGamePainter::finish(const eResolution& res) {
@@ -90,13 +92,16 @@ void eGamePainter::addLightBlocker(
     const float tileCenterY,
     const float size,
     const std::shared_ptr<eTexture>& tex) {
-    mLightBlockers.emplace_back(px, py, tileCenterY, size, tex);
+    mLightBlockers.emplace_back(
+        px, py, tileCenterY, size, tex);
 }
 void eGamePainter::addLightBlocker(
+    const int tx, const int ty,
     const float px, const float py,
     const eBlockLightDirection dir,
     const int tileW,
     const int tileH,
     const std::shared_ptr<eTexture>& tex) {
-    mWallLightBlockers.emplace_back(px, py, dir, tileW, tileH, tex);
+    mWallLightBlockers.emplace_back(
+        tx, ty, px, py, dir, tileW, tileH, tex);
 }
