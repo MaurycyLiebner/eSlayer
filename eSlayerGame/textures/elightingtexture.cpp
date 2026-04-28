@@ -112,7 +112,7 @@ void eLightingTexture::renderLight(
                     std::sqrt((perp.x * perp.x) * isoScaleX +
                               (perp.y * perp.y) * isoScaleY);
 
-                const float halfW = mult * b.fSize * 33.3f * projectedScale;
+                const float halfW = mult * b.fSize * 40.f * projectedScale;
 
                 // Edge points
                 const ePointF leftPt  = objPt + perp * halfW;
@@ -171,41 +171,42 @@ void eLightingTexture::renderLight(
                 // Project both points away from light
                 const float shadowLen = dstW;
 
-                // Edge points
-                ePointF leftPt;
-                ePointF rightPt;
-                switch(b.fDir) {
-                case eBlockLightDirection::none:
-                    return;
-                case eBlockLightDirection::topRight:
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX + b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::topLeft:
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX - b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::bottomRight:
-                    leftPt = {b.fPX, b.fPY};
-                    rightPt = {b.fPX + b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::bottomLeft:
-                    leftPt = {b.fPX, b.fPY};
-                    rightPt = {b.fPX - b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
-                    break;
-                case eBlockLightDirection::sideVertical:
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX, b.fPY};
-                    break;
+                for(const auto dir : b.fDir) {
+                    // Edge points
+                    ePointF leftPt;
+                    ePointF rightPt;
+                    bool feather = false;
+                    switch(dir) {
+                    case eBlockLightDirection::topRight:
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX + b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                        break;
+                    case eBlockLightDirection::topLeft:
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX - b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                        break;
+                    case eBlockLightDirection::bottomRight:
+                        leftPt = {b.fPX, b.fPY};
+                        rightPt = {b.fPX + b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                        break;
+                    case eBlockLightDirection::bottomLeft:
+                        leftPt = {b.fPX, b.fPY};
+                        rightPt = {b.fPX - b.fTileW*0.5f,
+                                   b.fPY - b.fTileH*0.5f};
+                        break;
+                    }
+                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                    renderShadow(res, r, lightPt, leftPt, rightPt,
+                                 feather, feather, feather, shadowLen);
+
+                    p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
+                                 b.fPY + bTex->offsetY() - dstY, *bTex,
+                                 0.f, 1.f, 255.f, 1.f);
                 }
-                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                renderShadow(res, r, lightPt, leftPt, rightPt,
-                             true, true, true, shadowLen);
             };
 
             for(const auto& it : wallMap) {
@@ -270,16 +271,14 @@ void eLightingTexture::renderShadow(
     if(perpLeft.length() < 0.0001f) return;
     if(perpRight.length() < 0.0001f) return;
 
-    // Near softness (towards light)
-    const ePointF nearLeft  = leftPt  - dirLeft  * softness;
-    const ePointF nearRight = rightPt - dirRight * softness;
-
-    // Side expansion
-    const ePointF leftOuter     = leftPt  + perpLeft  * softness;
-    const ePointF rightOuter    = rightPt + perpRight * softness;
-
-    const ePointF farLeftOuter  = farLeft  + perpLeft  * softness + dirLeft  * softness;
-    const ePointF farRightOuter = farRight + perpRight * softness + dirRight * softness;
+    const ePointF leftInner =
+        leftPt - perpLeft * softness + dirLeft * softness;
+    const ePointF rightInner =
+        rightPt - perpRight * softness + dirRight * softness;
+    const ePointF farLeftInner =
+        farLeft - perpLeft * softness - dirLeft * softness;
+    const ePointF farRightInner =
+        farRight - perpRight * softness - dirRight * softness;
 
     std::vector<SDL_Vertex> verts;
 
@@ -295,58 +294,45 @@ void eLightingTexture::renderShadow(
     const float edgeA = 0.f;
 
     // ---- CORE
-    verts.push_back(make(leftPt, coreA));
-    verts.push_back(make(rightPt, coreA));
-    verts.push_back(make(farRight, coreA));
+    verts.push_back(make(leftFeather ? leftInner : leftPt, coreA));
+    verts.push_back(make(rightFeather ? rightInner : rightPt, coreA));
+    verts.push_back(make(rightFeather ? farRightInner : farRight, coreA));
 
-    verts.push_back(make(leftPt, coreA));
-    verts.push_back(make(farRight, coreA));
-    verts.push_back(make(farLeft, coreA));
+    verts.push_back(make(leftFeather ? leftInner : leftPt, coreA));
+    verts.push_back(make(rightFeather ? farRightInner : farRight, coreA));
+    verts.push_back(make(leftFeather ? farLeftInner : farLeft, coreA));
 
     // ---- NEAR EDGE FEATHER
     if(nearFeather) {
-        verts.push_back(make(nearLeft, edgeA));
-        verts.push_back(make(nearRight, edgeA));
-        verts.push_back(make(rightPt, coreA));
+        verts.push_back(make(leftInner, coreA));
+        verts.push_back(make(leftPt, edgeA));
+        verts.push_back(make(rightPt, edgeA));
 
-        verts.push_back(make(nearLeft, edgeA));
-        verts.push_back(make(rightPt, coreA));
-        verts.push_back(make(leftPt, coreA));
+        verts.push_back(make(leftInner, coreA));
+        verts.push_back(make(rightInner, coreA));
+        verts.push_back(make(rightPt, edgeA));
     }
 
     // ---- LEFT SIDE FEATHER
     if(leftFeather) {
-        verts.push_back(make(leftPt, coreA));
-        verts.push_back(make(leftOuter, edgeA));
-        verts.push_back(make(farLeftOuter, edgeA));
+        verts.push_back(make(leftInner, coreA));
+        verts.push_back(make(leftPt, edgeA));
+        verts.push_back(make(farLeft, edgeA));
 
-        verts.push_back(make(leftPt, coreA));
-        verts.push_back(make(farLeftOuter, edgeA));
-        verts.push_back(make(farLeft, coreA));
+        verts.push_back(make(leftInner, coreA));
+        verts.push_back(make(farLeft, edgeA));
+        verts.push_back(make(farLeftInner, coreA));
     }
 
     // ---- RIGHT SIDE FEATHER
     if(rightFeather) {
-        verts.push_back(make(rightPt, coreA));
-        verts.push_back(make(farRight, coreA));
-        verts.push_back(make(farRightOuter, edgeA));
+        verts.push_back(make(rightInner, coreA));
+        verts.push_back(make(farRightInner, coreA));
+        verts.push_back(make(farRight, edgeA));
 
-        verts.push_back(make(rightPt, coreA));
-        verts.push_back(make(farRightOuter, edgeA));
-        verts.push_back(make(rightOuter, edgeA));
-    }
-
-    // ---- NEAR CORNERS
-    if(nearFeather && leftFeather) {
-        verts.push_back(make(nearLeft, edgeA));
-        verts.push_back(make(leftOuter, edgeA));
-        verts.push_back(make(leftPt, coreA));
-    }
-
-    if(nearFeather && rightFeather) {
-        verts.push_back(make(nearRight, edgeA));
-        verts.push_back(make(rightPt, coreA));
-        verts.push_back(make(rightOuter, edgeA));
+        verts.push_back(make(rightInner, coreA));
+        verts.push_back(make(farRight, edgeA));
+        verts.push_back(make(rightPt, edgeA));
     }
 
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);

@@ -94,7 +94,7 @@ void eGamePainter::addLightBlocker(
 }
 void eGamePainter::addLightBlocker(
     const float px, const float py,
-    const eBlockLightDirection dir,
+    const std::vector<eBlockLightDirection>& dir,
     const int tileW,
     const int tileH,
     const std::shared_ptr<eTexture>& tex) {

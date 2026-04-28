@@ -553,17 +553,21 @@ eMapGenerator::generate(const std::string& name) const {
                             if(!walls[2][1] && !walls[1][2]) {
                                 dst.fTileType = 1;
                             } else if(!walls[1][0] && !walls[0][1]) {
-                                dst.fTileType = 4;
-                            } else if(!walls[2][1]) {
                                 dst.fTileType = 6;
-                            } else if(!walls[1][2]) {
-                                dst.fTileType = 3;
-                            } else if(!walls[1][0]) {
+                            } else if(!walls[0][1] && !walls[1][2]) {
                                 dst.fTileType = 2;
-                            } else if(!walls[0][1]) {
+                            } else if(!walls[1][0] && !walls[2][1]) {
+                                dst.fTileType = 4;
+                            }else if(!walls[2][1]) {
+                                dst.fTileType = 8;
+                            } else if(!walls[1][2]) {
                                 dst.fTileType = 5;
+                            } else if(!walls[1][0]) {
+                                dst.fTileType = 3;
+                            } else if(!walls[0][1]) {
+                                dst.fTileType = 7;
                             } else  {
-                                dst.fTerrainType = 0;
+                                dst.fTileType = 0;
                             }
                         } else {
                             auto& obj = result->mObjects.emplace_back();

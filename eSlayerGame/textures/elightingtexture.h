@@ -49,7 +49,7 @@ struct eLightBlocker {
 struct eWallLightBlocker {
     eWallLightBlocker(const float px,
                       const float py,
-                      const eBlockLightDirection dir,
+                      const std::vector<eBlockLightDirection>& dir,
                       const int tileW,
                       const int tileH,
                       const std::shared_ptr<eTexture>& tex) :
@@ -60,7 +60,7 @@ struct eWallLightBlocker {
         fTex(tex) {}
     float fPX;
     float fPY;
-    eBlockLightDirection fDir;
+    std::vector<eBlockLightDirection> fDir;
     int fTileW;
     int fTileH;
     std::shared_ptr<eTexture> fTex;
