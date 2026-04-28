@@ -65,8 +65,8 @@ void eLightingTexture::renderLight(
         shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
 
         {
-            std::map<float, eLightBlocker> aboveBlockers;
-            std::map<float, eLightBlocker> belowBlockers;
+            std::multimap<float, eLightBlocker> aboveBlockers;
+            std::multimap<float, eLightBlocker> belowBlockers;
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : blockers) {
                 const auto& bTex = b.fTex;
@@ -92,29 +92,29 @@ void eLightingTexture::renderLight(
                 const ePointF objPt{b.fPX - dstX, b.fTileCenterY - dstY};
                 const ePointF lightPt{x - dstX, y - dstY};
 
-                       // Direction from light to object
+                // Direction from light to object
                 eVec2f dir = ePointF::vector(objPt, lightPt);
                 const float len = dir.length();
                 if(len < 0.001f) return;
                 dir /= len; // normalize
 
-                       // Project both points away from light
+                // Project both points away from light
                 const float shadowLen = dstW; // or radius * 2
 
-                       // Build perpendicular as before
+                // Build perpendicular as before
                 const eVec2f perp{-dir.y, dir.x};
 
                 const float isoScaleX = 1.f;
                 const float isoScaleY = 0.2f; // typical isometric vertical squash
 
-                       // project perp into iso space
+                // project perp into iso space
                 const float projectedScale =
                     std::sqrt((perp.x * perp.x) * isoScaleX +
                               (perp.y * perp.y) * isoScaleY);
 
                 const float halfW = mult * b.fSize * 33.3f * projectedScale;
 
-                       // Edge points
+                // Edge points
                 const ePointF leftPt  = objPt + perp * halfW;
                 const ePointF rightPt = objPt - perp * halfW;
 
@@ -147,7 +147,7 @@ void eLightingTexture::renderLight(
             }
         }
         {
-            std::map<float, eWallLightBlocker> wallMap;
+            std::multimap<float, eWallLightBlocker> wallMap;
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : walls) {
                 const auto& bTex = b.fTex;
@@ -248,31 +248,38 @@ void eLightingTexture::renderShadow(
     const ePointF farLeft  = leftPt  + dirLeft  * shadowLen;
     const ePointF farRight = rightPt + dirRight * shadowLen;
 
-    // Approximate "sideways" direction (not assuming symmetry)
-    eVec2f edgeDir = ePointF::vector(leftPt, rightPt);
-    if(edgeDir.length() < 0.001f) return;
+    // Perpendiculars based on light direction
+    eVec2f perpLeft  = {-dirLeft.y,  dirLeft.x};
+    eVec2f perpRight = { dirRight.y, -dirRight.x};
 
-    edgeDir.normalize(1.f);
-    eVec2f perp{-edgeDir.y, edgeDir.x};
+    const ePointF shadowCenter =
+    {(leftPt.fX + rightPt.fX + farLeft.fX + farRight.fX) * 0.25f,
+     (leftPt.fY + rightPt.fY + farLeft.fY + farRight.fY) * 0.25f};
 
-    // Ensure perp points away from the light
-    const auto middle = rightPt + ePointF::vector(leftPt, rightPt)*0.5f;
-    const eVec2f toLight = ePointF::vector(lightPt, middle);
+    auto fixPerp = [&](eVec2f& perp, const ePointF& pt) {
+        const eVec2f toCenter = ePointF::vector(pt, shadowCenter);
+        // If perp points toward the inside, flip it
+        if(eVec2f::dot(perp, toCenter) < 0.f) {
+            perp = {-perp.x, -perp.y};
+        }
+    };
 
-    if(eVec2f::dot(perp, toLight) < 0.f) {
-        perp = {-perp.x, -perp.y};
-    }
+    fixPerp(perpLeft, leftPt);
+    fixPerp(perpRight, rightPt);
+
+    if(perpLeft.length() < 0.0001f) return;
+    if(perpRight.length() < 0.0001f) return;
 
     // Near softness (towards light)
     const ePointF nearLeft  = leftPt  - dirLeft  * softness;
     const ePointF nearRight = rightPt - dirRight * softness;
 
     // Side expansion
-    const ePointF leftOuter     = leftPt  + perp * softness;
-    const ePointF rightOuter    = rightPt + perp * softness;
+    const ePointF leftOuter     = leftPt  + perpLeft  * softness;
+    const ePointF rightOuter    = rightPt + perpRight * softness;
 
-    const ePointF farLeftOuter  = farLeft  + perp * softness + dirLeft  * softness;
-    const ePointF farRightOuter = farRight + perp * softness + dirRight * softness;
+    const ePointF farLeftOuter  = farLeft  + perpLeft  * softness + dirLeft  * softness;
+    const ePointF farRightOuter = farRight + perpRight * softness + dirRight * softness;
 
     std::vector<SDL_Vertex> verts;
 
