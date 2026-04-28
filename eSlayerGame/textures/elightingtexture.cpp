@@ -29,6 +29,22 @@ void eLightingTexture::clear(SDL_Renderer * const r) {
     fill(r, mColor);
 }
 
+ePointF translateTX(const ePointF& pt, const float by,
+                    const int tileW, const int tileH) {
+    ePointF result;
+    result.fX = pt.fX + by*0.5f*tileW;
+    result.fY = pt.fY + by*0.5f*tileH;
+    return result;
+}
+
+ePointF translateTY(const ePointF& pt, const float by,
+                    const int tileW, const int tileH) {
+    ePointF result;
+    result.fX = pt.fX - by*0.5f*tileW;
+    result.fY = pt.fY + by*0.5f*tileH;
+    return result;
+}
+
 void eLightingTexture::renderLight(
     const eResolution& res,
     SDL_Renderer * const r,
@@ -112,6 +128,8 @@ void eLightingTexture::renderLight(
                         leftPt = {b.fPX, b.fPY - b.fTileH};
                         rightPt = {b.fPX + b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
+                        leftPt = translateTY(leftPt, 0.5f, b.fTileW, b.fTileH);
+                        rightPt = translateTY(rightPt, 0.5f, b.fTileW, b.fTileH);
                         break;
                     case eBlockLightDirection::topLeft:
                         if(b.fTY == lightITY && b.fTX >= light.fTX) {
@@ -120,6 +138,8 @@ void eLightingTexture::renderLight(
                         leftPt = {b.fPX, b.fPY - b.fTileH};
                         rightPt = {b.fPX - b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
+                        leftPt = translateTX(leftPt, 0.5f, b.fTileW, b.fTileH);
+                        rightPt = translateTX(rightPt, 0.5f, b.fTileW, b.fTileH);
                         break;
                     case eBlockLightDirection::bottomRight:
                         if(b.fTY == lightITY && b.fTX <= light.fTX) {
@@ -128,6 +148,8 @@ void eLightingTexture::renderLight(
                         leftPt = {b.fPX, b.fPY};
                         rightPt = {b.fPX + b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
+                        leftPt = translateTX(leftPt, -0.5f, b.fTileW, b.fTileH);
+                        rightPt = translateTX(rightPt, -0.5f, b.fTileW, b.fTileH);
                         break;
                     case eBlockLightDirection::bottomLeft:
                         if(b.fTX == lightITX && b.fTY <= light.fTY) {
@@ -136,6 +158,8 @@ void eLightingTexture::renderLight(
                         leftPt = {b.fPX, b.fPY};
                         rightPt = {b.fPX - b.fTileW*0.5f,
                                    b.fPY - b.fTileH*0.5f};
+                        leftPt = translateTY(leftPt, -0.5f, b.fTileW, b.fTileH);
+                        rightPt = translateTY(rightPt, -0.5f, b.fTileW, b.fTileH);
                         break;
                     default:
                         break;
