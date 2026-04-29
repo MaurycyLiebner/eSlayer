@@ -31,3 +31,41 @@ void eESCMenuButton::paintEvent(ePainter& p) {
     }
     return eButtonBase::paintEvent(p);
 }
+
+eESCMenuSwitchButton::eESCMenuSwitchButton(
+    const std::string& mainText,
+    const std::vector<std::string>& values,
+    const int iniId,
+    const eSwitchAction& switchA,
+    eMainWindow* const window,
+    const int width) :
+    eESCMenuButton("", window) {
+    setNoPadding();
+    setWidth(width);
+
+    const auto main = new eLabel(window);
+    main->setHugeFontSize();
+    main->setFontColor(eFontColor::whiteBlack);
+    main->setText(mainText);
+    main->fitContent();
+    addWidget(main);
+
+    mValue = new eLabel(window);
+    mValue->setHugeFontSize();
+    mValue->setFontColor(eFontColor::whiteBlack);
+    mId = iniId;
+    mValue->setText(values[mId]);
+    mValue->fitContent();
+    addWidget(mValue);
+    mValue->align(eAlignment::right);
+
+    setPressAction([this, values, switchA]() {
+        mId = (mId + 1) % values.size();
+        switchA(mId);
+        mValue->setText(values[mId]);
+        mValue->fitContent();
+        mValue->align(eAlignment::right);
+    });
+
+    fitHeight();
+}

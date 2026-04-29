@@ -9,3 +9,7 @@ std::string eGameDir::path(const std::string& path) {
 std::string eGameDir::windowSettingsPath() {
     return path("windowSettings.txt");
 }
+
+std::string eGameDir::renderSettingsPath() {
+    return path("videoSettings.txt");
+}

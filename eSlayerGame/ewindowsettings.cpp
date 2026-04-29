@@ -17,7 +17,7 @@ void eWindowSettings::write() const {
     const auto wStr = std::to_string(fRes.width());
     file << "width" << " " << "\"" << wStr << "\"" << "\n";
     const auto hStr = std::to_string(fRes.height());
-    file << "height" << " " << "\"" << hStr << "\"" << "\n";
+    file << "height" << " " << "\"" << hStr << "\"";
     file.close();
 }
 

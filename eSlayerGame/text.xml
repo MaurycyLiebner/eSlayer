@@ -30,6 +30,13 @@
         <string id="2">Return to game</string>
         <string id="3">You have died</string>
         <string id="4">Press ESC to continue.</string>
+        <string id="5">Previous menu</string>
+        <string id="6">Sound options</string>
+        <string id="7">Video options</string>
+        <string id="8">Object shadows</string>
+        <string id="9">Wall shadows</string>
+        <string id="10">On</string>
+        <string id="11">Off</string>
     </group>
     <group id="6">
         <string id="0">Defense: %1</string>

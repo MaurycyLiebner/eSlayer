@@ -8,6 +8,7 @@
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
 #include "../../names/eareanames.h"
+#include "../../erendersettings.h"
 #include "eunitindicator.h"
 #include "eitemdragwidget.h"
 #include "einventorywidget.h"
@@ -383,7 +384,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& tex = texs.getTexture(tileType);
                 mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
-                if(blockLight) {
+                if(eRenderSettings::sRenderWallShadows && blockLight) {
                     const auto& map = texs.fBlockLightDir;
                     const auto it = map.find(tileType);
                     if(it != map.end()) {
@@ -501,7 +502,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& pos = obj.fPos;
                 const float fpx = px + 0.5f*((pos.fX - x) - (pos.fY - y))*tileW;
                 const float fpy = py + 0.5f*((pos.fX - x) + (pos.fY - y))*tileH;
-                if(objectTex.fBlocksLight) {
+                if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
                     mGamePainter.addLightBlocker(fpx, fpy + h, fpy + 0.5f*h,
                                                  object.fSize, tex);
                 }

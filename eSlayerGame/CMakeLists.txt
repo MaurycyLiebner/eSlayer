@@ -174,6 +174,8 @@ add_executable(eSlayerGame main.cpp
     textures/emaptextures.h textures/emaptextures.cpp
     widgets/ealignment.h
     textures/epaintcall.h textures/epaintcall.cpp
+    erendersettings.h
+    erendersettings.cpp
 
 
 )

@@ -11,6 +11,7 @@
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
+#include "../erendersettings.h"
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
@@ -258,6 +259,9 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([&res, r]() {
         eMapTextures::load(res, r);
+    });
+    loading.emplace_back([]() {
+        eRenderSettings::read();
     });
     showLoadingScreen(loading, finish);
 }
