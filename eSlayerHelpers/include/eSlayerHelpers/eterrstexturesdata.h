@@ -10,7 +10,7 @@ enum eBlockLightDirection {
     topRight, topLeft,
     bottomRight, bottomLeft,
     verticalTop, verticalBottom,
-    topLeftCorner, topRightCorner
+    leftCorner, rightCorner
 };
 
 struct eTileTextureData {

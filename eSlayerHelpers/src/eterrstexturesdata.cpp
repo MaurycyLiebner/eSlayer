@@ -42,9 +42,9 @@ void eTerrsTexturesData::load() {
                 if(blocksLight) {
                     texs.fBlockLightDir[0] = eBlockLightDirection::none;
                     texs.fBlockLightDir[1] = eBlockLightDirection::verticalBottom;
-                    texs.fBlockLightDir[2] = eBlockLightDirection::topRightCorner;
+                    texs.fBlockLightDir[2] = eBlockLightDirection::rightCorner;
                     texs.fBlockLightDir[3] = eBlockLightDirection::topLeft;
-                    texs.fBlockLightDir[4] = eBlockLightDirection::topLeftCorner;
+                    texs.fBlockLightDir[4] = eBlockLightDirection::leftCorner;
                     texs.fBlockLightDir[5] = eBlockLightDirection::bottomRight;
                     texs.fBlockLightDir[6] = eBlockLightDirection::verticalTop;
                     texs.fBlockLightDir[7] = eBlockLightDirection::topRight;

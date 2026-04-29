@@ -92,7 +92,6 @@ public:
         const std::vector<eLightBlocker>& blockers,
         const std::vector<eWallLightBlocker>& walls);
     void renderShadow(
-        const eResolution& res,
         SDL_Renderer * const r,
         const ePointF& lightPt,
         const ePointF& leftPt,
@@ -100,7 +99,8 @@ public:
         const bool rightFeather,
         const bool leftFeather,
         const bool nearFeather,
-        const float shadowLen) const;
+        const float shadowLen,
+        const float softness) const;
 private:
     SDL_Color mColor;
     std::shared_ptr<eTexture> mLightingTex;
