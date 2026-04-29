@@ -34,24 +34,32 @@ struct eLight {
     ePaintCall fPaintCall;
 };
 
-struct eLightBlocker {
+struct eBlockerBase {
+    eBlockerBase(const float px,
+                 const float py,
+                 const std::shared_ptr<eTexture>& tex) :
+        fPX(px), fPY(py),
+        fTex(tex) {}
+
+    float fPX;
+    float fPY;
+    std::shared_ptr<eTexture> fTex;
+};
+
+struct eLightBlocker : public eBlockerBase {
     eLightBlocker(const float px,
                   const float py,
                   const float cy,
                   const float size,
                   const std::shared_ptr<eTexture>& tex) :
-        fPX(px), fPY(py),
+        eBlockerBase(px, py, tex),
         fTileCenterY(cy),
-        fSize(size),
-        fTex(tex) {}
-    float fPX;
-    float fPY;
+        fSize(size) {}
     float fTileCenterY;
     float fSize;
-    std::shared_ptr<eTexture> fTex;
 };
 
-struct eWallLightBlocker {
+struct eWallLightBlocker : public eBlockerBase {
     eWallLightBlocker(const int tx,
                       const int ty,
                       const float px,
@@ -60,20 +68,16 @@ struct eWallLightBlocker {
                       const int tileW,
                       const int tileH,
                       const std::shared_ptr<eTexture>& tex) :
+        eBlockerBase(px, py, tex),
         fTX(tx), fTY(ty),
-        fPX(px), fPY(py),
         fDir(dir),
         fTileW(tileW),
-        fTileH(tileH),
-        fTex(tex) {}
+        fTileH(tileH) {}
     int fTX;
     int fTY;
-    float fPX;
-    float fPY;
     eBlockLightDirection fDir;
     int fTileW;
     int fTileH;
-    std::shared_ptr<eTexture> fTex;
 };
 
 class eLightingTexture : public eTexture {
