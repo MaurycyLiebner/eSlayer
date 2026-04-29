@@ -2,6 +2,7 @@
 
 #include "audio/emusic.h"
 
+#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
 
@@ -48,9 +49,9 @@ bool eMainWindow::initialize(const eWindowSettings& settings) {
     mSettings = settings;
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-    // const std::string icoPath = eGameDir::path("zeus.ico");
-    // const auto icon = IMG_Load(icoPath.c_str());
-    // SDL_SetWindowIcon(window, icon);
+    const std::string icoPath = eGameDir::path("eSlayer.ico");
+    const auto icon = IMG_Load(icoPath.c_str());
+    SDL_SetWindowIcon(window, icon);
     return true;
 }
 
