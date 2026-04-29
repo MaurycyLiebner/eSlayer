@@ -165,6 +165,58 @@ void eLightingTexture::renderLight(
                 };
 
                 switch(b.fDir) {
+                case eBlockLightDirection::leftCorner:
+                case eBlockLightDirection::rightCorner: {
+                    const auto& b = it.second;
+                    const ePointF lightPt{x - dstX, y - dstY};
+                    const float shadowLen = dstW;
+
+                    ePointF leftPt;
+                    ePointF rightPt;
+                    bool feather = true;
+                    switch(b.fDir) {
+                    case eBlockLightDirection::verticalTop:
+                        if(light.fTX < b.fTX && light.fTY < b.fTY) {
+                            continue;
+                        }
+                        leftPt = {b.fPX, b.fPY - b.fTileH + 0.5f*softness};
+                        rightPt = {b.fPX, b.fPY};
+                        break;
+                    case eBlockLightDirection::verticalBottom:
+                        if(light.fTX > b.fTX + 1 && light.fTY > b.fTY + 1) {
+                            continue;
+                        }
+                        leftPt = {b.fPX, b.fPY - b.fTileH};
+                        rightPt = {b.fPX, b.fPY - 0.5f*softness};
+                        break;
+                    case eBlockLightDirection::leftCorner:
+                        if(light.fTX < b.fTX && light.fTY > b.fTY + 1) {
+                            continue;
+                        }
+                        leftPt = {b.fPX - 0.5f*b.fTileW + 0.5f*softness, b.fPY - 0.5f*b.fTileH};
+                        rightPt = {b.fPX/* + 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
+                        break;
+                    case eBlockLightDirection::rightCorner:
+                        if(light.fTX > b.fTX + 1 && light.fTY < b.fTY) {
+                            continue;
+                        }
+                        leftPt = {b.fPX/* - 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
+                        rightPt = {b.fPX + 0.5f*b.fTileW - 0.5f*softness, b.fPY - 0.5f*b.fTileH};
+                        break;
+                    default:
+                        continue;
+                    }
+                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                    renderShadow(r, lightPt, leftPt, rightPt,
+                                 feather, feather, feather,
+                                 shadowLen, softness);
+                } break;
+                default:
+                    break;
+                }
+
+                switch(b.fDir) {
                 case eBlockLightDirection::topRight:
                     clampTiles(b.fDir);
                     leftPt = {b.fPX, b.fPY - b.fTileH};
@@ -238,77 +290,54 @@ void eLightingTexture::renderLight(
                 p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
                              b.fPY + bTex->offsetY() - dstY, *bTex,
                              0.f, 1.f, lightness, 1.f);
-            }
 
-            // Pass 1: Render all wall shadow geometry first
-            for(const auto& it : wallMap) {
-                const auto& b = it.second;
-                const ePointF lightPt{x - dstX, y - dstY};
-                const float shadowLen = dstW;
-
-                ePointF leftPt;
-                ePointF rightPt;
-                bool feather = true;
                 switch(b.fDir) {
                 case eBlockLightDirection::verticalTop:
-                    if(light.fTX < b.fTX && light.fTY < b.fTY) {
-                        continue;
-                    }
-                    leftPt = {b.fPX, b.fPY - b.fTileH + 0.5f*softness};
-                    rightPt = {b.fPX, b.fPY};
-                    break;
-                case eBlockLightDirection::verticalBottom:
-                    if(light.fTX > b.fTX + 1 && light.fTY > b.fTY + 1) {
-                        continue;
-                    }
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX, b.fPY - 0.5f*softness};
-                    break;
-                case eBlockLightDirection::leftCorner:
-                    if(light.fTX < b.fTX && light.fTY > b.fTY + 1) {
-                        continue;
-                    }
-                    leftPt = {b.fPX - 0.5f*b.fTileW + 0.5f*softness, b.fPY - 0.5f*b.fTileH};
-                    rightPt = {b.fPX/* + 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
-                    break;
-                case eBlockLightDirection::rightCorner:
-                    if(light.fTX > b.fTX + 1 && light.fTY < b.fTY) {
-                        continue;
-                    }
-                    leftPt = {b.fPX/* - 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
-                    rightPt = {b.fPX + 0.5f*b.fTileW - 0.5f*softness, b.fPY - 0.5f*b.fTileH};
-                    break;
-                default:
-                    continue;
-                }
-                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                renderShadow(r, lightPt, leftPt, rightPt,
-                             feather, feather, feather,
-                             shadowLen, softness);
+                case eBlockLightDirection::verticalBottom: {
+                    const auto& b = it.second;
+                    const ePointF lightPt{x - dstX, y - dstY};
+                    const float shadowLen = dstW;
 
-                switch(b.fDir) {
-                case eBlockLightDirection::leftCorner:
-                case eBlockLightDirection::rightCorner: {
-                    const auto& bTex = b.fTex;
-                    const float bTexW = bTex->width();
-                    float lightness;
-                    if(b.fDir == eBlockLightDirection::leftCorner) {
-                        if(lightITY > b.fTY) {
-                            lightness = 255.f;
-                        } else {
-                            lightness = 0.f;
+                    ePointF leftPt;
+                    ePointF rightPt;
+                    bool feather = true;
+                    switch(b.fDir) {
+                    case eBlockLightDirection::verticalTop:
+                        if(light.fTX < b.fTX && light.fTY < b.fTY) {
+                            continue;
                         }
-                    } else {
-                        if(lightITX <= b.fTX) {
-                            lightness = 0.f;
-                        } else {
-                            lightness = 255.f;
+                        leftPt = {b.fPX, b.fPY - b.fTileH + 0.5f*softness};
+                        rightPt = {b.fPX, b.fPY + b.fTileH};
+                        break;
+                    case eBlockLightDirection::verticalBottom:
+                        if(light.fTX > b.fTX + 1 && light.fTY > b.fTY + 1) {
+                            continue;
                         }
+                        leftPt = {b.fPX, b.fPY - 2.f*b.fTileH};
+                        rightPt = {b.fPX, b.fPY - 0.5f*softness};
+                        break;
+                    case eBlockLightDirection::leftCorner:
+                        if(light.fTX < b.fTX && light.fTY > b.fTY + 1) {
+                            continue;
+                        }
+                        leftPt = {b.fPX - 0.5f*b.fTileW + 0.5f*softness, b.fPY - 0.5f*b.fTileH};
+                        rightPt = {b.fPX/* + 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
+                        break;
+                    case eBlockLightDirection::rightCorner:
+                        if(light.fTX > b.fTX + 1 && light.fTY < b.fTY) {
+                            continue;
+                        }
+                        leftPt = {b.fPX/* - 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
+                        rightPt = {b.fPX + 0.5f*b.fTileW - 0.5f*softness, b.fPY - 0.5f*b.fTileH};
+                        break;
+                    default:
+                        continue;
                     }
-                    p.drawShadow(b.fPX + bTex->offsetX() - 0.5f*bTexW - dstX,
-                                 b.fPY + bTex->offsetY() - dstY, *bTex,
-                                 0.f, 1.f, lightness, 1.f);
+                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                    renderShadow(r, lightPt, leftPt, rightPt,
+                                 feather, feather, feather,
+                                 shadowLen, softness);
                 } break;
                 default:
                     break;
