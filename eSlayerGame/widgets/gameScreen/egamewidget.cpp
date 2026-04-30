@@ -370,29 +370,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
 
-        eTilesIterator iterator;
-        iterator.initialize(this);
-        for(const auto terrType : terrTypes) {
-            const auto& texs = eTerrsTextures::get(terrType);
-            iterator.iterate([&](const int x, const int y,
-                                 const int px, const int py) {
-                const auto& tile = mMap->tile(x, y);
-                if(tile.fTerrainType != terrType) return;
-                const auto tileType = tile.fTileType;
-                if(tileType != 0) {
-                    const auto& tex = texs.getTexture(tileType);
-                    mGamePainter.drawTexture(px, py + tileH, tex,
-                                             eAlignment::top | eAlignment::hcenter);
-                }
-            });
-        }
-
-        const auto window = eWidget::window();
-        const bool altPressed = window->altPressed();
-        mItemNames.clear();
-        const auto& res = resolution();
-        const int fontSize = res.smallFontSize();
-        const auto font = eFonts::textFont(fontSize);
 
         enum class eRenderElementType {
             unit, missile, item, object, wall
@@ -402,7 +379,76 @@ void eGameWidget::paintEvent(ePainter& p) {
             eRenderElementType fType;
             std::shared_ptr<ePositioned> fPtr;
         };
+
+        enum class eWallType {
+            topLeft, topRight
+        };
+
+        struct eWall : public ePositioned {
+            int fTerrainType;
+            eWallType fType;
+        };
+
         std::vector<eRenderElement> renderElements;
+
+        const auto handleTile = [&](const int x, const int y) {
+            const auto& iobjs = mMap->objects(x, y);
+            for(const auto& iobj : iobjs) {
+                const auto& obj = mMap->object(iobj);
+                renderElements.emplace_back(eRenderElement{eRenderElementType::object,
+                                                           std::static_pointer_cast<ePositioned>(obj)});
+            }
+            const auto& tile = mMap->tile(x, y);
+            const auto addWall = [&](const eWallType type) {
+                const auto wall = std::make_shared<eWall>();
+                wall->fPos = ePointF{float(x), float(y)};
+                wall->fTerrainType = tile.fTerrainType;
+                wall->fType = type;
+                renderElements.emplace_back(eRenderElement{eRenderElementType::wall,
+                                                           std::static_pointer_cast<ePositioned>(wall)});
+
+            };
+            if(tile.fWallTL) addWall(eWallType::topLeft);
+            if(tile.fWallTR) addWall(eWallType::topRight);
+        };
+
+        eTilesIterator iterator;
+        iterator.initialize(this);
+        bool iniObjs = true;
+        for(const auto terrType : terrTypes) {
+            const auto& texs = eTerrsTextures::get(terrType);
+            iterator.iterate([&](const int x, const int y,
+                                 const int px, const int py) {
+                if(iniObjs) handleTile(x, y);
+                const auto& tile = mMap->tile(x, y);
+                if(tile.fTerrainType != terrType) return;
+                const auto tileType = tile.fTileType;
+                if(tileType != 0) {
+                    const auto& tex = texs.getTexture(tileType);
+                    mGamePainter.drawTexture(px, py + tileH, tex,
+                                             eAlignment::top | eAlignment::hcenter);
+                }
+            });
+            iniObjs = false;
+        }
+
+        if(iniObjs) {
+            iterator.iterate([&](const int x, const int y,
+                                 const int px, const int py) {
+                (void)px;
+                (void)py;
+                handleTile(x, y);
+            });
+            iniObjs = false;
+        }
+
+        const auto window = eWidget::window();
+        const bool altPressed = window->altPressed();
+        mItemNames.clear();
+        const auto& res = resolution();
+        const int fontSize = res.smallFontSize();
+        const auto font = eFonts::textFont(fontSize);
+
         const int margin = 100;
         const int w = width();
         const int h = height();
@@ -429,17 +475,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                         std::static_pointer_cast<ePositioned>(m)});
         }
-
-
-        iterator.iterate([&](const int x, const int y,
-                             const int px, const int py) {
-            const auto& iobjs = mMap->objects(x, y);
-            for(const auto& iobj : iobjs) {
-                const auto& obj = mMap->object(iobj);
-                renderElements.emplace_back(eRenderElement{eRenderElementType::object,
-                                                           std::static_pointer_cast<ePositioned>(obj)});
-            }
-        });
 
         const auto typePriority = [](const eRenderElementType t) {
             switch(t) {
@@ -576,6 +611,31 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawShadow(fpx - 0.5f*tex->width(), fpy + h, *tex);
                 mGamePainter.drawTexture(fpx, fpy + h, tex,
                                          eAlignment::top | eAlignment::hcenter);
+            } else if(e.fType == eRenderElementType::wall) {
+                const auto& wall = static_cast<eWall&>(*ePtr);
+                const auto terrType = wall.fTerrainType;
+                const auto& info = eTerrsTexturesData::get(terrType);
+                const std::vector<int>* types = nullptr;
+                switch(wall.fType) {
+                case eWallType::topLeft:
+                    types = &info.fTLWalls;
+                    break;
+                case eWallType::topRight:
+                    types = &info.fTRWalls;
+                    break;
+                }
+
+                if(!types || types->empty()) continue;
+                const int id = eRand::rand() % types->size();
+                const int texId = (*types)[id];
+
+                const auto& texs = eTerrsTextures::get(terrType);
+                const auto& tex = texs.getTexture(texId);
+
+                tex->setColorMod(255, 0, 0);
+                mGamePainter.drawTexture(pixel.fX, pixel.fY + tileH, tex,
+                                         eAlignment::top | eAlignment::hcenter);
+                tex->clearColorMod();
             }
         }
 

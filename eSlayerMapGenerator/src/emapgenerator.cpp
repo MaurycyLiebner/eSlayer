@@ -578,82 +578,6 @@ eMapGenerator::generate(const std::string& name) const {
                                 const int id = eRand::rand() % n;
                                 dst.fTileType = (*options)[id];
                             }
-
-                            const auto emptyPlace = [&]() {
-                                for(int dx = -5; dx <= 5; dx++) {
-                                    const int srcX = x + dx;
-                                    if(srcX < 0) return false;
-                                    else if(srcX >= area.width) return false;
-
-                                    const int dstX = globalX + dx;
-                                    if(dstX < 0) return false;
-                                    else if(dstX >= result->mWidth) return false;
-
-                                    for(int dy = -5; dy <= 5; dy++) {
-                                        const int srcY = y + dy;
-                                        if(srcY < 0) return false;
-                                        else if(srcY >= area.height) return false;
-
-                                        const int dstY = globalY + dy;
-                                        if(dstY < 0) return false;
-                                        else if(dstY >= result->mHeight) return false;
-
-                                        const auto& src = area.map[srcX][srcY];
-                                        if(src == Tile::WALL) return false;
-                                    }
-                                }
-
-                                return true;
-                            };
-                            const bool empty = emptyPlace();
-                            if(empty) {
-                                const int dim = 3;
-                                const int shift = 2;
-                                for(int dx = -dim; dx <= dim + 1; dx++) {
-                                    const int dstX = shift + globalX + dx;
-                                    for(int dy = -dim; dy <= dim + 1; dy++) {
-                                        const int dstY = shift + globalY + dy;
-                                        auto& dst = result->mTiles[dstX][dstY];
-
-                                        if(dx == -dim) {
-                                            if(dy == -dim) {
-                                                dst.fWallTL = true;
-                                                dst.fWallTR = true;
-                                            } else if(dy == dim) {
-                                                dst.fWallTL = true;
-                                            } else if(dy == dim + 1) {
-                                                dst.fWallTR = true;
-                                            } else {
-                                                dst.fWallTL = true;
-                                            }
-                                        } else if(dx == dim) {
-                                            if(dy == -dim) {
-                                                dst.fWallTR = true;
-                                            } else if(dy == dim + 1) {
-                                                dst.fWallTR = true;
-                                            } else {
-
-                                            }
-                                        } else if(dx == dim + 1) {
-                                            if(dy == -dim) {
-                                                dst.fWallTL = true;
-                                            } else if(dy == dim + 1) {
-
-                                            } else {
-                                                dst.fWallTL = true;
-                                            }
-                                        } else {
-                                            if(dy == -dim) {
-                                                dst.fWallTR = true;
-                                            } else if(dy == dim + 1) {
-                                                dst.fWallTR = true;
-                                            } else {
-
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         } else {
                             auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                             obj.fObjectType = townFenceId;
@@ -666,6 +590,82 @@ eMapGenerator::generate(const std::string& name) const {
                 } else if(result->mSpawnPos == ePoint{0, 0}) {
                     result->mSpawnPos = {globalX, globalY};
                 } else {
+                    const auto emptyPlace = [&]() {
+                        const int dim = 3;
+                        for(int dx = -dim; dx <= dim; dx++) {
+                            const int srcX = x + dx;
+                            if(srcX < 0) return false;
+                            else if(srcX >= area.width) return false;
+
+                            const int dstX = globalX + dx;
+                            if(dstX < 0) return false;
+                            else if(dstX >= result->mWidth) return false;
+
+                            for(int dy = -dim; dy <= dim; dy++) {
+                                const int srcY = y + dy;
+                                if(srcY < 0) return false;
+                                else if(srcY >= area.height) return false;
+
+                                const int dstY = globalY + dy;
+                                if(dstY < 0) return false;
+                                else if(dstY >= result->mHeight) return false;
+
+                                const auto& src = area.map[srcX][srcY];
+                                if(src == Tile::WALL) return false;
+                            }
+                        }
+
+                        return true;
+                    };
+                    const bool empty = emptyPlace();
+                    if(empty) {
+                        const int dim = 2;
+                        const int shift = 1;
+                        for(int dx = -dim; dx <= dim + 1; dx++) {
+                            const int dstX = shift + globalX + dx;
+                            for(int dy = -dim; dy <= dim + 1; dy++) {
+                                const int dstY = shift + globalY + dy;
+                                auto& dst = result->mTiles[dstY][dstX];
+
+                                if(dx == -dim) {
+                                    if(dy == -dim) {
+                                        dst.fWallTL = true;
+                                        dst.fWallTR = true;
+                                    } else if(dy == dim) {
+                                        dst.fWallTL = true;
+                                    } else if(dy == dim + 1) {
+                                        dst.fWallTR = true;
+                                    } else {
+                                        dst.fWallTL = true;
+                                    }
+                                } else if(dx == dim) {
+                                    if(dy == -dim) {
+                                        dst.fWallTR = true;
+                                    } else if(dy == dim + 1) {
+                                        dst.fWallTR = true;
+                                    } else {
+
+                                    }
+                                } else if(dx == dim + 1) {
+                                    if(dy == -dim) {
+                                        dst.fWallTL = true;
+                                    } else if(dy == dim + 1) {
+
+                                    } else {
+                                        dst.fWallTL = true;
+                                    }
+                                } else {
+                                    if(dy == -dim) {
+                                        dst.fWallTR = true;
+                                    } else if(dy == dim + 1) {
+                                        dst.fWallTR = true;
+                                    } else {
+
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if(eRand::randChance(0.025f)) {
                         auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                         obj.fObjectType = treeId;
