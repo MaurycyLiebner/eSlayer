@@ -626,16 +626,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
 
                 if(!types || types->empty()) continue;
-                const int id = eRand::rand() % types->size();
+                const int id = (iPos.fX + iPos.fY) % types->size();
                 const int texId = (*types)[id];
 
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
 
-                tex->setColorMod(255, 0, 0);
                 mGamePainter.drawTexture(pixel.fX, pixel.fY + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
-                tex->clearColorMod();
             }
         }
 
