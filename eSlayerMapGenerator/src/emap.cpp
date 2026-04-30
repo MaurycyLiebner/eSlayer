@@ -12,7 +12,7 @@ const std::vector<uint16_t>& eMap::objects(const int x, const int y) const {
     return mObjectsMap[y][x];
 }
 
-const eObject& eMap::object(const int id) const {
+const std::shared_ptr<eObject>& eMap::object(const int id) const {
     return mObjects[id];
 }
 
@@ -35,7 +35,7 @@ bool eMap::walkable(const ePointF& pos) const {
         const bool empty = objs.empty();
         if(empty) return true;
         for(const auto oid : objs) {
-            const auto& o = object(oid);
+            const auto& o = *object(oid);
             const auto& opos = o.fPos;
             if(pos.fX < opos.fX) continue;
             if(pos.fY < opos.fY) continue;
@@ -66,7 +66,7 @@ bool eMap::obsticle(const ePointF& pos) const {
         const bool empty = objs.empty();
         if(empty) return false;
         for(const auto oid : objs) {
-            const auto& o = object(oid);
+            const auto& o = *object(oid);
             const auto& opos = o.fPos;
             if(pos.fX < opos.fX) continue;
             if(pos.fY < opos.fY) continue;
@@ -100,7 +100,7 @@ void eMap::loadPortion(const eMapPortion& portion) {
     for(const auto& o : portion.fObjects) {
         const int i = mObjects.size();
         mObjects.emplace_back(o);
-        const auto iPos = o.fPos.floor();
+        const auto iPos = o->fPos.floor();
         mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }
 }
@@ -207,7 +207,7 @@ void eMap::generateTiles(const int w, const int h) {
 void eMap::updateObjectsMap() {
     const int iMax = mObjects.size();
     for(int i = 0; i < iMax; i++) {
-        const auto& o = mObjects[i];
+        const auto& o = *mObjects[i];
         const auto iPos = o.fPos.floor();
         mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }

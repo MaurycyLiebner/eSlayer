@@ -395,7 +395,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto font = eFonts::textFont(fontSize);
 
         enum class eRenderElementType {
-            unit, missile, item
+            unit, missile, item, object, wall
         };
 
         struct eRenderElement {
@@ -430,11 +430,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                                         std::static_pointer_cast<ePositioned>(m)});
         }
 
+
+        iterator.iterate([&](const int x, const int y,
+                             const int px, const int py) {
+            const auto& iobjs = mMap->objects(x, y);
+            for(const auto& iobj : iobjs) {
+                const auto& obj = mMap->object(iobj);
+                renderElements.emplace_back(eRenderElement{eRenderElementType::object,
+                                                           std::static_pointer_cast<ePositioned>(obj)});
+            }
+        });
+
         const auto typePriority = [](const eRenderElementType t) {
             switch(t) {
             case eRenderElementType::item:    return 0;
-            case eRenderElementType::unit:    return 1;
-            case eRenderElementType::missile: return 2;
+            case eRenderElementType::object:  return 1;
+            case eRenderElementType::wall:    return 2;
+            case eRenderElementType::unit:    return 3;
+            case eRenderElementType::missile: return 4;
             }
             return 0;
         };
@@ -475,24 +488,87 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
         }
 
-        const int tileW = mInput.tileWidth();
-        iterator.iterate([&](const int x, const int y,
-                             const int px, const int py) {
-            const auto& iobjs = mMap->objects(x, y);
-            for(const auto& iobj : iobjs) {
-                const auto& obj = mMap->object(iobj);
+        for(const auto& e : renderElements) {
+            const auto& ePtr = e.fPtr;
+            if(!ePtr) continue;
+            const auto& pos = ePtr->fPos;
+            const auto iPos = pos.floor();
+            const auto pixel = tilePosToPixel(pos);
+            if(e.fType == eRenderElementType::unit) {
+                const auto u = std::static_pointer_cast<eUnit>(ePtr);
+                mGamePainter.save();
+                const auto idispl = pixel.round();
+                mGamePainter.translate(idispl.fX, idispl.fY);
+                auto& model = u->model();
+                model.incFrame(by);
+                bool highlight = false;
+                if(!mHighlightUnit.lock() && u != mMainChar &&
+                    (u->fHealth > 0 || u->isBody())) {
+                    const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+                    const int w = 0.75*u->fRadius*tileW;
+                    const int h = 2*w;
+                    const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
+                    highlight = SDL_PointInRect(&p, &rect);
+                    if(highlight) {
+                        const auto b = model.offsetBoundingRect();
+                        const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
+                        highlight = SDL_PointInRect(&p, &rect);
+                        if(highlight) {
+                            setHighlightedUnit(u);
+                        }
+                    }
+                }
+                if(const auto p = mPressedUnit.lock()) {
+                    highlight = p == u;
+                }
+                model.draw(mGamePainter, res, highlight);
+                const bool drawLighting = u == mMainChar;
+                if(drawLighting) {
+                    auto paintCall = model.paintCall(r);
+                    paintCall.fX += mGamePainter.x();
+                    paintCall.fY += mGamePainter.y();
+                    mGamePainter.renderLight(pos.fX, pos.fY,
+                                             pixel.fX, pixel.fY, 10.f,
+                                             SDL_Color{255, 255, 255, 255},
+                                             paintCall);
+                }
+                mGamePainter.restore();
+            } else if(e.fType == eRenderElementType::missile) {
+                const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);
+                const auto missileType = m->fType;
+                auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+                const int dirs = missileTex.nDirs(0);
+                const float ainc = 360.f/dirs;
+                int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
+                dir = (dirs + dir) % dirs;
+                const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
+                const float lradius = missileTex.lighting();
+                if(lradius > 0.01f) {
+                    const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
+                    mGamePainter.renderLight(pos.fX, pos.fY,
+                                             pixel.fX, pixel.fY,
+                                             lradius, SDL_Color{255, 255, 255, 255},
+                                             paintCall);
+                }
+                mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
+            } else if(e.fType == eRenderElementType::item) {
+                const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
+                mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
+                                               4, 4}, SDL_Color{255, 0, 0, 255});
+            } else if(e.fType == eRenderElementType::object) {
+                const auto& obj = static_cast<eObject&>(*ePtr);
                 const auto objType = obj.fObjectType;
                 const auto& object = eObjectsInfo::sObjects.get(objType);
                 const auto texObjectId = object.fTexId;
                 const auto& objectTex = eObjsTextures::get(texObjectId);
                 const auto& types = objectTex.fTypes;
-                const auto typeId = obj.fTileType % types.size();
+                const auto typeId = obj.fSubtype % types.size();
                 const auto& type = types[typeId];
                 const auto& tex = type[0].fTexs.getTexture(0);
                 const int h = object.fSize*tileH;
                 const auto& pos = obj.fPos;
-                const float fpx = px + 0.5f*((pos.fX - x) - (pos.fY - y))*tileW;
-                const float fpy = py + 0.5f*((pos.fX - x) + (pos.fY - y))*tileH;
+                const float fpx = pixel.fX + 0.5f*((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*tileW;
+                const float fpy = pixel.fY + 0.5f*((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*tileH;
                 if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
                     mGamePainter.addLightBlocker(fpx, fpy + h, fpy + 0.5f*h,
                                                  object.fSize, tex);
@@ -501,80 +577,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawTexture(fpx, fpy + h, tex,
                                          eAlignment::top | eAlignment::hcenter);
             }
-            for(int eleId = nextElement; eleId < (int)renderElements.size(); eleId++) {
-                const auto& e = renderElements[eleId];
-                const auto& ePtr = e.fPtr;
-                if(!ePtr) continue;
-                const auto& pos = ePtr->fPos;
-                const auto iPos = pos.floor();
-                if(iPos.fY != y) continue;
-                if(iPos.fX != x) continue;
-                const auto pixel = tilePosToPixel(pos);
-                if(e.fType == eRenderElementType::unit) {
-                    const auto u = std::static_pointer_cast<eUnit>(ePtr);
-                    mGamePainter.save();
-                    const auto idispl = pixel.round();
-                    mGamePainter.translate(idispl.fX, idispl.fY);
-                    auto& model = u->model();
-                    model.incFrame(by);
-                    bool highlight = false;
-                    if(!mHighlightUnit.lock() && u != mMainChar &&
-                       (u->fHealth > 0 || u->isBody())) {
-                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
-                        const int w = 0.75*u->fRadius*tileW;
-                        const int h = 2*w;
-                        const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
-                        highlight = SDL_PointInRect(&p, &rect);
-                        if(highlight) {
-                            const auto b = model.offsetBoundingRect();
-                            const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
-                            highlight = SDL_PointInRect(&p, &rect);
-                            if(highlight) {
-                                setHighlightedUnit(u);
-                            }
-                        }
-                    }
-                    if(const auto p = mPressedUnit.lock()) {
-                        highlight = p == u;
-                    }
-                    model.draw(mGamePainter, res, highlight);
-                    const bool drawLighting = u == mMainChar;
-                    if(drawLighting) {
-                        auto paintCall = model.paintCall(r);
-                        paintCall.fX += mGamePainter.x();
-                        paintCall.fY += mGamePainter.y();
-                        mGamePainter.renderLight(pos.fX, pos.fY,
-                                                 pixel.fX, pixel.fY, 10.f,
-                                                 SDL_Color{255, 255, 255, 255},
-                                                 paintCall);
-                    }
-                    mGamePainter.restore();
-                } else if(e.fType == eRenderElementType::missile) {
-                    const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);
-                    const auto missileType = m->fType;
-                    auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-                    const int dirs = missileTex.nDirs(0);
-                    const float ainc = 360.f/dirs;
-                    int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
-                    dir = (dirs + dir) % dirs;
-                    const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
-                    const float lradius = missileTex.lighting();
-                    if(lradius > 0.01f) {
-                        const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
-                        mGamePainter.renderLight(pos.fX, pos.fY,
-                                                 pixel.fX, pixel.fY,
-                                                 lradius, SDL_Color{255, 255, 255, 255},
-                                                 paintCall);
-                    }
-                    mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
-                } else if(e.fType == eRenderElementType::item) {
-                    const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
-                    mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
-                                                   4, 4}, SDL_Color{255, 0, 0, 255});
-                }
-                nextElement = eleId + 1;
-            }
-        });
+        }
 
         if(altPressed) {
             std::map<float, eGroundItem*> items;

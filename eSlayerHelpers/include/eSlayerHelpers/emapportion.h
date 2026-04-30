@@ -6,26 +6,28 @@
 #include "epoint.h"
 #include "erect.h"
 #include "estringidmapvector.h"
-
-#include <eSlayerHelpers/ewalldirection.h>
+#include "epositioned.h"
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 #include <set>
 
 class ePacket;
 
 struct ESLAYERHELPERS_API eTile {
-    uint16_t fTerrainType;
-    uint16_t fTileType;
+    uint8_t fTerrainType;
+    uint8_t fTileType;
+
+    bool fWallTL;
+    bool fWallTR;
 };
 
-struct eObject {
+struct eObject : public ePositioned {
     uint16_t fObjectType;
-    uint16_t fTileType;
+    uint8_t fSubtype;
 
     float fSize;
-    ePointF fPos;
 };
 
 struct eMapPortionArea {
@@ -47,7 +49,7 @@ struct ESLAYERHELPERS_API eMapPortion {
     eMapPortionArea fArea;
 
     std::vector<std::vector<eTile>> fTiles;
-    std::vector<eObject> fObjects;
+    std::vector<std::shared_ptr<eObject>> fObjects;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

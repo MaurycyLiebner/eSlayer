@@ -479,6 +479,8 @@ eMapGenerator::generate(const std::string& name) const {
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
                 const auto terrType = isBloodMoor ? basementId : grassId;
+                dst.fWallTL = false;
+                dst.fWallTR = false;
                 dst.fTerrainType = terrType;
                 dst.fTileType = isBloodMoor ? 1 : 1 + eRand::rand() % 20;
                 const auto& terrInfo = eTerrsTexturesData::get(terrType);
@@ -515,9 +517,9 @@ eMapGenerator::generate(const std::string& name) const {
                     }
                     if(inner) {
                         if(eRand::randChance(0.1f)) {
-                            auto& obj = result->mObjects.emplace_back();
+                            auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                             obj.fObjectType = treeId;
-                            obj.fTileType = eRand::rand();
+                            obj.fSubtype = eRand::rand();
                             obj.fPos.fX = globalX;
                             obj.fPos.fY = globalY;
                             obj.fSize = treeInfo.fSize;
@@ -571,15 +573,91 @@ eMapGenerator::generate(const std::string& name) const {
                             } else if(!walls[0][1]) {
                                 options = &terrInfo.fTRBorders;
                             }
-                            if(options) {
+                            if(options && !options->empty()) {
                                 const int n = options->size();
                                 const int id = eRand::rand() % n;
                                 dst.fTileType = (*options)[id];
                             }
+
+                            const auto emptyPlace = [&]() {
+                                for(int dx = -5; dx <= 5; dx++) {
+                                    const int srcX = x + dx;
+                                    if(srcX < 0) return false;
+                                    else if(srcX >= area.width) return false;
+
+                                    const int dstX = globalX + dx;
+                                    if(dstX < 0) return false;
+                                    else if(dstX >= result->mWidth) return false;
+
+                                    for(int dy = -5; dy <= 5; dy++) {
+                                        const int srcY = y + dy;
+                                        if(srcY < 0) return false;
+                                        else if(srcY >= area.height) return false;
+
+                                        const int dstY = globalY + dy;
+                                        if(dstY < 0) return false;
+                                        else if(dstY >= result->mHeight) return false;
+
+                                        const auto& src = area.map[srcX][srcY];
+                                        if(src == Tile::WALL) return false;
+                                    }
+                                }
+
+                                return true;
+                            };
+                            const bool empty = emptyPlace();
+                            if(empty) {
+                                const int dim = 3;
+                                const int shift = 2;
+                                for(int dx = -dim; dx <= dim + 1; dx++) {
+                                    const int dstX = shift + globalX + dx;
+                                    for(int dy = -dim; dy <= dim + 1; dy++) {
+                                        const int dstY = shift + globalY + dy;
+                                        auto& dst = result->mTiles[dstX][dstY];
+
+                                        if(dx == -dim) {
+                                            if(dy == -dim) {
+                                                dst.fWallTL = true;
+                                                dst.fWallTR = true;
+                                            } else if(dy == dim) {
+                                                dst.fWallTL = true;
+                                            } else if(dy == dim + 1) {
+                                                dst.fWallTR = true;
+                                            } else {
+                                                dst.fWallTL = true;
+                                            }
+                                        } else if(dx == dim) {
+                                            if(dy == -dim) {
+                                                dst.fWallTR = true;
+                                            } else if(dy == dim + 1) {
+                                                dst.fWallTR = true;
+                                            } else {
+
+                                            }
+                                        } else if(dx == dim + 1) {
+                                            if(dy == -dim) {
+                                                dst.fWallTL = true;
+                                            } else if(dy == dim + 1) {
+
+                                            } else {
+                                                dst.fWallTL = true;
+                                            }
+                                        } else {
+                                            if(dy == -dim) {
+                                                dst.fWallTR = true;
+                                            } else if(dy == dim + 1) {
+                                                dst.fWallTR = true;
+                                            } else {
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         } else {
-                            auto& obj = result->mObjects.emplace_back();
+                            auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                             obj.fObjectType = townFenceId;
-                            obj.fTileType = 0;
+                            obj.fSubtype = 0;
                             obj.fPos.fX = globalX;
                             obj.fPos.fY = globalY;
                             obj.fSize = townFenceInfo.fSize;
@@ -589,16 +667,16 @@ eMapGenerator::generate(const std::string& name) const {
                     result->mSpawnPos = {globalX, globalY};
                 } else {
                     if(eRand::randChance(0.025f)) {
-                        auto& obj = result->mObjects.emplace_back();
+                        auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                         obj.fObjectType = treeId;
-                        obj.fTileType = eRand::rand();
+                        obj.fSubtype = eRand::rand();
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;
                         obj.fSize = treeInfo.fSize;
                     } else if(eRand::randChance(0.01f)) {
-                        auto& obj = result->mObjects.emplace_back();
+                        auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
                         obj.fObjectType = eRand::randChance(0.5) ? chestId : smallChestId;
-                        obj.fTileType = eRand::rand();
+                        obj.fSubtype = eRand::rand();
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;
                         obj.fSize = chestInfo.fSize;

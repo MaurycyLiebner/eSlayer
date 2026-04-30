@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/estringidmapvector.h>
 
 #include <vector>
+#include <memory>
 
 class ePacket;
 
@@ -21,7 +22,7 @@ public:
 
     const eTile& tile(const int x, const int y) const;
     const std::vector<uint16_t>& objects(const int x, const int y) const;
-    const eObject& object(const int id) const;
+    const std::shared_ptr<eObject>& object(const int id) const;
 
     const ePoint& spawnPos() const { return mSpawnPos; }
 
@@ -58,7 +59,7 @@ private:
     eStringIdMapVector<eMapArea> mAreas;
 
     std::vector<std::vector<eTile>> mTiles;
-    std::vector<eObject> mObjects;
+    std::vector<std::shared_ptr<eObject>> mObjects;
     std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
     std::set<uint16_t> mTerrainTypes;
     std::set<uint16_t> mObjectTypes;

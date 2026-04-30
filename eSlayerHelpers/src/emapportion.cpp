@@ -14,7 +14,7 @@ void eMapPortion::write(ePacket& p) const {
     const uint16_t nObjs = fObjects.size();
     p << nObjs;
     for(const auto& o : fObjects) {
-        p << o;
+        p << *o;
     }
 }
 
@@ -32,8 +32,8 @@ void eMapPortion::read(ePacket& p) {
     uint16_t nObjs;
     p >> nObjs;
     for(uint16_t i = 0; i < nObjs; i++) {
-        auto& o = fObjects.emplace_back();
-        p >> o;
+        auto& o = fObjects.emplace_back(std::make_shared<eObject>());
+        p >> *o;
     }
 }
 

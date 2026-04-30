@@ -57,6 +57,19 @@ void eTerrsTexturesData::load() {
                 texs.fTLBorders = handle("tl");
                 texs.fTBorders = handle("t");
             }
+
+            if(jdata.contains("walls")) {
+                const auto& wallsJS = jdata["walls"];
+                const auto handle = [&](const std::string& name) {
+                    auto result = wallsJS.value(name, std::vector<int>());
+                    for(int& i : result) {
+                        i++;
+                    }
+                    return result;
+                };
+                texs.fTLWalls = handle("tl");
+                texs.fTRWalls = handle("tr");
+            }
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }
