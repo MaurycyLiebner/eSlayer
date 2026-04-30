@@ -26,30 +26,32 @@ void eTerrsTexturesData::load() {
         eTileTextureData texs{name};
         if(name == "none") {
             texs.fFlat = true;
-            texs.fWalkable = false;
-            texs.fObsticle = false;
+            texs.fWallWalkable = false;
+            texs.fWallObsticle = false;
+            texs.fWallBlocksLight = false;
+            texs.fDirs.emplace_back(eWallDirection::none);
         } else {
             try {
                 const auto jdata = eFileLoaderBase::parse(dir, path);
                 const bool flat = jdata.value("flat", true);
-                const bool walkable = jdata.value("walkable", true);
-                const bool obsticle = jdata.value("obsticle", false);
-                const bool blocksLight = jdata.value("blocksLight", false);
+                const bool wallWalkable = jdata.value("wallWalkable", true);
+                const bool wallObsticle = jdata.value("wallObsticle", false);
+                const bool wallBlocksLight = jdata.value("wallBlocksLight", false);
                 texs.fFlat = flat;
-                texs.fWalkable = walkable;
-                texs.fObsticle = obsticle;
-                texs.fBlocksLight = blocksLight;
-                if(blocksLight) {
-                    texs.fBlockLightDir[0] = eBlockLightDirection::none;
-                    texs.fBlockLightDir[1] = eBlockLightDirection::verticalBottom;
-                    texs.fBlockLightDir[2] = eBlockLightDirection::rightCorner;
-                    texs.fBlockLightDir[3] = eBlockLightDirection::topLeft;
-                    texs.fBlockLightDir[4] = eBlockLightDirection::leftCorner;
-                    texs.fBlockLightDir[5] = eBlockLightDirection::bottomRight;
-                    texs.fBlockLightDir[6] = eBlockLightDirection::verticalTop;
-                    texs.fBlockLightDir[7] = eBlockLightDirection::topRight;
-                    texs.fBlockLightDir[8] = eBlockLightDirection::bottomLeft;
-                }
+                texs.fWallWalkable = wallWalkable;
+                texs.fWallObsticle = wallObsticle;
+                texs.fWallBlocksLight = wallBlocksLight;
+
+                texs.fDirs.resize(9);
+                texs.fDirs[0] = eWallDirection::none;
+                texs.fDirs[1] = eWallDirection::topRight;
+                texs.fDirs[2] = eWallDirection::rightCorner;
+                texs.fDirs[3] = eWallDirection::bottomRight;
+                texs.fDirs[4] = eWallDirection::verticalBottom;
+                texs.fDirs[5] = eWallDirection::bottomLeft;
+                texs.fDirs[6] = eWallDirection::leftCorner;
+                texs.fDirs[7] = eWallDirection::topLeft;
+                texs.fDirs[8] = eWallDirection::verticalTop;
             } catch(...) {
                 eRuntimeThrow("Failed to parse " + dir + "/" + path);
             }

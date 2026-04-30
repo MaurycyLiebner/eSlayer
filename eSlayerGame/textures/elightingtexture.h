@@ -64,7 +64,7 @@ struct eWallLightBlocker : public eBlockerBase {
                       const int ty,
                       const float px,
                       const float py,
-                      const eBlockLightDirection dir,
+                      const eWallDirection dir,
                       const int tileW,
                       const int tileH,
                       const std::shared_ptr<eTexture>& tex) :
@@ -75,7 +75,7 @@ struct eWallLightBlocker : public eBlockerBase {
         fTileH(tileH) {}
     int fTX;
     int fTY;
-    eBlockLightDirection fDir;
+    eWallDirection fDir;
     int fTileW;
     int fTileH;
 };

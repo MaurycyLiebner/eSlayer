@@ -5,21 +5,21 @@
 
 #include "estringidmapvector.h"
 
-enum eBlockLightDirection {
+enum class eWallDirection {
     none,
-    topRight, topLeft,
-    bottomRight, bottomLeft,
-    verticalTop, verticalBottom,
-    leftCorner, rightCorner
+    topRight, rightCorner,
+    bottomRight, verticalBottom,
+    bottomLeft, leftCorner,
+    topLeft, verticalTop
 };
 
 struct eTileTextureData {
     std::string fName;
     bool fFlat;
-    bool fWalkable;
-    bool fObsticle;
-    bool fBlocksLight;
-    std::map<int, eBlockLightDirection> fBlockLightDir;
+    bool fWallWalkable;
+    bool fWallObsticle;
+    bool fWallBlocksLight;
+    std::vector<eWallDirection> fDirs;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

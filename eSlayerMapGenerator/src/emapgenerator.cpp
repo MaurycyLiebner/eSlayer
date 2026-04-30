@@ -462,6 +462,7 @@ eMapGenerator::generate(const std::string& name) const {
     result->generateTiles(rect.fW, rect.fH);
     for(const auto& it : areas) {
         const auto& name = it.first;
+        const bool isBloodMoor = name == "blood_moor";
         const auto& area = it.second;
         eMapArea mapArea;
         const int id = mapSettings.fAreas.id(name);
@@ -477,8 +478,8 @@ eMapGenerator::generate(const std::string& name) const {
                 const int globalY = y + area.fY;
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
-                dst.fTerrainType = grassId;
-                dst.fTileType = eRand::rand() % 20;
+                dst.fTerrainType = isBloodMoor ? basementId : grassId;
+                dst.fTileType = isBloodMoor ? 0 : eRand::rand() % 20;
                 if(src == Tile::WALL) {
                     bool inner = true;
                     for(int dx = -1; dx <= 1; dx++) {
@@ -520,7 +521,7 @@ eMapGenerator::generate(const std::string& name) const {
                             obj.fSize = treeInfo.fSize;
                         }
                     } else {
-                        if(name == "blood_moor") {
+                        if(isBloodMoor) {
                             dst.fTerrainType = basementId;
                             std::vector<std::vector<bool>> walls(
                                 3, std::vector<bool>(3, true));
@@ -550,25 +551,27 @@ eMapGenerator::generate(const std::string& name) const {
                                 }
                             }
 
+                            eWallDirection dir;
                             if(!walls[2][1] && !walls[1][2]) {
-                                dst.fTileType = 1;
+                                dir = eWallDirection::verticalBottom;
                             } else if(!walls[1][0] && !walls[0][1]) {
-                                dst.fTileType = 6;
+                                dir = eWallDirection::verticalTop;
                             } else if(!walls[0][1] && !walls[1][2]) {
-                                dst.fTileType = 2;
+                                dir = eWallDirection::rightCorner;
                             } else if(!walls[1][0] && !walls[2][1]) {
-                                dst.fTileType = 4;
-                            }else if(!walls[2][1]) {
-                                dst.fTileType = 8;
+                                dir = eWallDirection::leftCorner;
+                            } else if(!walls[2][1]) {
+                                dir = eWallDirection::bottomLeft;
                             } else if(!walls[1][2]) {
-                                dst.fTileType = 5;
+                                dir = eWallDirection::bottomRight;
                             } else if(!walls[1][0]) {
-                                dst.fTileType = 3;
+                                dir = eWallDirection::topLeft;
                             } else if(!walls[0][1]) {
-                                dst.fTileType = 7;
+                                dir = eWallDirection::topRight;
                             } else  {
-                                dst.fTileType = 0;
+                                dir = eWallDirection::none;
                             }
+                            dst.fTileType = static_cast<int>(dir);
                         } else {
                             auto& obj = result->mObjects.emplace_back();
                             obj.fObjectType = townFenceId;

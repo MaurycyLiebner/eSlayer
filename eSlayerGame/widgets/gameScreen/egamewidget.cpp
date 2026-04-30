@@ -375,7 +375,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto terrType : terrTypes) {
             if(terrType == 0) continue;
             const auto& texs = eTerrsTextures::get(terrType);
-            const bool blockLight = texs.fBlocksLight;
+            const bool blockLight = texs.fWallBlocksLight;
             iterator.iterate([&](const int x, const int y,
                                  const int px, const int py) {
                 const auto& tile = mMap->tile(x, y);
@@ -385,13 +385,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
                 if(eRenderSettings::sRenderWallShadows && blockLight) {
-                    const auto& map = texs.fBlockLightDir;
-                    const auto it = map.find(tileType);
-                    if(it != map.end()) {
-                        const auto dir = it->second;
-                        mGamePainter.addLightBlocker(x, y, px, py + tileH, dir,
-                                                     tileW, tileH, tex);
-                    }
+                    const auto dir = texs.fDirs[tileType];
+                    mGamePainter.addLightBlocker(x, y, px, py + tileH, dir,
+                                                 tileW, tileH, tex);
                 }
             });
         }
