@@ -25,11 +25,11 @@ bool eMap::walkable(const ePointF& pos) const {
         return false;
     } else {
         const auto& tile = eMap::tile(x, y);
-        const auto type = tile.fTerrainType;
+        const auto terrType = tile.fTerrainType;
         const auto tileType = tile.fTileType;
-        const auto& info = eTerrsTexturesData::get(type);
-        const bool w = info.fWallWalkable;
-        if(!w && info.fDirs[tileType] != eWallDirection::none) return false;
+        const auto& info = eTerrsTexturesData::get(terrType);
+        const bool w = info.fWalkable[tileType];
+        if(!w) return false;
 
         const auto& objs = objects(x, y);
         const bool empty = objs.empty();
@@ -56,11 +56,11 @@ bool eMap::obsticle(const ePointF& pos) const {
         return false;
     } else {
         const auto& tile = eMap::tile(x, y);
-        const auto type = tile.fTerrainType;
+        const auto terrType = tile.fTerrainType;
         const auto tileType = tile.fTileType;
-        const auto& info = eTerrsTexturesData::get(type);
-        const bool o = info.fWallObsticle;
-        if(o && info.fDirs[tileType] != eWallDirection::none) return true;
+        const auto& info = eTerrsTexturesData::get(terrType);
+        const bool o = info.fObsticle[tileType];
+        if(o) return true;
 
         const auto& objs = objects(x, y);
         const bool empty = objs.empty();

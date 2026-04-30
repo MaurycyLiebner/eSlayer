@@ -18,10 +18,6 @@ class ePacket;
 struct ESLAYERHELPERS_API eTile {
     uint16_t fTerrainType;
     uint16_t fTileType;
-    std::vector<eWallDirection> fWalls;
-
-    void write(ePacket& p) const;
-    void read(ePacket& p);
 };
 
 struct eObject {

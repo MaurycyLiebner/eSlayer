@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eterrstexturesdata.h"
 
 #include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/evectorhelpers.h"
 
 bool eTerrsTexturesData::sLoaded = false;
 eStringIdMapVector<eTileTextureData>
@@ -27,25 +28,35 @@ void eTerrsTexturesData::load() {
         try {
             const auto jdata = eFileLoaderBase::parse(dir, path);
             const bool flat = jdata.value("flat", true);
-            const bool wallWalkable = jdata.value("wallWalkable", true);
-            const bool wallObsticle = jdata.value("wallObsticle", false);
-            const bool wallBlocksLight = jdata.value("wallBlocksLight", false);
+            const int count = jdata.value("count", 0);
+            const auto walkable = jdata.value("walkable", std::vector<int>());
+            const auto obsticle = jdata.value("obsticle", std::vector<int>());
             texs.fFlat = flat;
-            texs.fWallWalkable = wallWalkable;
-            texs.fWallObsticle = wallObsticle;
-            texs.fWallBlocksLight = wallBlocksLight;
+            texs.fObsticle.resize(count + 1, false);
+            texs.fWalkable.resize(count + 1, false);
+            for(int i = 0; i < count; i++) {
+                texs.fObsticle[i + 1] = eVectorHelpers::contains(obsticle, i);
+                texs.fWalkable[i + 1] = eVectorHelpers::contains(walkable, i);
+            }
 
-            texs.fDirs.resize(9);
-            texs.fDirs[0] = eWallDirection::none;
-            texs.fDirs[1] = eWallDirection::none;
-            texs.fDirs[2] = eWallDirection::topRight;
-            texs.fDirs[3] = eWallDirection::rightCorner;
-            texs.fDirs[4] = eWallDirection::bottomRight;
-            texs.fDirs[5] = eWallDirection::verticalBottom;
-            texs.fDirs[6] = eWallDirection::bottomLeft;
-            texs.fDirs[7] = eWallDirection::leftCorner;
-            texs.fDirs[8] = eWallDirection::topLeft;
-            texs.fDirs[9] = eWallDirection::verticalTop;
+            if(jdata.contains("borders")) {
+                const auto& bordersJS = jdata["borders"];
+                const auto handle = [&](const std::string& name) {
+                    auto result = bordersJS.value(name, std::vector<int>());
+                    for(int& i : result) {
+                        i++;
+                    }
+                    return result;
+                };
+                texs.fTRBorders = handle("tr");
+                texs.fRBorders = handle("r");
+                texs.fBRBorders = handle("br");
+                texs.fBBorders = handle("b");
+                texs.fBLBorders = handle("bl");
+                texs.fLBorders = handle("l");
+                texs.fTLBorders = handle("tl");
+                texs.fTBorders = handle("t");
+            }
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }

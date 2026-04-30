@@ -10,10 +10,19 @@
 struct eTileTextureData {
     std::string fName;
     bool fFlat;
-    bool fWallWalkable;
-    bool fWallObsticle;
-    bool fWallBlocksLight;
-    std::vector<eWallDirection> fDirs;
+
+    std::vector<bool> fObsticle;
+    std::vector<bool> fBlocksLight;
+    std::vector<bool> fWalkable;
+
+    std::vector<int> fTRBorders;
+    std::vector<int> fRBorders;
+    std::vector<int> fBRBorders;
+    std::vector<int> fBBorders;
+    std::vector<int> fBLBorders;
+    std::vector<int> fLBorders;
+    std::vector<int> fTLBorders;
+    std::vector<int> fTBorders;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

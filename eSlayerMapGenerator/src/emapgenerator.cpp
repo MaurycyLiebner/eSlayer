@@ -478,8 +478,10 @@ eMapGenerator::generate(const std::string& name) const {
                 const int globalY = y + area.fY;
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
-                dst.fTerrainType = isBloodMoor ? basementId : grassId;
+                const auto terrType = isBloodMoor ? basementId : grassId;
+                dst.fTerrainType = terrType;
                 dst.fTileType = isBloodMoor ? 1 : 1 + eRand::rand() % 20;
+                const auto& terrInfo = eTerrsTexturesData::get(terrType);
                 if(src == Tile::WALL) {
                     bool inner = true;
                     for(int dx = -1; dx <= 1; dx++) {
@@ -551,28 +553,28 @@ eMapGenerator::generate(const std::string& name) const {
                                 }
                             }
 
-                            eWallDirection dir;
+                            const std::vector<int>* options = nullptr;
                             if(!walls[2][1] && !walls[1][2]) {
-                                dir = eWallDirection::verticalBottom;
+                                options = &terrInfo.fBBorders;
                             } else if(!walls[1][0] && !walls[0][1]) {
-                                dir = eWallDirection::verticalTop;
+                                options = &terrInfo.fTBorders;
                             } else if(!walls[0][1] && !walls[1][2]) {
-                                dir = eWallDirection::rightCorner;
+                                options = &terrInfo.fRBorders;
                             } else if(!walls[1][0] && !walls[2][1]) {
-                                dir = eWallDirection::leftCorner;
+                                options = &terrInfo.fLBorders;
                             } else if(!walls[2][1]) {
-                                dir = eWallDirection::bottomLeft;
+                                options = &terrInfo.fBLBorders;
                             } else if(!walls[1][2]) {
-                                dir = eWallDirection::bottomRight;
+                                options = &terrInfo.fBRBorders;
                             } else if(!walls[1][0]) {
-                                dir = eWallDirection::topLeft;
+                                options = &terrInfo.fTLBorders;
                             } else if(!walls[0][1]) {
-                                dir = eWallDirection::topRight;
-                            } else  {
-                                dir = eWallDirection::none;
+                                options = &terrInfo.fTRBorders;
                             }
-                            if(dir != eWallDirection::none) {
-                                dst.fWalls.emplace_back(dir);
+                            if(options) {
+                                const int n = options->size();
+                                const int id = eRand::rand() % n;
+                                dst.fTileType = (*options)[id];
                             }
                         } else {
                             auto& obj = result->mObjects.emplace_back();
