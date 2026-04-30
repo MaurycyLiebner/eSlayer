@@ -5,13 +5,7 @@
 
 #include "estringidmapvector.h"
 
-enum class eWallDirection {
-    none,
-    topRight, rightCorner,
-    bottomRight, verticalBottom,
-    bottomLeft, leftCorner,
-    topLeft, verticalTop
-};
+#include <eSlayerHelpers/ewalldirection.h>
 
 struct eTileTextureData {
     std::string fName;

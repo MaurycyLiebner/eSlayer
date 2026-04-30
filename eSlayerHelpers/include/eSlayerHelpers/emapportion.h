@@ -7,15 +7,21 @@
 #include "erect.h"
 #include "estringidmapvector.h"
 
+#include <eSlayerHelpers/ewalldirection.h>
+
 #include <cstdint>
 #include <vector>
 #include <set>
 
 class ePacket;
 
-struct eTile {
+struct ESLAYERHELPERS_API eTile {
     uint16_t fTerrainType;
     uint16_t fTileType;
+    std::vector<eWallDirection> fWalls;
+
+    void write(ePacket& p) const;
+    void read(ePacket& p);
 };
 
 struct eObject {

@@ -479,7 +479,7 @@ eMapGenerator::generate(const std::string& name) const {
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
                 dst.fTerrainType = isBloodMoor ? basementId : grassId;
-                dst.fTileType = isBloodMoor ? 0 : eRand::rand() % 20;
+                dst.fTileType = isBloodMoor ? 1 : 1 + eRand::rand() % 20;
                 if(src == Tile::WALL) {
                     bool inner = true;
                     for(int dx = -1; dx <= 1; dx++) {
@@ -571,7 +571,9 @@ eMapGenerator::generate(const std::string& name) const {
                             } else  {
                                 dir = eWallDirection::none;
                             }
-                            dst.fTileType = static_cast<int>(dir);
+                            if(dir != eWallDirection::none) {
+                                dst.fWalls.emplace_back(dir);
+                            }
                         } else {
                             auto& obj = result->mObjects.emplace_back();
                             obj.fObjectType = townFenceId;

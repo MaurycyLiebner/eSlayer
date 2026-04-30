@@ -373,7 +373,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         eTilesIterator iterator;
         iterator.initialize(this);
         for(const auto terrType : terrTypes) {
-            if(terrType == 0) continue;
             const auto& texs = eTerrsTextures::get(terrType);
             const bool blockLight = texs.fWallBlocksLight;
             iterator.iterate([&](const int x, const int y,
@@ -381,13 +380,21 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != terrType) return;
                 const auto tileType = tile.fTileType;
-                const auto& tex = texs.getTexture(tileType);
-                mGamePainter.drawTexture(px, py + tileH, tex,
-                                         eAlignment::top | eAlignment::hcenter);
-                if(eRenderSettings::sRenderWallShadows && blockLight) {
-                    const auto dir = texs.fDirs[tileType];
-                    mGamePainter.addLightBlocker(x, y, px, py + tileH, dir,
-                                                 tileW, tileH, tex);
+                if(tileType != 0) {
+                    const auto& tex = texs.getTexture(tileType);
+                    mGamePainter.drawTexture(px, py + tileH, tex,
+                                             eAlignment::top | eAlignment::hcenter);
+                }
+                for(const auto wall : tile.fWalls) {
+                    const auto tileType = 1 + static_cast<int>(wall);
+                    const auto& tex = texs.getTexture(tileType);
+                    mGamePainter.drawTexture(px, py + tileH, tex,
+                                             eAlignment::top | eAlignment::hcenter);
+                    if(eRenderSettings::sRenderWallShadows && blockLight) {
+                        const auto dir = texs.fDirs[tileType];
+                        mGamePainter.addLightBlocker(x, y, px, py + tileH, wall,
+                                                     tileW, tileH, tex);
+                    }
                 }
             });
         }

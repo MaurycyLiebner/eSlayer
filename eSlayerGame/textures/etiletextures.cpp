@@ -28,6 +28,7 @@ void eTileTextures::load(const eResolution& res,
     mLoaded = true;
     eSpriteLoader loader("Textures", "terrain/" + fName + "/" + fName, res, r);
     mColl = std::make_shared<eTextureCollection>();
+    mColl->addTexture(nullptr);
     loader.loadAll(*mColl);
 }
 
@@ -41,6 +42,7 @@ void eTileTextures::loadFixedSize(const int w, const int h,
     const auto path = "terrain/" + fName + "/" + fName + suffix + "_0.png";
     const auto atlas = eFileLoader::readTexture(r, dir, path);
     mColl = std::make_shared<eTextureCollection>();
+    mColl->addTexture(nullptr);
     const int aw = atlas->width();
     const int ah = atlas->height();
     for(int x = 0; x < aw; x += w) {

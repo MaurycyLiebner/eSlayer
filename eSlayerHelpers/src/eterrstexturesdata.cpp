@@ -24,37 +24,30 @@ void eTerrsTexturesData::load() {
     for(const auto& name : names) {
         const auto path = "terrain/" + name + "/" + name + ".json";
         eTileTextureData texs{name};
-        if(name == "none") {
-            texs.fFlat = true;
-            texs.fWallWalkable = false;
-            texs.fWallObsticle = false;
-            texs.fWallBlocksLight = false;
-            texs.fDirs.emplace_back(eWallDirection::none);
-        } else {
-            try {
-                const auto jdata = eFileLoaderBase::parse(dir, path);
-                const bool flat = jdata.value("flat", true);
-                const bool wallWalkable = jdata.value("wallWalkable", true);
-                const bool wallObsticle = jdata.value("wallObsticle", false);
-                const bool wallBlocksLight = jdata.value("wallBlocksLight", false);
-                texs.fFlat = flat;
-                texs.fWallWalkable = wallWalkable;
-                texs.fWallObsticle = wallObsticle;
-                texs.fWallBlocksLight = wallBlocksLight;
+        try {
+            const auto jdata = eFileLoaderBase::parse(dir, path);
+            const bool flat = jdata.value("flat", true);
+            const bool wallWalkable = jdata.value("wallWalkable", true);
+            const bool wallObsticle = jdata.value("wallObsticle", false);
+            const bool wallBlocksLight = jdata.value("wallBlocksLight", false);
+            texs.fFlat = flat;
+            texs.fWallWalkable = wallWalkable;
+            texs.fWallObsticle = wallObsticle;
+            texs.fWallBlocksLight = wallBlocksLight;
 
-                texs.fDirs.resize(9);
-                texs.fDirs[0] = eWallDirection::none;
-                texs.fDirs[1] = eWallDirection::topRight;
-                texs.fDirs[2] = eWallDirection::rightCorner;
-                texs.fDirs[3] = eWallDirection::bottomRight;
-                texs.fDirs[4] = eWallDirection::verticalBottom;
-                texs.fDirs[5] = eWallDirection::bottomLeft;
-                texs.fDirs[6] = eWallDirection::leftCorner;
-                texs.fDirs[7] = eWallDirection::topLeft;
-                texs.fDirs[8] = eWallDirection::verticalTop;
-            } catch(...) {
-                eRuntimeThrow("Failed to parse " + dir + "/" + path);
-            }
+            texs.fDirs.resize(9);
+            texs.fDirs[0] = eWallDirection::none;
+            texs.fDirs[1] = eWallDirection::none;
+            texs.fDirs[2] = eWallDirection::topRight;
+            texs.fDirs[3] = eWallDirection::rightCorner;
+            texs.fDirs[4] = eWallDirection::bottomRight;
+            texs.fDirs[5] = eWallDirection::verticalBottom;
+            texs.fDirs[6] = eWallDirection::bottomLeft;
+            texs.fDirs[7] = eWallDirection::leftCorner;
+            texs.fDirs[8] = eWallDirection::topLeft;
+            texs.fDirs[9] = eWallDirection::verticalTop;
+        } catch(...) {
+            eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }
         sTexs.add(name, texs);
     }

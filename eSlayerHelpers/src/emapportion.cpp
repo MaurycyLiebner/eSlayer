@@ -7,7 +7,7 @@ void eMapPortion::write(ePacket& p) const {
 
     for(const auto& row : fTiles) {
         for(const auto& tile : row) {
-            p << tile;
+            tile.write(p);
         }
     }
 
@@ -25,7 +25,7 @@ void eMapPortion::read(ePacket& p) {
     for(auto& row : fTiles) {
         row.resize(fArea.fWidth);
         for(auto& tile : row) {
-            p >> tile;
+            tile.read(p);
         }
     }
 
@@ -113,5 +113,28 @@ void eMapData::read(ePacket& p) {
         eMapArea area;
         p >> area;
         fAreas.add(name, area);
+    }
+}
+
+void eTile::write(ePacket& p) const {
+    p << fTerrainType;
+    p << fTileType;
+
+    const uint8_t nWalls = fWalls.size();
+    p << nWalls;
+    for(const auto wall : fWalls) {
+        p << wall;
+    }
+}
+
+void eTile::read(ePacket& p) {
+    p >> fTerrainType;
+    p >> fTileType;
+
+    uint8_t nWalls;
+    p >> nWalls;
+    fWalls.reserve(nWalls);
+    for(int i = 0; i < nWalls; i++) {
+        p >> fWalls.emplace_back();
     }
 }

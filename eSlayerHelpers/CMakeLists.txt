@@ -153,6 +153,7 @@ add_library(eSlayerHelpers SHARED
     src/efixedsizesetareas.cpp
     include/eSlayerHelpers/eobjectsinfo.h
     src/eobjectsinfo.cpp
+    include/eSlayerHelpers/ewalldirection.h
 
 
 )
