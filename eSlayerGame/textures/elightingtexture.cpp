@@ -146,9 +146,7 @@ void eLightingTexture::renderLight(
                                          b.fPY - bTexH,
                                          bTexW, bTexH};
                 if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
-                const float dx = x - b.fPX;
-                const float dy = y - (b.fPY + 0.5f*b.fTileH);
-                const float key = -(dx*dx + dy*dy);
+                const float key = b.fTX + b.fTY;
                 wallMap.emplace(key, b);
             }
 
@@ -170,23 +168,30 @@ void eLightingTexture::renderLight(
 
                 switch(b.fDir) {
                 case eWallType::topRight: {
-                    if(b.fTX == lightITX && b.fTY >= light.fTY) {
-                        maxLightTY = b.fTY;
+                    if(b.fTX == lightITX) {
+                        if(b.fTY >= light.fTY) {
+                            maxLightTY = b.fTY;
+                        } else {
+                            minLightTY = b.fTY;
+                        }
                     }
                     leftPt = {b.fPX, b.fPY - b.fTileH};
                     rightPt = {b.fPX + b.fTileW*0.5f,
                                b.fPY - b.fTileH*0.5f};
                 } break;
                 case eWallType::topLeft: {
-                    if(b.fTY == lightITY && b.fTX >= light.fTX) {
-                        maxLightTX = b.fTX;
+                    if(b.fTY == lightITY) {
+                        if(b.fTX >= light.fTX) {
+                            maxLightTX = b.fTX;
+                        } else {
+                            minLightTX = b.fTX;
+                        }
                     }
                     leftPt = {b.fPX - b.fTileW*0.5f,
                               b.fPY - b.fTileH*0.5f};
                     rightPt = {b.fPX, b.fPY - b.fTileH};
                 } break;
                 };
-
 
                 leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
                 rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
@@ -201,10 +206,20 @@ void eLightingTexture::renderLight(
             for(const auto& it : wallMap) {
                 const auto& b = it.second;
                 float lightness = 255.f;
-                if(b.fTX < minLightTX) lightness = 0.f;
-                if(b.fTY < minLightTY) lightness = 0.f;
-                if(b.fTX > maxLightTX) lightness = 0.f;
-                if(b.fTY > maxLightTY) lightness = 0.f;
+                switch(b.fDir) {
+                case eWallType::topLeft: {
+                    if(b.fTX < minLightTX) lightness = 0.f;
+                    if(b.fTY <= minLightTY) lightness = 0.f;
+                    if(b.fTX > maxLightTX) lightness = 0.f;
+                    if(b.fTY >= maxLightTY) lightness = 0.f;
+                } break;
+                case eWallType::topRight: {
+                    if(b.fTX <= minLightTX) lightness = 0.f;
+                    if(b.fTY < minLightTY) lightness = 0.f;
+                    if(b.fTX >= maxLightTX) lightness = 0.f;
+                    if(b.fTY > maxLightTY) lightness = 0.f;
+                } break;
+                }
                 eraseBlocker(b, lightness);
             }
 

@@ -475,8 +475,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto typePriority = [](const eRenderElementType t) {
             switch(t) {
             case eRenderElementType::item:    return 0;
-            case eRenderElementType::object:  return 1;
-            case eRenderElementType::wall:    return 2;
+            case eRenderElementType::wall:    return 1;
+            case eRenderElementType::object:  return 2;
             case eRenderElementType::unit:    return 3;
             case eRenderElementType::missile: return 4;
             }

@@ -35,6 +35,9 @@ public:
     const std::set<uint16_t>&
     unitTypes() const { return mUnitTypes; }
 
+    bool wall(const ePointF& pos,
+              const int x, const int y,
+              const eTile& tile) const;
     bool walkable(const ePointF& pos) const;
     bool obsticle(const ePointF& pos) const;
     bool hasObjects(const int x, const int y) const;

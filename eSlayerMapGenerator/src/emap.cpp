@@ -16,6 +16,55 @@ const std::shared_ptr<eObject>& eMap::object(const int id) const {
     return mObjects[id];
 }
 
+
+bool inside(const ePointF& pos,
+            const float x,
+            const float y,
+            const float width,
+            const float height) {
+    if(pos.fX < x) return false;
+    if(pos.fY < y) return false;
+    if(pos.fX >= x + width) return false;
+    if(pos.fY >= y + height) return false;
+    return true;
+};
+
+bool eMap::wall(const ePointF& pos,
+                const int x, const int y,
+                const eTile& tile) const {
+    const float thick = 0.2f;
+
+    if(tile.fWallTL) {
+        const bool r = inside(pos, x - thick, y, 2*thick, 1.f);
+        if(r) return true;
+    }
+
+    if(tile.fWallTR) {
+        const bool r = inside(pos, x, y - thick, 1.f, 2*thick);
+        if(r) return true;
+    }
+
+    if(y + 1 < mHeight) {
+        const auto& tile = eMap::tile(x, y + 1);
+        const bool wallBL = tile.fWallTR;
+        if(wallBL) {
+            const bool r = inside(pos, x, y + 1 - thick, 1.f, 2*thick);
+            if(r) return true;
+        }
+    }
+
+    if(x + 1 < mWidth) {
+        const auto& tile = eMap::tile(x + 1, y);
+        const bool wallBR = tile.fWallTL;
+        if(wallBR) {
+            const bool r = inside(pos, x + 1 - thick, y, 2*thick, 1.f);
+            if(r) return true;
+        }
+    }
+
+    return false;
+}
+
 bool eMap::walkable(const ePointF& pos) const {
     const auto iPos = pos.floor();
     const int x = iPos.fX;
@@ -31,17 +80,18 @@ bool eMap::walkable(const ePointF& pos) const {
         const bool w = info.fWalkable[tileType];
         if(!w) return false;
 
+        const bool wall = eMap::wall(pos, x, y, tile);
+        if(wall) return false;
+
         const auto& objs = objects(x, y);
         const bool empty = objs.empty();
         if(empty) return true;
         for(const auto oid : objs) {
             const auto& o = *object(oid);
             const auto& opos = o.fPos;
-            if(pos.fX < opos.fX) continue;
-            if(pos.fY < opos.fY) continue;
-            if(pos.fX >= opos.fX + o.fSize) continue;
-            if(pos.fY >= opos.fY + o.fSize) continue;
-            return false;
+            const bool r = inside(pos, opos.fX, opos.fY,
+                                  o.fSize, o.fSize);
+            if(r) return false;
         }
     }
     return true;
@@ -62,17 +112,19 @@ bool eMap::obsticle(const ePointF& pos) const {
         const bool o = info.fObsticle[tileType];
         if(o) return true;
 
+
+        const bool wall = eMap::wall(pos, x, y, tile);
+        if(wall) return true;
+
         const auto& objs = objects(x, y);
         const bool empty = objs.empty();
         if(empty) return false;
         for(const auto oid : objs) {
             const auto& o = *object(oid);
             const auto& opos = o.fPos;
-            if(pos.fX < opos.fX) continue;
-            if(pos.fY < opos.fY) continue;
-            if(pos.fX >= opos.fX + o.fSize) continue;
-            if(pos.fY >= opos.fY + o.fSize) continue;
-            return true;
+            const bool r = inside(pos, opos.fX, opos.fY,
+                                  o.fSize, o.fSize);
+            if(r) return true;
         }
     }
     return false;
