@@ -9,4 +9,8 @@ enum class eWallDirection {
     topLeft, verticalTop
 };
 
+enum class eWallType {
+    topLeft, topRight
+};
+
 #endif // EWALLDIRECTION_H

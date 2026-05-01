@@ -380,10 +380,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             std::shared_ptr<ePositioned> fPtr;
         };
 
-        enum class eWallType {
-            topLeft, topRight
-        };
-
         struct eWall : public ePositioned {
             int fTerrainType;
             eWallType fType;
@@ -632,6 +628,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
 
+                if(eRenderSettings::sRenderWallShadows) {
+                    mGamePainter.addLightBlocker(iPos.fX, iPos.fY, pixel.fX, pixel.fY + tileH,
+                                                 wall.fType, tileW, tileH, tex);
+                }
                 mGamePainter.drawTexture(pixel.fX, pixel.fY + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
             }

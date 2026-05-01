@@ -139,7 +139,6 @@ void eLightingTexture::renderLight(
             std::multimap<float, eWallLightBlocker> wallMap;
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : walls) {
-                if(b.fDir == eWallDirection::none) continue;
                 const auto& bTex = b.fTex;
                 const float bTexW = bTex->width();
                 const float bTexH = bTex->height();
@@ -166,207 +165,34 @@ void eLightingTexture::renderLight(
             for(const auto& it : wallMap) {
                 const auto& b = it.second;
 
-                if(b.fDir == eWallDirection::none) continue;
-
                 ePointF leftPt;
                 ePointF rightPt;
 
-                bool feather = false;
-
-                enum class eClampDir {
-                    topRight, topLeft,
-                    bottomRight, bottomLeft
+                switch(b.fDir) {
+                case eWallType::topRight: {
+                    if(b.fTX == lightITX && b.fTY >= light.fTY) {
+                        maxLightTY = b.fTY;
+                    }
+                    leftPt = {b.fPX, b.fPY - b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f,
+                               b.fPY - b.fTileH*0.5f};
+                } break;
+                case eWallType::topLeft: {
+                    if(b.fTY == lightITY && b.fTX >= light.fTX) {
+                        maxLightTX = b.fTX;
+                    }
+                    leftPt = {b.fPX - b.fTileW*0.5f,
+                              b.fPY - b.fTileH*0.5f};
+                    rightPt = {b.fPX, b.fPY - b.fTileH};
+                } break;
                 };
 
-                const auto clampTiles = [&](const eClampDir dir) {
-                    switch(dir) {
-                    case eClampDir::topRight:
-                        if(b.fTX == lightITX && b.fTY >= light.fTY) {
-                            maxLightTY = b.fTY;
-                        }
-                        break;
-                    case eClampDir::topLeft:
-                        if(b.fTY == lightITY && b.fTX >= light.fTX) {
-                            maxLightTX = b.fTX;
-                        }
-                        break;
-                    case eClampDir::bottomRight:
-                        if(b.fTY == lightITY && b.fTX <= light.fTX) {
-                            minLightTX = b.fTX;
-                        }
-                        break;
-                    case eClampDir::bottomLeft:
-                        if(b.fTX == lightITX && b.fTY <= light.fTY) {
-                            minLightTY = b.fTY;
-                        }
-                        break;
-                    }
-                };
 
-                switch(b.fDir) {
-                case eWallDirection::leftCorner:
-                case eWallDirection::rightCorner: {
-                    const auto& b = it.second;
-
-                    ePointF leftPt;
-                    ePointF rightPt;
-                    switch(b.fDir) {
-                    case eWallDirection::leftCorner:
-                        if(light.fTX < b.fTX && light.fTY > b.fTY + 1) {
-                            continue;
-                        }
-                        leftPt = {b.fPX - 0.5f*b.fTileW + 0.5f*softness, b.fPY - 0.5f*b.fTileH};
-                        rightPt = {b.fPX/* + 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
-                        break;
-                    case eWallDirection::rightCorner:
-                        if(light.fTX > b.fTX + 1 && light.fTY < b.fTY) {
-                            continue;
-                        }
-                        leftPt = {b.fPX/* - 0.5f*b.fTileW*/, b.fPY - 0.5f*b.fTileH};
-                        rightPt = {b.fPX + 0.5f*b.fTileW - 0.5f*softness, b.fPY - 0.5f*b.fTileH};
-                        break;
-                    default:
-                        continue;
-                    }
-                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                    renderShadow(r, lightPt, leftPt, rightPt,
-                                 true, true, true,
-                                 shadowLen, softness);
-                } break;
-                default:
-                    break;
-                }
-
-                const float slide = 0.5f;
-
-                switch(b.fDir) {
-                case eWallDirection::topRight:
-                case eWallDirection::topLeft:
-                case eWallDirection::bottomRight:
-                case eWallDirection::bottomLeft: {
-                    const float scale = slide;
-
-                    switch(b.fDir) {
-                    case eWallDirection::topRight:
-                        clampTiles(eClampDir::topRight);
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        translateTYAndScale2(leftPt, rightPt, slide,
-                                             scale, b.fTileW, b.fTileH);
-                        break;
-                    case eWallDirection::topLeft:
-                        clampTiles(eClampDir::topLeft);
-                        leftPt = {b.fPX - b.fTileW*0.5f,
-                                  b.fPY - b.fTileH*0.5f};
-                        rightPt = {b.fPX, b.fPY - b.fTileH};
-                        translateTXAndScale2(leftPt, rightPt, slide,
-                                             scale, b.fTileW, b.fTileH);
-                        break;
-                    case eWallDirection::bottomRight:
-                        clampTiles(eClampDir::bottomRight);
-                        leftPt = {b.fPX, b.fPY};
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        translateTXAndScale2(leftPt, rightPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-                        break;
-                    case eWallDirection::bottomLeft:
-                        clampTiles(eClampDir::bottomLeft);
-                        leftPt = {b.fPX - b.fTileW*0.5f,
-                                  b.fPY - b.fTileH*0.5f};
-                        rightPt = {b.fPX, b.fPY};
-                        translateTYAndScale2(leftPt, rightPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-                        break;
-                    default:
-                        continue;
-                    }
-                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                    renderShadow(r, lightPt, leftPt, rightPt,
-                                 false, false, false,
-                                 shadowLen, softness);
-                } break;
-
-                case eWallDirection::rightCorner:
-                case eWallDirection::leftCorner:
-                case eWallDirection::verticalBottom:
-                case eWallDirection::verticalTop: {
-                    ePointF centerPt{b.fPX, b.fPY - b.fTileH*slide};
-                    const float scale = 2*slide;
-
-                    switch(b.fDir) {
-                    case eWallDirection::rightCorner: {
-                        clampTiles(eClampDir::topRight);
-                        clampTiles(eClampDir::bottomRight);
-
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        translateTYAndScale1(centerPt, leftPt, slide,
-                                             scale, b.fTileW, b.fTileH);
-
-                        rightPt = {b.fPX, b.fPY};
-                        translateTXAndScale1(centerPt, rightPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-                    } break;
-                    case eWallDirection::leftCorner: {
-                        clampTiles(eClampDir::topLeft);
-                        clampTiles(eClampDir::bottomLeft);
-
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        translateTXAndScale1(centerPt, leftPt, slide,
-                                             scale, b.fTileW, b.fTileH);
-
-                        rightPt = {b.fPX, b.fPY};
-                        translateTYAndScale1(centerPt, rightPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-                    } break;
-                    case eWallDirection::verticalBottom: {
-                        clampTiles(eClampDir::bottomRight);
-                        clampTiles(eClampDir::bottomLeft);
-
-                        leftPt = {b.fPX - b.fTileW*0.5f,
-                                  b.fPY - b.fTileH*0.5f};
-                        translateTYAndScale1(centerPt, leftPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        translateTXAndScale1(centerPt, rightPt, -slide,
-                                             scale, b.fTileW, b.fTileH);
-                    } break;
-                    case eWallDirection::verticalTop: {
-                        clampTiles(eClampDir::topRight);
-                        clampTiles(eClampDir::topLeft);
-
-                        leftPt = {b.fPX - b.fTileW*0.5f,
-                                  b.fPY - b.fTileH*0.5f};
-                        translateTXAndScale1(centerPt, leftPt, slide, scale,
-                                             b.fTileW, b.fTileH);
-
-                        rightPt = {b.fPX + b.fTileW*0.5f,
-                                   b.fPY - b.fTileH*0.5f};
-                        translateTYAndScale1(centerPt, rightPt, slide,
-                                             scale, b.fTileW, b.fTileH);
-                    } break;
-                    default:
-                        continue;
-                    }
-                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                    centerPt = {centerPt.fX - dstX, centerPt.fY - dstY};
-
-                    renderShadow(r, lightPt, leftPt, centerPt,
-                                 false, false, false,
-                                 shadowLen, softness);
-                    renderShadow(r, lightPt, centerPt, rightPt,
-                                 false, false, false,
-                                 shadowLen, softness);
-                } break;
-                case eWallDirection::none:
-                    continue;
-                }
+                leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
+                rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
+                renderShadow(r, lightPt, leftPt, rightPt,
+                             true, true, true,
+                             shadowLen, softness);
             }
 
            // Pass 2: Render all wall textures to clear shadows
@@ -379,46 +205,7 @@ void eLightingTexture::renderLight(
                 if(b.fTY < minLightTY) lightness = 0.f;
                 if(b.fTX > maxLightTX) lightness = 0.f;
                 if(b.fTY > maxLightTY) lightness = 0.f;
-                if(b.fTX == maxLightTX &&
-                   b.fDir == eWallDirection::leftCorner) lightness = 0.f;
-                if(b.fTY == maxLightTY &&
-                   b.fDir == eWallDirection::rightCorner) lightness = 0.f;
                 eraseBlocker(b, lightness);
-
-                switch(b.fDir) {
-                case eWallDirection::verticalTop:
-                case eWallDirection::verticalBottom: {
-                    const auto& b = it.second;
-
-                    ePointF leftPt;
-                    ePointF rightPt;
-                    switch(b.fDir) {
-                    case eWallDirection::verticalTop:
-                        if(light.fTX < b.fTX && light.fTY < b.fTY) {
-                            continue;
-                        }
-                        leftPt = {b.fPX, b.fPY - b.fTileH + 0.5f*softness};
-                        rightPt = {b.fPX, b.fPY};
-                        break;
-                    case eWallDirection::verticalBottom:
-                        if(light.fTX > b.fTX + 1 && light.fTY > b.fTY + 1) {
-                            continue;
-                        }
-                        leftPt = {b.fPX, b.fPY - b.fTileH};
-                        rightPt = {b.fPX, b.fPY - 0.5f*softness};
-                        break;
-                    default:
-                        continue;
-                    }
-                    leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
-                    rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
-                    renderShadow(r, lightPt, leftPt, rightPt,
-                                 true, true, true,
-                                 shadowLen, softness);
-                } break;
-                default:
-                    break;
-                }
             }
 
             eraseBase();

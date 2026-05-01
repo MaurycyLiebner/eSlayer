@@ -12,7 +12,6 @@ struct eTileTextureData {
     bool fFlat;
 
     std::vector<bool> fObsticle;
-    std::vector<bool> fBlocksLight;
     std::vector<bool> fWalkable;
 
     std::vector<int> fTRBorders;

@@ -99,11 +99,10 @@ void eGamePainter::addLightBlocker(
 void eGamePainter::addLightBlocker(
     const int tx, const int ty,
     const float px, const float py,
-    const eWallDirection dir,
+    const eWallType dir,
     const int tileW,
     const int tileH,
     const std::shared_ptr<eTexture>& tex) {
-    if(dir == eWallDirection::none) return;
     mWallLightBlockers.emplace_back(
         tx, ty, px, py, dir, tileW, tileH, tex);
 }
