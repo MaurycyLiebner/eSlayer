@@ -383,7 +383,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         struct eWall : public ePositioned {
             int fTerrainType;
             eWallType fType;
-            bool fClamp;
         };
 
         std::vector<eRenderElement> renderElements;
@@ -426,7 +425,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 } break;
                 };
 
-                wall->fClamp = tile.fWallTL && tile.fWallTR;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::wall,
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
@@ -652,7 +650,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const float fpx = pixel.fX + 0.5f*((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*tileW;
                 const float fpy = pixel.fY + 0.5f*((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*tileH;
                 if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
-                    mGamePainter.addLightBlocker(fpx, fpy + h, fpy + 0.5f*h,
+                    mGamePainter.addObjectShadow(fpx, fpy + h, fpy + 0.5f*h,
                                                  object.fSize, tex);
                 }
                 mGamePainter.drawShadow(fpx - 0.5f*tex->width(), fpy + h, *tex);
@@ -679,36 +677,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
 
-                SDL_Rect clip;
-                if(wall.fClamp) {
-                    int left;
-                    int right;
-                    switch(wall.fType) {
-                    case eWallType::topLeft:
-                        left = 0;
-                        right = pixel.fX;
-                        break;
-                    case eWallType::topRight:
-                        left = pixel.fX;
-                        right = width();
-                        break;
-                    }
-
-                    clip.x = left;
-                    clip.w = right - left;
-                    clip.y = 0;
-                    clip.h = height();
-
-                    mGamePainter.setClipRect(&clip);
-                }
-
                 const float bottomY = pixel.fY + tileH;
 
                 if(eRenderSettings::sRenderWallShadows) {
-                    mGamePainter.addLightBlocker(iPos.fX, iPos.fY,
-                                                 pixel.fX, bottomY,
-                                                 wall.fType, tileW, tileH,
-                                                 tex, wall.fClamp, clip);
+                    mGamePainter.addWallShadow(iPos.fX, iPos.fY,
+                                               pixel.fX, bottomY,
+                                               wall.fType, tileW, tileH,
+                                               tex);
                 }
                 bool transparent = false;
 
@@ -740,10 +715,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawTexture(pixel.fX, bottomY, tex,
                                          eAlignment::top | eAlignment::hcenter);
                 if(transparent) tex->clearAlphaMod();
-
-                if(wall.fClamp) {
-                    mGamePainter.setClipRect(nullptr);
-                }
             }
         }
 

@@ -27,18 +27,16 @@ public:
                      const ePaintCall& paintCall);
     void finish(const eResolution& res);
 
-    void addLightBlocker(const float px, const float py,
+    void addObjectShadow(const float px, const float py,
                          const float tileCenterY,
                          const float size,
                          const std::shared_ptr<eTexture>& tex);
-    void addLightBlocker(const int tx, const int ty,
-                         const float px, const float py,
-                         const eWallType dir,
-                         const int tileW,
-                         const int tileH,
-                         const std::shared_ptr<eTexture>& tex,
-                         const bool clamp,
-                         const SDL_Rect& clip);
+    void addWallShadow(const int tx, const int ty,
+                       const float px, const float py,
+                       const eWallType dir,
+                       const int tileW,
+                       const int tileH,
+                       const std::shared_ptr<eTexture>& tex);
 private:
     std::vector<eLightBlocker> mLightBlockers;
     std::vector<eWallLightBlocker> mWallLightBlockers;

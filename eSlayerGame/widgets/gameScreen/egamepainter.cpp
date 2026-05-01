@@ -87,7 +87,7 @@ void eGamePainter::finish(const eResolution& res) {
     }
 }
 
-void eGamePainter::addLightBlocker(
+void eGamePainter::addObjectShadow(
     const float px, const float py,
     const float tileCenterY,
     const float size,
@@ -96,17 +96,14 @@ void eGamePainter::addLightBlocker(
         px, py, tileCenterY, size, tex);
 }
 
-void eGamePainter::addLightBlocker(
+void eGamePainter::addWallShadow(
     const int tx, const int ty,
     const float px, const float py,
     const eWallType dir,
     const int tileW,
     const int tileH,
-    const std::shared_ptr<eTexture>& tex,
-    const bool clamp,
-    const SDL_Rect& clip) {
+    const std::shared_ptr<eTexture>& tex) {
     mWallLightBlockers.emplace_back(
         tx, ty, px, py, dir,
-        tileW, tileH, tex,
-        clamp, clip);
+        tileW, tileH, tex);
 }

@@ -220,16 +220,7 @@ void eLightingTexture::renderLight(
                     if(b.fTY > maxLightTY) lightness = 0.f;
                 } break;
                 }
-                if(b.fClamp) {
-                    auto clip = b.fClip;
-                    clip.x -= dstX;
-                    clip.y -= dstY;
-                    SDL_SetRenderClipRect(r, &clip);
-                }
                 eraseBlocker(b, lightness);
-                if(b.fClamp) {
-                    SDL_SetRenderClipRect(r, nullptr);
-                }
             }
 
             eraseBase();

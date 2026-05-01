@@ -67,23 +67,17 @@ struct eWallLightBlocker : public eBlockerBase {
                       const eWallType dir,
                       const int tileW,
                       const int tileH,
-                      const std::shared_ptr<eTexture>& tex,
-                      const bool clamp,
-                      const SDL_Rect& clip) :
+                      const std::shared_ptr<eTexture>& tex) :
         eBlockerBase(px, py, tex),
         fTX(tx), fTY(ty),
         fDir(dir),
         fTileW(tileW),
-        fTileH(tileH),
-        fClamp(clamp),
-        fClip(clip) {}
+        fTileH(tileH) {}
     int fTX;
     int fTY;
     eWallType fDir;
     int fTileW;
     int fTileH;
-    bool fClamp;
-    SDL_Rect fClip;
 };
 
 class eLightingTexture : public eTexture {
