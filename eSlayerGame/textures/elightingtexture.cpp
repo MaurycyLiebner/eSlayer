@@ -169,10 +169,10 @@ void eLightingTexture::renderLight(
                 switch(b.fDir) {
                 case eWallType::topRight: {
                     if(b.fTX == lightITX) {
-                        if(b.fTY >= light.fTY) {
-                            maxLightTY = b.fTY;
+                        if(b.fTY > light.fTY) {
+                            maxLightTY = std::min(maxLightTY, b.fTY);
                         } else {
-                            minLightTY = b.fTY;
+                            minLightTY = std::max(minLightTY, b.fTY);
                         }
                     }
                     leftPt = {b.fPX, b.fPY - b.fTileH};
@@ -181,10 +181,10 @@ void eLightingTexture::renderLight(
                 } break;
                 case eWallType::topLeft: {
                     if(b.fTY == lightITY) {
-                        if(b.fTX >= light.fTX) {
-                            maxLightTX = b.fTX;
+                        if(b.fTX > light.fTX) {
+                            maxLightTX = std::min(maxLightTX, b.fTX);
                         } else {
-                            minLightTX = b.fTX;
+                            minLightTX = std::max(minLightTX, b.fTX);
                         }
                     }
                     leftPt = {b.fPX - b.fTileW*0.5f,

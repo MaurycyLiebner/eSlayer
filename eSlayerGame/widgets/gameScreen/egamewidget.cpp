@@ -332,8 +332,8 @@ void eGameWidget::paintEvent(ePainter& p) {
     }
 
     const auto upos = mMainChar->fPos;
-    const auto ipos = upos.floor();
-    const int areaId = mMap->areaAt(ipos);
+    const auto uipos = upos.floor();
+    const int areaId = mMap->areaAt(uipos);
     if(mLastArea != areaId && areaId >= 0) {
         mLastArea = areaId;
         const auto areaNameBase = mMap->areaName(areaId);
@@ -388,6 +388,10 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         std::vector<eRenderElement> renderElements;
 
+        int wallMinTX = uipos.fX - 1000;
+        int wallMaxTX = uipos.fX + 1000;
+        int wallMinTY = uipos.fY - 1000;
+        int wallMaxTY = uipos.fY + 1000;
         const auto handleTile = [&](const int x, const int y) {
             const auto& iobjs = mMap->objects(x, y);
             for(const auto& iobj : iobjs) {
@@ -401,6 +405,27 @@ void eGameWidget::paintEvent(ePainter& p) {
                 wall->fPos = ePointF{float(x), float(y)};
                 wall->fTerrainType = tile.fTerrainType;
                 wall->fType = type;
+                switch(type) {
+                case eWallType::topRight: {
+                    if(x == uipos.fX) {
+                        if(y > uipos.fY) {
+                            wallMaxTY = std::min(wallMaxTY, y);
+                        } else {
+                            wallMinTY = std::max(wallMinTY, y);
+                        }
+                    }
+                } break;
+                case eWallType::topLeft: {
+                    if(y == uipos.fY) {
+                        if(x > uipos.fX) {
+                            wallMaxTX = std::min(wallMaxTX, x);
+                        } else {
+                            wallMinTX = std::max(wallMinTX, x);
+                        }
+                    }
+                } break;
+                };
+
                 wall->fClamp = tile.fWallTL && tile.fWallTR;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::wall,
                                                            std::static_pointer_cast<ePositioned>(wall)});
@@ -656,26 +681,65 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 SDL_Rect clip;
                 if(wall.fClamp) {
+                    int left;
+                    int right;
                     switch(wall.fType) {
                     case eWallType::topLeft:
-                        clip = SDL_Rect{0, 0, int(pixel.fX), height()};
+                        left = 0;
+                        right = pixel.fX;
                         break;
                     case eWallType::topRight:
-                        clip = SDL_Rect{int(pixel.fX), 0, width() - int(pixel.fX), height()};
+                        left = pixel.fX;
+                        right = width();
                         break;
                     }
+
+                    clip.x = left;
+                    clip.w = right - left;
+                    clip.y = 0;
+                    clip.h = height();
 
                     mGamePainter.setClipRect(&clip);
                 }
 
+                const float bottomY = pixel.fY + tileH;
+
                 if(eRenderSettings::sRenderWallShadows) {
                     mGamePainter.addLightBlocker(iPos.fX, iPos.fY,
-                                                 pixel.fX, pixel.fY + tileH,
+                                                 pixel.fX, bottomY,
                                                  wall.fType, tileW, tileH,
                                                  tex, wall.fClamp, clip);
                 }
-                mGamePainter.drawTexture(pixel.fX, pixel.fY + tileH, tex,
+                bool transparent = false;
+
+                int wallMaxTX_tmp;
+                switch(wall.fType) {
+                case eWallType::topLeft:
+                    wallMaxTX_tmp = wallMaxTX;
+                    break;
+                case eWallType::topRight:
+                    wallMaxTX_tmp = wallMaxTX - 1;
+                    break;
+                }
+                const SDL_Rect transRect{wallMinTX, wallMinTY,
+                                         wallMaxTX_tmp - wallMinTX + 1,
+                                         wallMaxTY - wallMinTY + 1};
+                const SDL_Point pt{iPos.fX, iPos.fY};
+                if(SDL_PointInRect(&pt, &transRect)) {
+                    switch(wall.fType) {
+                    case eWallType::topLeft:
+                        transparent = uipos.fX < iPos.fX;
+                        break;
+                    case eWallType::topRight:
+                        transparent = uipos.fY < iPos.fY;
+                        break;
+                    }
+                }
+
+                if(transparent) tex->setAlpha(128);
+                mGamePainter.drawTexture(pixel.fX, bottomY, tex,
                                          eAlignment::top | eAlignment::hcenter);
+                if(transparent) tex->clearAlphaMod();
 
                 if(wall.fClamp) {
                     mGamePainter.setClipRect(nullptr);
