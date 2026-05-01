@@ -102,7 +102,11 @@ void eGamePainter::addLightBlocker(
     const eWallType dir,
     const int tileW,
     const int tileH,
-    const std::shared_ptr<eTexture>& tex) {
+    const std::shared_ptr<eTexture>& tex,
+    const bool clamp,
+    const SDL_Rect& clip) {
     mWallLightBlockers.emplace_back(
-        tx, ty, px, py, dir, tileW, tileH, tex);
+        tx, ty, px, py, dir,
+        tileW, tileH, tex,
+        clamp, clip);
 }

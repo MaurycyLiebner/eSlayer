@@ -227,9 +227,9 @@ void ePainter::drawPolygon(std::vector<SDL_FPoint> pts,
 
 void ePainter::setClipRect(const SDL_Rect* const rect) {
     if(rect) {
-        const auto r = SDL_Rect{rect->x + mX,
-                                rect->y + mY,
-                                rect->w, rect->h};
+        const SDL_Rect r{rect->x + mX,
+                         rect->y + mY,
+                         rect->w, rect->h};
         SDL_SetRenderClipRect(mRenderer, &r);
     } else {
         SDL_SetRenderClipRect(mRenderer, nullptr);

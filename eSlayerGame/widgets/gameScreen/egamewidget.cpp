@@ -383,6 +383,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         struct eWall : public ePositioned {
             int fTerrainType;
             eWallType fType;
+            bool fClamp;
         };
 
         std::vector<eRenderElement> renderElements;
@@ -400,6 +401,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 wall->fPos = ePointF{float(x), float(y)};
                 wall->fTerrainType = tile.fTerrainType;
                 wall->fType = type;
+                wall->fClamp = tile.fWallTL && tile.fWallTR;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::wall,
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
@@ -445,7 +447,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
 
-        const int margin = 100;
+        const int margin = 100*res.multiplier();
         const int w = width();
         const int h = height();
         for(const auto& i : mWorld.groundItems()) {
@@ -491,10 +493,35 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(!u1 && !u2) return false;
             if(!u1) return true;
             if(!u2) return false;
+
             const auto& p1 = u1->fPos;
             const auto& p2 = u2->fPos;
             const auto ip1 = p1.floor();
             const auto ip2 = p2.floor();
+
+            const auto handleWall = [](const eRenderElement& wallE,
+                                       const ePoint& wallIP,
+                                       const eRenderElement& notWallE,
+                                       const ePoint& notWallIP) {
+                if(wallE.fType != eRenderElementType::wall) return false;
+                if(notWallE.fType == eRenderElementType::wall) return false;
+                const auto wall = static_cast<eWall&>(*wallE.fPtr);
+                const auto wallType = wall.fType;
+                switch(wallType) {
+                case eWallType::topLeft: {
+                    if(wallIP.fX <= notWallIP.fX) return true;
+                } break;
+                case eWallType::topRight: {
+                    if(wallIP.fY <= notWallIP.fY) return true;
+                } break;
+                }
+                return false;
+            };
+
+            const bool r1 = handleWall(e1, ip1, e2, ip2);
+            if(r1) return true;
+            const bool r2 = handleWall(e2, ip2, e1, ip1);
+            if(r2) return false;
 
             const int ty1 = ip1.fX + ip1.fY;
             const int tx1 = (ip1.fX + ip1.fY)/2 - ip1.fY;
@@ -511,7 +538,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             return typePriority(e1.fType) < typePriority(e2.fType);
         });
 
-        int nextElement = 0;
         setHighlightedUnit(nullptr);
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
@@ -628,12 +654,32 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
 
+                SDL_Rect clip;
+                if(wall.fClamp) {
+                    switch(wall.fType) {
+                    case eWallType::topLeft:
+                        clip = SDL_Rect{0, 0, int(pixel.fX), height()};
+                        break;
+                    case eWallType::topRight:
+                        clip = SDL_Rect{int(pixel.fX), 0, width() - int(pixel.fX), height()};
+                        break;
+                    }
+
+                    mGamePainter.setClipRect(&clip);
+                }
+
                 if(eRenderSettings::sRenderWallShadows) {
-                    mGamePainter.addLightBlocker(iPos.fX, iPos.fY, pixel.fX, pixel.fY + tileH,
-                                                 wall.fType, tileW, tileH, tex);
+                    mGamePainter.addLightBlocker(iPos.fX, iPos.fY,
+                                                 pixel.fX, pixel.fY + tileH,
+                                                 wall.fType, tileW, tileH,
+                                                 tex, wall.fClamp, clip);
                 }
                 mGamePainter.drawTexture(pixel.fX, pixel.fY + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
+
+                if(wall.fClamp) {
+                    mGamePainter.setClipRect(nullptr);
+                }
             }
         }
 
