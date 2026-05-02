@@ -469,7 +469,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         const int fontSize = res.smallFontSize();
         const auto font = eFonts::textFont(fontSize);
 
-        const int margin = 100*res.multiplier();
+        const float mult = res.multiplier();
+        const int margin = 100*mult;
         const int w = width();
         const int h = height();
         for(const auto& i : mWorld.groundItems()) {
