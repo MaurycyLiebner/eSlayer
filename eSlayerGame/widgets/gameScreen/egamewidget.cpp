@@ -519,45 +519,15 @@ void eGameWidget::paintEvent(ePainter& p) {
 
             const auto& p1 = u1->fPos;
             const auto& p2 = u2->fPos;
+
             const auto ip1 = p1.floor();
             const auto ip2 = p2.floor();
 
-            const auto handleWall = [](const eRenderElement& wallE,
-                                       const ePoint& wallIP,
-                                       const eRenderElement& notWallE,
-                                       const ePoint& notWallIP) {
-                if(wallE.fType != eRenderElementType::wall) return false;
-                if(notWallE.fType == eRenderElementType::wall) return false;
-                const auto wall = static_cast<eWall&>(*wallE.fPtr);
-                const auto wallType = wall.fType;
-                switch(wallType) {
-                case eWallType::topLeft: {
-                    if(wallIP.fX <= notWallIP.fX) return true;
-                } break;
-                case eWallType::topRight: {
-                    if(wallIP.fY <= notWallIP.fY) return true;
-                } break;
-                }
-                return false;
-            };
+            if(ip1.fY != ip2.fY) return ip1.fY < ip2.fY;
+            if(ip1.fX != ip2.fX) return ip1.fX < ip2.fX;
 
-            const bool r1 = handleWall(e1, ip1, e2, ip2);
-            if(r1) return true;
-            const bool r2 = handleWall(e2, ip2, e1, ip1);
-            if(r2) return false;
-
-            const int ty1 = ip1.fX + ip1.fY;
-            const int tx1 = (ip1.fX + ip1.fY)/2 - ip1.fY;
-            const int ty2 = ip2.fX + ip2.fY;
-            const int tx2 = (ip2.fX + ip2.fY)/2 - ip2.fY;
-
-            if(ty1 != ty2) return ty1 < ty2;
-            if(tx1 != tx2) return tx1 < tx2;
-
-            const auto pd1 = tilePosToPixel(p1);
-            const auto pd2 = tilePosToPixel(p2);
-            if(pd1.fY != pd2.fY) return pd1.fY < pd2.fY;
-            if(pd1.fX != pd2.fX) return pd1.fX < pd2.fX;
+            if(p1.fY != p2.fY) return p1.fY < p2.fY;
+            if(p1.fX != p2.fX) return p1.fX < p2.fX;
             return typePriority(e1.fType) < typePriority(e2.fType);
         });
 
