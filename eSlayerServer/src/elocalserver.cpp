@@ -64,7 +64,7 @@ bool eLocalServer::spawn(const int clientId,
     const auto h = clientHandler(clientId);
     if(!h) return false;
     h->setName(c.name());
-    return h->spawn(c, screenDims);
+    return h->spawn(c, teamId, screenDims);
 }
 
 bool eLocalServer::requestData(const int clientId,

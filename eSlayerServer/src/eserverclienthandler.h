@@ -29,7 +29,9 @@ public:
     bool attack(const eAttackData& target);
     bool stopAttack();
     bool respawn();
-    bool spawn(eCharacter& c, const eScreenDimensions& screenDims);
+    bool spawn(eCharacter& c,
+               eTeamId& teamId,
+               const eScreenDimensions& screenDims);
     bool disconnect();
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);

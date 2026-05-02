@@ -76,6 +76,7 @@ public:
 
     bool addClient(const int clientId,
                    eCharacter& c,
+                   eTeamId& teamId,
                    const eScreenDimensions& screenDims);
     bool respawn(const int clientId);
     bool removeClient(const int clientId);

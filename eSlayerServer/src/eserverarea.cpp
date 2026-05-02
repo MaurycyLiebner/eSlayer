@@ -377,6 +377,7 @@ bool eServerArea::walkable(const ePointF& pos) const {
 
 bool eServerArea::addClient(const int clientId,
                             eCharacter& c,
+                            eTeamId& teamId,
                             const eScreenDimensions& screenDims) {
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -387,7 +388,8 @@ bool eServerArea::addClient(const int clientId,
     u->addSkill();
     u->addSkill();
     const auto& spawnPos = mMap->spawnPos();
-    iniSetupUnit(u, clientId, sNextTeamId, spawnPos, udata, data, modelParts);
+    teamId = sNextTeamId;
+    iniSetupUnit(u, clientId, teamId, spawnPos, udata, data, modelParts);
     sNextTeamId = static_cast<eTeamId>(static_cast<int>(sNextTeamId) + 1);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);

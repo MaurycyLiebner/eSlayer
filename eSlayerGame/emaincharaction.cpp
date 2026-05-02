@@ -66,6 +66,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar->fRadius = radius;
     mMainChar->fCharDataId = typeId;
     mMainChar->fModelParts = modelParts;
+    mMainChar->fTeamId = teamId;
 
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();

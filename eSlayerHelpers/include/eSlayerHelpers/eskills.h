@@ -53,6 +53,7 @@ struct eSkill {
     float fSpeed;
     float fTime;
     float fMaxAngle;
+    bool fAngleAdjust;
     float fCastRange;
     std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;

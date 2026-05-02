@@ -44,6 +44,7 @@ void eSkills::load() {
             skill.fRadius = jdata.value("radius", 0.5f);
             skill.fSpeed = jdata.value("speed", 0.25f);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
+            skill.fAngleAdjust = jdata.value("angleAdjust", true);
 
             if(typeStr == "attack") {
                 skill.fType = eSkillType::attack;
