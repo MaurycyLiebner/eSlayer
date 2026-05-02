@@ -573,11 +573,11 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& pos = ePtr->fPos;
             const auto iPos = pos.floor();
             const auto pixel = tilePosToPixel(pos);
+            const auto ipixel = pixel.round();
             if(e.fType == eRenderElementType::unit) {
                 const auto u = std::static_pointer_cast<eUnit>(ePtr);
                 mGamePainter.save();
-                const auto idispl = pixel.round();
-                mGamePainter.translate(idispl.fX, idispl.fY);
+                mGamePainter.translate(ipixel.fX, ipixel.fY);
                 auto& model = u->model();
                 model.incFrame(by);
                 bool highlight = false;
@@ -586,11 +586,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                     const int w = 0.75*u->fRadius*tileW;
                     const int h = 2*w;
-                    const SDL_Rect rect{idispl.fX - w/2, idispl.fY - h, w, h};
+                    const SDL_Rect rect{ipixel.fX - w/2, ipixel.fY - h, w, h};
                     highlight = SDL_PointInRect(&p, &rect);
                     if(highlight) {
                         const auto b = model.offsetBoundingRect();
-                        const SDL_Rect rect{idispl.fX + b.x, idispl.fY + b.y, b.w, b.h};
+                        const SDL_Rect rect{ipixel.fX + b.x, ipixel.fY + b.y, b.w, b.h};
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
                             setHighlightedUnit(u);
@@ -676,7 +676,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
 
-                const float bottomY = pixel.fY + tileH;
+                const int bottomY = ipixel.fY + tileH;
 
                 if(eRenderSettings::sRenderWallShadows) {
                     mGamePainter.addWallShadow(iPos.fX, iPos.fY,
@@ -711,7 +711,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
 
                 if(transparent) tex->setAlpha(128);
-                mGamePainter.drawTexture(pixel.fX, bottomY, tex,
+                mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
                                          eAlignment::top | eAlignment::hcenter);
                 if(transparent) tex->clearAlphaMod();
             }
