@@ -44,6 +44,16 @@ bool eMap::wall(const ePointF& pos,
         if(r) return true;
     }
 
+    if(y - 1 >= 0 && x - 1 >= 0) {
+        const auto& tileX = eMap::tile(x - 1, y);
+        const auto& tileY = eMap::tile(x, y - 1);
+        const bool wallT = tileX.fWallTR || tileY.fWallTL;
+        if(wallT) {
+            const bool r = inside(pos, x, y, thick, thick);
+            if(r) return true;
+        }
+    }
+
     if(y + 1 < mHeight) {
         const auto& tile = eMap::tile(x, y + 1);
         const bool wallBL = tile.fWallTR;
