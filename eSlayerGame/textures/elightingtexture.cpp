@@ -18,7 +18,7 @@ void eLightingTexture::initialize(SDL_Renderer * const r,
     const int id = eEffectsTextures::sEffects.id("lighting");
     const auto& lighting = eEffectsTextures::sEffects.get(id);
     mLightingTex = lighting.getTexture(0);
-    mLightingTex->setBlendMode(SDL_BLENDMODE_ADD);
+    mLightingTex->setBlendMode(SDL_BLENDMODE_NONE);
 }
 
 void eLightingTexture::setClearColor(const SDL_Color& color) {
@@ -97,9 +97,27 @@ void eLightingTexture::renderLight(
     const float dstX = x - dstW/2.f;
     const float dstY = y - dstH/2.f;
     const SDL_FRect dstRect{dstX, dstY, dstW, dstH};
-    const auto lightTex = std::make_shared<eTexture>();
-    lightTex->create(r, dstW, dstH, SDL_Color{0, 0, 0, 255});
-    lightTex->setBlendMode(SDL_BLENDMODE_ADD);
+    std::shared_ptr<eTexture> lightTex;
+    std::shared_ptr<eTexture> shadowTex;
+    const auto it = mTexMap.find(radius);
+    if(it != mTexMap.end()) {
+        const auto& pair = it->second;
+
+        lightTex = pair.first;
+
+        shadowTex = pair.second;
+        shadowTex->fill(r, SDL_Color{255, 255, 255, 255});
+    } else {
+        lightTex = std::make_shared<eTexture>();
+        lightTex->create(r, dstW, dstH, SDL_Color{0, 0, 0, 255});
+        lightTex->setBlendMode(SDL_BLENDMODE_ADD);
+
+        shadowTex = std::make_shared<eTexture>();
+        shadowTex->create(r, dstW, dstH, SDL_Color{255, 255, 255, 255});
+        shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
+
+        mTexMap[radius] = {lightTex, shadowTex};
+    }
     const ePointF lightPt{x - dstX, y - dstY};
     ePainter p(r);
 
@@ -124,13 +142,9 @@ void eLightingTexture::renderLight(
     {
         const SDL_FRect tmpDstRect{0.f, 0.f, dstW, dstH};
         const auto h = lightTex->createTargetHolder(r);
-        mLightingTex->setColorMod(color.r, color.g, color.b);
-        mLightingTex->setAlpha(color.a);
+        const float aF = color.a/255.f;
+        mLightingTex->setColorMod(color.r*aF, color.g*aF, color.b*aF);
         mLightingTex->render(r, srcRect, tmpDstRect);
-
-        const auto shadowTex = std::make_shared<eTexture>();
-        shadowTex->create(r, dstW, dstH, SDL_Color{255, 255, 255, 255});
-        shadowTex->setBlendMode(SDL_BLENDMODE_MUL);
 
         const float softness = mult*20.f;
         const float shadowLen = dstW;

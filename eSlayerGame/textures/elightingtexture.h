@@ -108,6 +108,8 @@ public:
 private:
     SDL_Color mColor;
     std::shared_ptr<eTexture> mLightingTex;
+    using eTex = std::shared_ptr<eTexture>;
+    std::map<float, std::pair<eTex, eTex>> mTexMap;
 };
 
 #endif // ELIGHTINGTEXTURE_H
