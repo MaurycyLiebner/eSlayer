@@ -438,15 +438,17 @@ void eGameWidget::paintEvent(ePainter& p) {
         bool iniObjs = true;
         for(const auto terrType : terrTypes) {
             const auto& texs = eTerrsTextures::get(terrType);
-            iterator.iterate([&](const int x, const int y,
-                                 const int px, const int py) {
+            iterator.iterate([&](const int x, const int y) {
                 if(iniObjs) handleTile(x, y);
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != terrType) return;
                 const auto tileType = tile.fTileType;
                 if(tileType != 0) {
+                    const auto pos = ePointF(x, y);
+                    const auto pixel = tilePosToPixel(pos);
+                    const auto ipixel = pixel.round();
                     const auto& tex = texs.getTexture(tileType);
-                    mGamePainter.drawTexture(px, py + tileH, tex,
+                    mGamePainter.drawTexture(ipixel.fX, ipixel.fY + tileH, tex,
                                              eAlignment::top | eAlignment::hcenter);
                 }
             });
@@ -454,10 +456,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
 
         if(iniObjs) {
-            iterator.iterate([&](const int x, const int y,
-                                 const int px, const int py) {
-                (void)px;
-                (void)py;
+            iterator.iterate([&](const int x, const int y) {
                 handleTile(x, y);
             });
             iniObjs = false;

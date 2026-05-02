@@ -7,8 +7,7 @@
 
 class eGameWidget;
 
-using eVisibleTileFunc = std::function<void(const int x, const int y,
-                                            const int px, const int py)>;
+using eVisibleTileFunc = std::function<void(const int x, const int y)>;
 
 class eTilesIterator {
 public:
@@ -17,7 +16,6 @@ public:
     void iterate(const eVisibleTileFunc& func) const;
 
 private:
-    eGameWidget* mGame = nullptr;
     ePoint mMin;
     int mTileMargin;
     int mDxMax;

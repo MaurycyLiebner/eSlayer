@@ -4,7 +4,10 @@
 
 void eTilesIterator::initialize(eGameWidget* const game) {
     const auto& pos = game->characterPos();
-    mMin = game->pixelToTilePos(pos.floor(), {0.f, 0.f}).floor();
+    const auto ipos = pos.floor();
+    const ePointF p00{0.f, 0.f};
+    const auto minF = game->pixelToTilePos(ipos, p00);
+    mMin = minF.floor();
     const int width = game->width();
     const int height = game->height();
     mTileMargin = 5;
@@ -14,7 +17,6 @@ void eTilesIterator::initialize(eGameWidget* const game) {
     mDyMax = 2*height/tileH + 3;
     mMapWidth = game->mapWidth();
     mMapHeight = game->mapHeight();
-    mGame = game;
 }
 
 void eTilesIterator::iterate(const eVisibleTileFunc& func) const {
@@ -24,8 +26,7 @@ void eTilesIterator::iterate(const eVisibleTileFunc& func) const {
             if(y < 0 || y >= mMapHeight) continue;
             const int x = mMin.fX + dx + dy % 2 + dy/2;
             if(x < 0 || x >= mMapWidth) continue;
-            const auto pixel = mGame->tilePosToPixel(ePointF(x, y)).round();
-            func(x, y, pixel.fX, pixel.fY);
+            func(x, y);
         }
     }
 }
