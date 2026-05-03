@@ -176,6 +176,7 @@ add_executable(eSlayerGame main.cpp
     textures/epaintcall.h textures/epaintcall.cpp
     erendersettings.h
     erendersettings.cpp
+    widgets/gameScreen/ecoinswidget.h widgets/gameScreen/ecoinswidget.cpp
 
 
 )

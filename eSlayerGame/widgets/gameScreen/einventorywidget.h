@@ -10,6 +10,7 @@ struct eEquipment;
 class eWeaponSwitch;
 class eItemDragWidget;
 struct eStats;
+class eCoinsWidget;
 
 class eInventoryWidget : public eBgWidget {
 public:
@@ -28,6 +29,7 @@ protected:
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eInventoryBagpackWidget* mBagpack = nullptr;
+    eCoinsWidget* mCoins = nullptr;
     std::vector<eItemPlaceWidget*> mItemPalces;
     eEquipment* mEq = nullptr;
 

@@ -27,6 +27,7 @@ public:
     void setHeight(const int h);
     void setPadding(const int padding);
     void fitContent();
+    void fitWidth();
     void fitHeight();
     void show();
     void hide();

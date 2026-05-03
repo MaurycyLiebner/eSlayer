@@ -39,6 +39,8 @@ std::shared_ptr<eTexture>
 eUITextures::sWeaponSlot;
 std::shared_ptr<eTexture>
 eUITextures::sEmptySlot;
+std::shared_ptr<eTexture>
+eUITextures::sCoins;
 
 eTextureCollection
 eUITextures::sBg;
@@ -94,6 +96,7 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sRingSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotRing" + suffix + ".png");
     sWeaponSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotWeapon" + suffix + ".png");
     sEmptySlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlot" + suffix + ".png");
+    sCoins = eFileLoader::readTexture(r, dir, "ui/inventory/coins" + suffix + ".png");
 
     {
         const auto bgPath = "ui/widgetBg/widgetBg";

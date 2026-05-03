@@ -70,6 +70,12 @@ void eWidget::fitContent() {
     resize(w + 2*mPadding, h + 2*mPadding);
 }
 
+void eWidget::fitWidth() {
+    const int h = height();
+    fitContent();
+    setHeight(h);
+}
+
 void eWidget::fitHeight() {
     const int w = width();
     fitContent();

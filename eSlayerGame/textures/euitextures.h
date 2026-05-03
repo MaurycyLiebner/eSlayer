@@ -53,6 +53,8 @@ public:
     sWeaponSlot;
     static std::shared_ptr<eTexture>
     sEmptySlot;
+    static std::shared_ptr<eTexture>
+    sCoins;
 
     static eTextureCollection sBg;
     static eTextureCollection sStats;

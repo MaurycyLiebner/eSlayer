@@ -5,6 +5,7 @@
 #include "eitemplacewidget.h"
 #include "eitemdragwidget.h"
 #include "eweaponswitch.h"
+#include "ecoinswidget.h"
 
 #include <eSlayerHelpers/eequipment.h>
 
@@ -180,12 +181,17 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
                          eq, stats, eBagpackType::inventory);
     inner->addWidget(mBagpack);
 
+    mCoins = new eCoinsWidget(window());
+    mCoins->initialize(eq.fInventoryGold);
+    inner->addWidget(mCoins);
+
     inner->stackVertically(p);
     inner->fitContent();
 
     firstRow->align(eAlignment::hcenter);
     secondRow->align(eAlignment::hcenter);
     mBagpack->align(eAlignment::hcenter);
+    mCoins->align(eAlignment::hcenter);
 
     setup(inner);
 }
