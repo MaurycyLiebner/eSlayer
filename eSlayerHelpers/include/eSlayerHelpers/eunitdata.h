@@ -11,7 +11,7 @@
 class ePacket;
 
 struct ESLAYERHELPERS_API eUnitData : public ePositioned {
-    int32_t fCharId;
+    uint32_t fCharId;
     eTeamId fTeamId;
 
     uint8_t fCharDataId;
