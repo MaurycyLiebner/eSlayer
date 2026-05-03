@@ -61,13 +61,16 @@ bool eSkillButton::mouseMoveEvent(const eMouseEvent& e) {
 
 bool eSkillButton::mouseEnterEvent(const eMouseEvent& e) {
     (void)e;
-    eItemDragWidget::sSetHoverSkill(mSkillId, mSchoice == -1);
+    const auto rect = globalRect();
+    eItemDragWidget::sSetHoverSkill(
+        mSkillId, mSchoice == -1, rect);
     return true;
 }
 
 bool eSkillButton::mouseLeaveEvent(const eMouseEvent& e) {
     (void)e;
-    eItemDragWidget::sSetHoverSkill(-1, mSchoice == -1);
+    eItemDragWidget::sSetHoverSkill(
+        -1, mSchoice == -1);
     return true;
 }
 

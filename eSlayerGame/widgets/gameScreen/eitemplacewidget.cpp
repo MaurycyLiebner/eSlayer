@@ -39,6 +39,12 @@ bool eItemPlaceWidget::dropItem() {
     return true;
 }
 
+void eItemPlaceWidget::setHoverItem() {
+    const auto& item = mEq->*mDst;
+    const auto rect = globalRect();
+    eItemDragWidget::sSetHoverItem(item, rect);
+}
+
 bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
@@ -55,8 +61,7 @@ bool eItemPlaceWidget::mouseMoveEvent(const eMouseEvent& e) {
 }
 
 bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
-    const auto& item = mEq->*mDst;
-    eItemDragWidget::sSetHoverItem(item);
+    setHoverItem();
     return true;
 }
 

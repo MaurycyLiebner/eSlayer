@@ -25,6 +25,7 @@ public:
                     const eBagpackType type);
 
     bool dropItem();
+    void setHoverItem(const eInventoryItem& invItem);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

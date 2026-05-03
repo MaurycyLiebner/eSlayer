@@ -222,15 +222,15 @@ void eInventoryWidget::updateWeapons() {
     mWeapon2R->setVisible(!mEq->fWeapons1);
     if(mWeapon1L->hovered()) {
         if(mEq->fWeapons1) {
-            eItemDragWidget::sSetHoverItem(mEq->fWeapon1L);
+            mWeapon1L->setHoverItem();
         } else {
-            eItemDragWidget::sSetHoverItem(mEq->fWeapon2L);
+            mWeapon2L->setHoverItem();
         }
     } else if(mWeapon1R->hovered()) {
         if(mEq->fWeapons1) {
-            eItemDragWidget::sSetHoverItem(mEq->fWeapon1R);
+            mWeapon1R->setHoverItem();
         } else {
-            eItemDragWidget::sSetHoverItem(mEq->fWeapon2R);
+            mWeapon2R->setHoverItem();
         }
     }
 }

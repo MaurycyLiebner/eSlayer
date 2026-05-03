@@ -110,48 +110,61 @@ void ePainter::drawShadow(
                lightness, alpha);
 }
 
-void ePainter::drawTexture(const int x, const int y,
+void ePainter::drawCoordinates(int& x, int& y,
+                               const int texW, const int texH,
+                               const eAlignment align) {
+    if(align & eAlignment::left) {
+        x -= texW;
+    } else if(align & eAlignment::hcenter) {
+        x -= texW/2;
+    }
+
+    if(align & eAlignment::top) {
+        y -= texH;
+    } else if(align & eAlignment::vcenter) {
+        y -= texH/2;
+    }
+}
+
+void ePainter::drawTexture(int x, int y,
                            const std::shared_ptr<eTexture>& tex,
                            const eAlignment align) const {
-    int xx = x;
-    if(align & eAlignment::left) {
-        xx -= tex->width();
+    const int texW = tex->width();
+    const int texH = tex->height();
+    drawCoordinates(x, y, texW, texH, align);
+    drawTexture(x, y, tex);
+}
+
+void ePainter::drawCoordinates(const SDL_Rect& rect,
+                               const int texW, const int texH,
+                               const eAlignment align,
+                               int& x, int& y) {
+    if(align & eAlignment::right) {
+        x = rect.x + rect.w - texW;
     } else if(align & eAlignment::hcenter) {
-        xx -= tex->width()/2;
+        x = rect.x + (rect.w - texW)/2;
+    } else {
+        x = rect.x;
     }
 
-    int yy = y;
-    if(align & eAlignment::top) {
-        yy -= tex->height();
+    if(align & eAlignment::bottom) {
+        y = rect.y + rect.h - texH;
     } else if(align & eAlignment::vcenter) {
-        yy -= tex->height()/2;
+        y = rect.y + (rect.h - texH)/2;
+    } else {
+        y = rect.y;
     }
-
-    drawTexture(xx, yy, tex);
 }
 
 void ePainter::drawTexture(const SDL_Rect& rect,
                            const std::shared_ptr<eTexture>& tex,
                            const eAlignment align) const {
-    int xx;
-    if(align & eAlignment::right) {
-        xx = rect.x + rect.w - tex->width();
-    } else if(align & eAlignment::hcenter) {
-        xx = rect.x + (rect.w - tex->width())/2;
-    } else {
-        xx = rect.x;
-    }
-
-    int yy;
-    if(align & eAlignment::bottom) {
-        yy = rect.y + rect.h - tex->height();
-    } else if(align & eAlignment::vcenter) {
-        yy = rect.y + (rect.h - tex->height())/2;
-    } else {
-        yy = rect.y;
-    }
-
-    drawTexture(xx, yy, tex);
+    int x;
+    int y;
+    const int texW = tex->width();
+    const int texH = tex->height();
+    drawCoordinates(rect, texW, texH, align, x, y);
+    drawTexture(x, y, tex);
 }
 
 void ePainter::drawTexture(const int x, const int y,

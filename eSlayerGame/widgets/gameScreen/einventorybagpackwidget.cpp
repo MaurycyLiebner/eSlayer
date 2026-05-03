@@ -64,12 +64,24 @@ bool eInventoryBagpackWidget::dropItem() {
         invItem.fW = dropRect.w;
         invItem.fH = dropRect.h;
         mItems->push_back(invItem);
-        eItemDragWidget::sSetHoverItem(dragged);
+        setHoverItem(invItem);
         dragged = eItem();
     }
     eItemDragWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
+}
+
+void eInventoryBagpackWidget::setHoverItem(
+    const eInventoryItem& invItem) {
+    const auto& item = invItem.fItem;
+    int x = invItem.fX*mDimensions;
+    int y = invItem.fY*mDimensions;
+    mapToGlobal(x, y);
+    const int w = invItem.fW*mDimensions;
+    const int h = invItem.fH*mDimensions;
+    const SDL_Rect rect{x, y, w, h};
+    eItemDragWidget::sSetHoverItem(item, rect);
 }
 
 void eInventoryBagpackWidget::paintEvent(ePainter& p) {
@@ -213,8 +225,7 @@ bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
         eItemDragWidget::sSetHoverItem(eItem());
     } else {
         const auto& inv = *mItems;
-        const auto& item = inv[itemId].fItem;
-        eItemDragWidget::sSetHoverItem(item);
+        setHoverItem(inv[itemId]);
     }
     return true;
 }

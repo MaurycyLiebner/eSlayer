@@ -154,6 +154,13 @@ void eWidget::align(const eAlignment a) {
     }
 }
 
+SDL_Rect eWidget::globalRect() const {
+    int x = 0;
+    int y = 0;
+    mapToGlobal(x, y);
+    return SDL_Rect{x, y, mWidth, mHeight};
+}
+
 SDL_Point eWidget::mousePos() const {
     float mxf;
     float myf;
@@ -368,11 +375,6 @@ void eWidget::removeChildren() {
         w->deleteLater();
     }
     mChildren.clear();
-}
-
-std::string eWidget::sTooltip() {
-    if(sWidgetUnderMouse) return sWidgetUnderMouse->mTooltip;
-    return "";
 }
 
 template <typename T>

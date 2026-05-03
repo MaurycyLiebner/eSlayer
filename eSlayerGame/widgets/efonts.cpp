@@ -38,5 +38,5 @@ eFont eFonts::textFont(const eResolution res) {
 }
 
 eFont eFonts::textFont(const int fs) {
-    return {"FreeSans.ttf", fs};
+    return {"light.ttf", fs};
 }

@@ -34,6 +34,7 @@ public:
     void setVisible(const bool v);
     void clearWidgetPointers();
     void setTooltip(const std::string& tt);
+    const std::string& tooltip() const { return mTooltip; }
 
     void setHugePadding();
     void setLargePadding();
@@ -51,6 +52,7 @@ public:
     int height() const { return mHeight; }
     int padding() const { return mPadding; }
     SDL_Rect rect() const { return {0, 0, mWidth, mHeight}; }
+    SDL_Rect globalRect() const;
     bool visible() const { return mVisible; }
     SDL_Point mousePos() const;
     bool hovered() const;
@@ -82,7 +84,9 @@ public:
 
     void removeChildren();
 
-    static std::string sTooltip();
+    static eWidget* sUnderMouse() {
+        return sWidgetUnderMouse;
+    }
 private:
     template <typename T>
     using TMouseEvent = bool (eWidget::*)(const T& e);

@@ -4,6 +4,7 @@
 #include "../efonts.h"
 #include "../efontcolor.h"
 #include "../../textures/etexture.h"
+#include "../ealignment.h"
 
 #include <eSlayerHelpers/emodifier.h>
 
@@ -22,18 +23,21 @@ public:
     void addText(SDL_Renderer* const r,
                  const std::string& text,
                  const eFontColor color);
-    void addValue(SDL_Renderer* const r, const int g, const int s, const float min, const float max,
-                  const eFontColor color, const eModifierType type = eModifierType::none);
-    ;
+    void addValue(SDL_Renderer* const r,
+                  const int g, const int s,
+                  const float min, const float max,
+                  const eFontColor color,
+                  const eModifierType type = eModifierType::none);
 
     std::shared_ptr<eTexture>
-    generate(SDL_Renderer* const r) const;
+    generate(const eResolution& res,
+             SDL_Renderer* const r) const;
 
     static void sPaint(const int w, const int h,
-                       const int mouseX, const int mouseY,
+                       int x, int y,
                        const eResolution& res,
                        const std::shared_ptr<eTexture>& tex,
-                       ePainter& p);
+                       ePainter& p, const eAlignment align);
 private:
     eFont font;
     int totalHeight = 0;

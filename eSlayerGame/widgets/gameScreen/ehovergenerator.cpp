@@ -196,12 +196,18 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
 }
 
 std::shared_ptr<eTexture>
-eHoverGenerator::generate(SDL_Renderer* const r) const {
+eHoverGenerator::generate(const eResolution& res,
+                          SDL_Renderer* const r) const {
+    const float mult = res.multiplier();
     const auto result = std::make_shared<eTexture>();
-    result->create(r, maxWidth, totalHeight);
+    const int fillMargin = 10*mult;
+    result->create(r, maxWidth + 2*fillMargin,
+                   totalHeight+2*fillMargin,
+                   SDL_Color{0, 0, 0, 200});
     {
         const auto h = result->createTargetHolder(r);
         ePainter p(r);
+        p.translate(fillMargin, fillMargin);
         int y = 0;
         for(const auto& l : lines) {
             p.drawTexture(maxWidth/2, y, l, eAlignment::hcenter);
@@ -212,22 +218,26 @@ eHoverGenerator::generate(SDL_Renderer* const r) const {
 }
 
 void eHoverGenerator::sPaint(const int w, const int h,
-                             const int mouseX, const int mouseY,
+                             const int x, const int y,
                              const eResolution& res,
                              const std::shared_ptr<eTexture>& tex,
-                             ePainter& p) {
-    const int screenMargin = 40*res.multiplier();
-    const int fillMargin = 10*res.multiplier();
-    SDL_Rect rect{mouseX - tex->width()/2,
-                  mouseY - tex->height(),
-                  tex->width(), tex->height()};
-    if(rect.y < screenMargin) rect.y = screenMargin;
-    else if(rect.y + rect.h > h - screenMargin) rect.y = h - screenMargin - rect.h;
-    if(rect.x < screenMargin) rect.x = screenMargin;
-    else if(rect.x + rect.w > w - screenMargin) rect.x = w - screenMargin - rect.w;
-    const SDL_Rect fillRect{rect.x - fillMargin, rect.y - fillMargin,
-                            rect.w + 2*fillMargin, rect.h + 2*fillMargin};
-    p.fillRect(fillRect, SDL_Color{0, 0, 0, 200});
-    p.drawTexture(rect, tex, eAlignment::center);
-
+                             ePainter& p, const eAlignment align) {
+    const float mult = res.multiplier();
+    const int screenMargin = 40*mult;
+    const int texW = tex->width();
+    const int texH = tex->height();
+    int drawX = x;
+    int drawY = y;
+    ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
+    if(drawX < screenMargin) {
+        drawX = screenMargin;
+    } else if(drawX + texW > w - screenMargin) {
+        drawX = w - texW - screenMargin;
+    }
+    if(drawY < screenMargin) {
+        drawY = screenMargin;
+    } else if(drawY + texH > h - screenMargin) {
+        drawY = h - texH - screenMargin;
+    }
+    p.drawTexture(drawX, drawY, tex);
 }

@@ -29,11 +29,13 @@ eItemDragWidget::~eItemDragWidget() {
     sInstance = nullptr;
 }
 
-void eItemDragWidget::initialize(const eDropAction& dropAction) {
+void eItemDragWidget::initialize(
+    const eDropAction& dropAction) {
     mDropAction = dropAction;
 }
 
-void eItemDragWidget::setItemDataId(const int dataId) {
+void eItemDragWidget::setItemDataId(
+    const int dataId) {
     if(dataId == -1) {
         mItem = nullptr;
     } else {
@@ -46,8 +48,10 @@ void eItemDragWidget::setItemDataId(const int dataId) {
     }
 }
 
-void eItemDragWidget::setHoverItem(const eItem& item) {
+void eItemDragWidget::setHoverItem(
+    const eItem& item, const SDL_Rect& hoverRect) {
     mHoverSkillId = -1;
+    mHoverRect = hoverRect;
     if(item.fType == eItemType::none) {
         mHover = nullptr;
     } else if(!mHover || item.fItemId != mHoverItemId) {
@@ -149,7 +153,7 @@ void eItemDragWidget::setHoverItem(const eItem& item) {
             gen.addValue(r, 6, 3, item.fSockets, item.fSockets, eFontColor::blue);
         }
 
-        mHover = gen.generate(r);
+        mHover = gen.generate(res, r);
     }
     mHoverItemId = item.fItemId;
 }
@@ -190,8 +194,10 @@ eItemDragWidget::calculateTotalModifiers(
 }
 
 void eItemDragWidget::setHoverSkill(
-    const int skillId, const bool showNextLevel) {
+    const int skillId, const bool showNextLevel,
+    const SDL_Rect& rect) {
     mHoverItemId = -1;
+    mHoverRect = rect;
     if(skillId < 0) {
         mHover = nullptr;
     } else if(!mHover || skillId != mHoverSkillId) {
@@ -295,7 +301,7 @@ void eItemDragWidget::setHoverSkill(
             }
         }
 
-        mHover = gen.generate(r);
+        mHover = gen.generate(res, r);
     }
     mHoverSkillId = skillId;
 }
@@ -310,35 +316,76 @@ void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
     }
 }
 
-void eItemDragWidget::sSetHoverItem(const eItem& item) {
+void eItemDragWidget::sSetHoverItem(
+    const eItem& item, const SDL_Rect& rect) {
     if(!sInstance) return;
-    sInstance->setHoverItem(item);
+    sInstance->setHoverItem(item, rect);
 }
 
 void eItemDragWidget::sSetHoverSkill(
-    const int skillId, const bool showNextLevel) {
+    const int skillId, const bool showNextLevel,
+    const SDL_Rect& rect) {
     if(!sInstance) return;
-    sInstance->setHoverSkill(skillId, showNextLevel);
+    sInstance->setHoverSkill(skillId, showNextLevel, rect);
 }
 
 void eItemDragWidget::paintEvent(ePainter& p) {
+    const auto& res = resolution();
+    const float mult = res.multiplier();
+    int mx = mMousePos.x;
+    int my = mMousePos.y;
+    const int w = width();
+    const int h = height();
+    eAlignment align = eAlignment::hcenter;
+    const auto calcPos = [&](const SDL_Rect& hoverRect) {
+        const int margin = 10*mult;
+        const int wx = hoverRect.x;
+        const int wy = hoverRect.y;
+        const int ww = hoverRect.w;
+        const int wh = hoverRect.h;
+        mx = wx + ww/2;
+        const int h1 = wy;
+        const int h2 = h - wy - wh;
+        if(h1 > h2) {
+            align = align | eAlignment::top;
+            my = wy - margin;
+        } else {
+            align = align | eAlignment::bottom;
+            my = wy + wh + margin;
+        }
+    };
     if(mItem) {
-        p.drawTexture(mMousePos.x, mMousePos.y,
-                      mItem, eAlignment::center);
+        p.drawTexture(mx, my, mItem, eAlignment::center);
     } else if(mHover) {
-        const int h = height();
-        const int w = width();
-        const auto& res = resolution();
-        const int mx = mMousePos.x;
-        const int my = mMousePos.y;
-        eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p);
+        calcPos(mHoverRect);
+        eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p, align);
+    } else {
+        const auto um = eWidget::sUnderMouse();
+        if(um) {
+            const auto& tooltip = um->tooltip();
+            if(!tooltip.empty()) {
+                if(tooltip != mTooltip) {
+                    const auto r = renderer();
+                    eHoverGenerator gen(res);
+                    gen.addText(r, tooltip, eFontColor::white);
+                    mTooltipTex = gen.generate(res, r);
+                    mTooltip = tooltip;
+                }
+
+                const auto hoverRect = um->globalRect();
+                calcPos(hoverRect);
+                const int h = height();
+                const int w = width();
+                eHoverGenerator::sPaint(w, h, mx, my, res, mTooltipTex, p, align);
+            }
+        }
     }
 }
 
 bool eItemDragWidget::mouseMoveEvent(const eMouseEvent& e) {
     mMousePos.x = e.x();
     mMousePos.y = e.y();
-    return mItem.get();
+    return false;
 }
 
 bool eItemDragWidget::mousePressEvent(const eMouseEvent& e) {

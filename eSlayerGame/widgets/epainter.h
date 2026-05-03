@@ -41,9 +41,16 @@ public:
                     const int drawY,
                     const eTexture& tex);
 
-    void drawTexture(const int x, const int y,
+    void drawTexture(int x, int y,
                      const std::shared_ptr<eTexture>& tex,
                      const eAlignment align) const;
+    static void drawCoordinates(int& x, int& y,
+                                const int texW, const int texH,
+                                const eAlignment align);
+    static void drawCoordinates(const SDL_Rect& rect,
+                                const int texW, const int texH,
+                                const eAlignment align,
+                                int& x, int& y);
     void drawTexture(const SDL_Rect& rect,
                      const std::shared_ptr<eTexture>& tex,
                      const eAlignment align) const;

@@ -19,6 +19,7 @@ public:
                    const std::vector<eItemType>& allowedTypes);
 
     bool dropItem();
+    void setHoverItem();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
