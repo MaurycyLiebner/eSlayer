@@ -65,6 +65,7 @@ private:
     std::vector<std::vector<eTile>> mTiles;
     std::vector<std::shared_ptr<eObject>> mObjects;
     std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
+
     std::set<uint16_t> mTerrainTypes;
     std::set<uint16_t> mObjectTypes;
     std::set<uint16_t> mUnitTypes;

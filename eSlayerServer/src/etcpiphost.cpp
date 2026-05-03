@@ -238,13 +238,24 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::disconnect: {
             handleClientDisconnect(tcpClientId);
         } break;
+        case ePacketType::triggerObject: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                int objectId;
+                p >> objectId;
+                int tx;
+                p >> tx;
+                int ty;
+                p >> ty;
+                triggerObject(charId, objectId, tx, ty);
+            }
+        } break;
         case ePacketType::dropItem: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                int itemId;
-                p >> itemId;
-                dropItem(charId, itemId);
+                dropItem(charId);
             }
         } break;
         case ePacketType::pickupItem: {

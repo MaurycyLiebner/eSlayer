@@ -83,9 +83,12 @@ public:
     bool planRemoveUnit(const int charId);
     bool pickupBody(const int clientId, const int charId);
 
+    bool triggerObject(const int clientId, const int objectId,
+                       const int tx, const int ty);
+
     bool pickupItem(const int clientId, const int itemId,
                     const bool drag);
-    bool dropItem(const int clientId, const int itemId);
+    bool dropItem(const int clientId);
     void rearrangeItems(const int clientId, const eEquipment& eq);
     void changeAttributes(const int clientId, const eAttributes& attrs);
     void changeSkillLevels(const int clientId, const eSkillLevels& skillLevels);
@@ -125,6 +128,7 @@ private:
                       const eUnitInfo& uinfo,
                       const eCharData& data,
                       const eModelParts& modelParts);
+    void addGroundItem(const ePointF& pos, const eItem& item);
 
     float mTime = 0.f;
 

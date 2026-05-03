@@ -32,6 +32,7 @@ public:
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);
+    void setPressedObject(const std::shared_ptr<eObject>& o);
 
     void increment(const bool mousePressed,
                    const bool rightPressed,
@@ -98,8 +99,8 @@ private:
     std::shared_ptr<eServer> mServer;
 
     std::weak_ptr<eUnit> mPressedUnit;
-
     std::weak_ptr<eGroundItem> mPressedItem;
+    std::weak_ptr<eObject> mPressedObject;
 
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharTexs = nullptr;

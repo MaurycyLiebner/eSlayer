@@ -36,8 +36,11 @@ public:
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);
 
+    bool triggerObject(const int objectId,
+                       const int tx, const int ty);
+
     bool pickupItem(const int itemId, const bool drag);
-    bool dropItem(const int itemId);
+    bool dropItem();
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
     bool changeSkillLevels(const eSkillLevels& skillLevels);

@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 eMainCharAction::eMainCharAction() :
     mMainChar(std::make_shared<eUnit>()),
@@ -73,13 +74,27 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 }
 
 void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
-    if(u) mPressedItem.reset();
+    if(u) {
+        mPressedItem.reset();
+        mPressedObject.reset();
+    }
     mPressedUnit = u;
 }
 
 void eMainCharAction::setPressedItem(const std::shared_ptr<eGroundItem>& i) {
-    if(i) mPressedUnit.reset();
+    if(i) {
+        mPressedUnit.reset();
+        mPressedObject.reset();
+    }
     mPressedItem = i;
+}
+
+void eMainCharAction::setPressedObject(const std::shared_ptr<eObject>& o) {
+    if(o) {
+        mPressedItem.reset();
+        mPressedUnit.reset();
+    }
+    mPressedObject = o;
 }
 
 void eMainCharAction::increment(const bool mousePressed,
@@ -107,13 +122,17 @@ void eMainCharAction::increment(const bool mousePressed,
     ePointF targetPos = mousePos;
     bool shouldStopAttack = !canUseSkill;
 
+    const auto& charPos = mMainChar->fPos;
+
     if(!shouldStopAttack) {
         if(const auto u = mPressedUnit.lock()) {
-            targetPos = u->fPos;
+            const auto& upos = u->fPos;
+            targetPos = upos;
             if(u->isBody()) {
-                const float dist = ePointF::distance(u->fPos, mMainChar->fPos);
+                const float dist = ePointF::distance(upos, charPos);
                 if(dist < 0.5f) {
-                    mServer->pickupBody(mClientId, u->fCharId);
+                    const auto bodyId = u->fCharId;
+                    mServer->pickupBody(mClientId, bodyId);
                     eInventoryWidget::sBlocked = true;
                     stop();
                 }
@@ -137,7 +156,8 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(const auto item = mPressedItem.lock()) {
         const auto itemId = item->fItemId;
-        const float dist = ePointF::distance(item->fPos, mMainChar->fPos);
+        const auto& ipos = item->fPos;
+        const float dist = ePointF::distance(ipos, charPos);
         if(!eInventoryWidget::sBlocked && dist < 0.5f) {
             const bool dragEnabled = eInventoryWidget::sInstance;
             mServer->pickupItem(mClientId, itemId, dragEnabled);
@@ -146,7 +166,49 @@ void eMainCharAction::increment(const bool mousePressed,
             stop();
             return;
         } else {
-            targetPos = item->fPos;
+            targetPos = ipos;
+        }
+    } else
+
+    if(const auto object = mPressedObject.lock()) {
+        const auto objectId = object->fObjectId;
+        const auto type = object->fObjectType;
+        const auto& info = eObjectsInfo::sObjects.get(type);
+        const auto& opos = object->fPos;
+        const float size = info.fSize;
+        const ePointF t{opos};
+        const ePointF tr{opos.fX + 0.5f*size, opos.fY};
+        const ePointF r{opos.fX + size, opos.fY};
+        const ePointF br{opos.fX + size, opos.fY + 0.5f*size};
+        const ePointF b{opos.fX + size, opos.fY + size};
+        const ePointF bl{opos.fX + 0.5f*size, opos.fY + size};
+        const ePointF l{opos.fX, opos.fY + size};
+        const ePointF tl{opos.fX, opos.fY + 0.5f*size};
+        ePointF closesPos = t;
+        float minDist = ePointF::distance(t, charPos);
+        const auto handlePos = [&](const ePointF& pos) {
+            const float dist = ePointF::distance(pos, charPos);
+            if(dist < minDist) {
+                closesPos = pos;
+                minDist = dist;
+            }
+        };
+        handlePos(tr);
+        handlePos(r);
+        handlePos(br);
+        handlePos(b);
+        handlePos(bl);
+        handlePos(l);
+        handlePos(tl);
+        if(minDist < 0.5f) {
+            const int tx = opos.fX;
+            const int ty = opos.fY;
+            mServer->triggerObject(mClientId, objectId, tx, ty);
+            mClickAction = mousePressed;
+            stop();
+            return;
+        } else {
+            targetPos = closesPos;
         }
     }
 
@@ -332,7 +394,9 @@ void eMainCharAction::updateWalkRunSpeed() {
 void eMainCharAction::mouseRelease(const ePointF& mousePos) {
     if(mClickAction) {
         mClickAction = false;
-    } else if(mPressedUnit.expired() && mPressedItem.expired()) {
+    } else if(mPressedUnit.expired() &&
+              mPressedItem.expired() &&
+              mPressedObject.expired()) {
         mMovementHandler.moveTo(mousePos);
     }
 }
@@ -340,6 +404,7 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
 void eMainCharAction::stop() {
     mPressedUnit.reset();
     mPressedItem.reset();
+    mPressedObject.reset();
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }

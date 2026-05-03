@@ -133,7 +133,7 @@ void eGameWidget::dropItem() {
     auto& eq = mMainAction.equipment();
     auto& dragged = eq.fDragged;
     if(dragged.fType == eItemType::none) return;
-    mServer->dropItem(mClientId, dragged.fItemId);
+    mServer->dropItem(mClientId);
     dragged = eItem();
     eHoverWidget::sUpdateDragItem(eq);
 }
@@ -795,12 +795,13 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
                     mMainAction.setPressedItem(item);
                 }
             }
+        } else if(const auto h = mHighlightUnit.lock()) {
+            setPressedUnit(h);
+        } else if(const auto o = mHighlightObject.lock()) {
+            mMainAction.setPressedObject(o);
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
-        if(const auto h = mHighlightUnit.lock()) {
-            setPressedUnit(h);
-        }
     }
     return true;
 }

@@ -99,12 +99,16 @@ public:
                const int skillId) = 0;
 
     virtual bool
+    triggerObject(const int clientId,
+                  const int objectId,
+                  const int tx, const int ty) = 0;
+
+    virtual bool
     pickupItem(const int clientId,
                const int itemId,
                const bool drag) = 0;
     virtual bool
-    dropItem(const int clientId,
-             const int itemId) = 0;
+    dropItem(const int clientId) = 0;
     virtual bool
     rearrangeItems(const int clientId,
                    const eEquipment& eq) = 0;

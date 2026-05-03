@@ -120,16 +120,22 @@ bool eServerClientHandler::setSkillId(
     return true;
 }
 
+bool eServerClientHandler::triggerObject(
+    const int objectId,
+    const int tx, const int ty) {
+    if(!mArea) return false;
+    return mArea->triggerObject(mClientId, objectId, tx, ty);
+}
+
 bool eServerClientHandler::pickupItem(
     const int itemId, const bool drag) {
     if(!mArea) return false;
     return mArea->pickupItem(mClientId, itemId, drag);
 }
 
-bool eServerClientHandler::dropItem(
-    const int itemId) {
+bool eServerClientHandler::dropItem() {
     if(!mArea) return false;
-    mArea->dropItem(mClientId, itemId);
+    mArea->dropItem(mClientId);
     return true;
 }
 

@@ -297,6 +297,19 @@ bool eTcpIpJoin::setSkillId(const int clientId,
     return true;
 }
 
+bool eTcpIpJoin::triggerObject(
+    const int clientId, const int objectId,
+    const int tx, const int ty) {
+    ePacket p;
+    p << ePacketType::triggerObject;
+    p << objectId;
+    p << tx;
+    p << ty;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send object trigger to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::pickupItem(const int clientId,
                             const int itemId,
                             const bool drag) {
@@ -310,10 +323,9 @@ bool eTcpIpJoin::pickupItem(const int clientId,
 }
 
 bool eTcpIpJoin::dropItem(
-    const int clientId, const int itemId) {
+    const int clientId) {
     ePacket p;
     p << ePacketType::dropItem;
-    p << itemId;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send item drop to the host.");
     return true;

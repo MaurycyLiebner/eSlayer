@@ -18,7 +18,6 @@ const std::shared_ptr<eObject>& eMap::object(const int id) const {
     return mObjects[id];
 }
 
-
 bool inside(const ePointF& pos,
             const float x,
             const float y,

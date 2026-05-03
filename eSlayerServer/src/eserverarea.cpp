@@ -15,6 +15,7 @@
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 uint32_t eServerArea::sNextItemId = 1;
 eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
@@ -91,6 +92,41 @@ void eServerArea::iniSetupUnit(
     mUnits.add(charId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, charId);
+}
+
+void eServerArea::addGroundItem(
+    const ePointF& pos, const eItem& item) {
+    const auto itemId = item.fItemId;
+    const auto groundItem = std::make_shared<eGroundItem>();
+    groundItem->fItemId = itemId;
+    groundItem->fDataId = item.fDataId;
+    groundItem->fType = item.fType;
+    groundItem->fSubType = item.fSubType;
+    groundItem->fRarity = item.fRarity;
+    groundItem->fSockets = item.fSockets;
+    const auto baseTile = mItemTiles.posArea(pos);
+    bool found = false;
+    for(int dist = 0; dist < 100; dist++) {
+        for(int x = -dist; x <= dist; x++) {
+            for(int y = -dist; y <= dist; y++) {
+                if(std::abs(x) != dist && std::abs(y) != dist) continue;
+                const eArea tile{baseTile.fX + x, baseTile.fY + y};
+                const auto& items = mItemTiles.at(tile);
+                if(!items.empty()) continue;
+                groundItem->fPos = ePointF{float(tile.fX)/mItemTileSubdivision,
+                                           float(tile.fY)/mItemTileSubdivision};
+                mItemTiles.emplace(tile, itemId);
+                found = true;
+                break;
+            }
+            if(found) break;
+        }
+        if(found) break;
+    }
+    mGroundItems.add(itemId, groundItem);
+    mItemsOnGround.add(itemId, std::make_shared<eItem>(item));
+    const auto area = itemArea(itemId);
+    mItemAreas.emplace(area, itemId);
 }
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
@@ -482,6 +518,34 @@ bool eServerArea::pickupBody(
     return true;
 }
 
+bool eServerArea::triggerObject(
+    const int clientId, const int objectId,
+    const int tx, const int ty) {
+    const auto& objIds = mMap->objects(tx, ty);
+    for(const auto id : objIds) {
+        const auto& obj = mMap->object(id);
+        const auto objId = obj->fObjectId;
+        if(objId != objectId) continue;
+        const auto type = obj->fObjectType;
+        const auto& info = eObjectsInfo::sObjects.get(type);
+        switch(info.fType) {
+        case eObjectType::treasure: {
+            eItem item;
+            item.fItemId = sNextItemId++;
+            item.fType = eItemType::amulet;
+            item.fModifiers.emplace_back(eModifier{eModifierType::allSkills, 1.f, 1.f});
+            const float fx = tx + obj->fSize + 0.5f;
+            const ePointF pos{fx, float(ty)};
+            addGroundItem(pos, item);
+        } break;
+        case eObjectType::none:
+            break;
+        }
+        return true;
+    }
+    return false;
+}
+
 bool eServerArea::pickupItem(
     const int clientId, const int itemId,
     const bool drag) {
@@ -508,43 +572,14 @@ bool eServerArea::pickupItem(
     return true;
 }
 
-bool eServerArea::dropItem(const int clientId, const int itemId) {
+bool eServerArea::dropItem(const int clientId) {
     const auto u = unit(clientId);
     if(!u) return false;
     auto& eq = u->equipment();
     const auto pos = u->fPos;
     auto& item = eq.fDragged;
     if(item.fType == eItemType::none) return false;
-    const auto groundItem = std::make_shared<eGroundItem>();
-    groundItem->fItemId = itemId;
-    groundItem->fDataId = item.fDataId;
-    groundItem->fType = item.fType;
-    groundItem->fSubType = item.fSubType;
-    groundItem->fRarity = item.fRarity;
-    groundItem->fSockets = item.fSockets;
-    const auto baseTile = mItemTiles.posArea(pos);
-    bool found = false;
-    for(int dist = 0; dist < 100; dist++) {
-        for(int x = -dist; x <= dist; x++) {
-            for(int y = -dist; y <= dist; y++) {
-                if(std::abs(x) != dist && std::abs(y) != dist) continue;
-                const eArea tile{baseTile.fX + x, baseTile.fY + y};
-                const auto& items = mItemTiles.at(tile);
-                if(!items.empty()) continue;
-                groundItem->fPos = ePointF{float(tile.fX)/mItemTileSubdivision,
-                                           float(tile.fY)/mItemTileSubdivision};
-                mItemTiles.emplace(tile, itemId);
-                found = true;
-                break;
-            }
-            if(found) break;
-        }
-        if(found) break;
-    }
-    mGroundItems.add(itemId, groundItem);
-    mItemsOnGround.add(itemId, std::make_shared<eItem>(item));
-    const auto area = itemArea(itemId);
-    mItemAreas.emplace(area, itemId);
+    addGroundItem(pos, item);
     item = eItem();
     return true;
 }

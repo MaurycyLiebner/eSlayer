@@ -126,6 +126,14 @@ bool eLocalServer::setSkillId(const int clientId,
     return h->setSkillId(schoice, skillId);
 }
 
+bool eLocalServer::triggerObject(
+    const int clientId, const int objectId,
+    const int tx, const int ty) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->triggerObject(objectId, tx, ty);
+}
+
 bool eLocalServer::pickupItem(
     const int clientId, const int itemId,
     const bool drag) {
@@ -135,10 +143,10 @@ bool eLocalServer::pickupItem(
 }
 
 bool eLocalServer::dropItem(
-    const int clientId, const int itemId) {
+    const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->dropItem(itemId);
+    return h->dropItem();
 }
 
 bool eLocalServer::rearrangeItems(

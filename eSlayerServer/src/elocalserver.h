@@ -48,11 +48,14 @@ public:
                     const eSkillChoice schoice,
                     const int skillId) override;
 
+    bool triggerObject(const int clientId,
+                       const int objectId,
+                       const int tx, const int ty) override;
+
     bool pickupItem(const int clientId,
                     const int itemId,
                     const bool drag) override;
-    bool dropItem(const int clientId,
-                  const int itemId) override;
+    bool dropItem(const int clientId) override;
     bool rearrangeItems(const int clientId,
                         const eEquipment& eq) override;
     bool changeAttributes(const int clientId,
