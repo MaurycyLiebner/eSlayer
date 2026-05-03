@@ -15,7 +15,7 @@
 
 class ePacket;
 
-struct ESLAYERHELPERS_API eTile {
+struct eTile {
     uint8_t fTerrainType;
     uint8_t fTileType;
 
@@ -24,6 +24,8 @@ struct ESLAYERHELPERS_API eTile {
 };
 
 struct eObject : public ePositioned {
+    uint32_t fObjectId;
+
     uint16_t fObjectType;
     uint8_t fSubtype;
 

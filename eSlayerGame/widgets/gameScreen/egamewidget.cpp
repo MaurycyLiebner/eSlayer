@@ -8,11 +8,12 @@
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
 #include "../../names/eareanames.h"
+#include "../../names/eobjectnames.h"
 #include "../../erendersettings.h"
+#include "../../elanguage.h"
 #include "eunitindicator.h"
 #include "ehoverwidget.h"
 #include "einventorywidget.h"
-#include "../../elanguage.h"
 #include "eminimap.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
@@ -294,6 +295,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainAction.stop();
                 setPressedUnit(nullptr);
                 setHighlightedUnit(nullptr);
+                setHighlightedObject(nullptr);
                 if(mRespawnHandler) mRespawnHandler();
             }
             if(u.fBlockingActionTime > 0) {
@@ -532,6 +534,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         });
 
         setHighlightedUnit(nullptr);
+        setHighlightedObject(nullptr);
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
                 setPressedUnit(nullptr);
@@ -565,6 +568,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
                             setHighlightedUnit(u);
+                            mHighlightObject.reset();
                         }
                     }
                 }
@@ -606,7 +610,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
                                                4, 4}, SDL_Color{255, 0, 0, 255});
             } else if(e.fType == eRenderElementType::object) {
-                const auto& obj = static_cast<eObject&>(*ePtr);
+                const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
+                const auto& obj = *objPtr;
                 const auto objType = obj.fObjectType;
                 const auto& object = eObjectsInfo::sObjects.get(objType);
                 const auto texObjectId = object.fTexId;
@@ -623,9 +628,42 @@ void eGameWidget::paintEvent(ePainter& p) {
                     mGamePainter.addObjectShadow(fpx, fpy + h, fpy + 0.5f*h,
                                                  object.fSize, tex);
                 }
-                mGamePainter.drawShadow(fpx - 0.5f*tex->width(), fpy + h, *tex);
-                mGamePainter.drawTexture(fpx, fpy + h, tex,
-                                         eAlignment::top | eAlignment::hcenter);
+                bool highlight = false;
+                const int texW = tex->width();
+                const int texH = tex->height();
+                const int x = fpx;
+                const int y = fpy + h;
+                int drawX = x;
+                int drawY = y;
+                ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                          eAlignment::top | eAlignment::hcenter);
+                if(!mHighlightUnit.lock() && !mHighlightObject.lock()) {
+                    const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+                    const SDL_Rect rect{drawX, drawY, texW, texH};
+                    const bool r = SDL_PointInRect(&p, &rect);
+                    if(r) {
+                        const auto type = obj.fObjectType;
+                        const auto& info = eObjectsInfo::sObjects.get(type);
+                        switch(info.fType) {
+                        case eObjectType::none:
+                            break;
+                        case eObjectType::treasure:
+                            setHighlightedObject(objPtr);
+                            highlight = true;
+                            break;
+                        };
+
+                    }
+                }
+                mGamePainter.drawShadow(x - texW/2, y, *tex);
+                mGamePainter.drawTexture(drawX, drawY, tex);
+                if(highlight) {
+                    tex->setBlendMode(SDL_BLENDMODE_ADD);
+                    tex->setAlpha(125);
+                    p.drawTexture(drawX, drawY, tex);
+                    tex->setBlendMode(SDL_BLENDMODE_BLEND);
+                    tex->clearAlphaMod();
+                }
             } else if(e.fType == eRenderElementType::wall) {
                 const auto& wall = static_cast<eWall&>(*ePtr);
                 const auto terrType = wall.fTerrainType;
@@ -806,6 +844,23 @@ void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
     if(mUnitIndicator && !mPressedUnit.lock()) {
         mUnitIndicator->setUnit(u, mUserNames);
+    }
+}
+
+void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
+    mHighlightObject = obj;
+    if(obj) {
+        const auto type = obj->fObjectType;
+        const auto name = eObjectNames::name(type);
+        const auto& pos = obj->fPos;
+        const float size = obj->fSize;
+        const eVec2f d{size, size};
+        const auto pixel = tilePosToPixel(pos - d);
+        const auto ipixel = pixel.floor();
+        const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+        eHoverWidget::sSetGameTooltip(name, rect);
+    } else {
+        eHoverWidget::sSetGameTooltip("");
     }
 }
 

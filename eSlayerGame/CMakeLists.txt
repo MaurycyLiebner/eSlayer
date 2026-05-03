@@ -177,6 +177,7 @@ add_executable(eSlayerGame main.cpp
     erendersettings.h
     erendersettings.cpp
     widgets/gameScreen/ecoinswidget.h widgets/gameScreen/ecoinswidget.cpp
+    names/eobjectnames.h names/eobjectnames.cpp
 
 
 )

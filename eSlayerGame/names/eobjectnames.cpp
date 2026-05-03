@@ -1,0 +1,22 @@
+#include "eobjectnames.h"
+
+#include "../efileloader.h"
+
+#include <eSlayerHelpers/egamedir.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
+
+eObjectNames eObjectNames::sInstance;
+
+std::string eObjectNames::name(const int objectId) {
+    return sInstance.mNames[objectId];
+}
+
+bool eObjectNames::load() {
+    const auto dir = "Objects";
+    const auto strMap = eFileLoader::loadNames(dir, "names.txt");
+    for(const auto& it : strMap) {
+        const auto id = eObjectsInfo::sObjects.id(it.first);
+        sInstance.mNames[id] = it.second;
+    }
+    return true;
+}

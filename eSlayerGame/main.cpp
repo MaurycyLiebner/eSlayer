@@ -18,6 +18,7 @@
 #include "names/eskilltreenames.h"
 #include "names/eclassnames.h"
 #include "names/eareanames.h"
+#include "names/eobjectnames.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -266,6 +267,10 @@ int main(int argc, char* argv[]) {
         loadings.emplace_back([&]() {
             eObjectsInfo::load();
             eObjsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eObjectNames::load();
         });
 
         loadings.emplace_back([&]() {

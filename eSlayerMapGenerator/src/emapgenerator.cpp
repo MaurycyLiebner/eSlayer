@@ -517,7 +517,7 @@ eMapGenerator::generate(const std::string& name) const {
                     }
                     if(inner) {
                         if(eRand::randChance(0.1f)) {
-                            auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
+                            auto& obj = *result->addObject();
                             obj.fObjectType = treeId;
                             obj.fSubtype = eRand::rand();
                             obj.fPos.fX = globalX;
@@ -579,7 +579,7 @@ eMapGenerator::generate(const std::string& name) const {
                                 dst.fTileType = (*options)[id];
                             }
                         } else {
-                            auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
+                            auto& obj = *result->addObject();
                             obj.fObjectType = townFenceId;
                             obj.fSubtype = 0;
                             obj.fPos.fX = globalX;
@@ -591,15 +591,16 @@ eMapGenerator::generate(const std::string& name) const {
                     result->mSpawnPos = {globalX, globalY};
                 } else {
                     if(eRand::randChance(0.025f)) {
-                        auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
+                        auto& obj = *result->addObject();
                         obj.fObjectType = treeId;
                         obj.fSubtype = eRand::rand();
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;
                         obj.fSize = treeInfo.fSize;
                     } else if(eRand::randChance(0.01f)) {
-                        auto& obj = *result->mObjects.emplace_back(std::make_shared<eObject>());
-                        obj.fObjectType = eRand::randChance(0.5) ? chestId : smallChestId;
+                        auto& obj = *result->addObject();
+                        obj.fObjectType = eRand::randChance(0.5) ?
+                            chestId : smallChestId;
                         obj.fSubtype = eRand::rand();
                         obj.fPos.fX = globalX;
                         obj.fPos.fY = globalY;

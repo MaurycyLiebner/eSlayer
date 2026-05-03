@@ -4,6 +4,8 @@
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 
+uint32_t sNextObjectId = 0;
+
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
@@ -273,4 +275,10 @@ void eMap::updateObjectsMap() {
         const auto iPos = o.fPos.floor();
         mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }
+}
+
+const std::shared_ptr<eObject>& eMap::addObject() {
+    const auto& obj = mObjects.emplace_back(std::make_shared<eObject>());
+    obj->fObjectId = sNextObjectId++;
+    return obj;
 }

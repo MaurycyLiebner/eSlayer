@@ -335,6 +335,12 @@ void eHoverWidget::sSetHoverSkill(
     sInstance->setHoverSkill(skillId, showNextLevel, rect);
 }
 
+void eHoverWidget::sSetGameTooltip(
+    const std::string& text, const SDL_Rect& rect) {
+    if(!sInstance) return;
+    sInstance->setGameTooltip(text, rect);
+}
+
 void eHoverWidget::paintEvent(ePainter& p) {
     const auto& res = resolution();
     const float mult = res.multiplier();
@@ -343,7 +349,8 @@ void eHoverWidget::paintEvent(ePainter& p) {
     const int w = width();
     const int h = height();
     eAlignment align = eAlignment::hcenter;
-    const auto calcPos = [&](const SDL_Rect& hoverRect) {
+    const auto calcPos = [&](const SDL_Rect& hoverRect,
+                             const bool alwaysTop) {
         const int margin = 10*mult;
         const int wx = hoverRect.x;
         const int wy = hoverRect.y;
@@ -352,7 +359,7 @@ void eHoverWidget::paintEvent(ePainter& p) {
         mx = wx + ww/2;
         const int h1 = wy;
         const int h2 = h - wy - wh;
-        if(h1 > h2) {
+        if(h1 > h2 || alwaysTop) {
             align = align | eAlignment::top;
             my = wy - margin;
         } else {
@@ -363,7 +370,7 @@ void eHoverWidget::paintEvent(ePainter& p) {
     if(mItem) {
         p.drawTexture(mx, my, mItem, eAlignment::center);
     } else if(mHover) {
-        calcPos(mHoverRect);
+        calcPos(mHoverRect, false);
         eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p, align);
     } else {
         std::string tooltip;
@@ -374,9 +381,11 @@ void eHoverWidget::paintEvent(ePainter& p) {
             hoverRect = um->globalRect();
         }
 
+        bool alwaysTop = false;
         if(tooltip.empty()) {
             tooltip = mGameTooltip;
             hoverRect = mGameHoverRect;
+            alwaysTop = true;
         }
 
         if(!tooltip.empty()) {
@@ -388,7 +397,7 @@ void eHoverWidget::paintEvent(ePainter& p) {
                 mTooltip = tooltip;
             }
 
-            calcPos(hoverRect);
+            calcPos(hoverRect, alwaysTop);
             const int h = height();
             const int w = width();
             eHoverGenerator::sPaint(w, h, mx, my, res, mTooltipTex, p, align);

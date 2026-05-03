@@ -53,6 +53,7 @@ public:
 private:
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
+    const std::shared_ptr<eObject>& addObject();
 
     ePoint mSpawnPos{0, 0};
 

@@ -108,6 +108,7 @@ protected:
 private:
     void initializeTextures();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
+    void setHighlightedObject(const std::shared_ptr<eObject>& obj);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
     void addMessage(SDL_Renderer* const r,
@@ -131,6 +132,10 @@ private:
 
     std::weak_ptr<eUnit> mHighlightUnit;
     std::weak_ptr<eUnit> mPressedUnit;
+
+    std::weak_ptr<eObject> mHighlightObject;
+    std::weak_ptr<eObject> mPressedObject;
+
     std::shared_ptr<eMap> mMap;
 
     eGroundItemNames mItemNames;

@@ -39,7 +39,9 @@ public:
     static void sSetHoverSkill(
         const int skillId, const bool showNextLevel,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
-
+    static void sSetGameTooltip(
+        const std::string& text,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 protected:
     void paintEvent(ePainter& p) override;
     bool mouseMoveEvent(const eMouseEvent& e) override;
