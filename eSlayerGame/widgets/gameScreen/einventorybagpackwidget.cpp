@@ -145,10 +145,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         const auto& tex = itemTex.fTex;
         const int w = i.fW*mDimensions;
         const int h = i.fH*mDimensions;
-        const bool mod = !mStats->itemReqsMet(item);
-        if(mod) tex->setColorMod(255, 0, 0);
         p.drawTexture(SDL_Rect{x, y, w, h}, tex, eAlignment::center);
-        if(mod) tex->clearColorMod();
     }
 
     if(mType == eBagpackType::belt) {
