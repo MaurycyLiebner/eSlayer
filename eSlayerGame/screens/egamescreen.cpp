@@ -203,7 +203,10 @@ void eGameScreen::initialize(const int clientId,
             if(r) {
             } else if(mInventoryMenu) {
                 const bool r = mInventoryMenu->dropItem();
-                if(!r) mGameWidget->dropItem();
+                if(!r) {
+                    const bool h = mInventoryMenu->hovered();
+                    if(!h) mGameWidget->dropItem();
+                }
             } else {
                 mGameWidget->dropItem();
             }
