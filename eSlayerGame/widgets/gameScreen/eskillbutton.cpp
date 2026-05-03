@@ -1,7 +1,7 @@
 #include "eskillbutton.h"
 
 #include "../../textures/euitextures.h"
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/evectorhelpers.h>
@@ -62,14 +62,14 @@ bool eSkillButton::mouseMoveEvent(const eMouseEvent& e) {
 bool eSkillButton::mouseEnterEvent(const eMouseEvent& e) {
     (void)e;
     const auto rect = globalRect();
-    eItemDragWidget::sSetHoverSkill(
+    eHoverWidget::sSetHoverSkill(
         mSkillId, mSchoice == -1, rect);
     return true;
 }
 
 bool eSkillButton::mouseLeaveEvent(const eMouseEvent& e) {
     (void)e;
-    eItemDragWidget::sSetHoverSkill(
+    eHoverWidget::sSetHoverSkill(
         -1, mSchoice == -1);
     return true;
 }

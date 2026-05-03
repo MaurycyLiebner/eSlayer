@@ -3,7 +3,7 @@
 #include "../../textures/euitextures.h"
 #include "einventorybagpackwidget.h"
 #include "eitemplacewidget.h"
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 #include "eweaponswitch.h"
 #include "ecoinswidget.h"
 

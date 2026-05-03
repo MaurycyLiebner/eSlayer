@@ -3,12 +3,12 @@
 
 #include "ebgwidget.h"
 
-class eItemDragWidget;
+class eHoverWidget;
 class eInventoryBagpackWidget;
 class eItemPlaceWidget;
 struct eEquipment;
 class eWeaponSwitch;
-class eItemDragWidget;
+class eHoverWidget;
 struct eStats;
 class eCoinsWidget;
 

@@ -10,7 +10,7 @@
 #include "../../names/eareanames.h"
 #include "../../erendersettings.h"
 #include "eunitindicator.h"
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 #include "einventorywidget.h"
 #include "../../elanguage.h"
 #include "eminimap.h"
@@ -134,7 +134,7 @@ void eGameWidget::dropItem() {
     if(dragged.fType == eItemType::none) return;
     mServer->dropItem(mClientId, dragged.fItemId);
     dragged = eItem();
-    eItemDragWidget::sUpdateDragItem(eq);
+    eHoverWidget::sUpdateDragItem(eq);
 }
 
 void eGameWidget::sendInventoryRearranged() {
@@ -277,7 +277,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(r) {
             mMainAction.recalculateStats();
             eInventoryWidget::sBlocked = false;
-            eItemDragWidget::sUpdateDragItem(eq);
+            eHoverWidget::sUpdateDragItem(eq);
         } else {
             const bool r = mServer->unblockEquipment(mClientId);
             if(r) {

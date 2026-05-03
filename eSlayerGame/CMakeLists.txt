@@ -155,7 +155,7 @@ add_executable(eSlayerGame main.cpp
     textures/eitemstextures.h textures/eitemstextures.cpp
     widgets/gameScreen/einventorywidget.h widgets/gameScreen/einventorywidget.cpp
     widgets/gameScreen/einventorybagpackwidget.h widgets/gameScreen/einventorybagpackwidget.cpp
-    widgets/gameScreen/eitemdragwidget.h widgets/gameScreen/eitemdragwidget.cpp
+    widgets/gameScreen/ehoverwidget.h widgets/gameScreen/ehoverwidget.cpp
     widgets/gameScreen/eitemplacewidget.h widgets/gameScreen/eitemplacewidget.cpp
     widgets/gameScreen/eweaponswitch.h widgets/gameScreen/eweaponswitch.cpp
     widgets/gameScreen/egrounditemnames.h widgets/gameScreen/egrounditemnames.cpp

@@ -1,4 +1,4 @@
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 
 #include "../../textures/eitemstextures.h"
 
@@ -14,27 +14,33 @@
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eskills.h>
 
-eItemDragWidget* eItemDragWidget::sInstance = nullptr;
+eHoverWidget* eHoverWidget::sInstance = nullptr;
 
-eItemDragWidget::eItemDragWidget(const eAttributes& attrs,
-                                 const eStats& stats,
-                                 eMainWindow* const w) :
+eHoverWidget::eHoverWidget(const eAttributes& attrs,
+                           const eStats& stats,
+                           eMainWindow* const w) :
     eWidget(w),
     mAttrs(attrs),
     mStats(stats) {
     sInstance = this;
 }
 
-eItemDragWidget::~eItemDragWidget() {
+eHoverWidget::~eHoverWidget() {
     sInstance = nullptr;
 }
 
-void eItemDragWidget::initialize(
+void eHoverWidget::initialize(
     const eDropAction& dropAction) {
     mDropAction = dropAction;
 }
 
-void eItemDragWidget::setItemDataId(
+void eHoverWidget::setGameTooltip(
+    const std::string& text, const SDL_Rect& rect) {
+    mGameTooltip = text;
+    mGameHoverRect = rect;
+}
+
+void eHoverWidget::setItemDataId(
     const int dataId) {
     if(dataId == -1) {
         mItem = nullptr;
@@ -48,7 +54,7 @@ void eItemDragWidget::setItemDataId(
     }
 }
 
-void eItemDragWidget::setHoverItem(
+void eHoverWidget::setHoverItem(
     const eItem& item, const SDL_Rect& hoverRect) {
     mHoverSkillId = -1;
     mHoverRect = hoverRect;
@@ -159,7 +165,7 @@ void eItemDragWidget::setHoverItem(
 }
 
 std::map<eModifierType, eModifier>
-eItemDragWidget::calculateTotalModifiers(
+eHoverWidget::calculateTotalModifiers(
     const int skillId, const int levelId,
     int& count, float& cooldown, float& manaCost) const {
     if(levelId < 0) return {};
@@ -193,7 +199,7 @@ eItemDragWidget::calculateTotalModifiers(
     return result;
 }
 
-void eItemDragWidget::setHoverSkill(
+void eHoverWidget::setHoverSkill(
     const int skillId, const bool showNextLevel,
     const SDL_Rect& rect) {
     mHoverItemId = -1;
@@ -306,7 +312,7 @@ void eItemDragWidget::setHoverSkill(
     mHoverSkillId = skillId;
 }
 
-void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
+void eHoverWidget::sUpdateDragItem(const eEquipment& eq) {
     if(!sInstance) return;
     if(eq.fDragged.fType == eItemType::none) {
         sInstance->setItemDataId(-1);
@@ -316,20 +322,20 @@ void eItemDragWidget::sUpdateDragItem(const eEquipment& eq) {
     }
 }
 
-void eItemDragWidget::sSetHoverItem(
+void eHoverWidget::sSetHoverItem(
     const eItem& item, const SDL_Rect& rect) {
     if(!sInstance) return;
     sInstance->setHoverItem(item, rect);
 }
 
-void eItemDragWidget::sSetHoverSkill(
+void eHoverWidget::sSetHoverSkill(
     const int skillId, const bool showNextLevel,
     const SDL_Rect& rect) {
     if(!sInstance) return;
     sInstance->setHoverSkill(skillId, showNextLevel, rect);
 }
 
-void eItemDragWidget::paintEvent(ePainter& p) {
+void eHoverWidget::paintEvent(ePainter& p) {
     const auto& res = resolution();
     const float mult = res.multiplier();
     int mx = mMousePos.x;
@@ -360,35 +366,43 @@ void eItemDragWidget::paintEvent(ePainter& p) {
         calcPos(mHoverRect);
         eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p, align);
     } else {
-        const auto um = eWidget::sUnderMouse();
-        if(um) {
-            const auto& tooltip = um->tooltip();
-            if(!tooltip.empty()) {
-                if(tooltip != mTooltip) {
-                    const auto r = renderer();
-                    eHoverGenerator gen(res);
-                    gen.addText(r, tooltip, eFontColor::white);
-                    mTooltipTex = gen.generate(res, r);
-                    mTooltip = tooltip;
-                }
+        std::string tooltip;
+        SDL_Rect hoverRect;
 
-                const auto hoverRect = um->globalRect();
-                calcPos(hoverRect);
-                const int h = height();
-                const int w = width();
-                eHoverGenerator::sPaint(w, h, mx, my, res, mTooltipTex, p, align);
+        if(const auto um = eWidget::sUnderMouse()) {
+            tooltip = um->tooltip();
+            hoverRect = um->globalRect();
+        }
+
+        if(tooltip.empty()) {
+            tooltip = mGameTooltip;
+            hoverRect = mGameHoverRect;
+        }
+
+        if(!tooltip.empty()) {
+            if(tooltip != mTooltip) {
+                const auto r = renderer();
+                eHoverGenerator gen(res);
+                gen.addText(r, tooltip, eFontColor::white);
+                mTooltipTex = gen.generate(res, r);
+                mTooltip = tooltip;
             }
+
+            calcPos(hoverRect);
+            const int h = height();
+            const int w = width();
+            eHoverGenerator::sPaint(w, h, mx, my, res, mTooltipTex, p, align);
         }
     }
 }
 
-bool eItemDragWidget::mouseMoveEvent(const eMouseEvent& e) {
+bool eHoverWidget::mouseMoveEvent(const eMouseEvent& e) {
     mMousePos.x = e.x();
     mMousePos.y = e.y();
     return false;
 }
 
-bool eItemDragWidget::mousePressEvent(const eMouseEvent& e) {
+bool eHoverWidget::mousePressEvent(const eMouseEvent& e) {
     if(!mItem) return false;
     mDropAction();
     return true;

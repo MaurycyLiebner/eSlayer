@@ -5,7 +5,7 @@
 #include "units/eunit.h"
 
 #include "widgets/gameScreen/einventorywidget.h"
-#include "widgets/gameScreen/eitemdragwidget.h"
+#include "widgets/gameScreen/ehoverwidget.h"
 
 #include <eSlayerServer/eserver.h>
 

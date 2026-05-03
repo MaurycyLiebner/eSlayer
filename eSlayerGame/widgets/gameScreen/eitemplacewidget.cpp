@@ -2,7 +2,7 @@
 
 #include "../../textures/eitemstextures.h"
 #include "einventorywidget.h"
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 #include "egamewidget.h"
 
 #include <eSlayerHelpers/eitem.h>
@@ -34,7 +34,7 @@ bool eItemPlaceWidget::dropItem() {
     if(!draggedCompatible()) return true;
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
-    eItemDragWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
 }
@@ -42,7 +42,7 @@ bool eItemPlaceWidget::dropItem() {
 void eItemPlaceWidget::setHoverItem() {
     const auto& item = mEq->*mDst;
     const auto rect = globalRect();
-    eItemDragWidget::sSetHoverItem(item, rect);
+    eHoverWidget::sSetHoverItem(item, rect);
 }
 
 bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
@@ -51,7 +51,7 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     if(dragged.fType != eItemType::none) return true;
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
-    eItemDragWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
 }
@@ -66,7 +66,7 @@ bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
 }
 
 bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
-    eItemDragWidget::sSetHoverItem(eItem());
+    eHoverWidget::sSetHoverItem(eItem());
     return true;
 }
 

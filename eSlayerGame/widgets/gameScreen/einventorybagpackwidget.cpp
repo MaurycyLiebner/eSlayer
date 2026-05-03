@@ -4,7 +4,7 @@
 #include "../../textures/euitextures.h"
 #include "../../textures/etextgenerator.h"
 #include "einventorywidget.h"
-#include "eitemdragwidget.h"
+#include "ehoverwidget.h"
 #include "egamewidget.h"
 
 #include <eSlayerHelpers/eequipment.h>
@@ -67,7 +67,7 @@ bool eInventoryBagpackWidget::dropItem() {
         setHoverItem(invItem);
         dragged = eItem();
     }
-    eItemDragWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(*mEq);
     eGameWidget::sSendInventoryRearranged();
     return true;
 }
@@ -81,7 +81,7 @@ void eInventoryBagpackWidget::setHoverItem(
     const int w = invItem.fW*mDimensions;
     const int h = invItem.fH*mDimensions;
     const SDL_Rect rect{x, y, w, h};
-    eItemDragWidget::sSetHoverItem(item, rect);
+    eHoverWidget::sSetHoverItem(item, rect);
 }
 
 void eInventoryBagpackWidget::paintEvent(ePainter& p) {
@@ -204,14 +204,14 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
             const bool r = mEq->addToBelt(item);
             if(r) {
                 inv.erase(inv.begin() + itemId);
-                eItemDragWidget::sSetHoverItem(eItem());
+                eHoverWidget::sSetHoverItem(eItem());
                 eGameWidget::sSendInventoryRearranged();
             }
         } else {
             inv.erase(inv.begin() + itemId);
             mEq->fDragged = item;
-            eItemDragWidget::sUpdateDragItem(*mEq);
-            eItemDragWidget::sSetHoverItem(eItem());
+            eHoverWidget::sUpdateDragItem(*mEq);
+            eHoverWidget::sSetHoverItem(eItem());
             eGameWidget::sSendInventoryRearranged();
         }
     }
@@ -222,7 +222,7 @@ bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);
     if(itemId == -1) {
-        eItemDragWidget::sSetHoverItem(eItem());
+        eHoverWidget::sSetHoverItem(eItem());
     } else {
         const auto& inv = *mItems;
         setHoverItem(inv[itemId]);
@@ -231,7 +231,7 @@ bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
 }
 
 bool eInventoryBagpackWidget::mouseLeaveEvent(const eMouseEvent& e) {
-    eItemDragWidget::sSetHoverItem(eItem());
+    eHoverWidget::sSetHoverItem(eItem());
     return true;
 }
 

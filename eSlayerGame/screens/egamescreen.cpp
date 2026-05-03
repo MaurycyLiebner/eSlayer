@@ -11,7 +11,7 @@
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/einventorybagpackwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
-#include "../widgets/gameScreen/eitemdragwidget.h"
+#include "../widgets/gameScreen/ehoverwidget.h"
 #include "../widgets/gameScreen/eminimap.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
@@ -193,7 +193,7 @@ void eGameScreen::initialize(const int clientId,
 
     const auto& attrs = mGameWidget->attributes();
 
-    mDragWidget = new eItemDragWidget(attrs, stats, window());
+    mDragWidget = new eHoverWidget(attrs, stats, window());
     mDragWidget->resize(w, h);
     mDragWidget->initialize([this]() {
         const bool r = mBelt->dropItem();
@@ -456,7 +456,7 @@ void eGameScreen::showInventoryMenu() {
     mInventoryMenu->initialize(eq, stats);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     mInventoryMenu->updateWeapons();
-    eItemDragWidget::sUpdateDragItem(eq);
+    eHoverWidget::sUpdateDragItem(eq);
 
     updateCharPos();
     mDragWidget->bringToFront();

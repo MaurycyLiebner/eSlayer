@@ -1,5 +1,5 @@
-#ifndef EITEMDRAGWIDGET_H
-#define EITEMDRAGWIDGET_H
+#ifndef EHOVERWIDGET_H
+#define EHOVERWIDGET_H
 
 #include "../ewidget.h"
 
@@ -10,16 +10,19 @@ struct eItem;
 struct eAttributes;
 struct eStats;
 
-class eItemDragWidget : public eWidget {
+class eHoverWidget : public eWidget {
 public:
-    eItemDragWidget(const eAttributes& attrs,
-                    const eStats& stats,
-                    eMainWindow* const w);
-    ~eItemDragWidget();
+    eHoverWidget(const eAttributes& attrs,
+                 const eStats& stats,
+                 eMainWindow* const w);
+    ~eHoverWidget();
 
     using eDropAction = std::function<void()>;
 
     void initialize(const eDropAction& dropAction);
+
+    void setGameTooltip(const std::string& text,
+                        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
     void setItemDataId(const int dataId);
 
@@ -29,7 +32,7 @@ public:
                        const bool showNextLevel,
                        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
-    static eItemDragWidget* sInstance;
+    static eHoverWidget* sInstance;
     static void sUpdateDragItem(const eEquipment& eq);
     static void sSetHoverItem(
         const eItem& item, const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
@@ -61,8 +64,11 @@ private:
     SDL_Rect mHoverRect{0, 0, 0, 0};
     std::shared_ptr<eTexture> mHover;
 
+    std::string mGameTooltip;
+    SDL_Rect mGameHoverRect{0, 0, 0, 0};
+
     std::string mTooltip;
     std::shared_ptr<eTexture> mTooltipTex;
 };
 
-#endif // EITEMDRAGWIDGET_H
+#endif // EHOVERWIDGET_H
