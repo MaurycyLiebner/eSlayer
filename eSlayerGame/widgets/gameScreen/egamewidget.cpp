@@ -7,6 +7,7 @@
 #include "../../textures/etilesiterator.h"
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
+#include "../../textures/eitemstextures.h"
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
 #include "../../erendersettings.h"
@@ -607,8 +608,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
             } else if(e.fType == eRenderElementType::item) {
                 const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
-                mGamePainter.fillRect(SDL_Rect{int(pixel.fX) - 2, int(pixel.fY) - 2,
-                                               4, 4}, SDL_Color{255, 0, 0, 255});
+                const auto dataId = i->fDataId;
+                auto& itex = eItemsTextures::getByItemDataId(dataId);
+                itex.request(r, res);
+                mGamePainter.drawTexture(pixel.fX, pixel.fY, itex.fTinyTex,
+                                         eAlignment::center);
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
                 const auto& obj = *objPtr;

@@ -191,7 +191,7 @@ bool eCharacter::load(const std::string& path,
     if(const auto attrE = rootE->FirstChildElement("attributes")) {
         auto& attrs = c.mAttributes;
         const auto getAttr = [&](const std::string& name) {
-            const auto ele = attrE->FirstChildElement(name);
+            const auto ele = attrE->FirstChildElement(name.c_str());
             if(!ele) return 0;
             return ele->IntText();
         };
