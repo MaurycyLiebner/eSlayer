@@ -6,10 +6,14 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/egrounditem.h>
 
-bool eGroundItemNames::add(
+void eGroundItemNames::initialize(
     SDL_Renderer* const r,
-    const eFont& font,
-    const int w, const int h,
+    const eFont& font) {
+    mR = r;
+    mFont = font;
+}
+
+bool eGroundItemNames::add(
     const ePoint& pixel,
     const eGroundItem& item) {
     std::shared_ptr<eTexture> tex;
@@ -37,7 +41,7 @@ bool eGroundItemNames::add(
             break;
         }
 
-        eTextGenerator gen(r, color, font);
+        eTextGenerator gen(mR, color, mFont);
         const auto socketsText = item.fSockets > 0 ?
             " [" + std::to_string(item.fSockets) + "]" :
             "";
@@ -46,9 +50,9 @@ bool eGroundItemNames::add(
     }
     const int tw = tex->width();
     const int th = tex->height();
-    const int ww = tw + font.fPtSize;
-    const int wh = th + font.fPtSize;
-    const int yinc = wh + font.fPtSize;
+    const int ww = tw + mFont.fPtSize;
+    const int wh = th + mFont.fPtSize;
+    const int yinc = wh + mFont.fPtSize;
     if(empty()) {
         mYShift = pixel.fY % yinc - yinc;
     }
@@ -76,7 +80,7 @@ bool eGroundItemNames::add(
 }
 
 bool eGroundItemNames::at(const ePoint& pixel,
-                    uint32_t& itemId) const {
+                          uint32_t& itemId) const {
     const SDL_Point pt{pixel.fX, pixel.fY};
     for(const auto& it : *this) {
         const auto& i = it.second;

@@ -2,6 +2,7 @@
 #define EGROUNDITEMNAMES_H
 
 #include "../../textures/etexture.h"
+#include "../../widgets/efonts.h"
 
 #include <map>
 #include <cstdint>
@@ -11,7 +12,6 @@
 
 struct ePoint;
 struct eGroundItem;
-struct eFont;
 
 struct eItemName {
     uint32_t fItemId;
@@ -21,14 +21,16 @@ struct eItemName {
 
 class eGroundItemNames : public std::map<uint32_t, eItemName> {
 public:
-    bool add(SDL_Renderer* const r,
-             const eFont& font,
-             const int w, const int h,
-             const ePoint& pixel,
+    void initialize(SDL_Renderer* const r,
+                    const eFont& font);
+    bool add(const ePoint& pixel,
              const eGroundItem& item);
     bool at(const ePoint& pixel,
             uint32_t& itemId) const;
 private:
+    SDL_Renderer* mR = nullptr;
+    eFont mFont;
+
     int mYShift = 0;
     std::map<uint32_t, std::shared_ptr<eTexture>> mTexs;
 };

@@ -92,6 +92,10 @@ void eGameWidget::initialize(const int clientId,
     dstStats.calculate(dstAttrs, dstEq);
 
     mWorld.initialize(clientId, mMainChar);
+
+    const int fontSize = res.smallFontSize();
+    const auto font = eFonts::textFont(fontSize);
+    mItemNames.initialize(r, font);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -468,9 +472,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto window = eWidget::window();
         const bool altPressed = window->altPressed();
         mItemNames.clear();
-        const auto& res = resolution();
-        const int fontSize = res.smallFontSize();
-        const auto font = eFonts::textFont(fontSize);
 
         const float mult = res.multiplier();
         const int margin = 100*mult;
@@ -536,6 +537,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         setHighlightedUnit(nullptr);
         setHighlightedObject(nullptr);
+        setHighlightedItem(nullptr);
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
                 setPressedUnit(nullptr);
@@ -570,6 +572,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         if(highlight) {
                             setHighlightedUnit(u);
                             mHighlightObject.reset();
+                            mHighlightItem.reset();
                         }
                     }
                 }
@@ -611,8 +614,30 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto dataId = i->fDataId;
                 auto& itex = eItemsTextures::getByItemDataId(dataId);
                 itex.request(r, res);
-                mGamePainter.drawTexture(ipixel.fX, ipixel.fY, itex.fTinyTex,
-                                         eAlignment::center);
+                const auto& tex = itex.fTinyTex;
+                bool highlight = false;
+                const int texW = tex->width();
+                const int texH = tex->height();
+                int drawX = ipixel.fX;
+                int drawY = ipixel.fY;
+                ePainter::drawCoordinates(drawX, drawY, texW, texH, eAlignment::center);
+                if(!mHighlightUnit.lock() && !mHighlightObject.lock() && !mHighlightItem.lock()) {
+                    const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+                    const SDL_Rect rect{drawX, drawY, texW, texH};
+                    const bool r = SDL_PointInRect(&p, &rect);
+                    if(r) {
+                        setHighlightedItem(i);
+                        highlight = true;
+                    }
+                }
+                mGamePainter.drawTexture(drawX, drawY, tex);
+                if(highlight) {
+                    tex->setBlendMode(SDL_BLENDMODE_ADD);
+                    tex->setAlpha(125);
+                    p.drawTexture(drawX, drawY, tex);
+                    tex->setBlendMode(SDL_BLENDMODE_BLEND);
+                    tex->clearAlphaMod();
+                }
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
                 const auto& obj = *objPtr;
@@ -652,6 +677,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                             break;
                         case eObjectType::treasure:
                             setHighlightedObject(objPtr);
+                            mHighlightItem.reset();
                             highlight = true;
                             break;
                         };
@@ -736,12 +762,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                 items[dist] = i.get();
             }
             for(const auto& it : items) {
-                const int w = width();
-                const int h = height();
-                const auto i = it.second;
-                const auto pixel = tilePosToPixel(i->fPos);
-                mItemNames.add(r, font, w, h, pixel.floor(), *i);
+                const auto& i = it.second;
+                const auto& pos = i->fPos;
+                const auto pixel = tilePosToPixel(pos);
+                const auto ipixel = pixel.floor();
+                mItemNames.add(ipixel, *i);
             }
+        }
+        if(altPressed || mHighlightItem.lock()) {
             const SDL_Point impos{int(mpos.fX), int(mpos.fY)};
             const auto holder = mGamePainter.switchToItemNames();
             for(const auto& it : mItemNames) {
@@ -802,6 +830,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
             setPressedUnit(h);
         } else if(const auto o = mHighlightObject.lock()) {
             mMainAction.setPressedObject(o);
+        } else if(const auto i = mHighlightItem.lock()) {
+            mMainAction.setPressedItem(i);
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
@@ -865,6 +895,16 @@ void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
         eHoverWidget::sSetGameTooltip(name, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");
+    }
+}
+
+void eGameWidget::setHighlightedItem(const std::shared_ptr<eGroundItem>& i) {
+    mHighlightItem = i;
+    if(i) {
+        const auto& pos = i->fPos;
+        const auto pixel = tilePosToPixel(pos);
+        const auto ipixel = pixel.floor();
+        mItemNames.add(ipixel, *i);
     }
 }
 
