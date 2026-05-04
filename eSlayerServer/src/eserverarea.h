@@ -132,8 +132,6 @@ private:
     void generateItems(const ePointF& pos,
                        const float level,
                        const float worth);
-    eItem generateItem(const float level,
-                       const float worth);
     void generateItem(const ePointF& pos,
                       const float level,
                       const float worth);
@@ -142,7 +140,6 @@ private:
 
     std::shared_ptr<eMap> mMap;
 
-    static uint32_t sNextItemId;
     static eTeamId sNextTeamId;
 
     eIdMapVector<eServerMissile> mMissiles;

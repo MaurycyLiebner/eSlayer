@@ -129,7 +129,7 @@ void eItemTexture::request(SDL_Renderer* const r,
     const auto suffix = res.textureSuffix();
     const auto path = "ui/items/" + fTexPath + suffix + ".png";
     fTex = eFileLoader::readTexture(r, dir, path);
-    const int w = std::round(0.2f*fTex->width());
-    const int h = std::round(0.2f*fTex->height());
+    const int w = std::round(0.25f*fTex->width());
+    const int h = std::round(0.25f*fTex->height());
     fTinyTex = fTex->scaled(r, w, h);
 }
