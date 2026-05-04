@@ -20,10 +20,10 @@ struct ESLAYERHELPERS_API eItem {
 
     uint8_t fRequiredLevel = 0;
 
-    float fValue1 = 0.f; // min weapon / shield / boots damage
-    float fValue2 = 0.f; // max weapon weapon / shield / boots damage
-    float fValue3 = 0.f; // armor defense
-    float fValue4 = 0.f; // shield block chance
+    float fMinDmg = 0.f; // min weapon / shield / boots damage
+    float fMaxDmg = 0.f; // max weapon weapon / shield / boots damage
+    float fDefense = 0.f; // armor defense
+    float fBlockChance = 0.f; // shield block chance
     std::vector<eModifier> fModifiers;
 
     void read(ePacket& p);

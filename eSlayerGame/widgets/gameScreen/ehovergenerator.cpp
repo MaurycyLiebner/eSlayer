@@ -108,73 +108,8 @@ bool addPlus(const float value,
 
 std::string floatToString(const float value,
                           const eModifierType type) {
-    switch(type) {
-    case eModifierType::walkRun:
-
-    case eModifierType::attackSpeed:
-    case eModifierType::castRate:
-
-    case eModifierType::defensePercent:
-    case eModifierType::damagePercent:
-    case eModifierType::attackRatingPercent:
-    case eModifierType::blockChancePercent:
-    case eModifierType::blockRecoverySpeed:
-    case eModifierType::hitRecoverySpeed:
-
-    case eModifierType::lifePercent:
-    case eModifierType::manaPercent:
-
-    case eModifierType::pierceChance:
-
-    case eModifierType::fireResistance:
-    case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
-    case eModifierType::poisonResistance:
-
-    case eModifierType::maxFireResistance:
-    case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
-    case eModifierType::maxPoisonResistance:
-
-    case eModifierType::lifeSteal:
-    case eModifierType::manaSteal:
-
-    case eModifierType::meeleSplashDamage:
-    case eModifierType::knockback:
-
-    case eModifierType::fireSkillDamage:
-    case eModifierType::coldSkillDamage:
-    case eModifierType::lightningSkillDamage:
-    case eModifierType::poisonSkillDamage:
-        return eStringHelpers::floatToString(100*value);
-
-    case eModifierType::none:
-    case eModifierType::count:
-
-    case eModifierType::defenseValue:
-    case eModifierType::damageValue:
-
-    case eModifierType::damageFire:
-    case eModifierType::damageLightning:
-    case eModifierType::damageCold:
-    case eModifierType::damagePoison:
-
-    case eModifierType::attackRatingValue:
-
-    case eModifierType::lifeValue:
-    case eModifierType::manaValue:
-
-    case eModifierType::strength:
-    case eModifierType::dexterity:
-    case eModifierType::vitality:
-    case eModifierType::energy:
-
-    case eModifierType::allSkills:
-
-    case eModifierType::replenishLife:
-    case eModifierType::regenerateMana:
-        return eStringHelpers::floatToString(value);
-    }
+    const bool r = eModifierHelpers::isPercent(type);
+    if(r) return eStringHelpers::floatToString(100*value);
     return eStringHelpers::floatToString(value);
 }
 

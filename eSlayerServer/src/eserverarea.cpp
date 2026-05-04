@@ -138,50 +138,19 @@ void eServerArea::addGroundItem(
 void eServerArea::generateItems(
     const ePointF& pos, const float level,
     const float worth) {
-    const float minSingleWorth = worth/5;
-    const float maxSingleWorth = worth;
     float remWorth = worth;
-    while(remWorth >= minSingleWorth) {
-        const float max = std::min(remWorth, maxSingleWorth);
-        const float worth = eRand::randF(minSingleWorth, max);
+    while(remWorth >= 0.25f) {
+        const float worth = eRand::randF(0.25f, remWorth);
         generateItem(pos, level, worth);
         remWorth -= worth;
     }
 }
 
-eItem eServerArea::generateItem(
-    const float level, const float worth) {
-    eItem item;
-    item.fItemId = sNextItemId++;
-    const int typeMax = eItemsData::sItems.size();
-    const int typeId = eRand::rand(0, typeMax);
-    const auto& itemData = eItemsData::get(typeId);
-    const auto type = itemData.fType;
-    item.fDataId = typeId;
-    item.fType = type;
-    item.fSubType = itemData.fSubtype;
-    item.fValue1 = eRand::randF(itemData.fValue1Min,
-                                itemData.fValue1Max);
-    item.fValue2 = eRand::randF(itemData.fValue2Min,
-                                itemData.fValue2Max);
-    item.fValue3 = eRand::randF(itemData.fValue3Min,
-                                itemData.fValue3Max);
-    item.fValue4 = eRand::randF(itemData.fValue4Min,
-                                itemData.fValue4Max);
-    eItemRarity rarity;
-    if(worth > 3.f) {
-        item.fRarity = eItemRarity::rare;
-    } else if(worth < 1.f) {
-        item.fRarity = eItemRarity::normal;
-        return item;
-    } else {
-        item.fRarity = eItemRarity::magic;
-    }
-
-    std::vector<eModifierType> modTypes;
+std::vector<eModifierType> itemTypeMods(
+    const eItemType type) {
     switch(type) {
     case eItemType::boots: {
-        modTypes = {
+        return {
             eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -245,7 +214,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::gloves: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             eModifierType::attackSpeed,
@@ -309,7 +278,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::helmet: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -373,7 +342,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::armor: {
-        modTypes = {
+        return {
             eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -437,7 +406,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::belt: {
-        modTypes = {
+        return {
             eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -502,7 +471,7 @@ eItem eServerArea::generateItem(
     } break;
     case eItemType::ring:
     case eItemType::amulet: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -566,7 +535,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::weapon: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             eModifierType::attackSpeed,
@@ -630,7 +599,7 @@ eItem eServerArea::generateItem(
         };
     } break;
     case eItemType::shield: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             // eModifierType::attackSpeed,
@@ -695,7 +664,7 @@ eItem eServerArea::generateItem(
     } break;
     case eItemType::arrows:
     case eItemType::bolts: {
-        modTypes = {
+        return {
             // eModifierType::walkRun,
 
             eModifierType::attackSpeed,
@@ -761,13 +730,65 @@ eItem eServerArea::generateItem(
     default:
         break;
     }
+    return {};
+}
 
+eItem eServerArea::generateItem(
+    const float level, const float worth) {
+    eItem item;
+    item.fItemId = sNextItemId++;
+    const int typeMax = eItemsData::sItems.size() - 1;
+    const int typeId = eRand::rand(0, typeMax);
+    const auto& itemData = eItemsData::get(typeId);
+    const auto type = itemData.fType;
+    item.fDataId = typeId;
+    item.fType = type;
+    item.fSubType = itemData.fSubtype;
+    item.fRequiredLevel = level;
+
+    if(type == eItemType::potion) return item;
+
+    float minDmg = eRand::randF(itemData.fValue1Min,
+                                itemData.fValue1Max);
+    minDmg = eModifierHelpers::clampValue(
+        minDmg, eModifierType::damageValue);
+    float maxDmg = eRand::randF(std::max(minDmg, itemData.fValue2Min),
+                                itemData.fValue2Max);
+    maxDmg = eModifierHelpers::clampValue(
+        maxDmg, eModifierType::damageValue);
+
+    float def = eRand::randF(itemData.fValue3Min,
+                             itemData.fValue3Max);
+    def = eModifierHelpers::clampValue(
+        def, eModifierType::defenseValue);
+    float block = eRand::randF(itemData.fValue4Min,
+                               itemData.fValue4Max);
+    block = eModifierHelpers::clampValue(
+        block, eModifierType::blockChancePercent);
+
+    item.fMinDmg = minDmg;
+    item.fMaxDmg = maxDmg;
+    item.fDefense = def;
+    item.fBlockChance = block;
+
+    eItemRarity rarity;
+    if(worth > 3.f) {
+        item.fRarity = eItemRarity::rare;
+    } else if(worth < 1.f) {
+        item.fRarity = eItemRarity::normal;
+        return item;
+    } else {
+        item.fRarity = eItemRarity::magic;
+    }
+
+    auto modTypes = itemTypeMods(type);
+    auto& mods = item.fModifiers;
     const auto genModifier = [&](const float worth) {
         const int modIdMax = modTypes.size() - 1;
         const int modId = eRand::rand(0, modIdMax);
         const auto type = modTypes[modId];
         modTypes.erase(modTypes.begin() + modId);
-        auto& mod = item.fModifiers.emplace_back();
+        auto& mod = mods.emplace_back();
         mod.fType = type;
         switch(type) {
         case eModifierType::none:
@@ -778,7 +799,7 @@ eItem eServerArea::generateItem(
             break;
         case eModifierType::attackSpeed:
         case eModifierType::castRate:
-            mod.fValue1 = worth*25.f;
+            mod.fValue1 = worth*0.25f;
             break;
 
         case eModifierType::defenseValue:
@@ -892,19 +913,17 @@ eItem eServerArea::generateItem(
             mod.fValue1 = worth*0.15f;
             break;
         }
+        mod.fValue1 = eModifierHelpers::clampValue(mod.fValue1, type);
+        mod.fValue2 = eModifierHelpers::clampValue(mod.fValue2, type);
     };
-    const float totalWorth = worth;
-    const int nTypes = modTypes.empty();
-    const float minSingleWorth = totalWorth/std::min(10, (1 + nTypes));
-    const float maxSingleWorth = totalWorth/2.f;
-    float remWorth = totalWorth;
-    while(remWorth >= minSingleWorth && !modTypes.empty()) {
-        const float max1 = std::min(1.f, remWorth);
-        const float max2 = std::min(max1, maxSingleWorth);
-        const float max3 = std::max(minSingleWorth, max2);
-        const float worth = eRand::randF(minSingleWorth, max3);
-        genModifier(worth);
-        remWorth -= worth;
+    float remWorth = worth;
+    const int maxMods = rarity == eItemRarity::rare ? 8 : 4;
+    while(remWorth >= 0.25f && !modTypes.empty()) {
+        const float maxWorth = std::clamp(remWorth, 0.25f, 1.f);
+        const float mworth = eRand::randF(0.25f, maxWorth);
+        genModifier(mworth);
+        remWorth -= mworth;
+        if(mods.size() >= maxMods) break;
     }
     return item;
 }

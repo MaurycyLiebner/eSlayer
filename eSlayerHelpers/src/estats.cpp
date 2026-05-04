@@ -52,8 +52,8 @@ bool eStats::canUseSkill(
 
 void gCalculateWeaponDmg(const eItem& weapon,
                          float& min, float& max) {
-    float baseMin = weapon.fValue1;
-    float baseMax = weapon.fValue2;
+    float baseMin = weapon.fMinDmg;
+    float baseMax = weapon.fMaxDmg;
     float percentIncMin = 0.f;
     float percentIncMax = 0.f;
     for(const auto& mod : weapon.fModifiers) {
@@ -598,14 +598,14 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             i--;
             switch(item.fType) {
             case eItemType::shield:
-                fBlockChance += item.fValue4;
+                fBlockChance += item.fBlockChance;
                 [[fallthrough]];
             case eItemType::boots:
             case eItemType::gloves:
             case eItemType::helmet:
             case eItemType::armor:
             case eItemType::belt:
-                baseDef += item.fValue3;
+                baseDef += item.fDefense;
                 [[fallthrough]];
             default: {
                 const bool lw = &item != &rightW;

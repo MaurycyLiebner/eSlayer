@@ -14,10 +14,10 @@ void eItem::read(ePacket& p) {
 
     p >> fRequiredLevel;
 
-    p >> fValue1;
-    p >> fValue2;
-    p >> fValue3;
-    p >> fValue4;
+    p >> fMinDmg;
+    p >> fMaxDmg;
+    p >> fDefense;
+    p >> fBlockChance;
 
     uint8_t nmods;
     p >> nmods;
@@ -39,10 +39,10 @@ void eItem::write(ePacket& p) const {
 
     p << fRequiredLevel;
 
-    p << fValue1;
-    p << fValue2;
-    p << fValue3;
-    p << fValue4;
+    p << fMinDmg;
+    p << fMaxDmg;
+    p << fDefense;
+    p << fBlockChance;
 
     const uint8_t nmods = fModifiers.size();
     p << nmods;

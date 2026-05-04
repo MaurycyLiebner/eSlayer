@@ -56,10 +56,10 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     if(!rarityName) return false;
     item.fRarity = eItemRarityHelpers::type(rarityName);
 
-    item.fValue1 = itemE->FloatAttribute("value1");
-    item.fValue2 = itemE->FloatAttribute("value2");
-    item.fValue3 = itemE->FloatAttribute("value3");
-    item.fValue4 = itemE->FloatAttribute("value4");
+    item.fMinDmg = itemE->FloatAttribute("minDmg");
+    item.fMaxDmg = itemE->FloatAttribute("maxDmg");
+    item.fDefense = itemE->FloatAttribute("defense");
+    item.fBlockChance = itemE->FloatAttribute("blockChance");
 
     auto modsE = itemE->FirstChildElement("modifiers");
     if(modsE) {
@@ -190,10 +190,15 @@ bool eCharacter::load(const std::string& path,
     // attributes
     if(const auto attrE = rootE->FirstChildElement("attributes")) {
         auto& attrs = c.mAttributes;
-        attrs.fStrength  = attrE->FirstChildElement("strength")  ? attrE->FirstChildElement("strength")->IntText()  : 0;
-        attrs.fDexterity = attrE->FirstChildElement("dexterity") ? attrE->FirstChildElement("dexterity")->IntText() : 0;
-        attrs.fVitality  = attrE->FirstChildElement("vitality")  ? attrE->FirstChildElement("vitality")->IntText()  : 0;
-        attrs.fEnergy    = attrE->FirstChildElement("energy")    ? attrE->FirstChildElement("energy")->IntText()    : 0;
+        const auto getAttr = [&](const std::string& name) {
+            const auto ele = attrE->FirstChildElement(name);
+            if(!ele) return 0;
+            return ele->IntText();
+        };
+        attrs.fStrength  = getAttr("strength");
+        attrs.fDexterity = getAttr("dexterity");
+        attrs.fVitality  = getAttr("vitality");
+        attrs.fEnergy    = getAttr("energy");
     }
 
     // skills
@@ -338,7 +343,8 @@ void gWriteItem(const eItem& item,
     const int itemDataId = item.fDataId;
     const auto typeName = eItemsData::name(itemDataId);
     itemE->SetAttribute("type", typeName.c_str());
-    switch(item.fType) {
+    const auto type = item.fType;
+    switch(type) {
     case eItemType::potion:
         return;
     default:
@@ -349,10 +355,35 @@ void gWriteItem(const eItem& item,
     itemE->SetAttribute("requiredLevel", item.fRequiredLevel);
     const auto rarityName = eItemRarityHelpers::name(item.fRarity);
     itemE->SetAttribute("rarity", rarityName.c_str());
-    itemE->SetAttribute("value1", item.fValue1);
-    itemE->SetAttribute("value2", item.fValue2);
-    itemE->SetAttribute("value3", item.fValue3);
-    itemE->SetAttribute("value4", item.fValue4);
+    switch(type) {
+    case eItemType::weapon:
+    case eItemType::boots:
+    case eItemType::shield:
+        itemE->SetAttribute("minDmg", item.fMinDmg);
+        itemE->SetAttribute("maxDmg", item.fMaxDmg);
+        break;
+    default:
+        break;
+    }
+    switch(type) {
+    case eItemType::armor:
+    case eItemType::gloves:
+    case eItemType::boots:
+    case eItemType::helmet:
+    case eItemType::shield:
+    case eItemType::belt:
+        itemE->SetAttribute("defense", item.fDefense);
+        break;
+    default:
+        break;
+    }
+    switch(type) {
+    case eItemType::shield:
+        itemE->SetAttribute("blockChance", item.fBlockChance);
+        break;
+    default:
+        break;
+    }
     const auto modsE = itemE->InsertNewChildElement("modifiers");
     for(const auto& mod : item.fModifiers) {
         gWriteModifier(mod, modsE);

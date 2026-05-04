@@ -96,20 +96,20 @@ void eHoverWidget::setHoverItem(
         case eItemType::gloves:
         case eItemType::helmet:
         case eItemType::belt:
-            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
             break;
         case eItemType::shield:
-            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
-            gen.addValue(r, 6, 2, item.fValue4, item.fValue4, eFontColor::white,
+            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
+            gen.addValue(r, 6, 2, item.fBlockChance, item.fBlockChance, eFontColor::white,
                      eModifierType::blockChancePercent);
-            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fMinDmg, item.fMaxDmg, eFontColor::white);
             break;
         case eItemType::boots:
-            gen.addValue(r, 6, 0, item.fValue3, item.fValue3, eFontColor::white);
-            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fMinDmg, item.fMaxDmg, eFontColor::white);
             break;
         case eItemType::weapon:
-            gen.addValue(r, 6, 1, item.fValue1, item.fValue2, eFontColor::white);
+            gen.addValue(r, 6, 1, item.fMinDmg, item.fMaxDmg, eFontColor::white);
             break;
         default:
             break;

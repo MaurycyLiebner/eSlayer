@@ -194,3 +194,84 @@ void eModifier::write(ePacket& p) const {
     p << fValue1;
     p << fValue2;
 }
+
+bool eModifierHelpers::isPercent(
+    const eModifierType type) {
+    switch(type) {
+    case eModifierType::walkRun:
+
+    case eModifierType::attackSpeed:
+    case eModifierType::castRate:
+
+    case eModifierType::defensePercent:
+    case eModifierType::damagePercent:
+    case eModifierType::attackRatingPercent:
+    case eModifierType::blockChancePercent:
+    case eModifierType::blockRecoverySpeed:
+    case eModifierType::hitRecoverySpeed:
+
+    case eModifierType::lifePercent:
+    case eModifierType::manaPercent:
+
+    case eModifierType::pierceChance:
+
+    case eModifierType::fireResistance:
+    case eModifierType::coldResistance:
+    case eModifierType::lightningResitance:
+    case eModifierType::poisonResistance:
+
+    case eModifierType::maxFireResistance:
+    case eModifierType::maxColdResistance:
+    case eModifierType::maxLightningResitance:
+    case eModifierType::maxPoisonResistance:
+
+    case eModifierType::lifeSteal:
+    case eModifierType::manaSteal:
+
+    case eModifierType::meeleSplashDamage:
+    case eModifierType::knockback:
+
+    case eModifierType::fireSkillDamage:
+    case eModifierType::coldSkillDamage:
+    case eModifierType::lightningSkillDamage:
+    case eModifierType::poisonSkillDamage:
+        return true;
+
+    case eModifierType::none:
+    case eModifierType::count:
+
+    case eModifierType::defenseValue:
+    case eModifierType::damageValue:
+
+    case eModifierType::damageFire:
+    case eModifierType::damageLightning:
+    case eModifierType::damageCold:
+    case eModifierType::damagePoison:
+
+    case eModifierType::attackRatingValue:
+
+    case eModifierType::lifeValue:
+    case eModifierType::manaValue:
+
+    case eModifierType::strength:
+    case eModifierType::dexterity:
+    case eModifierType::vitality:
+    case eModifierType::energy:
+
+    case eModifierType::allSkills:
+
+    case eModifierType::replenishLife:
+    case eModifierType::regenerateMana:
+        return false;
+    }
+
+    return false;
+}
+
+float eModifierHelpers::clampValue(
+    const float value, const eModifierType type) {
+    const bool r = eModifierHelpers::isPercent(type);
+    const float mult = r ? 100.f : 1.f;
+    return int(std::ceil(mult*value))/mult;
+
+}

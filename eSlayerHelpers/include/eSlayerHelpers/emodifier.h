@@ -98,4 +98,12 @@ struct ESLAYERHELPERS_API eModifier {
     void write(ePacket& p) const;
 };
 
+namespace eModifierHelpers {
+    ESLAYERHELPERS_API
+    bool isPercent(const eModifierType type);
+    ESLAYERHELPERS_API
+    float clampValue(const float value,
+                     const eModifierType type);
+}
+
 #endif // EMODIFIER_H
