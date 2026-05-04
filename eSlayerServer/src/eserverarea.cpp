@@ -582,7 +582,9 @@ bool eServerArea::pickupItem(
         if(eq.fDragged.fType != eItemType::none) return false;
         eq.fDragged = *item;
     } else {
-        const bool r = eq.add(*item);
+        const auto& stats = u->stats();
+        const bool met = stats.itemReqsMet(*item);
+        const bool r = eq.add(*item, met);
         if(!r) return false;
         u->recalculateStats();
     }

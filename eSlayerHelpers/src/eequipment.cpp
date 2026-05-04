@@ -86,11 +86,11 @@ eItem eEquipment::take(const uint32_t itemId) {
     return eItem();
 }
 
-bool eEquipment::add(const eItem& item) {
+bool eEquipment::add(const eItem& item, const bool reqsMet) {
     if(item.fType == eItemType::potion) {
         const bool r = addToBelt(item);
         if(r) return true;
-    } else {
+    } else if(reqsMet) {
         const auto tryAdd = [&](eItem& dst) {
             if(dst.fType != eItemType::none) return false;
             const bool r = canPlace(item, dst);
