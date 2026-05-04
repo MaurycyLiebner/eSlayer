@@ -611,7 +611,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto dataId = i->fDataId;
                 auto& itex = eItemsTextures::getByItemDataId(dataId);
                 itex.request(r, res);
-                mGamePainter.drawTexture(pixel.fX, pixel.fY, itex.fTinyTex,
+                mGamePainter.drawTexture(ipixel.fX, ipixel.fY, itex.fTinyTex,
                                          eAlignment::center);
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
@@ -625,18 +625,17 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& type = types[typeId];
                 const auto& tex = type[0].fTexs.getTexture(0);
                 const int h = object.fSize*tileH;
-                const auto& pos = obj.fPos;
-                const float fpx = pixel.fX + 0.5f*((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*tileW;
-                const float fpy = pixel.fY + 0.5f*((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*tileH;
+                const int dx = ((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*(tileW/2);
+                const int dy = ((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*((tileH + 1)/2);
+                const int x = ipixel.fX + dx;
+                const int y = ipixel.fY + dy + h;
                 if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
-                    mGamePainter.addObjectShadow(fpx, fpy + h, fpy + 0.5f*h,
+                    mGamePainter.addObjectShadow(x, y, y - 0.5f*h,
                                                  object.fSize, tex);
                 }
                 bool highlight = false;
                 const int texW = tex->width();
                 const int texH = tex->height();
-                const int x = fpx;
-                const int y = fpy + h;
                 int drawX = x;
                 int drawY = y;
                 ePainter::drawCoordinates(drawX, drawY, texW, texH,

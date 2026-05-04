@@ -124,8 +124,8 @@ void eLightingTexture::renderLight(
     const auto eraseBlocker = [&](const eBlockerBase& b,
                                   const float lightness) {
         const auto& bTex = *b.fTex;
-        const float bTexW = bTex.width();
-        const int x = b.fPX + bTex.offsetX() - 0.5f*bTexW - dstX;
+        const int bTexW = bTex.width();
+        const int x = b.fPX + bTex.offsetX() - bTexW/2 - dstX;
         const int y = b.fPY + bTex.offsetY() - dstY;
         p.drawShadow(x, y, bTex, 0.f, 1.f, lightness, 1.f);
     };
@@ -154,11 +154,11 @@ void eLightingTexture::renderLight(
             const auto h = shadowTex->createTargetHolder(r);
             for(const auto& b : walls) {
                 const auto& bTex = b.fTex;
-                const float bTexW = bTex->width();
-                const float bTexH = bTex->height();
-                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
+                const int bTexW = bTex->width();
+                const int bTexH = bTex->height();
+                const SDL_FRect bTexRect{b.fPX - bTexW/2,
                                          b.fPY - bTexH,
-                                         bTexW, bTexH};
+                                         float(bTexW), float(bTexH)};
                 if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
                 const float key = b.fTX + b.fTY;
                 wallMap.emplace(key, b);
@@ -252,7 +252,7 @@ void eLightingTexture::renderLight(
                 const auto& bTex = b.fTex;
                 const float bTexW = bTex->width();
                 const float bTexH = bTex->height();
-                const SDL_FRect bTexRect{b.fPX - 0.5f*bTexW,
+                const SDL_FRect bTexRect{b.fPX - bTexW/2,
                                          b.fPY - bTexH,
                                          bTexW, bTexH};
                 if(!SDL_HasRectIntersectionFloat(&bTexRect, &dstRect)) continue;
