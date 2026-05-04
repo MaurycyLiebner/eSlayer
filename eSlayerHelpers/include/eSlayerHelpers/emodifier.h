@@ -73,7 +73,9 @@ enum class eModifierType : uint8_t {
     fireSkillDamage,
     coldSkillDamage,
     lightningSkillDamage,
-    poisonSkillDamage
+    poisonSkillDamage,
+
+    count
 };
 
 struct ESLAYERHELPERS_API eModifier {

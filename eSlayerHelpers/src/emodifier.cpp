@@ -73,6 +73,7 @@ gStringToModifierType = [] {
 int eModifier::valuesUsed() const {
     switch(fType) {
     case eModifierType::none:
+    case eModifierType::count:
         return 0;
     case eModifierType::damagePercent:
     case eModifierType::damageValue:
@@ -127,6 +128,11 @@ int eModifier::valuesUsed() const {
 
     case eModifierType::replenishLife:
     case eModifierType::regenerateMana:
+
+    case eModifierType::fireSkillDamage:
+    case eModifierType::coldSkillDamage:
+    case eModifierType::lightningSkillDamage:
+    case eModifierType::poisonSkillDamage:
         return 1;
     }
     return 0;

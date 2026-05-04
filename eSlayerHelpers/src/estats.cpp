@@ -60,11 +60,11 @@ void gCalculateWeaponDmg(const eItem& weapon,
         switch(mod.fType) {
         case eModifierType::damagePercent:
             percentIncMin += mod.fValue1;
-            percentIncMax += mod.fValue1;
+            percentIncMax += mod.fValue2;
             break;
         case eModifierType::damageValue:
             baseMin += mod.fValue1;
-            baseMax += mod.fValue1;
+            baseMax += mod.fValue2;
             break;
         default:
             break;
@@ -545,6 +545,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             manaRegBonus += mod.fValue1;
             break;
         case eModifierType::none:
+        case eModifierType::count:
         case eModifierType::attackRatingValue:
         case eModifierType::attackRatingPercent:
         case eModifierType::damagePercent:
@@ -721,6 +722,7 @@ void eStats::calculateSkill(const int schoice,
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
+        case eModifierType::count:
 
         case eModifierType::defenseValue:
         case eModifierType::defensePercent:
@@ -804,7 +806,7 @@ void eStats::calculateSkill(const int schoice,
             float max;
             gCalculateWeaponDmg(rightW, min, max);
             helper.fDmgMinRWBase.fPhysical += min;
-            helper.fDmgMinRWBase.fPhysical += max;
+            helper.fDmgMaxRWBase.fPhysical += max;
         } else if(rightW.fType == eItemType::none) {
             if(leftW.fType == eItemType::none) {
                 helper.fDmgMinRWBase.fPhysical += minFistDmg;

@@ -129,6 +129,14 @@ private:
                       const eCharData& data,
                       const eModelParts& modelParts);
     void addGroundItem(const ePointF& pos, const eItem& item);
+    void generateItems(const ePointF& pos,
+                       const float level,
+                       const float worth);
+    eItem generateItem(const float level,
+                       const float worth);
+    void generateItem(const ePointF& pos,
+                      const float level,
+                      const float worth);
 
     float mTime = 0.f;
 

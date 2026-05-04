@@ -14,6 +14,10 @@ struct ESLAYERHELPERS_API ePoint {
     ePoint operator/(const int div) const {
         return {fX/div, fY/div};
     }
+
+    ePoint operator*(const int mult) const {
+        return {fX*mult, fY*mult};
+    }
 };
 
 inline bool operator==(const ePoint& p1, const ePoint& p2) {
@@ -63,6 +67,16 @@ struct ESLAYERHELPERS_API ePointF {
     ePointF& operator*=(const float mult) {
         fX *= mult;
         fY *= mult;
+        return *this;
+    }
+
+    ePointF operator/(const float div) const {
+        return {fX/div, fY/div};
+    }
+
+    ePointF& operator/=(const float mult) {
+        fX /= mult;
+        fY /= mult;
         return *this;
     }
 };

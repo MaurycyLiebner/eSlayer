@@ -13,6 +13,7 @@ public:
     eSetAreas(const int areaDim);
 
     eArea posArea(const ePointF& pos) const;
+    ePointF areaPos(const eArea& area) const;
 
     void clear();
     bool hasArea(const eArea& area);

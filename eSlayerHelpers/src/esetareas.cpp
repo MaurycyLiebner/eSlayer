@@ -13,6 +13,16 @@ eArea eSetAreas::posArea(const ePointF& pos) const {
     return result;
 }
 
+ePointF eSetAreas::areaPos(const eArea& area) const {
+    ePointF result;
+    if(mAreaDim > 0) {
+        result = ePointF(area)*mAreaDim;
+    } else {
+        result = ePointF(area)/-mAreaDim;
+    }
+    return result;
+}
+
 void eSetAreas::clear() {
     mAreas.clear();
 }

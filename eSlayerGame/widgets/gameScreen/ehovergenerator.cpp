@@ -85,6 +85,7 @@ bool addPlus(const float value,
         return true;
 
     case eModifierType::none:
+    case eModifierType::count:
 
     case eModifierType::damageFire:
     case eModifierType::damageLightning:
@@ -148,6 +149,7 @@ std::string floatToString(const float value,
         return eStringHelpers::floatToString(100*value);
 
     case eModifierType::none:
+    case eModifierType::count:
 
     case eModifierType::defenseValue:
     case eModifierType::damageValue:
