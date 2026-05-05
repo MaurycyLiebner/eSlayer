@@ -15,6 +15,7 @@ class ePacket;
 
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
+    friend class eDungeon;
     friend class eServer;
 public:
     int width() const { return mWidth; }

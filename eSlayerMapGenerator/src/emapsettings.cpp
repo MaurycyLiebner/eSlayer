@@ -1,7 +1,8 @@
 #include "emapsettings.h"
 
-#include <eSlayerHelpers/efileloaderbase.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/efileloaderbase.h>
 
 std::map<std::string, eMapSettings>
 eMapSettings::sMaps;
@@ -39,6 +40,8 @@ void eMapSettings::load() {
                 } else {
                     area.fType = eAreaType::open;
                 }
+                const auto terrTypeStr = jArea.value("terrain", "grass");
+                area.fTerrainType = eTerrsTexturesData::id(terrTypeStr);
                 // lightness / contrast
                 area.fLightness = jArea.value("lightness", 180);
                 area.fContrast  = jArea.value("contrast", 140);

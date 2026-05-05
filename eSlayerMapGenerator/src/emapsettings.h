@@ -18,6 +18,7 @@ enum class eAreaType {
 
 struct eAreaSettings {
     eAreaType fType;
+    uint8_t fTerrainType;
     std::set<uint16_t> fMonsters;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;

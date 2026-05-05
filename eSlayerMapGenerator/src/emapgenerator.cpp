@@ -22,277 +22,67 @@ eSlayerMapGenerator::generate(const std::string& name) {
     return g.generate(name);
 }
 
-// --------------------------------------------------
-// Map
-// --------------------------------------------------
-enum Tile {
-    WALL,
-    FLOOR
+struct eConnection {
+    int fX;
+    int fY;
 };
 
-// --------------------------------------------------
-// Union-Find (for clustering + MST)
-// --------------------------------------------------
-struct eUnionFind {
-    std::vector<int> parent, rank;
-
-    eUnionFind(int n) : parent(n), rank(n, 0) {
-        iota(parent.begin(), parent.end(), 0);
-    }
-
-    int find(int x) {
-        if (parent[x] != x)
-            parent[x] = find(parent[x]);
-        return parent[x];
-    }
-
-    void unite(int a, int b) {
-        a = find(a);
-        b = find(b);
-        if (a == b) return;
-
-        if (rank[a] < rank[b])
-            parent[a] = b;
-        else {
-            parent[b] = a;
-            if (rank[a] == rank[b])
-                rank[a]++;
-        }
-    }
-};
-
-// --------------------------------------------------
-// eDungeon Generator
-// --------------------------------------------------
 class eDungeon {
 public:
-    int fX, fY;
-    int width, height;
-    eAreaType fType;
-    std::vector<std::vector<Tile>> map;
-    std::vector<eRect> rooms;
-    std::vector<std::vector<eRect>> areas;
-
+    eDungeon() {}
     eDungeon(const int x, const int y,
              const int w, const int h,
-             const eAreaType type) :
-        fX(x), fY(y), width(w), height(h),
-        fType(type) {
-        map.resize(width, std::vector<Tile>(height, WALL));
+             const std::shared_ptr<eMap>& map,
+             const eAreaSettings& settings) :
+        mX(x), mY(y),
+        mWidth(w), mHeight(h),
+        mMap(map),
+        mSettings(settings) {}
+
+    void addConnection(const eConnection& conn) {
+        mConnecitons.emplace_back(conn);
     }
 
-    eDungeon() {}
-
-    eRect randomRoom() {
-        const int w = eRand::rand(10, 20);
-        const int h = eRand::rand(10, 20);
-        const int x = eRand::rand(1, width - w - 2);
-        const int y = eRand::rand(1, height - h - 2);
-        return {x, y, w, h};
+    void shift(const int dx, const int dy) {
+        mX += dx;
+        mY += dy;
     }
 
-    void generateRooms(int count) {
-        for(int i = 0; i < count; ++i) {
-            rooms.push_back(randomRoom());
-        }
+    eRect rect() const {
+        return eRect{mX, mY, mWidth, mHeight};
     }
 
-    void clusterRooms() {
-        eUnionFind uf(rooms.size());
-
-        for(size_t i = 0; i < rooms.size(); ++i) {
-            for(size_t j = i + 1; j < rooms.size(); ++j) {
-                if(eRect::intersects(rooms[i], rooms[j])) {
-                    uf.unite(i, j);
+    void generate() const {
+        const auto terrType = mSettings.fTerrainType;
+        auto& tiles = mMap->mTiles;
+        for(int dx = 0; dx < mWidth; dx++) {
+            for(int dy = 0; dy < mHeight; dy++) {
+                const int globalX = mX + dx;
+                const int globalY = mY + dy;
+                auto& dst = tiles[globalY][globalX];
+                dst.fWallTL = 0;
+                dst.fWallTR = 0;
+                dst.fTerrainType = terrType;
+                if(mSettings.fType == eAreaType::dungeon) {
+                    const int nTypes = 4;
+                    const int dim = sqrt(nTypes);
+                    dst.fTileType = 1 + (globalX % dim) + (globalY % dim) * dim;
+                } else {
+                    dst.fTileType = eRand::rand(1, 20);
                 }
             }
         }
-
-               // Group into areas
-        std::unordered_map<int, std::vector<eRect>> groups;
-        for(size_t i = 0; i < rooms.size(); ++i) {
-            groups[uf.find(i)].push_back(rooms[i]);
-        }
-
-        for(auto& [_, group] : groups) {
-            areas.push_back(group);
-        }
     }
+private:
+    int mX;
+    int mY;
+    int mWidth;
+    int mHeight;
 
-    void carveRoom(const eRect& r) {
-        for(int x = r.fX; x < r.fX + r.fW; ++x) {
-            for(int y = r.fY; y < r.fY + r.fH; ++y) {
-                map[x][y] = FLOOR;
-            }
-        }
-    }
+    std::vector<eConnection> mConnecitons;
 
-    void carveRooms() {
-        for(auto& r : rooms) {
-            carveRoom(r);
-        }
-    }
-
-    ePoint areaCenter(const std::vector<eRect>& area) {
-        int sumX = 0, sumY = 0;
-        for(auto& r : area) {
-            sumX += r.centerX();
-            sumY += r.centerY();
-        }
-        return { sumX / (int)area.size(), sumY / (int)area.size() };
-    }
-
-    void carveCorridor(const ePoint& a, const ePoint& b) {
-        int x = a.fX;
-        int y = a.fY;
-
-        if(eRand::randChance(0.5f)) {
-            // horizontal first
-            while(x != b.fX) {
-                map[x][y] = FLOOR;
-                map[x][y + 1] = FLOOR;
-                x += (b.fX > x) ? 1 : -1;
-            }
-            while(y != b.fY) {
-                map[x][y] = FLOOR;
-                map[x][y + 1] = FLOOR;
-                y += (b.fY > y) ? 1 : -1;
-            }
-        } else {
-            // vertical first
-            while(y != b.fY) {
-                map[x][y] = FLOOR;
-                map[x + 1][y] = FLOOR;
-                y += (b.fY > y) ? 1 : -1;
-            }
-            while(x != b.fX) {
-                map[x][y] = FLOOR;
-                map[x + 1][y] = FLOOR;
-                x += (b.fX > x) ? 1 : -1;
-            }
-        }
-    }
-
-    void connectAreas() {
-        if(areas.size() <= 1) return;
-
-        std::vector<ePoint> centers;
-        for(const auto& area : areas) {
-            centers.push_back(areaCenter(area));
-        }
-
-        struct eEdge {
-            int a, b;
-            double dist;
-        };
-
-        std::vector<eEdge> edges;
-
-        for(size_t i = 0; i < centers.size(); ++i) {
-            for(size_t j = i + 1; j < centers.size(); ++j) {
-                double d = hypot(centers[i].fX - centers[j].fX,
-                                 centers[i].fY - centers[j].fY);
-                edges.push_back({(int)i, (int)j, d});
-            }
-        }
-
-        sort(edges.begin(), edges.end(), [](const eEdge& a, const eEdge& b) {
-            return a.dist < b.dist;
-        });
-
-        eUnionFind uf(centers.size());
-
-        for(const auto& e : edges) {
-            if(uf.find(e.a) != uf.find(e.b)) {
-                uf.unite(e.a, e.b);
-                carveCorridor(centers[e.a], centers[e.b]);
-            }
-        }
-
-               // Optional: add extra loops
-        for(const auto& e : edges) {
-            if(eRand::randChance(0.1)) {
-                carveCorridor(centers[e.a], centers[e.b]);
-            }
-        }
-    }
-
-    std::pair<ePoint, ePoint> closestPointsBetweenDungeons(const eDungeon& other) {
-        double bestDist = std::numeric_limits<double>::max();
-        ePoint bestA, bestB;
-
-        for(const auto& ra : rooms) {
-            for(const auto& rb : other.rooms) {
-
-                ePoint a = {
-                    fX + ra.centerX(),
-                    fY + ra.centerY()
-                };
-
-                ePoint b = {
-                    other.fX + rb.centerX(),
-                    other.fY + rb.centerY()
-                };
-
-                double d = hypot(a.fX - b.fX, a.fY - b.fY);
-
-                if(d < bestDist) {
-                    bestDist = d;
-                    bestA = a;
-                    bestB = b;
-                }
-            }
-        }
-
-        return {bestA, bestB};
-    }
-
-    void carveCorridorTo(eDungeon& other) {
-        auto [start, end] = closestPointsBetweenDungeons(other);
-
-        int x = start.fX;
-        int y = start.fY;
-
-        auto carveAt = [&](int wx, int wy) {
-            // Check this dungeon
-            if(wx >= fX && wx < fX + width &&
-                wy >= fY && wy < fY + height) {
-                map[wx - fX][wy - fY] = FLOOR;
-            }
-
-                   // Check other dungeon
-            if(wx >= other.fX && wx < other.fX + other.width &&
-                wy >= other.fY && wy < other.fY + other.height) {
-                other.map[wx - other.fX][wy - other.fY] = FLOOR;
-            }
-        };
-
-        if(eRand::randChance(0.5f)) {
-            while(x != end.fX) {
-                carveAt(x, y);
-                carveAt(x, y + 1);
-                x += (end.fX > x) ? 1 : -1;
-            }
-            while(y != end.fY) {
-                carveAt(x, y);
-                carveAt(x + 1, y);
-                y += (end.fY > y) ? 1 : -1;
-            }
-        } else {
-            while(y != end.fY) {
-                carveAt(x, y);
-                carveAt(x + 1, y);
-                y += (end.fY > y) ? 1 : -1;
-            }
-            while(x != end.fX) {
-                carveAt(x, y);
-                carveAt(x, y + 1);
-                x += (end.fX > x) ? 1 : -1;
-            }
-        }
-
-        carveAt(end.fX, end.fY);
-    }
+    std::shared_ptr<eMap> mMap;
+    eAreaSettings mSettings;
 };
 
 enum class eDir {
@@ -318,7 +108,14 @@ public:
     }
 
     ePoint pos(const eAreaPlace& place) const {
-        return {place.fX*mAreaDim, place.fY*mAreaDim};
+        return {place.fX*mAreaDim,
+                place.fY*mAreaDim};
+    }
+
+    eRect boundingRect(const eAreaPlace& place) const {
+        return {place.fX*mAreaDim,
+                place.fY*mAreaDim,
+                mAreaDim, mAreaDim};
     }
 
     const eRect& boundingRect() const {
@@ -401,7 +198,6 @@ eMapGenerator::generate(const std::string& name) const {
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {
-        const auto areaType = settings.fType;
         const auto place = placer.choosePlace(nextTo);
         const auto pos = placer.pos(place);
 
@@ -409,12 +205,8 @@ eMapGenerator::generate(const std::string& name) const {
         const int y = pos.fY;
 
         auto& area = areas[name];
-        area = eDungeon(x, y, areaDim, areaDim, areaType);
-
-        area.generateRooms(20);
-        area.clusterRooms();
-        area.carveRooms();
-        area.connectAreas();
+        area = eDungeon(x, y, areaDim, areaDim,
+                        result, settings);
 
         for(const auto& conn : settings.fConnections) {
             const auto connType = conn.second;
@@ -423,8 +215,6 @@ eMapGenerator::generate(const std::string& name) const {
             const int settingsId = mapSettings.fAreas.id(name);
             const auto settings = mapSettings.fAreas.get(settingsId);
             genArea(name, settings, place);
-            auto& newArea = areas[name];
-            area.carveCorridorTo(newArea);
         }
     };
 
@@ -435,8 +225,7 @@ eMapGenerator::generate(const std::string& name) const {
     auto rect = placer.boundingRect();
     for(auto& it : areas) {
         auto& area = it.second;
-        area.fX -= rect.fX;
-        area.fY -= rect.fY;
+        area.shift(-rect.fX, -rect.fY);
     }
     rect.fX = 0;
     rect.fY = 0;
@@ -466,247 +255,16 @@ eMapGenerator::generate(const std::string& name) const {
     result->generateTiles(rect.fW, rect.fH);
     for(const auto& it : areas) {
         const auto& name = it.first;
-        const bool isBloodMoor = name == "blood_moor";
         const auto& area = it.second;
         eMapArea mapArea;
         const int id = mapSettings.fAreas.id(name);
         const auto& sett = mapSettings.fAreas.get(id);
         mapArea.fLightness = sett.fLightness;
         mapArea.fContrast = sett.fContrast;
-        mapArea.fRect = eRect{area.fX, area.fY,
-                              area.width, area.height};
+        const auto rect = area.rect();
+        mapArea.fRect = rect;
         result->mAreas.add(name, mapArea);
-        for(int x = 0; x < area.width; x++) {
-            for(int y = 0; y < area.height; y++) {
-                const int globalX = x + area.fX;
-                const int globalY = y + area.fY;
-                auto& dst = result->mTiles[globalY][globalX];
-                const auto& src = area.map[x][y];
-                const auto terrType = isBloodMoor ? basementId : grassId;
-                dst.fWallTL = 0;
-                dst.fWallTR = 0;
-                dst.fTerrainType = terrType;
-                if(isBloodMoor) {
-                    const int nTypes = 4;
-                    const int dim = sqrt(nTypes);
-                    dst.fTileType = 1 + (x % dim) + (y % dim) * dim;
-                } else {
-                    dst.fTileType = eRand::rand(1, 20);
-                }
-                const auto& terrInfo = eTerrsTexturesData::get(terrType);
-                if(src == Tile::WALL) {
-                    bool inner = true;
-                    for(int dx = -1; dx <= 1; dx++) {
-
-                        const int srcX = x + dx;
-                        if(srcX < 0) continue;
-                        else if(srcX >= area.width) break;
-
-                        const int dstX = globalX + dx;
-                        if(dstX < 0) continue;
-                        else if(dstX >= result->mWidth) break;
-
-                        for(int dy = -1; dy <= 1; dy++) {
-                            if(dx == 0 && dy == 0) continue;
-
-                            const int srcY = y + dy;
-                            if(srcY < 0) continue;
-                            else if(srcY >= area.height) break;
-
-                            const int dstY = globalY + dy;
-                            if(dstY < 0) continue;
-                            else if(dstY >= result->mHeight) break;
-
-                            const auto& src = area.map[srcX][srcY];
-                            if(src == Tile::FLOOR) {
-                                inner = false;
-                                break;
-                            }
-                        }
-                        if(!inner) break;
-                    }
-                    if(inner) {
-                        if(eRand::randChance(0.1f)) {
-                            auto& obj = *result->addObject();
-                            obj.fObjectType = treeId;
-                            obj.fSubtype = eRand::rand();
-                            obj.fPos.fX = globalX;
-                            obj.fPos.fY = globalY;
-                            obj.fSize = treeInfo.fSize;
-                        }
-                    } else {
-                        if(isBloodMoor) {
-                            dst.fTerrainType = basementId;
-                            std::vector<std::vector<bool>> walls(
-                                3, std::vector<bool>(3, true));
-                            for(int dx = -1; dx <= 1; dx++) {
-
-                                const int srcX = x + dx;
-                                if(srcX < 0) continue;
-                                else if(srcX >= area.width) break;
-
-                                const int dstX = globalX + dx;
-                                if(dstX < 0) continue;
-                                else if(dstX >= result->mWidth) break;
-
-                                for(int dy = -1; dy <= 1; dy++) {
-                                    if(dx == 0 && dy == 0) continue;
-
-                                    const int srcY = y + dy;
-                                    if(srcY < 0) continue;
-                                    else if(srcY >= area.height) break;
-
-                                    const int dstY = globalY + dy;
-                                    if(dstY < 0) continue;
-                                    else if(dstY >= result->mHeight) break;
-
-                                    const auto& src = area.map[srcX][srcY];
-                                    walls[dy + 1][dx + 1] = src == Tile::WALL;
-                                }
-                            }
-
-                            const std::vector<int>* options = nullptr;
-                            if(!walls[2][1] && !walls[1][2]) {
-                                options = &terrInfo.fBBorders;
-                            } else if(!walls[1][0] && !walls[0][1]) {
-                                options = &terrInfo.fTBorders;
-                            } else if(!walls[0][1] && !walls[1][2]) {
-                                options = &terrInfo.fRBorders;
-                            } else if(!walls[1][0] && !walls[2][1]) {
-                                options = &terrInfo.fLBorders;
-                            } else if(!walls[2][1]) {
-                                options = &terrInfo.fBLBorders;
-                            } else if(!walls[1][2]) {
-                                options = &terrInfo.fBRBorders;
-                            } else if(!walls[1][0]) {
-                                options = &terrInfo.fTLBorders;
-                            } else if(!walls[0][1]) {
-                                options = &terrInfo.fTRBorders;
-                            }
-                            if(options && !options->empty()) {
-                                const int n = options->size();
-                                const int id = eRand::rand() % n;
-                                dst.fTileType = (*options)[id];
-                            }
-                        } else {
-                            auto& obj = *result->addObject();
-                            obj.fObjectType = townFenceId;
-                            obj.fSubtype = 0;
-                            obj.fPos.fX = globalX;
-                            obj.fPos.fY = globalY;
-                            obj.fSize = townFenceInfo.fSize;
-                        }
-                    }
-                } else if(result->mSpawnPos == ePoint{0, 0}) {
-                    result->mSpawnPos = {globalX, globalY};
-                } else {
-                    if(eRand::randChance(0.025f)) {
-                        auto& obj = *result->addObject();
-                        obj.fObjectType = treeId;
-                        obj.fSubtype = eRand::rand();
-                        obj.fPos.fX = globalX;
-                        obj.fPos.fY = globalY;
-                        obj.fSize = treeInfo.fSize;
-                    } else if(eRand::randChance(0.01f)) {
-                        auto& obj = *result->addObject();
-                        obj.fObjectType = eRand::randChance(0.5) ?
-                            chestId : smallChestId;
-                        obj.fSubtype = eRand::rand();
-                        obj.fPos.fX = globalX;
-                        obj.fPos.fY = globalY;
-                        obj.fSize = chestInfo.fSize;
-                    }
-                }
-            }
-        }
-
-
-        for(int x = 0; x < area.width; x++) {
-            for(int y = 0; y < area.height; y++) {
-                const int globalX = x + area.fX;
-                const int globalY = y + area.fY;
-
-                const auto emptyPlace = [&]() {
-                    const int dim = 3;
-                    for(int dx = -dim; dx <= dim; dx++) {
-                        const int srcX = x + dx;
-                        if(srcX < 0) return false;
-                        else if(srcX >= area.width) return false;
-
-                        const int dstX = globalX + dx;
-                        if(dstX < 0) return false;
-                        else if(dstX >= result->mWidth) return false;
-
-                        for(int dy = -dim; dy <= dim; dy++) {
-                            const int srcY = y + dy;
-                            if(srcY < 0) return false;
-                            else if(srcY >= area.height) return false;
-
-                            const int dstY = globalY + dy;
-                            if(dstY < 0) return false;
-                            else if(dstY >= result->mHeight) return false;
-
-                            const auto& src = area.map[srcX][srcY];
-                            if(src == Tile::WALL) return false;
-                        }
-                    }
-
-                    return true;
-                };
-                static bool did = false;
-                const bool empty = emptyPlace();
-                if(empty && !did) {
-                    did = true;
-                    const int dim = 2;
-                    const int shift = 1;
-                    for(int dx = -dim; dx <= dim + 1; dx++) {
-                        const int dstX = shift + globalX + dx;
-                        for(int dy = -dim; dy <= dim + 1; dy++) {
-                            const int dstY = shift + globalY + dy;
-                            auto& dst = result->mTiles[dstY][dstX];
-                            const uint8_t nTypes = 2;
-                            const uint8_t type = ((dstX + dstY) % nTypes + nTypes) % nTypes;
-                            if(dx == -dim) {
-                                if(dy == -dim) {
-                                    dst.fWallTL = eTile::encodeWall(true, false, type);
-                                    dst.fWallTR = eTile::encodeWall(true, false, type);
-                                } else if(dy == dim) {
-                                    dst.fWallTL = eTile::encodeWall(true, false, type);
-                                } else if(dy == dim + 1) {
-                                    dst.fWallTR = eTile::encodeWall(true, false, type);
-                                } else {
-                                    dst.fWallTL = eTile::encodeWall(true, false, type);
-                                }
-                            } else if(dx == dim) {
-                                if(dy == -dim) {
-                                    dst.fWallTR = eTile::encodeWall(true, false, type);
-                                } else if(dy == dim + 1) {
-                                    dst.fWallTR = eTile::encodeWall(true, false, type);
-                                } else {
-
-                                }
-                            } else if(dx == dim + 1) {
-                                if(dy == -dim) {
-                                    dst.fWallTL = eTile::encodeWall(true, false, type);
-                                } else if(dy == dim + 1) {
-
-                                } else {
-                                    dst.fWallTL = eTile::encodeWall(true, false, type);
-                                }
-                            } else {
-                                if(dy == -dim) {
-                                    dst.fWallTR = eTile::encodeWall(true, false, type);
-                                } else if(dy == dim + 1) {
-                                    dst.fWallTR = eTile::encodeWall(true, true, type);
-                                } else {
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        area.generate();
     }
 
     result->updateObjectsMap();
