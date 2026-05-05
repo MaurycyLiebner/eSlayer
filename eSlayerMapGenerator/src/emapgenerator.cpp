@@ -482,7 +482,13 @@ eMapGenerator::generate(const std::string& name) const {
                 dst.fWallTL = false;
                 dst.fWallTR = false;
                 dst.fTerrainType = terrType;
-                dst.fTileType = isBloodMoor ? 1 : 1 + eRand::rand() % 20;
+                if(isBloodMoor) {
+                    const int nTypes = 4;
+                    const int dim = sqrt(nTypes);
+                    dst.fTileType = 1 + (x % dim) + (y % dim) * dim;
+                } else {
+                    dst.fTileType = eRand::rand(1, 20);
+                }
                 const auto& terrInfo = eTerrsTexturesData::get(terrType);
                 if(src == Tile::WALL) {
                     bool inner = true;
