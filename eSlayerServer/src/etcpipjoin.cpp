@@ -109,6 +109,11 @@ void eTcpIpJoin::increment(const float by) {
         case ePacketType::teams: {
             eTeams::read(p);
         } break;
+        case ePacketType::objectStateChanged: {
+            eObject obj;
+            p >> obj;
+            mObjectStateChanges.emplace_back(obj);
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -297,7 +302,7 @@ bool eTcpIpJoin::setSkillId(const int clientId,
     return true;
 }
 
-bool eTcpIpJoin::triggerObject(
+std::shared_ptr<eObject> eTcpIpJoin::triggerObject(
     const int clientId, const int objectId,
     const int tx, const int ty) {
     ePacket p;
@@ -307,7 +312,7 @@ bool eTcpIpJoin::triggerObject(
     p << ty;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send object trigger to the host.");
-    return true;
+    return nullptr;
 }
 
 bool eTcpIpJoin::pickupItem(const int clientId,

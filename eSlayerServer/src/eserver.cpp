@@ -40,6 +40,12 @@ std::vector<eMessage> eServer::receiveMessages() {
     return result;
 }
 
+std::vector<eObject> eServer::receiveObjectStateChanges() {
+    std::vector<eObject> result;
+    std::swap(mObjectStateChanges, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

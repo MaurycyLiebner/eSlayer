@@ -6,7 +6,7 @@
 #include "epoint.h"
 #include "erect.h"
 #include "estringidmapvector.h"
-#include "epositioned.h"
+#include "eobject.h"
 
 #include <cstdint>
 #include <vector>
@@ -21,15 +21,6 @@ struct eTile {
 
     bool fWallTL;
     bool fWallTR;
-};
-
-struct eObject : public ePositioned {
-    uint32_t fObjectId;
-
-    uint16_t fObjectType;
-    uint8_t fSubtype;
-
-    float fSize;
 };
 
 struct eMapPortionArea {

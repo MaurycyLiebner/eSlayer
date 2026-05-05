@@ -10,11 +10,30 @@ const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
-const std::vector<uint16_t>& eMap::objects(const int x, const int y) const {
+const std::vector<uint16_t>& eMap::objects(
+    const int x, const int y) const {
     return mObjectsMap[y][x];
 }
 
-const std::shared_ptr<eObject>& eMap::object(const int id) const {
+std::shared_ptr<eObject>
+eMap::object(const int x, const int y,
+             const uint32_t objectId) const {
+    const auto& objIds = objects(x, y);
+    for(const auto objId : objIds) {
+        const auto& obj = object(objId);
+        if(obj->fObjectId == objectId) return obj;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<eObject> eMap::object(
+    const ePointF& pos, const uint32_t objectId) const {
+    const auto ipos = pos.floor();
+    return object(ipos.fX, ipos.fY, objectId);
+}
+
+const std::shared_ptr<eObject>& eMap::object(
+    const int id) const {
     return mObjects[id];
 }
 

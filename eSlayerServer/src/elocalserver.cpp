@@ -126,11 +126,11 @@ bool eLocalServer::setSkillId(const int clientId,
     return h->setSkillId(schoice, skillId);
 }
 
-bool eLocalServer::triggerObject(
+std::shared_ptr<eObject> eLocalServer::triggerObject(
     const int clientId, const int objectId,
     const int tx, const int ty) {
     const auto h = clientHandler(clientId);
-    if(!h) return false;
+    if(!h) return nullptr;
     return h->triggerObject(objectId, tx, ty);
 }
 

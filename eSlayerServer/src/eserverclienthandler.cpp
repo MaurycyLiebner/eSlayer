@@ -120,10 +120,10 @@ bool eServerClientHandler::setSkillId(
     return true;
 }
 
-bool eServerClientHandler::triggerObject(
+std::shared_ptr<eObject> eServerClientHandler::triggerObject(
     const int objectId,
     const int tx, const int ty) {
-    if(!mArea) return false;
+    if(!mArea) return nullptr;
     return mArea->triggerObject(mClientId, objectId, tx, ty);
 }
 

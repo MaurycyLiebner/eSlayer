@@ -48,9 +48,10 @@ public:
                     const eSkillChoice schoice,
                     const int skillId) override;
 
-    bool triggerObject(const int clientId,
-                       const int objectId,
-                       const int tx, const int ty) override;
+    std::shared_ptr<eObject>
+    triggerObject(const int clientId,
+                  const int objectId,
+                  const int tx, const int ty) override;
 
     bool pickupItem(const int clientId,
                     const int itemId,

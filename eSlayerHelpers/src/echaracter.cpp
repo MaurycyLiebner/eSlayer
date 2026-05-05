@@ -246,13 +246,13 @@ bool eCharacter::load(const std::string& path,
     //     mod.fType = eModifierType::lifeValue;
     //     mod.fValue1 = 20.f;
     // }
-    // c.mEquipment.add(amulet);
+    // c.mEquipment.add(amulet, true);
 
     // const uint8_t armorId = eItemsData::id("quilted_armor");
     // eItem armor{uint8_t(itemId++), armorId, eItemType::armor};
     // armor.fRarity = eItemRarity::unique;
     // armor.fSockets = 2;
-    // armor.fValue3 = 25.f;
+    // armor.fDefense = 25.f;
     // {
     //     auto& mod = armor.fModifiers.emplace_back();
     //     mod.fType = eModifierType::walkRun;
@@ -268,12 +268,12 @@ bool eCharacter::load(const std::string& path,
     //     mod.fType = eModifierType::lifeValue;
     //     mod.fValue1 = 20.f;
     // }
-    // c.mEquipment.add(armor);
+    // c.mEquipment.add(armor, true);
 
     // const uint8_t swordId = eItemsData::id("short_sword");
     // eItem sword{uint8_t(itemId++), swordId, eItemType::weapon};
-    // sword.fValue1 = 5.f;
-    // sword.fValue2 = 10.f;
+    // sword.fMinDmg = 5.f;
+    // sword.fMaxDmg = 10.f;
     // {
     //     auto& mod = sword.fModifiers.emplace_back();
     //     mod.fType = eModifierType::attackSpeed;
@@ -290,12 +290,12 @@ bool eCharacter::load(const std::string& path,
     //     mod.fType = eModifierType::lifeValue;
     //     mod.fValue1 = 20.f;
     // }
-    // c.mEquipment.add(sword);
+    // c.mEquipment.add(sword, true);
 
     // const uint8_t bowId = eItemsData::id("long_war_bow");
     // eItem bow{uint8_t(itemId++), bowId, eItemType::weapon};
-    // bow.fValue1 = 5.f;
-    // bow.fValue2 = 10.f;
+    // bow.fMinDmg = 5.f;
+    // bow.fMaxDmg = 10.f;
     // {
     //     auto& mod = bow.fModifiers.emplace_back();
     //     mod.fType = eModifierType::attackSpeed;
@@ -318,7 +318,7 @@ bool eCharacter::load(const std::string& path,
     //     mod.fType = eModifierType::lifeValue;
     //     mod.fValue1 = 20.f;
     // }
-    // c.mEquipment.add(bow);
+    // c.mEquipment.add(bow, true);
 
     return true;
 }

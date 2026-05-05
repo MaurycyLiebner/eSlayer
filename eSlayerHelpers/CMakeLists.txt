@@ -154,6 +154,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eobjectsinfo.h
     src/eobjectsinfo.cpp
     include/eSlayerHelpers/ewalldirection.h
+    include/eSlayerHelpers/eobject.h
 
 
 )

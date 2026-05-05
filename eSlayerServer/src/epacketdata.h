@@ -10,7 +10,7 @@ enum class ePacketType : uint8_t {
     data, request, state,
     attack, stopAttack, respawn,
     setSkillId, consumePotion,
-    triggerObject,
+    triggerObject, objectStateChanged,
     pickupItem, dropItem,
     pickupBody,
     rearrangeItems, attributes,

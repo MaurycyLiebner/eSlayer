@@ -83,8 +83,9 @@ public:
     bool planRemoveUnit(const int charId);
     bool pickupBody(const int clientId, const int charId);
 
-    bool triggerObject(const int clientId, const int objectId,
-                       const int tx, const int ty);
+    std::shared_ptr<eObject> triggerObject(
+        const int clientId, const int objectId,
+        const int tx, const int ty);
 
     bool pickupItem(const int clientId, const int itemId,
                     const bool drag);

@@ -175,6 +175,9 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::teams: {
 
         } break;
+        case ePacketType::objectStateChanged: {
+
+        } break;
         case ePacketType::message: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
@@ -248,7 +251,16 @@ void eTcpIpHost::increment(const float by) {
                 p >> tx;
                 int ty;
                 p >> ty;
-                triggerObject(charId, objectId, tx, ty);
+                const auto obj = triggerObject(charId, objectId, tx, ty);
+
+                if(obj) {
+                    ePacket p;
+                    p << ePacketType::objectStateChanged;
+                    p << *obj;
+                    mNet.broadcast(p);
+
+                    mObjectStateChanges.emplace_back(*obj);
+                }
             }
         } break;
         case ePacketType::dropItem: {

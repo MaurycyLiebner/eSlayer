@@ -22,6 +22,10 @@ public:
 
     const eTile& tile(const int x, const int y) const;
     const std::vector<uint16_t>& objects(const int x, const int y) const;
+    std::shared_ptr<eObject> object(const int x, const int y,
+                                    const uint32_t objectId) const;
+    std::shared_ptr<eObject> object(const ePointF& pos,
+                                    const uint32_t objectId) const;
     const std::shared_ptr<eObject>& object(const int id) const;
 
     const ePoint& spawnPos() const { return mSpawnPos; }

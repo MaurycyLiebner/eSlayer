@@ -36,8 +36,9 @@ public:
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);
 
-    bool triggerObject(const int objectId,
-                       const int tx, const int ty);
+    std::shared_ptr<eObject> triggerObject(
+        const int objectId,
+        const int tx, const int ty);
 
     bool pickupItem(const int itemId, const bool drag);
     bool dropItem();

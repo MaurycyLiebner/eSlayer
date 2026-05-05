@@ -98,7 +98,7 @@ public:
                const eSkillChoice schoice,
                const int skillId) = 0;
 
-    virtual bool
+    virtual std::shared_ptr<eObject>
     triggerObject(const int clientId,
                   const int objectId,
                   const int tx, const int ty) = 0;
@@ -133,6 +133,7 @@ public:
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
+    std::vector<eObject> receiveObjectStateChanges();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -140,6 +141,7 @@ protected:
     std::vector<eOtherUsers> mNewUsers;
     std::vector<int> mLeftUsers;
     std::vector<eMessage> mMessages;
+    std::vector<eObject> mObjectStateChanges;
 private:
     eServerFailureHandler mFailure;
 };

@@ -273,6 +273,12 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto text = name + ": " + msg.fMsg;
             addMessage(r, text);
         }
+        const auto objs = mServer->receiveObjectStateChanges();
+        for(const auto& obj : objs) {
+            const auto o = mMap->object(obj.fPos, obj.fObjectId);
+            if(!o) continue;
+            o->fState = obj.fState;
+        }
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
@@ -648,7 +654,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& types = objectTex.fTypes;
                 const auto typeId = obj.fSubtype % types.size();
                 const auto& type = types[typeId];
-                const auto& tex = type[0].fTexs.getTexture(0);
+                const auto& tex = type[obj.fState].fTexs.getTexture(0);
                 const int h = object.fSize*tileH;
                 const int dx = ((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*(tileW/2);
                 const int dy = ((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*((tileH + 1)/2);
@@ -675,11 +681,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                         switch(info.fType) {
                         case eObjectType::none:
                             break;
-                        case eObjectType::treasure:
-                            setHighlightedObject(objPtr);
-                            mHighlightItem.reset();
-                            highlight = true;
-                            break;
+                        case eObjectType::treasure: {
+                            if(obj.fState == 0) {
+                                setHighlightedObject(objPtr);
+                                mHighlightItem.reset();
+                                highlight = true;
+                            }
+                        } break;
                         };
 
                     }

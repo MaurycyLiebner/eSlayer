@@ -543,7 +543,7 @@ bool eServerArea::pickupBody(
     return true;
 }
 
-bool eServerArea::triggerObject(
+std::shared_ptr<eObject> eServerArea::triggerObject(
     const int clientId, const int objectId,
     const int tx, const int ty) {
     const auto& objIds = mMap->objects(tx, ty);
@@ -555,16 +555,19 @@ bool eServerArea::triggerObject(
         const auto& info = eObjectsInfo::sObjects.get(type);
         switch(info.fType) {
         case eObjectType::treasure: {
+            auto& state = obj->fState;
+            if(state != 0) return nullptr;
             const float fx = tx + obj->fSize + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, 5.f, 7.5f);
+            state = 1;
         } break;
         case eObjectType::none:
             break;
         }
-        return true;
+        return obj;
     }
-    return false;
+    return nullptr;
 }
 
 bool eServerArea::pickupItem(
