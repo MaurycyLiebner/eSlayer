@@ -12,7 +12,12 @@ enum class eConnectionType {
     plain, cave, portal
 };
 
+enum class eAreaType {
+    open, dungeon
+};
+
 struct eAreaSettings {
+    eAreaType fType;
     std::set<uint16_t> fMonsters;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;

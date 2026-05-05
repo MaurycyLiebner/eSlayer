@@ -396,6 +396,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         struct eWall : public ePositioned {
             int fTerrainType;
             eWallType fType;
+            uint8_t fEncoded;
         };
 
         std::vector<eRenderElement> renderElements;
@@ -412,11 +413,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                            std::static_pointer_cast<ePositioned>(obj)});
             }
             const auto& tile = mMap->tile(x, y);
-            const auto addWall = [&](const eWallType type) {
+            const auto addWall = [&](const eWallType type,
+                                     const uint8_t encoded) {
                 const auto wall = std::make_shared<eWall>();
                 wall->fPos = ePointF{float(x), float(y)};
                 wall->fTerrainType = tile.fTerrainType;
                 wall->fType = type;
+                wall->fEncoded = encoded;
                 switch(type) {
                 case eWallType::topRight: {
                     if(x == uipos.fX) {
@@ -442,8 +445,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
             };
-            if(tile.fWallTL) addWall(eWallType::topLeft);
-            if(tile.fWallTR) addWall(eWallType::topRight);
+            if(tile.fWallTL) addWall(eWallType::topLeft, tile.fWallTL);
+            if(tile.fWallTR) addWall(eWallType::topRight, tile.fWallTR);
         };
 
         eTilesIterator iterator;
@@ -705,19 +708,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& wall = static_cast<eWall&>(*ePtr);
                 const auto terrType = wall.fTerrainType;
                 const auto& info = eTerrsTexturesData::get(terrType);
+                const uint8_t encoded = wall.fEncoded;
+                bool wall_;
+                bool doors;
+                uint8_t type;
+                eTile::decodeWall(encoded, wall_, doors, type);
                 const std::vector<int>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
-                    types = &info.fTLWalls;
+                    types = doors ? &info.fTLDoors : &info.fTLWalls;
                     break;
                 case eWallType::topRight:
-                    types = &info.fTRWalls;
+                    types = doors ? &info.fTRDoors : &info.fTRWalls;
                     break;
                 }
 
-                if(!types || types->empty()) continue;
-                const int id = (iPos.fX + iPos.fY) % types->size();
-                const int texId = (*types)[id];
+                const int nTypes = types->size();
+                if(!types || nTypes <= type) continue;
+                const int texId = (*types)[type];
 
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);

@@ -33,6 +33,12 @@ void eMapSettings::load() {
                 const auto& jArea = it.value();
 
                 eAreaSettings area;
+                const auto areaTypeStr = jArea.value("type", "open");
+                if(areaTypeStr == "dungeon") {
+                    area.fType = eAreaType::dungeon;
+                } else {
+                    area.fType = eAreaType::open;
+                }
                 // lightness / contrast
                 area.fLightness = jArea.value("lightness", 180);
                 area.fContrast  = jArea.value("contrast", 140);

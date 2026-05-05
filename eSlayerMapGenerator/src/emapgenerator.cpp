@@ -68,13 +68,16 @@ class eDungeon {
 public:
     int fX, fY;
     int width, height;
+    eAreaType fType;
     std::vector<std::vector<Tile>> map;
     std::vector<eRect> rooms;
     std::vector<std::vector<eRect>> areas;
 
     eDungeon(const int x, const int y,
-             const int w, const int h) :
-        fX(x), fY(y), width(w), height(h) {
+             const int w, const int h,
+             const eAreaType type) :
+        fX(x), fY(y), width(w), height(h),
+        fType(type) {
         map.resize(width, std::vector<Tile>(height, WALL));
     }
 
@@ -398,6 +401,7 @@ eMapGenerator::generate(const std::string& name) const {
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {
+        const auto areaType = settings.fType;
         const auto place = placer.choosePlace(nextTo);
         const auto pos = placer.pos(place);
 
@@ -405,7 +409,7 @@ eMapGenerator::generate(const std::string& name) const {
         const int y = pos.fY;
 
         auto& area = areas[name];
-        area = eDungeon(x, y, areaDim, areaDim);
+        area = eDungeon(x, y, areaDim, areaDim, areaType);
 
         area.generateRooms(20);
         area.clusterRooms();
@@ -479,8 +483,8 @@ eMapGenerator::generate(const std::string& name) const {
                 auto& dst = result->mTiles[globalY][globalX];
                 const auto& src = area.map[x][y];
                 const auto terrType = isBloodMoor ? basementId : grassId;
-                dst.fWallTL = false;
-                dst.fWallTR = false;
+                dst.fWallTL = 0;
+                dst.fWallTR = 0;
                 dst.fTerrainType = terrType;
                 if(isBloodMoor) {
                     const int nTypes = 4;
@@ -660,39 +664,40 @@ eMapGenerator::generate(const std::string& name) const {
                         for(int dy = -dim; dy <= dim + 1; dy++) {
                             const int dstY = shift + globalY + dy;
                             auto& dst = result->mTiles[dstY][dstX];
-
+                            const uint8_t nTypes = 2;
+                            const uint8_t type = ((dstX + dstY) % nTypes + nTypes) % nTypes;
                             if(dx == -dim) {
                                 if(dy == -dim) {
-                                    dst.fWallTL = true;
-                                    dst.fWallTR = true;
+                                    dst.fWallTL = eTile::encodeWall(true, false, type);
+                                    dst.fWallTR = eTile::encodeWall(true, false, type);
                                 } else if(dy == dim) {
-                                    dst.fWallTL = true;
+                                    dst.fWallTL = eTile::encodeWall(true, false, type);
                                 } else if(dy == dim + 1) {
-                                    dst.fWallTR = true;
+                                    dst.fWallTR = eTile::encodeWall(true, false, type);
                                 } else {
-                                    dst.fWallTL = true;
+                                    dst.fWallTL = eTile::encodeWall(true, false, type);
                                 }
                             } else if(dx == dim) {
                                 if(dy == -dim) {
-                                    dst.fWallTR = true;
+                                    dst.fWallTR = eTile::encodeWall(true, false, type);
                                 } else if(dy == dim + 1) {
-                                    dst.fWallTR = true;
+                                    dst.fWallTR = eTile::encodeWall(true, false, type);
                                 } else {
 
                                 }
                             } else if(dx == dim + 1) {
                                 if(dy == -dim) {
-                                    dst.fWallTL = true;
+                                    dst.fWallTL = eTile::encodeWall(true, false, type);
                                 } else if(dy == dim + 1) {
 
                                 } else {
-                                    dst.fWallTL = true;
+                                    dst.fWallTL = eTile::encodeWall(true, false, type);
                                 }
                             } else {
                                 if(dy == -dim) {
-                                    dst.fWallTR = true;
+                                    dst.fWallTR = eTile::encodeWall(true, false, type);
                                 } else if(dy == dim + 1) {
-                                    dst.fWallTR = true;
+                                    dst.fWallTR = eTile::encodeWall(true, true, type);
                                 } else {
 
                                 }

@@ -25,6 +25,12 @@ struct eTileTextureData {
 
     std::vector<int> fTLWalls;
     std::vector<int> fTRWalls;
+
+    std::vector<int> fTLDoors;
+    std::vector<int> fTRDoors;
+
+    std::vector<int> fTLDoorsOpen;
+    std::vector<int> fTRDoorsOpen;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

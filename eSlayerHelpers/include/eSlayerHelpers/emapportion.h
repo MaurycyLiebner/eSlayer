@@ -7,21 +7,13 @@
 #include "erect.h"
 #include "estringidmapvector.h"
 #include "eobject.h"
+#include "etile.h"
 
-#include <cstdint>
 #include <vector>
 #include <memory>
 #include <set>
 
 class ePacket;
-
-struct eTile {
-    uint8_t fTerrainType;
-    uint8_t fTileType;
-
-    bool fWallTL;
-    bool fWallTR;
-};
 
 struct eMapPortionArea {
     int fX = 0;
