@@ -48,6 +48,7 @@ bool eGroundItemNames::add(
         tex = gen.generate(name + socketsText);
         mTexs[item.fItemId] = tex;
     }
+    if(!tex) return false;
     const int tw = tex->width();
     const int th = tex->height();
     const int ww = tw + mFont.fPtSize;

@@ -36,6 +36,7 @@ gGenerateTextTexture(SDL_Renderer* const r,
 
 std::shared_ptr<eTexture>
 eTextGenerator::generate(const std::string& text) const {
+    if(text.empty()) return nullptr;
     const auto ttf = eFonts::requestTTFFont(mFont);
     if(!ttf) return nullptr;
 
