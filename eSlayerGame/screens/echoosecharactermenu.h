@@ -5,6 +5,8 @@
 
 class eCharacters;
 
+class eDialog;
+
 class eChooseCharacterMenu : public eScreenBase {
 public:
     eChooseCharacterMenu(eMainWindow* const window);
@@ -16,6 +18,12 @@ public:
                     const eAction& createCharacter,
                     const eDeleteAction& deleteCharacter,
                     const eCharacters& chars);
+protected:
+    bool keyPressEvent(const eKeyPressEvent& e) override;
+private:
+    void closeDialog();
+
+    eDialog* mDialog = nullptr;
 };
 
 #endif // ECHOOSECHARACTERMENU_H

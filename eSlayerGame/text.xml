@@ -17,6 +17,9 @@
         <string id="1">Ok</string>
         <string id="2">Create new character</string>
         <string id="3">Delete character</string>
+        <string id="4">Are you sure that you want to delete this character?</string>
+        <string id="5">Yes</string>
+        <string id="6">No</string>
     </group>
     <group id="4">
         <string id="0">Ok</string>
