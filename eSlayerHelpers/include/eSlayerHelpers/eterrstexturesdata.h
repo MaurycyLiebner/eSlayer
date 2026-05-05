@@ -7,12 +7,19 @@
 
 #include <eSlayerHelpers/ewalldirection.h>
 
+enum class eFloorUse {
+    random, tiled
+};
+
 struct eTileTextureData {
     std::string fName;
     bool fFlat;
 
     std::vector<bool> fObsticle;
     std::vector<bool> fWalkable;
+
+    eFloorUse fFloorUse;
+    std::vector<int> fFloor;
 
     std::vector<int> fTRBorders;
     std::vector<int> fRBorders;

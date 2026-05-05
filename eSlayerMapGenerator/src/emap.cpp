@@ -196,7 +196,7 @@ void generateTiles(const int w, const int h,
         auto& row = tiles.emplace_back();
         row.reserve(w);
         for(int x = 0; x < w; x++) {
-            row.emplace_back(eTile{0, 0});
+            row.emplace_back(eTile{0, 0, 0, 0});
         }
     }
 }

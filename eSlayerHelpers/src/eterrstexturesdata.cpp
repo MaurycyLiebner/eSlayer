@@ -58,6 +58,14 @@ void eTerrsTexturesData::load() {
                 texs.fTBorders = handle("t");
             }
 
+            const auto floorUseStr = jdata.value("floorUse", "random");
+            if(floorUseStr == "tiled") {
+                texs.fFloorUse = eFloorUse::tiled;
+            } else {
+                texs.fFloorUse = eFloorUse::random;
+            }
+            texs.fFloor = jdata.value("floor", std::vector<int>());
+
             const auto parse = [&jdata](const std::string& name,
                                         std::vector<int>& tl,
                                         std::vector<int>& tr) {

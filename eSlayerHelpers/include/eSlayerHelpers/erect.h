@@ -6,6 +6,11 @@
 #include "epoint.h"
 
 struct ESLAYERHELPERS_API eRect {
+    eRect() {}
+    eRect(const int x, const int y,
+          const int w, const int h) :
+        fX(x), fY(y), fW(w), fH(h) {}
+
     int fX;
     int fY;
     int fW;
@@ -34,6 +39,34 @@ struct ESLAYERHELPERS_API eRect {
         fY = top;
         fW = right - left;
         fH = bottom - top;
+    }
+
+    static bool intersection(const eRect& a, const eRect& b, eRect& out) {
+        const int left   = std::max(a.fX, b.fX);
+        const int top    = std::max(a.fY, b.fY);
+        const int right  = std::min(a.fX + a.fW, b.fX + b.fW);
+        const int bottom = std::min(a.fY + a.fH, b.fY + b.fH);
+
+        if(left < right && top < bottom) {
+            out.fX = left;
+            out.fY = top;
+            out.fW = right - left;
+            out.fH = bottom - top;
+            return true;
+        }
+
+        // No intersection
+        out = eRect(0, 0, 0, 0);
+        return false;
+    }
+
+    eRect inset(const int by) const {
+        eRect result = *this;
+        result.fX += by;
+        result.fY += by;
+        result.fW -= 2*by;
+        result.fH -= 2*by;
+        return result;
     }
 };
 
