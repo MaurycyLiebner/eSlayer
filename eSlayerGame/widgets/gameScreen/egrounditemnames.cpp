@@ -16,39 +16,63 @@ void eGroundItemNames::initialize(
 bool eGroundItemNames::add(
     const ePoint& pixel,
     const eGroundItem& item) {
-    std::shared_ptr<eTexture> tex;
-    const auto it = mTexs.find(item.fItemId);
-    if(it != mTexs.end()) {
-        tex = it->second;
-    } else {
-        const auto name = eItemNames::name(item.fDataId);
-        eFontColor color{eFontColor::normal};
-        switch(item.fRarity) {
-        case eItemRarity::normal:
-            color = eFontColor::normal;
-            break;
-        case eItemRarity::magic:
-            color = eFontColor::magic;
-            break;
-        case eItemRarity::rare:
-            color = eFontColor::rare;
-            break;
-        case eItemRarity::set:
-            color = eFontColor::set;
-            break;
-        case eItemRarity::unique:
-            color = eFontColor::unique;
-            break;
-        }
-
-        eTextGenerator gen(mR, color, mFont);
-        const auto socketsText = item.fSockets > 0 ?
-            " [" + std::to_string(item.fSockets) + "]" :
-            "";
-        tex = gen.generate(name + socketsText);
-        mTexs[item.fItemId] = tex;
-    }
+    const auto tex = requestTexture(item);
     if(!tex) return false;
+    return placeBox(tex, pixel, item);
+}
+
+bool eGroundItemNames::at(const ePoint& pixel,
+                          uint32_t& itemId) const {
+    const SDL_Point pt{pixel.fX, pixel.fY};
+    for(const auto& it : *this) {
+        const auto& i = it.second;
+        const bool r = SDL_PointInRect(&pt, &i.fRect);
+        if(r) {
+            itemId = i.fItemId;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::shared_ptr<eTexture>
+eGroundItemNames::requestTexture(
+    const eGroundItem& item) {
+    const auto it = mTexs.find(item.fItemId);
+    if(it != mTexs.end()) return it->second;
+    const auto name = eItemNames::name(item.fDataId);
+    eFontColor color{eFontColor::normal};
+    switch(item.fRarity) {
+    case eItemRarity::normal:
+        color = eFontColor::normal;
+        break;
+    case eItemRarity::magic:
+        color = eFontColor::magic;
+        break;
+    case eItemRarity::rare:
+        color = eFontColor::rare;
+        break;
+    case eItemRarity::set:
+        color = eFontColor::set;
+        break;
+    case eItemRarity::unique:
+        color = eFontColor::unique;
+        break;
+    }
+
+    eTextGenerator gen(mR, color, mFont);
+    const auto socketsText = item.fSockets > 0 ?
+                                 " [" + std::to_string(item.fSockets) + "]" :
+                                 "";
+    const auto tex = gen.generate(name + socketsText);
+    mTexs[item.fItemId] = tex;
+    return tex;
+}
+
+bool eGroundItemNames::placeBox(
+    const std::shared_ptr<eTexture>& tex,
+    const ePoint& pixel,
+    const eGroundItem& item) {
     const int tw = tex->width();
     const int th = tex->height();
     const int ww = tw + mFont.fPtSize;
@@ -74,20 +98,6 @@ bool eGroundItemNames::add(
             i.fName = tex;
             i.fRect = rect;
             (*this)[item.fItemId] = i;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool eGroundItemNames::at(const ePoint& pixel,
-                          uint32_t& itemId) const {
-    const SDL_Point pt{pixel.fX, pixel.fY};
-    for(const auto& it : *this) {
-        const auto& i = it.second;
-        const bool r = SDL_PointInRect(&pt, &i.fRect);
-        if(r) {
-            itemId = i.fItemId;
             return true;
         }
     }

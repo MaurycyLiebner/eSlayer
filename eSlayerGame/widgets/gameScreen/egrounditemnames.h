@@ -28,6 +28,12 @@ public:
     bool at(const ePoint& pixel,
             uint32_t& itemId) const;
 private:
+    std::shared_ptr<eTexture> requestTexture(
+        const eGroundItem& item);
+    bool placeBox(const std::shared_ptr<eTexture>& tex,
+                  const ePoint& pixel,
+                  const eGroundItem& item);
+
     SDL_Renderer* mR = nullptr;
     eFont mFont;
 
