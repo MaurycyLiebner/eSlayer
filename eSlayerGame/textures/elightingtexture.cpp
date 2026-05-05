@@ -210,7 +210,7 @@ void eLightingTexture::renderLight(
                 leftPt = {leftPt.fX - dstX, leftPt.fY - dstY};
                 rightPt = {rightPt.fX - dstX, rightPt.fY - dstY};
                 renderShadow(r, lightPt, leftPt, rightPt,
-                             true, true, true,
+                             true, true, false,
                              shadowLen, softness);
             }
 
