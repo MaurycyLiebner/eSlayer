@@ -29,6 +29,109 @@ struct eConnection {
     int fH;
 };
 
+
+struct eEdge {
+    int fX1;
+    int fY1;
+    int fX2;
+    int fY2;
+};
+
+std::optional<eEdge> middlePortionInt(const eEdge& e, const int length) {
+    const int dx = e.fX2 - e.fX1;
+    const int dy = e.fY2 - e.fY1;
+
+    const int edgeLength = std::abs(dx) + std::abs(dy); // axis-aligned
+    if(length > edgeLength) return std::nullopt;
+
+           // midpoint (integer)
+    const int mx = (e.fX1 + e.fX2) / 2;
+    const int my = (e.fY1 + e.fY2) / 2;
+
+    const int half1 = length / 2;        // floor
+    const int half2 = length - half1;    // ensures total length is exact
+
+    if(dx == 0) {
+        // vertical
+        return eEdge{
+            mx,
+            my - half1,
+            mx,
+            my + half2
+        };
+    } else {
+        // horizontal
+        return eEdge{
+            mx - half1,
+            my,
+            mx + half2,
+            my
+        };
+    }
+}
+
+eConnection extrudeEdge(const eEdge& e, const int displacement) {
+    eConnection out{};
+
+    const int d = std::abs(displacement);
+
+    if(e.fY1 == e.fY2) {
+        // horizontal edge → extrude vertically (both up and down)
+        const int x1 = std::min(e.fX1, e.fX2);
+        const int x2 = std::max(e.fX1, e.fX2);
+
+        out.fX = x1;
+        out.fW = x2 - x1;
+
+        out.fY = e.fY1 - d;
+        out.fH = 2 * d;
+    } else {
+        // vertical edge → extrude horizontally (both left and right)
+        const int y1 = std::min(e.fY1, e.fY2);
+        const int y2 = std::max(e.fY1, e.fY2);
+
+        out.fY = y1;
+        out.fH = y2 - y1;
+
+        out.fX = e.fX1 - d;
+        out.fW = 2 * d;
+    }
+
+    return out;
+}
+
+std::optional<eEdge> sharedEdge(const eRect& A, const eRect& B) {
+    // A is left of B
+    if(A.fX + A.fW == B.fX) {
+        const int y1 = std::max(A.fY, B.fY);
+        const int y2 = std::min(A.fY + A.fH, B.fY + B.fH);
+        if(y1 < y2) return eEdge{B.fX, y1, B.fX, y2};
+    }
+
+           // A is right of B
+    if(B.fX + B.fW == A.fX) {
+        const int y1 = std::max(A.fY, B.fY);
+        const int y2 = std::min(A.fY + A.fH, B.fY + B.fH);
+        if(y1 < y2) return eEdge{A.fX, y1, A.fX, y2};
+    }
+
+           // A is above B
+    if(A.fY + A.fH == B.fY) {
+        const int x1 = std::max(A.fX, B.fX);
+        const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
+        if(x1 < x2) return eEdge{x1, B.fY, x2, B.fY};
+    }
+
+           // A is below B
+    if(B.fY + B.fH == A.fY) {
+        const int x1 = std::max(A.fX, B.fX);
+        const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
+        if(x1 < x2) return eEdge{x1, A.fY, x2, A.fY};
+    }
+
+    return std::nullopt; // no shared edge
+}
+
 class eDungeon {
 public:
     eDungeon() {}
@@ -61,49 +164,160 @@ public:
     }
 
     void generate() const {
+        const auto rect = eDungeon::rect();
         std::vector<eRect> terrainRects;
         for(const auto& c : mConnecitons) {
-            const auto rect = eDungeon::rect();
             const eRect connRect{c.fX, c.fY, c.fW, c.fH};
             eRect connIn;
             eRect::intersection(rect, connRect, connIn);
             if(connIn.fW <= 0 || connIn.fH <= 0) continue;
             terrainRects.emplace_back(connIn);
         }
+
+        bool rectWalls = false;
+        bool fillEmptySapces = false;
+
         switch(mSettings.fType) {
         case eAreaType::dungeon: {
-            const auto rect = eDungeon::rect();
+            rectWalls = true;
+            fillEmptySapces = false;
             const auto in = rect.inset(mMargin);
             terrainRects.emplace_back(in);
         } break;
         case eAreaType::open: {
-            const auto rect = eDungeon::rect();
+            rectWalls = false;
+            fillEmptySapces = true;
             const auto in = rect.inset(mMargin);
             terrainRects.emplace_back(in);
         } break;
         }
 
+        const auto inRect = [&terrainRects](const int x, const int y,
+                                            const eRect* const skip = nullptr) {
+            const ePoint p{x, y};
+            for(const auto& rect : terrainRects) {
+                if(&rect == skip) continue;
+                const bool r = rect.contains(p);
+                if(r) return true;
+            }
+            return false;
+        };
+
+        const auto rectConnection = [&terrainRects](const int x, const int y,
+                                                    const eRect& rect) {
+            const ePoint p{x, y};
+            for(const auto& r : terrainRects) {
+                const auto edgeO = sharedEdge(r, rect);
+                if(edgeO == std::nullopt) continue;
+                const auto& edge = edgeO.value();
+                if(x == edge.fX1 && x == edge.fX2) {
+                    const bool r = (y >= edge.fY1 && y <= edge.fY2) ||
+                                   (y <= edge.fY1 && y >= edge.fY2);
+                    if(r) return true;
+                }
+                if(y == edge.fY1 && y == edge.fY2) {
+                    const bool r = (x >= edge.fX1 && x <= edge.fX2) ||
+                                   (x <= edge.fX1 && x >= edge.fX2);
+                    if(r) return true;
+                }
+            }
+            return false;
+        };
+
+        const auto areaBoundry = [&rect](const int x, const int y) {
+            return x == rect.fX || x == rect.fX + rect.fW - 1 ||
+                   y == rect.fY || y == rect.fY + rect.fH - 1;
+        };
+
         const auto terrType = mSettings.fTerrainType;
         const auto& terrTypeInfo = eTerrsTexturesData::get(terrType);
+        const auto& tlWalls = terrTypeInfo.fTLWalls;
+        const int nTLWalls = tlWalls.size();
+        const auto& trWalls = terrTypeInfo.fTRWalls;
+        const int nTRWalls = trWalls.size();
         const auto floorUse = terrTypeInfo.fFloorUse;
         const auto& floor = terrTypeInfo.fFloor;
         auto& tiles = mMap->mTiles;
-        for(const auto& rect : terrainRects) {
+
+        const auto setTileTerrain = [&](const int x, const int y,
+                                        eTile& dst) {
+            dst.fTerrainType = terrType;
+            const int nTypes = floor.size();
+            switch(floorUse) {
+            case eFloorUse::random: {
+                dst.fTileType = eRand::rand(1, nTypes);
+            } break;
+            case eFloorUse::tiled: {
+                const int dim = sqrt(nTypes);
+                dst.fTileType = 1 + (x % dim) + (y % dim) * dim;
+            } break;
+            }
+        };
+
+        for(const auto& srect : terrainRects) {
+            const int minX = srect.fX;
+            const int maxX = srect.fX + srect.fW - 1;
+            const int minY = srect.fY;
+            const int maxY = srect.fY + srect.fH - 1;
+            for(int x = minX; x <= maxX + 1; x++) {
+                for(int y = minY; y <= maxY + 1; y++) {
+                    auto& dst = tiles[y][x];
+                    if(x <= maxX && y <= maxY) {
+                        setTileTerrain(x, y, dst);
+                    }
+
+                    if(!rectWalls) {
+                        if(rectConnection(x, y, srect)) continue;
+                        if(areaBoundry(x, y)) continue;
+                    }
+
+                    if(!dst.fWallTL) {
+                        if(x == minX && y != maxY + 1) {
+                            dst.fWallTL = eTile::encodeWall(true, false, false,
+                                                            (y - minY) % nTLWalls);
+                        }
+                        if(x == maxX + 1 && y != maxY + 1) {
+                            dst.fWallTL = eTile::encodeWall(true, false, false,
+                                                            (y - minY) % nTLWalls);
+                        }
+                    }
+                    if(!dst.fWallTR) {
+                        if(y == minY && x != maxX + 1) {
+                            dst.fWallTR = eTile::encodeWall(true, false, false,
+                                                            (x - minX) % nTRWalls);
+                        }
+                        if(y == maxY + 1 && x != maxX + 1) {
+                            dst.fWallTR = eTile::encodeWall(true, false, false,
+                                                            (x - minX) % nTRWalls);
+                        }
+                    }
+                }
+            }
+        }
+        if(fillEmptySapces) {
+            const auto treeId = eObjectsInfo::sObjects.id("tree");
+            const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
             for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
                 for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
+                    const bool r = inRect(x, y, nullptr);
+                    if(r) continue;
                     auto& dst = tiles[y][x];
-                    dst.fWallTL = 0;
-                    dst.fWallTR = 0;
-                    dst.fTerrainType = terrType;
-                    const int nTypes = floor.size();
-                    switch(floorUse) {
-                    case eFloorUse::random: {
-                        dst.fTileType = eRand::rand(1, nTypes);
-                    } break;
-                    case eFloorUse::tiled: {
-                        const int dim = sqrt(nTypes);
-                        dst.fTileType = 1 + (x % dim) + (y % dim) * dim;
-                    } break;
+                    setTileTerrain(x, y, dst);
+                    {
+                        const bool r = inRect(x + 1, y, nullptr);
+                        if(r) continue;
+                    }
+                    {
+                        const bool r = inRect(x, y + 1, nullptr);
+                        if(r) continue;
+                    }
+                    if(eRand::randChance(0.1f)) {
+                        auto& obj = *mMap->addObject();
+                        obj.fObjectType = treeId;
+                        obj.fSubtype = eRand::rand();
+                        obj.fPos.fX = x;
+                        obj.fPos.fY = y;
+                        obj.fSize = treeInfo.fSize;
                     }
                 }
             }
@@ -204,108 +418,6 @@ public:
         return from;
     }
 
-    struct eEdge {
-        int fX1;
-        int fY1;
-        int fX2;
-        int fY2;
-    };
-
-    std::optional<eEdge> middlePortionInt(const eEdge& e, const int length) {
-        const int dx = e.fX2 - e.fX1;
-        const int dy = e.fY2 - e.fY1;
-
-        const int edgeLength = std::abs(dx) + std::abs(dy); // axis-aligned
-        if(length > edgeLength) return std::nullopt;
-
-        // midpoint (integer)
-        const int mx = (e.fX1 + e.fX2) / 2;
-        const int my = (e.fY1 + e.fY2) / 2;
-
-        const int half1 = length / 2;        // floor
-        const int half2 = length - half1;    // ensures total length is exact
-
-        if(dx == 0) {
-            // vertical
-            return eEdge{
-                mx,
-                my - half1,
-                mx,
-                my + half2
-            };
-        } else {
-            // horizontal
-            return eEdge{
-                mx - half1,
-                my,
-                mx + half2,
-                my
-            };
-        }
-    }
-
-    eConnection extrudeEdge(const eEdge& e, const int displacement) {
-        eConnection out{};
-
-        const int d = std::abs(displacement);
-
-        if(e.fY1 == e.fY2) {
-            // horizontal edge → extrude vertically (both up and down)
-            const int x1 = std::min(e.fX1, e.fX2);
-            const int x2 = std::max(e.fX1, e.fX2);
-
-            out.fX = x1;
-            out.fW = x2 - x1;
-
-            out.fY = e.fY1 - d;
-            out.fH = 2 * d;
-        } else {
-            // vertical edge → extrude horizontally (both left and right)
-            const int y1 = std::min(e.fY1, e.fY2);
-            const int y2 = std::max(e.fY1, e.fY2);
-
-            out.fY = y1;
-            out.fH = y2 - y1;
-
-            out.fX = e.fX1 - d;
-            out.fW = 2 * d;
-        }
-
-        return out;
-    }
-
-    std::optional<eEdge> sharedEdge(const eRect& A, const eRect& B) {
-        // A is left of B
-        if(A.fX + A.fW == B.fX) {
-            const int y1 = std::max(A.fY, B.fY);
-            const int y2 = std::min(A.fY + A.fH, B.fY + B.fH);
-            if(y1 < y2) return eEdge{B.fX, y1, B.fX, y2};
-        }
-
-        // A is right of B
-        if(B.fX + B.fW == A.fX) {
-            const int y1 = std::max(A.fY, B.fY);
-            const int y2 = std::min(A.fY + A.fH, B.fY + B.fH);
-            if(y1 < y2) return eEdge{A.fX, y1, A.fX, y2};
-        }
-
-        // A is above B
-        if(A.fY + A.fH == B.fY) {
-            const int x1 = std::max(A.fX, B.fX);
-            const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
-            if(x1 < x2) return eEdge{x1, B.fY, x2, B.fY};
-        }
-
-        // A is below B
-        if(B.fY + B.fH == A.fY) {
-            const int x1 = std::max(A.fX, B.fX);
-            const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
-            if(x1 < x2) return eEdge{x1, A.fY, x2, A.fY};
-        }
-
-        return std::nullopt; // no shared edge
-    }
-
     eConnection chooseConnection(const eAreaPlace& from,
                                  const eAreaPlace& to,
                                  const int width, const int halfLen) {
@@ -349,8 +461,8 @@ eMapGenerator::generate(const std::string& name) const {
     std::function<eAreaPlace(const std::string& name,
                              const eAreaSettings& settings,
                              const eAreaPlace& nextTo)> genArea;
-    const int connWidth = 2;
-    const int connHalfLen = 2;
+    const int connWidth = 4;
+    const int connHalfLen = 4;
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {

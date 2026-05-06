@@ -711,15 +711,20 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const uint8_t encoded = wall.fEncoded;
                 bool wall_;
                 bool doors;
+                bool open;
                 uint8_t type;
-                eTile::decodeWall(encoded, wall_, doors, type);
+                eTile::decodeWall(encoded, wall_, doors, open, type);
                 const std::vector<int>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
-                    types = doors ? &info.fTLDoors : &info.fTLWalls;
+                    types = doors ? (open ? &info.fTLDoorsOpen :
+                                         &info.fTLDoors) :
+                                &info.fTLWalls;
                     break;
                 case eWallType::topRight:
-                    types = doors ? &info.fTRDoors : &info.fTRWalls;
+                    types = doors ? (open ? &info.fTRDoorsOpen :
+                                         &info.fTRDoors) :
+                                &info.fTRWalls;
                     break;
                 }
 
@@ -732,7 +737,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const int bottomY = ipixel.fY + tileH;
 
-                if(eRenderSettings::sRenderWallShadows) {
+                if(eRenderSettings::sRenderWallShadows && info.fWallsShadow) {
                     mGamePainter.addWallShadow(iPos.fX, iPos.fY,
                                                pixel.fX, bottomY,
                                                wall.fType, tileW, tileH,
@@ -740,27 +745,29 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
                 bool transparent = false;
 
-                int wallMaxTX_tmp;
-                switch(wall.fType) {
-                case eWallType::topLeft:
-                    wallMaxTX_tmp = wallMaxTX;
-                    break;
-                case eWallType::topRight:
-                    wallMaxTX_tmp = wallMaxTX - 1;
-                    break;
-                }
-                const SDL_Rect transRect{wallMinTX, wallMinTY,
-                                         wallMaxTX_tmp - wallMinTX + 1,
-                                         wallMaxTY - wallMinTY + 1};
-                const SDL_Point pt{iPos.fX, iPos.fY};
-                if(SDL_PointInRect(&pt, &transRect)) {
+                if(info.fWallsTransparent) {
+                    int wallMaxTX_tmp;
                     switch(wall.fType) {
                     case eWallType::topLeft:
-                        transparent = uipos.fX < iPos.fX;
+                        wallMaxTX_tmp = wallMaxTX;
                         break;
                     case eWallType::topRight:
-                        transparent = uipos.fY < iPos.fY;
+                        wallMaxTX_tmp = wallMaxTX - 1;
                         break;
+                    }
+                    const SDL_Rect transRect{wallMinTX, wallMinTY,
+                                             wallMaxTX_tmp - wallMinTX + 1,
+                                             wallMaxTY - wallMinTY + 1};
+                    const SDL_Point pt{iPos.fX, iPos.fY};
+                    if(SDL_PointInRect(&pt, &transRect)) {
+                        switch(wall.fType) {
+                        case eWallType::topLeft:
+                            transparent = uipos.fX < iPos.fX;
+                            break;
+                        case eWallType::topRight:
+                            transparent = uipos.fY < iPos.fY;
+                            break;
+                        }
                     }
                 }
 

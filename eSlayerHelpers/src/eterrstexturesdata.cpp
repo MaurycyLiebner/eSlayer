@@ -30,6 +30,8 @@ void eTerrsTexturesData::load() {
             const int count = jdata.value("count", 0);
             const auto walkable = jdata.value("walkable", std::vector<int>());
             const auto obsticle = jdata.value("obsticle", std::vector<int>());
+            texs.fWallsShadow = jdata.value("wallsShadow", true);
+            texs.fWallsTransparent = jdata.value("wallsTransparent", true);
             texs.fObsticle.resize(count + 1, false);
             texs.fWalkable.resize(count + 1, false);
             for(int i = 0; i < count; i++) {
