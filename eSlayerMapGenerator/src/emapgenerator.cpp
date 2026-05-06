@@ -135,11 +135,13 @@ std::optional<eEdge> sharedEdge(const eRect& A, const eRect& B) {
 class eDungeon {
 public:
     eDungeon() {}
-    eDungeon(const int x, const int y,
+    eDungeon(const std::string& name,
+             const int x, const int y,
              const int w, const int h,
              const std::shared_ptr<eMap>& map,
              const eAreaSettings& settings,
              const int margin) :
+        mName(name),
         mX(x), mY(y),
         mWidth(w), mHeight(h),
         mMargin(margin),
@@ -203,25 +205,22 @@ public:
             return false;
         };
 
-        const auto rectConnection = [&terrainRects](const int x, const int y,
-                                                    const eRect& rect) {
+        const auto shouldWall = [&terrainRects](const int x, const int y,
+                                                const eRect& rect,
+                                                bool& wallTL, bool& wallTR) {
+            wallTL = true;
+            wallTR = true;
             const ePoint p{x, y};
             for(const auto& r : terrainRects) {
-                const auto edgeO = sharedEdge(r, rect);
-                if(edgeO == std::nullopt) continue;
-                const auto& edge = edgeO.value();
-                if(x == edge.fX1 && x == edge.fX2) {
-                    const bool r = (y >= edge.fY1 && y <= edge.fY2) ||
-                                   (y <= edge.fY1 && y >= edge.fY2);
-                    if(r) return true;
-                }
-                if(y == edge.fY1 && y == edge.fY2) {
-                    const bool r = (x >= edge.fX1 && x <= edge.fX2) ||
-                                   (x <= edge.fX1 && x >= edge.fX2);
-                    if(r) return true;
-                }
+                if(&r == &rect) continue;
+                const auto inside = [&r, &rect](const int x, const int y) {
+                    return r.contains({x, y}) || rect.contains({x, y});
+                };
+                const bool wallTL_ = inside(x, y) != inside(x - 1, y);
+                if(!wallTL_) wallTL = false;
+                const bool wallTR_ = inside(x, y) != inside(x, y - 1);
+                if(!wallTR_) wallTR = false;
             }
-            return false;
         };
 
         const auto areaBoundry = [&rect](const int x, const int y) {
@@ -231,10 +230,6 @@ public:
 
         const auto terrType = mSettings.fTerrainType;
         const auto& terrTypeInfo = eTerrsTexturesData::get(terrType);
-        const auto& tlWalls = terrTypeInfo.fTLWalls;
-        const int nTLWalls = tlWalls.size();
-        const auto& trWalls = terrTypeInfo.fTRWalls;
-        const int nTRWalls = trWalls.size();
         const auto floorUse = terrTypeInfo.fFloorUse;
         const auto& floor = terrTypeInfo.fFloor;
         auto& tiles = mMap->mTiles;
@@ -266,34 +261,38 @@ public:
                         setTileTerrain(x, y, dst);
                     }
 
+                    bool wallTL = true;
+                    bool wallTR = true;
                     if(!rectWalls) {
-                        if(rectConnection(x, y, srect)) continue;
-                        if(areaBoundry(x, y)) continue;
+                        shouldWall(x, y, srect, wallTL, wallTR);
+                        if(x <= rect.fX || x >= rect.fX + rect.fW - 1) {
+                            wallTL = false;
+                        }
+                        if(y <= rect.fY || y >= rect.fY + rect.fH - 1) {
+                            wallTR = false;
+                        }
                     }
 
-                    if(!dst.fWallTL) {
+                    if(wallTL && !dst.fWallTL) {
                         if(x == minX && y != maxY + 1) {
-                            dst.fWallTL = eTile::encodeWall(true, false, false,
-                                                            (y - minY) % nTLWalls);
+                            dst.fWallTL = eTile::encodeWall(true, false, false, 0);
                         }
                         if(x == maxX + 1 && y != maxY + 1) {
-                            dst.fWallTL = eTile::encodeWall(true, false, false,
-                                                            (y - minY) % nTLWalls);
+                            dst.fWallTL = eTile::encodeWall(true, false, false, 0);
                         }
                     }
-                    if(!dst.fWallTR) {
+                    if(wallTR && !dst.fWallTR) {
                         if(y == minY && x != maxX + 1) {
-                            dst.fWallTR = eTile::encodeWall(true, false, false,
-                                                            (x - minX) % nTRWalls);
+                            dst.fWallTR = eTile::encodeWall(true, false, false, 0);
                         }
                         if(y == maxY + 1 && x != maxX + 1) {
-                            dst.fWallTR = eTile::encodeWall(true, false, false,
-                                                            (x - minX) % nTRWalls);
+                            dst.fWallTR = eTile::encodeWall(true, false, false, 0);
                         }
                     }
                 }
             }
         }
+
         if(fillEmptySapces) {
             const auto treeId = eObjectsInfo::sObjects.id("tree");
             const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
@@ -323,7 +322,117 @@ public:
             }
         }
     }
+
+    void generateWalls() const {
+        const auto rect = eDungeon::rect();
+        const auto terrType = mSettings.fTerrainType;
+        const auto& terrTypeInfo = eTerrsTexturesData::get(terrType);
+        const auto& tlWalls = terrTypeInfo.fTLWalls;
+        const auto& trWalls = terrTypeInfo.fTRWalls;
+        auto& tiles = mMap->mTiles;
+        const int h = mMap->height();
+        const int w = mMap->width();
+        const auto hasTLWall = [w, h, &tiles](const int x, const int y) {
+            if(x < 0 || y < 0 || x >= w || y >= h) return false;
+            const auto& src = tiles[y][x];
+            return !!src.fWallTL;
+        };
+
+        const auto has0TLWall = [&tiles](const int x, const int y) {
+            const auto& src = tiles[y][x];
+            if(!src.fWallTL) return false;
+            bool b;
+            uint8_t type;
+            eTile::decodeWall(src.fWallTL, b, b, b, type);
+            return type == 0;
+        };
+
+        const int maxTLSizeClamp = tlWalls.fSizes.back();
+        const auto maxTLSize = [&](const int x, const int y) {
+            for(int i = 0; i < maxTLSizeClamp; i++) {
+                const bool r = hasTLWall(x, y + i);
+                if(!r) return i;
+            }
+            return maxTLSizeClamp;
+        };
+
+        const auto chooseTLVec = [&](const int maxSize) {
+            const auto& d = tlWalls.fDataIds;
+            for(int i = d.size() - 1; i >= 0; i--) {
+                const auto& v = d[i];
+                if(v.size() <= maxSize) return v;
+            }
+            return d[0];
+        };
+
+        const auto hasTRWall = [w, h, &tiles](const int x, const int y) {
+            if(x < 0 || y < 0 || x >= w || y >= h) return false;
+            const auto& src = tiles[y][x];
+            return !!src.fWallTR;
+        };
+
+        const auto has0TRWall = [&tiles](const int x, const int y) {
+            const auto& src = tiles[y][x];
+            if(!src.fWallTR) return false;
+            bool b;
+            uint8_t type;
+            eTile::decodeWall(src.fWallTR, b, b, b, type);
+            return type == 0;
+        };
+
+        const int maxTRSizeClamp = trWalls.fSizes.back();
+        const auto maxTRSize = [&](const int x, const int y) {
+            for(int i = 0; i < maxTRSizeClamp; i++) {
+                const bool r = hasTRWall(x + i, y);
+                if(!r) return i;
+            }
+            return maxTRSizeClamp;
+        };
+
+        const auto chooseTRVec = [&](const int maxSize) {
+            const auto& d = trWalls.fDataIds;
+            for(int i = d.size() - 1; i >= 0; i--) {
+                const auto& v = d[i];
+                if(v.size() <= maxSize) return v;
+            }
+            return d[0];
+        };
+        for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
+            for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
+                {
+                    const bool r = has0TLWall(x, y);
+                    if(r) {
+                        const int maxSize = maxTLSize(x, y);
+                        const auto v = chooseTLVec(maxSize);
+                        const int size = v.size();
+                        for(int dy = 0; dy < size; dy++) {
+                            auto& dst = tiles[y + dy][x];
+                            dst.fWallTL = eTile::encodeWall(true, false, false, v[dy]);
+                        }
+                    }
+                }
+                {
+                    const bool r = has0TRWall(x, y);
+                    if(r) {
+                        const int maxSize = maxTRSize(x, y);
+                        const auto v = chooseTRVec(maxSize);
+                        const int size = v.size();
+                        for(int dx = 0; dx < size; dx++) {
+                            auto& dst = tiles[y][x + dx];
+                            dst.fWallTR = eTile::encodeWall(true, false, false, v[dx]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    const std::string& name() const {
+        return mName;
+    }
 private:
+    std::string mName;
+
     int mX;
     int mY;
     int mWidth;
@@ -345,6 +454,11 @@ enum class eDir {
 struct eAreaPlace {
     int fX;
     int fY;
+
+    bool operator<(const eAreaPlace& other) const {
+        if(fX != other.fX) return fX < other.fX;
+        return fY < other.fY;
+    }
 };
 
 class eAreaPlacer {
@@ -453,7 +567,7 @@ eMapGenerator::generate(const std::string& name) const {
 
     const int areaDim = 80;
 
-    std::map<std::string, eDungeon> areas;
+    std::map<eAreaPlace, eDungeon> areas;
 
     eAreaPlacer placer(areaDim);
     const auto firstPlace = placer.iniPlace();
@@ -472,8 +586,8 @@ eMapGenerator::generate(const std::string& name) const {
         const int x = pos.fX;
         const int y = pos.fY;
 
-        auto& area = areas[name];
-        area = eDungeon(x, y, areaDim, areaDim,
+        auto& area = areas[place];
+        area = eDungeon(name, x, y, areaDim, areaDim,
                         result, settings, connHalfLen);
 
         for(const auto& conn : settings.fConnections) {
@@ -486,7 +600,7 @@ eMapGenerator::generate(const std::string& name) const {
             const auto conn_ = placer.chooseConnection(
                 place, connPlace, connWidth, connHalfLen);
             area.addConnection(conn_);
-            auto& connArea = areas[name];
+            auto& connArea = areas[connPlace];
             connArea.addConnection(conn_);
         }
 
@@ -530,8 +644,8 @@ eMapGenerator::generate(const std::string& name) const {
     result->generateTiles(rect.fW + 1, rect.fH + 1);
     bool first = true;
     for(const auto& it : areas) {
-        const auto& name = it.first;
         const auto& area = it.second;
+        const auto& name = area.name();
         eMapArea mapArea;
         const int id = mapSettings.fAreas.id(name);
         const auto& sett = mapSettings.fAreas.get(id);
@@ -546,6 +660,10 @@ eMapGenerator::generate(const std::string& name) const {
             result->mSpawnPos = ePoint{rect.fX + rect.fW/2,
                                        rect.fY + rect.fH/2};
         }
+    }
+    for(const auto& it : areas) {
+        const auto& area = it.second;
+        area.generateWalls();
     }
 
     result->updateObjectsMap();

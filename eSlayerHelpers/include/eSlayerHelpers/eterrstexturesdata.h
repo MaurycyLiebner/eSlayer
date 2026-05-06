@@ -11,6 +11,13 @@ enum class eFloorUse {
     random, tiled
 };
 
+struct eWallTextures : public std::vector<int> {
+    // Sorted by ascending vector size
+    std::vector<int> fSizes;
+    // Ids in inherited vector
+    std::vector<std::vector<int>> fDataIds;
+};
+
 struct eTileTextureData {
     std::string fName;
 
@@ -23,23 +30,14 @@ struct eTileTextureData {
     eFloorUse fFloorUse;
     std::vector<int> fFloor;
 
-    std::vector<int> fTRBorders;
-    std::vector<int> fRBorders;
-    std::vector<int> fBRBorders;
-    std::vector<int> fBBorders;
-    std::vector<int> fBLBorders;
-    std::vector<int> fLBorders;
-    std::vector<int> fTLBorders;
-    std::vector<int> fTBorders;
+    eWallTextures fTLWalls;
+    eWallTextures fTRWalls;
 
-    std::vector<int> fTLWalls;
-    std::vector<int> fTRWalls;
+    eWallTextures fTLDoors;
+    eWallTextures fTRDoors;
 
-    std::vector<int> fTLDoors;
-    std::vector<int> fTRDoors;
-
-    std::vector<int> fTLDoorsOpen;
-    std::vector<int> fTRDoorsOpen;
+    eWallTextures fTLDoorsOpen;
+    eWallTextures fTRDoorsOpen;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

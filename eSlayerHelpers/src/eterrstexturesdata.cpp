@@ -39,25 +39,6 @@ void eTerrsTexturesData::load() {
                 texs.fWalkable[i + 1] = eVectorHelpers::contains(walkable, i);
             }
 
-            if(jdata.contains("borders")) {
-                const auto& bordersJS = jdata["borders"];
-                const auto handle = [&](const std::string& name) {
-                    auto result = bordersJS.value(name, std::vector<int>());
-                    for(int& i : result) {
-                        i++;
-                    }
-                    return result;
-                };
-                texs.fTRBorders = handle("tr");
-                texs.fRBorders = handle("r");
-                texs.fBRBorders = handle("br");
-                texs.fBBorders = handle("b");
-                texs.fBLBorders = handle("bl");
-                texs.fLBorders = handle("l");
-                texs.fTLBorders = handle("tl");
-                texs.fTBorders = handle("t");
-            }
-
             const auto floorUseStr = jdata.value("floorUse", "random");
             if(floorUseStr == "tiled") {
                 texs.fFloorUse = eFloorUse::tiled;
@@ -67,14 +48,29 @@ void eTerrsTexturesData::load() {
             texs.fFloor = jdata.value("floor", std::vector<int>());
 
             const auto parse = [&jdata](const std::string& name,
-                                        std::vector<int>& tl,
-                                        std::vector<int>& tr) {
+                                        eWallTextures& tl,
+                                        eWallTextures& tr) {
                 if(jdata.contains(name)) {
                     const auto& wallsJS = jdata[name];
                     const auto handle = [&](const std::string& name) {
-                        auto result = wallsJS.value(name, std::vector<int>());
-                        for(int& i : result) {
-                            i++;
+                        eWallTextures result;
+                        auto& vecs = result.fDataIds;
+                        vecs = wallsJS.value(name, std::vector<std::vector<int>>());
+
+                        { // sort
+                            using eV = std::vector<int>;
+                            const auto comp = [](const eV& a, const eV& b) {
+                                return a.size() < b.size();
+                            };
+                            std::sort(vecs.begin(), vecs.end(), comp);
+                        }
+
+                        for(auto& v : vecs) {
+                            for(int& i : v) {
+                                result.emplace_back(i + 1);
+                                i = result.size() - 1;
+                            }
+                            result.fSizes.emplace_back(v.size());
                         }
                         return result;
                     };
