@@ -27,11 +27,9 @@ void eTerrsTexturesData::load() {
         eTileTextureData texs{name};
         try {
             const auto jdata = eFileLoaderBase::parse(dir, path);
-            const bool flat = jdata.value("flat", true);
             const int count = jdata.value("count", 0);
             const auto walkable = jdata.value("walkable", std::vector<int>());
             const auto obsticle = jdata.value("obsticle", std::vector<int>());
-            texs.fFlat = flat;
             texs.fObsticle.resize(count + 1, false);
             texs.fWalkable.resize(count + 1, false);
             for(int i = 0; i < count; i++) {

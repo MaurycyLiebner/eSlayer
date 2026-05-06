@@ -221,12 +221,10 @@ void eScreenHandler::showGame(eServerData serverData,
         eMissilesTextures::loadTextures(res, r);
     });
     loading.emplace_back([&res, r, map]() {
-        const int w = res.tileWidth();
-        const int h = res.tileHeight();
         const auto& terrTypes = map->terrainTypes();
         for(const auto& terrType : terrTypes) {
             auto& texs = eTerrsTextures::get(terrType);
-            texs.load(w, h, res, r);
+            texs.load(res, r);
         }
     });
     loading.emplace_back([&res, r, map]() {

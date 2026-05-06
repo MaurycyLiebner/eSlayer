@@ -13,7 +13,6 @@ enum class eFloorUse {
 
 struct eTileTextureData {
     std::string fName;
-    bool fFlat;
 
     std::vector<bool> fObsticle;
     std::vector<bool> fWalkable;
