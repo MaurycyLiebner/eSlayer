@@ -205,27 +205,28 @@ public:
             return false;
         };
 
-        const auto shouldWall = [&terrainRects](const int x, const int y,
-                                                const eRect& rect,
-                                                bool& wallTL, bool& wallTR) {
+        const auto shouldWall = [&](const int x, const int y,
+                                    const eRect& srect,
+                                    bool& wallTL, bool& wallTR) {
             wallTL = true;
             wallTR = true;
             const ePoint p{x, y};
             for(const auto& r : terrainRects) {
-                if(&r == &rect) continue;
-                const auto inside = [&r, &rect](const int x, const int y) {
-                    return r.contains({x, y}) || rect.contains({x, y});
+                if(&r == &srect) continue;
+                const auto inside = [&r, &srect](const int x, const int y) {
+                    return r.contains({x, y}) || srect.contains({x, y});
                 };
                 const bool wallTL_ = inside(x, y) != inside(x - 1, y);
                 if(!wallTL_) wallTL = false;
                 const bool wallTR_ = inside(x, y) != inside(x, y - 1);
                 if(!wallTR_) wallTR = false;
             }
-        };
-
-        const auto areaBoundry = [&rect](const int x, const int y) {
-            return x == rect.fX || x == rect.fX + rect.fW - 1 ||
-                   y == rect.fY || y == rect.fY + rect.fH - 1;
+            if(x <= rect.fX || x >= rect.fX + rect.fW - 1) {
+                wallTL = false;
+            }
+            if(y <= rect.fY || y >= rect.fY + rect.fH - 1) {
+                wallTR = false;
+            }
         };
 
         const auto terrType = mSettings.fTerrainType;
@@ -265,12 +266,6 @@ public:
                     bool wallTR = true;
                     if(!rectWalls) {
                         shouldWall(x, y, srect, wallTL, wallTR);
-                        if(x <= rect.fX || x >= rect.fX + rect.fW - 1) {
-                            wallTL = false;
-                        }
-                        if(y <= rect.fY || y >= rect.fY + rect.fH - 1) {
-                            wallTR = false;
-                        }
                     }
 
                     if(wallTL && !dst.fWallTL) {
