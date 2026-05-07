@@ -138,6 +138,9 @@ private:
     void generateItem(const ePointF& pos,
                       const float level,
                       const float worth);
+    void generatePotion(const ePointF& pos,
+                        const float level,
+                        const float worth);
 
     float mTime = 0.f;
 

@@ -154,6 +154,13 @@ void eServerArea::generateItem(
     addGroundItem(pos, item);
 }
 
+void eServerArea::generatePotion(
+    const ePointF& pos, const float level,
+    const float worth) {
+    const auto item = eItemGenerator::generatePotion(level, worth);
+    addGroundItem(pos, item);
+}
+
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
@@ -865,6 +872,28 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 }
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
+    const float level = killed.level();
+    const auto type = killed.unitType();
+    float worth = 0.f;
+    switch(type) {
+    case eUnitType::normal: {
+        const bool gen = eRand::randChance(0.2f);
+        if(gen) worth = eRand::biasedRandF(0.25f, 10.f, 8.f);
+    } break;
+    case eUnitType::minion: {
+        const bool gen = eRand::randChance(0.2f);
+        if(gen) worth = eRand::biasedRandF(0.25f, 10.f, 5.f);
+    } break;
+    case eUnitType::uniqueBoss: {
+        worth = eRand::biasedRandF(2.f, 10.f, 3.f);
+        for(int i = 0; i < 4; i++) {
+            const float pworth = eRand::randF(0.25f, 1.f);
+            generatePotion(killed.fPos, level, pworth);
+        }
+    } break;
+    }
+
+    if(worth > 0.f) generateItem(killed.fPos, level, worth);
     for(const auto& c : mClientData) {
         const int clientId = c.first;
         const auto u = unit(clientId);

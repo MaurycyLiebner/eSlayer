@@ -23,6 +23,13 @@ float eRand::randF(const float min, const float max) {
     return dist(sRng);
 }
 
+float eRand::biasedRandF(const float min, const float max,
+                         const float biasStr) {
+    const float u = randF(0.f, 1.f);
+    const float biased = std::pow(u, biasStr);
+    return min + (max - min) * biased;
+}
+
 uint32_t eRand::hash(uint32_t x) {
     x ^= x >> 16;
     x *= 0x7feb352d;

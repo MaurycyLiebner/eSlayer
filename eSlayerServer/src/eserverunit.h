@@ -32,6 +32,12 @@ struct ePotionHealing {
     float fFrameLength = 0.f;
 };
 
+enum eUnitType {
+    normal,
+    uniqueBoss,
+    minion
+};
+
 class eServerUnit : public eUnitData {
 public:
     static int sNextCharId;
@@ -184,6 +190,8 @@ public:
 
     void setMoving(const bool m) { mMoving = m; }
     bool moving() const;
+
+    eUnitType unitType() const { return mType; }
 private:
     const eCharData& mData;
     eServerArea& mArea;
@@ -203,6 +211,8 @@ private:
     std::vector<ePoisonDamage> mPoison;
     std::map<ePotionType, ePotionHealing> mPotions;
     std::vector<int> mFollowers;
+
+    eUnitType mType = eUnitType::normal;
 };
 
 #endif // ESERVERUNIT_H

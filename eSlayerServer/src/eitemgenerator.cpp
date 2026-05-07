@@ -613,6 +613,26 @@ std::vector<eModifierType> itemTypeMods(
     return {};
 }
 
+eItem eItemGenerator::generatePotion(
+    const float level, const float worth) {
+    eItem item;
+    std::vector<int> typeIds;
+    for(int i = 0; i < eItemsData::sItems.size(); i++) {
+        const auto& itemData = eItemsData::get(i);
+        if(itemData.fType != eItemType::potion) continue;
+        typeIds.emplace_back(i);
+    }
+    if(typeIds.empty()) return item;
+    const int id = eRand::rand() % typeIds.size();
+    const int typeId = typeIds[id];
+    const auto& itemData = eItemsData::get(typeId);
+    const auto type = itemData.fType;
+    item.fDataId = typeId;
+    item.fType = type;
+    item.fSubType = itemData.fSubtype;
+    return item;
+}
+
 eItem eItemGenerator::generateItem(
     const float level, const float worth) {
     eItem item;
@@ -651,10 +671,13 @@ eItem eItemGenerator::generateItem(
     item.fDefense = def;
     item.fBlockChance = block;
 
+    const bool canBeNormal = type != eItemType::ring &&
+                             type != eItemType::amulet;
+
     eItemRarity rarity;
     if(worth > 4.f) {
         item.fRarity = eItemRarity::rare;
-    } else if(worth < 1.f) {
+    } else if(canBeNormal && worth < 1.f) {
         item.fRarity = eItemRarity::normal;
         return item;
     } else {
@@ -675,7 +698,7 @@ eItem eItemGenerator::generateItem(
         case eModifierType::count:
             break;
         case eModifierType::walkRun:
-            mod.fValue1 = worth*30.f;
+            mod.fValue1 = worth*0.3f;
             break;
         case eModifierType::attackSpeed:
         case eModifierType::castRate:

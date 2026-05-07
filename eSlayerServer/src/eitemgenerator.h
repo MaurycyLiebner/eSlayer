@@ -8,6 +8,8 @@ struct eItem;
 class eItemGenerator {
 public:
     static void applyItemId(eItem& item);
+    static eItem generatePotion(
+        const float level, const float worth);
     static eItem generateItem(
         const float level, const float worth);
 private:

@@ -14,6 +14,9 @@ public:
                     const int max);
     static float randF(const float min = 0.f,
                        const float max = 1.f);
+    static float biasedRandF(const float min = 0.f,
+                             const float max = 1.f,
+                             const float biasStr = 1.f);
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
 
