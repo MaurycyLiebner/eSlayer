@@ -165,6 +165,10 @@ public:
         return eRect{mX, mY, mWidth, mHeight};
     }
 
+    void setExtendedRect(const eRect& rect) {
+        mExtendedRect = rect;
+    }
+
     void generate() const {
         const auto rect = eDungeon::rect();
         std::vector<eRect> terrainRects;
@@ -291,6 +295,7 @@ public:
         if(fillEmptySapces) {
             const auto treeId = eObjectsInfo::sObjects.id("tree");
             const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
+            const auto& rect = mExtendedRect;
             for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
                 for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
                     const bool r = inRect(x, y, nullptr);
@@ -428,6 +433,8 @@ public:
 private:
     std::string mName;
 
+    eRect mExtendedRect;
+
     int mX;
     int mY;
     int mWidth;
@@ -453,6 +460,10 @@ struct eAreaPlace {
     bool operator<(const eAreaPlace& other) const {
         if(fX != other.fX) return fX < other.fX;
         return fY < other.fY;
+    }
+
+    eAreaPlace shifted(const int dx, const int dy) const {
+        return {fX + dx, fY + dy};
     }
 };
 
@@ -483,6 +494,10 @@ public:
         return mBoundingRect;
     }
 
+    bool areaUsed(const eAreaPlace& area) const {
+        return mUsedAreas[area.fY][area.fX];
+    }
+
     eAreaPlace choosePlace(const eAreaPlace& from) {
         std::vector<eDir> options {
             eDir::topLeft, eDir::topRight, eDir::bottomLeft, eDir::bottomRight
@@ -511,8 +526,8 @@ public:
                 break;
             }
 
-            if(!mUsedAreas[usedX][usedY]) {
-                mUsedAreas[usedX][usedY] = true;
+            if(!mUsedAreas[usedY][usedX]) {
+                mUsedAreas[usedY][usedX] = true;
                 const auto result = eAreaPlace{usedX, usedY};
                 const auto pos = eAreaPlacer::pos(result);
                 const eRect rect{pos.fX, pos.fY, mAreaDim, mAreaDim};
@@ -606,13 +621,32 @@ eMapGenerator::generate(const std::string& name) const {
     const eAreaSettings& settings = mapSettings.fAreas.get(0);
     genArea(name0, settings, firstPlace);
 
+    const int extMargin = 10;
     auto rect = placer.boundingRect();
     for(auto& it : areas) {
+        const auto& place = it.first;
         auto& area = it.second;
-        area.shift(-rect.fX, -rect.fY);
+        area.shift(extMargin - rect.fX, extMargin - rect.fY);
+
+        eRect extRect = area.rect();
+        if(!placer.areaUsed(place.shifted(1, 0))) {
+            extRect.fW += extMargin;
+        }
+        if(!placer.areaUsed(place.shifted(0, 1))) {
+            extRect.fH += extMargin;
+        }
+        if(!placer.areaUsed(place.shifted(-1, 0))) {
+            extRect.fX -= extMargin;
+            extRect.fW += extMargin;
+        }
+        if(!placer.areaUsed(place.shifted(0, -1))) {
+            extRect.fY -= extMargin;
+            extRect.fH += extMargin;
+        }
+        area.setExtendedRect(extRect);
     }
-    rect.fX = 0;
-    rect.fY = 0;
+    rect.fX = extMargin;
+    rect.fY = extMargin;
 
     const uint16_t grassId = eTerrsTexturesData::id("grass");
     result->mTerrainTypes.emplace(grassId);
@@ -636,7 +670,8 @@ eMapGenerator::generate(const std::string& name) const {
     result->mObjectTypes.emplace(smallChestId);
     const auto& smallChestInfo = eObjectsInfo::sObjects.get(smallChestId);
 
-    result->generateTiles(rect.fW + 1, rect.fH + 1);
+    result->generateTiles(rect.fW + 2*extMargin + 1,
+                          rect.fH + 2*extMargin + 1);
     bool first = true;
     for(const auto& it : areas) {
         const auto& area = it.second;
