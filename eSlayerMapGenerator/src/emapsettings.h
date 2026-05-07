@@ -4,7 +4,6 @@
 #include <eSlayerHelpers/estringidmapvector.h>
 
 #include <cstdint>
-#include <set>
 #include <map>
 #include <string>
 
@@ -17,6 +16,7 @@ enum class eAreaType {
 };
 
 struct eTypeProbability {
+    eTypeProbability() {}
     eTypeProbability(const uint16_t type,
                      const float prob) :
         fType(type),
@@ -26,10 +26,15 @@ struct eTypeProbability {
     float fProbability;
 };
 
+struct eMonsterProbability : public eTypeProbability {
+    int fGroupSize;
+    float fBossProbability;
+};
+
 struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
-    std::set<uint16_t> fMonsters;
+    std::vector<eMonsterProbability> fMonsters;
     int fObjectsMargin = 4;
     std::vector<eTypeProbability> fObjects;
     int fOutsideObjectsMargin = 1;

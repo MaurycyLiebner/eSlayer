@@ -48,10 +48,24 @@ void eMapSettings::load() {
                 area.fContrast  = jArea.value("contrast", 140);
 
                 // monsters
-                const auto monsters = jArea.value("monsters", std::vector<std::string>());
-                for(const auto& m : monsters) {
-                    const auto unitId = eCharDataInfo::id(m);
-                    area.fMonsters.emplace(unitId);
+                // objects
+                if(jArea.contains("monsters")) {
+                    const auto& items = jArea["monsters"];
+                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
+                        const auto mname = cit.key();
+                        const auto& values = cit.value();
+                        eMonsterProbability result;
+                        result.fProbability = values.value("probability", 0.f);
+                        result.fGroupSize = values.value("groupSize", 1);
+                        result.fBossProbability = values.value("bossProbability", 0.f);
+                        const auto type = eCharDataInfo::id(mname);
+                        result.fType = type;
+                        if(type == -1) {
+                            eRuntimeThrow("Invalid monster type \"" + name +
+                                          "\" in " + dir + "/" + name + ".json");
+                        }
+                        area.fMonsters.emplace_back(result);
+                    }
                 }
 
                 area.fObjectsMargin = jArea.value("objectsMargin", 4);
