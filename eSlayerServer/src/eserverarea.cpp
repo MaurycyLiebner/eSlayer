@@ -4,6 +4,8 @@
 #include "actions/eunitbaseaction.h"
 #include "actions/efolloweraction.h"
 
+#include "eelitemodifiers.h"
+
 #include "eitemgenerator.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
@@ -195,6 +197,13 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const bool add = eRand::randChance(typeData.fProbability);
                 if(!add) continue;
 
+                const bool elite = eRand::randChance(typeData.fEliteProbability);
+                bool boss = elite;
+                eEliteModifiers mods;
+                if(elite) {
+                    mods.initialize(1, 1.f);
+                }
+
                 const auto& udata = eUnitsInfo::sUnits.get(type);
                 const auto& data = eCharDataInfo::get(udata.fCharData);
 
@@ -220,6 +229,12 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                                  pos, udata, data, modelParts);
 
                     u->setBoosts(udata.fModifiers, false);
+
+                    if(elite) {
+                        mods.apply(*u, boss);
+                        boss = false;
+                    }
+
                     {
                         const int schoice = u->addSkill();
                         u->setSkillId(schoice, 0, false);

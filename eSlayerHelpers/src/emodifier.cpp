@@ -38,11 +38,13 @@ gModifierTypeToString = {
     { eModifierType::coldResistance, "coldResistance" },
     { eModifierType::lightningResitance, "lightningResitance" },
     { eModifierType::poisonResistance, "poisonResistance" },
+    { eModifierType::physicalResistance, "physicalResistance" },
 
     { eModifierType::maxFireResistance, "maxFireResistance" },
     { eModifierType::maxColdResistance, "maxColdResistance" },
     { eModifierType::maxLightningResitance, "maxLightningResitance" },
     { eModifierType::maxPoisonResistance, "maxPoisonResistance" },
+    { eModifierType::maxPhysicalResistance, "maxPhysicalResistance" },
 
     { eModifierType::strength, "strength" },
     { eModifierType::dexterity, "dexterity" },
@@ -107,11 +109,13 @@ int eModifier::valuesUsed() const {
     case eModifierType::coldResistance:
     case eModifierType::lightningResitance:
     case eModifierType::poisonResistance:
+    case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
     case eModifierType::maxLightningResitance:
     case eModifierType::maxPoisonResistance:
+    case eModifierType::maxPhysicalResistance:
 
     case eModifierType::strength:
     case eModifierType::dexterity:
@@ -219,11 +223,13 @@ bool eModifierHelpers::isPercent(
     case eModifierType::coldResistance:
     case eModifierType::lightningResitance:
     case eModifierType::poisonResistance:
+    case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
     case eModifierType::maxLightningResitance:
     case eModifierType::maxPoisonResistance:
+    case eModifierType::maxPhysicalResistance:
 
     case eModifierType::lifeSteal:
     case eModifierType::manaSteal:

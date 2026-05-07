@@ -437,11 +437,13 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fColdResistance = 0.f;
     fLightningResistance = 0.f;
     fPoisonResistance = 0.f;
+    fPhysicalResistance = 0.f;
 
     fMaxFireResistance = 0.75f;
     fMaxColdResistance = 0.75f;
     fMaxLightningResistance = 0.75f;
     fMaxPoisonResistance = 0.75f;
+    fMaxPhysicalResistance = 0.75f;
 
     fEffectiveSkillLevels = fBaseSkillLevels;
 
@@ -506,6 +508,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::poisonResistance:
             fPoisonResistance += mod.fValue1;
             break;
+        case eModifierType::physicalResistance:
+            fPhysicalResistance += mod.fValue1;
+            break;
 
         case eModifierType::maxFireResistance:
             fMaxFireResistance += mod.fValue1;
@@ -518,6 +523,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             break;
         case eModifierType::maxPoisonResistance:
             fMaxPoisonResistance += mod.fValue1;
+            break;
+        case eModifierType::maxPhysicalResistance:
+            fMaxPhysicalResistance += mod.fValue1;
             break;
 
         case eModifierType::strength:
@@ -674,10 +682,17 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fMaxMana = baseMana*(1.f + bonusMana);
     fManaF = manaFrac*fMaxMana;
 
+    fMaxFireResistance = std::min(1.f, fMaxFireResistance);
+    fMaxColdResistance = std::min(1.f, fMaxColdResistance);
+    fMaxLightningResistance = std::min(1.f, fMaxLightningResistance);
+    fMaxPoisonResistance = std::min(1.f, fMaxPoisonResistance);
+    fMaxPhysicalResistance = std::min(1.f, fMaxPhysicalResistance);
+
     fFireResistance = std::min(fMaxFireResistance, fFireResistance);
     fColdResistance = std::min(fMaxColdResistance, fColdResistance);
     fLightningResistance = std::min(fMaxLightningResistance, fLightningResistance);
     fPoisonResistance = std::min(fMaxPoisonResistance, fPoisonResistance);
+    fPhysicalResistance = std::min(fMaxPhysicalResistance, fPhysicalResistance);
 
     fManaRegeneration = fMaxMana*(100.f + manaRegBonus)/300000.f;
     fHealthRegeneration = lifeRegBonus/256.f;
@@ -743,11 +758,13 @@ void eStats::calculateSkill(const int schoice,
         case eModifierType::coldResistance:
         case eModifierType::lightningResitance:
         case eModifierType::poisonResistance:
+        case eModifierType::physicalResistance:
 
         case eModifierType::maxFireResistance:
         case eModifierType::maxColdResistance:
         case eModifierType::maxLightningResitance:
         case eModifierType::maxPoisonResistance:
+        case eModifierType::maxPhysicalResistance:
 
         case eModifierType::strength:
         case eModifierType::dexterity:

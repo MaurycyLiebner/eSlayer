@@ -18,7 +18,8 @@ protected:
 private:
     using eHealthIndicator::initialize;
 
-    std::shared_ptr<eUnit> mUnit;
+    std::weak_ptr<eUnit> mUnit;
+    eLabel* mModsLabel = nullptr;
 };
 
 #endif // EUNITINDICATOR_H

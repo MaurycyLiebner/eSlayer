@@ -48,7 +48,6 @@ void eMapSettings::load() {
                 area.fContrast  = jArea.value("contrast", 140);
 
                 // monsters
-                // objects
                 if(jArea.contains("monsters")) {
                     const auto& items = jArea["monsters"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
@@ -57,7 +56,7 @@ void eMapSettings::load() {
                         eMonsterProbability result;
                         result.fProbability = values.value("probability", 0.f);
                         result.fGroupSize = values.value("groupSize", 1);
-                        result.fBossProbability = values.value("bossProbability", 0.f);
+                        result.fEliteProbability = values.value("eliteProbability", 0.f);
                         const auto type = eCharDataInfo::id(mname);
                         result.fType = type;
                         if(type == -1) {

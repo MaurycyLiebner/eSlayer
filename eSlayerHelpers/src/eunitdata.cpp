@@ -22,6 +22,12 @@ void eUnitData::read(ePacket& p) {
     p >> fHealth;
     p >> fMaxHealth;
 
+    uint8_t nMods;
+    p >> nMods;
+    for(uint8_t i = 0; i < nMods; i++) {
+        p >> fMods.emplace_back();
+    }
+
     fModelParts.read(p);
 }
 
@@ -45,6 +51,11 @@ void eUnitData::write(ePacket& p) const {
     p << fHealth;
     p << fMaxHealth;
 
+    const uint8_t nMods = fMods.size();
+    for(const auto m : fMods) {
+        p << m;
+    }
+
     fModelParts.write(p);
 }
 
@@ -62,6 +73,7 @@ eUnitData eUnitData::toUnitData() const {
     d.fBlockingActionTime = fBlockingActionTime;
     d.fHealth = fHealth;
     d.fMaxHealth = fMaxHealth;
+    d.fMods = fMods;
     d.fModelParts = fModelParts;
     return d;
 }

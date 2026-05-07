@@ -28,7 +28,7 @@ struct eTypeProbability {
 
 struct eMonsterProbability : public eTypeProbability {
     int fGroupSize;
-    float fBossProbability;
+    float fEliteProbability;
 };
 
 struct eMapMonsterSettings {

@@ -324,7 +324,7 @@ bool eServerUnit::getHit(const eHitData& data,
 
 float eServerUnit::takeDamage(const eDamage& dmg) {
     float totalDmg = 0.f;
-    totalDmg += dmg.fPhysical;
+    totalDmg += dmg.fPhysical*(1.f - mStats.fPhysicalResistance);
     totalDmg += dmg.fFire*(1.f - mStats.fFireResistance);
     totalDmg += dmg.fCold*(1.f - mStats.fColdResistance);
     totalDmg += dmg.fLightning*(1.f - mStats.fLightningResistance);
@@ -395,6 +395,8 @@ void eServerUnit::increment(const float by) {
                 i--;
             }
         }
+        poisonDmg *= 1.f - mStats.fPoisonResistance;
+
         float healthReg = mStats.fHealthRegeneration;
         float manaReg = mStats.fManaRegeneration;
         if(!mPotions.empty()) {

@@ -49,11 +49,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -113,11 +115,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -177,11 +181,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -241,11 +247,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -305,11 +313,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -370,11 +380,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -434,11 +446,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -498,11 +512,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::coldResistance,
             eModifierType::lightningResitance,
             eModifierType::poisonResistance,
+            // eModifierType::physicalResistance,
 
             eModifierType::maxFireResistance,
             eModifierType::maxColdResistance,
             eModifierType::maxLightningResitance,
             eModifierType::maxPoisonResistance,
+            // eModifierType::maxPhysicalResistance,
 
             eModifierType::strength,
             eModifierType::dexterity,
@@ -733,6 +749,7 @@ eItem eItemGenerator::generateItem(
         case eModifierType::coldResistance:
         case eModifierType::lightningResitance:
         case eModifierType::poisonResistance:
+        case eModifierType::physicalResistance:
             mod.fValue1 = sqrt(sqrt(level))*worth*0.15f;
             break;
 
@@ -740,6 +757,7 @@ eItem eItemGenerator::generateItem(
         case eModifierType::maxColdResistance:
         case eModifierType::maxLightningResitance:
         case eModifierType::maxPoisonResistance:
+        case eModifierType::maxPhysicalResistance:
             mod.fValue1 = worth*0.05f;
             break;
 

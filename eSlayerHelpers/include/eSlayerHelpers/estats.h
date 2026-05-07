@@ -111,11 +111,13 @@ struct ESLAYERHELPERS_API eStats {
     float fColdResistance = 0.f;
     float fLightningResistance = 0.f;
     float fPoisonResistance = 0.f;
+    float fPhysicalResistance = 0.f;
 
     float fMaxFireResistance = 0.75f;
     float fMaxColdResistance = 0.75f;
     float fMaxLightningResistance = 0.75f;
     float fMaxPoisonResistance = 0.75f;
+    float fMaxPhysicalResistance = 0.75f;
 
     eWeaponType fWeaponTypeL = eWeaponType::none;
     eWeaponType fWeaponTypeR = eWeaponType::none;
