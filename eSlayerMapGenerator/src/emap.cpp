@@ -52,7 +52,7 @@ bool inside(const ePointF& pos,
 bool eMap::wall(const ePointF& pos,
                 const int x, const int y,
                 const eTile& tile) const {
-    const float thick = 0.2f;
+    const float thick = 0.25f;
 
     if(tile.fWallTL) {
         const bool r = inside(pos, x - thick, y, 2*thick, 1.f);
