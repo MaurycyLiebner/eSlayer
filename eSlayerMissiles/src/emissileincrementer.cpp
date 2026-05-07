@@ -5,11 +5,11 @@
 
 #include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/earea.h>
-#include <eSlayerHelpers/esetareas.h>
+#include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerHelpers/eunitdata.h>
 
 eMissileIncrementer::eMissileIncrementer(
-    eSetAreas& unitAreas) :
+    eFixedSizeSetAreas& unitAreas) :
     mUnitAreas(unitAreas) {}
 
 void eMissileIncrementer::initialize(
@@ -40,6 +40,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
         for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
             for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
                 const eArea area{ax, ay};
+                if(!mUnitAreas.hasArea(area)) continue;
                 const auto& units = mUnitAreas.at(area);
                 for(const int charId : units) {
                     const auto u = mGetUnit(charId);
@@ -87,6 +88,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
     for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
         for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
             const eArea area{ax, ay};
+            if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = mGetUnit(charId);

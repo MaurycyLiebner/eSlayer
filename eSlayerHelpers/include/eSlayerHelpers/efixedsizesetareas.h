@@ -14,9 +14,10 @@ public:
                     const int areaDim);
 
     eArea posArea(const ePointF& pos) const;
+    ePointF areaPos(const eArea& area) const;
 
     void clear();
-    bool hasArea(const eArea& area);
+    bool hasArea(const eArea& area) const;
     void erase(const eArea& area, const int id);
     void emplace(const eArea& area, const int id);
     const std::set<int>& at(const eArea& area) const;

@@ -1,6 +1,6 @@
 #include "eSlayerMapGenerator/emapgenerator.h"
 
-#include "emapsettings.h"
+#include "eSlayerMapGenerator/emapsettings.h"
 #include "eSlayerMapGenerator/emap.h"
 
 #include <eSlayerHelpers/erect.h>
@@ -254,10 +254,11 @@ public:
             }
         };
 
-        const auto tryAddObject = [this](const eRect& rect,
-                                         const int x, const int y,
-                                         const int objMargin,
-                                         const std::vector<eTypeProbability>& objs) {
+        const auto tryAddObject =
+            [this](const eRect& rect,
+                   const int x, const int y,
+                   const int objMargin,
+                   const std::vector<eTypeProbability>& objs) {
             if(objs.empty()) return;
             for(int dx = -objMargin; dx <= objMargin; dx++) {
                 const int xx = x + dx;
@@ -289,7 +290,33 @@ public:
             }
         };
 
+        const auto tryAddMonsterGroup =
+            [this](const eRect& rect,
+                   const int x, const int y,
+                   const int monsterMargin,
+                   const std::vector<eMonsterProbability>& ms) {
+            if(ms.empty()) return;
+            for(int dx = -monsterMargin; dx <= monsterMargin; dx++) {
+                const int xx = x + dx;
+                if(xx < rect.fX) return;
+                if(xx >= rect.fX + rect.fW) return;
+                for(int dy = -monsterMargin; dy <= monsterMargin; dy++) {
+                    const int yy = y + dy;
+                    if(yy < rect.fY) return;
+                    if(yy >= rect.fY + rect.fH) return;
+                    const auto& objs = mMap->objects(x + dx, y + dy);
+                    if(!objs.empty()) return;
+                }
+            }
+        };
+
+        const auto& ms = mSettings.fMonsters;
+        auto& mareas = mMap->mMonsterAreas;
         for(const auto& srect : terrainRects) {
+            auto& marea = mareas.emplace_back();
+            marea.fRect = srect;
+            marea.fSettings = ms;
+
             const int minX = srect.fX;
             const int maxX = srect.fX + srect.fW - 1;
             const int minY = srect.fY;
@@ -734,7 +761,11 @@ eMapGenerator::generate(const std::string& name) const {
 
     result->updateObjectsMap();
 
-    result->mUnitTypes = settings.fMonsters;
+    const auto& ms = settings.fMonsters;
+    const auto& types = ms.fTypes;
+    for(const auto& type : types) {
+        result->mUnitTypes.emplace(type.fType);
+    }
 
     return result;
 }

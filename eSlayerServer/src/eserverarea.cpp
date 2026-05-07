@@ -23,9 +23,6 @@
 eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
 
 eServerArea::eServerArea() :
-    mUnitAreas(mUnitAreaDim),
-    mItemAreas(mItemAreaDim),
-    mItemTiles(-mItemTileSubdivision),
     mMIncrementer(mUnitAreas) {
     const auto obsticle = [this](const ePointF& pos) {
         return mMap->obsticle(pos);
@@ -118,6 +115,7 @@ void eServerArea::addGroundItem(
                 const bool w = walkable(tilePos);
                 if(!w) continue;
 
+                if(!mItemTiles.hasArea(tile)) continue;
                 const auto& items = mItemTiles.at(tile);
                 if(!items.empty()) continue;
                 groundItem->fPos = tilePos;
@@ -157,50 +155,101 @@ void eServerArea::generateItem(
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
-    for(int x = 24; x < 23; x++) {
-        if(x == 40) x += 20;
-        for(int y = 24; y < 23; y++) {
-            if(y == 40) y += 20;
-            const int typeId = 1 + eRand::rand() % 2;
-            const auto& udata = eUnitsInfo::sUnits.get(typeId);
-            const auto& data = eCharDataInfo::get(udata.fCharData);
-            const auto name = data.name();
-            std::map<std::string, std::string> partsMap;
-            if(name == "mummy") {
-                partsMap = {
-                    {"mummy", "whole"}
-                };
-            } else if(name == "wendigo") {
-                partsMap = {
-                    {"wendigo", "whole"}
-                };
-            } else {
-                continue;
-            }
-            const auto modelParts = data.mapToModelParts(partsMap);
-            const auto u = std::make_shared<eServerUnit>(false, data, *this);
-            const int charId = eServerUnit::sNextCharId++;
-            const ePointF pos{float(x), float(y)};
-            iniSetupUnit(u, charId, eTeamId::neutralHostile, pos, udata, data, modelParts);
+    const int w = map->width();
+    const int h = map->height();
+    mUnitAreas.initialize(w, h, mUnitAreaDim);
+    mItemAreas.initialize(w, h, mItemAreaDim);
+    mItemTiles.initialize(w, h, -mItemTileSubdivision);
 
-            u->setBoosts(udata.fModifiers, false);
-            {
-                const int schoice = u->addSkill();
-                u->setSkillId(schoice, 0, false);
-            }
-            eSkillLevels skillLevels;
-            using sMap = std::map<uint16_t, uint16_t>;
-            reinterpret_cast<sMap&>(skillLevels) = udata.fSkills;
-            u->setSkillLevels(skillLevels, false);
-            for(const auto it : udata.fSkills) {
-                const int skillId = it.first;
-                const int schoice = u->addSkill();
-                u->setSkillId(schoice, skillId, false);
-            }
-            u->recalculateStats();
+    const auto& mareas = map->monsterAreas();
+    for(const auto& marea : mareas) {
+        const auto& rect = marea.fRect;
+        const auto& ms = marea.fSettings;
+        const auto& types = ms.fTypes;
+        if(types.empty()) continue;
 
-            const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
-            u->setAction(a);
+        const int margin = 4;
+
+        const auto tryAddUnits = [&](const int x, const int y) {
+            for(int dx = -margin; dx <= margin; dx++) {
+                const int xx = x + dx;
+                if(xx < 0) return;
+                if(xx >= w) return;
+                for(int dy = -margin; dy <= margin; dy++) {
+                    const int yy = y + dy;
+                    if(yy < 0) return;
+                    if(yy >= h) return;
+                    const auto uarea = mUnitAreas.posArea(ePoint{xx, yy});
+                    if(!mUnitAreas.hasArea(uarea)) continue;
+                    const auto& us = mUnitAreas.at(uarea);
+                    if(!us.empty()) return;
+                }
+            }
+
+            const int nTypes = types.size();
+            const int startId = eRand::rand() % nTypes;
+            for(int i = 0; i < nTypes; i++) {
+                const int typeId = (startId + i) % nTypes;
+                const auto& typeData = types[typeId];
+                const auto type = typeData.fType;
+                const bool add = eRand::randChance(typeData.fProbability);
+                if(!add) continue;
+
+                const auto& udata = eUnitsInfo::sUnits.get(type);
+                const auto& data = eCharDataInfo::get(udata.fCharData);
+
+                const auto addUnit = [&]() {
+                    const auto modelParts = data.randomModelParts();
+                    const auto u = std::make_shared<eServerUnit>(false, data, *this);
+                    const int charId = eServerUnit::sNextCharId++;
+                    ePointF pos;
+                    for(int dist = 1; dist < 3; dist++) {
+                        const int maxTries = 10;
+                        for(int i = 0; i <= maxTries; i++) {
+                            if(i == maxTries) return;
+                            const float dx = eRand::randF(-dist, dist);
+                            const float dy = eRand::randF(-dist, dist);
+                            const ePointF tryPos{float(x + dx), float(y + dy)};
+                            const auto u = unit(tryPos);
+                            if(u) continue;
+                            pos = tryPos;
+                            break;
+                        }
+                    }
+                    iniSetupUnit(u, charId, eTeamId::neutralHostile,
+                                 pos, udata, data, modelParts);
+
+                    u->setBoosts(udata.fModifiers, false);
+                    {
+                        const int schoice = u->addSkill();
+                        u->setSkillId(schoice, 0, false);
+                    }
+                    eSkillLevels skillLevels;
+                    using sMap = std::map<uint16_t, uint16_t>;
+                    reinterpret_cast<sMap&>(skillLevels) = udata.fSkills;
+                    u->setSkillLevels(skillLevels, false);
+                    for(const auto it : udata.fSkills) {
+                        const int skillId = it.first;
+                        const int schoice = u->addSkill();
+                        u->setSkillId(schoice, skillId, false);
+                    }
+                    u->recalculateStats();
+
+                    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
+                    u->setAction(a);
+                };
+
+                const int nUnits = typeData.fGroupSize;
+                for(int i = 0; i < nUnits; i++) {
+                    addUnit();
+                }
+            }
+        };
+
+        for(int x = rect.fX + margin; x < rect.fX + rect.fW - margin; x++) {
+            for(int y = rect.fY + margin; y < rect.fY + rect.fH - margin; y++) {
+                tryAddUnits(x, y);
+            }
         }
     }
 }
@@ -251,6 +300,7 @@ void eServerArea::increment(const float by) {
     }
 
     for(const auto& area : unitAreas) {
+        if(!mUnitAreas.hasArea(area)) continue;
         const auto units = mUnitAreas.at(area);
         for(const int charId : units) {
             const auto u = mUnits.get(charId);
@@ -295,6 +345,7 @@ void eServerArea::unitsData(
             const int y = clientArea.fY - dx + dy/2;
             const int x = clientArea.fX + dx + dy % 2 + dy/2;
             const eArea area{x, y};
+            if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = unit(charId);
@@ -342,6 +393,7 @@ void eServerArea::itemsData(
             const int y = clientArea.fY - dx + dy/2;
             const int x = clientArea.fX + dx + dy % 2 + dy/2;
             const eArea area{x, y};
+            if(!mItemAreas.hasArea(area)) continue;
             const auto& items = mItemAreas.at(area);
             for(const int itemId : items) {
                 const auto i = groundItem(itemId);
@@ -771,6 +823,7 @@ bool eServerArea::iterateOverUnits(const eArea& areaMin,
     for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
         for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
             const eArea area{ax, ay};
+            if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
             for(const int charId : units) {
                 const auto u = unit(charId);

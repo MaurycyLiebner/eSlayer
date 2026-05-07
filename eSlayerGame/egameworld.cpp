@@ -15,7 +15,6 @@
 
 eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mMap(map),
-    mUnitAreas(1),
     mMIncrementer(mUnitAreas) {
     const auto obsticle = [this](const ePointF& pos) {
         return mMap->obsticle(pos);
@@ -41,6 +40,10 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
 
 void eGameWorld::initialize(const int clientId,
                             const std::shared_ptr<eUnit>& mainChar) {
+    const int w = mMap->width();
+    const int h = mMap->height();
+    mUnitAreas.initialize(w, h, 1);
+
     mClientId = clientId;
     mMainChar = mainChar;
 }

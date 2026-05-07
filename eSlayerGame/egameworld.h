@@ -8,7 +8,7 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/emissile.h>
-#include <eSlayerHelpers/esetareas.h>
+#include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerServer/eserver.h>
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/egrounditem.h>
@@ -72,7 +72,7 @@ private:
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
     eIdMapVector<eGroundItem> mGroundItems;
-    eSetAreas mUnitAreas;
+    eFixedSizeSetAreas mUnitAreas;
     eMissileIncrementer mMIncrementer;
     std::vector<int> mBodies;
 };

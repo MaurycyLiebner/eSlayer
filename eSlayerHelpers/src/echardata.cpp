@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/echardata.h"
 
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/erand.h"
 
 eCharData::eCharData() {}
 
@@ -108,7 +109,19 @@ eModelParts eCharData::mapToModelParts(
         }
         result.fValues[partId] = eqId;
     }
+    return result;
+}
 
+eModelParts eCharData::randomModelParts() const {
+    eModelParts result;
+    result.fValues.resize(mNParts);
+    for(const auto& part : mParts) {
+        const auto& partName = part.fName;
+        const int partId = part.fId;
+        const auto& partData = mParts.get(partId);
+        const int eqId = eRand::rand() % partData.size();
+        result.fValues[partId] = eqId;
+    }
     return result;
 }
 

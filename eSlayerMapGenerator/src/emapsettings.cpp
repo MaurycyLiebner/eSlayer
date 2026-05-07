@@ -1,4 +1,4 @@
-#include "emapsettings.h"
+#include "eSlayerMapGenerator/emapsettings.h"
 
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/echardatainfo.h>
@@ -64,7 +64,7 @@ void eMapSettings::load() {
                             eRuntimeThrow("Invalid monster type \"" + name +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        area.fMonsters.emplace_back(result);
+                        area.fMonsters.fTypes.emplace_back(result);
                     }
                 }
 

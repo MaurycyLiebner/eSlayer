@@ -8,6 +8,8 @@
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/estringidmapvector.h>
 
+#include "emapsettings.h"
+
 #include <vector>
 #include <memory>
 
@@ -55,6 +57,14 @@ public:
     int areaAt(const ePoint& pos) const;
     std::string areaName(const int id);
     eMapArea& area(const int id);
+
+    struct eMonsterArea {
+        eRect fRect;
+        eMapMonsterSettings fSettings;
+    };
+
+    const std::vector<eMonsterArea>& monsterAreas() const
+    { return mMonsterAreas; }
 private:
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
@@ -74,6 +84,8 @@ private:
     std::set<uint16_t> mTerrainTypes;
     std::set<uint16_t> mObjectTypes;
     std::set<uint16_t> mUnitTypes;
+
+    std::vector<eMonsterArea> mMonsterAreas;
 };
 
 #endif // EMAP_H

@@ -31,10 +31,14 @@ struct eMonsterProbability : public eTypeProbability {
     float fBossProbability;
 };
 
+struct eMapMonsterSettings {
+    std::vector<eMonsterProbability> fTypes;
+};
+
 struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
-    std::vector<eMonsterProbability> fMonsters;
+    eMapMonsterSettings fMonsters;
     int fObjectsMargin = 4;
     std::vector<eTypeProbability> fObjects;
     int fOutsideObjectsMargin = 1;

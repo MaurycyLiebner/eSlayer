@@ -47,6 +47,7 @@ public:
     int animClamp(const std::string& name) const;
 
     eModelParts mapToModelParts(const std::map<std::string, std::string>& m) const;
+    eModelParts randomModelParts() const;
 
     const eUnitSkill& getSkill(const int id) const;
 protected:

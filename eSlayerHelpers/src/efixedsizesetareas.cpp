@@ -24,6 +24,16 @@ eArea eFixedSizeSetAreas::posArea(const ePointF& pos) const {
     return result;
 }
 
+ePointF eFixedSizeSetAreas::areaPos(const eArea& area) const {
+    ePointF result;
+    if(mAreaDim > 0) {
+        result = ePointF(area)*mAreaDim;
+    } else {
+        result = ePointF(area)/-mAreaDim;
+    }
+    return result;
+}
+
 void eFixedSizeSetAreas::clear() {
     for(int x = 0; x < mWidth; x++) {
         for(int y = 0; y < mHeight; y++) {
@@ -32,7 +42,7 @@ void eFixedSizeSetAreas::clear() {
     }
 }
 
-bool eFixedSizeSetAreas::hasArea(const eArea& area) {
+bool eFixedSizeSetAreas::hasArea(const eArea& area) const {
     if(area.fX < 0 || area.fY < 0) return false;
     if(area.fX >= mWidth || area.fY >= mHeight) return false;
     return true;

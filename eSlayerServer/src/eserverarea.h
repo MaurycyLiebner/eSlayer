@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/eareas.h>
 #include <eSlayerHelpers/esetareas.h>
 #include <eSlayerHelpers/escreendimensions.h>
+#include <eSlayerHelpers/efixedsizesetareas.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -110,7 +111,8 @@ public:
     groundItem(const int itemId) const;
     using eValidator = std::function<bool(const eServerUnit&)>;
     std::shared_ptr<eServerUnit> unit(
-        const ePointF& pos, const eValidator& validator) const;
+        const ePointF& pos,
+        const eValidator& validator = nullptr) const;
     using eUnitIter = std::function<bool(const std::shared_ptr<eServerUnit>&)>;
     bool iterateOverUnits(const eArea& areaMin,
                           const eArea& areaMax,
@@ -150,11 +152,11 @@ private:
 
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
-    eSetAreas mUnitAreas;
+    eFixedSizeSetAreas mUnitAreas;
     const int mItemAreaDim = 4;
-    eSetAreas mItemAreas;
+    eFixedSizeSetAreas mItemAreas;
     const int mItemTileSubdivision = 2;
-    eSetAreas mItemTiles;
+    eFixedSizeSetAreas mItemTiles;
 
     std::vector<int> mUnitsToRemove;
     std::map<int, eClientData> mClientData;
