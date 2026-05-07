@@ -53,7 +53,7 @@ int eTcpIpJoin::connect() {
 
         SDL_Delay(16);
         time += 16;
-        if(time > 2000) {
+        if(time > 10000) {
             failed("Disconnected", "Connection timed out.");
             return -1;
         }
@@ -207,7 +207,7 @@ bool eTcpIpJoin::spawn(
 
         SDL_Delay(16);
         time += 16;
-        if(time > 2000) {
+        if(time > 10000) {
             failed("Disconnected", "Character request timed out.");
             return false;
         }
