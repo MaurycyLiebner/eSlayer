@@ -344,11 +344,13 @@ void eEquipment::read(ePacket& p) {
     fWeapon2R.read(p);
     p >> fWeapons1;
     fDragged.read(p);
+    p >> fInventoryGold;
 
     fInventory.read(p);
     fBeltPotions.read(p);
     fBeltHiddenPotions.read(p);
     fStash.read(p);
+    p >> fStashGold;
 }
 
 void eEquipment::write(ePacket& p) const {
@@ -366,11 +368,13 @@ void eEquipment::write(ePacket& p) const {
     fWeapon2R.write(p);
     p << fWeapons1;
     fDragged.write(p);
+    p << fInventoryGold;
 
     fInventory.write(p);
     fBeltPotions.write(p);
     fBeltHiddenPotions.write(p);
     fStash.write(p);
+    p << fStashGold;
 }
 
 eInventoryItem* eInventoryItems::at(const int x, const int y) {
