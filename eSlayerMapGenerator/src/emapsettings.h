@@ -16,10 +16,24 @@ enum class eAreaType {
     open, dungeon
 };
 
+struct eTypeProbability {
+    eTypeProbability(const uint16_t type,
+                     const float prob) :
+        fType(type),
+        fProbability(prob) {}
+
+    uint16_t fType;
+    float fProbability;
+};
+
 struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
     std::set<uint16_t> fMonsters;
+    int fObjectsMargin = 4;
+    std::vector<eTypeProbability> fObjects;
+    int fOutsideObjectsMargin = 1;
+    std::vector<eTypeProbability> fOutsideObjects;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     std::map<std::string, eConnectionType> fConnections;

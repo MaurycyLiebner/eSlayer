@@ -254,6 +254,41 @@ public:
             }
         };
 
+        const auto tryAddObject = [this](const eRect& rect,
+                                         const int x, const int y,
+                                         const int objMargin,
+                                         const std::vector<eTypeProbability>& objs) {
+            if(objs.empty()) return;
+            for(int dx = -objMargin; dx <= objMargin; dx++) {
+                const int xx = x + dx;
+                if(xx < rect.fX) return;
+                if(xx >= rect.fX + rect.fW) return;
+                for(int dy = -objMargin; dy <= objMargin; dy++) {
+                    const int yy = y + dy;
+                    if(yy < rect.fY) return;
+                    if(yy >= rect.fY + rect.fH) return;
+                    const auto& objs = mMap->objects(x + dx, y + dy);
+                    if(!objs.empty()) return;
+                }
+            }
+
+            const int startId = eRand::rand() % objs.size();
+            for(int i = 0; i < objs.size(); i++) {
+                const int idx = (startId + i) % objs.size();
+                const auto& o = objs[idx];
+                const bool add = eRand::randChance(o.fProbability);
+                if(!add) continue;
+                const auto& info = eObjectsInfo::sObjects.get(o.fType);
+                auto& obj = *mMap->addObject();
+                obj.fObjectType = o.fType;
+                obj.fSubtype = eRand::rand();
+                obj.fPos.fX = x;
+                obj.fPos.fY = y;
+                obj.fSize = info.fSize;
+                return;
+            }
+        };
+
         for(const auto& srect : terrainRects) {
             const int minX = srect.fX;
             const int maxX = srect.fX + srect.fW - 1;
@@ -265,6 +300,10 @@ public:
                     if(x <= maxX && y <= maxY) {
                         setTileTerrain(x, y, dst);
                     }
+
+                    const int m = mSettings.fObjectsMargin;
+                    const auto& objs = mSettings.fObjects;
+                    tryAddObject(srect, x, y, m, objs);
 
                     bool wallTL = true;
                     bool wallTR = true;
@@ -310,14 +349,10 @@ public:
                         const bool r = inRect(x, y + 1, nullptr);
                         if(r) continue;
                     }
-                    if(eRand::randChance(0.1f)) {
-                        auto& obj = *mMap->addObject();
-                        obj.fObjectType = treeId;
-                        obj.fSubtype = eRand::rand();
-                        obj.fPos.fX = x;
-                        obj.fPos.fY = y;
-                        obj.fSize = treeInfo.fSize;
-                    }
+
+                    const int m = mSettings.fOutsideObjectsMargin;
+                    const auto& objs = mSettings.fOutsideObjects;
+                    tryAddObject(rect, x, y, m, objs);
                 }
             }
         }
@@ -397,6 +432,7 @@ public:
             }
             return d[0];
         };
+
         for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
             for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
                 {

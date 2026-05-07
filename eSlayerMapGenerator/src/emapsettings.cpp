@@ -3,6 +3,7 @@
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/efileloaderbase.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 std::map<std::string, eMapSettings>
 eMapSettings::sMaps;
@@ -51,6 +52,38 @@ void eMapSettings::load() {
                 for(const auto& m : monsters) {
                     const auto unitId = eCharDataInfo::id(m);
                     area.fMonsters.emplace(unitId);
+                }
+
+                area.fObjectsMargin = jArea.value("objectsMargin", 4);
+                // objects
+                if(jArea.contains("objects")) {
+                    const auto& items = jArea["objects"];
+                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
+                        const auto oname = cit.key();
+                        const float prob = cit.value();
+                        const int type = eObjectsInfo::sObjects.id(oname);
+                        if(type == -1) {
+                            eRuntimeThrow("Invalid object type \"" + name +
+                                          "\" in " + dir + "/" + name + ".json");
+                        }
+                        area.fObjects.emplace_back(type, prob);
+                    }
+                }
+
+                area.fOutsideObjectsMargin = jArea.value("outObjectsMargin", 1);
+                // out objects
+                if(jArea.contains("outObjects")) {
+                    const auto& items = jArea["outObjects"];
+                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
+                        const auto oname = cit.key();
+                        const float prob = cit.value();
+                        const int type = eObjectsInfo::sObjects.id(oname);
+                        if(type == -1) {
+                            eRuntimeThrow("Invalid object type \"" + name +
+                                          "\" in " + dir + "/" + name + ".json");
+                        }
+                        area.fOutsideObjects.emplace_back(type, prob);
+                    }
                 }
 
                 // connections
