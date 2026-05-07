@@ -6,7 +6,7 @@
 #include "eSlayerHelpers/evectorhelpers.h"
 
 void eInventoryItem::read(ePacket& p) {
-    p >> fItem;
+    fItem.read(p);
     p >> fX;
     p >> fY;
     p >> fW;
@@ -14,7 +14,7 @@ void eInventoryItem::read(ePacket& p) {
 }
 
 void eInventoryItem::write(ePacket& p) const {
-    p << fItem;
+    fItem.write(p);
     p << fX;
     p << fY;
     p << fW;
