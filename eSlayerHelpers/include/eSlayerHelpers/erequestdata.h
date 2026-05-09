@@ -4,6 +4,7 @@
 #include "eunitdata.h"
 #include "eunitdynamicdata.h"
 #include "emissile.h"
+#include "enova.h"
 #include "egrounditem.h"
 #include "emapportion.h"
 
@@ -14,6 +15,7 @@ struct ESLAYERHELPERS_API eRequestData {
     std::vector<eUnitData> fNewUnits;
     std::vector<eUnitDynamicData> fUpdatedUnits;
     std::vector<eMissile> fMissiles;
+    std::vector<eNova> fNovas;
     std::vector<eGroundItem> fNewItems;
     std::vector<uint32_t> fRemovedItemIds;
     std::vector<eMapPortion> fMapPortions;

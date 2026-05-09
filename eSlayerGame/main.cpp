@@ -14,7 +14,6 @@
 #include "textures/eeffectstextures.h"
 #include "textures/emissilestextures.h"
 #include "textures/eitemstextures.h"
-#include "textures/enovastextures.h"
 
 #include "names/eitemnames.h"
 #include "names/emonsternames.h"
@@ -284,10 +283,6 @@ int main(int argc, char* argv[]) {
         loadings.emplace_back([&]() {
             eMissilesTextures::loadData();
             eMissileIncrement::initialize();
-        });
-
-        loadings.emplace_back([&]() {
-            eNovasTextures::loadData();
         });
 
         loadings.emplace_back([&]() {

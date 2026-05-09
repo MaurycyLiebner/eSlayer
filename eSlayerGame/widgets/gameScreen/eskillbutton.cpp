@@ -33,6 +33,7 @@ void eSkillButton::setSkillId(const int skillId) {
     mSkillId = skillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const int iconId = skill.fIconId;
+    if(iconId == -1) return;
     const auto& icon = eUITextures::sSkillIcons.get(iconId);
     setTexture(icon);
     updateText();

@@ -8,10 +8,13 @@
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
 #include "../../textures/eitemstextures.h"
+
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
+
 #include "../../erendersettings.h"
 #include "../../elanguage.h"
+
 #include "eunitindicator.h"
 #include "ehoverwidget.h"
 #include "einventorywidget.h"
@@ -360,6 +363,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     mServer->changeState(mClientId, *mMainChar);
 
     mWorld.simulateMissiles(by);
+    mWorld.simulateNovas(by);
 
     const auto& mpos = mInput.mousePos();
     if(!mMenuVisible) {
@@ -508,6 +512,28 @@ void eGameWidget::paintEvent(ePainter& p) {
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                         std::static_pointer_cast<ePositioned>(m)});
+        }
+        for(const auto& n : mWorld.novas()) {
+            const auto& c = n->fCenter;
+            const float r = n->fRadius;
+            const int nMissiles = 360;
+            eVec2f displ{-r, 0.f};
+            float angle = 0.f;
+            float dangle = 360.f/nMissiles;
+            for(int i = 0; i < nMissiles; i++) {
+                const ePointF pos = c + displ;
+                displ.rotate(dangle);
+                angle += dangle;
+                const auto pixel = tilePosToPixel(pos);
+                if(pixel.fX < -margin || pixel.fY < -margin ||
+                   pixel.fX > w + margin || pixel.fY > h + margin) continue;
+                const auto m = std::make_shared<eExtendedMissile>();
+                m->fAngle = angle;
+                m->fPos = pos;
+                m->fType = n->fMissileType;
+                renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
+                                                           std::static_pointer_cast<ePositioned>(m)});
+            }
         }
 
         const auto typePriority = [](const eRenderElementType t) {

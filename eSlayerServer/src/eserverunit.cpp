@@ -189,7 +189,8 @@ bool eServerUnit::alwaysHit(
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
     return skillType == eSkillType::missile ||
-           skillType == eSkillType::wall;
+           skillType == eSkillType::wall ||
+           skillType == eSkillType::nova;
 }
 
 float eServerUnit::attackRating(

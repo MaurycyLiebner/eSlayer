@@ -14,6 +14,7 @@ struct eArcInterval {
 struct ESLAYERHELPERS_API eNova {
     uint32_t fId;
     eTeamId fTeamId;
+    uint8_t fMissileType;
 
     ePointF fCenter;
 
@@ -31,6 +32,9 @@ struct ESLAYERHELPERS_API eNova {
                    const ePointF& pos4);
     void subtract(float minAngleDeg,
                   float maxAngleDeg);
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
 };
 
 #endif // ENOVA_H

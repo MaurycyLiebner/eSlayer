@@ -25,7 +25,13 @@
 eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
 
 eServerArea::eServerArea() :
-    mMIncrementer(mUnitAreas) {
+    mMIncrementer(mUnitAreas),
+    mNIncrementer(mUnitAreas) {
+    iniMissileInc();
+    iniNovaInc();
+}
+
+void eServerArea::iniMissileInc() {
     const auto obsticle = [this](const ePointF& pos) {
         return mMap->obsticle(pos);
     };
@@ -47,6 +53,44 @@ eServerArea::eServerArea() :
 
     mMIncrementer.initialize(obsticle,
                              removeMissile,
+                             getUnit,
+                             hitAction);
+}
+
+void eServerArea::iniNovaInc() {
+    const auto hasObjects = [this](const int x, const int y) {
+        return mMap->hasObjects(x, y);
+    };
+
+    const auto getObjects = [this](const int x, const int y)
+        -> const std::vector<uint32_t>& {
+        return mMap->objects(x, y);
+    };
+
+    const auto getObject = [this](const int x, const int y,
+                                  const uint32_t objectId) {
+        return mMap->object(x, y, objectId);
+    };
+
+    const auto removeNova = [this](const eNova& m) {
+        mNovas.remove(m.fId);
+    };
+
+    const auto getUnit = [this](const int charId) {
+        const auto u = mUnits.get(charId);
+        return static_cast<eUnitData*>(u.get());
+    };
+
+    const auto hitAction = [this](const eNova& n, eUnitData& u) {
+        const auto& sn = static_cast<const eServerNova&>(n);
+        auto& su = static_cast<eServerUnit&>(u);
+        if(sn.fHitAction) sn.fHitAction(su);
+    };
+
+    mNIncrementer.initialize(hasObjects,
+                             getObjects,
+                             getObject,
+                             removeNova,
                              getUnit,
                              hitAction);
 }
@@ -340,6 +384,10 @@ void eServerArea::increment(const float by) {
         mMIncrementer.increment(*m, by);
     }
 
+    for(const auto& n : mNovas) {
+        mNIncrementer.increment(*n, by);
+    }
+
     removePlannedUnits();
 
     mTime += by;
@@ -540,7 +588,8 @@ bool eServerArea::addClient(const int clientId,
     u->recalculateStats();
 
     auto& clientData = mClientData[clientId];
-    clientData.fLatestMissile = -1;
+    clientData.fLatestMissile = 0;
+    clientData.fLatestNova = 0;
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
@@ -734,6 +783,28 @@ eServerArea::missileData(const int clientId) {
     return result;
 }
 
+std::vector<eNova>
+eServerArea::novaData(const int clientId) {
+    std::vector<eNova> result;
+    const auto u = unit(clientId);
+    if(!u) return result;
+    result.reserve(mNovas.actualSize());
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return result;
+    auto& clientData = it->second;
+    auto& latestNova = clientData.fLatestNova;
+    auto newLatestNova = latestNova;
+    for(const auto& n : mNovas) {
+        if(n->fId <= latestNova) continue;
+        newLatestNova = std::max(newLatestNova, n->fId);
+        const float dist = ePointF::distance(n->fCenter, u->fPos);
+        if(dist > 20.f) continue;
+        result.emplace_back(*n);
+    }
+    latestNova = newLatestNova;
+    return result;
+}
+
 std::vector<int>
 eServerArea::bodies(const int clientId) {
     const auto it = mClientData.find(clientId);
@@ -750,6 +821,10 @@ eServerArea::bodies(const int clientId) {
 
 void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
     mMissiles.add(m->fId, m);
+}
+
+void eServerArea::addNova(const std::shared_ptr<eServerNova>& n) {
+    mNovas.add(n->fId, n);
 }
 
 void eServerArea::summon(eServerUnit& by,

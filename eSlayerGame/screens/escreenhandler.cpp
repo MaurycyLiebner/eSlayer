@@ -20,7 +20,6 @@
 #include "../textures/euitextures.h"
 #include "../textures/echarstextures.h"
 #include "../textures/emaptextures.h"
-#include "../textures/enovastextures.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
@@ -220,9 +219,6 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([&res, r]() {
         eMissilesTextures::loadTextures(res, r);
-    });
-    loading.emplace_back([&res, r]() {
-        eNovasTextures::loadTextures(res, r);
     });
     loading.emplace_back([&res, r, map]() {
         const auto& terrTypes = map->terrainTypes();

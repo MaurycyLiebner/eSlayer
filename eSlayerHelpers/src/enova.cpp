@@ -1,5 +1,7 @@
 #include "eSlayerHelpers/enova.h"
 
+#include "eSlayerHelpers/epacket.h"
+
 float normalizeAngle360(float angle) {
     angle = std::fmod(angle, 360.f);
     if(angle < 0.f) angle += 360.f;
@@ -70,4 +72,28 @@ void eNova::subtract(float minAngleDeg,
                                eArcInterval{maxAngleDeg, endTmp});
         }
     }
+}
+
+void eNova::read(ePacket& p) {
+    p >> fId;
+    p >> fTeamId;
+    p >> fMissileType;
+
+    p >> fCenter;
+
+    p >> fRadius;
+    p >> fMaxRadius;
+    p >> fSpeed;
+}
+
+void eNova::write(ePacket& p) const {
+    p << fId;
+    p << fTeamId;
+    p << fMissileType;
+
+    p << fCenter;
+
+    p << fRadius;
+    p << fMaxRadius;
+    p << fSpeed;
 }

@@ -431,6 +431,7 @@ void eStatsWidget::updateStats() {
             break;
         case eSkillType::missile:
         case eSkillType::wall:
+        case eSkillType::nova:
             lw = mStats->canUseSkill(static_cast<int>(schoice),
                                      eWeaponChoice::left);
             break;
@@ -452,6 +453,7 @@ void eStatsWidget::updateStats() {
 
         const bool noARL = skillType == eSkillType::missile ||
                            skillType == eSkillType::wall ||
+                           skillType == eSkillType::nova ||
                            skillType == eSkillType::summon ||
                            skillType == eSkillType::aura ||
                            skillType == eSkillType::passive ||

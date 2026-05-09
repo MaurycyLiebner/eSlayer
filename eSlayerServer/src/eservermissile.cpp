@@ -1,6 +1,6 @@
 #include "eservermissile.h"
 
-int32_t eServerMissile::sNextId = 0;
+uint32_t eServerMissile::sNextId = 1;
 
 eServerMissile::eServerMissile() {
     fId = sNextId++;

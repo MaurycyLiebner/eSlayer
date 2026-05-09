@@ -3,8 +3,10 @@
 
 #include "eserverunit.h"
 #include "eservermissile.h"
+#include "eservernova.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
+#include <eSlayerMissiles/enovaincrementer.h>
 
 #include <eSlayerHelpers/eunitdynamicdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
@@ -31,7 +33,8 @@ struct eClientData {
     eArea fArea;
     std::set<int> fKnownUnits;
     std::set<int> fKnownItems;
-    int32_t fLatestMissile;
+    uint32_t fLatestMissile;
+    uint32_t fLatestNova;
     eAreas fKnownMap;
     int fKnownBodies = 0;
     std::vector<int> fBodies;
@@ -58,6 +61,8 @@ public:
                    std::vector<uint32_t>& removedItemIds);
     std::vector<eMissile>
     missileData(const int clientId);
+    std::vector<eNova>
+    novaData(const int clientId);
     std::vector<int>
     bodies(const int clientId);
 
@@ -97,6 +102,7 @@ public:
     void consumePotion(const int clientId, const uint32_t itemId);
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
+    void addNova(const std::shared_ptr<eServerNova>& n);
     void summon(eServerUnit& by,
                 ePointF to,
                 const int unitId,
@@ -123,6 +129,9 @@ public:
 
     void unitKilled(const eServerUnit& killed);
 private:
+    void iniMissileInc();
+    void iniNovaInc();
+
     void removePlannedUnits();
     void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
                       const int charId,
@@ -149,6 +158,7 @@ private:
     static eTeamId sNextTeamId;
 
     eIdMapVector<eServerMissile> mMissiles;
+    eIdMapVector<eServerNova> mNovas;
     eIdMapVector<eServerUnit> mUnits;
     eIdMapVector<eItem> mItemsOnGround;
     eIdMapVector<eGroundItem> mGroundItems;
@@ -165,6 +175,7 @@ private:
     std::map<int, eClientData> mClientData;
 
     eMissileIncrementer mMIncrementer;
+    eNovaIncrementer mNIncrementer;
 };
 
 #endif // ESERVERAREA_H

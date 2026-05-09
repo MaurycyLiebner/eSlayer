@@ -44,6 +44,7 @@ add_library(eSlayerServer SHARED
     src/actions/eknockbackaction.h src/actions/eknockbackaction.cpp
     src/eitemgenerator.h src/eitemgenerator.cpp
     src/eelitemodifiers.h src/eelitemodifiers.cpp
+    src/eservernova.h src/eservernova.cpp
 
 
 )

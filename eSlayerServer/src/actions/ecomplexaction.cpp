@@ -11,6 +11,7 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerMissiles/emissileincrement.h>
+#include <eSlayerMissiles/enovaincrementer.h>
 
 void eComplexAction::increment(const float by) {
     if(mChild) {
@@ -56,6 +57,8 @@ bool eComplexAction::attack(const eAttackData& target) {
             return spawnMissile(u->fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(u->fPos, schoice);
+        } else if(skill.fType == eSkillType::nova) {
+            return spawnNova(u->fPos, schoice, wchoice);
         }
     } break;
     case eAttackTargetType::position: {
@@ -100,6 +103,8 @@ bool eComplexAction::attack(const eAttackData& target) {
             return spawnMissile(target.fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(target.fPos, schoice);
+        } else if(skill.fType == eSkillType::nova) {
+            return spawnNova(target.fPos, schoice, wchoice);
         }
 
     } break;
@@ -342,15 +347,16 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                 nullptr;
             m->fHitAction = [data, m, skip](eServerUnit& u) {
                 if(skip) {
+                    auto& c = skip->fChars;
                     if(skip->fTime < m->fTime) {
-                        skip->fChars.clear();
+                        c.clear();
                         skip->fTime = m->fTime;
                     } else {
-                        if(skip->fChars.find(u.fCharId) != skip->fChars.end()) {
+                        if(c.find(u.fCharId) != c.end()) {
                             return;
                         }
                     }
-                    skip->fChars.emplace(u.fCharId);
+                    c.emplace(u.fCharId);
                 }
                 u.getHit(data);
             };
@@ -373,8 +379,67 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     return true;
 }
 
-bool eComplexAction::summon(const ePointF& to,
-                            const int schoice) {
+bool eComplexAction::spawnNova(
+    const ePointF& to, const int schoice,
+    const eWeaponChoice wchoice) {
+    const auto& from = mUnit.fPos;
+    const auto dir = ePointF::vector(to, from);
+    mUnit.fAngle = dir.angle();
+    const int skillId = mUnit.skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const float missileRangeTime = mUnit.missileRangeTime(
+        wchoice, schoice);
+    const bool continuousDamage = false;
+    const auto skillType = skill.fType;
+    eHitData data;
+    hitData(schoice, wchoice, data);
+    if(continuousDamage) {
+        data.fDamage = data.fDamage/eRunSettings::sFPS;
+    }
+
+    auto& area = mArea;
+    const auto a = [&area, to, &skill, data, skillType,
+                    missileRangeTime, continuousDamage]() {
+        const auto n = std::make_shared<eServerNova>();
+        n->fTeamId = data.fAttackTeamId;
+        n->fMissileType = skill.fMissileId;
+        n->fCenter = data.fFrom;
+        n->fRadius = 0.f;
+        n->fMaxRadius = skill.fRadius;
+        n->fSpeed = skill.fSpeed;
+
+        struct eCharSkipper {
+            std::set<int> fChars;
+        };
+
+        const std::shared_ptr<eCharSkipper> skip =
+            !continuousDamage ?
+                std::make_shared<eCharSkipper>() :
+                nullptr;
+        n->fHitAction = [data, skip](eServerUnit& u) {
+            if(skip) {
+                auto& c = skip->fChars;
+                if(c.find(u.fCharId) != c.end()) {
+                    return;
+                }
+                c.emplace(u.fCharId);
+            }
+            u.getHit(data);
+        };
+        area.addNova(n);
+    };
+    const eAttackType attackType = eAttackType::cast;
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, mUnit.castAnims(schoice),
+        attackType, a, schoice, wchoice);
+    if(attack) setChild(attack);
+    return attack.get();
+
+    return true;
+}
+
+bool eComplexAction::summon(
+    const ePointF& to, const int schoice) {
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
     mUnit.fAngle = dir.angle();

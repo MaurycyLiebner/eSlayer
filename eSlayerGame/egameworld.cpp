@@ -15,7 +15,13 @@
 
 eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mMap(map),
-    mMIncrementer(mUnitAreas) {
+    mMIncrementer(mUnitAreas),
+    mNIncrementer(mUnitAreas) {
+    iniMissileInc();
+    iniNovaInc();
+}
+
+void eGameWorld::iniMissileInc() {
     const auto obsticle = [this](const ePointF& pos) {
         return mMap->obsticle(pos);
     };
@@ -34,6 +40,41 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
 
     mMIncrementer.initialize(obsticle,
                              removeMissile,
+                             getUnit,
+                             nullptr);
+}
+
+void eGameWorld::iniNovaInc() {
+    const auto hasObjects = [this](const int x, const int y) {
+        return mMap->hasObjects(x, y);
+    };
+
+    const auto getObjects = [this](const int x, const int y)
+        -> const std::vector<uint32_t>& {
+        return mMap->objects(x, y);
+    };
+
+    const auto getObject = [this](const int x, const int y,
+                                  const uint32_t objectId) {
+        return mMap->object(x, y, objectId);
+    };
+
+    const auto removeNova = [this](const eNova& m) {
+        mNovas.remove(m.fId);
+    };
+
+    const auto getUnit = [this](const int charId) {
+        if(charId == mClientId) {
+            return static_cast<eUnitData*>(mMainChar.get());
+        }
+        const auto u = mUnits.get(charId);
+        return static_cast<eUnitData*>(u.get());
+    };
+
+    mNIncrementer.initialize(hasObjects,
+                             getObjects,
+                             getObject,
+                             removeNova,
                              getUnit,
                              nullptr);
 }
@@ -76,6 +117,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& newUnits = data.fNewUnits;
     const auto& updatedUnits = data.fUpdatedUnits;
     const auto& missiles = data.fMissiles;
+    const auto& novas = data.fNovas;
     const auto& newItems = data.fNewItems;
     const auto& removedItemIds = data.fRemovedItemIds;
     std::set<int> uPresent;
@@ -170,6 +212,11 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mMissiles.add(m.fId, mm);
     }
 
+    for(const auto& n : novas) {
+        const auto nn = std::make_shared<eNova>(n);
+        mNovas.add(n.fId, nn);
+    }
+
     return result;
 }
 
@@ -181,6 +228,12 @@ void eGameWorld::simulateMissiles(const float by) {
         const auto& newPos = m->fPos;
         const auto dir = ePointF::vector(oldPos, newPos);
         m->fAngle = dir.angle();
+    }
+}
+
+void eGameWorld::simulateNovas(const float by) {
+    for(const auto& n : mNovas) {
+        mNIncrementer.increment(*n, by);
     }
 }
 

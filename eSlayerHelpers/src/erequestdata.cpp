@@ -29,6 +29,14 @@ void eRequestData::read(ePacket& p) {
         m.read(p);
     }
 
+    uint16_t nNovas;
+    p >> nNovas;
+    fNovas.reserve(fNovas.size() + nNovas);
+    for(int i = 0; i < nNovas; i++) {
+        auto& n = fNovas.emplace_back();
+        n.read(p);
+    }
+
     uint16_t nNewItems;
     p >> nNewItems;
     fNewItems.reserve(fNewItems.size() + nNewItems);
@@ -84,6 +92,12 @@ void eRequestData::write(ePacket& p) const {
     p << nMissiles;
     for(const auto& m : fMissiles) {
         m.write(p);
+    }
+
+    const uint16_t nNovas = fNovas.size();
+    p << nNovas;
+    for(const auto& n : fNovas) {
+        n.write(p);
     }
 
     const uint16_t nNewItems = fNewItems.size();

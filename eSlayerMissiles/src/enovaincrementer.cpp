@@ -69,7 +69,7 @@ bool eNovaIncrementer::increment(
                     if(!u) continue;
                     if(u->fHealth <= 0) continue;
                     if(!eTeams::areEnemies(u->fTeamId, n.fTeamId)) continue;
-                    mHitAction(*u);
+                    if(mHitAction) mHitAction(n, *u);
                 }
             }
 

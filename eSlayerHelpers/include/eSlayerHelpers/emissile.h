@@ -12,7 +12,7 @@
 class ePacket;
 
 struct ESLAYERHELPERS_API eMissile : public ePositioned {
-    int32_t fId;
+    uint32_t fId;
     eTeamId fTeamId;
     uint8_t fType;
     uint8_t fPathType;
