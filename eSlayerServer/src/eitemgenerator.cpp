@@ -650,19 +650,21 @@ eItem eItemGenerator::generateItem(
 
     int minDmg = eRand::rand(itemData.fValue1Min,
                              itemData.fValue1Max);
-    minDmg = eModifierHelpers::clampValue(
-        minDmg, eModifierType::damageValue);
-    int maxDmg = eRand::rand(std::max(minDmg, itemData.fValue2Min),
+    int maxDmg = eRand::rand(itemData.fValue2Min,
                              itemData.fValue2Max);
-    maxDmg = eModifierHelpers::clampValue(
-        maxDmg, eModifierType::damageValue);
 
     int def = eRand::rand(itemData.fValue3Min,
                           itemData.fValue3Max);
-    def = eModifierHelpers::clampValue(
-        def, eModifierType::defenseValue);
     int block = eRand::rand(itemData.fValue4Min,
                             itemData.fValue4Max);
+
+    minDmg = eModifierHelpers::clampValue(
+        minDmg, eModifierType::damageValue);
+    maxDmg = eModifierHelpers::clampValue(
+        maxDmg, eModifierType::damageValue);
+    if(maxDmg < minDmg) maxDmg = minDmg;
+    def = eModifierHelpers::clampValue(
+        def, eModifierType::defenseValue);
     block = eModifierHelpers::clampValue(
         block, eModifierType::blockChancePercent);
 
