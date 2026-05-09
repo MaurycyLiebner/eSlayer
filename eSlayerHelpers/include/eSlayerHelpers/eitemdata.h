@@ -39,15 +39,15 @@ struct eItemData {
     // Weapon speed modifier
     float fWSM = 0.f;
 
-    float fValue1Min = 0.f;
-    float fValue2Min = 0.f;
-    float fValue3Min = 0.f;
-    float fValue4Min = 0.f;
+    int fValue1Min = 0;
+    int fValue2Min = 0;
+    int fValue3Min = 0;
+    int fValue4Min = 0;
 
-    float fValue1Max = 0.f;
-    float fValue2Max = 0.f;
-    float fValue3Max = 0.f;
-    float fValue4Max = 0.f;
+    int fValue1Max = 0;
+    int fValue2Max = 0;
+    int fValue3Max = 0;
+    int fValue4Max = 0;
 
     std::string fMissileStr;
     int fMissileId = -1;

@@ -26,12 +26,18 @@ bool gReadModifier(eModifier& mod, const XMLElement* modE) {
     if(!type) return false;
     mod.typeFromKey(type);
 
-    if(modE->Attribute("value")) {
-        mod.fValue1 = modE->FloatAttribute("value");
-        mod.fValue2 = mod.fValue1;
-    } else {
-        mod.fValue1 = modE->FloatAttribute("value1");
-        mod.fValue2 = modE->FloatAttribute("value2");
+    const auto used = mod.valuesUsed();
+    if(used & eModValuesUsage::value1) {
+        const auto name = mod.value1Name();
+        mod.fValue1 = modE->IntAttribute(name.c_str());
+    }
+    if(used & eModValuesUsage::value2) {
+        const auto name = mod.value2Name();
+        mod.fValue2 = modE->IntAttribute(name.c_str());
+    }
+    if(used & eModValuesUsage::skillId) {
+        const auto name = mod.skillIdName();
+        mod.fSkillId = modE->IntAttribute(name.c_str());
     }
 
     return true;
@@ -48,7 +54,7 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     item.fType = itemData.fType;
     item.fSubType = itemData.fSubtype;
 
-    item.fSockets = itemE->IntAttribute("sockets");
+    item.fSockets = itemE->IntAttribute("sockets", 0);
 
     item.fRequiredLevel = itemE->IntAttribute("requiredLevel");
 
@@ -328,12 +334,18 @@ void gWriteModifier(const eModifier& mod,
     const auto modE = e->InsertNewChildElement("modifier");
     const auto type = mod.typeName();
     modE->SetAttribute("type", type.c_str());
-    const int used = mod.valuesUsed();
-    if(used == 1) {
-        modE->SetAttribute("value", mod.fValue1);
-    } else if(used == 2) {
-        modE->SetAttribute("value1", mod.fValue1);
-        modE->SetAttribute("value2", mod.fValue2);
+    const auto used = mod.valuesUsed();
+    if(used & eModValuesUsage::value1) {
+        const auto name = mod.value1Name();
+        modE->SetAttribute(name.c_str(), mod.fValue1);
+    }
+    if(used & eModValuesUsage::value2) {
+        const auto name = mod.value2Name();
+        modE->SetAttribute(name.c_str(), mod.fValue2);
+    }
+    if(used & eModValuesUsage::skillId) {
+        const auto name = mod.skillIdName();
+        modE->SetAttribute(name.c_str(), mod.fSkillId);
     }
 }
 
@@ -351,8 +363,12 @@ void gWriteItem(const eItem& item,
         break;
     }
 
-    itemE->SetAttribute("sockets", item.fSockets);
-    itemE->SetAttribute("requiredLevel", item.fRequiredLevel);
+    if(item.fSockets != 0) {
+        itemE->SetAttribute("sockets", item.fSockets);
+    }
+    if(item.fRequiredLevel != 0) {
+        itemE->SetAttribute("requiredLevel", item.fRequiredLevel);
+    }
     const auto rarityName = eItemRarityHelpers::name(item.fRarity);
     itemE->SetAttribute("rarity", rarityName.c_str());
     switch(type) {

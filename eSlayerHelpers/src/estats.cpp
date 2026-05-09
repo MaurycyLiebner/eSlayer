@@ -59,8 +59,8 @@ void gCalculateWeaponDmg(const eItem& weapon,
     for(const auto& mod : weapon.fModifiers) {
         switch(mod.fType) {
         case eModifierType::damagePercent:
-            percentIncMin += mod.fValue1;
-            percentIncMax += mod.fValue2;
+            percentIncMin += 0.01f*mod.fValue1;
+            percentIncMax += 0.01f*mod.fValue2;
             break;
         case eModifierType::damageValue:
             baseMin += mod.fValue1;
@@ -171,8 +171,8 @@ struct eSkillStatsHelper {
         if(!r) return;
         switch(mod.fType) {
         case eModifierType::damagePercent: {
-            fDmgMultMin.fPhysical += mod.fValue1;
-            fDmgMultMax.fPhysical += mod.fValue2;
+            fDmgMultMin.fPhysical += 0.01f*mod.fValue1;
+            fDmgMultMax.fPhysical += 0.01f*mod.fValue2;
         } break;
         case eModifierType::damageValue: {
             fDmgMinLWBase.fPhysical += mod.fValue1;
@@ -211,8 +211,8 @@ struct eSkillStatsHelper {
             }
         } break;
         case eModifierType::damagePoison: {
-            const float bitRate = (mod.fValue1*256.f)/(mod.fValue2*eRunSettings::sFPS);
             const float framesLength = mod.fValue2*eRunSettings::sFPS;
+            const float bitRate = 256.f*mod.fValue1/framesLength;
             if(lw) {
                 fPoisonBitRateLW += bitRate;
                 fPoisonFrameLengthLW += framesLength;
@@ -224,10 +224,10 @@ struct eSkillStatsHelper {
         } break;
         case eModifierType::pierceChance: {
             if(lw) {
-                fStats.fPierceLW += mod.fValue1;
+                fStats.fPierceLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fPierceRW += mod.fValue1;
+                fStats.fPierceRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::attackRatingValue: {
@@ -240,65 +240,64 @@ struct eSkillStatsHelper {
         } break;
         case eModifierType::attackRatingPercent: {
             if(lw) {
-                fBonusARLW += mod.fValue1;
+                fBonusARLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fBonusARRW += mod.fValue1;
+                fBonusARRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::lifeSteal: {
             if(lw) {
-                fStats.fLifeStealLW += mod.fValue1;
+                fStats.fLifeStealLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fLifeStealRW += mod.fValue1;
+                fStats.fLifeStealRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::manaSteal: {
             if(lw) {
-                fStats.fManaStealLW += mod.fValue1;
+                fStats.fManaStealLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fManaStealRW += mod.fValue1;
+                fStats.fManaStealRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::meeleSplashDamage: {
             if(lw) {
-                fStats.fMeeleSplashDamageLW += mod.fValue1;
+                fStats.fMeeleSplashDamageLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fMeeleSplashDamageRW += mod.fValue1;
+                fStats.fMeeleSplashDamageRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::knockback: {
-            const bool knockback = mod.fValue1 > 0.5f;
             if(lw) {
-                fStats.fKnockbackLW = fStats.fKnockbackLW || knockback;
+                fStats.fKnockbackLW = fStats.fKnockbackLW;
             }
             if(rw) {
-                fStats.fKnockbackRW = fStats.fKnockbackRW || knockback;
+                fStats.fKnockbackRW = fStats.fKnockbackRW;
             }
         } break;
         case eModifierType::attackSpeed: {
             if(src == eModifierSource::skill) {
-                fStats.fAttackSpeedS += mod.fValue1;
+                fStats.fAttackSpeedS += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::fireSkillDamage: {
-            fDmgMultMin.fFire += mod.fValue1;
-            fDmgMultMax.fFire += mod.fValue1;
+            fDmgMultMin.fFire += 0.01f*mod.fValue1;
+            fDmgMultMax.fFire += 0.01f*mod.fValue1;
         } break;
         case eModifierType::coldSkillDamage: {
-            fDmgMultMin.fCold += mod.fValue1;
-            fDmgMultMax.fCold += mod.fValue1;
+            fDmgMultMin.fCold += 0.01f*mod.fValue1;
+            fDmgMultMax.fCold += 0.01f*mod.fValue1;
         } break;
         case eModifierType::lightningSkillDamage: {
-            fDmgMultMin.fLightning += mod.fValue1;
-            fDmgMultMax.fLightning += mod.fValue1;
+            fDmgMultMin.fLightning += 0.01f*mod.fValue1;
+            fDmgMultMax.fLightning += 0.01f*mod.fValue1;
         } break;
         case eModifierType::poisonSkillDamage: {
-            fDmgMultMin.fPoisonPerFrame += mod.fValue1;
-            fDmgMultMax.fPoisonPerFrame += mod.fValue1;
+            fDmgMultMin.fPoisonPerFrame += 0.01f*mod.fValue1;
+            fDmgMultMax.fPoisonPerFrame += 0.01f*mod.fValue1;
         } break;
         default:
             break;
@@ -455,77 +454,77 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             baseDef += mod.fValue1;
             break;
         case eModifierType::defensePercent:
-            ed += mod.fValue1;
+            ed += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::blockChancePercent:
-            fBlockChance += mod.fValue1;
+            fBlockChance += 0.01f*mod.fValue1;
             break;
         case eModifierType::walkRun:
-            fWalkRun += mod.fValue1;
+            fWalkRun += 0.01f*mod.fValue1;
             break;
         case eModifierType::castRate:
-            fCastRate += mod.fValue1;
+            fCastRate += 0.01f*mod.fValue1;
             break;
         case eModifierType::attackSpeed: {
             if(lw) {
-                fAttackSpeedLW += mod.fValue1;
+                fAttackSpeedLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fAttackSpeedRW += mod.fValue1;
+                fAttackSpeedRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::blockRecoverySpeed:
-            fFasterBlockRate += mod.fValue1;
+            fFasterBlockRate += 0.01f*mod.fValue1;
             break;
         case eModifierType::hitRecoverySpeed:
-            fFasterHitRecovery += mod.fValue1;
+            fFasterHitRecovery += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::lifeValue:
             baseLife += mod.fValue1;
             break;
         case eModifierType::lifePercent:
-            bonusLife += mod.fValue1;
+            bonusLife += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::manaValue:
             baseMana += mod.fValue1;
             break;
         case eModifierType::manaPercent:
-            bonusMana += mod.fValue1;
+            bonusMana += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::fireResistance:
-            fFireResistance += mod.fValue1;
+            fFireResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::coldResistance:
-            fColdResistance += mod.fValue1;
+            fColdResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::lightningResitance:
-            fLightningResistance += mod.fValue1;
+            fLightningResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::poisonResistance:
-            fPoisonResistance += mod.fValue1;
+            fPoisonResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::physicalResistance:
-            fPhysicalResistance += mod.fValue1;
+            fPhysicalResistance += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::maxFireResistance:
-            fMaxFireResistance += mod.fValue1;
+            fMaxFireResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::maxColdResistance:
-            fMaxColdResistance += mod.fValue1;
+            fMaxColdResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::maxLightningResitance:
-            fMaxLightningResistance += mod.fValue1;
+            fMaxLightningResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::maxPoisonResistance:
-            fMaxPoisonResistance += mod.fValue1;
+            fMaxPoisonResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::maxPhysicalResistance:
-            fMaxPhysicalResistance += mod.fValue1;
+            fMaxPhysicalResistance += 0.01f*mod.fValue1;
             break;
 
         case eModifierType::strength:

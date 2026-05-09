@@ -648,21 +648,21 @@ eItem eItemGenerator::generateItem(
 
     if(type == eItemType::potion) return item;
 
-    float minDmg = eRand::randF(itemData.fValue1Min,
-                                itemData.fValue1Max);
+    int minDmg = eRand::rand(itemData.fValue1Min,
+                             itemData.fValue1Max);
     minDmg = eModifierHelpers::clampValue(
         minDmg, eModifierType::damageValue);
-    float maxDmg = eRand::randF(std::max(minDmg, itemData.fValue2Min),
-                                itemData.fValue2Max);
+    int maxDmg = eRand::rand(std::max(minDmg, itemData.fValue2Min),
+                             itemData.fValue2Max);
     maxDmg = eModifierHelpers::clampValue(
         maxDmg, eModifierType::damageValue);
 
-    float def = eRand::randF(itemData.fValue3Min,
-                             itemData.fValue3Max);
+    int def = eRand::rand(itemData.fValue3Min,
+                          itemData.fValue3Max);
     def = eModifierHelpers::clampValue(
         def, eModifierType::defenseValue);
-    float block = eRand::randF(itemData.fValue4Min,
-                               itemData.fValue4Max);
+    int block = eRand::rand(itemData.fValue4Min,
+                            itemData.fValue4Max);
     block = eModifierHelpers::clampValue(
         block, eModifierType::blockChancePercent);
 
@@ -698,74 +698,74 @@ eItem eItemGenerator::generateItem(
         case eModifierType::count:
             break;
         case eModifierType::walkRun:
-            mod.fValue1 = worth*0.3f;
+            mod.fValue1 = 30*worth;
             break;
         case eModifierType::attackSpeed:
         case eModifierType::castRate:
-            mod.fValue1 = worth*0.25f;
+            mod.fValue1 = 25*worth;
             break;
 
         case eModifierType::defenseValue:
-            mod.fValue1 = level*worth*5.f;
+            mod.fValue1 = 5*level*worth;
             break;
         case eModifierType::defensePercent:
-            mod.fValue1 = worth*1.5f;
+            mod.fValue1 = 150*worth;
             break;
 
         case eModifierType::damageValue:
-            mod.fValue1 = level*worth*1.f;
-            mod.fValue2 = level*worth*2.f;
+            mod.fValue1 = 1*level*worth;
+            mod.fValue2 = 2*level*worth;
             break;
         case eModifierType::damagePercent:
-            mod.fValue1 = (5 + sqrt(level))*worth*0.05f;
-            mod.fValue2 = (5 + sqrt(level))*worth*0.3f;
+            mod.fValue1 = 5*(5 + sqrt(level))*worth;
+            mod.fValue2 = 30*(5 + sqrt(level))*worth;
             break;
 
         case eModifierType::damageFire:
-            mod.fValue1 = level*worth*1.f;
-            mod.fValue2 = level*worth*2.f;
+            mod.fValue1 = 1*level*worth;
+            mod.fValue2 = 2*level*worth;
             break;
         case eModifierType::damageLightning:
-            mod.fValue1 = 1.f;
-            mod.fValue2 = level*worth*3.f;
+            mod.fValue1 = 1;
+            mod.fValue2 = 3*level*worth;
             break;
         case eModifierType::damageCold:
-            mod.fValue1 = level*worth*1.f;
-            mod.fValue2 = level*worth*2.f;
+            mod.fValue1 = 1*level*worth;
+            mod.fValue2 = 2*level*worth;
             break;
         case eModifierType::damagePoison:
-            mod.fValue1 = level*worth*2.f;
-            mod.fValue2 = worth*5.f;
+            mod.fValue1 = 2*level*worth;
+            mod.fValue2 = 5*worth;
             break;
 
         case eModifierType::attackRatingValue:
-            mod.fValue1 = (level + 5)*worth*10.f;
+            mod.fValue1 = 10*(level + 5)*worth;
             break;
         case eModifierType::attackRatingPercent:
-            mod.fValue1 = worth*0.5f;
+            mod.fValue1 = 50*worth;
             break;
 
         case eModifierType::blockChancePercent:
         case eModifierType::blockRecoverySpeed:
         case eModifierType::hitRecoverySpeed:
-            mod.fValue1 = worth*0.25f;
+            mod.fValue1 = 25*worth;
             break;
 
         case eModifierType::lifeValue:
             mod.fValue1 = (level + 5)*worth;
             break;
         case eModifierType::lifePercent:
-            mod.fValue1 = worth*0.1f;
+            mod.fValue1 = 10*worth;
             break;
         case eModifierType::manaValue:
             mod.fValue1 = (level + 5)*worth;
             break;
         case eModifierType::manaPercent:
-            mod.fValue1 = worth*0.1f;
+            mod.fValue1 = 10*worth;
             break;
 
         case eModifierType::pierceChance:
-            mod.fValue1 = worth*0.5f;
+            mod.fValue1 = 50*worth;
             break;
 
         case eModifierType::fireResistance:
@@ -773,7 +773,7 @@ eItem eItemGenerator::generateItem(
         case eModifierType::lightningResitance:
         case eModifierType::poisonResistance:
         case eModifierType::physicalResistance:
-            mod.fValue1 = sqrt(sqrt(level))*worth*0.15f;
+            mod.fValue1 = 15*sqrt(sqrt(level))*worth;
             break;
 
         case eModifierType::maxFireResistance:
@@ -781,23 +781,23 @@ eItem eItemGenerator::generateItem(
         case eModifierType::maxLightningResitance:
         case eModifierType::maxPoisonResistance:
         case eModifierType::maxPhysicalResistance:
-            mod.fValue1 = worth*0.05f;
+            mod.fValue1 = 5*worth;
             break;
 
         case eModifierType::strength:
         case eModifierType::dexterity:
         case eModifierType::energy:
         case eModifierType::vitality:
-            mod.fValue1 = sqrt(level)*worth*2;
+            mod.fValue1 = 2*sqrt(level)*worth;
             break;
 
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
-            mod.fValue1 = worth*0.05f;
+            mod.fValue1 = 5*worth;
             break;
 
         case eModifierType::meeleSplashDamage:
-            mod.fValue1 = worth*0.5f;
+            mod.fValue1 = 50*worth;
             break;
         case eModifierType::knockback:
             break;
@@ -808,14 +808,14 @@ eItem eItemGenerator::generateItem(
 
         case eModifierType::replenishLife:
         case eModifierType::regenerateMana:
-            mod.fValue1 = sqrt(level)*worth*2.f;
+            mod.fValue1 = 2*sqrt(level)*worth;
             break;
 
         case eModifierType::fireSkillDamage:
         case eModifierType::coldSkillDamage:
         case eModifierType::lightningSkillDamage:
         case eModifierType::poisonSkillDamage:
-            mod.fValue1 = worth*0.15f;
+            mod.fValue1 = 15*worth;
             break;
         }
         mod.fValue1 = eModifierHelpers::clampValue(mod.fValue1, type);

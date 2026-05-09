@@ -25,7 +25,7 @@ public:
                  const eFontColor color);
     void addValue(SDL_Renderer* const r,
                   const int g, const int s,
-                  const float min, const float max,
+                  const int min, const int max,
                   const eFontColor color,
                   const eModifierType type = eModifierType::none);
 

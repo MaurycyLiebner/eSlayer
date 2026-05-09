@@ -161,8 +161,8 @@ void eSkills::load() {
                 }
             }
             sSkills.add(name, skill);
-        } catch(const std::exception& e) {
-            eExceptions::showDialog(e);
+        } catch(...) {
+            eRuntimeThrow("Failed to parse skill \"" + name + "\".");
         }
     }
 

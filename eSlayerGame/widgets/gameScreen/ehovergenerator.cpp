@@ -108,27 +108,20 @@ bool addPlus(const float value,
     return false;
 }
 
-std::string floatToString(const float value,
-                          const eModifierType type) {
-    const bool r = eModifierHelpers::isPercent(type);
-    if(r) return eStringHelpers::floatToString(100*value);
-    return eStringHelpers::floatToString(value);
-}
-
 void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const int g, const int s,
-                               const float min,
-                               const float max,
+                               const int min,
+                               const int max,
                                const eFontColor color,
                                const eModifierType type) {
     auto text = eLanguage::text(g, s);
 
     std::string minStr;
     if(addPlus(min, type)) minStr = "+";
-    minStr += floatToString(min, type);
+    minStr += std::to_string(min);
     text = eStringHelpers::replaceAll(text, "%1", minStr);
 
-    const std::string maxStr = floatToString(max, type);
+    const std::string maxStr = std::to_string(max);
     text = eStringHelpers::replaceAll(text, "%2", maxStr);
 
     addText(r, text, color);

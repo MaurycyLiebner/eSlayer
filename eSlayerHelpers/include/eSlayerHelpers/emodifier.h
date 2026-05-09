@@ -80,21 +80,37 @@ enum class eModifierType : uint8_t {
     count
 };
 
+enum class eModValuesUsage {
+    none = 0,
+    value1 = 1,
+    value2 = 2,
+    skillId = 4
+};
+
+inline eModValuesUsage operator|(const eModValuesUsage a, const eModValuesUsage b) {
+    return static_cast<eModValuesUsage>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+inline bool operator&(const eModValuesUsage a, const eModValuesUsage b) {
+    return static_cast<bool>(static_cast<int>(a) & static_cast<int>(b));
+}
+
 struct ESLAYERHELPERS_API eModifier {
     eModifierType fType = eModifierType::none;
-    float fValue1 = 0.f; // base / min
-    float fValue2 = 0.f; // max
+    uint16_t fValue1 = 0; // base / min / chance
+    uint16_t fValue2 = 0; // max / level
 
-    int valuesUsed() const;
+    uint16_t fSkillId = 0; // skill id
+
+    eModValuesUsage valuesUsed() const;
     void typeFromKey(const std::string& key);
     std::string typeName() const;
     void read(const std::string& key,
               const json& value);
-    void read(const std::string& key,
-              const float value);
-    void read(const std::string& key,
-              const float value1,
-              const float value2);
+
+    std::string value1Name() const;
+    std::string value2Name() const;
+    std::string skillIdName() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -104,8 +120,8 @@ namespace eModifierHelpers {
     ESLAYERHELPERS_API
     bool isPercent(const eModifierType type);
     ESLAYERHELPERS_API
-    float clampValue(const float value,
-                     const eModifierType type);
+    int clampValue(const int value,
+                   const eModifierType type);
 }
 
 #endif // EMODIFIER_H

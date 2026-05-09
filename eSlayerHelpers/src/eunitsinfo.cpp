@@ -53,8 +53,8 @@ void eUnitsInfo::load() {
                 }
             }
             sUnits.add(name, u);
-        } catch(const std::exception& e) {
-            eExceptions::showDialog(e);
+        } catch(...) {
+            eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
         }
     }
 
