@@ -1,16 +1,20 @@
 #include "audio/emusic.h"
 #include "audio/esounds.h"
+
 #include "emainwindow.h"
 #include "eresolution.h"
 #include "ewindowsettings.h"
 #include "elanguage.h"
+
 #include "screens/escreenhandler.h"
+
 #include "textures/echarstextures.h"
 #include "textures/eterrstextures.h"
 #include "textures/eobjstextures.h"
 #include "textures/eeffectstextures.h"
 #include "textures/emissilestextures.h"
 #include "textures/eitemstextures.h"
+#include "textures/enovastextures.h"
 
 #include "names/eitemnames.h"
 #include "names/emonsternames.h"
@@ -19,6 +23,8 @@
 #include "names/eclassnames.h"
 #include "names/eareanames.h"
 #include "names/eobjectnames.h"
+
+#include <eSlayerMissiles/emissileincrement.h>
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -32,8 +38,6 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eskilltrees.h>
 #include <eSlayerHelpers/eclasses.h>
-
-#include <eSlayerMissiles/emissileincrement.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -280,6 +284,10 @@ int main(int argc, char* argv[]) {
         loadings.emplace_back([&]() {
             eMissilesTextures::loadData();
             eMissileIncrement::initialize();
+        });
+
+        loadings.emplace_back([&]() {
+            eNovasTextures::loadData();
         });
 
         loadings.emplace_back([&]() {

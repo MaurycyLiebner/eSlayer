@@ -10,6 +10,7 @@ enum class eSkillType : uint8_t {
     attack, smite, kick,
     shoot, throw_,
     missile, wall,
+    nova,
     summon,
     passive,
     aura,
@@ -42,6 +43,8 @@ struct eSkill {
     int fIconId;
     std::string fMissileStr;
     int fMissileId;
+    std::string fNovaStr;
+    int fNovaId;
     std::string fUnitStr;
     int fUnitId;
     std::string fPath;

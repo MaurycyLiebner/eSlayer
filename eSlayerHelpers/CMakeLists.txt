@@ -156,6 +156,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/ewalldirection.h
     include/eSlayerHelpers/eobject.h
     include/eSlayerHelpers/etile.h
+    include/eSlayerHelpers/enova.h
+    src/enova.cpp
 
 
 )

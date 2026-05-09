@@ -24,7 +24,7 @@ public:
     int height() const { return mHeight; }
 
     const eTile& tile(const int x, const int y) const;
-    const std::vector<uint16_t>& objects(const int x, const int y) const;
+    const std::vector<uint32_t>& objects(const int x, const int y) const;
     std::shared_ptr<eObject> object(const int x, const int y,
                                     const uint32_t objectId) const;
     std::shared_ptr<eObject> object(const ePointF& pos,
@@ -79,7 +79,7 @@ private:
 
     std::vector<std::vector<eTile>> mTiles;
     std::vector<std::shared_ptr<eObject>> mObjects;
-    std::vector<std::vector<std::vector<uint16_t>>> mObjectsMap;
+    std::vector<std::vector<std::vector<uint32_t>>> mObjectsMap;
 
     std::set<uint16_t> mTerrainTypes;
     std::set<uint16_t> mObjectTypes;

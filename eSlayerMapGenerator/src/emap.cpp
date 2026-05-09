@@ -10,7 +10,7 @@ const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
-const std::vector<uint16_t>& eMap::objects(
+const std::vector<uint32_t>& eMap::objects(
     const int x, const int y) const {
     return mObjectsMap[y][x];
 }
@@ -283,7 +283,7 @@ void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
     mWidth = w;
     mHeight = h;
-    mObjectsMap.resize(mHeight, std::vector<std::vector<uint16_t>>(mWidth));
+    mObjectsMap.resize(mHeight, std::vector<std::vector<uint32_t>>(mWidth));
 }
 
 void eMap::updateObjectsMap() {
