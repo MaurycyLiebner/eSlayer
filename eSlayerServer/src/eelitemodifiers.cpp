@@ -13,6 +13,12 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
         eUnitMod::stoneSkin
     };
 
+    {
+        auto& bossMod = mBossMods.emplace_back();
+        bossMod.fType = eModifierType::lifePercent;
+        bossMod.fValue1 = 1.f;
+    }
+
     for(int i = 0; i < nMods; i++) {
         const int id = eRand::rand() % options.size();
         const auto m = options[id];
@@ -134,15 +140,6 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
             }
         } break;
         case eUnitMod::stoneSkin: {
-            {
-                auto& minionMod = mMinionMods.emplace_back();
-                minionMod.fType = eModifierType::lifePercent;
-                minionMod.fValue1 = 1.f;
-
-                auto& bossMod = mBossMods.emplace_back();
-                bossMod.fType = eModifierType::lifePercent;
-                bossMod.fValue1 = 2.f;
-            }
             {
                 auto& minionMod = mMinionMods.emplace_back();
                 minionMod.fType = eModifierType::defensePercent;
