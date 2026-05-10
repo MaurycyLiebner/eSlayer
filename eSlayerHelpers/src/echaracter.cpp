@@ -36,8 +36,11 @@ bool gReadModifier(eModifier& mod, const XMLElement* modE) {
         mod.fValue2 = modE->IntAttribute(name.c_str());
     }
     if(used & eModValuesUsage::skillId) {
-        const auto name = mod.skillIdName();
-        mod.fSkillId = modE->IntAttribute(name.c_str());
+        const auto name = mod.skillName();
+        const auto skillName = modE->Attribute(name.c_str());
+        const int skillId = eSkills::sSkills.id(skillName);
+        if(skillId < 0) eRuntimeThrow("Skill name \"" + skillName + "\" not recognized.");
+        mod.fSkillId = skillId;
     }
 
     return true;
@@ -344,8 +347,9 @@ void gWriteModifier(const eModifier& mod,
         modE->SetAttribute(name.c_str(), mod.fValue2);
     }
     if(used & eModValuesUsage::skillId) {
-        const auto name = mod.skillIdName();
-        modE->SetAttribute(name.c_str(), mod.fSkillId);
+        const auto name = mod.skillName();
+        const auto skillName = eSkills::sSkills.name(mod.fSkillId);
+        modE->SetAttribute(name.c_str(), skillName.c_str());
     }
 }
 

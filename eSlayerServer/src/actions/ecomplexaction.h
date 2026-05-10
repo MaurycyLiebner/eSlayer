@@ -6,8 +6,9 @@
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/edamage.h>
 #include <eSlayerHelpers/eskillchoice.h>
-#include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/eteamid.h>
+#include <eSlayerHelpers/eweaponchoice.h>
+#include <eSlayerHelpers/estats.h>
 
 #include <memory>
 
@@ -34,6 +35,8 @@ struct eHitData {
 
     float fColdLength = 0.f;
     float fFreezeLength = 0.f;
+
+    std::vector<eSkillStats> fOnAttack;
 };
 
 class eComplexAction : public eUnitAction {

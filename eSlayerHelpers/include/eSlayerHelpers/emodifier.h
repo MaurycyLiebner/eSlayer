@@ -80,6 +80,11 @@ enum class eModifierType : uint8_t {
     coldLength,
     freezeLength,
 
+    onAttack,
+    onStriking,
+    onKill,
+    onStruck,
+
     count
 };
 
@@ -113,7 +118,7 @@ struct ESLAYERHELPERS_API eModifier {
 
     std::string value1Name() const;
     std::string value2Name() const;
-    std::string skillIdName() const;
+    std::string skillName() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -121,7 +126,8 @@ struct ESLAYERHELPERS_API eModifier {
 
 namespace eModifierHelpers {
     ESLAYERHELPERS_API
-    bool isPercent(const eModifierType type);
+    bool isPercent(const eModValuesUsage used,
+                   const eModifierType type);
     ESLAYERHELPERS_API
     int clampValue(const int value,
                    const eModifierType type);

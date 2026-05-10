@@ -150,6 +150,13 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return eModValuesUsage::value1;
+    case eModifierType::onAttack:
+    case eModifierType::onStriking:
+    case eModifierType::onKill:
+    case eModifierType::onStruck:
+        return eModValuesUsage::value1 |
+               eModValuesUsage::value2 |
+               eModValuesUsage::skillId;
     }
     return eModValuesUsage::none;
 }
@@ -236,6 +243,11 @@ std::string eModifier::value1Name() const {
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return "length";
+    case eModifierType::onAttack:
+    case eModifierType::onStriking:
+    case eModifierType::onKill:
+    case eModifierType::onStruck:
+        return "chance";
     }
     return "";
 }
@@ -310,12 +322,17 @@ std::string eModifier::value2Name() const {
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return "";
+    case eModifierType::onAttack:
+    case eModifierType::onStriking:
+    case eModifierType::onKill:
+    case eModifierType::onStruck:
+        return "level";
     }
     return "";
 }
 
-std::string eModifier::skillIdName() const {
-    return "skillId";
+std::string eModifier::skillName() const {
+    return "skill";
 }
 
 void eModifier::read(const std::string& key,
@@ -354,7 +371,7 @@ void eModifier::read(const std::string& key,
             fValue2 = value.value(v2Name, 0);
         }
         if(used & eModValuesUsage::skillId) {
-            const auto siName = skillIdName();
+            const auto siName = skillName();
             fSkillId = value.value(siName, 0);
         }
     }
@@ -389,6 +406,7 @@ void eModifier::write(ePacket& p) const {
 }
 
 bool eModifierHelpers::isPercent(
+    const eModValuesUsage used,
     const eModifierType type) {
     switch(type) {
     case eModifierType::walkRun:
@@ -461,6 +479,11 @@ bool eModifierHelpers::isPercent(
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return false;
+    case eModifierType::onAttack:
+    case eModifierType::onStriking:
+    case eModifierType::onKill:
+    case eModifierType::onStruck:
+        return used == eModValuesUsage::value1;
     }
 
     return false;

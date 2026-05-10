@@ -5,7 +5,6 @@
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/erand.h"
-#include "eSlayerHelpers/erunsettings.h"
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/eweaponchoice.h"
@@ -108,9 +107,11 @@ enum class eModifierSource {
 };
 
 struct eSkillStatsHelper {
-    eSkillStatsHelper(eSkillStats& stats) :
-        fStats(stats) {
-        const int skillId = fStats.fSkillId;
+    eSkillStatsHelper(const eStats& stats, const eEquipment& eq,
+                      eSkillStats& skillStats) :
+        fStats(stats), fEq(eq),
+        fSkillStats(skillStats) {
+        const int skillId = fSkillStats.fSkillId;
         if(skillId == -1) {
             fSkillType = eSkillType::attack;
         } else {
@@ -119,7 +120,9 @@ struct eSkillStatsHelper {
         }
     }
 
-    eSkillStats& fStats;
+    const eStats& fStats;
+    const eEquipment& fEq;
+    eSkillStats& fSkillStats;
     eSkillType fSkillType;
 
     float fBaseAR = 0.f;
@@ -227,10 +230,10 @@ struct eSkillStatsHelper {
         } break;
         case eModifierType::pierceChance: {
             if(lw) {
-                fStats.fPierceLW += 0.01f*mod.fValue1;
+                fSkillStats.fPierceLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fPierceRW += 0.01f*mod.fValue1;
+                fSkillStats.fPierceRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::attackRatingValue: {
@@ -251,39 +254,39 @@ struct eSkillStatsHelper {
         } break;
         case eModifierType::lifeSteal: {
             if(lw) {
-                fStats.fLifeStealLW += 0.01f*mod.fValue1;
+                fSkillStats.fLifeStealLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fLifeStealRW += 0.01f*mod.fValue1;
+                fSkillStats.fLifeStealRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::manaSteal: {
             if(lw) {
-                fStats.fManaStealLW += 0.01f*mod.fValue1;
+                fSkillStats.fManaStealLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fManaStealRW += 0.01f*mod.fValue1;
+                fSkillStats.fManaStealRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::meeleSplashDamage: {
             if(lw) {
-                fStats.fMeeleSplashDamageLW += 0.01f*mod.fValue1;
+                fSkillStats.fMeeleSplashDamageLW += 0.01f*mod.fValue1;
             }
             if(rw) {
-                fStats.fMeeleSplashDamageRW += 0.01f*mod.fValue1;
+                fSkillStats.fMeeleSplashDamageRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::knockback: {
             if(lw) {
-                fStats.fKnockbackLW = true;
+                fSkillStats.fKnockbackLW = true;
             }
             if(rw) {
-                fStats.fKnockbackRW = true;
+                fSkillStats.fKnockbackRW = true;
             }
         } break;
         case eModifierType::attackSpeed: {
             if(src == eModifierSource::skill) {
-                fStats.fAttackSpeedS += 0.01f*mod.fValue1;
+                fSkillStats.fAttackSpeedS += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::fireSkillDamage: {
@@ -305,19 +308,47 @@ struct eSkillStatsHelper {
         case eModifierType::coldLength: {
             const float framesLength = mod.fValue1*eRunSettings::sFPS;
             if(lw) {
-                fStats.fColdLengthLW += framesLength;
+                fSkillStats.fColdLengthLW += framesLength;
             }
             if(rw) {
-                fStats.fColdLengthRW += framesLength;
+                fSkillStats.fColdLengthRW += framesLength;
             }
         } break;
         case eModifierType::freezeLength: {
             const float framesLength = mod.fValue1*eRunSettings::sFPS;
             if(lw) {
-                fStats.fFreezeLengthLW += framesLength;
+                fSkillStats.fFreezeLengthLW += framesLength;
             }
             if(rw) {
-                fStats.fFreezeLengthRW += framesLength;
+                fSkillStats.fFreezeLengthRW += framesLength;
+            }
+        } break;
+
+        case eModifierType::onAttack: {
+            const auto skill = fStats.statsFromMod(mod, fEq);
+            if(lw) {
+                fSkillStats.fOnAttackLW.emplace_back(skill);
+            }
+            if(rw) {
+                fSkillStats.fOnAttackRW.emplace_back(skill);
+            }
+        } break;
+        case eModifierType::onStriking: {
+            const auto skill = fStats.statsFromMod(mod, fEq);
+            if(lw) {
+                fSkillStats.fOnStrikingLW.emplace_back(skill);
+            }
+            if(rw) {
+                fSkillStats.fOnStrikingRW.emplace_back(skill);
+            }
+        } break;
+        case eModifierType::onKill: {
+            const auto skill = fStats.statsFromMod(mod, fEq);
+            if(lw) {
+                fSkillStats.fOnKillLW.emplace_back(skill);
+            }
+            if(rw) {
+                fSkillStats.fOnKillRW.emplace_back(skill);
             }
         } break;
         default:
@@ -346,16 +377,16 @@ struct eSkillStatsHelper {
         fDmgMultMin.clamp();
         fDmgMultMax.clamp();
 
-        fStats.fDamageMinLW = fDmgMinLWBase*fDmgMultMin;
-        fStats.fDamageMaxLW = fDmgMaxLWBase*fDmgMultMax;
-        fStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
-        fStats.fDamageMaxRW = fDmgMaxRWBase*fDmgMultMax;
+        fSkillStats.fDamageMinLW = fDmgMinLWBase*fDmgMultMin;
+        fSkillStats.fDamageMaxLW = fDmgMaxLWBase*fDmgMultMax;
+        fSkillStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
+        fSkillStats.fDamageMaxRW = fDmgMaxRWBase*fDmgMultMax;
 
-        fStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);
-        fStats.fAttackRatingRW = (fBaseAR + fFlatARRW)*(1.f + fBonusARRW);
+        fSkillStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);
+        fSkillStats.fAttackRatingRW = (fBaseAR + fFlatARRW)*(1.f + fBonusARRW);
 
-        fStats.fMeeleSplashDamageLW = std::clamp(fStats.fMeeleSplashDamageLW, 0.f, 1.f);
-        fStats.fMeeleSplashDamageRW = std::clamp(fStats.fMeeleSplashDamageRW, 0.f, 1.f);
+        fSkillStats.fMeeleSplashDamageLW = std::clamp(fSkillStats.fMeeleSplashDamageLW, 0.f, 1.f);
+        fSkillStats.fMeeleSplashDamageRW = std::clamp(fSkillStats.fMeeleSplashDamageRW, 0.f, 1.f);
     }
 };
 
@@ -572,27 +603,43 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::regenerateMana:
             manaRegBonus += mod.fValue1;
             break;
+        case eModifierType::onStruck: {
+            const auto skill = statsFromMod(mod, eq);
+            fOnStruck.emplace_back(skill);
+        } break;
         case eModifierType::none:
         case eModifierType::count:
+
         case eModifierType::attackRatingValue:
         case eModifierType::attackRatingPercent:
+
         case eModifierType::damagePercent:
         case eModifierType::damageValue:
+
         case eModifierType::damageFire:
         case eModifierType::damageCold:
         case eModifierType::damageLightning:
         case eModifierType::damagePoison:
+
         case eModifierType::pierceChance:
+
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
+
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
+
         case eModifierType::fireSkillDamage:
         case eModifierType::coldSkillDamage:
         case eModifierType::lightningSkillDamage:
         case eModifierType::poisonSkillDamage:
+
         case eModifierType::coldLength:
         case eModifierType::freezeLength:
+
+        case eModifierType::onAttack:
+        case eModifierType::onStriking:
+        case eModifierType::onKill:
             break;
         }
     };
@@ -720,15 +767,22 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fHealthRegeneration = lifeRegBonus/256.f;
 }
 
-void eStats::calculateSkill(const int schoice,
-                            const eEquipment& eq) {
+void eStats::calculateSkill(
+    const int schoice, const eEquipment& eq) {
     auto& stats = fSkills[schoice];
+    calculateSkill(stats, eq, false);
+}
+
+void eStats::calculateSkill(eSkillStats& stats,
+                            const eEquipment& eq,
+                            const bool chanceSkill) const {
     const int skillId = stats.fSkillId;
     stats = eSkillStats();
     stats.fSkillId = skillId;
     if(skillId < 0) return;
     const auto& skill = eSkills::sSkills.get(skillId);
-    const int skillLevelId = fEffectiveSkillLevels.skillLevel(skillId);
+    const int skillLevelId = chanceSkill ? stats.fSkillLevelId :
+        fEffectiveSkillLevels.skillLevel(skillId);
     if(skillLevelId < 0) return;
     const auto& skillLevel = skill.skillLevel(skillLevelId);
 
@@ -736,28 +790,40 @@ void eStats::calculateSkill(const int schoice,
                                     const eModifierSource src,
                                     eSkillStatsHelper& helper,
                                     const bool lw, const bool rw) {
-        auto& stats = helper.fStats;
+        auto& stats = helper.fSkillStats;
         switch(mod.fType) {
         case eModifierType::attackRatingValue:
         case eModifierType::attackRatingPercent:
+
         case eModifierType::damagePercent:
         case eModifierType::damageValue:
+
         case eModifierType::damageFire:
         case eModifierType::damageCold:
         case eModifierType::damageLightning:
         case eModifierType::damagePoison:
+
         case eModifierType::pierceChance:
+
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
+
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
+
         case eModifierType::attackSpeed:
+
         case eModifierType::fireSkillDamage:
         case eModifierType::coldSkillDamage:
         case eModifierType::lightningSkillDamage:
         case eModifierType::poisonSkillDamage:
+
         case eModifierType::coldLength:
         case eModifierType::freezeLength:
+
+        case eModifierType::onAttack:
+        case eModifierType::onStriking:
+        case eModifierType::onKill:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -799,6 +865,8 @@ void eStats::calculateSkill(const int schoice,
 
         case eModifierType::replenishLife:
         case eModifierType::regenerateMana:
+
+        case eModifierType::onStruck:
             break;
         }
     };
@@ -809,7 +877,7 @@ void eStats::calculateSkill(const int schoice,
     const float minFootDmg = 1.f;
     const float maxFootDmg = 6.f;
 
-    eSkillStatsHelper helper{stats};
+    eSkillStatsHelper helper{*this, eq, stats};
 
     const auto& leftW = (eq.fWeapons1 ?
                              eq.fWeapon1L :
@@ -914,10 +982,10 @@ void eStats::calculateSkill(const int schoice,
         if(!itemReqsMet(item)) continue;
         for(const auto& mod : item.fModifiers) {
             if(item.fType == eItemType::weapon ||
-                item.fType == eItemType::shield ||
-                item.fType == eItemType::boots) {
+               item.fType == eItemType::shield ||
+               item.fType == eItemType::boots) {
                 if(mod.fType == eModifierType::damagePercent ||
-                    mod.fType == eModifierType::damageValue) {
+                   mod.fType == eModifierType::damageValue) {
                     continue;
                 }
             }
@@ -941,20 +1009,22 @@ void eStats::calculateSkill(const int schoice,
         }
     }
 
-    for(const auto& s : skill.fSynergies) {
-        const int sSkillId = s.fSkillId;
-        const int sLevelId = effectiveSkillLevel(sSkillId);
-        if(sLevelId < 0) continue;
-        const int maxLevel = s.fBoostLevels.size() - 1;
-        const int sMaxLevelId = std::min(sLevelId, maxLevel);
-        for(int level = 0; level <= sMaxLevelId; level++) {
-            const auto& boost = s.boostLevel(level);
-            stats.fCount += boost.fCount;
-            stats.fManaCost += boost.fManaCost;
-            stats.fCooldown += boost.fCooldown;
-            for(const auto& mod : boost.fTotalModifiers) {
-                handleSkillMod(mod.second, eModifierSource::skill,
-                               helper, true, true);
+    if(!chanceSkill) {
+        for(const auto& s : skill.fSynergies) {
+            const int sSkillId = s.fSkillId;
+            const int sLevelId = effectiveSkillLevel(sSkillId);
+            if(sLevelId < 0) continue;
+            const int maxLevel = s.fBoostLevels.size() - 1;
+            const int sMaxLevelId = std::min(sLevelId, maxLevel);
+            for(int level = 0; level <= sMaxLevelId; level++) {
+                const auto& boost = s.boostLevel(level);
+                stats.fCount += boost.fCount;
+                stats.fManaCost += boost.fManaCost;
+                stats.fCooldown += boost.fCooldown;
+                for(const auto& mod : boost.fTotalModifiers) {
+                    handleSkillMod(mod.second, eModifierSource::skill,
+                                   helper, true, true);
+                }
             }
         }
     }
@@ -981,6 +1051,16 @@ void eStats::calculateSkill(const int schoice,
 
     helper.fBaseAR += baseAR;
     helper.apply();
+}
+
+eSkillStats eStats::statsFromMod(
+    const eModifier& mod, const eEquipment& eq) const {
+    eSkillStats result;
+    result.fCastChance = 0.01f * mod.fValue1;
+    result.fSkillLevelId = mod.fValue2;
+    result.fSkillId = mod.fSkillId;
+    calculateSkill(result, eq, true);
+    return result;
 }
 
 bool eStats::canUseSkill(const eSkillChoice schoice) const {

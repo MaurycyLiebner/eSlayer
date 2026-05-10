@@ -115,6 +115,8 @@ public:
                      const eWeaponChoice wchoice) const;
     float freezeLength(const int schoice,
                        const eWeaponChoice wchoice) const;
+    std::vector<eSkillStats> onAttack(
+        const int schoice, const eWeaponChoice wchoice) const;
 
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;

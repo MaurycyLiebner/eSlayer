@@ -280,6 +280,18 @@ float eServerUnit::freezeLength(
     return 0.f;
 }
 
+std::vector<eSkillStats> eServerUnit::onAttack(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fOnAttackLW;
+    case eWeaponChoice::right:
+        return skill.fOnAttackRW;
+    }
+    return {};
+}
+
 float eServerUnit::meeleSplashDamage(
     const int schoice,
     const eWeaponChoice wchoice) const {

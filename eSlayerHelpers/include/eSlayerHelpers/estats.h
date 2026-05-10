@@ -19,6 +19,10 @@ enum class eWeaponChoice : uint8_t;
 struct eSkillStats {
     int fSkillId = 0;
 
+    // for chance casting
+    float fCastChance = 0.f;
+    int fSkillLevelId = -1;
+
     int fCount = 0;
     float fManaCost = 0.f;
     float fCooldown = 0.f;
@@ -58,6 +62,13 @@ struct eSkillStats {
 
     float fFreezeLengthLW = 0.f;
     float fFreezeLengthRW = 0.f;
+
+    std::vector<eSkillStats> fOnAttackLW;
+    std::vector<eSkillStats> fOnAttackRW;
+    std::vector<eSkillStats> fOnStrikingLW;
+    std::vector<eSkillStats> fOnStrikingRW;
+    std::vector<eSkillStats> fOnKillLW;
+    std::vector<eSkillStats> fOnKillRW;
 };
 
 struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
@@ -74,6 +85,8 @@ struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
 
 struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fSkills;
+
+    std::vector<eSkillStats> fOnStruck;
 
     int fClass = 0;
     int fLevel = 1;
@@ -154,6 +167,12 @@ struct ESLAYERHELPERS_API eStats {
 
     void calculateSkill(const int schoice,
                         const eEquipment& eq);
+    void calculateSkill(eSkillStats& stats,
+                        const eEquipment& eq,
+                        const bool chanceSkill) const;
+
+    eSkillStats statsFromMod(const eModifier& mod,
+                             const eEquipment& eq) const;
 
     bool canUseSkill(const eSkillChoice schoice) const;
     bool rangedAttack(const eSkillChoice schoice) const;

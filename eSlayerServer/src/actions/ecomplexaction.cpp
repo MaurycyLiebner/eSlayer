@@ -134,6 +134,14 @@ bool eComplexAction::meeleAttack(
     const auto a = [&area, targetId, data, attackRange]() {
         const auto attacker = area.unit(data.fAttackerId);
         if(!attacker) return;
+
+        const auto& onAttack = data.fOnAttack;
+        for(const auto& o : onAttack) {
+            const bool r = eRand::randChance(o.fCastChance);
+            if(!r) continue;
+
+        }
+
         const auto target = area.unit(targetId);
         if(!target) return;
         const float dist = ePointF::distance(attacker->fPos, target->fPos);
@@ -233,6 +241,8 @@ bool eComplexAction::hitData(const int schoice,
 
     data.fColdLength = mUnit.coldLength(schoice, wchoice);
     data.fFreezeLength = mUnit.freezeLength(schoice, wchoice);
+
+    data.fOnAttack = mUnit.onAttack(schoice, wchoice);
 
     return true;
 }
