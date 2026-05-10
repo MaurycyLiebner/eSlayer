@@ -39,7 +39,8 @@ void eCharUnitModel::incFrame(const float by) {
 
 void eCharUnitModel::draw(eGamePainter& p,
                           const eResolution& res,
-                          const bool highlight) const {
+                          const bool highlight,
+                          const SDL_Color& colorMod) const {
     const auto key = eCharUnitModel::key();
     if(key.fFrame == -1) return;
     const auto r = p.renderer();
@@ -47,18 +48,19 @@ void eCharUnitModel::draw(eGamePainter& p,
     const auto texRect = mModel->requestBoundingRect(key);
     p.drawShadow(texRect.x, texRect.y + texRect.h, *tex);
     draw(reinterpret_cast<ePainter&>(p),
-         res, highlight, tex, texRect);
+         res, highlight, tex, texRect, colorMod);
 }
 
 void eCharUnitModel::draw(ePainter& p,
                           const eResolution& res,
-                          const bool highlight) const {
+                          const bool highlight,
+                          const SDL_Color& colorMod) const {
     const auto key = eCharUnitModel::key();
     if(key.fFrame == -1) return;
     const auto r = p.renderer();
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
-    draw(p, res, highlight, tex, texRect);
+    draw(p, res, highlight, tex, texRect, colorMod);
 }
 
 ePaintCall eCharUnitModel::paintCall(SDL_Renderer* const r) const {
@@ -110,8 +112,12 @@ void eCharUnitModel::draw(ePainter& p,
                           const eResolution& res,
                           const bool highlight,
                           const std::shared_ptr<eTexture>& tex,
-                          const SDL_Rect& texRect) const {
+                          const SDL_Rect& texRect,
+                          const SDL_Color& colorMod) const {
+    const bool mod = colorMod.a > 0;
+    if(mod) tex->setColorMod(colorMod.r, colorMod.g, colorMod.b);
     p.drawTexture(texRect.x, texRect.y, tex);
+    if(mod) tex->clearColorMod();
 
     if(highlight) {
         tex->setBlendMode(SDL_BLENDMODE_ADD);

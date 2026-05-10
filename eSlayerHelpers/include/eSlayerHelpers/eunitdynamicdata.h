@@ -21,6 +21,8 @@ struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
     uint16_t fHealth;
     uint16_t fMaxHealth;
 
+    uint8_t fState;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

@@ -31,6 +31,9 @@ struct eHitData {
 
     float fSplashDmg = 0.f;
     eDamage fDamage;
+
+    float fColdLength = 0.f;
+    float fFreezeLength = 0.f;
 };
 
 class eComplexAction : public eUnitAction {

@@ -77,6 +77,9 @@ enum class eModifierType : uint8_t {
     lightningSkillDamage,
     poisonSkillDamage,
 
+    coldLength,
+    freezeLength,
+
     count
 };
 

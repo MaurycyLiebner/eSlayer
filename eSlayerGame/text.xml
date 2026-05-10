@@ -121,6 +121,8 @@
         <string id="44">%1% to Cold Skill Damage</string>
         <string id="45">%1% to Lightning Skill Damage</string>
         <string id="46">%1% to Poison Skill Damage</string>
+        <string id="47">Cold Length %1 Seconds</string>
+        <string id="48">Freeze Length %1 Seconds</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

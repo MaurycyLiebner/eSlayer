@@ -21,22 +21,16 @@ void eNova::obsticle1(const ePointF& pos,
     const float halfAngularSize = asin(radius/dist);
     const float minAngleR = baseAngle - halfAngularSize;
     const float maxAngleR = baseAngle + halfAngularSize;
-    const float minAngleDeg = radiansToDegrees(minAngleR) + 180;
-    const float maxAngleDeg = radiansToDegrees(maxAngleR) + 180;
+    const float minAngleDeg = radiansToDegrees(minAngleR);
+    const float maxAngleDeg = radiansToDegrees(maxAngleR);
     return subtract(minAngleDeg, maxAngleDeg);
 }
 
-void eNova::obsticle4(const ePointF& pos1,
-                      const ePointF& pos2,
-                      const ePointF& pos3,
-                      const ePointF& pos4) {
-    const float a0 = ePointF::vector(pos1, fCenter).angle();
-    const float a1 = ePointF::vector(pos2, fCenter).angle();
-    const float a2 = ePointF::vector(pos3, fCenter).angle();
-    const float a3 = ePointF::vector(pos4, fCenter).angle();
-    const float minAngle = std::min(a0, std::min(a1, std::min(a2, a3)));
-    const float maxAngle = std::max(a0, std::max(a1, std::max(a2, a3)));
-    return subtract(minAngle, maxAngle);
+void eNova::obsticle2(const ePointF& pos1,
+                      const ePointF& pos2) {
+    const float a1 = ePointF::vector(pos1, fCenter).angle();
+    const float a2 = ePointF::vector(pos2, fCenter).angle();
+    subtract(a1, a2);
 }
 
 void eNova::subtract(float minAngleDeg,
@@ -73,6 +67,15 @@ void eNova::subtract(float minAngleDeg,
                                eArcInterval{maxAngleDeg, endTmp});
         }
     }
+}
+
+bool eNova::angleInRange(const float angle) const {
+    for(const auto& i : fIntervals) {
+        if(i.fAngleStart > angle) continue;
+        if(i.fAngleEnd < angle) continue;
+        return true;
+    }
+    return false;
 }
 
 void eNova::read(ePacket& p) {

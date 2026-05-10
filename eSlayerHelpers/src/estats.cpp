@@ -275,10 +275,10 @@ struct eSkillStatsHelper {
         } break;
         case eModifierType::knockback: {
             if(lw) {
-                fStats.fKnockbackLW = fStats.fKnockbackLW;
+                fStats.fKnockbackLW = true;
             }
             if(rw) {
-                fStats.fKnockbackRW = fStats.fKnockbackRW;
+                fStats.fKnockbackRW = true;
             }
         } break;
         case eModifierType::attackSpeed: {
@@ -301,6 +301,24 @@ struct eSkillStatsHelper {
         case eModifierType::poisonSkillDamage: {
             fDmgMultMin.fPoisonPerFrame += 0.01f*mod.fValue1;
             fDmgMultMax.fPoisonPerFrame += 0.01f*mod.fValue1;
+        } break;
+        case eModifierType::coldLength: {
+            const float framesLength = mod.fValue1*eRunSettings::sFPS;
+            if(lw) {
+                fStats.fColdLengthLW += framesLength;
+            }
+            if(rw) {
+                fStats.fColdLengthRW += framesLength;
+            }
+        } break;
+        case eModifierType::freezeLength: {
+            const float framesLength = mod.fValue1*eRunSettings::sFPS;
+            if(lw) {
+                fStats.fFreezeLengthLW += framesLength;
+            }
+            if(rw) {
+                fStats.fFreezeLengthRW += framesLength;
+            }
         } break;
         default:
             break;
@@ -573,6 +591,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::coldSkillDamage:
         case eModifierType::lightningSkillDamage:
         case eModifierType::poisonSkillDamage:
+        case eModifierType::coldLength:
+        case eModifierType::freezeLength:
             break;
         }
     };
@@ -736,6 +756,8 @@ void eStats::calculateSkill(const int schoice,
         case eModifierType::coldSkillDamage:
         case eModifierType::lightningSkillDamage:
         case eModifierType::poisonSkillDamage:
+        case eModifierType::coldLength:
+        case eModifierType::freezeLength:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

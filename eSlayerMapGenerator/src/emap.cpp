@@ -56,12 +56,12 @@ bool eMap::wall(const ePointF& pos,
     const float thick = 0.25f;
 
     if(tile.fWallTL) {
-        const bool r = inside(pos, x - thick, y, 2*thick, 1.f);
+        const bool r = ::inside(pos, x - thick, y, 2*thick, 1.f);
         if(r) return true;
     }
 
     if(tile.fWallTR) {
-        const bool r = inside(pos, x, y - thick, 1.f, 2*thick);
+        const bool r = ::inside(pos, x, y - thick, 1.f, 2*thick);
         if(r) return true;
     }
 
@@ -70,7 +70,7 @@ bool eMap::wall(const ePointF& pos,
         const auto& tileY = eMap::tile(x, y - 1);
         const bool wallT = tileX.fWallTR || tileY.fWallTL;
         if(wallT) {
-            const bool r = inside(pos, x, y, thick, thick);
+            const bool r = ::inside(pos, x, y, thick, thick);
             if(r) return true;
         }
     }
@@ -79,7 +79,7 @@ bool eMap::wall(const ePointF& pos,
         const auto& tile = eMap::tile(x, y + 1);
         const bool wallBL = tile.fWallTR;
         if(wallBL) {
-            const bool r = inside(pos, x, y + 1 - thick, 1.f, 2*thick);
+            const bool r = ::inside(pos, x, y + 1 - thick, 1.f, 2*thick);
             if(r) return true;
         }
     }
@@ -88,7 +88,7 @@ bool eMap::wall(const ePointF& pos,
         const auto& tile = eMap::tile(x + 1, y);
         const bool wallBR = tile.fWallTL;
         if(wallBR) {
-            const bool r = inside(pos, x + 1 - thick, y, 2*thick, 1.f);
+            const bool r = ::inside(pos, x + 1 - thick, y, 2*thick, 1.f);
             if(r) return true;
         }
     }
@@ -120,8 +120,8 @@ bool eMap::walkable(const ePointF& pos) const {
         for(const auto oid : objs) {
             const auto& o = *object(oid);
             const auto& opos = o.fPos;
-            const bool r = inside(pos, opos.fX, opos.fY,
-                                  o.fSize, o.fSize);
+            const bool r = ::inside(pos, opos.fX, opos.fY,
+                                    o.fSize, o.fSize);
             if(r) return false;
         }
     }
@@ -156,8 +156,8 @@ bool eMap::obsticle(const ePointF& pos) const {
             const auto& info = eObjectsInfo::sObjects.get(type);
             if(!info.fObsticle) continue;
             const auto& opos = o.fPos;
-            const bool r = inside(pos, opos.fX, opos.fY,
-                                  o.fSize, o.fSize);
+            const bool r = ::inside(pos, opos.fX, opos.fY,
+                                    o.fSize, o.fSize);
             if(r) return true;
         }
     }
@@ -165,11 +165,13 @@ bool eMap::obsticle(const ePointF& pos) const {
 }
 
 bool eMap::hasObjects(const int x, const int y) const {
-    if(x < 0 || x >= mWidth ||
-       y < 0 || y >= mHeight) {
-        return false;
-    }
+    if(!inside(x, y)) return false;
     return !objects(x, y).empty();
+}
+
+bool eMap::inside(const int x, const int y) const {
+    return x >= 0 && x < mWidth &&
+           y >= 0 && y < mHeight;
 }
 
 void eMap::loadPortion(const eMapPortion& portion) {

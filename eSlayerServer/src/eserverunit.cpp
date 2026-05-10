@@ -256,6 +256,30 @@ float eServerUnit::manaSteal(
     return 0.f;
 }
 
+float eServerUnit::coldLength(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fColdLengthLW;
+    case eWeaponChoice::right:
+        return skill.fColdLengthRW;
+    }
+    return 0.f;
+}
+
+float eServerUnit::freezeLength(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return skill.fFreezeLengthLW;
+    case eWeaponChoice::right:
+        return skill.fFreezeLengthRW;
+    }
+    return 0.f;
+}
+
 float eServerUnit::meeleSplashDamage(
     const int schoice,
     const eWeaponChoice wchoice) const {
@@ -368,13 +392,28 @@ eDamage eServerUnit::attackDamage(const int schoice,
 }
 
 void eServerUnit::increment(const float by) {
+    float scaledBy = by;
+
+    bool cold = false;
+    if(mFreezeLength > 0.f) {
+        mFreezeLength = std::max(0.f, mFreezeLength - by);
+        scaledBy = 0.f;
+        cold = true;
+    }
+    if(mColdLength > 0.f) {
+        mColdLength = std::max(0.f, mColdLength - by);
+        scaledBy *= 0.5f;
+        cold = true;
+    }
+    setCold(cold);
+
     for(auto& it : mStats.fCooldowns) {
         it.second = std::max(0.f, it.second - by);
     }
-    if(mAction) mAction->increment(by);
+    if(mAction) mAction->increment(scaledBy);
     if(fBlockingActionTime <= 0.f) {
         const auto oldPos = fPos;
-        const bool r = mHandler.increment(by);
+        const bool r = mHandler.increment(scaledBy);
         if(r) {
             const auto newPos = mHandler.pos();
             const auto dir = ePointF::vector(newPos, oldPos);
@@ -385,6 +424,7 @@ void eServerUnit::increment(const float by) {
         }
     }
 
+    bool poisoned = false;
     if(fHealth > 0) {
         float poisonDmg = 0.f;
         for(int i = 0; i < mPoison.size(); i++) {
@@ -397,6 +437,7 @@ void eServerUnit::increment(const float by) {
             }
         }
         poisonDmg *= 1.f - mStats.fPoisonResistance;
+        poisoned = poisonDmg > 0.f;
 
         float healthReg = mStats.fHealthRegeneration;
         float manaReg = mStats.fManaRegeneration;
@@ -445,6 +486,8 @@ void eServerUnit::increment(const float by) {
             die();
         }
     }
+
+    setPoisoned(poisoned);
 }
 
 int eServerUnit::skillId(const eSkillChoice schoice) const {
@@ -627,4 +670,14 @@ int eServerUnit::countFollowers(const int charDataId) const {
 bool eServerUnit::moving() const {
     if(mClient) return mMoving;
     return mHandler.moving();
+}
+
+void eServerUnit::coldFor(const float frameLen) {
+    mColdLength = std::max(mColdLength, frameLen);
+    if(mColdLength > 0.f) setCold(true);
+}
+
+void eServerUnit::freezeFor(const float frameLen) {
+    mFreezeLength = std::max(mFreezeLength, frameLen);
+    if(mFreezeLength > 0.f) setCold(true);
 }

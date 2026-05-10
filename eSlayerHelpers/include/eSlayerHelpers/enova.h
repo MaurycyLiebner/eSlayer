@@ -26,12 +26,11 @@ struct ESLAYERHELPERS_API eNova {
 
     void obsticle1(const ePointF& pos,
                    const float radius);
-    void obsticle4(const ePointF& pos1,
-                   const ePointF& pos2,
-                   const ePointF& pos3,
-                   const ePointF& pos4);
+    void obsticle2(const ePointF& pos1,
+                   const ePointF& pos2);
     void subtract(float minAngleDeg,
                   float maxAngleDeg);
+    bool angleInRange(const float angle) const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

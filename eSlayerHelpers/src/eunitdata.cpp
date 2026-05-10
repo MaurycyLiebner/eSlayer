@@ -52,11 +52,36 @@ void eUnitData::write(ePacket& p) const {
     p << fMaxHealth;
 
     const uint8_t nMods = fMods.size();
+    p << nMods;
     for(const auto m : fMods) {
         p << m;
     }
 
     fModelParts.write(p);
+}
+
+bool eUnitData::cold() const {
+    return fState & 1u;
+}
+
+void eUnitData::setCold(const bool c) {
+    if(c) {
+        fState |= 1u;
+    } else {
+        fState &= ~1u;
+    }
+}
+
+bool eUnitData::poisoned() const {
+    return fState & 2u;
+}
+
+void eUnitData::setPoisoned(const bool p) {
+    if(p) {
+        fState |= 2u;
+    } else {
+        fState &= ~2u;
+    }
 }
 
 eUnitData eUnitData::toUnitData() const {
@@ -75,6 +100,7 @@ eUnitData eUnitData::toUnitData() const {
     d.fMaxHealth = fMaxHealth;
     d.fMods = fMods;
     d.fModelParts = fModelParts;
+    d.fState = fState;
     return d;
 }
 
@@ -89,5 +115,6 @@ eUnitDynamicData eUnitData::toDynamicData() const {
     d.fBlockingActionTime = fBlockingActionTime;
     d.fHealth = fHealth;
     d.fMaxHealth = fMaxHealth;
+    d.fState = fState;
     return d;
 }

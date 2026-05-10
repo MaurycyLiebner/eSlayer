@@ -16,6 +16,8 @@ void eUnitDynamicData::read(ePacket& p) {
 
     p >> fHealth;
     p >> fMaxHealth;
+
+    p >> fState;
 }
 
 void eUnitDynamicData::write(ePacket& p) const {
@@ -32,4 +34,6 @@ void eUnitDynamicData::write(ePacket& p) const {
 
     p << fHealth;
     p << fMaxHealth;
+
+    p << fState;
 }

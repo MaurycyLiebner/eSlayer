@@ -51,11 +51,19 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
 
     eModelParts fModelParts;
 
+    uint8_t fState;
+
     eUnitData toUnitData() const;
     eUnitDynamicData toDynamicData() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+
+    bool cold() const;
+    void setCold(const bool c);
+
+    bool poisoned() const;
+    void setPoisoned(const bool p);
 };
 
 #endif // EUNITDATA_H

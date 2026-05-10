@@ -517,9 +517,9 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& c = n->fCenter;
             const float r = n->fRadius;
             const int nMissiles = 180;
-            eVec2f displ{-r, 0.f};
+            eVec2f displ{r, 0.f};
             float angle = 0.f;
-            float dangle = 360.f/nMissiles;
+            const float dangle = 360.f/nMissiles;
             const auto& intervals = n->fIntervals;
             if(intervals.empty()) continue;
             int currId = 0;
@@ -534,6 +534,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     currId++;
                     if(currId >= intervals.size()) {
                         curr = nullptr;
+                        break;
                     } else {
                         curr = &intervals[currId];
                     }
@@ -543,7 +544,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(pixel.fX < -margin || pixel.fY < -margin ||
                    pixel.fX > w + margin || pixel.fY > h + margin) continue;
                 const auto m = std::make_shared<eExtendedMissile>();
-                m->fAngle = angle;
+                m->fAngle = 180 + angle;
                 m->fPos = pos;
                 m->fType = n->fMissileType;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
@@ -629,7 +630,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(const auto p = mPressedUnit.lock()) {
                     highlight = p == u;
                 }
-                model.draw(mGamePainter, res, highlight);
+                SDL_Color colorMod{0, 0, 0, 0};
+                const bool cold = u->cold();
+                const bool poisoned = u->poisoned();
+                if(cold) colorMod = SDL_Color{0, 128, 255, 255};
+                else if(poisoned) colorMod = SDL_Color{0, 255, 55, 255};
+                model.draw(mGamePainter, res, highlight, colorMod);
                 const bool drawLighting = u == mMainChar;
                 if(drawLighting) {
                     auto paintCall = model.paintCall(r);

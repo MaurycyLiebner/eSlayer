@@ -52,6 +52,12 @@ struct eSkillStats {
 
     float fMeeleSplashDamageLW = 0.f;
     float fMeeleSplashDamageRW = 0.f;
+
+    float fColdLengthLW = 0.f;
+    float fColdLengthRW = 0.f;
+
+    float fFreezeLengthLW = 0.f;
+    float fFreezeLengthRW = 0.f;
 };
 
 struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {

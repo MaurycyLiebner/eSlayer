@@ -48,6 +48,7 @@ public:
     bool walkable(const ePointF& pos) const;
     bool obsticle(const ePointF& pos) const;
     bool hasObjects(const int x, const int y) const;
+    bool inside(const int x, const int y) const;;
 
     void loadPortion(const eMapPortion& portion);
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;

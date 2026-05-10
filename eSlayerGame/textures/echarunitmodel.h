@@ -22,10 +22,12 @@ public:
     void incFrame(const float by);
     void draw(eGamePainter& p,
               const eResolution& res,
-              const bool highlight = false) const;
+              const bool highlight = false,
+              const SDL_Color& colorMod = SDL_Color{0, 0, 0, 0}) const;
     void draw(ePainter& p,
               const eResolution& res,
-              const bool highlight = false) const;
+              const bool highlight = false,
+              const SDL_Color& colorMod = SDL_Color{0, 0, 0, 0}) const;
     ePaintCall paintCall(SDL_Renderer* const r) const;
 
     bool aggressive() const { return mAggressive; }
@@ -48,7 +50,8 @@ private:
               const eResolution& res,
               const bool highlight,
               const std::shared_ptr<eTexture>& tex,
-              const SDL_Rect& texRect) const;
+              const SDL_Rect& texRect,
+              const SDL_Color& colorMod) const;
 
     int mAnim = 0;
     int mAnimId = -1;

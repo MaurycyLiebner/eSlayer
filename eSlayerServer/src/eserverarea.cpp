@@ -58,8 +58,8 @@ void eServerArea::iniMissileInc() {
 }
 
 void eServerArea::iniNovaInc() {
-    const auto hasObjects = [this](const int x, const int y) {
-        return mMap->hasObjects(x, y);
+    const auto inside = [this](const int x, const int y) {
+        return mMap->inside(x, y);
     };
 
     const auto getObjects = [this](const int x, const int y)
@@ -69,6 +69,11 @@ void eServerArea::iniNovaInc() {
 
     const auto getObject = [this](const int id) {
         return mMap->object(id);
+    };
+
+    const auto getTile = [this](const int x, const int y)
+        -> const eTile& {
+        return mMap->tile(x, y);
     };
 
     const auto removeNova = [this](const eNova& m) {
@@ -86,9 +91,10 @@ void eServerArea::iniNovaInc() {
         if(sn.fHitAction) sn.fHitAction(su);
     };
 
-    mNIncrementer.initialize(hasObjects,
+    mNIncrementer.initialize(inside,
                              getObjects,
                              getObject,
+                             getTile,
                              removeNova,
                              getUnit,
                              hitAction);
@@ -104,6 +110,7 @@ void eServerArea::iniSetupUnit(
         const eModelParts& modelParts) {
     u->fCharId = charId;
     u->fTeamId = teamId;
+    u->fState = 0;
     u->fCharDataId = uinfo.fCharData;
     u->fRadius = uinfo.fRadius;
     u->fPos = pos;

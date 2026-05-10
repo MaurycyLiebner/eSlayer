@@ -45,8 +45,8 @@ void eGameWorld::iniMissileInc() {
 }
 
 void eGameWorld::iniNovaInc() {
-    const auto hasObjects = [this](const int x, const int y) {
-        return mMap->hasObjects(x, y);
+    const auto inside = [this](const int x, const int y) {
+        return mMap->inside(x, y);
     };
 
     const auto getObjects = [this](const int x, const int y)
@@ -56,6 +56,11 @@ void eGameWorld::iniNovaInc() {
 
     const auto getObject = [this](const int id) {
         return mMap->object(id);
+    };
+
+    const auto getTile = [this](const int x, const int y)
+        -> const eTile& {
+        return mMap->tile(x, y);
     };
 
     const auto removeNova = [this](const eNova& m) {
@@ -70,9 +75,10 @@ void eGameWorld::iniNovaInc() {
         return static_cast<eUnitData*>(u.get());
     };
 
-    mNIncrementer.initialize(hasObjects,
+    mNIncrementer.initialize(inside,
                              getObjects,
                              getObject,
+                             getTile,
                              removeNova,
                              getUnit,
                              nullptr);
@@ -182,6 +188,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         unit->fBlockingActionTime = u.fBlockingActionTime;
         unit->fHealth = u.fHealth;
         unit->fMaxHealth = u.fMaxHealth;
+        unit->fState = u.fState;
         auto& model = unit->model();
         model.setAngle(u.fAngle);
         model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);

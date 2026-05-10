@@ -163,6 +163,8 @@ bool eComplexAction::getHit(const eHitData& data,
             if(a) mUnit.setChildAction(a);
         } else {
             hit = true;
+            mUnit.coldFor(data.fColdLength);
+            mUnit.freezeFor(data.fFreezeLength);
             const float dmg = mUnit.takeDamage(data.fDamage);
             if(mUnit.fHealth <= 0) {
                 mUnit.die();
@@ -228,6 +230,10 @@ bool eComplexAction::hitData(const int schoice,
 
     data.fSplashDmg = mUnit.meeleSplashDamage(schoice, wchoice);
     data.fDamage = mUnit.attackDamage(schoice, wchoice);
+
+    data.fColdLength = mUnit.coldLength(schoice, wchoice);
+    data.fFreezeLength = mUnit.freezeLength(schoice, wchoice);
+
     return true;
 }
 

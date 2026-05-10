@@ -60,7 +60,15 @@ gModifierTypeToString = {
     { eModifierType::allSkills, "allSkills" },
 
     { eModifierType::replenishLife, "replenishLife" },
-    { eModifierType::regenerateMana, "regenerateMana" }
+    { eModifierType::regenerateMana, "regenerateMana" },
+
+    { eModifierType::fireSkillDamage, "fireSkillDamage" },
+    { eModifierType::coldSkillDamage, "coldSkillDamage" },
+    { eModifierType::lightningSkillDamage, "lightningSkillDamage" },
+    { eModifierType::poisonSkillDamage, "poisonSkillDamage" },
+
+    { eModifierType::coldLength, "coldLength" },
+    { eModifierType::freezeLength, "freezeLength" }
 };
 
 std::map<std::string, eModifierType>
@@ -138,6 +146,9 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::coldSkillDamage:
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
+
+    case eModifierType::coldLength:
+    case eModifierType::freezeLength:
         return eModValuesUsage::value1;
     }
     return eModValuesUsage::none;
@@ -222,6 +233,9 @@ std::string eModifier::value1Name() const {
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
         return "value";
+    case eModifierType::coldLength:
+    case eModifierType::freezeLength:
+        return "length";
     }
     return "";
 }
@@ -292,6 +306,9 @@ std::string eModifier::value2Name() const {
     case eModifierType::coldSkillDamage:
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
+
+    case eModifierType::coldLength:
+    case eModifierType::freezeLength:
         return "";
     }
     return "";
@@ -440,6 +457,9 @@ bool eModifierHelpers::isPercent(
 
     case eModifierType::replenishLife:
     case eModifierType::regenerateMana:
+
+    case eModifierType::coldLength:
+    case eModifierType::freezeLength:
         return false;
     }
 

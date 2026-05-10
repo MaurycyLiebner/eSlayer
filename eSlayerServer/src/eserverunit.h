@@ -111,6 +111,11 @@ public:
     float manaSteal(const int schoice,
                     const eWeaponChoice wchoice) const;
 
+    float coldLength(const int schoice,
+                     const eWeaponChoice wchoice) const;
+    float freezeLength(const int schoice,
+                       const eWeaponChoice wchoice) const;
+
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;
 
@@ -192,6 +197,9 @@ public:
     bool moving() const;
 
     eUnitType unitType() const { return mType; }
+
+    void coldFor(const float frameLen);
+    void freezeFor(const float frameLen);
 private:
     const eCharData& mData;
     eServerArea& mArea;
@@ -207,6 +215,9 @@ private:
     eEquipment mEquipment;
 
     eWeaponChoice mLastUsedWeapon = eWeaponChoice::left;
+
+    float mColdLength = 0.f;
+    float mFreezeLength = 0.f;
 
     std::vector<ePoisonDamage> mPoison;
     std::map<ePotionType, ePotionHealing> mPotions;
