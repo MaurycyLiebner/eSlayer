@@ -19,10 +19,10 @@ public:
 
     using eHasObjects = std::function<bool(
         const int x, const int y)>;
-    using eGetObjects = std::function<const std::vector<uint32_t>&(
+    using eGetObjects = std::function<const std::vector<int>&(
         const int x, const int y)>;
     using eGetObject = std::function<std::shared_ptr<eObject>(
-        const int x, const int y, const uint32_t objectId)>;
+        const int objectId)>;
     using eRemoveNova = std::function<void(const eNova& n)>;
     using eGetUnit = std::function<eUnitData*(const int charId)>;
     using eHitAction = std::function<void(

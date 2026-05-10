@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/epacket.h"
 
 float normalizeAngle360(float angle) {
+    if(angle >= 0.f && angle <= 360.f) return angle;
     angle = std::fmod(angle, 360.f);
     if(angle < 0.f) angle += 360.f;
     return angle;
@@ -20,8 +21,8 @@ void eNova::obsticle1(const ePointF& pos,
     const float halfAngularSize = asin(radius/dist);
     const float minAngleR = baseAngle - halfAngularSize;
     const float maxAngleR = baseAngle + halfAngularSize;
-    const float minAngleDeg = radiansToDegrees(minAngleR);
-    const float maxAngleDeg = radiansToDegrees(maxAngleR);
+    const float minAngleDeg = radiansToDegrees(minAngleR) + 180;
+    const float maxAngleDeg = radiansToDegrees(maxAngleR) + 180;
     return subtract(minAngleDeg, maxAngleDeg);
 }
 

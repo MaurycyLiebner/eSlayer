@@ -4,6 +4,7 @@
 #include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eobject.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 eNovaIncrementer::eNovaIncrementer(
     eFixedSizeSetAreas& unitAreas) :
@@ -81,9 +82,14 @@ bool eNovaIncrementer::increment(
             if(!r) continue;
             const auto& objIds = mGetObjects(x, y);
             for(const auto objId : objIds) {
-                const auto obj = mGetObject(x, y, objId);
+                const auto obj = mGetObject(objId);
                 if(!obj) continue;
-                n.obsticle1(obj->fPos, 0.5f*obj->fSize);
+                const auto type = obj->fObjectType;
+                const auto& info = eObjectsInfo::sObjects.get(type);
+                if(!info.fObsticle) continue;
+                const auto& pos = obj->fPos;
+                const float size = info.fSize;
+                n.obsticle1(pos, 0.5f*size);
             }
         }
     }

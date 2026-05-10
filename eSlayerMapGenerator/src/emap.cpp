@@ -3,14 +3,15 @@
 #include <eSlayerHelpers/epacket.h>
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
-uint32_t sNextObjectId = 0;
+uint32_t sNextObjectId = 1;
 
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
-const std::vector<uint32_t>& eMap::objects(
+const std::vector<int>& eMap::objects(
     const int x, const int y) const {
     return mObjectsMap[y][x];
 }
@@ -151,6 +152,9 @@ bool eMap::obsticle(const ePointF& pos) const {
         if(empty) return false;
         for(const auto oid : objs) {
             const auto& o = *object(oid);
+            const auto type = o.fObjectType;
+            const auto& info = eObjectsInfo::sObjects.get(type);
+            if(!info.fObsticle) continue;
             const auto& opos = o.fPos;
             const bool r = inside(pos, opos.fX, opos.fY,
                                   o.fSize, o.fSize);
@@ -182,11 +186,11 @@ void eMap::loadPortion(const eMapPortion& portion) {
     for(const auto& o : portion.fObjects) {
         const int i = mObjects.size();
         mObjects.emplace_back(o);
-        const auto iPos = o->fPos.floor();
+        const auto& pos = o->fPos;
+        const auto iPos = pos.floor();
         mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
     }
 }
-
 
 void generateTiles(const int w, const int h,
                    std::vector<std::vector<eTile>>& tiles) {
@@ -283,7 +287,7 @@ void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
     mWidth = w;
     mHeight = h;
-    mObjectsMap.resize(mHeight, std::vector<std::vector<uint32_t>>(mWidth));
+    mObjectsMap.resize(mHeight, std::vector<std::vector<int>>(mWidth));
 }
 
 void eMap::updateObjectsMap() {

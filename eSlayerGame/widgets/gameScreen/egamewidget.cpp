@@ -516,14 +516,29 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& n : mWorld.novas()) {
             const auto& c = n->fCenter;
             const float r = n->fRadius;
-            const int nMissiles = 360;
+            const int nMissiles = 180;
             eVec2f displ{-r, 0.f};
             float angle = 0.f;
             float dangle = 360.f/nMissiles;
+            const auto& intervals = n->fIntervals;
+            if(intervals.empty()) continue;
+            int currId = 0;
+            auto curr = &intervals[currId];
             for(int i = 0; i < nMissiles; i++) {
                 const ePointF pos = c + displ;
                 displ.rotate(dangle);
+                const float angleTmp = angle;
                 angle += dangle;
+                if(curr->fAngleStart > angleTmp) continue;
+                while(curr->fAngleEnd < angleTmp) {
+                    currId++;
+                    if(currId >= intervals.size()) {
+                        curr = nullptr;
+                    } else {
+                        curr = &intervals[currId];
+                    }
+                }
+                if(!curr) break;
                 const auto pixel = tilePosToPixel(pos);
                 if(pixel.fX < -margin || pixel.fY < -margin ||
                    pixel.fX > w + margin || pixel.fY > h + margin) continue;

@@ -63,13 +63,12 @@ void eServerArea::iniNovaInc() {
     };
 
     const auto getObjects = [this](const int x, const int y)
-        -> const std::vector<uint32_t>& {
+        -> const std::vector<int>& {
         return mMap->objects(x, y);
     };
 
-    const auto getObject = [this](const int x, const int y,
-                                  const uint32_t objectId) {
-        return mMap->object(x, y, objectId);
+    const auto getObject = [this](const int id) {
+        return mMap->object(id);
     };
 
     const auto removeNova = [this](const eNova& m) {
