@@ -8,7 +8,7 @@
 class ePacket;
 
 struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
-    int32_t fCharId;
+    uint32_t fCharId;
 
     float fAngle;
 

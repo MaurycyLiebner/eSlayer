@@ -57,6 +57,17 @@ public:
         return *this;
     }
 
+    static uint8_t fromFloatU8(const float v, const float max);
+    static float toFloatU8(const uint8_t v, const float max);
+
+    static uint16_t fromFloatU16(const float v, const float max);
+    static float toFloatU16(const uint16_t v, const float max);
+
+    float readFloatU8(const float max);
+    void writeFloatU8(const float v, const float max);
+
+    float readFloatU16(const float max);
+    void writeFloatU16(const float v, const float max);
 private:
     template<typename T>
     void write(const T& v) {

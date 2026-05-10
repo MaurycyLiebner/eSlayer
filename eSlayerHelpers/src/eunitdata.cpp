@@ -2,22 +2,27 @@
 
 #include "eSlayerHelpers/epacket.h"
 
+const float radiusMax = 2.f;
+const float angleMax = 360.f;
+const float animSpeedMax = 100.f;
+const float blockingActionTimeMax = 25.5f;
+
 void eUnitData::read(ePacket& p) {
     p >> fCharId;
     p >> fTeamId;
 
     p >> fCharDataId;
 
-    p >> fRadius;
+    fRadius = p.readFloatU8(radiusMax);
 
     p >> fPos;
-    p >> fAngle;
+    fAngle = p.readFloatU8(angleMax);
 
     p >> fAnim;
     p >> fAnimId;
-    p >> fAnimSpeed;
+    fAnimSpeed = p.readFloatU16(animSpeedMax);
 
-    p >> fBlockingActionTime;
+    fBlockingActionTime = p.readFloatU8(blockingActionTimeMax);
 
     p >> fHealth;
     p >> fMaxHealth;
@@ -37,16 +42,16 @@ void eUnitData::write(ePacket& p) const {
 
     p << fCharDataId;
 
-    p << fRadius;
+    p.writeFloatU8(fRadius, radiusMax);
 
     p << fPos;
-    p << fAngle;
+    p.writeFloatU8(fAngle, angleMax);
 
     p << fAnim;
     p << fAnimId;
-    p << fAnimSpeed;
+    p.writeFloatU16(fAnimSpeed, animSpeedMax);
 
-    p << fBlockingActionTime;
+    p.writeFloatU8(fBlockingActionTime, blockingActionTimeMax);
 
     p << fHealth;
     p << fMaxHealth;

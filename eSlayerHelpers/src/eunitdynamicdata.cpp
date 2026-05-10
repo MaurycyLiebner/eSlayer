@@ -2,17 +2,21 @@
 
 #include "eSlayerHelpers/epacket.h"
 
+const float angleMax = 360.f;
+const float animSpeedMax = 100.f;
+const float blockingActionTimeMax = 25.5f;
+
 void eUnitDynamicData::read(ePacket& p) {
     p >> fCharId;
 
     p >> fPos;
-    p >> fAngle;
+    fAngle = p.readFloatU8(angleMax);
 
     p >> fAnim;
     p >> fAnimId;
-    p >> fAnimSpeed;
+    fAnimSpeed = p.readFloatU16(animSpeedMax);
 
-    p >> fBlockingActionTime;
+    fBlockingActionTime = p.readFloatU8(blockingActionTimeMax);
 
     p >> fHealth;
     p >> fMaxHealth;
@@ -24,13 +28,13 @@ void eUnitDynamicData::write(ePacket& p) const {
     p << fCharId;
 
     p << fPos;
-    p << fAngle;
+    p.writeFloatU8(fAngle, angleMax);
 
     p << fAnim;
     p << fAnimId;
-    p << fAnimSpeed;
+    p.writeFloatU16(fAnimSpeed, animSpeedMax);
 
-    p << fBlockingActionTime;
+    p.writeFloatU8(fBlockingActionTime, blockingActionTimeMax);
 
     p << fHealth;
     p << fMaxHealth;

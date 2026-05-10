@@ -248,7 +248,9 @@ bool eMainCharAction::consumeActionTime(
     mMainChar->fBlockingActionTime -= by;
 
     if(prev > 0.f) {
-        model.setAnimation(mMainChar->fAnim, mMainChar->fAnimSpeed);
+        const auto anim = mMainChar->fAnim;
+        const float speed = mMainChar->fAnimSpeed;
+        model.setAnimation(anim, speed);
         return true;
     }
     return false;
