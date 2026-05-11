@@ -4,6 +4,7 @@
 
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/edoors.h>
 
 eTcpIpHost::~eTcpIpHost() {
     if(mInitialized) {
@@ -178,6 +179,9 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::objectStateChanged: {
 
         } break;
+        case ePacketType::doorsStateChanged: {
+
+        } break;
         case ePacketType::message: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
@@ -260,6 +264,25 @@ void eTcpIpHost::increment(const float by) {
                     mNet.broadcast(p);
 
                     mObjectStateChanges.emplace_back(*obj);
+                }
+            }
+        } break;
+        case ePacketType::triggerDoors: {
+            const auto it = mClientIdMap.find(tcpClientId);
+            if(it != mClientIdMap.end()) {
+                const int charId = it->second;
+                eDoors doors;
+                p >> doors;
+                const bool r = triggerDoors(charId, doors);
+
+                if(r) {
+                    ePacket p;
+                    p << ePacketType::doorsStateChanged;
+                    doors.fOpen = !doors.fOpen;
+                    p << doors;
+                    mNet.broadcast(p);
+
+                    mDoorsStateChanged.emplace_back(doors);
                 }
             }
         } break;
@@ -363,6 +386,16 @@ void eTcpIpHost::increment(const float by) {
 bool eTcpIpHost::sendMessage(const int clientId,
                              const std::string& text) {
     sendMessageToAll(clientId, text);
+    return true;
+}
+
+bool eTcpIpHost::triggerDoors(const int clientId,
+                              const eDoors& doors) {
+    const bool r = eLocalServer::triggerDoors(clientId, doors);
+    if(!r) return false;
+    eDoors ndoors = doors;
+    ndoors.fOpen = !ndoors.fOpen;
+    mDoorsStateChanged.emplace_back(ndoors);
     return true;
 }
 

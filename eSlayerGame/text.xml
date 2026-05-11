@@ -181,4 +181,8 @@
         <string id="12">Stone Skin</string>
         <string id="13">Teleporting</string>
     </group>
+    <group id="15">
+        <string id="0">Closed Door</string>
+        <string id="1">Open Door</string>
+    </group>
 </strings>

@@ -28,6 +28,18 @@ struct ESLAYERHELPERS_API eTile {
         return (encoded >> 1) & 1;
     }
 
+    static bool open(const uint8_t encoded) {
+        return (encoded >> 2) & 1;
+    }
+
+    static void setOpen(uint8_t& encoded, const bool open) {
+        if(open) {
+            encoded |= (1u << 2);
+        } else {
+            encoded &= ~(1u << 2);
+        }
+    }
+
     static uint8_t type(const uint8_t encoded) {
         return (encoded >> 3);
     }

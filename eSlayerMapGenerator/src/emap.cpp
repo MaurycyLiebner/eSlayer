@@ -11,6 +11,10 @@ const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
 
+eTile& eMap::tile(const int x, const int y) {
+    return mTiles[y][x];
+}
+
 const std::vector<int>& eMap::objects(
     const int x, const int y) const {
     return mObjectsMap[y][x];

@@ -128,6 +128,12 @@ std::shared_ptr<eObject> eServerClientHandler::triggerObject(
     return mArea->triggerObject(mClientId, objectId, tx, ty);
 }
 
+bool eServerClientHandler::triggerDoors(
+    const eDoors& doors) {
+    if(!mArea) return false;
+    return mArea->triggerDoors(mClientId, doors);
+}
+
 bool eServerClientHandler::pickupItem(
     const int itemId, const bool drag) {
     if(!mArea) return false;

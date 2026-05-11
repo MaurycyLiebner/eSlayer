@@ -24,6 +24,7 @@ public:
     int height() const { return mHeight; }
 
     const eTile& tile(const int x, const int y) const;
+    eTile& tile(const int x, const int y);
     const std::vector<int>& objects(const int x, const int y) const;
     std::shared_ptr<eObject> object(const int x, const int y,
                                     const uint32_t objectId) const;

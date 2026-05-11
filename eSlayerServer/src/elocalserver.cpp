@@ -134,6 +134,13 @@ std::shared_ptr<eObject> eLocalServer::triggerObject(
     return h->triggerObject(objectId, tx, ty);
 }
 
+bool eLocalServer::triggerDoors(
+    const int clientId, const eDoors& doors) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->triggerDoors(doors);
+}
+
 bool eLocalServer::pickupItem(
     const int clientId, const int itemId,
     const bool drag) {

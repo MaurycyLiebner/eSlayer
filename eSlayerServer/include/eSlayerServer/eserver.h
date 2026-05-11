@@ -18,6 +18,7 @@ struct eEquipment;
 struct eAttributes;
 struct eSkillLevels;
 struct eScreenDimensions;
+struct eDoors;
 
 struct eServerData {
     std::string fName;
@@ -104,6 +105,10 @@ public:
                   const int tx, const int ty) = 0;
 
     virtual bool
+    triggerDoors(const int clientId,
+                 const eDoors& d) = 0;
+
+    virtual bool
     pickupItem(const int clientId,
                const int itemId,
                const bool drag) = 0;
@@ -134,6 +139,7 @@ public:
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
     std::vector<eObject> receiveObjectStateChanges();
+    std::vector<eDoors> receiveDoorsStateChanges();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -142,6 +148,7 @@ protected:
     std::vector<int> mLeftUsers;
     std::vector<eMessage> mMessages;
     std::vector<eObject> mObjectStateChanges;
+    std::vector<eDoors> mDoorsStateChanged;
 private:
     eServerFailureHandler mFailure;
 };

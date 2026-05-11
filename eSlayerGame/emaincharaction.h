@@ -7,6 +7,8 @@
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/ewalldirection.h>
+#include <eSlayerHelpers/edoors.h>
 
 #include <memory>
 
@@ -33,6 +35,7 @@ public:
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedObject(const std::shared_ptr<eObject>& o);
+    void setPressedDoors(const std::optional<eDoors>& d);
 
     void increment(const bool mousePressed,
                    const bool rightPressed,
@@ -101,6 +104,7 @@ private:
     std::weak_ptr<eUnit> mPressedUnit;
     std::weak_ptr<eGroundItem> mPressedItem;
     std::weak_ptr<eObject> mPressedObject;
+    std::optional<eDoors> mPressedDoors;
 
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharTexs = nullptr;

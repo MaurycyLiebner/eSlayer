@@ -8,6 +8,7 @@
 #include <memory>
 
 struct eAttackData;
+struct eDoors;
 
 struct eDataRequest {
     float fTime;
@@ -39,6 +40,8 @@ public:
     std::shared_ptr<eObject> triggerObject(
         const int objectId,
         const int tx, const int ty);
+
+    bool triggerDoors(const eDoors& doors);
 
     bool pickupItem(const int itemId, const bool drag);
     bool dropItem();

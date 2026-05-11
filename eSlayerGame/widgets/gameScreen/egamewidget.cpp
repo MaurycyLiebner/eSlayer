@@ -282,6 +282,18 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(!o) continue;
             o->fState = obj.fState;
         }
+        const auto doors = mServer->receiveDoorsStateChanges();
+        for(const auto& d : doors) {
+            auto& tile = mMap->tile(d.fX, d.fY);
+            switch(d.fType) {
+            case eWallType::topLeft: {
+                eTile::setOpen(tile.fWallTL, d.fOpen);
+            } break;
+            case eWallType::topRight: {
+                eTile::setOpen(tile.fWallTR, d.fOpen);
+            } break;
+            }
+        }
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
@@ -591,6 +603,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         setHighlightedUnit(nullptr);
         setHighlightedObject(nullptr);
         setHighlightedItem(nullptr);
+        setHighlightedDoors(std::nullopt);
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
                 setPressedUnit(nullptr);
@@ -626,6 +639,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                             setHighlightedUnit(u);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
+                            mHighlightDoors = std::nullopt;
                         }
                     }
                 }
@@ -841,6 +855,27 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
                                          eAlignment::top | eAlignment::hcenter);
                 if(transparent) tex->clearAlphaMod();
+
+                if(doors) {
+                    if(!mHighlightUnit.lock() && !mHighlightObject.lock() &&
+                       mHighlightDoors == std::nullopt) {
+                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+                        const int w = tex->width();
+                        const int h = tex->height();
+                        const SDL_Rect rect{ipixel.fX - w/2, ipixel.fY - h, w, h};
+                        const bool highlight = SDL_PointInRect(&p, &rect);
+                        if(highlight) {
+                            eDoors doors;
+                            doors.fOpen = open;
+                            doors.fType = wall.fType;
+                            doors.fX = iPos.fX;
+                            doors.fY = iPos.fY;
+                            setHighlightedDoors(doors);
+                            mHighlightObject.reset();
+                            mHighlightItem.reset();
+                        }
+                    }
+                }
             }
         }
 
@@ -921,6 +956,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
             mMainAction.setPressedObject(o);
         } else if(const auto i = mHighlightItem.lock()) {
             mMainAction.setPressedItem(i);
+        } else if(const auto d = mHighlightDoors) {
+            mMainAction.setPressedDoors(d);
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
@@ -982,6 +1019,20 @@ void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
         const auto ipixel = pixel.floor();
         const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
         eHoverWidget::sSetGameTooltip(name, rect);
+    } else {
+        eHoverWidget::sSetGameTooltip("");
+    }
+}
+
+void eGameWidget::setHighlightedDoors(const std::optional<eDoors>& doors) {
+    mHighlightDoors = doors;
+    if(doors != std::nullopt) {
+        const auto& pos = ePoint{doors->fX, doors->fY};
+        const auto pixel = tilePosToPixel(pos);
+        const auto ipixel = pixel.floor();
+        const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+        const auto text = eLanguage::text(15, 0);
+        eHoverWidget::sSetGameTooltip(text, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");
     }

@@ -52,6 +52,9 @@ public:
         const int clientId, const int objectId,
         const int tx, const int ty) override;
 
+    bool triggerDoors(const int clientId,
+                      const eDoors& doors) override;
+
     bool pickupItem(const int clientId,
                     const int itemId,
                     const bool drag) override;

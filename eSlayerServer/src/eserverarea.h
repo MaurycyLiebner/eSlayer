@@ -25,6 +25,7 @@
 
 class eCharacter;
 struct eUnitInfo;
+struct eDoors;
 
 struct eClientData {
     eClientData();
@@ -92,6 +93,8 @@ public:
     std::shared_ptr<eObject> triggerObject(
         const int clientId, const int objectId,
         const int tx, const int ty);
+
+    bool triggerDoors(const int clientId, const eDoors& doors);
 
     bool pickupItem(const int clientId, const int itemId,
                     const bool drag);

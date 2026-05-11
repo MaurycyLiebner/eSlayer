@@ -12,6 +12,7 @@ enum class ePacketType : uint8_t {
     setSkillId, consumePotion,
     triggerObject, objectStateChanged,
     pickupItem, dropItem,
+    triggerDoors, doorsStateChanged,
     pickupBody,
     rearrangeItems, attributes,
     skills, teams,

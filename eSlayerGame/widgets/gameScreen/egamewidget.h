@@ -109,6 +109,7 @@ private:
     void initializeTextures();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
     void setHighlightedObject(const std::shared_ptr<eObject>& obj);
+    void setHighlightedDoors(const std::optional<eDoors>& doors);
     void setHighlightedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
@@ -137,6 +138,8 @@ private:
     std::weak_ptr<eObject> mHighlightObject;
 
     std::weak_ptr<eGroundItem> mHighlightItem;
+
+    std::optional<eDoors> mHighlightDoors;
 
     std::shared_ptr<eMap> mMap;
 

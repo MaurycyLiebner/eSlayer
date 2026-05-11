@@ -21,6 +21,7 @@
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/edoors.h>
 
 eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
 
@@ -701,6 +702,24 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
         return obj;
     }
     return nullptr;
+}
+
+bool eServerArea::triggerDoors(
+    const int clientId, const eDoors& doors) {
+    const bool r = mMap->inside(doors.fX, doors.fY);
+    if(!r) return false;
+    auto& tile = mMap->tile(doors.fX, doors.fY);
+    switch(doors.fType) {
+    case eWallType::topLeft: {
+        eTile::setOpen(tile.fWallTL, !doors.fOpen);
+        return true;
+    } break;
+    case eWallType::topRight: {
+        eTile::setOpen(tile.fWallTR, !doors.fOpen);
+        return true;
+    } break;
+    }
+    return false;
 }
 
 bool eServerArea::pickupItem(

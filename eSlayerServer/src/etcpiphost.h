@@ -15,6 +15,9 @@ public:
 
     bool sendMessage(const int clientId,
                      const std::string& text) override;
+
+    bool triggerDoors(const int clientId,
+                      const eDoors& doors) override;
 private:
     void sendMessageToAll(const int clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);

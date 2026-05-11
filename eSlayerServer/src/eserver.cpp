@@ -4,6 +4,8 @@
 #include "etcpiphost.h"
 #include "etcpipjoin.h"
 
+#include <eSlayerHelpers/edoors.h>
+
 #include <eSlayerNet/etcpnetwork.h>
 
 std::shared_ptr<eServer> eSlayerServer::generate(
@@ -43,6 +45,12 @@ std::vector<eMessage> eServer::receiveMessages() {
 std::vector<eObject> eServer::receiveObjectStateChanges() {
     std::vector<eObject> result;
     std::swap(mObjectStateChanges, result);
+    return result;
+}
+
+std::vector<eDoors> eServer::receiveDoorsStateChanges() {
+    std::vector<eDoors> result;
+    std::swap(mDoorsStateChanged, result);
     return result;
 }
 

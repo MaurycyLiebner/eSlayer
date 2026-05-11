@@ -73,28 +73,44 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mStats.fSkills.emplace_back();
 }
 
-void eMainCharAction::setPressedUnit(const std::shared_ptr<eUnit>& u) {
+void eMainCharAction::setPressedUnit(
+    const std::shared_ptr<eUnit>& u) {
     if(u) {
         mPressedItem.reset();
         mPressedObject.reset();
+        mPressedDoors = std::nullopt;
     }
     mPressedUnit = u;
 }
 
-void eMainCharAction::setPressedItem(const std::shared_ptr<eGroundItem>& i) {
+void eMainCharAction::setPressedItem(
+    const std::shared_ptr<eGroundItem>& i) {
     if(i) {
         mPressedUnit.reset();
         mPressedObject.reset();
+        mPressedDoors = std::nullopt;
     }
     mPressedItem = i;
 }
 
-void eMainCharAction::setPressedObject(const std::shared_ptr<eObject>& o) {
+void eMainCharAction::setPressedObject(
+    const std::shared_ptr<eObject>& o) {
     if(o) {
         mPressedItem.reset();
         mPressedUnit.reset();
+        mPressedDoors = std::nullopt;
     }
     mPressedObject = o;
+}
+
+void eMainCharAction::setPressedDoors(
+    const std::optional<eDoors>& d) {
+    if(d) {
+        mPressedItem.reset();
+        mPressedUnit.reset();
+        mPressedObject.reset();
+    }
+    mPressedDoors = d;
 }
 
 void eMainCharAction::increment(const bool mousePressed,
@@ -168,9 +184,7 @@ void eMainCharAction::increment(const bool mousePressed,
         } else {
             targetPos = ipos;
         }
-    } else
-
-    if(const auto object = mPressedObject.lock()) {
+    } else if(const auto object = mPressedObject.lock()) {
         const auto objectId = object->fObjectId;
         const auto type = object->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
@@ -209,6 +223,27 @@ void eMainCharAction::increment(const bool mousePressed,
             return;
         } else {
             targetPos = closesPos;
+        }
+    } else if(mPressedDoors) {
+        const auto& d = *mPressedDoors;
+        ePointF doorsPos;
+        switch(d.fType) {
+        case eWallType::topLeft: {
+            doorsPos = ePointF{float(d.fX), d.fY + 0.5f};
+        } break;
+        case eWallType::topRight: {
+            doorsPos = ePointF{d.fX + 0.5f, float(d.fY)};
+        } break;
+        }
+
+        const float dist = ePointF::distance(doorsPos, charPos);
+        if(dist < 0.5f) {
+            mServer->triggerDoors(mClientId, d);
+            mClickAction = mousePressed;
+            stop();
+            return;
+        } else {
+            targetPos = doorsPos;
         }
     }
 
@@ -407,6 +442,7 @@ void eMainCharAction::stop() {
     mPressedUnit.reset();
     mPressedItem.reset();
     mPressedObject.reset();
+    mPressedDoors.reset();
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }

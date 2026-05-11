@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/edoors.h>
 
 eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
     mIP(ip) {}
@@ -113,6 +114,11 @@ void eTcpIpJoin::increment(const float by) {
             eObject obj;
             p >> obj;
             mObjectStateChanges.emplace_back(obj);
+        } break;
+        case ePacketType::doorsStateChanged: {
+            eDoors doors;
+            p >> doors;
+            mDoorsStateChanged.emplace_back(doors);
         } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
@@ -313,6 +319,16 @@ std::shared_ptr<eObject> eTcpIpJoin::triggerObject(
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send object trigger to the host.");
     return nullptr;
+}
+
+bool eTcpIpJoin::triggerDoors(const int clientId,
+                              const eDoors& doors) {
+    ePacket p;
+    p << ePacketType::triggerDoors;
+    p << doors;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send trigger doors to the host.");
+    return true;
 }
 
 bool eTcpIpJoin::pickupItem(const int clientId,
