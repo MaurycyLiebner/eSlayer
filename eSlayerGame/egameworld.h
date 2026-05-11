@@ -22,6 +22,7 @@ struct eExtendedMissile : public eMissile {
     float fAngle;
     int fAnimId;
     int fFrame = 0;
+    bool fHit = false;
 };
 
 class eGameWorld {
@@ -73,6 +74,8 @@ public:
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 
     bool isBody(const int charId) const;
+
+    void removeMissile(const eMissile& m);;
 private:
     void iniMissileInc();
     void iniNovaInc();

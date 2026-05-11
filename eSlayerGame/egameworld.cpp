@@ -27,8 +27,18 @@ void eGameWorld::iniMissileInc() {
         return mMap->obsticle(pos);
     };
 
-    const auto removeMissile = [this](const eMissile& m) {
-        mMissiles.remove(m.fId);
+    const auto removeMissile = [this](eMissile& m) {
+        auto& em = static_cast<eExtendedMissile&>(m);
+        const auto missileType = em.fType;
+        const auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+        const int hitId = missileTex.hitAnimId();
+        if(hitId < 0) {
+            eGameWorld::removeMissile(m);
+        } else {
+            em.fAnimId = hitId;
+            em.fFrame = 0;
+            em.fHit = true;
+        }
     };
 
     const auto getUnit = [this](const int charId) {
@@ -234,6 +244,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
 void eGameWorld::simulateMissiles(const float by) {
     for(const auto& m : mMissiles) {
+        if(m->fHit) continue;
         const auto oldPos = m->fPos;
         const bool r = mMIncrementer.increment(*m, by);
         if(r) continue;
@@ -251,4 +262,8 @@ void eGameWorld::simulateNovas(const float by) {
 
 bool eGameWorld::isBody(const int charId) const {
     return eVectorHelpers::contains(mBodies, charId);
+}
+
+void eGameWorld::removeMissile(const eMissile& m) {
+    mMissiles.remove(m.fId);
 }
