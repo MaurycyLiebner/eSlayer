@@ -169,6 +169,165 @@ public:
         mExtendedRect = rect;
     }
 
+    void generateDungeon(const eRect& rect,
+                         std::vector<eRect>& terrainRects) const {
+        const int roomSize = 6;
+        const int connThick = 2;
+        const int connLen = 4;
+
+        enum class eDir {
+            none,
+            topLeft, topRight,
+            bottomRight, bottomLeft
+        };
+
+        struct eRoom {
+            int fAbsX;
+            int fAbsY;
+
+            bool fEnabled = false;
+
+            void enableInDir(const eDir dir) {
+                switch(dir) {
+                case eDir::none:
+                    return;
+                case eDir::topLeft:
+                    fTLConn = true;
+                    return;
+                case eDir::topRight:
+                    fTRConn = true;
+                    return;
+                case eDir::bottomRight:
+                    fBRConn = true;
+                    return;
+                case eDir::bottomLeft:
+                    fBLConn = true;
+                    return;
+                }
+            }
+
+            bool fTLConn = false;
+            bool fTRConn = false;
+            bool fBRConn = false;
+            bool fBLConn = false;
+        };
+
+        const int roomRectDim = roomSize + connLen;
+        const int xNRooms = rect.fW/roomRectDim;
+        const int yNRooms = rect.fH/roomRectDim;
+        std::vector<std::vector<eRoom>> rooms(yNRooms, std::vector<eRoom>(xNRooms));
+        for(int x = 0; x < xNRooms; x++) {
+            for(int y = 0; y < yNRooms; y++) {
+                auto& r = rooms[y][x];
+                r.fAbsX = x*roomRectDim;
+                r.fAbsY = y*roomRectDim;
+            }
+        }
+
+        const auto hasRoom = [&](const int relX, const int relY) {
+            return relX >= 0 && relX < xNRooms &&
+                   relY >= 0 && relY < yNRooms;
+        };
+
+        const auto flipDir = [](const eDir from) {
+            switch(from) {
+            case eDir::none:
+                return eDir::none;
+            case eDir::topLeft:
+                return eDir::bottomRight;
+            case eDir::topRight:
+                return eDir::bottomLeft;
+            case eDir::bottomRight:
+                return eDir::topLeft;
+            case eDir::bottomLeft:
+                return eDir::topRight;
+            }
+            return eDir::none;
+        };
+
+        const auto moveInDir = [](const eDir dir,
+                                  int& relX, int& relY) {
+            switch(dir) {
+            case eDir::none:
+                return;
+            case eDir::topLeft:
+                relX--;
+                return;
+            case eDir::topRight:
+                relY--;
+                return;
+            case eDir::bottomRight:
+                relX++;
+                return;
+            case eDir::bottomLeft:
+                relY++;
+                return;
+            }
+        };
+
+        const int firstRelX = rect.fW/roomRectDim/2;
+        const int firstRelY = rect.fH/roomRectDim/2;
+
+        rooms[firstRelY][firstRelX].fEnabled = true;
+
+        const auto generateRandomPath = [&]() {
+            int relX = firstRelX;
+            int relY = firstRelY;
+            eDir dir = eDir::none;
+
+            for(int i = 0; i < 10; i++) {
+                const auto excl = flipDir(dir);
+                bool hasRoomB = false;
+
+                int newRelY = relY;
+                int newRelX = relX;
+                do {
+                    const auto idir = eRand::rand(1, 4);
+                    dir = static_cast<eDir>(idir);
+
+                    newRelY = relY;
+                    newRelX = relX;
+                    moveInDir(dir, newRelX, newRelY);
+                    hasRoomB = hasRoom(newRelX, newRelY);
+                } while(dir == excl || !hasRoomB);
+
+                rooms[relY][relX].enableInDir(dir);
+                const auto fdir = flipDir(dir);
+                auto& newRoom = rooms[newRelY][newRelX];
+                newRoom.fEnabled = true;
+                newRoom.enableInDir(fdir);
+
+                relY = newRelY;
+                relX = newRelX;
+            }
+        };
+
+        for(int i = 0; i < 5; i++) {
+            generateRandomPath();
+        }
+
+        for(const auto& row : rooms) {
+            for(const auto& room : row) {
+                if(!room.fEnabled) continue;
+                const eRect rect{room.fAbsX, room.fAbsY,
+                                 roomSize, roomSize};
+                terrainRects.emplace_back(rect);
+                if(room.fBRConn) {
+                    const eRect rect{room.fAbsX + roomSize,
+                                     room.fAbsY + (roomSize - connThick)/2,
+                                     connLen, connThick};
+                    terrainRects.emplace_back(rect);
+                }
+                if(room.fBLConn) {
+                    const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                     room.fAbsY + roomSize,
+                                     connThick, connLen};
+                    terrainRects.emplace_back(rect);
+                }
+            }
+        }
+    }
+
     void generate() const {
         const auto rect = eDungeon::rect();
         std::vector<eRect> terrainRects;
@@ -187,8 +346,7 @@ public:
         case eAreaType::dungeon: {
             rectWalls = true;
             fillEmptySapces = false;
-            const auto in = rect.inset(mMargin);
-            terrainRects.emplace_back(in);
+            generateDungeon(rect, terrainRects);
         } break;
         case eAreaType::open: {
             rectWalls = false;
@@ -320,17 +478,21 @@ public:
 
                     if(wallTL && !dst.fWallTL) {
                         if(x == minX && y != maxY + 1) {
+                            dst.fTerrainType = terrType;
                             dst.fWallTL = eTile::encodeWall(true, false, false, 0);
                         }
                         if(x == maxX + 1 && y != maxY + 1) {
+                            dst.fTerrainType = terrType;
                             dst.fWallTL = eTile::encodeWall(true, false, false, 0);
                         }
                     }
                     if(wallTR && !dst.fWallTR) {
                         if(y == minY && x != maxX + 1) {
+                            dst.fTerrainType = terrType;
                             dst.fWallTR = eTile::encodeWall(true, false, false, 0);
                         }
                         if(y == maxY + 1 && x != maxX + 1) {
+                            dst.fTerrainType = terrType;
                             dst.fWallTR = eTile::encodeWall(true, false, false, 0);
                         }
                     }
@@ -730,8 +892,18 @@ eMapGenerator::generate(const std::string& name) const {
         area.generate();
         if(first) {
             first = false;
-            result->mSpawnPos = ePoint{rect.fX + rect.fW/2,
-                                       rect.fY + rect.fH/2};
+            bool found = false;
+            for(int dist = 0; dist < 100; dist++) {
+                for(int x = dist; x >= -dist; x--) {
+                    for(int y = dist; y >= -dist; y--) {
+                        if(std::abs(x) != dist && std::abs(y) != dist) continue;
+                        const ePoint pos{rect.fX + rect.fW/2 + x,
+                                         rect.fY + rect.fH/2 + y};
+                        const bool w = result->walkable(pos);
+                        if(w) result->mSpawnPos = pos;
+                    }
+                }
+            }
         }
     }
     for(const auto& it : areas) {
