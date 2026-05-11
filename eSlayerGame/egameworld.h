@@ -20,6 +20,8 @@ class eMainCharAction;
 
 struct eExtendedMissile : public eMissile {
     float fAngle;
+    int fAnimId;
+    int fFrame = 0;
 };
 
 class eGameWorld {

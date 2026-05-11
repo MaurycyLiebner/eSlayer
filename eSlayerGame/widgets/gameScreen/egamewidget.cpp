@@ -651,11 +651,27 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto m = std::static_pointer_cast<eExtendedMissile>(ePtr);
                 const auto missileType = m->fType;
                 auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-                const int dirs = missileTex.nDirs(0);
+                const int appearId = missileTex.appearAnimId();
+                const int baseId = missileTex.baseAnimId();
+                const int hitId = missileTex.hitAnimId();
+                int& frame = m->fFrame;
+                int& animId = m->fAnimId;
+                int nFrames = missileTex.nFrames(animId);
+                if(frame >= nFrames) {
+                    if(animId == appearId) {
+                        animId = baseId;
+                        frame = 0;
+                        nFrames = missileTex.nFrames(animId);
+                    } else if(animId == hitId) {
+                        continue;
+                    }
+                }
+                const int dirs = missileTex.nDirs(animId);
                 const float ainc = 360.f/dirs;
                 int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
                 dir = (dirs + dir) % dirs;
-                const auto& ftex = missileTex.get(0, dir, mFrame % missileTex.nFrames(0));
+                const int texFrame = frame++ % nFrames;
+                const auto& ftex = missileTex.get(animId, dir, texFrame);
                 const float lradius = missileTex.lighting();
                 if(lradius > 0.01f) {
                     const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};

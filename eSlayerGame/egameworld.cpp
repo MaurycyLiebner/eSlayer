@@ -2,6 +2,7 @@
 
 #include "emaincharaction.h"
 #include "textures/echarstextures.h"
+#include "textures/emissilestextures.h"
 
 #include <eSlayerMapGenerator/emap.h>
 
@@ -214,6 +215,11 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     for(const auto& m : missiles) {
         const auto mm = std::make_shared<eExtendedMissile>();
+        const auto missileType = m.fType;
+        auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+        const int apearId = missileTex.appearAnimId();
+        const int baseId = missileTex.appearAnimId();
+        mm->fAnimId = apearId >= 0 ? apearId : baseId;
         reinterpret_cast<eMissile&>(*mm) = m;
         mMissiles.add(m.fId, mm);
     }

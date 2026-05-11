@@ -54,6 +54,10 @@ int eMissileTextures::nDirs(const int animId) const {
     return anim.fNDirs;
 }
 
+int eMissileTextures::animId(const std::string& name) const {
+    return mAnims.id(name);
+}
+
 void eMissilesTextures::loadData() {
     if(sDataLoaded) return;
     sDataLoaded = true;
@@ -80,6 +84,10 @@ void eMissilesTextures::loadData() {
             anim.fPath = pathBase + "_" + aname;
             texs.mAnims.add(aname, anim);
         }
+        texs.mAppearAnimId = texs.animId("appear");
+        texs.mBaseAnimId = texs.animId("base");
+        texs.mHitAnimId = texs.animId("hit");
+
         sMissiles.add(name, texs);
     }
 

@@ -33,9 +33,19 @@ public:
     int nFrames(const int animId) const;
     int nDirs(const int animId) const;
 
+    int animId(const std::string& name) const;
+
+    int appearAnimId() const { return mAppearAnimId; }
+    int baseAnimId() const { return mBaseAnimId; }
+    int hitAnimId() const { return mHitAnimId; }
+
     float lighting() const { return mLighting; }
     void setLighting(const float l) { mLighting = l; }
 private:
+    int mAppearAnimId = -1;
+    int mBaseAnimId = -1;
+    int mHitAnimId = -1;
+
     float mLighting = 0.f;
     eStringIdMapVector<eMissileAnim> mAnims;
 };
