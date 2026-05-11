@@ -108,21 +108,21 @@ std::optional<eEdge> sharedEdge(const eRect& A, const eRect& B) {
         if(y1 < y2) return eEdge{B.fX, y1, B.fX, y2};
     }
 
-           // A is right of B
+    // A is right of B
     if(B.fX + B.fW == A.fX) {
         const int y1 = std::max(A.fY, B.fY);
         const int y2 = std::min(A.fY + A.fH, B.fY + B.fH);
         if(y1 < y2) return eEdge{A.fX, y1, A.fX, y2};
     }
 
-           // A is above B
+    // A is above B
     if(A.fY + A.fH == B.fY) {
         const int x1 = std::max(A.fX, B.fX);
         const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
         if(x1 < x2) return eEdge{x1, B.fY, x2, B.fY};
     }
 
-           // A is below B
+    // A is below B
     if(B.fY + B.fH == A.fY) {
         const int x1 = std::max(A.fX, B.fX);
         const int x2 = std::min(A.fX + A.fW, B.fX + B.fW);
@@ -170,7 +170,8 @@ public:
     }
 
     void generateDungeon(const eRect& rect,
-                         std::vector<eRect>& terrainRects) const {
+                         std::vector<eRect>& terrainRects,
+                         std::vector<eRect>& doors) const {
         const int roomSize = 6;
         const int connThick = 2;
         const int connLen = 4;
@@ -313,16 +314,40 @@ public:
                                  roomSize, roomSize};
                 terrainRects.emplace_back(rect);
                 if(room.fBRConn) {
+                    {
+                        const eRect rect{room.fAbsX + roomSize,
+                                         room.fAbsY + (roomSize - connThick)/2,
+                                         0, connThick};
+                        doors.emplace_back(rect);
+                    }
                     const eRect rect{room.fAbsX + roomSize,
                                      room.fAbsY + (roomSize - connThick)/2,
                                      connLen, connThick};
                     terrainRects.emplace_back(rect);
+                    {
+                        const eRect rect{room.fAbsX + roomSize + connLen,
+                                         room.fAbsY + (roomSize - connThick)/2,
+                                         0, connThick};
+                        doors.emplace_back(rect);
+                    }
                 }
                 if(room.fBLConn) {
+                    {
+                        const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                         room.fAbsY + roomSize,
+                                         connThick, 0};
+                        doors.emplace_back(rect);
+                    }
                     const eRect rect{room.fAbsX + (roomSize - connThick)/2,
                                      room.fAbsY + roomSize,
                                      connThick, connLen};
                     terrainRects.emplace_back(rect);
+                    {
+                        const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                         room.fAbsY + roomSize + connLen,
+                                         connThick, 0};
+                        doors.emplace_back(rect);
+                    }
                 }
             }
         }
@@ -331,6 +356,7 @@ public:
     void generate() const {
         const auto rect = eDungeon::rect();
         std::vector<eRect> terrainRects;
+        std::vector<eRect> doors;
         for(const auto& c : mConnecitons) {
             const eRect connRect{c.fX, c.fY, c.fW, c.fH};
             eRect connIn;
@@ -346,7 +372,7 @@ public:
         case eAreaType::dungeon: {
             rectWalls = true;
             fillEmptySapces = false;
-            generateDungeon(rect, terrainRects);
+            generateDungeon(rect, terrainRects, doors);
         } break;
         case eAreaType::open: {
             rectWalls = false;
@@ -356,13 +382,32 @@ public:
         } break;
         }
 
-        const auto inRect = [&terrainRects](const int x, const int y,
-                                            const eRect* const skip = nullptr) {
+        const auto inRect = [&](const int x, const int y,
+                                const eRect* const skip = nullptr) {
             const ePoint p{x, y};
             for(const auto& rect : terrainRects) {
                 if(&rect == skip) continue;
                 const bool r = rect.contains(p);
                 if(r) return true;
+            }
+            return false;
+        };
+
+        const auto inDoorsRect = [&](const int x, const int y,
+                                     const bool tl) {
+            const ePoint p{x, y};
+            for(const auto& rect : doors) {
+                if(tl) {
+                    if(rect.fW != 0) continue;
+                    const eRect rect1{rect.fX, rect.fY, 1, rect.fH};
+                    const bool r = rect1.contains(p);
+                    if(r) return true;
+                } else { // tr
+                    if(rect.fH != 0) continue;
+                    const eRect rect1{rect.fX, rect.fY, rect.fW, 1};
+                    const bool r = rect1.contains(p);
+                    if(r) return true;
+                }
             }
             return false;
         };
@@ -477,23 +522,25 @@ public:
                     }
 
                     if(wallTL && !dst.fWallTL) {
+                        const bool doors = inDoorsRect(x, y, true);
                         if(x == minX && y != maxY + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTL = eTile::encodeWall(true, false, false, 0);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, 0);
                         }
                         if(x == maxX + 1 && y != maxY + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTL = eTile::encodeWall(true, false, false, 0);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, 0);
                         }
                     }
                     if(wallTR && !dst.fWallTR) {
+                        const bool doors = inDoorsRect(x, y, false);
                         if(y == minY && x != maxX + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTR = eTile::encodeWall(true, false, false, 0);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, 0);
                         }
                         if(y == maxY + 1 && x != maxX + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTR = eTile::encodeWall(true, false, false, 0);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, 0);
                         }
                     }
                 }
@@ -533,35 +580,49 @@ public:
         const auto& terrTypeInfo = eTerrsTexturesData::get(terrType);
         const auto& tlWalls = terrTypeInfo.fTLWalls;
         const auto& trWalls = terrTypeInfo.fTRWalls;
+        const auto& tlDoors = terrTypeInfo.fTLDoors;
+        const auto& trDoors = terrTypeInfo.fTRDoors;
         auto& tiles = mMap->mTiles;
         const int h = mMap->height();
         const int w = mMap->width();
-        const auto hasTLWall = [w, h, &tiles](const int x, const int y) {
+        const auto hasTLWall = [w, h, &tiles](const int x, const int y,
+                                              const bool doors) {
             if(x < 0 || y < 0 || x >= w || y >= h) return false;
             const auto& src = tiles[y][x];
-            return !!src.fWallTL;
+            if(!src.fWallTL) return false;
+            const bool d = eTile::doors(src.fWallTL);
+            return d == doors;
         };
 
         const auto has0TLWall = [&tiles](const int x, const int y) {
             const auto& src = tiles[y][x];
             if(!src.fWallTL) return false;
-            bool b;
-            uint8_t type;
-            eTile::decodeWall(src.fWallTL, b, b, b, type);
+            const uint8_t type = eTile::type(src.fWallTL);
             return type == 0;
         };
 
-        const int maxTLSizeClamp = tlWalls.fSizes.back();
-        const auto maxTLSize = [&](const int x, const int y) {
-            for(int i = 0; i < maxTLSizeClamp; i++) {
-                const bool r = hasTLWall(x, y + i);
-                if(!r) return i;
-            }
-            return maxTLSizeClamp;
+        const auto hasTLDoors = [&tiles](const int x, const int y) {
+            const auto& src = tiles[y][x];
+            return eTile::doors(src.fWallTL);
         };
 
-        const auto chooseTLVec = [&](const int maxSize) {
-            const auto& d = tlWalls.fDataIds;
+        const int maxTLSizeClamp = tlWalls.fSizes.back();
+        const int maxTLDoorsSizeClamp = tlDoors.fSizes.back();
+        const auto maxTLSize = [&](const int x, const int y,
+                                   const bool doors) {
+            const int maxSize = doors ? maxTLDoorsSizeClamp :
+                                        maxTLSizeClamp;
+            for(int i = 0; i < maxSize; i++) {
+                const bool r = hasTLWall(x, y + i, doors);
+                if(!r) return i;
+            }
+            return maxSize;
+        };
+
+        const auto chooseTLVec = [&](const int maxSize,
+                                     const bool doors) {
+            const auto& d = doors ? tlDoors.fDataIds :
+                                    tlWalls.fDataIds;
             for(int i = d.size() - 1; i >= 0; i--) {
                 const auto& v = d[i];
                 if(v.size() <= maxSize) return v;
@@ -569,32 +630,44 @@ public:
             return d[0];
         };
 
-        const auto hasTRWall = [w, h, &tiles](const int x, const int y) {
+        const auto hasTRWall = [w, h, &tiles](const int x, const int y,
+                                              const bool doors) {
             if(x < 0 || y < 0 || x >= w || y >= h) return false;
             const auto& src = tiles[y][x];
-            return !!src.fWallTR;
+            if(!src.fWallTR) return false;
+            const bool d = eTile::doors(src.fWallTR);
+            return d == doors;
         };
 
         const auto has0TRWall = [&tiles](const int x, const int y) {
             const auto& src = tiles[y][x];
             if(!src.fWallTR) return false;
-            bool b;
-            uint8_t type;
-            eTile::decodeWall(src.fWallTR, b, b, b, type);
+            const uint8_t type = eTile::type(src.fWallTR);
             return type == 0;
         };
 
-        const int maxTRSizeClamp = trWalls.fSizes.back();
-        const auto maxTRSize = [&](const int x, const int y) {
-            for(int i = 0; i < maxTRSizeClamp; i++) {
-                const bool r = hasTRWall(x + i, y);
-                if(!r) return i;
-            }
-            return maxTRSizeClamp;
+        const auto hasTRDoors = [&tiles](const int x, const int y) {
+            const auto& src = tiles[y][x];
+            return eTile::doors(src.fWallTR);
         };
 
-        const auto chooseTRVec = [&](const int maxSize) {
-            const auto& d = trWalls.fDataIds;
+        const int maxTRSizeClamp = trWalls.fSizes.back();
+        const int maxTRDoorsSizeClamp = trDoors.fSizes.back();
+        const auto maxTRSize = [&](const int x, const int y,
+                                   const bool doors) {
+            const int maxSize = doors ? maxTRDoorsSizeClamp :
+                                        maxTRSizeClamp;
+            for(int i = 0; i < maxSize; i++) {
+                const bool r = hasTRWall(x + i, y, doors);
+                if(!r) return i;
+            }
+            return maxSize;
+        };
+
+        const auto chooseTRVec = [&](const int maxSize,
+                                     const bool doors) {
+            const auto& d = doors ? trDoors.fDataIds :
+                                    trWalls.fDataIds;
             for(int i = d.size() - 1; i >= 0; i--) {
                 const auto& v = d[i];
                 if(v.size() <= maxSize) return v;
@@ -607,24 +680,26 @@ public:
                 {
                     const bool r = has0TLWall(x, y);
                     if(r) {
-                        const int maxSize = maxTLSize(x, y);
-                        const auto v = chooseTLVec(maxSize);
+                        const bool doors = hasTLDoors(x, y);
+                        const int maxSize = maxTLSize(x, y, doors);
+                        const auto v = chooseTLVec(maxSize, doors);
                         const int size = v.size();
                         for(int dy = 0; dy < size; dy++) {
                             auto& dst = tiles[y + dy][x];
-                            dst.fWallTL = eTile::encodeWall(true, false, false, v[dy]);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, v[dy]);
                         }
                     }
                 }
                 {
                     const bool r = has0TRWall(x, y);
                     if(r) {
-                        const int maxSize = maxTRSize(x, y);
-                        const auto v = chooseTRVec(maxSize);
+                        const bool doors = hasTRDoors(x, y);
+                        const int maxSize = maxTRSize(x, y, doors);
+                        const auto v = chooseTRVec(maxSize, doors);
                         const int size = v.size();
                         for(int dx = 0; dx < size; dx++) {
                             auto& dst = tiles[y][x + dx];
-                            dst.fWallTR = eTile::encodeWall(true, false, false, v[dx]);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, v[dx]);
                         }
                     }
                 }

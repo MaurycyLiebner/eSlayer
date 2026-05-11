@@ -24,6 +24,14 @@ struct ESLAYERHELPERS_API eTile {
                (type << 3);
     }
 
+    static bool doors(const uint8_t encoded) {
+        return (encoded >> 1) & 1;
+    }
+
+    static uint8_t type(const uint8_t encoded) {
+        return (encoded >> 3);
+    }
+
     static void decodeWall(
         const uint8_t encoded,
         bool& wall,
@@ -32,7 +40,7 @@ struct ESLAYERHELPERS_API eTile {
         uint8_t& type) {
         wall  = (encoded >> 0) & 1;
         doors = (encoded >> 1) & 1;
-        open = (encoded >> 2) & 1;
+        open  = (encoded >> 2) & 1;
         type  = (encoded >> 3);
     }
 };
