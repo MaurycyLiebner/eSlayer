@@ -87,6 +87,7 @@ struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fSkills;
 
     std::vector<eSkillStats> fOnStruck;
+    std::vector<eSkillStats> fOnDeath;
 
     int fClass = 0;
     int fLevel = 1;

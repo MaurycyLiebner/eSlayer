@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/emodifier.h"
 
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/eskills.h"
 
 std::map<eModifierType, std::string>
 gModifierTypeToString = {
@@ -68,7 +69,13 @@ gModifierTypeToString = {
     { eModifierType::poisonSkillDamage, "poisonSkillDamage" },
 
     { eModifierType::coldLength, "coldLength" },
-    { eModifierType::freezeLength, "freezeLength" }
+    { eModifierType::freezeLength, "freezeLength" },
+
+    { eModifierType::onAttack, "onAttack" },
+    { eModifierType::onStriking, "onStriking" },
+    { eModifierType::onKill, "onKill" },
+    { eModifierType::onStruck, "onStruck" },
+    { eModifierType::onDeath, "onDeath" }
 };
 
 std::map<std::string, eModifierType>
@@ -154,6 +161,7 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::onStriking:
     case eModifierType::onKill:
     case eModifierType::onStruck:
+    case eModifierType::onDeath:
         return eModValuesUsage::value1 |
                eModValuesUsage::value2 |
                eModValuesUsage::skillId;
@@ -247,6 +255,7 @@ std::string eModifier::value1Name() const {
     case eModifierType::onStriking:
     case eModifierType::onKill:
     case eModifierType::onStruck:
+    case eModifierType::onDeath:
         return "chance";
     }
     return "";
@@ -326,6 +335,7 @@ std::string eModifier::value2Name() const {
     case eModifierType::onStriking:
     case eModifierType::onKill:
     case eModifierType::onStruck:
+    case eModifierType::onDeath:
         return "level";
     }
     return "";
@@ -372,7 +382,8 @@ void eModifier::read(const std::string& key,
         }
         if(used & eModValuesUsage::skillId) {
             const auto siName = skillName();
-            fSkillId = value.value(siName, 0);
+            const auto skillName = value.value(siName, "");
+            fSkillId = eSkills::sSkills.id(skillName);
         }
     }
 }
@@ -483,6 +494,7 @@ bool eModifierHelpers::isPercent(
     case eModifierType::onStriking:
     case eModifierType::onKill:
     case eModifierType::onStruck:
+    case eModifierType::onDeath:
         return used == eModValuesUsage::value1;
     }
 

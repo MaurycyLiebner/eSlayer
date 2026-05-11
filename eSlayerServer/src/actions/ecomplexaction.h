@@ -19,6 +19,7 @@ struct eUnitSkill;
 struct eHitData {
     int fAttackerId;
     eTeamId fAttackTeamId;
+    eWeaponChoice fWChoice;
 
     ePointF fFrom;
     bool fKnockback = false;
@@ -37,6 +38,8 @@ struct eHitData {
     float fFreezeLength = 0.f;
 
     std::vector<eSkillStats> fOnAttack;
+    std::vector<eSkillStats> fOnStriking;
+    std::vector<eSkillStats> fOnKill;
 };
 
 class eComplexAction : public eUnitAction {
@@ -48,7 +51,6 @@ public:
     void setChild(const std::shared_ptr<eUnitAction>& c);
 
     bool getHit(const eHitData& data, const bool splash = true);
-
 protected:
     virtual void decide() = 0;
     bool attack(const eAttackData& target);

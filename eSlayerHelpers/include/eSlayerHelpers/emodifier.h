@@ -84,6 +84,7 @@ enum class eModifierType : uint8_t {
     onStriking,
     onKill,
     onStruck,
+    onDeath,
 
     count
 };

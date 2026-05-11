@@ -103,11 +103,33 @@ public:
 
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void addNova(const std::shared_ptr<eServerNova>& n);
+
+    void spawnMissile(const ePointF& to,
+                      const eSkill& skill,
+                      const eHitData& data,
+                      const int nMissiles,
+                      const float pierceChance,
+                      const int missileId,
+                      const float missileRangeTime,
+                      const bool continuousDamage);
+    void spawnNova(const eSkill& skill,
+                   const eHitData& data,
+                   const bool continuousDamage);
     void summon(eServerUnit& by,
                 ePointF to,
                 const int unitId,
                 const int maxCount,
                 const std::vector<eModifier>& mods);
+    void castChance(eServerUnit& by,
+                    const eSkillStats& skill,
+                    const eWeaponChoice wchoice,
+                    const ePointF& to);
+    void cast(eServerUnit& by,
+              const eSkillStats& skill,
+              const eWeaponChoice wchoice,
+              const ePointF& to);
+    std::vector<int> summoned(const eServerUnit& by,
+                              const int unitId);
 
     ePointF emptyPlaceNear(const ePointF& pos) const;
 

@@ -5,6 +5,7 @@
 #include "../../elanguage.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/eskills.h>
 
 eHoverGenerator::eHoverGenerator(const eResolution& res) {
     const int fontSize = res.smallFontSize();
@@ -84,6 +85,9 @@ bool addPlus(const float value,
     case eModifierType::coldSkillDamage:
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
+
+    case eModifierType::coldLength:
+    case eModifierType::freezeLength:
         return true;
 
     case eModifierType::none:
@@ -103,6 +107,12 @@ bool addPlus(const float value,
     case eModifierType::knockback:
 
     case eModifierType::regenerateMana:
+
+    case eModifierType::onAttack:
+    case eModifierType::onStriking:
+    case eModifierType::onKill:
+    case eModifierType::onStruck:
+    case eModifierType::onDeath:
         return false;
     }
     return false;
@@ -112,6 +122,7 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const int g, const int s,
                                const int min,
                                const int max,
+                               const int skillId,
                                const eFontColor color,
                                const eModifierType type) {
     auto text = eLanguage::text(g, s);
@@ -124,7 +135,29 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
     const std::string maxStr = std::to_string(max);
     text = eStringHelpers::replaceAll(text, "%2", maxStr);
 
+    if(skillId >= 0) {
+        const auto skillName = eSkills::sSkills.name(skillId);
+        text = eStringHelpers::replaceAll(text, "%3", skillName);
+    }
+
     addText(r, text, color);
+}
+
+void eHoverGenerator::addValue(SDL_Renderer* const r,
+                               const int g, const int s,
+                               const int min,
+                               const int max,
+                               const eFontColor color,
+                               const eModifierType type) {
+    addValue(r, g, s, min, max, -1, color, type);
+}
+
+void eHoverGenerator::addValue(SDL_Renderer* const r,
+                               const int g, const int s,
+                               const int value,
+                               const eFontColor color,
+                               const eModifierType type) {
+    addValue(r, g, s, value, value, color, type);
 }
 
 std::shared_ptr<eTexture>

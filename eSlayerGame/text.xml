@@ -123,6 +123,11 @@
         <string id="46">%1% to Poison Skill Damage</string>
         <string id="47">Cold Length %1 Seconds</string>
         <string id="48">Freeze Length %1 Seconds</string>
+        <string id="49">%1% Chance to Cast Level %2 %3 on Attack</string>
+        <string id="50">%1% Chance to Cast Level %2 %3 on Striking</string>
+        <string id="51">%1% Chance to Cast Level %2 %3 When You Kill an Enemy</string>
+        <string id="52">%1% Chance to Cast Level %2 %3 When Struck</string>
+        <string id="53">%1% Chance to Cast Level %2 %3 When You Die</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

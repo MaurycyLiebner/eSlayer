@@ -26,6 +26,17 @@ public:
     void addValue(SDL_Renderer* const r,
                   const int g, const int s,
                   const int min, const int max,
+                  const int skillId,
+                  const eFontColor color,
+                  const eModifierType type = eModifierType::none);
+    void addValue(SDL_Renderer* const r,
+                  const int g, const int s,
+                  const int min, const int max,
+                  const eFontColor color,
+                  const eModifierType type = eModifierType::none);
+    void addValue(SDL_Renderer* const r,
+                  const int g, const int s,
+                  const int value,
                   const eFontColor color,
                   const eModifierType type = eModifierType::none);
 

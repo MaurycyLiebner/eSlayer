@@ -96,16 +96,16 @@ void eHoverWidget::setHoverItem(
         case eItemType::gloves:
         case eItemType::helmet:
         case eItemType::belt:
-            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fDefense, eFontColor::white);
             break;
         case eItemType::shield:
-            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
-            gen.addValue(r, 6, 2, item.fBlockChance, item.fBlockChance, eFontColor::white,
+            gen.addValue(r, 6, 0, item.fDefense, eFontColor::white);
+            gen.addValue(r, 6, 2, item.fBlockChance, eFontColor::white,
                      eModifierType::blockChancePercent);
             gen.addValue(r, 6, 1, item.fMinDmg, item.fMaxDmg, eFontColor::white);
             break;
         case eItemType::boots:
-            gen.addValue(r, 6, 0, item.fDefense, item.fDefense, eFontColor::white);
+            gen.addValue(r, 6, 0, item.fDefense, eFontColor::white);
             gen.addValue(r, 6, 1, item.fMinDmg, item.fMaxDmg, eFontColor::white);
             break;
         case eItemType::weapon:
@@ -119,19 +119,19 @@ void eHoverWidget::setHoverItem(
         if(level > 1) {
             const auto color = level > mAttrs.fLevel ?
                 eFontColor::red : eFontColor::white;
-            gen.addValue(r, 6, 4, level, level, color);
+            gen.addValue(r, 6, 4, level, color);
         }
         if(itemData.fStrengthReq > 0) {
             const int str = itemData.fStrengthReq;
             const auto color = str > mStats.fStrength ?
                 eFontColor::red : eFontColor::white;
-            gen.addValue(r, 6, 5, str, str, color);
+            gen.addValue(r, 6, 5, str, color);
         }
         if(itemData.fDexterityReq > 0) {
             const int dex = itemData.fDexterityReq;
             const auto color = dex > mStats.fDexterity ?
                 eFontColor::red : eFontColor::white;
-            gen.addValue(r, 6, 6, dex, dex, color);
+            gen.addValue(r, 6, 6, dex, color);
         }
         if(itemData.fType == eItemType::weapon) {
             const float wsm = itemData.fWSM;
@@ -149,14 +149,15 @@ void eHoverWidget::setHoverItem(
             } else {
                 s = 7;
             }
-            gen.addValue(r, 6, s, 0.f, 0.f, eFontColor::white);
+            gen.addValue(r, 6, s, 0.f, eFontColor::white);
         }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
-            gen.addValue(r, 10, s, mod.fValue1, mod.fValue2, eFontColor::blue, mod.fType);
+            gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                         mod.fSkillId, eFontColor::blue, mod.fType);
         }
         if(item.fSockets > 0) {
-            gen.addValue(r, 6, 3, item.fSockets, item.fSockets, eFontColor::blue);
+            gen.addValue(r, 6, 3, item.fSockets, eFontColor::blue);
         }
 
         mHover = gen.generate(res, r);
@@ -220,7 +221,7 @@ void eHoverWidget::setHoverSkill(
             const int levelId = mStats.effectiveSkillLevel(skillId);
             if(levelId >= 0) {
                 const auto& level = skill.skillLevel(levelId);
-                gen.addValue(r, 13, 1, levelId + 1, levelId + 1,
+                gen.addValue(r, 13, 1, levelId + 1,
                              eFontColor::white, eModifierType::none);
                 int count;
                 float cooldown;
@@ -231,10 +232,10 @@ void eHoverWidget::setHoverSkill(
                     const auto& mod = it.second;
                     const int s = static_cast<int>(mod.fType);
                     gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                                 eFontColor::white, mod.fType);
+                                 mod.fSkillId, eFontColor::white, mod.fType);
                 }
                 if(manaCost != 0.f) {
-                    gen.addValue(r, 13, 3, manaCost, manaCost,
+                    gen.addValue(r, 13, 3, manaCost,
                                  eFontColor::white, eModifierType::none);
                 }
             }
@@ -242,7 +243,7 @@ void eHoverWidget::setHoverSkill(
             if(showNextLevel && nextLevelId >= 0) {
                 if(levelId >= 0) gen.addSpace(r);
                 const auto& level = skill.skillLevel(nextLevelId);
-                gen.addValue(r, 13, 2, nextLevelId + 1, nextLevelId + 1,
+                gen.addValue(r, 13, 2, nextLevelId + 1,
                              eFontColor::white, eModifierType::none);
                 int count;
                 float cooldown;
@@ -253,10 +254,10 @@ void eHoverWidget::setHoverSkill(
                     const auto& mod = it.second;
                     const int s = static_cast<int>(mod.fType);
                     gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                                 eFontColor::white, mod.fType);
+                                 mod.fSkillId, eFontColor::white, mod.fType);
                 }
                 if(manaCost != 0.f) {
-                    gen.addValue(r, 13, 3, manaCost, manaCost,
+                    gen.addValue(r, 13, 3, manaCost,
                                  eFontColor::white, eModifierType::none);
                 }
             }
@@ -301,7 +302,7 @@ void eHoverWidget::setHoverSkill(
                         const auto& mod = it.second;
                         const int s = static_cast<int>(mod.fType);
                         gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                                     eFontColor::white, mod.fType);
+                                     mod.fSkillId, eFontColor::white, mod.fType);
                     }
                 }
             }

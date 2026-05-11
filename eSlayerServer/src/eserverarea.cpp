@@ -266,7 +266,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                 const auto addUnit = [&]() {
                     const auto modelParts = data.randomModelParts();
-                    const auto u = std::make_shared<eServerUnit>(false, data, *this);
+                    const auto u = std::make_shared<eServerUnit>(
+                        false, data, type, *this);
                     const int charId = eServerUnit::sNextCharId++;
                     ePointF pos;
                     for(int dist = 1; dist < 3; dist++) {
@@ -573,7 +574,8 @@ bool eServerArea::addClient(const int clientId,
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
-    const auto u = std::make_shared<eServerUnit>(true, data, *this);
+    const auto u = std::make_shared<eServerUnit>(
+        true, data, typeId, *this);
     u->addSkill();
     u->addSkill();
     const auto& spawnPos = mMap->spawnPos();
@@ -610,10 +612,10 @@ bool eServerArea::respawn(const int clientId) {
     if(createBody) {
         auto& eq = client->equipment();
         const auto& data = client->data();
-        const auto u = std::make_shared<eServerUnit>(
-            true, data, *this);
-        u->setEquipment(eq, false);
         const int typeId = 0;
+        const auto u = std::make_shared<eServerUnit>(
+            true, data, typeId, *this);
+        u->setEquipment(eq, false);
         const auto& udata = eUnitsInfo::sUnits.get(typeId);
         const int charId = eServerUnit::sNextCharId++;
         const auto& modelParts = client->fModelParts;
@@ -833,16 +835,167 @@ void eServerArea::addNova(const std::shared_ptr<eServerNova>& n) {
     mNovas.add(n->fId, n);
 }
 
+int piercedFromPierceChance(const float p) {
+    const float u = eRand::randF();
+    return int(std::log(u) / std::log(p));
+}
+
+void eServerArea::spawnMissile(const ePointF& to,
+                               const eSkill& skill,
+                               const eHitData& data,
+                               const int nMissiles,
+                               const float pierceChance,
+                               const int missileId,
+                               const float missileRangeTime,
+                               const bool continuousDamage) {
+    const auto skillType = skill.fType;
+    auto baseDir = ePointF::vector(to, data.fFrom);
+    if(baseDir.length() < 0.001f) baseDir = eVec2f::random();
+    struct eMissileData {
+        ePointF fPos;
+        ePointF fTo;
+        int fToPierce;
+        int fMissileId;
+        float fRangeTime;
+        eDamage fDamage;
+    };
+    std::vector<eMissileData> missiles;
+    const auto spawnMissiles = [&](const int missileId,
+                                   const float missileRangeTime) {
+        float maxAngle = skill.fMaxAngle;
+        if(skill.fAngleAdjust) {
+            if(skill.fRangeTime > 0.f) {
+                const float len = baseDir.length();
+                const float multBase = 1.f - 3.f*len/skill.fRangeTime;
+                const float angleMult = std::clamp(multBase, 0.1f, 1.f);
+                maxAngle *= angleMult;
+            }
+        }
+        float angle = nMissiles == 1 ? 0.f : -0.5f*maxAngle;
+        for(int i = 0; i < nMissiles; i++) {
+            auto dir = baseDir;
+            if(angle != 0.f) dir.rotate(angle);
+            auto& md = missiles.emplace_back();
+            const int max = std::numeric_limits<uint8_t>::max();
+            const int pierced = piercedFromPierceChance(pierceChance);
+            md.fToPierce = 1 + std::min(max, pierced);
+            auto castDispl = dir;
+            castDispl.normalize(0.5*skill.fRadius);
+            md.fPos = data.fFrom + castDispl;
+            md.fTo = data.fFrom + dir;
+            md.fMissileId = missileId;
+            md.fRangeTime = missileRangeTime;
+            md.fDamage = data.fDamage;
+            if(nMissiles > 1) {
+                angle += maxAngle/(nMissiles - 1);
+            }
+        }
+    };
+    if(skillType == eSkillType::missile) {
+        spawnMissiles(missileId, missileRangeTime);
+    } else if(skillType == eSkillType::wall) {
+        eVec2f perp(-baseDir.y, baseDir.x);
+        perp.normalize(2*skill.fRadius);
+        ePointF pt = to - perp * (nMissiles/2);
+        for(int i = 0; i < nMissiles; i++) {
+            auto& md = missiles.emplace_back();
+            md.fToPierce = 0;
+            md.fPos = pt;
+            md.fTo = pt;
+            md.fMissileId = skill.fMissileId;
+            md.fRangeTime = skill.fRangeTime;
+            md.fDamage = data.fDamage;
+            pt = pt + perp;
+        }
+    } else {
+        spawnMissiles(missileId, missileRangeTime);
+    }
+    for(const auto& md : missiles) {
+        const auto m = std::make_shared<eServerMissile>();
+        m->fType = md.fMissileId;
+        m->fTeamId = data.fAttackTeamId;
+        m->fToPierce = md.fToPierce;
+        m->fSpeed = skill.fSpeed;
+        m->fRemDistTime = md.fRangeTime;
+        m->fPathType = skill.fPathId;
+        m->fFrom = data.fFrom;
+        m->fRadius = skill.fRadius;
+        m->fPos = md.fPos;
+        m->fTo = md.fTo;
+        m->fContinuousDamage = continuousDamage;
+        m->fEnemyFindRange = skill.fMissileEnemyFindRange;
+        m->fTime = 0.f;
+        struct eCharSkipper {
+            float fTime = 0.f;
+            std::set<int> fChars;
+        };
+
+        const std::shared_ptr<eCharSkipper> skip =
+            continuousDamage ?
+                std::make_shared<eCharSkipper>() :
+                nullptr;
+        m->fHitAction = [data, m, skip](eServerUnit& u) {
+            if(skip) {
+                auto& c = skip->fChars;
+                if(skip->fTime < m->fTime) {
+                    c.clear();
+                    skip->fTime = m->fTime;
+                } else {
+                    if(c.find(u.fCharId) != c.end()) {
+                        return;
+                    }
+                }
+                c.emplace(u.fCharId);
+            }
+            u.getHit(data);
+        };
+        addMissile(m);
+    }
+}
+
+void eServerArea::spawnNova(const eSkill& skill,
+                            const eHitData& data,
+                            const bool continuousDamage) {
+    const auto n = std::make_shared<eServerNova>();
+    n->fTeamId = data.fAttackTeamId;
+    n->fMissileType = skill.fMissileId;
+    n->fCenter = data.fFrom;
+    n->fRadius = 0.f;
+    n->fMaxRadius = skill.fRadius;
+    n->fSpeed = skill.fSpeed;
+
+    struct eCharSkipper {
+        std::set<int> fChars;
+    };
+
+    const std::shared_ptr<eCharSkipper> skip =
+        !continuousDamage ?
+            std::make_shared<eCharSkipper>() :
+            nullptr;
+    n->fHitAction = [data, skip](eServerUnit& u) {
+        if(skip) {
+            auto& c = skip->fChars;
+            if(c.find(u.fCharId) != c.end()) {
+                return;
+            }
+            c.emplace(u.fCharId);
+        }
+        u.getHit(data);
+    };
+    addNova(n);
+}
+
 void eServerArea::summon(eServerUnit& by,
                          ePointF to,
                          const int unitId,
                          const int maxCount,
                          const std::vector<eModifier>& mods) {
     auto& followers = by.followers();
-    if(followers.size() >= maxCount && maxCount > 0) {
-        const int removeCharId = followers[0];
+    const auto summoned = eServerArea::summoned(by, unitId);
+    if(maxCount > 0 && summoned.size() >= maxCount) {
+        const int removeCharId = summoned[0];
         planRemoveUnit(removeCharId);
-        followers.erase(followers.begin());
+        eVectorHelpers::remove(followers, removeCharId);
     }
     to = emptyPlaceNear(to);
     const auto& udata = eUnitsInfo::sUnits.get(unitId);
@@ -852,7 +1005,8 @@ void eServerArea::summon(eServerUnit& by,
         {"wolf", "whole"}
     };
     const auto modelParts = data.mapToModelParts(partsMap);
-    const auto u = std::make_shared<eServerUnit>(false, data, *this);
+    const auto u = std::make_shared<eServerUnit>(
+        false, data, unitId, *this);
     const int charId = eServerUnit::sNextCharId++;
     followers.emplace_back(charId);
     iniSetupUnit(u, charId, by.fTeamId, to, udata, data, modelParts);
@@ -866,6 +1020,76 @@ void eServerArea::summon(eServerUnit& by,
     const auto byPtr = unit(by.fCharId);
     const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);
     u->setAction(a);
+}
+
+void eServerArea::castChance(eServerUnit& by,
+                       const eSkillStats& o,
+                       const eWeaponChoice wchoice,
+                       const ePointF& to) {
+    const bool r = eRand::randChance(o.fCastChance);
+    if(!r) return;
+    return cast(by, o, wchoice, to);
+}
+
+void eServerArea::cast(eServerUnit& by,
+                       const eSkillStats& o,
+                       const eWeaponChoice wchoice,
+                       const ePointF& to) {
+    const auto& skill = eSkills::sSkills.get(o.fSkillId);
+    eHitData data;
+    by.hitData(o, wchoice, data);
+    switch(skill.fType) {
+    case eSkillType::missile:
+    case eSkillType::wall: {
+        const int nMissiles = by.skillCount(o, wchoice);
+        const float pierceChance = by.pierceChance(o, wchoice);
+        const int missileId = by.missileId(o, wchoice);
+        const float missileRangeTime = by.missileRangeTime(o, wchoice);
+        const bool continuousDamage = skill.fType == eSkillType::wall;
+        spawnMissile(to, skill, data,
+                     nMissiles, pierceChance, missileId,
+                     missileRangeTime, continuousDamage);
+    } break;
+    case eSkillType::nova: {
+        const bool continuousDamage = false;
+        spawnNova(skill, data, continuousDamage);
+    } break;
+    case eSkillType::summon: {
+        const int maxCount = by.skillCount(
+            o, eWeaponChoice::left);
+        const int unitId = skill.fUnitId;
+        const auto summoned = eServerArea::summoned(by, unitId);
+        const int currCount = summoned.size();
+        if(maxCount > currCount) {
+            summon(by, to, unitId, maxCount, {});
+        }
+    } break;
+    case eSkillType::boostCurse: {
+
+    } break;
+    case eSkillType::attack:
+    case eSkillType::aura:
+    case eSkillType::shoot:
+    case eSkillType::kick:
+    case eSkillType::smite:
+    case eSkillType::passive:
+    case eSkillType::throw_:
+        break;
+    }
+}
+
+std::vector<int> eServerArea::summoned(
+    const eServerUnit& by, const int unitId) {
+    std::vector<int> result;
+    const auto& followers = by.followers();
+    for(const auto charId : followers) {
+        const auto u = unit(charId);
+        const auto unitIdU = u->unitTypeId();
+        if(unitIdU == unitId) {
+            result.emplace_back(charId);
+        }
+    }
+    return result;
 }
 
 ePointF eServerArea::emptyPlaceNear(const ePointF& pos) const {

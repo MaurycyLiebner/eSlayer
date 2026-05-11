@@ -12,11 +12,45 @@ int eServerUnit::sNextCharId = 0;
 
 eServerUnit::eServerUnit(const bool client,
                          const eCharData& data,
+                         const int unitTypeId,
                          eServerArea& area) :
     mHandler(fPos, fAngle),
     mData(data),
     mArea(area),
-    mClient(client) {}
+    mClient(client),
+    mUnitTypeId(unitTypeId) {}
+
+
+bool eServerUnit::hitData(
+    const eSkillStats& skill,
+    const eWeaponChoice wchoice,
+    eHitData& data) const {
+    data.fAttackerId = fCharId;
+    data.fAttackTeamId = fTeamId;
+    data.fWChoice = wchoice;
+
+    data.fFrom = fPos;
+    data.fKnockback = knockback(skill, wchoice);
+
+    data.fLifeSteal = lifeSteal(skill, wchoice);
+    data.fManaSteal = manaSteal(skill, wchoice);
+
+    data.fAlwaysHit = alwaysHit(skill, wchoice);
+    data.fAttackRating = attackRating(skill, wchoice);
+    data.fALvl = level();
+
+    data.fSplashDmg = meeleSplashDamage(skill, wchoice);
+    data.fDamage = attackDamage(skill, wchoice);
+
+    data.fColdLength = coldLength(skill, wchoice);
+    data.fFreezeLength = freezeLength(skill, wchoice);
+
+    data.fOnAttack = onAttack(skill, wchoice);
+    data.fOnStriking = onStriking(skill, wchoice);
+    data.fOnKill = onKill(skill, wchoice);
+
+    return true;
+}
 
 float eServerUnit::defense() const {
     if(fAnim == mData.runAnimId()) {
@@ -40,22 +74,32 @@ eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
                mStats.fWeaponTypeR;
 }
 
-int eServerUnit::missileId(const eWeaponChoice wchoice,
-                           const int schoice) const {
+int eServerUnit::missileId(const int schoice,
+                           const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return missileId(skill, wchoice);
+}
+
+int eServerUnit::missileId(const eSkillStats& stats,
+                           const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fMissileIdLW;
+        return stats.fMissileIdLW;
     case eWeaponChoice::right:
-        return skill.fMissileIdRW;
+        return stats.fMissileIdRW;
     }
     return -1;
 }
 
-float eServerUnit::missileRangeTime(const eWeaponChoice wchoice,
-                                    const int schoice) const {
+float eServerUnit::missileRangeTime(const int schoice,
+                                    const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
-    return skill.fMissileRangeTime;
+    return missileRangeTime(skill, wchoice);
+}
+
+float eServerUnit::missileRangeTime(const eSkillStats& stats,
+                                    const eWeaponChoice wchoice) {
+    return stats.fMissileRangeTime;
 }
 
 void eServerUnit::setEquipment(const eEquipment& eq,
@@ -144,7 +188,8 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
     it.fPerFrame = total/128.f;
 }
 
-float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
+float eServerUnit::itemsAttackSpeed(
+    const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left:
         return mStats.fAttackSpeedLW;
@@ -154,12 +199,14 @@ float eServerUnit::itemsAttackSpeed(const eWeaponChoice wchoice) const {
     return 0.f;
 }
 
-float eServerUnit::skillsAttackSpeed(const int schoice) const {
+float eServerUnit::skillsAttackSpeed(
+    const int schoice) const {
     const auto& skill = mStats.skill(schoice);
     return skill.fAttackSpeedS;
 }
 
-float eServerUnit::weaponSpeedModifier(const eWeaponChoice wchoice) const {
+float eServerUnit::weaponSpeedModifier(
+    const eWeaponChoice wchoice) const {
     switch(wchoice) {
     case eWeaponChoice::left:
         return mStats.fWSMLW;
@@ -173,11 +220,17 @@ bool eServerUnit::knockback(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return knockback(skill, wchoice);
+}
+
+bool eServerUnit::knockback(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fKnockbackLW;
+        return stats.fKnockbackLW;
     case eWeaponChoice::right:
-        return skill.fKnockbackRW;
+        return stats.fKnockbackRW;
     }
     return false;
 }
@@ -185,7 +238,14 @@ bool eServerUnit::knockback(
 bool eServerUnit::alwaysHit(
     const int schoice,
     const eWeaponChoice wchoice) const {
-    const int skillId = eServerUnit::skillId(schoice);
+    const auto& stats = mStats.skill(schoice);
+    return alwaysHit(stats, wchoice);
+}
+
+bool eServerUnit::alwaysHit(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    const int skillId = stats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
     return skillType == eSkillType::missile ||
@@ -197,11 +257,17 @@ float eServerUnit::attackRating(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return attackRating(skill, wchoice);
+}
+
+float eServerUnit::attackRating(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fAttackRatingLW;
+        return stats.fAttackRatingLW;
     case eWeaponChoice::right:
-        return skill.fAttackRatingRW;
+        return stats.fAttackRatingRW;
     }
     return 0.f;
 }
@@ -227,18 +293,23 @@ float eServerUnit::sHitChance(const eServerUnit& hit,
     const float dlvl = hit.level();
     const float dr = hit.defense();
     return std::clamp(2.f*alvl/(alvl + dlvl)*ar/(ar + dr), 0.05f, 0.95f);
-
 }
 
 float eServerUnit::lifeSteal(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return lifeSteal(skill, wchoice);
+}
+
+float eServerUnit::lifeSteal(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fLifeStealLW;
+        return stats.fLifeStealLW;
     case eWeaponChoice::right:
-        return skill.fLifeStealRW;
+        return stats.fLifeStealRW;
     }
     return 0.f;
 }
@@ -247,11 +318,17 @@ float eServerUnit::manaSteal(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return manaSteal(skill, wchoice);
+}
+
+float eServerUnit::manaSteal(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fManaStealLW;
+        return stats.fManaStealLW;
     case eWeaponChoice::right:
-        return skill.fManaStealRW;
+        return stats.fManaStealRW;
     }
     return 0.f;
 }
@@ -259,11 +336,17 @@ float eServerUnit::manaSteal(
 float eServerUnit::coldLength(
     const int schoice, const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return coldLength(skill, wchoice);
+}
+
+float eServerUnit::coldLength(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fColdLengthLW;
+        return stats.fColdLengthLW;
     case eWeaponChoice::right:
-        return skill.fColdLengthRW;
+        return stats.fColdLengthRW;
     }
     return 0.f;
 }
@@ -271,11 +354,17 @@ float eServerUnit::coldLength(
 float eServerUnit::freezeLength(
     const int schoice, const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return freezeLength(skill, wchoice);
+}
+
+float eServerUnit::freezeLength(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fFreezeLengthLW;
+        return stats.fFreezeLengthLW;
     case eWeaponChoice::right:
-        return skill.fFreezeLengthRW;
+        return stats.fFreezeLengthRW;
     }
     return 0.f;
 }
@@ -283,11 +372,53 @@ float eServerUnit::freezeLength(
 std::vector<eSkillStats> eServerUnit::onAttack(
     const int schoice, const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return onAttack(skill, wchoice);
+}
+
+std::vector<eSkillStats> eServerUnit::onAttack(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fOnAttackLW;
+        return stats.fOnAttackLW;
     case eWeaponChoice::right:
-        return skill.fOnAttackRW;
+        return stats.fOnAttackRW;
+    }
+    return {};
+}
+
+std::vector<eSkillStats> eServerUnit::onStriking(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return onStriking(skill, wchoice);
+}
+
+std::vector<eSkillStats> eServerUnit::onStriking(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fOnStrikingLW;
+    case eWeaponChoice::right:
+        return stats.fOnStrikingRW;
+    }
+    return {};
+}
+
+std::vector<eSkillStats> eServerUnit::onKill(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return onKill(skill, wchoice);
+}
+
+std::vector<eSkillStats> eServerUnit::onKill(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fOnKillLW;
+    case eWeaponChoice::right:
+        return stats.fOnKillRW;
     }
     return {};
 }
@@ -296,11 +427,17 @@ float eServerUnit::meeleSplashDamage(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return meeleSplashDamage(skill, wchoice);
+}
+
+float eServerUnit::meeleSplashDamage(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fMeeleSplashDamageLW;
+        return stats.fMeeleSplashDamageLW;
     case eWeaponChoice::right:
-        return skill.fMeeleSplashDamageRW;
+        return stats.fMeeleSplashDamageRW;
     }
     return 0.f;
 }
@@ -338,17 +475,28 @@ int eServerUnit::skillCount(
     const int schoice,
     const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
-    return skill.fCount;
+    return skillCount(skill, wchoice);
+}
+
+int eServerUnit::skillCount(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    return stats.fCount;
 }
 
 float eServerUnit::pierceChance(const int schoice,
                                 const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
+    return pierceChance(skill, wchoice);
+}
+
+float eServerUnit::pierceChance(const eSkillStats& stats,
+                                const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return skill.fPierceLW;
+        return stats.fPierceLW;
     case eWeaponChoice::right:
-        return skill.fPierceRW;
+        return stats.fPierceRW;
     }
     return 0.f;
 }
@@ -394,11 +542,17 @@ bool eServerUnit::consumeMana(const float mana) {
 eDamage eServerUnit::attackDamage(const int schoice,
                                   const eWeaponChoice wchoice) {
     const auto& skill = mStats.skill(schoice);
+    return attackDamage(skill, wchoice);
+}
+
+eDamage eServerUnit::attackDamage(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
     switch(wchoice) {
     case eWeaponChoice::left:
-        return eDamage::sRandom(skill.fDamageMinLW, skill.fDamageMaxLW);
+        return eDamage::sRandom(stats.fDamageMinLW, stats.fDamageMaxLW);
     case eWeaponChoice::right:
-        return eDamage::sRandom(skill.fDamageMinRW, skill.fDamageMaxRW);
+        return eDamage::sRandom(stats.fDamageMinRW, stats.fDamageMaxRW);
     }
     return eDamage();
 }
@@ -487,6 +641,19 @@ void eServerUnit::increment(const float by) {
                 }
             }
         }
+
+        if(poisonDmg > 0.f) {
+            mPoisonHitCounter += by;
+            if(mPoisonHitCounter > 50.f) {
+                mPoisonHitCounter = 0.f;
+                const auto& onStruck = mStats.fOnStruck;
+                const auto wchoice = eWeaponChoice::left;
+                for(const auto& o : onStruck) {
+                    mArea.castChance(*this, o, wchoice, fPos);
+                }
+            }
+        }
+
         const float healthChange = healthReg - poisonDmg;
         mStats.fHealthF = std::clamp(mStats.fHealthF + healthChange,
                                      0.f, mStats.fMaxHealth);
@@ -495,6 +662,14 @@ void eServerUnit::increment(const float by) {
                                    0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
         if(fHealth <= 0) {
+            {
+                const auto& onDeath = mStats.fOnDeath;
+                const auto to = fPos;
+                const auto wchoice = eWeaponChoice::left;
+                for(const auto& o : onDeath) {
+                    mArea.castChance(*this, o, wchoice, fPos);
+                }
+            }
             die();
         }
     }

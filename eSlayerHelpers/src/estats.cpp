@@ -607,6 +607,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const auto skill = statsFromMod(mod, eq);
             fOnStruck.emplace_back(skill);
         } break;
+        case eModifierType::onDeath: {
+            const auto skill = statsFromMod(mod, eq);
+            fOnDeath.emplace_back(skill);
+        } break;
         case eModifierType::none:
         case eModifierType::count:
 
@@ -776,13 +780,17 @@ void eStats::calculateSkill(
 void eStats::calculateSkill(eSkillStats& stats,
                             const eEquipment& eq,
                             const bool chanceSkill) const {
-    const int skillId = stats.fSkillId;
+    const int skillIdTmp = stats.fSkillId;
+    const float castChanceTmp = stats.fCastChance;
+    const int skillLevelIdTmp = stats.fSkillLevelId;
     stats = eSkillStats();
-    stats.fSkillId = skillId;
-    if(skillId < 0) return;
-    const auto& skill = eSkills::sSkills.get(skillId);
-    const int skillLevelId = chanceSkill ? stats.fSkillLevelId :
-        fEffectiveSkillLevels.skillLevel(skillId);
+    stats.fSkillId = skillIdTmp;
+    stats.fCastChance = castChanceTmp;
+    stats.fSkillLevelId = skillLevelIdTmp;
+    if(skillIdTmp < 0) return;
+    const auto& skill = eSkills::sSkills.get(skillIdTmp);
+    const int skillLevelId = chanceSkill ? skillLevelIdTmp :
+        fEffectiveSkillLevels.skillLevel(skillIdTmp);
     if(skillLevelId < 0) return;
     const auto& skillLevel = skill.skillLevel(skillLevelId);
 
@@ -867,6 +875,7 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::regenerateMana:
 
         case eModifierType::onStruck:
+        case eModifierType::onDeath:
             break;
         }
     };
@@ -1056,9 +1065,9 @@ void eStats::calculateSkill(eSkillStats& stats,
 eSkillStats eStats::statsFromMod(
     const eModifier& mod, const eEquipment& eq) const {
     eSkillStats result;
-    result.fCastChance = 0.01f * mod.fValue1;
-    result.fSkillLevelId = mod.fValue2;
     result.fSkillId = mod.fSkillId;
+    result.fSkillLevelId = mod.fValue2;
+    result.fCastChance = 0.01f * mod.fValue1;
     calculateSkill(result, eq, true);
     return result;
 }

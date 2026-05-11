@@ -44,11 +44,18 @@ public:
 
     eServerUnit(const bool client,
                 const eCharData& data,
+                const int unitTypeId,
                 eServerArea& area);
+
+    int unitTypeId() const { return mUnitTypeId; }
 
     bool aggressive() const { return mAggressive; }
 
     float level() const { return mAttributes.fLevel; }
+
+    bool hitData(const eSkillStats& skill,
+                 const eWeaponChoice wchoice,
+                 eHitData& data) const;
 
     float defense() const;
 
@@ -64,10 +71,14 @@ public:
     eWeaponType weaponTypeR() const { return mStats.fWeaponTypeR; }
     eWeaponType weaponType(const eWeaponChoice wchoice) const;
 
-    int missileId(const eWeaponChoice wchoice,
-                  const int schoice) const;
-    float missileRangeTime(const eWeaponChoice wchoice,
-                           const int schoice) const;
+    int missileId(const int schoice,
+                  const eWeaponChoice wchoice) const;
+    static int missileId(const eSkillStats& stats,
+                         const eWeaponChoice wchoice);
+    float missileRangeTime(const int schoice,
+                           const eWeaponChoice wchoice) const;
+    static float missileRangeTime(const eSkillStats& stats,
+                                  const eWeaponChoice wchoice);
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
@@ -92,10 +103,16 @@ public:
 
     bool knockback(const int schoice,
                    const eWeaponChoice wchoice) const;
+    static bool knockback(const eSkillStats& stats,
+                          const eWeaponChoice wchoice);
     bool alwaysHit(const int schoice,
                    const eWeaponChoice wchoice) const;
+    static bool alwaysHit(const eSkillStats& stats,
+                          const eWeaponChoice wchoice);
     float attackRating(const int schoice,
                        const eWeaponChoice wchoice) const;
+    static float attackRating(const eSkillStats& stats,
+                              const eWeaponChoice wchoice);
     static float sHitChance(const eServerUnit& hit,
                             const eServerUnit& by,
                             const int schoice,
@@ -108,26 +125,53 @@ public:
                             const float ar);
     float lifeSteal(const int schoice,
                     const eWeaponChoice wchoice) const;
+    static float lifeSteal(const eSkillStats& stats,
+                           const eWeaponChoice wchoice);
     float manaSteal(const int schoice,
                     const eWeaponChoice wchoice) const;
+    static float manaSteal(const eSkillStats& stats,
+                           const eWeaponChoice wchoice);
 
     float coldLength(const int schoice,
                      const eWeaponChoice wchoice) const;
+    static float coldLength(const eSkillStats& stats,
+                            const eWeaponChoice wchoice);
     float freezeLength(const int schoice,
                        const eWeaponChoice wchoice) const;
+    static float freezeLength(const eSkillStats& stats,
+                              const eWeaponChoice wchoice);
+
     std::vector<eSkillStats> onAttack(
         const int schoice, const eWeaponChoice wchoice) const;
+    static std::vector<eSkillStats> onAttack(
+        const eSkillStats& stats, const eWeaponChoice wchoice);
+
+    std::vector<eSkillStats> onStriking(
+        const int schoice, const eWeaponChoice wchoice) const;
+    static std::vector<eSkillStats> onStriking(
+        const eSkillStats& stats, const eWeaponChoice wchoice);
+
+    std::vector<eSkillStats> onKill(
+        const int schoice, const eWeaponChoice wchoice) const;
+    static std::vector<eSkillStats> onKill(
+        const eSkillStats& stats, const eWeaponChoice wchoice);
 
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;
+    static float meeleSplashDamage(const eSkillStats& stats,
+                                   const eWeaponChoice wchoice);
 
     std::vector<eModifier> skillModifiers(
         const int schoice,
         const eWeaponChoice wchoice) const;
     int skillCount(const int schoice,
                    const eWeaponChoice wchoice) const;
+    static int skillCount(const eSkillStats& stats,
+                          const eWeaponChoice wchoice);
     float pierceChance(const int schoice,
                        const eWeaponChoice wchoice) const;
+    static float pierceChance(const eSkillStats& stats,
+                              const eWeaponChoice wchoice);
 
     bool getHit(const eHitData& data, const bool splash = true);
     float takeDamage(const eDamage& dmg);
@@ -138,6 +182,8 @@ public:
     bool consumeMana(const float mana);
     eDamage attackDamage(const int schoice,
                          const eWeaponChoice wchoice);
+    static eDamage attackDamage(const eSkillStats& stats,
+                                const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
     float experience() const { return mAttributes.fExp; }
@@ -206,6 +252,7 @@ private:
     const eCharData& mData;
     eServerArea& mArea;
     const bool mClient;
+    const int mUnitTypeId;
 
     bool mMoving = false;
     bool mAggressive = false;
@@ -221,6 +268,7 @@ private:
     float mColdLength = 0.f;
     float mFreezeLength = 0.f;
 
+    float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;
     std::map<ePotionType, ePotionHealing> mPotions;
     std::vector<int> mFollowers;

@@ -35,6 +35,14 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
             bossMod.fType = eModifierType::damageCold;
             bossMod.fValue1 = 2 * level;
             bossMod.fValue2 = 4 * level;
+
+            {
+                auto& bossMod = mBossMods.emplace_back();
+                bossMod.fType = eModifierType::onDeath;
+                bossMod.fValue1 = 100;
+                bossMod.fValue2 = sqrt(level);
+                bossMod.fSkillId = eSkills::sSkills.id("frostNova");
+            }
         } break;
         case eUnitMod::extraFast: {
             {
@@ -103,6 +111,13 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
             bossMod.fType = eModifierType::damageLightning;
             bossMod.fValue1 = 1;
             bossMod.fValue2 = 16 * level;
+
+            {
+                auto& bossMod = mBossMods.emplace_back();
+                bossMod.fType = eModifierType::onDeath;
+                bossMod.fValue1 = 100;
+                bossMod.fValue2 = sqrt(level);
+            }
         } break;
         case eUnitMod::magicResistant: {
             const auto mods1 = {
