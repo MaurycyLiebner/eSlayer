@@ -513,7 +513,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                         std::static_pointer_cast<ePositioned>(m)});
         }
-        for(const auto& n : mWorld.novas()) {
+        for(auto& n : mWorld.novas()) {
             const auto& c = n->fCenter;
             const float r = n->fRadius;
             const int nMissiles = 180;
@@ -547,9 +547,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 m->fAngle = 180 + angle;
                 m->fPos = pos;
                 m->fType = n->fMissileType;
+                m->fFrame = n->fFrame;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                                            std::static_pointer_cast<ePositioned>(m)});
             }
+            n->fFrame++;
         }
 
         const auto typePriority = [](const eRenderElementType t) {

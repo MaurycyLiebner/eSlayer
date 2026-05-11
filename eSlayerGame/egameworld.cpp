@@ -235,7 +235,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     }
 
     for(const auto& n : novas) {
-        const auto nn = std::make_shared<eNova>(n);
+        const auto nn = std::make_shared<eExtendedNova>();
+        static_cast<eNova&>(*nn) = n;
         mNovas.add(n.fId, nn);
     }
 

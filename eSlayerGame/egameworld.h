@@ -25,6 +25,10 @@ struct eExtendedMissile : public eMissile {
     bool fHit = false;
 };
 
+struct eExtendedNova : public eNova {
+    int fFrame = 0;
+};
+
 class eGameWorld {
 public:
     eGameWorld(const std::shared_ptr<eMap>& map);
@@ -59,8 +63,8 @@ public:
     eIdMapVector<eExtendedMissile>& missiles() { return mMissiles; }
     const eIdMapVector<eExtendedMissile>& missiles() const { return mMissiles; }
 
-    eIdMapVector<eNova>& novas() { return mNovas; }
-    const eIdMapVector<eNova>& novas() const { return mNovas; }
+    eIdMapVector<eExtendedNova>& novas() { return mNovas; }
+    const eIdMapVector<eExtendedNova>& novas() const { return mNovas; }
 
     std::shared_ptr<eUnit> getUnit(const int id) const {
         return mUnits.get(id);
@@ -85,7 +89,7 @@ private:
     std::shared_ptr<eUnit> mMainChar;
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
-    eIdMapVector<eNova> mNovas;
+    eIdMapVector<eExtendedNova> mNovas;
     eIdMapVector<eGroundItem> mGroundItems;
     eFixedSizeSetAreas mUnitAreas;
     eMissileIncrementer mMIncrementer;
