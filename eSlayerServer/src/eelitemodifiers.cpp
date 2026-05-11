@@ -114,9 +114,10 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
 
             {
                 auto& bossMod = mBossMods.emplace_back();
-                bossMod.fType = eModifierType::onDeath;
+                bossMod.fType = eModifierType::onStruck;
                 bossMod.fValue1 = 100;
                 bossMod.fValue2 = sqrt(level);
+                bossMod.fSkillId = eSkills::sSkills.id("hitLightning");
             }
         } break;
         case eUnitMod::magicResistant: {
