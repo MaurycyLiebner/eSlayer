@@ -290,26 +290,6 @@ public:
             }
         };
 
-        const auto tryAddMonsterGroup =
-            [this](const eRect& rect,
-                   const int x, const int y,
-                   const int monsterMargin,
-                   const std::vector<eMonsterProbability>& ms) {
-            if(ms.empty()) return;
-            for(int dx = -monsterMargin; dx <= monsterMargin; dx++) {
-                const int xx = x + dx;
-                if(xx < rect.fX) return;
-                if(xx >= rect.fX + rect.fW) return;
-                for(int dy = -monsterMargin; dy <= monsterMargin; dy++) {
-                    const int yy = y + dy;
-                    if(yy < rect.fY) return;
-                    if(yy >= rect.fY + rect.fH) return;
-                    const auto& objs = mMap->objects(x + dx, y + dy);
-                    if(!objs.empty()) return;
-                }
-            }
-        };
-
         const auto& ms = mSettings.fMonsters;
         auto& mareas = mMap->mMonsterAreas;
         for(const auto& srect : terrainRects) {

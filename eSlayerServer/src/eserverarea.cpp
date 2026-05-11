@@ -279,6 +279,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                             const ePointF tryPos{float(x + dx), float(y + dy)};
                             const auto u = unit(tryPos);
                             if(u) continue;
+                            const bool w = walkable(tryPos);
+                            if(!w) continue;
                             pos = tryPos;
                             break;
                         }
