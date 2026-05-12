@@ -22,6 +22,8 @@ void eTerrsTexturesData::load() {
         eRuntimeThrow("Failed to parse " + dir + "/" + path);
     }
 
+    sTexs.add("none", eTileTextureData());
+
     for(const auto& name : names) {
         const auto path = "terrain/" + name + "/" + name + ".json";
         eTileTextureData texs{name};

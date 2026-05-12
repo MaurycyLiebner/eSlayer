@@ -1,13 +1,24 @@
 #ifndef EDOORS_H
 #define EDOORS_H
 
-#include "ewalldirection.h"
+#include "eslayerhelpersexport.h"
 
-struct eDoors {
-    eWallType fType;
+#include "ewalldirection.h"
+#include "epoint.h"
+
+#include <vector>
+
+struct eDoorsTile {
     int fX;
     int fY;
+};
+
+struct ESLAYERHELPERS_API eDoors {
+    eWallType fType;
+    std::vector<eDoorsTile> fTiles;
     bool fOpen;
+
+    ePointF pos() const;
 };
 
 #endif // EDOORS_H

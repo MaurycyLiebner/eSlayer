@@ -220,8 +220,8 @@ public:
         for(int x = 0; x < xNRooms; x++) {
             for(int y = 0; y < yNRooms; y++) {
                 auto& r = rooms[y][x];
-                r.fAbsX = x*roomRectDim;
-                r.fAbsY = y*roomRectDim;
+                r.fAbsX = rect.fX + x*roomRectDim;
+                r.fAbsY = rect.fY + y*roomRectDim;
             }
         }
 
@@ -394,19 +394,22 @@ public:
         };
 
         const auto inDoorsRect = [&](const int x, const int y,
-                                     const bool tl) {
+                                     const eWallType type) {
             const ePoint p{x, y};
             for(const auto& rect : doors) {
-                if(tl) {
+                switch(type) {
+                case eWallType::topLeft: {
                     if(rect.fW != 0) continue;
                     const eRect rect1{rect.fX, rect.fY, 1, rect.fH};
                     const bool r = rect1.contains(p);
                     if(r) return true;
-                } else { // tr
+                } break;
+                case eWallType::topRight: {
                     if(rect.fH != 0) continue;
                     const eRect rect1{rect.fX, rect.fY, rect.fW, 1};
                     const bool r = rect1.contains(p);
                     if(r) return true;
+                } break;
                 }
             }
             return false;
@@ -522,7 +525,7 @@ public:
                     }
 
                     if(wallTL && !dst.fWallTL) {
-                        const bool doors = inDoorsRect(x, y, true);
+                        const bool doors = inDoorsRect(x, y, eWallType::topLeft);
                         if(x == minX && y != maxY + 1) {
                             dst.fTerrainType = terrType;
                             dst.fWallTL = eTile::encodeWall(true, doors, false, 0);
@@ -533,7 +536,7 @@ public:
                         }
                     }
                     if(wallTR && !dst.fWallTR) {
-                        const bool doors = inDoorsRect(x, y, false);
+                        const bool doors = inDoorsRect(x, y, eWallType::topRight);
                         if(y == minY && x != maxX + 1) {
                             dst.fTerrainType = terrType;
                             dst.fWallTR = eTile::encodeWall(true, doors, false, 0);

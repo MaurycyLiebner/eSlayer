@@ -226,15 +226,7 @@ void eMainCharAction::increment(const bool mousePressed,
         }
     } else if(mPressedDoors) {
         const auto& d = *mPressedDoors;
-        ePointF doorsPos;
-        switch(d.fType) {
-        case eWallType::topLeft: {
-            doorsPos = ePointF{float(d.fX), d.fY + 0.5f};
-        } break;
-        case eWallType::topRight: {
-            doorsPos = ePointF{d.fX + 0.5f, float(d.fY)};
-        } break;
-        }
+        const auto doorsPos = d.pos();
 
         const float dist = ePointF::distance(doorsPos, charPos);
         if(dist < 0.5f) {

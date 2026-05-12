@@ -160,6 +160,7 @@ add_library(eSlayerHelpers SHARED
     src/enova.cpp
     src/epacket.cpp
     include/eSlayerHelpers/edoors.h
+    src/edoors.cpp
 
 
 )

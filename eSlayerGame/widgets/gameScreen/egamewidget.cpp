@@ -284,14 +284,16 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto doors = mServer->receiveDoorsStateChanges();
         for(const auto& d : doors) {
-            auto& tile = mMap->tile(d.fX, d.fY);
-            switch(d.fType) {
-            case eWallType::topLeft: {
-                eTile::setOpen(tile.fWallTL, d.fOpen);
-            } break;
-            case eWallType::topRight: {
-                eTile::setOpen(tile.fWallTR, d.fOpen);
-            } break;
+            for(const auto& t : d.fTiles) {
+                auto& tile = mMap->tile(t.fX, t.fY);
+                switch(d.fType) {
+                case eWallType::topLeft: {
+                    eTile::setOpen(tile.fWallTL, d.fOpen);
+                } break;
+                case eWallType::topRight: {
+                    eTile::setOpen(tile.fWallTR, d.fOpen);
+                } break;
+                }
             }
         }
     }
@@ -469,20 +471,20 @@ void eGameWidget::paintEvent(ePainter& p) {
         iterator.initialize(this);
         bool iniObjs = true;
         for(const auto terrType : terrTypes) {
+            if(terrType == 0) continue;
             const auto& texs = eTerrsTextures::get(terrType);
             iterator.iterate([&](const int x, const int y) {
                 if(iniObjs) handleTile(x, y);
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != terrType) return;
                 const auto tileType = tile.fTileType;
-                if(tileType != 0) {
-                    const auto pos = ePointF(x, y);
-                    const auto pixel = tilePosToPixel(pos);
-                    const auto ipixel = pixel.round();
-                    const auto& tex = texs.getTexture(tileType);
-                    mGamePainter.drawTexture(ipixel.fX, ipixel.fY + tileH, tex,
-                                             eAlignment::top | eAlignment::hcenter);
-                }
+                if(tileType == 0) return;
+                const auto pos = ePointF(x, y);
+                const auto pixel = tilePosToPixel(pos);
+                const auto ipixel = pixel.round();
+                const auto& tex = texs.getTexture(tileType);
+                mGamePainter.drawTexture(ipixel.fX, ipixel.fY + tileH, tex,
+                                         eAlignment::top | eAlignment::hcenter);
             });
             iniObjs = false;
         }
@@ -884,8 +886,21 @@ void eGameWidget::paintEvent(ePainter& p) {
                             eDoors doors;
                             doors.fOpen = open;
                             doors.fType = wall.fType;
-                            doors.fX = iPos.fX;
-                            doors.fY = iPos.fY;
+                            auto& tiles = doors.fTiles;
+                            switch(wall.fType) {
+                            case eWallType::topLeft: {
+                                for(int dy = -type; dy < nTypes - type; dy++) {
+                                    const eDoorsTile tile{iPos.fX, iPos.fY + dy};
+                                    tiles.emplace_back(tile);
+                                }
+                            } break;
+                            case eWallType::topRight: {
+                                for(int dx = -type; dx < nTypes - type; dx++) {
+                                    const eDoorsTile tile{iPos.fX + dx, iPos.fY};
+                                    tiles.emplace_back(tile);
+                                }
+                            } break;
+                            }
                             setHighlightedDoors(doors);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
@@ -1043,10 +1058,13 @@ void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
 void eGameWidget::setHighlightedDoors(const std::optional<eDoors>& doors) {
     mHighlightDoors = doors;
     if(doors != std::nullopt) {
-        const auto& pos = ePoint{doors->fX, doors->fY};
+        const auto pos = doors->pos();
         const auto pixel = tilePosToPixel(pos);
         const auto ipixel = pixel.floor();
-        const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+        const auto& res = resolution();
+        const float mult = res.multiplier();
+        const int h = 100*mult;
+        const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
         const auto text = eLanguage::text(15, 0);
         eHoverWidget::sSetGameTooltip(text, rect);
     } else {

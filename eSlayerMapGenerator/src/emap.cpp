@@ -110,7 +110,9 @@ bool eMap::walkable(const ePointF& pos) const {
     } else {
         const auto& tile = eMap::tile(x, y);
         const auto terrType = tile.fTerrainType;
+        if(terrType == 0) return false;
         const auto tileType = tile.fTileType;
+        if(tileType == 0) return false;
         const auto& info = eTerrsTexturesData::get(terrType);
         const bool w = info.fWalkable[tileType];
         if(!w) return false;
@@ -142,7 +144,9 @@ bool eMap::obsticle(const ePointF& pos) const {
     } else {
         const auto& tile = eMap::tile(x, y);
         const auto terrType = tile.fTerrainType;
+        if(terrType == 0) return false;
         const auto tileType = tile.fTileType;
+        if(tileType == 0) return false;
         const auto& info = eTerrsTexturesData::get(terrType);
         const bool o = info.fObsticle[tileType];
         if(o) return true;

@@ -14,6 +14,7 @@ int eTileTextures::size() const {
 
 void eTileTextures::load(const eResolution& res,
                          SDL_Renderer* const r) {
+    if(fName.empty()) return;
     if(mLoaded) return;
     mLoaded = true;
     eSpriteLoader loader("Textures", "terrain/" + fName + "/" + fName, res, r);
