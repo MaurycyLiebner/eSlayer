@@ -1065,7 +1065,8 @@ void eGameWidget::setHighlightedDoors(const std::optional<eDoors>& doors) {
         const float mult = res.multiplier();
         const int h = 100*mult;
         const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
-        const auto text = eLanguage::text(15, 0);
+        const int s = doors->fOpen ? 1 : 0;
+        const auto text = eLanguage::text(15, s);
         eHoverWidget::sSetGameTooltip(text, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");
