@@ -34,6 +34,7 @@ void eTerrsTexturesData::load() {
             const auto obsticle = jdata.value("obsticle", std::vector<int>());
             texs.fWallsShadow = jdata.value("wallsShadow", true);
             texs.fWallsTransparent = jdata.value("wallsTransparent", true);
+            texs.fWallsThickness = jdata.value("wallsThickness", 0.25f);
             texs.fObsticle.resize(count + 1, false);
             texs.fWalkable.resize(count + 1, false);
             for(int i = 0; i < count; i++) {
@@ -52,38 +53,90 @@ void eTerrsTexturesData::load() {
             const auto parse = [&jdata](const std::string& name,
                                         eWallTextures& tl,
                                         eWallTextures& tr) {
-                if(jdata.contains(name)) {
-                    const auto& wallsJS = jdata[name];
-                    const auto handle = [&](const std::string& name) {
-                        eWallTextures result;
-                        auto& vecs = result.fDataIds;
-                        vecs = wallsJS.value(name, std::vector<std::vector<int>>());
+                if(!jdata.contains(name)) return;
 
-                        { // sort
-                            using eV = std::vector<int>;
-                            const auto comp = [](const eV& a, const eV& b) {
-                                return a.size() < b.size();
-                            };
-                            std::sort(vecs.begin(), vecs.end(), comp);
-                        }
+                const auto& wallsJS = jdata[name];
 
-                        for(auto& v : vecs) {
-                            for(int& i : v) {
-                                result.emplace_back(i + 1);
-                                i = result.size() - 1;
+                const auto handle = [&](const std::string& side) {
+                    eWallTextures result;
+
+                    const auto& arr = wallsJS[side];
+
+                    std::vector<std::vector<eWallTexture>> parsed;
+
+                    for(const auto& group : arr) {
+                        std::vector<eWallTexture> entries;
+                        std::vector<int> ids;
+
+                        for(const auto& item : group) {
+                            if(item.is_number_integer()) {
+                                const int id = item.get<int>();
+                                entries.push_back({id, 0.f, 1.f});
+                                ids.push_back(id);
+                            } else if(item.is_object()) {
+                                const int id = item.value("id", 0);
+                                entries.push_back({
+                                    id,
+                                    item.value("wallMin", 0.f),
+                                    item.value("wallMax", 1.f)
+                                });
+
+                                ids.push_back(id);
                             }
-                            result.fSizes.emplace_back(v.size());
                         }
-                        return result;
-                    };
-                    tl = handle("tl");
-                    tr = handle("tr");
-                }
+
+                        parsed.push_back(std::move(entries));
+                        result.fDataIds.push_back(std::move(ids));
+                    }
+
+                    std::vector<size_t> order(parsed.size());
+                    std::iota(order.begin(), order.end(), 0);
+
+                    std::sort(order.begin(), order.end(),
+                              [&](size_t a, size_t b) {
+                                  return parsed[a].size() < parsed[b].size();
+                              });
+
+                    decltype(parsed) sortedParsed;
+                    decltype(result.fDataIds) sortedIds;
+
+                    for(const size_t i : order) {
+                        sortedParsed.push_back(std::move(parsed[i]));
+                        sortedIds.push_back(std::move(result.fDataIds[i]));
+                    }
+
+                    parsed = std::move(sortedParsed);
+                    result.fDataIds = std::move(sortedIds);
+
+                    for(size_t g = 0; g < parsed.size(); ++g) {
+                        const auto& group = parsed[g];
+                        auto& ids   = result.fDataIds[g];
+
+                        for(size_t i = 0; i < group.size(); ++i) {
+                            const auto& e = group[i];
+
+                            result.emplace_back(
+                                e.fId + 1,
+                                e.fWallMin,
+                                e.fWallMax
+                                );
+
+                            ids[i] = result.size() - 1;
+                        }
+
+                        result.fSizes.emplace_back(group.size());
+                    }
+
+                    return result;
+                };
+
+                tl = handle("tl");
+                tr = handle("tr");
             };
 
             parse("walls", texs.fTLWalls, texs.fTRWalls);
-            parse("doors", texs.fTLDoors, texs.fTRDoors);
             parse("doorsOpen", texs.fTLDoorsOpen, texs.fTRDoorsOpen);
+            parse("doors", texs.fTLDoors, texs.fTRDoors);
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }

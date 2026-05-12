@@ -68,6 +68,9 @@ public:
     const std::vector<eMonsterArea>& monsterAreas() const
     { return mMonsterAreas; }
 private:
+    bool wallBase(const ePointF& pos,
+                  const int x, const int y,
+                  const eTile& tile) const;
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
     const std::shared_ptr<eObject>& addObject();

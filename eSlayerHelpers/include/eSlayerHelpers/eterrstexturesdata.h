@@ -11,7 +11,20 @@ enum class eFloorUse {
     random, tiled
 };
 
-struct eWallTextures : public std::vector<int> {
+struct eWallTexture {
+    eWallTexture(const int id,
+                 const float wallMin,
+                 const float wallMax) :
+        fId(id),
+        fWallMin(wallMin),
+        fWallMax(wallMax) {}
+
+    int fId;
+    float fWallMin;
+    float fWallMax;
+};
+
+struct eWallTextures : public std::vector<eWallTexture> {
     // Sorted by ascending vector size
     std::vector<int> fSizes;
     // Ids in inherited vector
@@ -29,6 +42,8 @@ struct eTileTextureData {
 
     eFloorUse fFloorUse;
     std::vector<int> fFloor;
+
+    float fWallsThickness;
 
     eWallTextures fTLWalls;
     eWallTextures fTRWalls;

@@ -54,47 +54,93 @@ bool inside(const ePointF& pos,
     return true;
 };
 
-bool eMap::wall(const ePointF& pos,
-                const int x, const int y,
-                const eTile& tile) const {
-    const float thick = 0.25f;
+bool eMap::wallBase(const ePointF& pos,
+                    const int x, const int y,
+                    const eTile& tile) const {
+    const auto terrType = tile.fTerrainType;
+    const auto& info = eTerrsTexturesData::get(terrType);
+
+    const float thick = info.fWallsThickness;
 
     if(tile.fWallTL) {
-        const bool r = ::inside(pos, x - thick, y, 2*thick, 1.f);
-        if(r) return true;
+        bool inWalls = true;
+        const bool doors = eTile::doors(tile.fWallTL);
+        if(doors) {
+            const bool open = eTile::open(tile.fWallTL);
+            if(open) {
+                const auto type = eTile::type(tile.fWallTL);
+                const auto& wallInfo = info.fTLDoorsOpen[type];
+                const float wallMin = wallInfo.fWallMin;
+                const float wallMax = wallInfo.fWallMax;
+                const float dy = pos.fY - y;
+                inWalls = dy > wallMin && dy < wallMax;
+            }
+        }
+        if(inWalls) {
+            const bool r = ::inside(pos, x - thick, y - thick, 2*thick, 1.f + 2*thick);
+            if(r) return true;
+        }
     }
 
     if(tile.fWallTR) {
-        const bool r = ::inside(pos, x, y - thick, 1.f, 2*thick);
+        bool inWalls = true;
+        const bool doors = eTile::doors(tile.fWallTR);
+        if(doors) {
+            const bool open = eTile::open(tile.fWallTR);
+            if(open) {
+                const auto type = eTile::type(tile.fWallTR);
+                const auto& wallInfo = info.fTRDoorsOpen[type];
+                const float wallMin = wallInfo.fWallMin;
+                const float wallMax = wallInfo.fWallMax;
+                const float dx = pos.fX - x;
+                inWalls = dx > wallMin && dx < wallMax;
+            }
+        }
+        if(inWalls) {
+            const bool r = ::inside(pos, x - thick, y - thick, 1.f + 2*thick, 2*thick);
+            if(r) return true;
+        }
+    }
+
+    return false;
+}
+
+bool eMap::wall(const ePointF& pos,
+                const int x, const int y,
+                const eTile& tile) const {
+    const bool r = wallBase(pos, x, y, tile);
+    if(r) return true;
+
+    if(x - 1 >= 0) {
+        const int tx = x - 1;
+        const int ty = y;
+        const auto& tile = eMap::tile(tx, ty);
+        const bool r = wallBase(pos, tx, ty, tile);
         if(r) return true;
     }
 
-    if(y - 1 >= 0 && x - 1 >= 0) {
-        const auto& tileX = eMap::tile(x - 1, y);
-        const auto& tileY = eMap::tile(x, y - 1);
-        const bool wallT = tileX.fWallTR || tileY.fWallTL;
-        if(wallT) {
-            const bool r = ::inside(pos, x, y, thick, thick);
-            if(r) return true;
-        }
+    if(y - 1 >= 0) {
+        const int tx = x;
+        const int ty = y - 1;
+        const auto& tile = eMap::tile(tx, ty);
+        const bool r = wallBase(pos, tx, ty, tile);
+        if(r) return true;
     }
 
     if(y + 1 < mHeight) {
-        const auto& tile = eMap::tile(x, y + 1);
-        const bool wallBL = tile.fWallTR;
-        if(wallBL) {
-            const bool r = ::inside(pos, x, y + 1 - thick, 1.f, 2*thick);
-            if(r) return true;
-        }
+        const int tx = x;
+        const int ty = y + 1;
+        const auto& tile = eMap::tile(tx, ty);
+        const bool r = wallBase(pos, tx, ty, tile);
+        if(r) return true;
     }
 
     if(x + 1 < mWidth) {
-        const auto& tile = eMap::tile(x + 1, y);
-        const bool wallBR = tile.fWallTL;
-        if(wallBR) {
-            const bool r = ::inside(pos, x + 1 - thick, y, 2*thick, 1.f);
-            if(r) return true;
-        }
+        const int tx = x + 1;
+        const int ty = y;
+        const auto& tile = eMap::tile(tx, ty);
+        const bool r = wallBase(pos, tx, ty, tile);
+        if(r) return true;
     }
 
     return false;

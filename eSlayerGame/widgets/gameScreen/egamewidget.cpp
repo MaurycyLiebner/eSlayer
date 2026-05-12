@@ -812,7 +812,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 bool open;
                 uint8_t type;
                 eTile::decodeWall(encoded, wall_, doors, open, type);
-                const std::vector<int>* types = nullptr;
+                const std::vector<eWallTexture>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
                     types = doors ? &info.fTLDoorsOpen :
@@ -826,7 +826,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const int nTypes = types->size();
                 if(nTypes <= type) continue;
-                const int texId = (*types)[type];
+                const int texId = (*types)[type].fId;
 
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
@@ -916,7 +916,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
 
                 if(doors && !open) {
-                    const std::vector<int>* types = nullptr;
+                    const std::vector<eWallTexture>* types = nullptr;
                     switch(wall.fType) {
                     case eWallType::topLeft:
                         types = &info.fTLDoors;
@@ -928,7 +928,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                     const int nTypes = types->size();
                     if(nTypes > type) {
-                        const int texId = (*types)[type];
+                        const int texId = (*types)[type].fId;
                         const auto& tex = texs.getTexture(texId);
                         if(transparent) tex->setAlpha(128);
                         mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
