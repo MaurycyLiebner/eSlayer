@@ -536,6 +536,21 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(intervals.empty()) continue;
             int currId = 0;
             auto curr = &intervals[currId];
+
+            const auto missileType = n->fMissileType;
+            auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+            const int appearId = missileTex.appearAnimId();
+            const int baseId = missileTex.baseAnimId();
+
+            int frame = n->fFrame;
+            int animId = appearId;
+            const int nFrames = appearId < 0 ? 0 :
+                missileTex.nFrames(appearId);
+            if(frame >= nFrames) {
+                animId = baseId;
+                frame -= nFrames;
+            }
+
             for(int i = 0; i < nMissiles; i++) {
                 const ePointF pos = c + displ;
                 displ.rotate(dangle);
@@ -558,8 +573,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto m = std::make_shared<eExtendedMissile>();
                 m->fAngle = 180 + angle;
                 m->fPos = pos;
-                m->fType = n->fMissileType;
-                m->fFrame = n->fFrame;
+                m->fType = missileType;
+                m->fAnimId = animId;
+                m->fFrame = frame;
                 renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                                            std::static_pointer_cast<ePositioned>(m)});
             }
