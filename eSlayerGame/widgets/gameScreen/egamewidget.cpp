@@ -815,19 +815,17 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const std::vector<int>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
-                    types = doors ? (open ? &info.fTLDoorsOpen :
-                                         &info.fTLDoors) :
-                                &info.fTLWalls;
+                    types = doors ? &info.fTLDoorsOpen :
+                                    &info.fTLWalls;
                     break;
                 case eWallType::topRight:
-                    types = doors ? (open ? &info.fTRDoorsOpen :
-                                         &info.fTRDoors) :
-                                &info.fTRWalls;
+                    types = doors ? &info.fTRDoorsOpen :
+                                    &info.fTRWalls;
                     break;
                 }
 
                 const int nTypes = types->size();
-                if(!types || nTypes <= type) continue;
+                if(nTypes <= type) continue;
                 const int texId = (*types)[type];
 
                 const auto& texs = eTerrsTextures::get(terrType);
@@ -874,36 +872,76 @@ void eGameWidget::paintEvent(ePainter& p) {
                                          eAlignment::top | eAlignment::hcenter);
                 if(transparent) tex->clearAlphaMod();
 
+                bool highlight = false;
                 if(doors) {
                     if(!mHighlightUnit.lock() && !mHighlightObject.lock() &&
-                       mHighlightDoors == std::nullopt) {
+                        mHighlightDoors == std::nullopt) {
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                         const int w = tex->width();
                         const int h = tex->height();
                         const SDL_Rect rect{ipixel.fX - w/2, ipixel.fY - h, w, h};
-                        const bool highlight = SDL_PointInRect(&p, &rect);
-                        if(highlight) {
-                            eDoors doors;
-                            doors.fOpen = open;
-                            doors.fType = wall.fType;
-                            auto& tiles = doors.fTiles;
-                            switch(wall.fType) {
-                            case eWallType::topLeft: {
-                                for(int dy = -type; dy < nTypes - type; dy++) {
-                                    const eDoorsTile tile{iPos.fX, iPos.fY + dy};
-                                    tiles.emplace_back(tile);
-                                }
-                            } break;
-                            case eWallType::topRight: {
-                                for(int dx = -type; dx < nTypes - type; dx++) {
-                                    const eDoorsTile tile{iPos.fX + dx, iPos.fY};
-                                    tiles.emplace_back(tile);
-                                }
-                            } break;
+                        const bool partHighlight = SDL_PointInRect(&p, &rect);
+                        eDoors doors;
+                        doors.fOpen = open;
+                        doors.fType = wall.fType;
+                        auto& tiles = doors.fTiles;
+                        switch(wall.fType) {
+                        case eWallType::topLeft: {
+                            for(int dy = -type; dy < nTypes - type; dy++) {
+                                const eDoorsTile tile{iPos.fX, iPos.fY + dy};
+                                tiles.emplace_back(tile);
                             }
+                        } break;
+                        case eWallType::topRight: {
+                            for(int dx = -type; dx < nTypes - type; dx++) {
+                                const eDoorsTile tile{iPos.fX + dx, iPos.fY};
+                                tiles.emplace_back(tile);
+                            }
+                        } break;
+                        }
+                        if(partHighlight) {
+                            highlight = true;
                             setHighlightedDoors(doors);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
+                        } else {
+                            for(const auto& t : tiles) {
+                                if(iPos.fX == t.fX && iPos.fY == t.fY) {
+                                    highlight = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(doors && !open) {
+                    const std::vector<int>* types = nullptr;
+                    switch(wall.fType) {
+                    case eWallType::topLeft:
+                        types = &info.fTLDoors;
+                        break;
+                    case eWallType::topRight:
+                        types = &info.fTRDoors;
+                        break;
+                    }
+
+                    const int nTypes = types->size();
+                    if(nTypes > type) {
+                        const int texId = (*types)[type];
+                        const auto& tex = texs.getTexture(texId);
+                        if(transparent) tex->setAlpha(128);
+                        mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
+                                                 eAlignment::top | eAlignment::hcenter);
+                        if(transparent) tex->clearAlphaMod();
+
+                        if(highlight) {
+                            tex->setBlendMode(SDL_BLENDMODE_ADD);
+                            tex->setAlpha(125);
+                            mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
+                                                     eAlignment::top | eAlignment::hcenter);
+                            tex->setBlendMode(SDL_BLENDMODE_BLEND);
+                            tex->clearAlphaMod();
                         }
                     }
                 }
