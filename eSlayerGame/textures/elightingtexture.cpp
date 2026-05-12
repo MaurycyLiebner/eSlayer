@@ -223,12 +223,12 @@ void eLightingTexture::renderLight(
                 switch(b.fDir) {
                 case eWallType::topLeft: {
                     if(b.fTX < minLightTX) lightness = 0.f;
-                    if(b.fTY <= minLightTY) lightness = 0.f;
+                    if(b.fTY < minLightTY) lightness = 0.f;
                     if(b.fTX > maxLightTX) lightness = 0.f;
                     if(b.fTY >= maxLightTY) lightness = 0.f;
                 } break;
                 case eWallType::topRight: {
-                    if(b.fTX <= minLightTX) lightness = 0.f;
+                    if(b.fTX < minLightTX) lightness = 0.f;
                     if(b.fTY < minLightTY) lightness = 0.f;
                     if(b.fTX >= maxLightTX) lightness = 0.f;
                     if(b.fTY > maxLightTY) lightness = 0.f;
