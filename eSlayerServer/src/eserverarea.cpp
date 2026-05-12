@@ -900,9 +900,7 @@ void eServerArea::spawnMissile(const ePointF& to,
             const int max = std::numeric_limits<uint8_t>::max();
             const int pierced = piercedFromPierceChance(pierceChance);
             md.fToPierce = 1 + std::min(max, pierced);
-            auto castDispl = dir;
-            castDispl.normalize(0.5*skill.fRadius);
-            md.fPos = data.fFrom + castDispl;
+            md.fPos = data.fFrom;
             md.fTo = data.fFrom + dir;
             md.fMissileId = missileId;
             md.fRangeTime = missileRangeTime;
