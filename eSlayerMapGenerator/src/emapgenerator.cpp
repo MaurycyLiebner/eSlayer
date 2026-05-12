@@ -609,8 +609,12 @@ public:
             return eTile::doors(src.fWallTL);
         };
 
-        const int maxTLSizeClamp = tlWalls.fSizes.back();
-        const int maxTLDoorsSizeClamp = tlDoors.fSizes.back();
+        const auto& tlWallsSizes = tlWalls.fSizes;
+        const int maxTLSizeClamp = tlWallsSizes.empty() ? 0 :
+            tlWallsSizes.back();
+        const auto& tlDoorsSizes = tlDoors.fSizes;
+        const int maxTLDoorsSizeClamp = tlDoorsSizes.empty() ? 0 :
+            tlDoorsSizes.back();
         const auto maxTLSize = [&](const int x, const int y,
                                    const bool doors) {
             const int maxSize = doors ? maxTLDoorsSizeClamp :
@@ -654,8 +658,13 @@ public:
             return eTile::doors(src.fWallTR);
         };
 
-        const int maxTRSizeClamp = trWalls.fSizes.back();
-        const int maxTRDoorsSizeClamp = trDoors.fSizes.back();
+
+        const auto& trWallsSizes = trWalls.fSizes;
+        const int maxTRSizeClamp = trWallsSizes.empty() ? 0 :
+            trWallsSizes.back();
+        const auto& trDoorsSizes = trDoors.fSizes;
+        const int maxTRDoorsSizeClamp = trDoorsSizes.empty() ? 0 :
+            trDoorsSizes.back();
         const auto maxTRSize = [&](const int x, const int y,
                                    const bool doors) {
             const int maxSize = doors ? maxTRDoorsSizeClamp :
@@ -870,9 +879,18 @@ eMapGenerator::generate(const std::string& name) const {
                              const eAreaPlace& nextTo)> genArea;
     const int connWidth = 4;
     const int connHalfLen = 4;
+    auto& terrTypes = result->mTerrainTypes;
+    auto& objTypes = result->mObjectTypes;
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {
+        const auto terrType = settings.fTerrainType;
+        terrTypes.emplace(terrType);
+
+        for(const auto& o : settings.fObjects) {
+            objTypes.emplace(o.fType);
+        }
+
         const auto place = placer.choosePlace(nextTo);
         const auto pos = placer.pos(place);
 
@@ -930,28 +948,6 @@ eMapGenerator::generate(const std::string& name) const {
     }
     rect.fX = extMargin;
     rect.fY = extMargin;
-
-    const uint16_t grassId = eTerrsTexturesData::id("grass");
-    result->mTerrainTypes.emplace(grassId);
-
-    const uint16_t basementId = eTerrsTexturesData::id("basement");
-    result->mTerrainTypes.emplace(basementId);
-
-    const auto townFenceId = eObjectsInfo::sObjects.id("town_fence");
-    result->mObjectTypes.emplace(townFenceId);
-    const auto& townFenceInfo = eObjectsInfo::sObjects.get(townFenceId);
-
-    const auto treeId = eObjectsInfo::sObjects.id("tree");
-    result->mObjectTypes.emplace(treeId);
-    const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
-
-    const auto chestId = eObjectsInfo::sObjects.id("chest");
-    result->mObjectTypes.emplace(chestId);
-    const auto& chestInfo = eObjectsInfo::sObjects.get(chestId);
-
-    const auto smallChestId = eObjectsInfo::sObjects.id("small_chest");
-    result->mObjectTypes.emplace(smallChestId);
-    const auto& smallChestInfo = eObjectsInfo::sObjects.get(smallChestId);
 
     result->generateTiles(rect.fW + 2*extMargin + 1,
                           rect.fH + 2*extMargin + 1);
