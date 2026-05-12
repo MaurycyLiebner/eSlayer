@@ -826,7 +826,8 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const int nTypes = types->size();
                 if(nTypes <= type) continue;
-                const int texId = (*types)[type].fId;
+                const auto& wtex = (*types)[type];
+                const int texId = wtex.fId;
 
                 const auto& texs = eTerrsTextures::get(terrType);
                 const auto& tex = texs.getTexture(texId);
@@ -834,10 +835,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int bottomY = ipixel.fY + tileH;
 
                 if(eRenderSettings::sRenderWallShadows && info.fWallsShadow) {
+                    const float wallMin = open ? wtex.fWallMin : 0.f;
+                    const float wallMax = open ? wtex.fWallMax : 1.f;
                     mGamePainter.addWallShadow(iPos.fX, iPos.fY,
                                                pixel.fX, bottomY,
                                                wall.fType, tileW, tileH,
-                                               tex);
+                                               tex, wallMin, wallMax);
                 }
                 bool transparent = false;
 

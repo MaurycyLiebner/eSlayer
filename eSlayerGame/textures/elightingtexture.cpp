@@ -189,9 +189,10 @@ void eLightingTexture::renderLight(
                             minLightTY = std::max(minLightTY, b.fTY);
                         }
                     }
-                    leftPt = {b.fPX, b.fPY - b.fTileH};
-                    rightPt = {b.fPX + b.fTileW*0.5f,
-                               b.fPY - b.fTileH*0.5f};
+                    leftPt = {b.fPX + 0.5f*b.fWallMin*b.fTileW,
+                              b.fPY - b.fTileH + 0.5f*b.fWallMin*b.fTileH};
+                    rightPt = {b.fPX + b.fTileW*0.5f - 0.5f*(1.f - b.fWallMax)*b.fTileW,
+                               b.fPY - b.fTileH*0.5f - 0.5f*(1.f - b.fWallMax)*b.fTileH};
                 } break;
                 case eWallType::topLeft: {
                     if(b.fTY == lightITY) {
@@ -201,9 +202,10 @@ void eLightingTexture::renderLight(
                             minLightTX = std::max(minLightTX, b.fTX);
                         }
                     }
-                    leftPt = {b.fPX - b.fTileW*0.5f,
-                              b.fPY - b.fTileH*0.5f};
-                    rightPt = {b.fPX, b.fPY - b.fTileH};
+                    leftPt = {b.fPX - b.fTileW*0.5f + 0.5f*(1.f - b.fWallMax)*b.fTileW,
+                              b.fPY - b.fTileH*0.5f - 0.5f*(1.f - b.fWallMax)*b.fTileH};
+                    rightPt = {b.fPX - 0.5f*b.fWallMin*b.fTileW,
+                               b.fPY - b.fTileH + 0.5f*b.fWallMin*b.fTileH};
                 } break;
                 };
 

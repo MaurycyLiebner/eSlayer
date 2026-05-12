@@ -102,8 +102,11 @@ void eGamePainter::addWallShadow(
     const eWallType dir,
     const int tileW,
     const int tileH,
-    const std::shared_ptr<eTexture>& tex) {
+    const std::shared_ptr<eTexture>& tex,
+    const float wallMin,
+    const float wallMax) {
     mWallLightBlockers.emplace_back(
         tx, ty, px, py, dir,
-        tileW, tileH, tex);
+        tileW, tileH, tex,
+        wallMin, wallMax);
 }
