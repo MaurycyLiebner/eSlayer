@@ -2,6 +2,9 @@
 
 #include "eSlayerHelpers/epacket.h"
 
+const float radiusMax = 25.5f;
+const float speedMax = 1.f;
+
 float radiansToDegrees(const float angle) {
     return angle * 180 / M_PI;
 }
@@ -37,9 +40,9 @@ void eNova::read(ePacket& p) {
 
     p >> fCenter;
 
-    p >> fRadius;
-    p >> fMaxRadius;
-    p >> fSpeed;
+    fRadius = p.readFloatU8(radiusMax);
+    fMaxRadius = p.readFloatU8(radiusMax);
+    fSpeed = p.readFloatU8(speedMax);
 }
 
 void eNova::write(ePacket& p) const {
@@ -49,9 +52,9 @@ void eNova::write(ePacket& p) const {
 
     p << fCenter;
 
-    p << fRadius;
-    p << fMaxRadius;
-    p << fSpeed;
+    p.writeFloatU8(fRadius, radiusMax);
+    p.writeFloatU8(fMaxRadius, radiusMax);
+    p.writeFloatU8(fSpeed, speedMax);
 }
 
 bool eArcIntervals::angleInRange(const float angle) const {
