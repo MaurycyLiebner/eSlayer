@@ -16,31 +16,32 @@ struct eLight {
            const float ty,
            const float px,
            const float py,
-           const float radius,
-           const SDL_Color& color,
-           const ePaintCall& paintCall) :
+           const float radius) :
         fTX(tx), fTY(ty),
         fPX(px), fPY(py),
-        fRadius(radius),
-        fColor(color),
-        fPaintCall(paintCall) {}
+        fRadius(radius) {}
 
     float fTX;
     float fTY;
     float fPX;
     float fPY;
     float fRadius;
-    SDL_Color fColor;
-    ePaintCall fPaintCall;
+};
+
+enum class eBlockerBaseType {
+    object, wall
 };
 
 struct eBlockerBase {
-    eBlockerBase(const float px,
+    eBlockerBase(const eBlockerBaseType type,
+                 const float px,
                  const float py,
                  const std::shared_ptr<eTexture>& tex) :
+        fType(type),
         fPX(px), fPY(py),
         fTex(tex) {}
 
+    eBlockerBaseType fType;
     float fPX;
     float fPY;
     std::shared_ptr<eTexture> fTex;
@@ -52,11 +53,12 @@ struct eLightBlocker : public eBlockerBase {
                   const float cy,
                   const float size,
                   const std::shared_ptr<eTexture>& tex) :
-        eBlockerBase(px, py, tex),
+        eBlockerBase(eBlockerBaseType::object, px, py, tex),
         fTileCenterY(cy),
         fSize(size) {}
     float fTileCenterY;
     float fSize;
+    float fLighting;
 };
 
 struct eWallLightBlocker : public eBlockerBase {
@@ -70,7 +72,7 @@ struct eWallLightBlocker : public eBlockerBase {
                       const std::shared_ptr<eTexture>& tex,
                       const float wallMin,
                       const float wallMax) :
-        eBlockerBase(px, py, tex),
+        eBlockerBase(eBlockerBaseType::wall, px, py, tex),
         fTX(tx),
         fTY(ty),
         fDir(dir),
@@ -85,6 +87,8 @@ struct eWallLightBlocker : public eBlockerBase {
     int fTileH;
     float fWallMin;
     float fWallMax;
+    const int mWallLightingW = 32;
+    std::vector<float> fLighting;
 };
 
 class eLightingTexture : public eTexture {
@@ -93,30 +97,29 @@ public:
 
     void initialize(SDL_Renderer* const r,
                     const int w, const int h,
+                    const int tileW, const int tileH,
                     const SDL_Color& color);
     void setClearColor(const SDL_Color& color);
     void clear(SDL_Renderer * const r);
-    void renderLight(
-        const eResolution& res,
-        SDL_Renderer * const r,
-        const eLight& light,
-        const std::vector<eLightBlocker>& blockers,
-        const std::vector<eWallLightBlocker>& walls);
-    void renderShadow(
-        SDL_Renderer * const r,
-        const ePointF& lightPt,
-        const ePointF& leftPt,
-        const ePointF& rightPt,
-        const bool rightFeather,
-        const bool leftFeather,
-        const bool nearFeather,
-        const float shadowLen,
-        const float softness) const;
+
+    void addLight(const eLight& light);
+    void addBlocker(std::unique_ptr<eBlockerBase>& b);
+    void calculateFloorLighting(const float tx0,
+                                const float ty0);
+    void renderFloorLighting(SDL_Renderer * const r);
 private:
     SDL_Color mColor;
-    std::shared_ptr<eTexture> mLightingTex;
-    using eTex = std::shared_ptr<eTexture>;
-    std::map<float, std::pair<eTex, eTex>> mTexMap;
+    std::vector<eLight> mLights;
+    std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
+    const float sTileDimMult = 0.1f;
+    const float sTileDimMultInv = 1.f/sTileDimMult;
+    int mNCols;
+    int mNRows;
+    int mBaseTileW;
+    int mBaseTileH;
+    int mFloorLightW;
+    int mFloorLightH;
+    std::vector<std::vector<float>> mFloorLighting;
 };
 
 #endif // ELIGHTINGTEXTURE_H

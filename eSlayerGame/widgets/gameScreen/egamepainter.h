@@ -9,7 +9,8 @@ public:
     using ePainter::ePainter;
 
     std::shared_ptr<eTexture>
-    initialize(const int w, const int h);
+    initialize(const int w, const int h,
+               const int tileW, const int tileH);
 
     eRenderTargetHolder switchToLighting();
     eRenderTargetHolder switchToBase();
@@ -25,7 +26,8 @@ public:
                      const float radius,
                      const SDL_Color& color,
                      const ePaintCall& paintCall);
-    void finish(const eResolution& res);
+    void finish(const float tx0, const float ty0,
+                const eResolution& res);
 
     void addObjectShadow(const float px, const float py,
                          const float tileCenterY,

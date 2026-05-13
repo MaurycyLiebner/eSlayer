@@ -997,7 +997,9 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
     }
 
-    mGamePainter.finish(res);
+    const ePointF pixel0{0.f, 0.f};
+    const auto pos0 = pixelToTilePos(pixel0);
+    mGamePainter.finish(pos0.fX, pos0.fY, res);
 
     const auto& tex = texture();
     if(tex) {
@@ -1081,7 +1083,9 @@ bool eGameWidget::mouseMoveEvent(const eMouseEvent& e) {
 void eGameWidget::initializeTextures() {
     const int w = width();
     const int h = height();
-    const auto tex = mGamePainter.initialize(w, h);
+    const int tw = mInput.tileWidth();
+    const int th = mInput.tileHeight();
+    const auto tex = mGamePainter.initialize(w, h, tw, th);
     setTexture(tex);
 }
 

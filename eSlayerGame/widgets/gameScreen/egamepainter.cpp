@@ -1,14 +1,16 @@
 #include "egamepainter.h"
 
 std::shared_ptr<eTexture>
-eGamePainter::initialize(const int w, const int h) {
+eGamePainter::initialize(const int w, const int h,
+                         const int tileW, const int tileH) {
     const auto r = renderer();
 
     mBaseTex = std::make_shared<eTexture>();
     mBaseTex->create(r, w, h, {0, 0, 0, 255});
 
     mLightingTex = std::make_shared<eLightingTexture>();
-    mLightingTex->initialize(r, w, h, SDL_Color{mLight, mLight, mLight, 255});
+    mLightingTex->initialize(r, w, h, tileW, tileH,
+                             SDL_Color{mLight, mLight, mLight, 255});
 
     mDisplayTex = std::make_shared<eTexture>();
     mDisplayTex->create(r, w, h, {0, 0, 0, 255});
@@ -59,23 +61,22 @@ void eGamePainter::renderLight(const float tx, const float ty,
                                const SDL_Color& color,
                                const ePaintCall& paintCall) {
     if(mLight == 255) return;
-    mLights.emplace_back(
-        tx, ty, x, y, radius, color, paintCall);
+    mLights.emplace_back(tx, ty, x, y, radius);
 }
 
-void eGamePainter::finish(const eResolution& res) {
+void eGamePainter::finish(
+    const float tx0, const float ty0,
+    const eResolution& res) {
     const auto r = renderer();
     for(const auto& light : mLights) {
-        mLightingTex->renderLight(res, r, light,
-                                  mLightBlockers,
-                                  mWallLightBlockers);
+        mLightingTex->addLight(light);
     }
+    mLightingTex->calculateFloorLighting(tx0, ty0);
+    mLightingTex->renderFloorLighting(r);
     const auto holder = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
-    if(mLight != 255) {
-        mLightingTex->render(r, 0, 0);
-    }
+    if(mLight != 255) mLightingTex->render(r, 0, 0);
     const Uint8 a = 255 - mContrast;
     if(a != 255) {
         mBaseTex->fill(r, SDL_Color{255, 255, 255, a});
