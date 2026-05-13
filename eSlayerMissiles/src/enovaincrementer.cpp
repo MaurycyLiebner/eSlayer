@@ -66,7 +66,6 @@ bool eNovaIncrementer::increment(
             const bool insideNew = circleIntersectsTile(
                 c.fX, c.fY, newRadius, x, y);
             if(!insideNew) continue;
-
             const auto area = mUnitAreas.posArea(ePoint{x, y});
             if(mUnitAreas.hasArea(area)) {
                 const auto& units = mUnitAreas.at(area);
@@ -86,18 +85,53 @@ bool eNovaIncrementer::increment(
                 }
             }
 
+            const bool insideOld = circleIntersectsTile(
+                c.fX, c.fY, oldRadius, x, y);
+            if(insideOld) continue;
+            const int tx = x;
+            const int ty = y;
+            const bool r = mTileInside(tx, ty);
+            const auto& tile = mGetTile(tx, ty);
+            if(r) {
+                if(x >= c.fX) {
+                    if(tile.fWallTL) {
+                        const ePoint p1{tx, ty};
+                        const ePoint p2{tx, ty + 1};
+                        n.obsticle2(p1, p2);
+                    }
+                }
+
+                if(y >= c.fY) {
+                    if(tile.fWallTR) {
+                        const ePoint p1{tx, ty};
+                        const ePoint p2{tx + 1, ty};
+                        n.obsticle2(p1, p2);
+                    }
+                }
+
+                const auto& objIds = mGetObjects(x, y);
+                for(const auto objId : objIds) {
+                    const auto obj = mGetObject(objId);
+                    if(!obj) continue;
+                    const auto type = obj->fObjectType;
+                    const auto& info = eObjectsInfo::sObjects.get(type);
+                    if(!info.fObsticle) continue;
+                    const auto& pos = obj->fPos;
+                    const float size = info.fSize;
+                    n.obsticle1(pos, 0.5f*size);
+                }
+            }
+
             if(x < c.fX) {
                 const int tx = x + 1;
                 const int ty = y;
-                const bool insideOld = circleIntersectsTile(
-                    c.fX, c.fY, oldRadius, tx, ty);
-                if(!insideOld) {
-                    const bool r = mTileInside(tx, ty);
-                    if(r) {
-                        const auto& tile = mGetTile(tx, ty);
-                        if(tile.fWallTL) {
-                            n.obsticle2(ePoint{tx, ty}, ePoint{tx, ty + 1});
-                        }
+                const bool r = mTileInside(tx, ty);
+                if(r) {
+                    const auto& tile = mGetTile(tx, ty);
+                    if(tile.fWallTL) {
+                        const ePoint p1{tx, ty};
+                        const ePoint p2{tx, ty + 1};
+                        n.obsticle2(p1, p2);
                     }
                 }
             }
@@ -105,59 +139,15 @@ bool eNovaIncrementer::increment(
             if(y < c.fY) {
                 const int tx = x;
                 const int ty = y + 1;
-                const bool insideOld = circleIntersectsTile(
-                    c.fX, c.fY, oldRadius, tx, ty);
-                if(!insideOld) {
-                    const bool r = mTileInside(tx, ty);
-                    if(r) {
-                        const auto& tile = mGetTile(tx, ty);
-                        if(tile.fWallTR) {
-                            n.obsticle2(ePoint{tx, ty}, ePoint{tx + 1, ty});
-                        }
-                    }
-                }
-            }
-
-            const bool insideOld = circleIntersectsTile(
-                c.fX, c.fY, oldRadius, x, y);
-            if(insideOld) continue;
-
-            if(x >= c.fX) {
-                const int tx = x;
-                const int ty = y;
-                const bool r = mTileInside(tx, ty);
-                if(r) {
-                    const auto& tile = mGetTile(tx, ty);
-                    if(tile.fWallTL) {
-                        n.obsticle2(ePoint{tx, ty}, ePoint{tx, ty + 1});
-                    }
-                }
-            }
-
-            if(y >= c.fY) {
-                const int tx = x;
-                const int ty = y;
                 const bool r = mTileInside(tx, ty);
                 if(r) {
                     const auto& tile = mGetTile(tx, ty);
                     if(tile.fWallTR) {
-                        n.obsticle2(ePoint{tx, ty}, ePoint{tx + 1, ty});
+                        const ePoint p1{tx, ty};
+                        const ePoint p2{tx + 1, ty};
+                        n.obsticle2(p1, p2);
                     }
                 }
-            }
-
-            const bool r = mTileInside(x, y);
-            if(!r) continue;
-            const auto& objIds = mGetObjects(x, y);
-            for(const auto objId : objIds) {
-                const auto obj = mGetObject(objId);
-                if(!obj) continue;
-                const auto type = obj->fObjectType;
-                const auto& info = eObjectsInfo::sObjects.get(type);
-                if(!info.fObsticle) continue;
-                const auto& pos = obj->fPos;
-                const float size = info.fSize;
-                n.obsticle1(pos, 0.5f*size);
             }
         }
     }

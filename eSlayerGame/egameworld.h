@@ -26,7 +26,9 @@ struct eExtendedMissile : public eMissile {
 };
 
 struct eExtendedNova : public eNova {
+    bool fInitialized = false;
     int fFrame = 0;
+    std::vector<std::shared_ptr<eExtendedMissile>> fMissiles;
 };
 
 class eGameWorld {

@@ -5,11 +5,7 @@
 
 #include "eteamid.h"
 #include "epoint.h"
-
-struct eArcInterval {
-    float fAngleStart;
-    float fAngleEnd;
-};
+#include "earcintervals.h"
 
 struct ESLAYERHELPERS_API eNova {
     uint32_t fId;
@@ -22,14 +18,12 @@ struct ESLAYERHELPERS_API eNova {
     float fMaxRadius;
     float fSpeed;
 
-    std::vector<eArcInterval> fIntervals{{0.f, 360.f}};
+    eArcIntervals fIntervals{{0.f, 360.f}};
 
     void obsticle1(const ePointF& pos,
                    const float radius);
     void obsticle2(const ePointF& pos1,
                    const ePointF& pos2);
-    void subtract(float minAngleDeg,
-                  float maxAngleDeg);
     bool angleInRange(const float angle) const;
 
     void read(ePacket& p);

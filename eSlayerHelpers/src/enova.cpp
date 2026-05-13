@@ -2,19 +2,12 @@
 
 #include "eSlayerHelpers/epacket.h"
 
-float normalizeAngle360(float angle) {
-    if(angle >= 0.f && angle <= 360.f) return angle;
-    angle = std::fmod(angle, 360.f);
-    if(angle < 0.f) angle += 360.f;
-    return angle;
-}
-
 float radiansToDegrees(const float angle) {
     return angle * 180 / M_PI;
 }
 
-void eNova::obsticle1(const ePointF& pos,
-                      const float radius) {
+void eNova::obsticle1(
+    const ePointF& pos, const float radius) {
     const auto toObstacle = ePointF::vector(pos, fCenter);
     const float dist = toObstacle.length();
     const float baseAngle = atan2(toObstacle.y, toObstacle.x);
@@ -23,59 +16,18 @@ void eNova::obsticle1(const ePointF& pos,
     const float maxAngleR = baseAngle + halfAngularSize;
     const float minAngleDeg = radiansToDegrees(minAngleR);
     const float maxAngleDeg = radiansToDegrees(maxAngleR);
-    return subtract(minAngleDeg, maxAngleDeg);
+    return fIntervals.subtract(minAngleDeg, maxAngleDeg);
 }
 
-void eNova::obsticle2(const ePointF& pos1,
-                      const ePointF& pos2) {
+void eNova::obsticle2(
+    const ePointF& pos1, const ePointF& pos2) {
     const float a1 = ePointF::vector(pos1, fCenter).angle();
     const float a2 = ePointF::vector(pos2, fCenter).angle();
-    subtract(a1, a2);
-}
-
-void eNova::subtract(float minAngleDeg,
-                     float maxAngleDeg) {
-    const float eps = 0.01f;
-    minAngleDeg = normalizeAngle360(minAngleDeg);
-    maxAngleDeg = normalizeAngle360(maxAngleDeg);
-    if(std::abs(maxAngleDeg - minAngleDeg) < eps) return;
-    if(maxAngleDeg < minAngleDeg) {
-        subtract(minAngleDeg, 360.f);
-        subtract(0.f, maxAngleDeg);
-        return;
-    }
-
-    for(int i = 0; i < fIntervals.size(); i++) {
-        auto& curr = fIntervals[i];
-        if(curr.fAngleStart + eps > maxAngleDeg) continue;
-        if(curr.fAngleEnd - eps < minAngleDeg) continue;
-        if(curr.fAngleStart + eps > minAngleDeg) {
-            if(curr.fAngleEnd - eps < maxAngleDeg) {
-                fIntervals.erase(fIntervals.begin() + i);
-                i--;
-            } else {
-                curr.fAngleStart = maxAngleDeg;
-            }
-        } else if(curr.fAngleEnd - eps < maxAngleDeg) {
-            curr.fAngleEnd = minAngleDeg;
-        } else {
-            const float endTmp = curr.fAngleEnd;
-            curr.fAngleEnd = minAngleDeg;
-
-            i++;
-            fIntervals.emplace(fIntervals.begin() + i,
-                               eArcInterval{maxAngleDeg, endTmp});
-        }
-    }
+    return fIntervals.subtract(a1, a2);
 }
 
 bool eNova::angleInRange(const float angle) const {
-    for(const auto& i : fIntervals) {
-        if(i.fAngleStart > angle) continue;
-        if(i.fAngleEnd < angle) continue;
-        return true;
-    }
-    return false;
+    return fIntervals.angleInRange(angle);
 }
 
 void eNova::read(ePacket& p) {
@@ -100,4 +52,13 @@ void eNova::write(ePacket& p) const {
     p << fRadius;
     p << fMaxRadius;
     p << fSpeed;
+}
+
+bool eArcIntervals::angleInRange(const float angle) const {
+    for(const auto& i : *this) {
+        if(i.fAngleStart > angle) continue;
+        if(i.fAngleEnd < angle) continue;
+        return true;
+    }
+    return false;
 }

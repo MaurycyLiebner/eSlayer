@@ -12,6 +12,7 @@ struct ePointF;
 struct eUnitData;
 struct eObject;
 struct eTile;
+struct eArcIntervals;
 
 class ESLAYERMISSILES_API eNovaIncrementer {
 public:
@@ -28,7 +29,7 @@ public:
     using eRemoveNova = std::function<void(const eNova& n)>;
     using eGetUnit = std::function<eUnitData*(const int charId)>;
     using eHitAction = std::function<void(
-        const eNova& n, eUnitData& u)>;
+        eNova& n, eUnitData& u)>;
     void initialize(const eTileInside& tileInside,
                     const eGetObjects& getObjects,
                     const eGetObject& getObject,

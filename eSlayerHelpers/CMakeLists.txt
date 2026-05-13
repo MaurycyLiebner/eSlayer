@@ -161,6 +161,8 @@ add_library(eSlayerHelpers SHARED
     src/epacket.cpp
     include/eSlayerHelpers/edoors.h
     src/edoors.cpp
+    include/eSlayerHelpers/earcintervals.h
+    src/earcintervals.cpp
 
 
 )
