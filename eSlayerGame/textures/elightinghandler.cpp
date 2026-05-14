@@ -179,7 +179,7 @@ void eLightingHandler::calculateLighting() {
                 const float dy = ty - l.fTY;
                 const float distSq = dx*dx + dy*dy;
                 const float t = sqrt(distSq)/l.fRadius;
-                const float i = 1.f - t*t;
+                const float i = 1.f - t*t*t*t;
                 v = std::max(v, i*mult);
             }
         }
@@ -199,8 +199,7 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
 
     auto make = [&](const ePointF& p, const float i) {
         SDL_Vertex v;
-        v.position = {p.fX + mDrawPixelShift.fX,
-                      p.fY + mDrawPixelShift.fY};
+        v.position = {p.fX, p.fY};
         v.color = SDL_FColor{i, i, i, 1.f};
         v.tex_coord = {0.f, 0.f};
         return v;
@@ -416,9 +415,6 @@ void eLightingHandler::setTopLeftTilePos(
     const ePointF& pos) {
     const auto fpos = pos*sTileDimMultInv;
     const auto ifpos = fpos.floor();
-    mDrawPixelShift.fX = ((ifpos.fX - fpos.fX) - (ifpos.fY - fpos.fY))*0.5f*mBaseTileW*sTileDimMult;
-    mDrawPixelShift.fY = ((ifpos.fY - fpos.fY) + (ifpos.fX - fpos.fX))*0.5f*mBaseTileH*sTileDimMult;
     mCoordsShift.x = -pos.fX + (fpos.fX - ifpos.fX)*sTileDimMult;
     mCoordsShift.y = -pos.fY + (fpos.fY - ifpos.fY)*sTileDimMult;
-    mTopLeft = pos;
 }

@@ -110,9 +110,7 @@ private:
     std::vector<eLight> mLights;
     std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
     std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
-    ePointF mTopLeft{0.f, 0.f};
     eVec2f mCoordsShift{0.f, 0.f};
-    ePointF mDrawPixelShift{0.f, 0.f};
     const float sTileDimMult = 0.1f;
     const float sTileDimMultInv = 1.f/sTileDimMult;
     float mFeatherLen;
