@@ -2,7 +2,7 @@
 #define EGAMEPAINTER_H
 
 #include "../epainter.h"
-#include "../../textures/elightingtexture.h"
+#include "../../textures/elightinghandler.h"
 
 class eGamePainter : public ePainter {
 public:
@@ -12,7 +12,6 @@ public:
     initialize(const int w, const int h,
                const int tileW, const int tileH);
 
-    eRenderTargetHolder switchToLighting();
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
 
@@ -29,28 +28,25 @@ public:
     void finish(const float tx0, const float ty0,
                 const eResolution& res);
 
-    void addObjectShadow(const float px, const float py,
-                         const float tileCenterY,
-                         const float size,
-                         const std::shared_ptr<eTexture>& tex);
-    void addWallShadow(const int tx, const int ty,
+    void addRenderCall(const eRenderCallType type,
+                       const float tx, const float ty,
                        const float px, const float py,
+                       const std::shared_ptr<eTexture>& tex);
+
+    void addObjectShadow(const float tx, const float ty,
+                         const float size);
+    void addWallShadow(const int tx, const int ty,
                        const eWallType dir,
-                       const int tileW,
-                       const int tileH,
-                       const std::shared_ptr<eTexture>& tex,
                        const float wallMin,
                        const float wallMax);
 private:
-    std::vector<eLightBlocker> mLightBlockers;
-    std::vector<eWallLightBlocker> mWallLightBlockers;
     std::vector<eLight> mLights;
     bool mRenderItemNames = false;
     Uint8 mLight = 180;
     Uint8 mContrast = 140;
     std::shared_ptr<eTexture> mItemNames;
     std::shared_ptr<eTexture> mBaseTex;
-    std::shared_ptr<eLightingTexture> mLightingTex;
+    std::shared_ptr<eLightingHandler> mLightingTex;
     std::shared_ptr<eTexture> mDisplayTex;
 };
 

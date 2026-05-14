@@ -775,8 +775,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int x = ipixel.fX + dx;
                 const int y = ipixel.fY + dy + h;
                 if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
-                    mGamePainter.addObjectShadow(x, y, y - 0.5f*h,
-                                                 object.fSize, tex);
+                    mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
                 }
                 bool highlight = false;
                 const int texW = tex->width();
@@ -806,15 +805,18 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                     }
                 }
-                mGamePainter.drawShadow(x - texW/2, y, *tex);
-                mGamePainter.drawTexture(drawX, drawY, tex);
-                if(highlight) {
-                    tex->setBlendMode(SDL_BLENDMODE_ADD);
-                    tex->setAlpha(125);
-                    p.drawTexture(drawX, drawY, tex);
-                    tex->setBlendMode(SDL_BLENDMODE_BLEND);
-                    tex->clearAlphaMod();
-                }
+                mGamePainter.addRenderCall(eRenderCallType::object,
+                                           pos.fX, pos.fY, drawX, drawY,
+                                           tex);
+                // mGamePainter.drawShadow(x - texW/2, y, *tex);
+                // mGamePainter.drawTexture(drawX, drawY, tex);
+                // if(highlight) {
+                //     tex->setBlendMode(SDL_BLENDMODE_ADD);
+                //     tex->setAlpha(125);
+                //     p.drawTexture(drawX, drawY, tex);
+                //     tex->setBlendMode(SDL_BLENDMODE_BLEND);
+                //     tex->clearAlphaMod();
+                // }
             } else if(e.fType == eRenderElementType::wall) {
                 const auto& wall = static_cast<eWall&>(*ePtr);
                 const auto terrType = wall.fTerrainType;
@@ -851,9 +853,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const float wallMin = open ? wtex.fWallMin : 0.f;
                     const float wallMax = open ? wtex.fWallMax : 1.f;
                     mGamePainter.addWallShadow(iPos.fX, iPos.fY,
-                                               pixel.fX, bottomY,
-                                               wall.fType, tileW, tileH,
-                                               tex, wallMin, wallMax);
+                                               wall.fType,
+                                               wallMin, wallMax);
                 }
                 bool transparent = false;
 
@@ -883,10 +884,19 @@ void eGameWidget::paintEvent(ePainter& p) {
                     }
                 }
 
-                if(transparent) tex->setAlpha(128);
-                mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
-                                         eAlignment::top | eAlignment::hcenter);
-                if(transparent) tex->clearAlphaMod();
+                const int texW = tex->width();
+                const int texH = tex->height();
+                int drawX = ipixel.fX;
+                int drawY = bottomY;
+                ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                          eAlignment::top | eAlignment::hcenter);
+                mGamePainter.addRenderCall(eRenderCallType::wall,
+                                           pos.fX, pos.fY, drawX, drawY,
+                                           tex);
+                // if(transparent) tex->setAlpha(128);
+                // mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
+                //                          eAlignment::top | eAlignment::hcenter);
+                // if(transparent) tex->clearAlphaMod();
 
                 bool highlight = false;
                 if(doors) {

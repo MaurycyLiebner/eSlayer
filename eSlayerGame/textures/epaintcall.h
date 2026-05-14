@@ -8,4 +8,5 @@ struct ePaintCall {
     float fY;
     std::shared_ptr<eTexture> fTex;
 };
+
 #endif // EPAINTCALL_H

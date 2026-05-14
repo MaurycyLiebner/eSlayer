@@ -208,7 +208,7 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([this, server, map, clientId]() {
         eMapData data;
-        const bool r = (*server)->requestMap(*clientId, "basement"/*"act1_1"*/, data);
+        const bool r = (*server)->requestMap(*clientId, "act1_1", data);
         if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
         else map->loadData(data);
     });

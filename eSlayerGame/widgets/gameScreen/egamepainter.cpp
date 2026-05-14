@@ -8,9 +8,8 @@ eGamePainter::initialize(const int w, const int h,
     mBaseTex = std::make_shared<eTexture>();
     mBaseTex->create(r, w, h, {0, 0, 0, 255});
 
-    mLightingTex = std::make_shared<eLightingTexture>();
-    mLightingTex->initialize(r, w, h, tileW, tileH,
-                             SDL_Color{mLight, mLight, mLight, 255});
+    mLightingTex = std::make_shared<eLightingHandler>();
+    mLightingTex->initialize(r, w, h, tileW, tileH);
 
     mDisplayTex = std::make_shared<eTexture>();
     mDisplayTex->create(r, w, h, {0, 0, 0, 255});
@@ -19,11 +18,6 @@ eGamePainter::initialize(const int w, const int h,
     mItemNames->create(r, w, h, {0, 0, 0, 0});
 
     return mDisplayTex;
-}
-
-eRenderTargetHolder eGamePainter::switchToLighting() {
-    const auto r = renderer();
-    return mLightingTex->createTargetHolder(r);
 }
 
 eRenderTargetHolder eGamePainter::switchToBase() {
@@ -39,19 +33,17 @@ eRenderTargetHolder eGamePainter::switchToItemNames() {
 
 void eGamePainter::setLightness(const Uint8 light) {
     mLight = light;
-    mLightingTex->setClearColor(SDL_Color{light, light, light, 255});
+    mLightingTex->setLightness(light/255.f);
 }
 
 void eGamePainter::clear() {
     const auto r = renderer();
-    mLightingTex->clear(r);
+    mLightingTex->clear();
     mBaseTex->fill(r, SDL_Color{0, 0, 0, 255});
     if(mRenderItemNames) {
         mRenderItemNames = false;
         mItemNames->fill(r, SDL_Color{0, 0, 0, 0});
     }
-    mLightBlockers.clear();
-    mWallLightBlockers.clear();
     mLights.clear();
 }
 
@@ -61,22 +53,21 @@ void eGamePainter::renderLight(const float tx, const float ty,
                                const SDL_Color& color,
                                const ePaintCall& paintCall) {
     if(mLight == 255) return;
-    mLights.emplace_back(tx, ty, x, y, radius);
+    mLightingTex->addLight(eLight{tx, ty, x, y, radius});
 }
 
 void eGamePainter::finish(
     const float tx0, const float ty0,
     const eResolution& res) {
     const auto r = renderer();
-    for(const auto& light : mLights) {
-        mLightingTex->addLight(light);
-    }
-    mLightingTex->calculateFloorLighting(tx0, ty0);
-    mLightingTex->renderFloorLighting(r);
-    const auto holder = mDisplayTex->createTargetHolder(r);
+    const auto h = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
-    if(mLight != 255) mLightingTex->render(r, 0, 0);
+    {
+        mLightingTex->calculateLighting(tx0, ty0);
+        mLightingTex->renderFloorLighting(r);
+        mLightingTex->renderAll(r);
+    }
     const Uint8 a = 255 - mContrast;
     if(a != 255) {
         mBaseTex->fill(r, SDL_Color{255, 255, 255, a});
@@ -88,26 +79,32 @@ void eGamePainter::finish(
     }
 }
 
-void eGamePainter::addObjectShadow(
+void eGamePainter::addRenderCall(
+    const eRenderCallType type,
+    const float tx, const float ty,
     const float px, const float py,
-    const float tileCenterY,
-    const float size,
     const std::shared_ptr<eTexture>& tex) {
-    mLightBlockers.emplace_back(
-        px, py, tileCenterY, size, tex);
+    auto c = std::make_unique<eRenderCall>(
+        type, tx, ty, px, py, tex);
+    mLightingTex->addRenderCall(c);
+}
+
+void eGamePainter::addObjectShadow(
+    const float tx, const float ty,
+    const float size) {
+    auto o = std::make_unique<eObjectLightBlocker>(
+        tx, ty, size);
+    std::unique_ptr<eBlockerBase> b = std::move(o);
+    mLightingTex->addBlocker(b);
 }
 
 void eGamePainter::addWallShadow(
     const int tx, const int ty,
-    const float px, const float py,
     const eWallType dir,
-    const int tileW,
-    const int tileH,
-    const std::shared_ptr<eTexture>& tex,
     const float wallMin,
     const float wallMax) {
-    mWallLightBlockers.emplace_back(
-        tx, ty, px, py, dir,
-        tileW, tileH, tex,
-        wallMin, wallMax);
+    auto o = std::make_unique<eWallLightBlocker>(
+        tx, ty, dir, wallMin, wallMax);
+    std::unique_ptr<eBlockerBase> b = std::move(o);
+    mLightingTex->addBlocker(b);
 }

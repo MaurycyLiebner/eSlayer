@@ -9,6 +9,25 @@
 
 #include "erendertargetholder.h"
 
+class eTexture;
+
+struct eSprite {
+    eTexture* fTex = nullptr;
+    float fTexCoordLeft;
+    float fTexCoordTop;
+    float fTexCoordRight;
+    float fTexCoordBottom;
+
+    void mapCoords(float& x, float& y) const {
+        x = fTexCoordLeft + (fTexCoordRight - fTexCoordLeft)*x;
+        y = fTexCoordTop + (fTexCoordBottom - fTexCoordTop)*y;
+    }
+
+    void mapCoords(SDL_FPoint& p) const {
+        mapCoords(p.x, p.y);
+    }
+};
+
 class eTexture {
 public:
     eTexture();
@@ -72,6 +91,8 @@ public:
     void setAtlas(const SDL_Rect& rect,
                   const std::shared_ptr<eTexture>& tex);
     const std::shared_ptr<eTexture>& atlas() const { return mAtlas; }
+
+    eSprite sprite();
 
     SDL_Texture* tex() const { return mTex; }
 private:

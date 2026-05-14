@@ -190,10 +190,30 @@ void eTexture::setFlipTex(const std::shared_ptr<eTexture>& tex) {
 }
 
 void eTexture::setAtlas(const SDL_Rect& rect,
-                                const std::shared_ptr<eTexture>& tex) {
+                        const std::shared_ptr<eTexture>& tex) {
     mAtlas = tex;
     mX = rect.x;
     mY = rect.y;
     mWidth = rect.w;
     mHeight = rect.h;
+}
+
+eSprite eTexture::sprite() {
+    eSprite result;
+    if(mTex) {
+        result.fTex = this;
+        result.fTexCoordLeft = 0.f;
+        result.fTexCoordTop = 0.f;
+        result.fTexCoordRight = 1.f;
+        result.fTexCoordBottom = 1.f;
+    } else if(mAtlas) {
+        result.fTex = &*mAtlas;
+        const float aw = mAtlas->width();
+        const float ah = mAtlas->height();
+        result.fTexCoordLeft = mX/aw;
+        result.fTexCoordTop = mY/ah;
+        result.fTexCoordRight = (mX + mWidth)/aw;
+        result.fTexCoordBottom = (mY + mHeight)/ah;
+    }
+    return result;
 }

@@ -123,7 +123,7 @@ add_executable(eSlayerGame main.cpp
     screens/egamescreen.h screens/egamescreen.cpp
     egameworld.h egameworld.cpp
     egameinput.h egameinput.cpp
-    textures/elightingtexture.h textures/elightingtexture.cpp
+    textures/elightinghandler.h textures/elightinghandler.cpp
     textures/eeffectstextures.h textures/eeffectstextures.cpp
     textures/eeffecttextures.h textures/eeffecttextures.cpp
     textures/erendertargetholder.h textures/erendertargetholder.cpp
