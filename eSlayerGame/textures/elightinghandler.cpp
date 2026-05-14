@@ -309,18 +309,30 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
         std::vector<float> lightness;
         switch(type) {
         case eRenderCallType::object: {
-            float l = 1.f;
-            const float ctx = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
-            const float cty = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
-            const int ictx = std::round(ctx);
-            const int icty = std::round(cty);
-            int rtx;
-            int rty;
-            isoToRect(ictx, icty, rtx, rty);
-            if(rtx >= 0 && rty >= 0 &&
-               rtx < mNCols && rty < mNRows) {
-                l = mFloorLighting[rty][rtx];
-            }
+            float l = 0.f;
+            const float ctx1 = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
+            const float cty1 = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
+            const int ictx1 = std::round(ctx1);
+            const int icty1 = std::round(cty1);
+
+            const auto handle = [&](const int dx, const int dy) {
+                const int ictx = ictx1 + dx;
+                const int icty = icty1 + dy;
+                int rtx;
+                int rty;
+                isoToRect(ictx, icty, rtx, rty);
+                if(rtx >= 0 && rty >= 0 &&
+                   rtx < mNCols && rty < mNRows) {
+                    l += mFloorLighting[rty][rtx];
+                }
+            };
+
+            handle(0, 0);
+            handle(-1, 0);
+            handle(0, -1);
+
+            l *= 0.33f;
+
             lightness.emplace_back(l);
             lightness.emplace_back(l);
         } break;
