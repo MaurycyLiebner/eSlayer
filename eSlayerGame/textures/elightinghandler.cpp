@@ -16,6 +16,9 @@ void eLightingHandler::initialize(SDL_Renderer * const r,
     mBaseTileW = tileW;
     mBaseTileH = tileH;
 
+    // mTopRowsMargin = 2;
+    // mBottomRowsMargin = ;
+
     mFloorLightW = std::round(sTileDimMult*mBaseTileW);
     mFloorLightH = std::round(sTileDimMult*mBaseTileH);
 
@@ -38,14 +41,14 @@ void eLightingHandler::clear() {
 
 void eLightingHandler::addLight(const eLight& light) {
     const float r = light.fRadius*sTileDimMultInv;
-    const float tx = (light.fTX - mTopLeft.fX)*sTileDimMultInv;
-    const float ty = (light.fTY - mTopLeft.fY)*sTileDimMultInv;
-    mLights.emplace_back(tx, ty, r);
+    const auto pos = globalToFloor({light.fTX, light.fTY});
+    mLights.emplace_back(pos.fX, pos.fY, r);
 }
 
 void eLightingHandler::addBlocker(std::unique_ptr<eBlockerBase>& b) {
-    b->fTX = (b->fTX - mTopLeft.fX)*sTileDimMultInv;
-    b->fTY = (b->fTY - mTopLeft.fY)*sTileDimMultInv;
+    const auto pos = globalToFloor({b->fTX, b->fTY});
+    b->fTX = pos.fX;
+    b->fTY = pos.fY;
     if(b->fType == eBlockerBaseType::object) {
         auto& o = static_cast<eObjectLightBlocker&>(*b);
         o.fSize = o.fSize*sTileDimMultInv;
@@ -194,9 +197,10 @@ ePointF rectTileToPixel(const int x, const int y,
 void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_MUL);
 
-    auto make = [](const ePointF& p, const float i) {
+    auto make = [&](const ePointF& p, const float i) {
         SDL_Vertex v;
-        v.position = {p.fX, p.fY};
+        v.position = {p.fX + mDrawPixelShift.fX,
+                      p.fY + mDrawPixelShift.fY};
         v.color = SDL_FColor{i, i, i, 1.f};
         v.tex_coord = {0.f, 0.f};
         return v;
@@ -332,11 +336,10 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
         const auto type = c->fType;
         std::vector<float> lightness;
 
-        const float ctx1 = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
-        const float cty1 = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
+        const auto p1 = globalToFloor({cref.fTX, cref.fTY});
 
-        const int ictx1 = std::round(ctx1);
-        const int icty1 = std::round(cty1);
+        const int ictx1 = std::round(p1.fX);
+        const int icty1 = std::round(p1.fY);
 
         switch(type) {
         case eRenderCallType::object: {
@@ -357,35 +360,44 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
             handle(-1, 0);
             handle(0, -1);
 
-            l *= 0.33f;
+            l = std::max(mLightness, l*0.33f);
 
             lightness.emplace_back(l);
             lightness.emplace_back(l);
         } break;
         case eRenderCallType::wall: {
-            const auto handle = [&](const int dx, const int dy) {
-                const int ictx = ictx1 + dx;
-                const int icty = icty1 + dy;
-                int rtx;
-                int rty;
-                isoToRect(ictx, icty, rtx, rty);
-                if(rtx >= 0 && rty >= 0 &&
-                   rtx < mNCols && rty < mNRows) {
-                    const float l = mFloorLighting[rty][rtx];
-                    lightness.emplace_back(l);
+            const auto handle = [&](const int dx, const int dy,
+                                    const int sx, const int sy) {
+                float maxL = mLightness;
+
+                for(int ddx = -sx; ddx <= sx; ddx++) {
+                    for(int ddy = -sy; ddy <= sy; ddy++) {
+                        const int ictx = ictx1 + dx + ddx;
+                        const int icty = icty1 + dy + ddy;
+                        int rtx;
+                        int rty;
+                        isoToRect(ictx, icty, rtx, rty);
+                        if(rtx >= 0 && rty >= 0 &&
+                           rtx < mNCols && rty < mNRows) {
+                            const float l = mFloorLighting[rty][rtx];
+                            maxL = std::max(maxL, l);
+                        }
+                    }
                 }
+
+                lightness.emplace_back(maxL);
             };
 
             const int n = std::ceil(sTileDimMultInv);
             switch(cref.fWallType) {
             case eWallType::topLeft: {
                 for(int dy = n; dy >= 0; dy--) {
-                    handle(0, dy);
+                    handle(0, dy, 2, 2);
                 }
             } break;
             case eWallType::topRight: {
                 for(int dx = 0; dx <= n; dx++) {
-                    handle(dx, 0);
+                    handle(dx, 0, 2, 2);
                 }
             } break;
             }
@@ -395,6 +407,18 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
     }
 }
 
-void eLightingHandler::setTopLeftTilePos(const ePointF& pos) {
+ePointF eLightingHandler::globalToFloor(
+    const ePointF& global) const {
+    return (global + mCoordsShift)*sTileDimMultInv;
+}
+
+void eLightingHandler::setTopLeftTilePos(
+    const ePointF& pos) {
+    const auto fpos = pos*sTileDimMultInv;
+    const auto ifpos = fpos.floor();
+    mDrawPixelShift.fX = ((ifpos.fX - fpos.fX) - (ifpos.fY - fpos.fY))*0.5f*mBaseTileW*sTileDimMult;
+    mDrawPixelShift.fY = ((ifpos.fY - fpos.fY) + (ifpos.fX - fpos.fX))*0.5f*mBaseTileH*sTileDimMult;
+    mCoordsShift.x = -pos.fX + (fpos.fX - ifpos.fX)*sTileDimMult;
+    mCoordsShift.y = -pos.fY + (fpos.fY - ifpos.fY)*sTileDimMult;
     mTopLeft = pos;
 }
