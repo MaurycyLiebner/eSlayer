@@ -11,6 +11,8 @@
 void eLightingHandler::initialize(SDL_Renderer * const r,
                                   const int w, const int h,
                                   const int tileW, const int tileH) {
+    mFeatherLen = 5.f;
+
     mBaseTileW = tileW;
     mBaseTileH = tileH;
 
@@ -48,8 +50,55 @@ void rectToIso(const int x, const int y,
     ty = -x + y/2;
 }
 
-void eLightingHandler::calculateLighting(
-    const float tx0, const float ty0) {
+void isoToRect(const int tx, const int ty,
+               int& x, int& y) {
+    y = tx + ty;
+    x = tx - (y % 2) - y / 2;
+}
+
+bool lineIntersection(
+    const ePointF& p1, const ePointF& p2,
+    const ePointF& p3, const ePointF& p4,
+    ePointF* const out = nullptr) {
+    const float x1 = p1.fX;
+    const float y1 = p1.fY;
+    const float x2 = p2.fX;
+    const float y2 = p2.fY;
+
+    const float x3 = p3.fX;
+    const float y3 = p3.fY;
+    const float x4 = p4.fX;
+    const float y4 = p4.fY;
+
+    const float denom = (x1 - x2) * (y3 - y4) -
+                        (y1 - y2) * (x3 - x4);
+
+    // Parallel lines
+    if(std::fabs(denom) < 0.0001f) return false;
+
+    const float t =
+        ((x1 - x3) * (y3 - y4) -
+         (y1 - y3) * (x3 - x4)) / denom;
+
+    const float u =
+        ((x1 - x3) * (y1 - y2) -
+         (y1 - y3) * (x1 - x2)) / denom;
+
+    // Segment intersection test
+    if(t < 0.0f || t > 1.0f ||
+       u < 0.0f || u > 1.0f) {
+        return false;
+    }
+
+    if(out) {
+        out->fX = x1 + t * (x2 - x1);
+        out->fY = y1 + t * (y2 - y1);
+    }
+
+    return true;
+}
+
+void eLightingHandler::calculateLighting() {
     for(int x = 0; x < mNCols; x++) {
         for(int y = 0; y < mNRows; y++) {
             float& v = mFloorLighting[y][x];
@@ -57,40 +106,52 @@ void eLightingHandler::calculateLighting(
             int tx;
             int ty;
             rectToIso(x, y, tx, ty);
+            const ePoint tp{tx, ty};
             for(const auto& l : mLights) {
                 const float lr = l.fRadius*sTileDimMultInv;
-                const float ltx = (l.fTX - tx0)*sTileDimMultInv;
-                const float lty = (l.fTY - ty0)*sTileDimMultInv;
+                const float ltx = (l.fTX - mTopLeft.fX)*sTileDimMultInv;
+                const float lty = (l.fTY - mTopLeft.fY)*sTileDimMultInv;
+                const ePointF lp{ltx, lty};
+                eVec2f dir = ePointF::vector(tp, lp);
+                const float dist = dir.length();
+                if(dist < 0.001f) {
+                    v = 1.f;
+                    break;
+                }
+                if(dist > lr) continue;
+                dir = dir/dist;
+                const eVec2f perp(-dir.y, dir.x);
 
-                bool blocked = false;
+                float mult = 1.f;
                 for(const auto& b : mBlockers) {
                     const auto& bref = *b;
                     switch(bref.fType) {
                     case eBlockerBaseType::object: {
                         const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
                         const float s = oref.fSize*sTileDimMultInv;
-                        const float otx = (bref.fTX - tx0)*sTileDimMultInv;
-                        const float oty = (bref.fTY - ty0)*sTileDimMultInv;
-                        const SDL_FRect rect{otx, oty, s, s};
-                        float x1 = tx;
-                        float y1 = ty;
-                        float x2 = ltx;
-                        float y2 = lty;
-                        const bool r = SDL_GetRectAndLineIntersectionFloat(&rect, &x1, &y1, &x2, &y2);
-                        if(r) blocked = true;
+                        const float otx = (bref.fTX - mTopLeft.fX)*sTileDimMultInv;
+                        const float oty = (bref.fTY - mTopLeft.fY)*sTileDimMultInv;
+                        const ePointF oc{otx + 0.5f*s, oty + 0.5f*s};
+                        const ePointF o1 = oc + perp*0.5f*s;
+                        const ePointF o2 = oc - perp*0.5f*s;
+                        ePointF inters;
+                        const bool r = lineIntersection(tp, lp, o1, o2, &inters);
+                        if(r) {
+                            const float dist = ePointF::distance(oc, inters);
+                            mult = std::min(mult, 1.f - std::clamp((0.5f*s - dist)/mFeatherLen, 0.f, 1.f));
+                        }
                     } break;
                     case eBlockerBaseType::wall: {
 
                     } break;
                     }
                 }
-                if(blocked) continue;
 
                 const float dx = tx - ltx;
                 const float dy = ty - lty;
                 const float distSq = dx*dx + dy*dy;
-                const float i = 1.f/(1.f + 0.01f*distSq);
-                v = std::max(v, i);
+                const float i = 1.f/(1.f + 0.001f*distSq);
+                v = std::max(v, i*mult);
             }
         }
     }
@@ -115,6 +176,8 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
         return v;
     };
 
+    std::vector<SDL_Vertex> verts;
+    verts.reserve(6*mNCols*mNRows);
     for(int x = 1; x < mNCols - 1; x++) {
         for(int y = 1; y < mNRows - 2; y++) {
             const int topX = x;
@@ -139,18 +202,16 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
             const auto leftPos = rectTileToPixel(leftX, leftY, mFloorLightW, mFloorLightH);
             const auto leftVert = make(leftPos, leftV);
 
-            std::vector<SDL_Vertex> verts;
-            verts.reserve(6);
             verts.emplace_back(topVert);
             verts.emplace_back(rightVert);
             verts.emplace_back(bottomVert);
             verts.emplace_back(topVert);
             verts.emplace_back(bottomVert);
             verts.emplace_back(leftVert);
-            SDL_RenderGeometry(r, nullptr, verts.data(),
-                               verts.size(), nullptr, 0);
         }
     }
+    SDL_RenderGeometry(r, nullptr, verts.data(),
+                       verts.size(), nullptr, 0);
 }
 
 void eLightingHandler::addRenderCall(
@@ -243,10 +304,26 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
         std::vector<float> lightness;
         switch(type) {
         case eRenderCallType::object: {
-            lightness.emplace_back(1.f);
-            lightness.emplace_back(1.f);
+            float l = 1.f;
+            const float ctx = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
+            const float cty = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
+            const int ictx = std::round(ctx);
+            const int icty = std::round(cty);
+            int rtx;
+            int rty;
+            isoToRect(ictx, icty, rtx, rty);
+            if(rtx >= 0 && rty >= 0 &&
+               rtx < mNCols && rty < mNRows) {
+                l = mFloorLighting[rty][rtx];
+            }
+            lightness.emplace_back(l);
+            lightness.emplace_back(l);
         } break;
         }
         render(r, cref.fX, cref.fY, cref.fTex, lightness);
     }
+}
+
+void eLightingHandler::setTopLeftTilePos(const ePointF& pos) {
+    mTopLeft = pos;
 }

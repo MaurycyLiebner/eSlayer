@@ -806,8 +806,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                     }
                 }
                 mGamePainter.addRenderCall(eRenderCallType::object,
-                                           pos.fX, pos.fY, drawX, drawY,
-                                           tex);
+                                           pos.fX + obj.fSize,
+                                           pos.fY + obj.fSize,
+                                           drawX, drawY, tex);
                 // mGamePainter.drawShadow(x - texW/2, y, *tex);
                 // mGamePainter.drawTexture(drawX, drawY, tex);
                 // if(highlight) {
@@ -891,8 +892,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 ePainter::drawCoordinates(drawX, drawY, texW, texH,
                                           eAlignment::top | eAlignment::hcenter);
                 mGamePainter.addRenderCall(eRenderCallType::wall,
-                                           pos.fX, pos.fY, drawX, drawY,
-                                           tex);
+                                           pos.fX, pos.fY, drawX, drawY, tex);
                 // if(transparent) tex->setAlpha(128);
                 // mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
                 //                          eAlignment::top | eAlignment::hcenter);

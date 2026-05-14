@@ -98,7 +98,9 @@ public:
     void addLight(const eLight& light);
     void addBlocker(std::unique_ptr<eBlockerBase>& b);
 
-    void calculateLighting(const float tx0, const float ty0);
+    void setTopLeftTilePos(const ePointF& pos);
+
+    void calculateLighting();
     void renderFloorLighting(SDL_Renderer * const r);
 
     void addRenderCall(std::unique_ptr<eRenderCall>& c);
@@ -108,8 +110,10 @@ private:
     std::vector<eLight> mLights;
     std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
     std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
+    ePointF mTopLeft{0.f, 0.f};
     const float sTileDimMult = 0.1f;
     const float sTileDimMultInv = 1.f/sTileDimMult;
+    float mFeatherLen;
     int mNCols;
     int mNRows;
     int mBaseTileW;

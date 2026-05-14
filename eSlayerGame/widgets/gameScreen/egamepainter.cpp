@@ -64,7 +64,8 @@ void eGamePainter::finish(
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
     {
-        mLightingTex->calculateLighting(tx0, ty0);
+        mLightingTex->setTopLeftTilePos({tx0, ty0});
+        mLightingTex->calculateLighting();
         mLightingTex->renderFloorLighting(r);
         mLightingTex->renderAll(r);
     }
