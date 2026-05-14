@@ -81,9 +81,10 @@ void eGamePainter::addRenderCall(
     const eRenderCallType type,
     const float tx, const float ty,
     const float px, const float py,
-    const std::shared_ptr<eTexture>& tex) {
+    const std::shared_ptr<eTexture>& tex,
+    const eWallType wallType) {
     auto c = std::make_unique<eRenderCall>(
-        type, tx, ty, px, py, tex);
+        type, tx, ty, px, py, tex, wallType);
     mLightingTex->addRenderCall(c);
 }
 

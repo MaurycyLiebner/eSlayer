@@ -62,7 +62,7 @@ void rectToIso(const int x, const int y,
 void isoToRect(const int tx, const int ty,
                int& x, int& y) {
     y = tx + ty;
-    x = tx - (y % 2) - y / 2;
+    x = tx - (y % 2) - y/2;
 }
 
 bool lineIntersection(
@@ -146,7 +146,28 @@ void eLightingHandler::calculateLighting() {
                         }
                     } break;
                     case eBlockerBaseType::wall: {
-
+                        const auto& wref = static_cast<const eWallLightBlocker&>(bref);
+                        ePointF p1;
+                        ePointF p2;
+                        switch(wref.fDir) {
+                        case eWallType::topLeft: {
+                            p1.fX = wref.fTX;
+                            p1.fY = wref.fTY + wref.fWallMin*sTileDimMultInv;
+                            p2.fX = wref.fTX;
+                            p2.fY = wref.fTY + wref.fWallMax*sTileDimMultInv;
+                        } break;
+                        case eWallType::topRight: {
+                            p1.fX = wref.fTX + wref.fWallMin*sTileDimMultInv;
+                            p1.fY = wref.fTY;
+                            p2.fX = wref.fTX + wref.fWallMax*sTileDimMultInv;
+                            p2.fY = wref.fTY;
+                        } break;
+                        }
+                        ePointF inters;
+                        const bool r = lineIntersection(tp, lp, p1, p2, &inters);
+                        if(r) {
+                            mult = 0.f;
+                        }
                     } break;
                     }
                 }
@@ -235,6 +256,9 @@ void render(SDL_Renderer* const r,
     const int th = tex->height();
     const float vPosW = vTexCoordW*tw;
 
+    const int ox = tex->offsetX();
+    const int oy = tex->offsetY();
+
     std::vector<SDL_Vertex> verts;
     const int nVerts = 4*nStrips;
     verts.reserve(nVerts);
@@ -251,8 +275,8 @@ void render(SDL_Renderer* const r,
             auto& tl = verts.emplace_back();
             const float l = lightness[s];
             tl.color = SDL_FColor{l, l, l, 1.f};
-            tl.position.x = x + s*vPosW;
-            tl.position.y = y;
+            tl.position.x = x + s*vPosW + ox;
+            tl.position.y = y + oy;
             tl.tex_coord.x = s*vTexCoordW;
             tl.tex_coord.y = 0.f;
             sprite.mapCoords(tl.tex_coord);
@@ -262,8 +286,8 @@ void render(SDL_Renderer* const r,
             auto& tr = verts.emplace_back();
             const float l = lightness[s + 1];
             tr.color = SDL_FColor{l, l, l, 1.f};
-            tr.position.x = x + (s + 1)*vPosW;
-            tr.position.y = y;
+            tr.position.x = x + (s + 1)*vPosW + ox;
+            tr.position.y = y + oy;
             tr.tex_coord.x = (s + 1)*vTexCoordW;
             tr.tex_coord.y = 0.f;
             sprite.mapCoords(tr.tex_coord);
@@ -273,8 +297,8 @@ void render(SDL_Renderer* const r,
             auto& br = verts.emplace_back();
             const float l = lightness[s + 1];
             br.color = SDL_FColor{l, l, l, 1.f};
-            br.position.x = x + (s + 1)*vPosW;
-            br.position.y = y + th;
+            br.position.x = x + (s + 1)*vPosW + ox;
+            br.position.y = y + th + oy;
             br.tex_coord.x = (s + 1)*vTexCoordW;
             br.tex_coord.y = 1.f;
             sprite.mapCoords(br.tex_coord);
@@ -286,8 +310,8 @@ void render(SDL_Renderer* const r,
             auto& bl = verts.emplace_back();
             const float l = lightness[s];
             bl.color = SDL_FColor{l, l, l, 1.f};
-            bl.position.x = x + s*vPosW;
-            bl.position.y = y + th;
+            bl.position.x = x + s*vPosW + ox;
+            bl.position.y = y + th + oy;
             bl.tex_coord.x = s*vTexCoordW;
             bl.tex_coord.y = 1.f;
             sprite.mapCoords(bl.tex_coord);
@@ -307,14 +331,16 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
         const auto& cref = *c;
         const auto type = c->fType;
         std::vector<float> lightness;
+
+        const float ctx1 = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
+        const float cty1 = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
+
+        const int ictx1 = std::round(ctx1);
+        const int icty1 = std::round(cty1);
+
         switch(type) {
         case eRenderCallType::object: {
             float l = 0.f;
-            const float ctx1 = (cref.fTX - mTopLeft.fX)*sTileDimMultInv;
-            const float cty1 = (cref.fTY - mTopLeft.fY)*sTileDimMultInv;
-            const int ictx1 = std::round(ctx1);
-            const int icty1 = std::round(cty1);
-
             const auto handle = [&](const int dx, const int dy) {
                 const int ictx = ictx1 + dx;
                 const int icty = icty1 + dy;
@@ -335,6 +361,34 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
 
             lightness.emplace_back(l);
             lightness.emplace_back(l);
+        } break;
+        case eRenderCallType::wall: {
+            const auto handle = [&](const int dx, const int dy) {
+                const int ictx = ictx1 + dx;
+                const int icty = icty1 + dy;
+                int rtx;
+                int rty;
+                isoToRect(ictx, icty, rtx, rty);
+                if(rtx >= 0 && rty >= 0 &&
+                   rtx < mNCols && rty < mNRows) {
+                    const float l = mFloorLighting[rty][rtx];
+                    lightness.emplace_back(l);
+                }
+            };
+
+            const int n = std::ceil(sTileDimMultInv);
+            switch(cref.fWallType) {
+            case eWallType::topLeft: {
+                for(int dy = n; dy >= 0; dy--) {
+                    handle(0, dy);
+                }
+            } break;
+            case eWallType::topRight: {
+                for(int dx = 0; dx <= n; dx++) {
+                    handle(dx, 0);
+                }
+            } break;
+            }
         } break;
         }
         render(r, cref.fX, cref.fY, cref.fTex, lightness);

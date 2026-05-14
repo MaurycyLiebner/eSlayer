@@ -28,7 +28,8 @@ public:
     void addRenderCall(const eRenderCallType type,
                        const float tx, const float ty,
                        const float px, const float py,
-                       const std::shared_ptr<eTexture>& tex);
+                       const std::shared_ptr<eTexture>& tex,
+                       const eWallType wallType = eWallType::topLeft);
 
     void addObjectShadow(const float tx, const float ty,
                          const float size);

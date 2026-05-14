@@ -36,12 +36,15 @@ struct eRenderCall : public ePaintCall {
     eRenderCall(const eRenderCallType type,
                 const float tx, const float ty,
                 const float px, const float py,
-                const std::shared_ptr<eTexture>& tex) :
+                const std::shared_ptr<eTexture>& tex,
+                const eWallType wall = eWallType::topLeft) :
         ePaintCall{px, py, tex},
         fType(type),
+        fWallType(wall),
         fTX(tx), fTY(ty) {}
 
     eRenderCallType fType;
+    eWallType fWallType;
     float fTX;
     float fTY;
 };

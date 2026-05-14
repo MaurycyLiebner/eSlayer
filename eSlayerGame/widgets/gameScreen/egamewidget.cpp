@@ -886,7 +886,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 ePainter::drawCoordinates(drawX, drawY, texW, texH,
                                           eAlignment::top | eAlignment::hcenter);
                 mGamePainter.addRenderCall(eRenderCallType::wall,
-                                           pos.fX, pos.fY, drawX, drawY, tex);
+                                           pos.fX, pos.fY,
+                                           drawX, drawY, tex,
+                                           wall.fType);
                 // if(transparent) tex->setAlpha(128);
                 // mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
                 //                          eAlignment::top | eAlignment::hcenter);
