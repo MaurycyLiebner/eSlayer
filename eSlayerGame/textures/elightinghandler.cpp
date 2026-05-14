@@ -16,14 +16,24 @@ void eLightingHandler::initialize(SDL_Renderer * const r,
     mBaseTileW = tileW;
     mBaseTileH = tileH;
 
-    // mTopRowsMargin = 2;
-    // mBottomRowsMargin = ;
+    const int cmult = std::ceil(sTileDimMultInv);
+    mTopRowsMargin = cmult;
+    mBottomRowsMargin = 2*cmult;
+    mSidesColsMargin = cmult;
+
+    mMarginShift = eVec2f(mSidesColsMargin + (mTopRowsMargin + 1)/2,
+                          mTopRowsMargin/2 - mSidesColsMargin);
 
     mFloorLightW = std::round(sTileDimMult*mBaseTileW);
     mFloorLightH = std::round(sTileDimMult*mBaseTileH);
 
-    mNRows = (2*h + mFloorLightH - 1)/mFloorLightH;
-    mNCols = (w + mFloorLightW - 1)/mFloorLightW;
+    mDrawShift = eVec2f(-mSidesColsMargin*mFloorLightW,
+                        -0.5f*mTopRowsMargin*mFloorLightH);
+
+    mNRows = (2*h + mFloorLightH - 1)/mFloorLightH +
+             mTopRowsMargin + mBottomRowsMargin;
+    mNCols = (w + mFloorLightW - 1)/mFloorLightW +
+             2*mSidesColsMargin;
 
     mFloorLighting = std::vector<std::vector<float>>(
         mNRows, std::vector<float>(mNCols, 0.f));
@@ -199,7 +209,8 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
 
     auto make = [&](const ePointF& p, const float i) {
         SDL_Vertex v;
-        v.position = {p.fX, p.fY};
+        v.position = {p.fX + mDrawShift.x,
+                      p.fY + mDrawShift.y};
         v.color = SDL_FColor{i, i, i, 1.f};
         v.tex_coord = {0.f, 0.f};
         return v;
@@ -408,13 +419,12 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
 
 ePointF eLightingHandler::globalToFloor(
     const ePointF& global) const {
-    return (global + mCoordsShift)*sTileDimMultInv;
+    return (global + mCoordsShift)*sTileDimMultInv +
+           mMarginShift;
 }
 
 void eLightingHandler::setTopLeftTilePos(
     const ePointF& pos) {
-    const auto fpos = pos*sTileDimMultInv;
-    const auto ifpos = fpos.floor();
-    mCoordsShift.x = -pos.fX + (fpos.fX - ifpos.fX)*sTileDimMult;
-    mCoordsShift.y = -pos.fY + (fpos.fY - ifpos.fY)*sTileDimMult;
+    mCoordsShift.x = -pos.fX;
+    mCoordsShift.y = -pos.fY;
 }

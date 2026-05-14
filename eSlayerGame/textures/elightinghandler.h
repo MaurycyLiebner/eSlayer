@@ -111,6 +111,8 @@ private:
     std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
     std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
     eVec2f mCoordsShift{0.f, 0.f};
+    eVec2f mMarginShift{0.f, 0.f};
+    eVec2f mDrawShift{0.f, 0.f};
     const float sTileDimMult = 0.1f;
     const float sTileDimMultInv = 1.f/sTileDimMult;
     float mFeatherLen;
