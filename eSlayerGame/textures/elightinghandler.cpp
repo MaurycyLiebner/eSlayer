@@ -11,7 +11,7 @@
 void eLightingHandler::initialize(SDL_Renderer * const r,
                                   const int w, const int h,
                                   const int tileW, const int tileH) {
-    mFeatherLen = 5.f;
+    mFeatherLen = 0.5f*sTileDimMultInv;
 
     mBaseTileW = tileW;
     mBaseTileH = tileH;
@@ -46,6 +46,10 @@ void eLightingHandler::addLight(const eLight& light) {
 void eLightingHandler::addBlocker(std::unique_ptr<eBlockerBase>& b) {
     b->fTX = (b->fTX - mTopLeft.fX)*sTileDimMultInv;
     b->fTY = (b->fTY - mTopLeft.fY)*sTileDimMultInv;
+    if(b->fType == eBlockerBaseType::object) {
+        auto& o = static_cast<eObjectLightBlocker&>(*b);
+        o.fSize = o.fSize*sTileDimMultInv;
+    }
     mBlockers.emplace_back(std::move(b));
 }
 
@@ -130,7 +134,7 @@ void eLightingHandler::calculateLighting() {
                     switch(bref.fType) {
                     case eBlockerBaseType::object: {
                         const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
-                        const float s = oref.fSize*sTileDimMultInv;
+                        const float s = oref.fSize;
                         const ePointF oc{bref.fTX + 0.5f*s, bref.fTY + 0.5f*s};
                         const ePointF o1 = oc + perp*0.5f*s;
                         const ePointF o2 = oc - perp*0.5f*s;
@@ -150,7 +154,8 @@ void eLightingHandler::calculateLighting() {
                 const float dx = tx - l.fTX;
                 const float dy = ty - l.fTY;
                 const float distSq = dx*dx + dy*dy;
-                const float i = 1.f/(1.f + 0.001f*distSq);
+                const float t = sqrt(distSq)/l.fRadius;
+                const float i = 1.f - t*t;
                 v = std::max(v, i*mult);
             }
         }

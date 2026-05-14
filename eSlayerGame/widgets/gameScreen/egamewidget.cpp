@@ -688,7 +688,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     auto paintCall = model.paintCall(r);
                     paintCall.fX += mGamePainter.x();
                     paintCall.fY += mGamePainter.y();
-                    mGamePainter.addLight(pos.fX, pos.fY, 10.f);
+                    mGamePainter.addLight(pos.fX, pos.fY, 3.f);
                 }
                 mGamePainter.restore();
             } else if(e.fType == eRenderElementType::missile) {

@@ -130,7 +130,7 @@ public:
     T dist(const eVec2 v) const {
         eVec2 d(v.x - x, v.y - y);
 		return d.length();
-	}
+    }
 
     T length() const {
 		return std::sqrt(x * x + y * y);
