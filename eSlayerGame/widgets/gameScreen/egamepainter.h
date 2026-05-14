@@ -20,11 +20,8 @@ public:
     { mContrast = cont; }
 
     void clear();
-    void renderLight(const float tx, const float ty,
-                     const float x, const float y,
-                     const float radius,
-                     const SDL_Color& color,
-                     const ePaintCall& paintCall);
+    void addLight(const float tx, const float ty,
+                  const float radius);
     void finish(const float tx0, const float ty0,
                 const eResolution& res);
 

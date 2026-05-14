@@ -688,10 +688,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     auto paintCall = model.paintCall(r);
                     paintCall.fX += mGamePainter.x();
                     paintCall.fY += mGamePainter.y();
-                    mGamePainter.renderLight(pos.fX, pos.fY,
-                                             pixel.fX, pixel.fY, 10.f,
-                                             SDL_Color{255, 255, 255, 255},
-                                             paintCall);
+                    mGamePainter.addLight(pos.fX, pos.fY, 10.f);
                 }
                 mGamePainter.restore();
             } else if(e.fType == eRenderElementType::missile) {
@@ -723,10 +720,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const float lradius = missileTex.lighting();
                 if(lradius > 0.01f) {
                     const ePaintCall paintCall{pixel.fX, pixel.fY, ftex};
-                    mGamePainter.renderLight(pos.fX, pos.fY,
-                                             pixel.fX, pixel.fY,
-                                             lradius, SDL_Color{255, 255, 255, 255},
-                                             paintCall);
+                    mGamePainter.addLight(pos.fX, pos.fY, lradius);
                 }
                 mGamePainter.drawTexture(pixel.fX, pixel.fY, ftex);
             } else if(e.fType == eRenderElementType::item) {

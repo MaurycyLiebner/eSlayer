@@ -37,10 +37,15 @@ void eLightingHandler::clear() {
 }
 
 void eLightingHandler::addLight(const eLight& light) {
-    mLights.emplace_back(light);
+    const float r = light.fRadius*sTileDimMultInv;
+    const float tx = (light.fTX - mTopLeft.fX)*sTileDimMultInv;
+    const float ty = (light.fTY - mTopLeft.fY)*sTileDimMultInv;
+    mLights.emplace_back(tx, ty, r);
 }
 
 void eLightingHandler::addBlocker(std::unique_ptr<eBlockerBase>& b) {
+    b->fTX = (b->fTX - mTopLeft.fX)*sTileDimMultInv;
+    b->fTY = (b->fTY - mTopLeft.fY)*sTileDimMultInv;
     mBlockers.emplace_back(std::move(b));
 }
 
@@ -99,8 +104,8 @@ bool lineIntersection(
 }
 
 void eLightingHandler::calculateLighting() {
-    for(int x = 0; x < mNCols; x++) {
-        for(int y = 0; y < mNRows; y++) {
+    for(int y = 0; y < mNRows; y++) {
+        for(int x = 0; x < mNCols; x++) {
             float& v = mFloorLighting[y][x];
             v = mLightness;
             int tx;
@@ -108,17 +113,14 @@ void eLightingHandler::calculateLighting() {
             rectToIso(x, y, tx, ty);
             const ePoint tp{tx, ty};
             for(const auto& l : mLights) {
-                const float lr = l.fRadius*sTileDimMultInv;
-                const float ltx = (l.fTX - mTopLeft.fX)*sTileDimMultInv;
-                const float lty = (l.fTY - mTopLeft.fY)*sTileDimMultInv;
-                const ePointF lp{ltx, lty};
+                const ePointF lp{l.fTX, l.fTY};
                 eVec2f dir = ePointF::vector(tp, lp);
                 const float dist = dir.length();
                 if(dist < 0.001f) {
                     v = 1.f;
                     break;
                 }
-                if(dist > lr) continue;
+                if(dist > l.fRadius) continue;
                 dir = dir/dist;
                 const eVec2f perp(-dir.y, dir.x);
 
@@ -129,9 +131,7 @@ void eLightingHandler::calculateLighting() {
                     case eBlockerBaseType::object: {
                         const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
                         const float s = oref.fSize*sTileDimMultInv;
-                        const float otx = (bref.fTX - mTopLeft.fX)*sTileDimMultInv;
-                        const float oty = (bref.fTY - mTopLeft.fY)*sTileDimMultInv;
-                        const ePointF oc{otx + 0.5f*s, oty + 0.5f*s};
+                        const ePointF oc{bref.fTX + 0.5f*s, bref.fTY + 0.5f*s};
                         const ePointF o1 = oc + perp*0.5f*s;
                         const ePointF o2 = oc - perp*0.5f*s;
                         ePointF inters;
@@ -147,8 +147,8 @@ void eLightingHandler::calculateLighting() {
                     }
                 }
 
-                const float dx = tx - ltx;
-                const float dy = ty - lty;
+                const float dx = tx - l.fTX;
+                const float dy = ty - l.fTY;
                 const float distSq = dx*dx + dy*dy;
                 const float i = 1.f/(1.f + 0.001f*distSq);
                 v = std::max(v, i*mult);

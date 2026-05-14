@@ -15,17 +15,12 @@ class SDL_Renderer;
 struct eLight {
     eLight(const float tx,
            const float ty,
-           const float px,
-           const float py,
            const float radius) :
         fTX(tx), fTY(ty),
-        fPX(px), fPY(py),
         fRadius(radius) {}
 
     float fTX;
     float fTY;
-    float fPX;
-    float fPY;
     float fRadius;
 };
 

@@ -47,13 +47,10 @@ void eGamePainter::clear() {
     mLights.clear();
 }
 
-void eGamePainter::renderLight(const float tx, const float ty,
-                               const float x, const float y,
-                               const float radius,
-                               const SDL_Color& color,
-                               const ePaintCall& paintCall) {
+void eGamePainter::addLight(const float tx, const float ty,
+                            const float radius) {
     if(mLight == 255) return;
-    mLightingTex->addLight(eLight{tx, ty, x, y, radius});
+    mLightingTex->addLight(eLight{tx, ty, radius});
 }
 
 void eGamePainter::finish(
