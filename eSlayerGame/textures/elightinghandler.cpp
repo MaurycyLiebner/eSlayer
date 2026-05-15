@@ -129,10 +129,13 @@ void eLightingHandler::calculateLighting() {
                         } break;
                         case eBlockerBaseType::wall: {
                             const auto& wref = static_cast<const eWallLightBlocker&>(bref);
+                            if(wref.fWallMin == wref.fWallMax) continue;
                             const int itx = std::round(bref.fTX);
                             const int ity = std::round(bref.fTY);
                             ePointF p1;
                             ePointF p2;
+                            const bool featherMin = wref.fWallMin != 0.f;
+                            const bool featherMax = wref.fWallMax != 1.f;
                             switch(wref.fDir) {
                             case eWallType::topLeft: {
                                 if(tx == itx && tile.fTY != ity) continue;
@@ -158,7 +161,20 @@ void eLightingHandler::calculateLighting() {
                             ePointF inters;
                             const bool r = lineIntersection(tp, lp, p1, p2, &inters);
                             if(r) {
-                                mult = 0.f;
+                                if(!featherMin && !featherMax) {
+                                    mult = 0.f;
+                                } else {
+                                    if(featherMin) {
+                                        const float dist = ePointF::distance(p1, inters);
+                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                        mult = std::min(mult, 1.f - t);
+                                    }
+                                    if(featherMax) {
+                                        const float dist = ePointF::distance(p2, inters);
+                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                        mult = std::min(mult, 1.f - t);
+                                    }
+                                }
                             }
                         } break;
                         }
