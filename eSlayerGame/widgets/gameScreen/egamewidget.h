@@ -7,6 +7,7 @@
 #include "../../egameworld.h"
 #include "../../emaincharaction.h"
 #include "../../textures/echarunitmodel.h"
+#include "../../textures/etilesiterator.h"
 #include "../../units/eunit.h"
 #include "egamepainter.h"
 #include "egrounditemnames.h"
@@ -142,6 +143,7 @@ private:
     std::optional<eDoors> mHighlightDoors;
 
     std::shared_ptr<eMap> mMap;
+    eTilesIterator mTileIterator;
 
     eGroundItemNames mItemNames;
 

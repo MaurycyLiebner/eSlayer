@@ -4,7 +4,6 @@
 
 #include "../../textures/eobjstextures.h"
 #include "../../textures/eterrstextures.h"
-#include "../../textures/etilesiterator.h"
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
 #include "../../textures/eitemstextures.h"
@@ -39,7 +38,7 @@ eGameWidget::eGameWidget(eMainWindow* const window) :
     mWorld(mMap),
     mInput(resolution().tileWidth(),
            resolution().tileHeight()),
-    mGamePainter(renderer()) {
+    mGamePainter(mTileIterator, renderer()) {
     sInstance = this;
     setNoPadding();
 }
@@ -99,6 +98,8 @@ void eGameWidget::initialize(const int clientId,
     const int fontSize = res.smallFontSize();
     const auto font = eFonts::textFont(fontSize);
     mItemNames.initialize(r, font);
+
+    mTileIterator.initialize(this);
 }
 
 const ePointF& eGameWidget::characterPos() const {
@@ -407,6 +408,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         };
 
         struct eRenderElement {
+            int fTileId;
             eRenderElementType fType;
             std::shared_ptr<ePositioned> fPtr;
         };
@@ -423,11 +425,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         int wallMaxTX = uipos.fX + 1000;
         int wallMinTY = uipos.fY - 1000;
         int wallMaxTY = uipos.fY + 1000;
-        const auto handleTile = [&](const int x, const int y) {
+        const auto handleTile = [&](const eTileInfo& info) {
+            const int x = info.fTX;
+            const int y = info.fTY;
             const auto& iobjs = mMap->objects(x, y);
             for(const auto& iobj : iobjs) {
                 const auto& obj = mMap->object(iobj);
-                renderElements.emplace_back(eRenderElement{eRenderElementType::object,
+                renderElements.emplace_back(eRenderElement{info.fId,
+                                                           eRenderElementType::object,
                                                            std::static_pointer_cast<ePositioned>(obj)});
             }
             const auto& tile = mMap->tile(x, y);
@@ -459,7 +464,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 } break;
                 };
 
-                renderElements.emplace_back(eRenderElement{eRenderElementType::wall,
+                renderElements.emplace_back(eRenderElement{info.fId,
+                                                           eRenderElementType::wall,
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
             };
@@ -467,31 +473,31 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(tile.fWallTR) addWall(eWallType::topRight, tile.fWallTR);
         };
 
-        eTilesIterator iterator;
-        iterator.initialize(this);
+        mTileIterator.nextIteration(this);
         bool iniObjs = true;
         for(const auto terrType : terrTypes) {
             if(terrType == 0) continue;
             const auto& texs = eTerrsTextures::get(terrType);
-            iterator.iterate([&](const int x, const int y) {
-                if(iniObjs) handleTile(x, y);
+            mTileIterator.iterate([&](const eTileInfo& info) {
+                const int x = info.fTX;
+                const int y = info.fTY;
+                if(iniObjs) handleTile(info);
                 const auto& tile = mMap->tile(x, y);
                 if(tile.fTerrainType != terrType) return;
                 const auto tileType = tile.fTileType;
                 if(tileType == 0) return;
-                const auto pos = ePointF(x, y);
-                const auto pixel = tilePosToPixel(pos);
-                const auto ipixel = pixel.round();
                 const auto& tex = texs.getTexture(tileType);
-                mGamePainter.drawTexture(ipixel.fX, ipixel.fY + tileH, tex,
+                const int px = info.fPX;
+                const int py = info.fPY;
+                mGamePainter.drawTexture(px, py + tileH, tex,
                                          eAlignment::top | eAlignment::hcenter);
             });
             iniObjs = false;
         }
 
         if(iniObjs) {
-            iterator.iterate([&](const int x, const int y) {
-                handleTile(x, y);
+            mTileIterator.iterate([&](const eTileInfo& info) {
+                handleTile(info);
             });
             iniObjs = false;
         }
@@ -505,27 +511,50 @@ void eGameWidget::paintEvent(ePainter& p) {
         const int w = width();
         const int h = height();
         for(const auto& i : mWorld.groundItems()) {
-            const auto pixel = tilePosToPixel(i->fPos);
+            const auto& pos = i->fPos;
+            const auto pixel = tilePosToPixel(pos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
-            renderElements.emplace_back(eRenderElement{eRenderElementType::item,
+            const auto ipos = pos.floor();
+            const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
+            if(!tile) continue;
+            renderElements.emplace_back(eRenderElement{tile->fId,
+                                                       eRenderElementType::item,
                                                        std::static_pointer_cast<ePositioned>(i)});
         }
         for(const auto& u : mWorld.units()) {
-            const auto pixel = tilePosToPixel(u->fPos);
+            const auto& pos = u->fPos;
+            const auto pixel = tilePosToPixel(pos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
-            renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
-                                        std::static_pointer_cast<ePositioned>(u)});
+            const auto ipos = pos.floor();
+            const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
+            if(!tile) continue;
+            renderElements.emplace_back(eRenderElement{tile->fId,
+                                                       eRenderElementType::unit,
+                                                       std::static_pointer_cast<ePositioned>(u)});
         }
-        renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
-                                    std::static_pointer_cast<ePositioned>(mMainChar)});
+        {
+            const auto& pos = mMainChar->fPos;
+            const auto ipos = pos.floor();
+            const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
+            if(tile) {
+                renderElements.emplace_back(eRenderElement{tile->fId,
+                                                           eRenderElementType::unit,
+                                                           std::static_pointer_cast<ePositioned>(mMainChar)});
+            }
+        }
         for(const auto& m : mWorld.missiles()) {
-            const auto pixel = tilePosToPixel(m->fPos);
+            const auto& pos = m->fPos;
+            const auto pixel = tilePosToPixel(pos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
                pixel.fX > w + margin || pixel.fY > h + margin) continue;
-            renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
-                                        std::static_pointer_cast<ePositioned>(m)});
+            const auto ipos = pos.floor();
+            const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
+            if(!tile) continue;
+            renderElements.emplace_back(eRenderElement{tile->fId,
+                                                       eRenderElementType::missile,
+                                                       std::static_pointer_cast<ePositioned>(m)});
         }
         for(auto& n : mWorld.novas()) {
             const auto& c = n->fCenter;
@@ -591,8 +620,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                         if(animId < 0) continue;
                     }
                 }
-                renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
-                                                           std::static_pointer_cast<ePositioned>(m)});
+                const auto ipos = pos.floor();
+                const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
+                if(tile) {
+                    renderElements.emplace_back(eRenderElement{tile->fId,
+                                                               eRenderElementType::missile,
+                                                               std::static_pointer_cast<ePositioned>(m)});
+                }
             }
             n->fFrame++;
         }

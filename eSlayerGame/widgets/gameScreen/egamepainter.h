@@ -6,7 +6,8 @@
 
 class eGamePainter : public ePainter {
 public:
-    using ePainter::ePainter;
+    eGamePainter(eTilesIterator& iterator,
+                 SDL_Renderer* const r);
 
     std::shared_ptr<eTexture>
     initialize(const int w, const int h,
@@ -44,7 +45,7 @@ private:
     Uint8 mContrast = 140;
     std::shared_ptr<eTexture> mItemNames;
     std::shared_ptr<eTexture> mBaseTex;
-    std::shared_ptr<eLightingHandler> mLightingTex;
+    eLightingHandler mLightingTex;
     std::shared_ptr<eTexture> mDisplayTex;
 };
 

@@ -3,6 +3,8 @@
 
 #include "epaintcall.h"
 
+#include "etilesiterator.h"
+
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 
@@ -87,6 +89,7 @@ struct eWallLightBlocker : public eBlockerBase {
 
 class eLightingHandler {
 public:
+    eLightingHandler(eTilesIterator& tileIterator);
     void initialize(SDL_Renderer* const r,
                     const int w, const int h,
                     const int tileW, const int tileH);
@@ -104,28 +107,17 @@ public:
     void addRenderCall(std::unique_ptr<eRenderCall>& c);
     void renderAll(SDL_Renderer * const r);
 private:
-    ePointF globalToFloor(const ePointF& global) const;
-
+    eTilesIterator& mIterator;
     float mLightness = 0.f;
     std::vector<eLight> mLights;
     std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
     std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
-    eVec2f mCoordsShift{0.f, 0.f};
-    eVec2f mMarginShift{0.f, 0.f};
-    eVec2f mDrawShift{0.f, 0.f};
-    const float sTileDimMult = 0.1f;
-    const float sTileDimMultInv = 1.f/sTileDimMult;
+
+    const int sTileDiv = 10;
+    const int sNDots = sTileDiv + 1;
     float mFeatherLen;
-    int mNCols;
-    int mNRows;
     int mBaseTileW;
     int mBaseTileH;
-    int mFloorLightW;
-    int mFloorLightH;
-    std::vector<std::vector<float>> mFloorLighting;
-    int mTopRowsMargin;
-    int mSidesColsMargin;
-    int mBottomRowsMargin;
 };
 
 #endif // ELIGHTINGHANDLER_H

@@ -32,6 +32,8 @@ struct ESLAYERHELPERS_API ePointF {
     ePointF() {}
     ePointF(const float x, const float y) :
         fX(x), fY(y) {}
+    ePointF(const int x, const int y) :
+        fX(x), fY(y) {}
     ePointF(const ePoint& p) :
         fX(p.fX), fY(p.fY) {}
 
