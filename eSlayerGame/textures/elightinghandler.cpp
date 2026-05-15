@@ -1,5 +1,7 @@
 #include "elightinghandler.h"
 
+#include "../erendersettings.h"
+
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/epoint.h>
 
@@ -83,14 +85,17 @@ bool lineIntersection(
 }
 
 void eLightingHandler::calculateLighting() {
+    mTileDiv = eRenderSettings::sLightingQuality;
+    mNDots = mTileDiv + 1;
+
     mIterator.iterate([&](eTileInfo& tile) {
         auto& lighting = tile.fLighting;
-        lighting.resize(sNDots*sNDots);
-        for(int y = 0; y < sNDots; y++) {
-            const float ty = tile.fTY + float(y)/sTileDiv;
-            for(int x = 0; x < sNDots; x++) {
-                const float tx = tile.fTX + float(x)/sTileDiv;
-                float& v = lighting[y*sNDots + x];
+        lighting.resize(mNDots*mNDots);
+        for(int y = 0; y < mNDots; y++) {
+            const float ty = tile.fTY + float(y)/mTileDiv;
+            for(int x = 0; x < mNDots; x++) {
+                const float tx = tile.fTX + float(x)/mTileDiv;
+                float& v = lighting[y*mNDots + x];
                 v = mLightness;
                 const ePointF tp{tx, ty};
                 for(const auto& l : mLights) {
@@ -199,22 +204,22 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
 
     std::vector<SDL_Vertex> verts;
     const int c = mIterator.tileCount();
-    verts.reserve(6*c*sTileDiv*sTileDiv);
+    verts.reserve(6*c*mTileDiv*mTileDiv);
 
     mIterator.iterate([&](const eTileInfo& tile) {
-        const float singleShift = 1.f/sTileDiv;
+        const float singleShift = 1.f/mTileDiv;
         const auto& lighting = tile.fLighting;
-        for(int y = 0; y < sTileDiv; y++) {
-            const float dty = float(y)/sTileDiv;
+        for(int y = 0; y < mTileDiv; y++) {
+            const float dty = float(y)/mTileDiv;
             const float ty = tile.fTY + dty;
-            for(int x = 0; x < sTileDiv; x++) {
-                const float dtx = float(x)/sTileDiv;
+            for(int x = 0; x < mTileDiv; x++) {
+                const float dtx = float(x)/mTileDiv;
                 const float tx = tile.fTX + dtx;
 
-                const float topV = lighting[y*sNDots + x];
-                const float rightV = lighting[y*sNDots + x + 1];
-                const float bottomV = lighting[(y + 1)*sNDots + x + 1];
-                const float leftV = lighting[(y + 1)*sNDots + x];
+                const float topV = lighting[y*mNDots + x];
+                const float rightV = lighting[y*mNDots + x + 1];
+                const float bottomV = lighting[(y + 1)*mNDots + x + 1];
+                const float leftV = lighting[(y + 1)*mNDots + x];
 
                 auto topPos = ePointF{tile.fPX, tile.fPY};
                 shift(topPos, dtx, dty);
@@ -332,7 +337,7 @@ void render(SDL_Renderer* const r,
 }
 
 void eLightingHandler::renderAll(SDL_Renderer* const r) {
-    const float singleShift = 1.f/sTileDiv;
+    const float singleShift = 1.f/mTileDiv;
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     for(const auto& c : mRenderCalls) {
         const auto& cref = *c;
@@ -353,22 +358,22 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
                 int ty = icty;
                 if(x < 0) {
                     tx--;
-                    x = sTileDiv + x;
-                } else if(x > sTileDiv) {
+                    x = mTileDiv + x;
+                } else if(x > mTileDiv) {
                     tx++;
-                    x -= sTileDiv + 1;
+                    x -= mTileDiv + 1;
                 }
                 if(y < 0) {
                     ty--;
-                    y = sTileDiv + y;
-                } else if(y > sTileDiv) {
+                    y = mTileDiv + y;
+                } else if(y > mTileDiv) {
                     ty++;
-                    y -= sTileDiv + 1;
+                    y -= mTileDiv + 1;
                 }
                 const auto tile = mIterator.getTile(tx, ty);
                 if(tile) {
                     const auto& lighting = tile->fLighting;
-                    l += lighting[y*sNDots + x];
+                    l += lighting[y*mNDots + x];
                 }
             };
 
@@ -399,16 +404,16 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
                     switch(type) {
                     case eWallType::topLeft: {
                         t2 = mIterator.getTile(ictx - 1, icty);
-                        ddx = sTileDiv - 2;
+                        ddx = mTileDiv - 2;
                     } break;
                     case eWallType::topRight: {
                         t2 = mIterator.getTile(ictx, icty - 1);
-                        ddy = sTileDiv - 2;
+                        ddy = mTileDiv - 2;
                     } break;
                     }
 
-                    l1 = t1->fLighting[dy*sNDots + dx];
-                    if(t2) l2 = t2->fLighting[(dy + ddy)*sNDots + dx + ddx];
+                    l1 = t1->fLighting[dy*mNDots + dx];
+                    if(t2) l2 = t2->fLighting[(dy + ddy)*mNDots + dx + ddx];
 
                     lightness.emplace_back(std::max(l1, l2));
                 };
@@ -416,12 +421,12 @@ void eLightingHandler::renderAll(SDL_Renderer* const r) {
                 const auto wtype = cref.fWallType;
                 switch(wtype) {
                 case eWallType::topLeft: {
-                    for(int dy = sTileDiv; dy >= 0; dy--) {
+                    for(int dy = mTileDiv; dy >= 0; dy--) {
                         handle(1, dy, wtype);
                     }
                 } break;
                 case eWallType::topRight: {
-                    for(int dx = 0; dx <= sTileDiv; dx++) {
+                    for(int dx = 0; dx <= mTileDiv; dx++) {
                         handle(dx, 1, wtype);
                     }
                 } break;

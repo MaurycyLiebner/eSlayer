@@ -802,7 +802,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int dy = ((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*((tileH + 1)/2);
                 const int x = ipixel.fX + dx;
                 const int y = ipixel.fY + dy + h;
-                if(eRenderSettings::sRenderObjectShadows && objectTex.fBlocksLight) {
+                if(objectTex.fBlocksLight) {
                     mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
                 }
                 bool highlight = false;
@@ -878,7 +878,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const int bottomY = ipixel.fY + tileH;
 
-                if(eRenderSettings::sRenderWallShadows && info.fWallsShadow) {
+                if(info.fWallsShadow) {
                     const float wallMin = open ? wtex.fWallMin : 0.f;
                     const float wallMax = open ? wtex.fWallMax : 1.f;
                     mGamePainter.addWallShadow(iPos.fX, iPos.fY,

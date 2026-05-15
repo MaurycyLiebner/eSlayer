@@ -1,8 +1,10 @@
 #include "eescmenu.h"
 
-#include "eescmenubutton.h"
 #include "../../elanguage.h"
 #include "../../erendersettings.h"
+#include "eescmenubutton.h"
+
+#include <eSlayerHelpers/evectorhelpers.h>
 
 void eESCMenu::initialize(const eAction& return_,
                           const eAction& exit) {
@@ -119,35 +121,22 @@ void eESCMenu::showVideoOptions() {
         eLanguage::text(5, 7), window());
     addWidget(videoOptionsB);
 
-    const auto onOffValues = {eLanguage::text(5, 10), // on
-                              eLanguage::text(5, 11)}; // off
+    const auto qualityStrs = {eLanguage::text(5, 11), // low
+                              eLanguage::text(5, 10), // medium
+                              eLanguage::text(5, 9)}; // high
+    const std::vector<int> lightingQualityValues = {1, 3, 5};
+    const int lqId = eVectorHelpers::index(lightingQualityValues,
+                                           eRenderSettings::sLightingQuality);
 
-    const int onId = 0;
-    const int offId = 1;
-
-    const auto objectShadowA = [&](const int id) {
-        eRenderSettings::sRenderObjectShadows = id == onId;
+    const auto lightingQualityA = [lightingQualityValues](const int id) {
+        eRenderSettings::sLightingQuality = lightingQualityValues[id];
         eRenderSettings::write();
     };
 
-    const auto objectShadowsB = new eESCMenuSwitchButton(
-        eLanguage::text(5, 8),
-        onOffValues,
-        eRenderSettings::sRenderObjectShadows ? onId : offId,
-        objectShadowA, window(), w);
-    addWidget(objectShadowsB);
-
-    const auto wallShadowA = [&](const int id) {
-        eRenderSettings::sRenderWallShadows = id == onId;
-        eRenderSettings::write();
-    };
-
-    const auto wallShadowsB = new eESCMenuSwitchButton(
-        eLanguage::text(5, 9),
-        onOffValues,
-        eRenderSettings::sRenderWallShadows ? onId : offId,
-        wallShadowA, window(), w);
-    addWidget(wallShadowsB);
+    const auto lightingQualityB = new eESCMenuSwitchButton(
+        eLanguage::text(5, 8), qualityStrs, lqId,
+        lightingQualityA, window(), w);
+    addWidget(lightingQualityB);
 
     const auto previousB = new eESCMenuButton(
         eLanguage::text(5, 5), window());
@@ -162,8 +151,7 @@ void eESCMenu::showVideoOptions() {
     fitContent();
 
     videoOptionsB->align(eAlignment::hcenter);
-    objectShadowsB->align(eAlignment::hcenter);
-    wallShadowsB->align(eAlignment::hcenter);
+    lightingQualityB->align(eAlignment::hcenter);
     previousB->align(eAlignment::hcenter);
 
     align(eAlignment::center);

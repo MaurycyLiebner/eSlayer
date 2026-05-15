@@ -3,8 +3,9 @@
 
 class eRenderSettings {
 public:
-    static bool sRenderObjectShadows;
-    static bool sRenderWallShadows;
+    static const int sMinLightingQuality;
+    static const int sMaxLightingQuality;
+    static int sLightingQuality;
 
     static void write();
     static bool read();

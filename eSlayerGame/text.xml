@@ -36,10 +36,10 @@
         <string id="5">Previous menu</string>
         <string id="6">Sound options</string>
         <string id="7">Video options</string>
-        <string id="8">Object shadows</string>
-        <string id="9">Wall shadows</string>
-        <string id="10">On</string>
-        <string id="11">Off</string>
+        <string id="8">Lighting quality</string>
+        <string id="9">High</string>
+        <string id="10">Medium</string>
+        <string id="11">Low</string>
     </group>
     <group id="6">
         <string id="0">Defense: %1</string>

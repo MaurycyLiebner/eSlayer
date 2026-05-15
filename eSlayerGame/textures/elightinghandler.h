@@ -113,8 +113,9 @@ private:
     std::vector<std::unique_ptr<eBlockerBase>> mBlockers;
     std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
 
-    const int sTileDiv = 10;
-    const int sNDots = sTileDiv + 1;
+    int mTileDiv = 1;
+    int mNDots = mTileDiv + 1;
+
     float mFeatherLen;
     int mBaseTileW;
     int mBaseTileH;

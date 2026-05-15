@@ -4,22 +4,20 @@
 
 #include <eSlayerHelpers/egamedir.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <map>
 
-bool eRenderSettings::sRenderObjectShadows = true;
-bool eRenderSettings::sRenderWallShadows = true;
+const int eRenderSettings::sMinLightingQuality = 1;
+const int eRenderSettings::sMaxLightingQuality = 5;
+int eRenderSettings::sLightingQuality = sMaxLightingQuality;
 
 void eRenderSettings::write() {
     const auto path = eGameDir::renderSettingsPath();
     std::ofstream file;
     file.open(path);
-    file << "renderObjectShadows" << " " <<
-        (sRenderObjectShadows ? "\"true\"" : "\"false\"") << "\n";
-    file << "renderWallShadows" << " " <<
-        (sRenderWallShadows ? "\"true\"" : "\"false\"");
-
+    file << "lightingQuality" << " \"" << sLightingQuality << "\"";
     file.close();
 }
 
@@ -30,7 +28,7 @@ bool eRenderSettings::read() {
     std::map<std::string, std::string> settings;
     const bool r = eLoadTextHelper::load(path, settings);
     if(!r) return false;
-    sRenderObjectShadows = settings["renderObjectShadows"] == "true";
-    sRenderWallShadows = settings["renderWallShadows"] == "true";
+    const int lq = std::stoi(settings["lightingQuality"]);
+    sLightingQuality = std::clamp(lq, sMinLightingQuality, sMaxLightingQuality);
     return true;
 }
