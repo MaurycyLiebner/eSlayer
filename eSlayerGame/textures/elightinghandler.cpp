@@ -97,7 +97,10 @@ void eLightingHandler::calculateLighting() {
                     const ePointF lp{l.fTX, l.fTY};
                     eVec2f dir = ePointF::vector(tp, lp);
                     const float dist = dir.length();
-                    if(dist < 0.001f) break;
+                    if(dist < 0.001f) {
+                        v = 1.f;
+                        break;
+                    }
                     if(dist > l.fRadius) continue;
                     dir = dir/dist;
                     const eVec2f perp(-dir.y, dir.x);
@@ -121,16 +124,26 @@ void eLightingHandler::calculateLighting() {
                         } break;
                         case eBlockerBaseType::wall: {
                             const auto& wref = static_cast<const eWallLightBlocker&>(bref);
+                            const int itx = std::round(bref.fTX);
+                            const int ity = std::round(bref.fTY);
                             ePointF p1;
                             ePointF p2;
                             switch(wref.fDir) {
                             case eWallType::topLeft: {
+                                if(tx == itx && tile.fTY != ity) continue;
+                                if((tile.fTX >= itx) == (l.fTX >= itx)) {
+                                    continue;
+                                }
                                 p1.fX = wref.fTX;
                                 p1.fY = wref.fTY + wref.fWallMin;
                                 p2.fX = wref.fTX;
                                 p2.fY = wref.fTY + wref.fWallMax;
                             } break;
                             case eWallType::topRight: {
+                                if(ty == ity && tile.fTX != itx) continue;
+                                if((tile.fTY >= ity) == (l.fTY >= ity)) {
+                                    continue;
+                                }
                                 p1.fX = wref.fTX + wref.fWallMin;
                                 p1.fY = wref.fTY;
                                 p2.fX = wref.fTX + wref.fWallMax;
