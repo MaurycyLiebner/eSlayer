@@ -1,7 +1,12 @@
 #ifndef ETILESITERATOR_H
 #define ETILESITERATOR_H
 
+#include "../elight.h"
+
+#include <eSlayerHelpers/epoint.h>
+
 #include <functional>
+#include <memory>
 
 class eGameWidget;
 
@@ -30,6 +35,11 @@ struct eTileInfo {
     std::vector<float> fLighting;
 };
 
+struct eCell {
+    std::vector<eLight> fLights;
+    std::vector<std::unique_ptr<eBlockerBase>> fBlockers;
+};
+
 using eVisibleTileFunc = std::function<void(eTileInfo& tile)>;
 
 class eTilesIterator {
@@ -42,12 +52,25 @@ public:
     eTileInfo& getTile(const int id) { return mTiles[id]; }
 
     int tileCount() const { return mTiles.size(); }
+
+    void addLight(const eLight& light);
+    void addBlocker(std::unique_ptr<eBlockerBase>& b);
+    void lightCellRect(const eLight& light,
+                       int& minCellX, int& maxCellX,
+                       int& minCellY, int& maxCellY) const;
+    const eCell* getCellAtPos(const int x, const int y) const;
+    const eCell* getCellAtCellPos(const int cellX, const int cellY) const;
 private:
+    eCell* requestCell(const int cellX, const int cellY);
+
     int mIter = 0;
     std::vector<eTileInfo> mTiles;
+    const int sCellSize = 4;
+    std::vector<eCell> mCells;
     int mMapWidth = 0;
     int mMapHeight = 0;
-    std::vector<std::vector<eMapTile>> mMap;
+    std::vector<std::vector<eMapTile>> mTileMap;
+    std::vector<std::vector<eMapTile>> mCellMap;
 };
 
 #endif // ETILESITERATOR_H

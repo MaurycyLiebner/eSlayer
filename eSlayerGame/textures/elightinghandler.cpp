@@ -29,17 +29,15 @@ void eLightingHandler::setLightness(const float l) {
 }
 
 void eLightingHandler::clear() {
-    mLights.clear();
-    mBlockers.clear();
     mRenderCalls.clear();
 }
 
 void eLightingHandler::addLight(const eLight& light) {
-    mLights.emplace_back(light);
+    mIterator.addLight(light);
 }
 
 void eLightingHandler::addBlocker(std::unique_ptr<eBlockerBase>& b) {
-    mBlockers.emplace_back(std::move(b));
+    mIterator.addBlocker(b);
 }
 
 bool lineIntersection(
@@ -89,6 +87,8 @@ void eLightingHandler::calculateLighting() {
     mNDots = mTileDiv + 1;
 
     mIterator.iterate([&](eTileInfo& tile) {
+        const auto lightCell = mIterator.getCellAtPos(
+            tile.fTX, tile.fTY);
         auto& lighting = tile.fLighting;
         lighting.resize(mNDots*mNDots);
         for(int y = 0; y < mNDots; y++) {
@@ -97,8 +97,10 @@ void eLightingHandler::calculateLighting() {
                 const float tx = tile.fTX + float(x)/mTileDiv;
                 float& v = lighting[y*mNDots + x];
                 v = mLightness;
+                if(!lightCell) continue;
+                const auto& lights = lightCell->fLights;
                 const ePointF tp{tx, ty};
-                for(const auto& l : mLights) {
+                for(const auto& l : lights) {
                     const ePointF lp{l.fTX, l.fTY};
                     eVec2f dir = ePointF::vector(tp, lp);
                     const float dist = dir.length();
@@ -110,73 +112,86 @@ void eLightingHandler::calculateLighting() {
                     dir = dir/dist;
                     const eVec2f perp(-dir.y, dir.x);
 
+                    int minCellX;
+                    int maxCellX;
+                    int minCellY;
+                    int maxCellY;
+                    mIterator.lightCellRect(l, minCellX, maxCellX, minCellY, maxCellY);
+
                     float mult = 1.f;
-                    for(const auto& b : mBlockers) {
-                        const auto& bref = *b;
-                        switch(bref.fType) {
-                        case eBlockerBaseType::object: {
-                            const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
-                            const float s = oref.fSize;
-                            const ePointF oc{bref.fTX + 0.5f*s, bref.fTY + 0.5f*s};
-                            const ePointF o1 = oc + perp*0.5f*s;
-                            const ePointF o2 = oc - perp*0.5f*s;
-                            ePointF inters;
-                            const bool r = lineIntersection(tp, lp, o1, o2, &inters);
-                            if(r) {
-                                const float dist = ePointF::distance(oc, inters);
-                                mult = std::min(mult, 1.f - std::clamp((0.5f*s - dist)/mFeatherLen, 0.f, 1.f));
-                            }
-                        } break;
-                        case eBlockerBaseType::wall: {
-                            const auto& wref = static_cast<const eWallLightBlocker&>(bref);
-                            if(wref.fWallMin == wref.fWallMax) continue;
-                            const int itx = std::round(bref.fTX);
-                            const int ity = std::round(bref.fTY);
-                            ePointF p1;
-                            ePointF p2;
-                            const bool featherMin = wref.fWallMin != 0.f;
-                            const bool featherMax = wref.fWallMax != 1.f;
-                            switch(wref.fDir) {
-                            case eWallType::topLeft: {
-                                if(tx == itx && tile.fTY != ity) continue;
-                                if((tile.fTX >= itx) == (l.fTX >= itx)) {
-                                    continue;
-                                }
-                                p1.fX = wref.fTX;
-                                p1.fY = wref.fTY + wref.fWallMin;
-                                p2.fX = wref.fTX;
-                                p2.fY = wref.fTY + wref.fWallMax;
-                            } break;
-                            case eWallType::topRight: {
-                                if(ty == ity && tile.fTX != itx) continue;
-                                if((tile.fTY >= ity) == (l.fTY >= ity)) {
-                                    continue;
-                                }
-                                p1.fX = wref.fTX + wref.fWallMin;
-                                p1.fY = wref.fTY;
-                                p2.fX = wref.fTX + wref.fWallMax;
-                                p2.fY = wref.fTY;
-                            } break;
-                            }
-                            ePointF inters;
-                            const bool r = lineIntersection(tp, lp, p1, p2, &inters);
-                            if(r) {
-                                if(!featherMin && !featherMax) {
-                                    mult = 0.f;
-                                } else {
-                                    if(featherMin) {
-                                        const float dist = ePointF::distance(p1, inters);
-                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
-                                        mult = std::min(mult, 1.f - t);
+                    for(int cellX = minCellX; cellX <= maxCellX; cellX++) {
+                        for(int cellY = minCellY; cellY <= maxCellY; cellY++) {
+                            const auto cell = mIterator.getCellAtCellPos(cellX, cellY);
+                            if(!cell) continue;
+                            const auto& blockers = cell->fBlockers;
+                            for(const auto& b : blockers) {
+                                const auto& bref = *b;
+                                switch(bref.fType) {
+                                case eBlockerBaseType::object: {
+                                    const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
+                                    const float s = oref.fSize;
+                                    const ePointF oc{bref.fTX + 0.5f*s, bref.fTY + 0.5f*s};
+                                    const ePointF o1 = oc + perp*0.5f*s;
+                                    const ePointF o2 = oc - perp*0.5f*s;
+                                    ePointF inters;
+                                    const bool r = lineIntersection(tp, lp, o1, o2, &inters);
+                                    if(r) {
+                                        const float dist = ePointF::distance(oc, inters);
+                                        mult = std::min(mult, 1.f - std::clamp((0.5f*s - dist)/mFeatherLen, 0.f, 1.f));
                                     }
-                                    if(featherMax) {
-                                        const float dist = ePointF::distance(p2, inters);
-                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
-                                        mult = std::min(mult, 1.f - t);
+                                } break;
+                                case eBlockerBaseType::wall: {
+                                    const auto& wref = static_cast<const eWallLightBlocker&>(bref);
+                                    if(wref.fWallMin == wref.fWallMax) continue;
+                                    const int itx = std::round(bref.fTX);
+                                    const int ity = std::round(bref.fTY);
+                                    ePointF p1;
+                                    ePointF p2;
+                                    const bool featherMin = wref.fWallMin != 0.f;
+                                    const bool featherMax = wref.fWallMax != 1.f;
+                                    switch(wref.fDir) {
+                                    case eWallType::topLeft: {
+                                        if(tx == itx && tile.fTY != ity) continue;
+                                        if((tile.fTX >= itx) == (l.fTX >= itx)) {
+                                            continue;
+                                        }
+                                        p1.fX = wref.fTX;
+                                        p1.fY = wref.fTY + wref.fWallMin;
+                                        p2.fX = wref.fTX;
+                                        p2.fY = wref.fTY + wref.fWallMax;
+                                    } break;
+                                    case eWallType::topRight: {
+                                        if(ty == ity && tile.fTX != itx) continue;
+                                        if((tile.fTY >= ity) == (l.fTY >= ity)) {
+                                            continue;
+                                        }
+                                        p1.fX = wref.fTX + wref.fWallMin;
+                                        p1.fY = wref.fTY;
+                                        p2.fX = wref.fTX + wref.fWallMax;
+                                        p2.fY = wref.fTY;
+                                    } break;
                                     }
+                                    ePointF inters;
+                                    const bool r = lineIntersection(tp, lp, p1, p2, &inters);
+                                    if(r) {
+                                        if(!featherMin && !featherMax) {
+                                            mult = 0.f;
+                                        } else {
+                                            if(featherMin) {
+                                                const float dist = ePointF::distance(p1, inters);
+                                                const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                                mult = std::min(mult, 1.f - t);
+                                            }
+                                            if(featherMax) {
+                                                const float dist = ePointF::distance(p2, inters);
+                                                const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                                mult = std::min(mult, 1.f - t);
+                                            }
+                                        }
+                                    }
+                                } break;
                                 }
                             }
-                        } break;
                         }
                     }
 
