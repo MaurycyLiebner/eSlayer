@@ -30,17 +30,6 @@ public:
 
     void setFont(const eFont& font);
 
-    void drawShadow(const int drawX,
-                    const int drawY,
-                    const eTexture& tex,
-                    const float skew,
-                    const float scaleY,
-                    const float lightness,
-                    const float alpha);
-    void drawShadow(const int drawX,
-                    const int drawY,
-                    const eTexture& tex);
-
     void drawTexture(int x, int y,
                      const std::shared_ptr<eTexture>& tex,
                      const eAlignment align) const;

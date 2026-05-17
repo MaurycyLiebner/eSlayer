@@ -42,7 +42,6 @@ void eGamePainter::setLightness(const Uint8 light) {
 
 void eGamePainter::clear() {
     const auto r = renderer();
-    mLightingTex.clear();
     mBaseTex->fill(r, SDL_Color{0, 0, 0, 255});
     if(mRenderItemNames) {
         mRenderItemNames = false;
@@ -58,16 +57,13 @@ void eGamePainter::addLight(const float tx, const float ty,
 }
 
 void eGamePainter::finish(
-    const float tx0, const float ty0,
     const eResolution& res) {
     const auto r = renderer();
     const auto h = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
     {
-        mLightingTex.calculateLighting();
-        mLightingTex.renderFloorLighting(r);
-        mLightingTex.renderAll(r);
+
     }
     const Uint8 a = 255 - mContrast;
     if(a != 255) {
@@ -80,15 +76,16 @@ void eGamePainter::finish(
     }
 }
 
-void eGamePainter::addRenderCall(
-    const eRenderCallType type,
-    const float tx, const float ty,
-    const float px, const float py,
-    const std::shared_ptr<eTexture>& tex,
-    const eWallType wallType) {
-    auto c = std::make_unique<eRenderCall>(
-        type, tx, ty, px, py, tex, wallType);
-    mLightingTex.addRenderCall(c);
+void eGamePainter::calculateAndRenderLighting() {
+    const auto r = renderer();
+    mLightingTex.calculateLighting();
+    mLightingTex.renderFloorLighting(r);
+}
+
+void eGamePainter::render(
+    const eRenderCall& c) {
+    const auto r = renderer();
+    mLightingTex.render(r, c);
 }
 
 void eGamePainter::addObjectShadow(

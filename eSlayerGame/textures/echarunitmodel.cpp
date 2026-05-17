@@ -1,7 +1,6 @@
 #include "echarunitmodel.h"
 
 #include "../widgets/epainter.h"
-#include "../widgets/gameScreen/egamepainter.h"
 #include "echarmodel.h"
 #include "echartextures.h"
 
@@ -22,7 +21,7 @@ eTextureKey eCharUnitModel::key() const {
     return eTextureKey{mAnim, frame, mDir};
 }
 
-SDL_Rect eCharUnitModel::offsetBoundingRect() const {
+SDL_Rect eCharUnitModel::requestBoundingRect() const {
     const auto result = mModel->requestBoundingRect(key());
     return result;
 }
@@ -37,38 +36,27 @@ void eCharUnitModel::incFrame(const float by) {
     }
 }
 
-void eCharUnitModel::draw(eGamePainter& p,
-                          const eResolution& res,
-                          const bool highlight,
-                          const SDL_Color& colorMod) const {
+std::shared_ptr<eTexture> eCharUnitModel::requestTexture(
+    SDL_Renderer* const r) const {
+    const auto key = eCharUnitModel::key();
+    if(key.fFrame == -1) return nullptr;
+    const auto tex = mModel->requestTexture(r, key);
+    return tex;
+}
+
+void eCharUnitModel::draw(ePainter& p) const {
     const auto key = eCharUnitModel::key();
     if(key.fFrame == -1) return;
     const auto r = p.renderer();
     const auto tex = mModel->requestTexture(r, key);
     const auto texRect = mModel->requestBoundingRect(key);
-    p.drawShadow(texRect.x, texRect.y + texRect.h, *tex);
-    draw(reinterpret_cast<ePainter&>(p),
-         res, highlight, tex, texRect, colorMod);
-}
+    p.drawTexture(texRect.x, texRect.y, tex);
 
-void eCharUnitModel::draw(ePainter& p,
-                          const eResolution& res,
-                          const bool highlight,
-                          const SDL_Color& colorMod) const {
-    const auto key = eCharUnitModel::key();
-    if(key.fFrame == -1) return;
-    const auto r = p.renderer();
-    const auto tex = mModel->requestTexture(r, key);
-    const auto texRect = mModel->requestBoundingRect(key);
-    draw(p, res, highlight, tex, texRect, colorMod);
-}
-
-ePaintCall eCharUnitModel::paintCall(SDL_Renderer* const r) const {
-    const auto key = eCharUnitModel::key();
-    if(key.fFrame == -1) return ePaintCall();
-    const auto tex = mModel->requestTexture(r, key);
-    const auto texRect = mModel->requestBoundingRect(key);
-    return ePaintCall{float(texRect.x), float(texRect.y), tex};
+    tex->setBlendMode(SDL_BLENDMODE_ADD);
+    tex->setAlpha(128);
+    p.drawTexture(texRect.x, texRect.y, tex);
+    tex->clearAlphaMod();
+    tex->setBlendMode(SDL_BLENDMODE_BLEND);
 }
 
 void eCharUnitModel::setAnimationSpeed(const float speed) {
@@ -102,7 +90,7 @@ void eCharUnitModel::generatePreview(
             const auto holder = tex->createTargetHolder(r);
             ePainter p(r);
             p.translate(dim/2, dim/2);
-            draw(p, res, true);
+            draw(p);
         }
         tex->save(r, path);
     }

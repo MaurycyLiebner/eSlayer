@@ -9,7 +9,6 @@
 #include <eSlayerHelpers/eterrstexturesdata.h>
 
 #include <memory>
-#include <vector>
 
 class eResolution;
 class SDL_Renderer;
@@ -23,14 +22,23 @@ struct eRenderCall : public ePaintCall {
                 const float tx, const float ty,
                 const float px, const float py,
                 const std::shared_ptr<eTexture>& tex,
-                const eWallType wall = eWallType::topLeft) :
+                const bool highlight,
+                const bool shadow,
+                const eWallType wall = eWallType::topLeft,
+                const bool transparent = false) :
         ePaintCall{px, py, tex},
         fType(type),
+        fHighlight(highlight),
+        fShadow(shadow),
         fWallType(wall),
+        fTransparent(transparent),
         fTX(tx), fTY(ty) {}
 
     eRenderCallType fType;
+    bool fHighlight;
+    bool fShadow;
     eWallType fWallType;
+    bool fTransparent;
     float fTX;
     float fTY;
 };
@@ -52,12 +60,11 @@ public:
     void calculateLighting();
     void renderFloorLighting(SDL_Renderer * const r);
 
-    void addRenderCall(std::unique_ptr<eRenderCall>& c);
-    void renderAll(SDL_Renderer * const r);
+    void render(SDL_Renderer* const r,
+                const eRenderCall& c) const;
 private:
     eTilesIterator& mIterator;
     float mLightness = 0.f;
-    std::vector<std::unique_ptr<eRenderCall>> mRenderCalls;
 
     int mTileDiv = 1;
     int mNDots = mTileDiv + 1;

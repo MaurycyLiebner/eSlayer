@@ -23,14 +23,11 @@ public:
     void clear();
     void addLight(const float tx, const float ty,
                   const float radius);
-    void finish(const float tx0, const float ty0,
-                const eResolution& res);
+    void finish(const eResolution& res);
 
-    void addRenderCall(const eRenderCallType type,
-                       const float tx, const float ty,
-                       const float px, const float py,
-                       const std::shared_ptr<eTexture>& tex,
-                       const eWallType wallType = eWallType::topLeft);
+    void calculateAndRenderLighting();
+
+    void render(const eRenderCall& c);
 
     void addObjectShadow(const float tx, const float ty,
                          const float size);

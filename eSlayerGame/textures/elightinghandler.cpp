@@ -28,10 +28,6 @@ void eLightingHandler::setLightness(const float l) {
     mLightness = l;
 }
 
-void eLightingHandler::clear() {
-    mRenderCalls.clear();
-}
-
 void eLightingHandler::addLight(const eLight& light) {
     mIterator.addLight(light);
 }
@@ -282,15 +278,17 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
                        verts.size(), nullptr, 0);
 }
 
-void eLightingHandler::addRenderCall(
-    std::unique_ptr<eRenderCall>& c) {
-    mRenderCalls.emplace_back(std::move(c));
-}
-
 void render(SDL_Renderer* const r,
             const float x, const float y,
             const std::shared_ptr<eTexture>& tex,
-            const std::vector<float>& lightness) {
+            std::vector<float>& lightness) {
+    if(lightness.empty()) {
+        lightness.emplace_back(0.f);
+        lightness.emplace_back(0.f);
+    } else if(lightness.size() == 1) {
+        const float l = lightness[0];
+        lightness.emplace_back(l);
+    }
     const int nStrips = lightness.size() - 1;
     if(nStrips < 1) return;
     const float vTexCoordW = 1.f/nStrips;
@@ -367,104 +365,198 @@ void render(SDL_Renderer* const r,
                        indices.data(), indices.size());
 }
 
-void eLightingHandler::renderAll(SDL_Renderer* const r) {
+void drawShadow(
+    SDL_Renderer* const r,
+    const int drawX,
+    const int drawY,
+    const eTexture& tex,
+    const float skew,
+    const float scaleY,
+    const float lightness,
+    const float alpha) {
+    const float w = tex.width();
+    const float h = tex.height() * scaleY;
+
+    const float skewOffset = h * skew;
+
+    const float x = drawX - skewOffset;
+    const float y = drawY - h;
+
+    SDL_Vertex verts[4];
+
+    const auto& atlas = tex.atlas();
+
+    verts[0].position = { x, y };
+    verts[1].position = { x + w, y };
+    verts[2].position = { x + w + skewOffset, y + h };
+    verts[3].position = { x + skewOffset, y + h };
+
+    for(auto& v : verts) {
+        v.color = { lightness, lightness, lightness, alpha };
+    }
+
+    float u0 = 0.f;
+    float v0 = 0.f;
+    float u1 = 1.f;
+    float v1 = 1.f;
+    SDL_Texture* sdlTex = nullptr;
+
+    if(atlas) {
+        const float invW = 1.f / atlas->width();
+        const float invH = 1.f / atlas->height();
+
+        const float tx = tex.x();
+        const float ty = tex.y();
+        const float tw = tex.width();
+        const float th = tex.height();
+
+        u0 = tx * invW;
+        v0 = ty * invH;
+        u1 = (tx + tw) * invW;
+        v1 = (ty + th) * invH;
+
+        sdlTex = atlas->tex();
+    } else {
+        sdlTex = tex.tex();
+    }
+
+    verts[0].tex_coord = { u0, v0 };
+    verts[1].tex_coord = { u1, v0 };
+    verts[2].tex_coord = { u1, v1 };
+    verts[3].tex_coord = { u0, v1 };
+
+    static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
+
+    SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
+}
+
+void drawShadow(
+    SDL_Renderer* const r,
+    const int drawX,
+    const int drawY,
+    const eTexture& tex) {
+    const float skew = 0.5f;
+    const float scaleY = 0.5f;
+    const float lightness = 0.f;
+    const float alpha = 0.5f;
+    ::drawShadow(r, drawX, drawY, tex, skew, scaleY,
+                 lightness, alpha);
+}
+
+void eLightingHandler::render(
+    SDL_Renderer* const r,
+    const eRenderCall& c) const {
     const float singleShift = 1.f/mTileDiv;
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    for(const auto& c : mRenderCalls) {
-        const auto& cref = *c;
-        const auto type = c->fType;
-        std::vector<float> lightness;
-        const int ictx = cref.fTX;
-        const int icty = cref.fTY;
+    const auto type = c.fType;
+    std::vector<float> lightness;
+    const int ictx = c.fTX;
+    const int icty = c.fTY;
 
-        switch(type) {
-        case eRenderCallType::object: {
-            float l = 0.f;
-            const int x0 = (cref.fTX - ictx)/singleShift;
-            const int y0 = (cref.fTY - icty)/singleShift;
-            const auto handle = [&](const int dx, const int dy) {
-                int x = x0 + dx;
-                int y = y0 + dy;
-                int tx = ictx;
-                int ty = icty;
-                if(x < 0) {
-                    tx--;
-                    x = mTileDiv + x;
-                } else if(x > mTileDiv) {
-                    tx++;
-                    x -= mTileDiv + 1;
-                }
-                if(y < 0) {
-                    ty--;
-                    y = mTileDiv + y;
-                } else if(y > mTileDiv) {
-                    ty++;
-                    y -= mTileDiv + 1;
-                }
-                const auto tile = mIterator.getTile(tx, ty);
-                if(tile) {
-                    const auto& lighting = tile->fLighting;
-                    l += lighting[y*mNDots + x];
-                }
-            };
+    const float addL = c.fHighlight ? 0.5f : 0.f;
 
-            handle(0, 0);
-            handle(-1, 0);
-            handle(0, -1);
+    if(c.fShadow && c.fTex) {
+        const auto& tex = *c.fTex;
+        const int texH = tex.height();
+        drawShadow(r, c.fX, c.fY + texH, tex);
+    }
 
-            l = std::max(mLightness, l*0.33f);
+    const int x0 = (c.fTX - ictx)/singleShift;
+    const int y0 = (c.fTY - icty)/singleShift;
+    switch(type) {
+    case eRenderCallType::object: {
+        float l = 0.f;
+        const auto handle = [&](const int dx, const int dy) {
+            int x = x0 + dx;
+            int y = y0 + dy;
+            int tx = ictx;
+            int ty = icty;
+            if(x < 0) {
+                tx--;
+                x = mTileDiv + x;
+            } else if(x > mTileDiv) {
+                tx++;
+                x -= mTileDiv + 1;
+            }
+            if(y < 0) {
+                ty--;
+                y = mTileDiv + y;
+            } else if(y > mTileDiv) {
+                ty++;
+                y -= mTileDiv + 1;
+            }
+            const auto tile = mIterator.getTile(tx, ty);
+            if(tile) {
+                const auto& lighting = tile->fLighting;
+                l += lighting[y*mNDots + x];
+            }
+        };
 
-            lightness.emplace_back(l);
-            lightness.emplace_back(l);
-        } break;
-        case eRenderCallType::wall: {
-            const auto tile = mIterator.getTile(ictx, icty);
-            if(!tile) {
-                lightness.emplace_back(mLightness);
-                lightness.emplace_back(mLightness);
-            } else {
-                const auto handle = [&](const int dx, const int dy,
-                                        const eWallType type) {
-                    float l1 = mLightness;
-                    float l2 = mLightness;
+        handle(0, 0);
+        handle(-1, 0);
+        handle(0, -1);
 
-                    int ddx = 0;
-                    int ddy = 0;
-                    const auto t1 = tile;
-                    const eTileInfo* t2 = nullptr;
-                    switch(type) {
-                    case eWallType::topLeft: {
-                        t2 = mIterator.getTile(ictx - 1, icty);
-                        ddx = mTileDiv - 2;
-                    } break;
-                    case eWallType::topRight: {
-                        t2 = mIterator.getTile(ictx, icty - 1);
-                        ddy = mTileDiv - 2;
-                    } break;
-                    }
+        l = std::max(mLightness, l*0.33f) + addL;
 
-                    l1 = t1->fLighting[dy*mNDots + dx];
-                    if(t2) l2 = t2->fLighting[(dy + ddy)*mNDots + dx + ddx];
+        lightness.emplace_back(l);
+    } break;
+    case eRenderCallType::missile:
+    case eRenderCallType::unit: {
+        float l = 0.f;
+        const auto tile = mIterator.getTile(ictx, icty);
+        if(tile) {
+            const auto& lighting = tile->fLighting;
+            l = lighting[y0*mNDots + x0] + addL;
+        }
+        lightness.emplace_back(l);
+    } break;
+    case eRenderCallType::wall: {
+        const auto tile = mIterator.getTile(ictx, icty);
+        if(!tile) {
+            lightness.emplace_back(mLightness + addL);
+            lightness.emplace_back(mLightness + addL);
+        } else {
+            const auto handle = [&](const int dx, const int dy,
+                                    const eWallType type) {
+                float l1 = mLightness;
+                float l2 = mLightness;
 
-                    lightness.emplace_back(std::max(l1, l2));
-                };
-
-                const auto wtype = cref.fWallType;
-                switch(wtype) {
+                int ddx = 0;
+                int ddy = 0;
+                const auto t1 = tile;
+                const eTileInfo* t2 = nullptr;
+                switch(type) {
                 case eWallType::topLeft: {
-                    for(int dy = mTileDiv; dy >= 0; dy--) {
-                        handle(1, dy, wtype);
-                    }
+                    t2 = mIterator.getTile(ictx - 1, icty);
+                    ddx = mTileDiv - 2;
                 } break;
                 case eWallType::topRight: {
-                    for(int dx = 0; dx <= mTileDiv; dx++) {
-                        handle(dx, 1, wtype);
-                    }
+                    t2 = mIterator.getTile(ictx, icty - 1);
+                    ddy = mTileDiv - 2;
                 } break;
                 }
+
+                l1 = t1->fLighting[dy*mNDots + dx];
+                if(t2) l2 = t2->fLighting[(dy + ddy)*mNDots + dx + ddx];
+
+                lightness.emplace_back(std::max(l1, l2) + addL);
+            };
+
+            const auto wtype = c.fWallType;
+            switch(wtype) {
+            case eWallType::topLeft: {
+                for(int dy = mTileDiv; dy >= 0; dy--) {
+                    handle(1, dy, wtype);
+                }
+            } break;
+            case eWallType::topRight: {
+                for(int dx = 0; dx <= mTileDiv; dx++) {
+                    handle(dx, 1, wtype);
+                }
+            } break;
             }
-        } break;
         }
-        render(r, cref.fX, cref.fY, cref.fTex, lightness);
+    } break;
     }
+    ::render(r, c.fX, c.fY, c.fTex, lightness);
 }

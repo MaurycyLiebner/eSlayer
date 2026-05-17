@@ -37,7 +37,7 @@ void eCharacterButton::paintEvent(ePainter& p) {
     p.translate(width()/5, 3*height()/4);
     mModel.incFrame(1.f);
     const auto& res = resolution();
-    mModel.draw(p, res, true);
+    mModel.draw(p);
     p.restore();
     eCheckButton::paintEvent(p);
     mFrame++;

@@ -2,7 +2,6 @@
 #define ECHARUNITMODEL_H
 
 #include "echarmodel.h"
-#include "epaintcall.h"
 
 class eGamePainter;
 class ePainter;
@@ -17,18 +16,12 @@ public:
 
     eTextureKey key() const;
 
-    SDL_Rect offsetBoundingRect() const;
+    SDL_Rect requestBoundingRect() const;
 
     void incFrame(const float by);
-    void draw(eGamePainter& p,
-              const eResolution& res,
-              const bool highlight = false,
-              const SDL_Color& colorMod = SDL_Color{0, 0, 0, 0}) const;
-    void draw(ePainter& p,
-              const eResolution& res,
-              const bool highlight = false,
-              const SDL_Color& colorMod = SDL_Color{0, 0, 0, 0}) const;
-    ePaintCall paintCall(SDL_Renderer* const r) const;
+    std::shared_ptr<eTexture> requestTexture(
+        SDL_Renderer* const r) const;
+    void draw(ePainter& p) const;
 
     bool aggressive() const { return mAggressive; }
     void setAggressive(const bool a) { mAggressive = a; }
