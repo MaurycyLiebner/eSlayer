@@ -282,7 +282,8 @@ void render(SDL_Renderer* const r,
             const float x, const float y,
             eTexture& tex,
             std::vector<float>& lightness,
-            const SDL_FColor& colorMod) {
+            const SDL_FColor& colorMod,
+            const float opacity) {
     if(lightness.empty()) {
         lightness.emplace_back(0.f);
         lightness.emplace_back(0.f);
@@ -315,7 +316,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size());
             auto& tl = verts.emplace_back();
             const float l = lightness[s];
-            tl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
+            tl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
             tl.position.x = x + s*vPosW + ox;
             tl.position.y = y + oy;
             tl.tex_coord.x = s*vTexCoordW;
@@ -326,7 +327,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size());
             auto& tr = verts.emplace_back();
             const float l = lightness[s + 1];
-            tr.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
+            tr.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
             tr.position.x = x + (s + 1)*vPosW + ox;
             tr.position.y = y + oy;
             tr.tex_coord.x = (s + 1)*vTexCoordW;
@@ -337,7 +338,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size());
             auto& br = verts.emplace_back();
             const float l = lightness[s + 1];
-            br.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
+            br.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
             br.position.x = x + (s + 1)*vPosW + ox;
             br.position.y = y + th + oy;
             br.tex_coord.x = (s + 1)*vTexCoordW;
@@ -350,7 +351,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size() - 3);
             auto& bl = verts.emplace_back();
             const float l = lightness[s];
-            bl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
+            bl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
             bl.position.x = x + s*vPosW + ox;
             bl.position.y = y + th + oy;
             bl.tex_coord.x = s*vTexCoordW;
@@ -437,11 +438,10 @@ void eLightingHandler::render(
         drawShadow(r, c.fX, c.fY + texH, tex);
     }
 
+    const float addL = c.fHighlight ? 0.5f : 0.f;
     if(c.fLighting) {
-        lightness.emplace_back(1.f);
+        lightness.emplace_back(1.f + addL);
     } else {
-        const float addL = c.fHighlight ? 0.5f : 0.f;
-
         const int x0 = (c.fTX - ictx)/singleShift;
         const int y0 = (c.fTY - icty)/singleShift;
         switch(type) {
@@ -541,5 +541,6 @@ void eLightingHandler::render(
         } break;
         }
     }
-    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod);
+    const float opacity = c.fTransparent ? 0.5f : 1.f;
+    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod, opacity);
 }
