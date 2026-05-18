@@ -51,14 +51,12 @@ void eMapSettings::load() {
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;
                     auto& mtypes = monsters.fTypes;
+                    monsters.fMonstersMargin = jArea.value("monsterMargin", 4);
+                    monsters.fRectMargin = jArea.value("wallMargin", 4);
                     const auto& items = jArea["monsters"];
-                    monsters.fMonstersMargin = items.value("monsterMargin", 4);
-                    monsters.fRectMargin = items.value("wallMargin", 4);
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto mname = cit.key();
                         const auto& values = cit.value();
-                        const bool o = values.is_object();
-                        if(!o) continue;
                         eMonsterProbability result;
                         result.fProbability = values.value("probability", 0.f);
                         result.fGroupSize = values.value("groupSize", 1);
