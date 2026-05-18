@@ -11,7 +11,6 @@
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
 
-#include "../../erendersettings.h"
 #include "../../elanguage.h"
 
 #include "eunitindicator.h"
@@ -637,13 +636,13 @@ void eGameWidget::paintEvent(ePainter& p) {
             const int hitId = missileTex.hitAnimId();
             const int hitNFrames = hitId < 0 ? 0 : missileTex.nFrames(hitId);
 
-            int frame = n->fFrame;
-            int animId = appearId;
+            int novaFrame = n->fFrame;
+            int novaAnimId = appearId;
             const int nFrames = appearId < 0 ? 0 :
                 missileTex.nFrames(appearId);
-            if(frame >= nFrames) {
-                animId = baseId;
-                frame -= nFrames;
+            if(novaFrame >= nFrames) {
+                novaAnimId = baseId;
+                novaFrame -= nFrames;
             }
 
             bool& ini = n->fInitialized;
@@ -669,8 +668,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                    pixel.fX > w + margin || pixel.fY > h + margin) continue;
                 if(in) {
                     m->fPos = pos;
-                    m->fAnimId = animId;
-                    m->fFrame = frame;
+                    m->fAnimId = novaAnimId;
+                    m->fFrame = novaFrame;
                 } else {
                     int& animId = m->fAnimId;
                     int& frame = m->fFrame;
@@ -688,11 +687,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto ipos = pos.floor();
                 const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
                 if(tile) {
+                    const int animId = m->fAnimId;
                     const int dirs = missileTex.nDirs(animId);
                     const float ainc = 360.f/dirs;
-                    int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
+                    const float angle = m->fAngle;
+                    int dir = std::round(angle/ainc) + 2*dirs/16;
                     dir = (dirs + dir) % dirs;
-                    const int texFrame = frame++ % nFrames;
+                    const int frame = m->fFrame;
+                    const int texFrame = frame % nFrames;
                     const auto& ftex = missileTex.get(animId, dir, texFrame);
                     const float lradius = missileTex.lighting();
                     if(lradius > 0.01f) {
