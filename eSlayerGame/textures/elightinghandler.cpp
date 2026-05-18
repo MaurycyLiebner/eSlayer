@@ -453,110 +453,114 @@ void eLightingHandler::render(
     const int ictx = c.fTX;
     const int icty = c.fTY;
 
-    const float addL = c.fHighlight ? 0.5f : 0.f;
-
     if(c.fShadow && c.fTex) {
         const auto& tex = *c.fTex;
         const int texH = tex.height();
         drawShadow(r, c.fX, c.fY + texH, tex);
     }
 
-    const int x0 = (c.fTX - ictx)/singleShift;
-    const int y0 = (c.fTY - icty)/singleShift;
-    switch(type) {
-    case eRenderCallType::object: {
-        float l = 0.f;
-        const auto handle = [&](const int dx, const int dy) {
-            int x = x0 + dx;
-            int y = y0 + dy;
-            int tx = ictx;
-            int ty = icty;
-            if(x < 0) {
-                tx--;
-                x = mTileDiv + x;
-            } else if(x > mTileDiv) {
-                tx++;
-                x -= mTileDiv + 1;
-            }
-            if(y < 0) {
-                ty--;
-                y = mTileDiv + y;
-            } else if(y > mTileDiv) {
-                ty++;
-                y -= mTileDiv + 1;
-            }
-            const auto tile = mIterator.getTile(tx, ty);
-            if(tile) {
-                const auto& lighting = tile->fLighting;
-                l += lighting[y*mNDots + x];
-            }
-        };
+    if(c.fLighting) {
+        lightness.emplace_back(1.f);
+    } else {
+        const float addL = c.fHighlight ? 0.5f : 0.f;
 
-        handle(0, 0);
-        handle(-1, 0);
-        handle(0, -1);
-
-        l = std::max(mLightness, l*0.33f) + addL;
-
-        lightness.emplace_back(l);
-    } break;
-    case eRenderCallType::missile:
-    case eRenderCallType::unit: {
-        float l = 0.f;
-        const auto tile = mIterator.getTile(ictx, icty);
-        if(tile) {
-            const auto& lighting = tile->fLighting;
-            l = lighting[y0*mNDots + x0] + addL;
-        }
-        lightness.emplace_back(l);
-    } break;
-    case eRenderCallType::wall: {
-        const auto tile = mIterator.getTile(ictx, icty);
-        if(!tile) {
-            lightness.emplace_back(mLightness + addL);
-            lightness.emplace_back(mLightness + addL);
-        } else {
-            const auto handle = [&](const int dx, const int dy,
-                                    const eWallType type) {
-                float l1 = mLightness;
-                float l2 = mLightness;
-
-                int ddx = 0;
-                int ddy = 0;
-                const auto t1 = tile;
-                const eTileInfo* t2 = nullptr;
-                switch(type) {
-                case eWallType::topLeft: {
-                    t2 = mIterator.getTile(ictx - 1, icty);
-                    ddx = mTileDiv - 2;
-                } break;
-                case eWallType::topRight: {
-                    t2 = mIterator.getTile(ictx, icty - 1);
-                    ddy = mTileDiv - 2;
-                } break;
+        const int x0 = (c.fTX - ictx)/singleShift;
+        const int y0 = (c.fTY - icty)/singleShift;
+        switch(type) {
+        case eRenderCallType::object: {
+            float l = 0.f;
+            const auto handle = [&](const int dx, const int dy) {
+                int x = x0 + dx;
+                int y = y0 + dy;
+                int tx = ictx;
+                int ty = icty;
+                if(x < 0) {
+                    tx--;
+                    x = mTileDiv + x;
+                } else if(x > mTileDiv) {
+                    tx++;
+                    x -= mTileDiv + 1;
                 }
-
-                l1 = t1->fLighting[dy*mNDots + dx];
-                if(t2) l2 = t2->fLighting[(dy + ddy)*mNDots + dx + ddx];
-
-                lightness.emplace_back(std::max(l1, l2) + addL);
+                if(y < 0) {
+                    ty--;
+                    y = mTileDiv + y;
+                } else if(y > mTileDiv) {
+                    ty++;
+                    y -= mTileDiv + 1;
+                }
+                const auto tile = mIterator.getTile(tx, ty);
+                if(tile) {
+                    const auto& lighting = tile->fLighting;
+                    l += lighting[y*mNDots + x];
+                }
             };
 
-            const auto wtype = c.fWallType;
-            switch(wtype) {
-            case eWallType::topLeft: {
-                for(int dy = mTileDiv; dy >= 0; dy--) {
-                    handle(1, dy, wtype);
-                }
-            } break;
-            case eWallType::topRight: {
-                for(int dx = 0; dx <= mTileDiv; dx++) {
-                    handle(dx, 1, wtype);
-                }
-            } break;
+            handle(0, 0);
+            handle(-1, 0);
+            handle(0, -1);
+
+            l = std::max(mLightness, l*0.33f) + addL;
+
+            lightness.emplace_back(l);
+        } break;
+        case eRenderCallType::missile:
+        case eRenderCallType::unit: {
+            float l = 0.f;
+            const auto tile = mIterator.getTile(ictx, icty);
+            if(tile) {
+                const auto& lighting = tile->fLighting;
+                l = lighting[y0*mNDots + x0] + addL;
             }
+            lightness.emplace_back(l);
+        } break;
+        case eRenderCallType::wall: {
+            const auto tile = mIterator.getTile(ictx, icty);
+            if(!tile) {
+                lightness.emplace_back(mLightness + addL);
+                lightness.emplace_back(mLightness + addL);
+            } else {
+                const auto handle = [&](const int dx, const int dy,
+                                        const eWallType type) {
+                    float l1 = mLightness;
+                    float l2 = mLightness;
+
+                    int ddx = 0;
+                    int ddy = 0;
+                    const auto t1 = tile;
+                    const eTileInfo* t2 = nullptr;
+                    switch(type) {
+                    case eWallType::topLeft: {
+                        t2 = mIterator.getTile(ictx - 1, icty);
+                        ddx = mTileDiv - 2;
+                    } break;
+                    case eWallType::topRight: {
+                        t2 = mIterator.getTile(ictx, icty - 1);
+                        ddy = mTileDiv - 2;
+                    } break;
+                    }
+
+                    l1 = t1->fLighting[dy*mNDots + dx];
+                    if(t2) l2 = t2->fLighting[(dy + ddy)*mNDots + dx + ddx];
+
+                    lightness.emplace_back(std::max(l1, l2) + addL);
+                };
+
+                const auto wtype = c.fWallType;
+                switch(wtype) {
+                case eWallType::topLeft: {
+                    for(int dy = mTileDiv; dy >= 0; dy--) {
+                        handle(1, dy, wtype);
+                    }
+                } break;
+                case eWallType::topRight: {
+                    for(int dx = 0; dx <= mTileDiv; dx++) {
+                        handle(dx, 1, wtype);
+                    }
+                } break;
+                }
+            }
+        } break;
         }
-    } break;
     }
     ::render(r, c.fX, c.fY, c.fTex, lightness);
 }

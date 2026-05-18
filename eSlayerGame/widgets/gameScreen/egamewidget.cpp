@@ -410,6 +410,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             eRenderElementType fType;
             std::shared_ptr<ePositioned> fPtr;
             std::shared_ptr<eTexture> fTex;
+            bool fLighting = false;
         };
 
         struct eWall : public ePositioned {
@@ -577,7 +578,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(tile) {
                 renderElements.emplace_back(eRenderElement{eRenderElementType::unit,
-                                                           std::static_pointer_cast<ePositioned>(mMainChar)});
+                                                           std::static_pointer_cast<ePositioned>(mMainChar),
+                                                           nullptr, true});
             }
         }
         for(const auto& m : mWorld.missiles()) {
@@ -613,12 +615,13 @@ void eGameWidget::paintEvent(ePainter& p) {
             const int texFrame = frame++ % nFrames;
             const auto& ftex = missileTex.get(animId, dir, texFrame);
             const float lradius = missileTex.lighting();
-            if(lradius > 0.01f) {
+            const bool lighting = lradius > 0.01f;
+            if(lighting) {
                 mGamePainter.addLight(pos.fX, pos.fY, lradius);
             }
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                                        std::static_pointer_cast<ePositioned>(m),
-                                                       ftex});
+                                                       ftex, lighting});
         }
         for(auto& n : mWorld.novas()) {
             const auto& c = n->fCenter;
@@ -635,14 +638,19 @@ void eGameWidget::paintEvent(ePainter& p) {
             const int baseId = missileTex.baseAnimId();
             const int hitId = missileTex.hitAnimId();
             const int hitNFrames = hitId < 0 ? 0 : missileTex.nFrames(hitId);
+            const float light = missileTex.lighting();
+            const bool lighting = light > 0.01f;
+            if(lighting) {
+                mGamePainter.addLight(c.fX, c.fY, r + light);
+            }
 
             int novaFrame = n->fFrame;
             int novaAnimId = appearId;
-            const int nFrames = appearId < 0 ? 0 :
+            const int nAppearFrames = appearId < 0 ? 0 :
                 missileTex.nFrames(appearId);
-            if(novaFrame >= nFrames) {
+            if(novaFrame >= nAppearFrames) {
                 novaAnimId = baseId;
-                novaFrame -= nFrames;
+                novaFrame -= nAppearFrames;
             }
 
             bool& ini = n->fInitialized;
@@ -694,15 +702,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                     int dir = std::round(angle/ainc) + 2*dirs/16;
                     dir = (dirs + dir) % dirs;
                     const int frame = m->fFrame;
+                    const int nFrames = missileTex.nFrames(animId);
                     const int texFrame = frame % nFrames;
                     const auto& ftex = missileTex.get(animId, dir, texFrame);
-                    const float lradius = missileTex.lighting();
-                    if(lradius > 0.01f) {
-                        mGamePainter.addLight(pos.fX, pos.fY, lradius);
-                    }
                     renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                                                std::static_pointer_cast<ePositioned>(m),
-                                                               ftex});
+                                                               ftex, lighting});
                 }
             }
             n->fFrame++;
@@ -799,12 +804,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int drawX = ipixel.fX + rect.x;
                 const int drawY = ipixel.fY + rect.y;
                 const eRenderCall c(eRenderCallType::unit, pos.fX, pos.fY,
-                                    drawX, drawY, tex, highlight, true);
+                                    drawX, drawY, tex, highlight, true,
+                                    e.fLighting);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
                 const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
-                                    pixel.fX, pixel.fY, ftex, false, false);
+                                    pixel.fX, pixel.fY, ftex, false, false,
+                                    e.fLighting);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::item) {
                 const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
@@ -956,7 +963,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const eRenderCall c(eRenderCallType::wall,
                                     pos.fX, pos.fY,
                                     drawX, drawY, tex,
-                                    false, false,
+                                    false, false, false,
                                     wall.fType,
                                     transparent);
                 mGamePainter.render(c);

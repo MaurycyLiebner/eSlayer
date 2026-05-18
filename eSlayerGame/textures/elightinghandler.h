@@ -24,6 +24,7 @@ struct eRenderCall : public ePaintCall {
                 const std::shared_ptr<eTexture>& tex,
                 const bool highlight,
                 const bool shadow,
+                const bool lighting = false,
                 const eWallType wall = eWallType::topLeft,
                 const bool transparent = false) :
         ePaintCall{px, py, tex},
@@ -32,6 +33,7 @@ struct eRenderCall : public ePaintCall {
         fShadow(shadow),
         fWallType(wall),
         fTransparent(transparent),
+        fLighting(lighting),
         fTX(tx), fTY(ty) {}
 
     eRenderCallType fType;
@@ -39,6 +41,7 @@ struct eRenderCall : public ePaintCall {
     bool fShadow;
     eWallType fWallType;
     bool fTransparent;
+    bool fLighting;
     float fTX;
     float fTY;
 };
