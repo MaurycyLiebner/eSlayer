@@ -147,11 +147,9 @@ bool eMap::wall(const ePointF& pos,
 }
 
 bool eMap::walkable(const ePointF& pos) const {
-    const auto iPos = pos.floor();
-    const int x = iPos.fX;
-    const int y = iPos.fY;
-    if(x < 0 || x >= mWidth ||
-       y < 0 || y >= mHeight) {
+    const int x = pos.fX;
+    const int y = pos.fY;
+    if(!inside(x, y)) {
         return false;
     } else {
         const auto& tile = eMap::tile(x, y);
@@ -181,11 +179,9 @@ bool eMap::walkable(const ePointF& pos) const {
 }
 
 bool eMap::obsticle(const ePointF& pos) const {
-    const auto iPos = pos.floor();
-    const int x = iPos.fX;
-    const int y = iPos.fY;
-    if(x < 0 || x >= mWidth ||
-       y < 0 || y >= mHeight) {
+    const int x = pos.fX;
+    const int y = pos.fY;
+    if(!inside(x, y)) {
         return false;
     } else {
         const auto& tile = eMap::tile(x, y);

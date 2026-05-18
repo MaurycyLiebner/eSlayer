@@ -26,31 +26,33 @@ void eMovementHandler::setRadius(const float r) {
 }
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
-    const int margin = mPathFindMargin;
+    const int margin = mPathFindMargin*mTileMoveSubdivision;
     const float subdivision = mTileMoveSubdivision;
     const int dim = 2*margin + 1;
     ePathFinderMap map(0, 0, dim, dim);
-    const auto iPos = (mPos * subdivision).round();
+    const auto spos = mPos * subdivision;
+    const auto ispos = spos.round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
-            const int x = (iPos.fX + sx - margin)/mTileMoveSubdivision;
-            const int y = (iPos.fY + sy - margin)/mTileMoveSubdivision;
-            map.set({sx, sy}, mWalkable(ePointF{float(x), float(y)}));
+            const float x = (ispos.fX + sx - margin + 0.5f)/subdivision;
+            const float y = (ispos.fY + sy - margin + 0.5f)/subdivision;
+            map.set({sx, sy}, mWalkable(ePointF{x, y}));
         }
     }
     bool found;
     const ePoint from{margin, margin};
-    const auto ipos = (dst * subdivision).round();
-    const ePoint to{margin + (ipos.fX - iPos.fX),
-                    margin + (ipos.fY - iPos.fY)};
+    const auto sdst = dst * subdivision;
+    const auto isdst = sdst.round();
+    const ePoint to{margin + (isdst.fX - ispos.fX),
+                    margin + (isdst.fY - ispos.fY)};
     auto path = ePathFinder::findPath(map, from, to, found);
     for(auto& step : path) {
         step.fX -= margin;
         step.fY -= margin;
         step.fX /= subdivision;
         step.fY /= subdivision;
-        step.fX += (std::round(mPos.fX*subdivision) + 0.5f)/subdivision;
-        step.fY += (std::round(mPos.fY*subdivision) + 0.5f)/subdivision;
+        step.fX += (ispos.fX + 0.5f)/subdivision;
+        step.fY += (ispos.fY + 0.5f)/subdivision;
     }
     {
             path.emplace(path.begin(), mPos);

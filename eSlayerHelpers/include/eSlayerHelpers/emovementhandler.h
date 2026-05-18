@@ -75,7 +75,7 @@ private:
     float mStuckTimer = 0.f;
 
     int mTileMoveSubdivision = 2;
-    int mPathFindMargin = 40;
+    int mPathFindMargin = 20;
     float mWaypointReachDist = 0.2f;
     float mNearbyUnits = 1.5f;
 
