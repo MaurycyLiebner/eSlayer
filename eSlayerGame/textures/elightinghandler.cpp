@@ -280,8 +280,9 @@ void eLightingHandler::renderFloorLighting(SDL_Renderer * const r) {
 
 void render(SDL_Renderer* const r,
             const float x, const float y,
-            const std::shared_ptr<eTexture>& tex,
-            std::vector<float>& lightness) {
+            eTexture& tex,
+            std::vector<float>& lightness,
+            const SDL_FColor& colorMod) {
     if(lightness.empty()) {
         lightness.emplace_back(0.f);
         lightness.emplace_back(0.f);
@@ -292,12 +293,12 @@ void render(SDL_Renderer* const r,
     const int nStrips = lightness.size() - 1;
     if(nStrips < 1) return;
     const float vTexCoordW = 1.f/nStrips;
-    const int tw = tex->width();
-    const int th = tex->height();
+    const int tw = tex.width();
+    const int th = tex.height();
     const float vPosW = vTexCoordW*tw;
 
-    const int ox = tex->offsetX();
-    const int oy = tex->offsetY();
+    const int ox = tex.offsetX();
+    const int oy = tex.offsetY();
 
     std::vector<SDL_Vertex> verts;
     const int nVerts = 4*nStrips;
@@ -307,14 +308,14 @@ void render(SDL_Renderer* const r,
     const int nIndices = 6*nStrips;
     indices.reserve(nIndices);
 
-    const auto sprite = tex->sprite();
+    const auto sprite = tex.sprite();
 
     for(int s = 0; s < nStrips; s++) {
         {
             indices.emplace_back(verts.size());
             auto& tl = verts.emplace_back();
             const float l = lightness[s];
-            tl.color = SDL_FColor{l, l, l, 1.f};
+            tl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
             tl.position.x = x + s*vPosW + ox;
             tl.position.y = y + oy;
             tl.tex_coord.x = s*vTexCoordW;
@@ -325,7 +326,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size());
             auto& tr = verts.emplace_back();
             const float l = lightness[s + 1];
-            tr.color = SDL_FColor{l, l, l, 1.f};
+            tr.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
             tr.position.x = x + (s + 1)*vPosW + ox;
             tr.position.y = y + oy;
             tr.tex_coord.x = (s + 1)*vTexCoordW;
@@ -336,7 +337,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size());
             auto& br = verts.emplace_back();
             const float l = lightness[s + 1];
-            br.color = SDL_FColor{l, l, l, 1.f};
+            br.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
             br.position.x = x + (s + 1)*vPosW + ox;
             br.position.y = y + th + oy;
             br.tex_coord.x = (s + 1)*vTexCoordW;
@@ -349,7 +350,7 @@ void render(SDL_Renderer* const r,
             indices.emplace_back(verts.size() - 3);
             auto& bl = verts.emplace_back();
             const float l = lightness[s];
-            bl.color = SDL_FColor{l, l, l, 1.f};
+            bl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a};
             bl.position.x = x + s*vPosW + ox;
             bl.position.y = y + th + oy;
             bl.tex_coord.x = s*vTexCoordW;
@@ -384,8 +385,6 @@ void drawShadow(
 
     SDL_Vertex verts[4];
 
-    const auto& atlas = tex.atlas();
-
     verts[0].position = { x, y };
     verts[1].position = { x + w, y };
     verts[2].position = { x + w + skewOffset, y + h };
@@ -395,38 +394,17 @@ void drawShadow(
         v.color = { lightness, lightness, lightness, alpha };
     }
 
-    float u0 = 0.f;
-    float v0 = 0.f;
-    float u1 = 1.f;
-    float v1 = 1.f;
-    SDL_Texture* sdlTex = nullptr;
+    const auto sprite = tex.sprite();
 
-    if(atlas) {
-        const float invW = 1.f / atlas->width();
-        const float invH = 1.f / atlas->height();
-
-        const float tx = tex.x();
-        const float ty = tex.y();
-        const float tw = tex.width();
-        const float th = tex.height();
-
-        u0 = tx * invW;
-        v0 = ty * invH;
-        u1 = (tx + tw) * invW;
-        v1 = (ty + th) * invH;
-
-        sdlTex = atlas->tex();
-    } else {
-        sdlTex = tex.tex();
-    }
-
-    verts[0].tex_coord = { u0, v0 };
-    verts[1].tex_coord = { u1, v0 };
-    verts[2].tex_coord = { u1, v1 };
-    verts[3].tex_coord = { u0, v1 };
+    verts[0].tex_coord = { sprite.fTexCoordLeft, sprite.fTexCoordTop };
+    verts[1].tex_coord = { sprite.fTexCoordRight, sprite.fTexCoordTop };
+    verts[2].tex_coord = { sprite.fTexCoordRight, sprite.fTexCoordBottom };
+    verts[3].tex_coord = { sprite.fTexCoordLeft, sprite.fTexCoordBottom };
 
     static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
 
+    const auto& stex = *sprite.fTex;
+    const auto sdlTex = stex.tex();
     SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
 }
 
@@ -563,5 +541,5 @@ void eLightingHandler::render(
         } break;
         }
     }
-    ::render(r, c.fX, c.fY, c.fTex, lightness);
+    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod);
 }

@@ -12,7 +12,7 @@
 class eTexture;
 
 struct eSprite {
-    eTexture* fTex = nullptr;
+    const eTexture* fTex = nullptr;
     float fTexCoordLeft;
     float fTexCoordTop;
     float fTexCoordRight;
@@ -92,7 +92,7 @@ public:
                   const std::shared_ptr<eTexture>& tex);
     const std::shared_ptr<eTexture>& atlas() const { return mAtlas; }
 
-    eSprite sprite();
+    eSprite sprite() const;
 
     SDL_Texture* tex() const { return mTex; }
 private:

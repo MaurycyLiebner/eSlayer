@@ -198,7 +198,7 @@ void eTexture::setAtlas(const SDL_Rect& rect,
     mHeight = rect.h;
 }
 
-eSprite eTexture::sprite() {
+eSprite eTexture::sprite() const {
     eSprite result;
     if(mTex) {
         result.fTex = this;

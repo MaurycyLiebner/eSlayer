@@ -25,12 +25,14 @@ struct eRenderCall : public ePaintCall {
                 const bool highlight,
                 const bool shadow,
                 const bool lighting = false,
+                const SDL_FColor& colorMod = {1.f, 1.f, 1.f, 1.f},
                 const eWallType wall = eWallType::topLeft,
                 const bool transparent = false) :
         ePaintCall{px, py, tex},
         fType(type),
         fHighlight(highlight),
         fShadow(shadow),
+        fColorMod(colorMod),
         fWallType(wall),
         fTransparent(transparent),
         fLighting(lighting),
@@ -39,6 +41,7 @@ struct eRenderCall : public ePaintCall {
     eRenderCallType fType;
     bool fHighlight;
     bool fShadow;
+    SDL_FColor fColorMod;
     eWallType fWallType;
     bool fTransparent;
     bool fLighting;

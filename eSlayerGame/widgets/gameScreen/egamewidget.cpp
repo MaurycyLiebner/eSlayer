@@ -793,11 +793,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(const auto p = mPressedUnit.lock()) {
                     highlight = p == u;
                 }
-                SDL_Color colorMod{0, 0, 0, 0};
+                SDL_FColor colorMod{1.f, 1.f, 1.f, 1.f};
                 const bool cold = u->cold();
                 const bool poisoned = u->poisoned();
-                if(cold) colorMod = SDL_Color{0, 128, 255, 255};
-                else if(poisoned) colorMod = SDL_Color{0, 255, 55, 255};
+                if(cold) colorMod = SDL_FColor{0.f, 0.5f, 1.f, 1.f};
+                else if(poisoned) colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
                 const auto tex = model.requestTexture(r);
                 if(!tex) continue;
                 const auto rect = model.requestBoundingRect();
@@ -805,7 +805,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int drawY = ipixel.fY + rect.y;
                 const eRenderCall c(eRenderCallType::unit, pos.fX, pos.fY,
                                     drawX, drawY, tex, highlight, true,
-                                    e.fLighting);
+                                    e.fLighting, colorMod);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
@@ -960,6 +960,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                                     pos.fX, pos.fY,
                                     drawX, drawY, tex,
                                     false, false, false,
+                                    SDL_FColor{1.f, 1.f, 1.f, 1.f},
                                     wall.fType,
                                     transparent);
                 mGamePainter.render(c);
@@ -1035,6 +1036,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                 pos.fX, pos.fY,
                                                 drawX, drawY, tex,
                                                 highlight, false, false,
+                                                SDL_FColor{1.f, 1.f, 1.f, 1.f},
                                                 wall.fType,
                                                 transparent);
                             mGamePainter.render(c);
