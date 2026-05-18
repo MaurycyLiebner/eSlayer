@@ -228,14 +228,14 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         const auto& types = ms.fTypes;
         if(types.empty()) continue;
 
-        const int margin = 4;
+        const int unitMargin = ms.fMonstersMargin;
 
         const auto tryAddUnits = [&](const int x, const int y) {
-            for(int dx = -margin; dx <= margin; dx++) {
+            for(int dx = -unitMargin; dx <= unitMargin; dx++) {
                 const int xx = x + dx;
                 if(xx < 0) return;
                 if(xx >= w) return;
-                for(int dy = -margin; dy <= margin; dy++) {
+                for(int dy = -unitMargin; dy <= unitMargin; dy++) {
                     const int yy = y + dy;
                     if(yy < 0) return;
                     if(yy >= h) return;
@@ -322,8 +322,9 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             }
         };
 
-        for(int x = rect.fX + margin; x < rect.fX + rect.fW - margin; x++) {
-            for(int y = rect.fY + margin; y < rect.fY + rect.fH - margin; y++) {
+        const int rectMargin = ms.fRectMargin;
+        for(int x = rect.fX + rectMargin; x < rect.fX + rect.fW - rectMargin; x++) {
+            for(int y = rect.fY + rectMargin; y < rect.fY + rect.fH - rectMargin; y++) {
                 tryAddUnits(x, y);
             }
         }

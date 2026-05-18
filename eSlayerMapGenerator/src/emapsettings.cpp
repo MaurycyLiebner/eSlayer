@@ -49,10 +49,16 @@ void eMapSettings::load() {
 
                 // monsters
                 if(jArea.contains("monsters")) {
+                    auto& monsters = area.fMonsters;
+                    auto& mtypes = monsters.fTypes;
                     const auto& items = jArea["monsters"];
+                    monsters.fMonstersMargin = items.value("monsterMargin", 4);
+                    monsters.fRectMargin = items.value("wallMargin", 4);
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto mname = cit.key();
                         const auto& values = cit.value();
+                        const bool o = values.is_object();
+                        if(!o) continue;
                         eMonsterProbability result;
                         result.fProbability = values.value("probability", 0.f);
                         result.fGroupSize = values.value("groupSize", 1);
@@ -63,7 +69,7 @@ void eMapSettings::load() {
                             eRuntimeThrow("Invalid monster type \"" + name +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        area.fMonsters.fTypes.emplace_back(result);
+                        mtypes.emplace_back(result);
                     }
                 }
 

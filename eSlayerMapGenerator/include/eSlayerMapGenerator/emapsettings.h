@@ -33,6 +33,8 @@ struct eMonsterProbability : public eTypeProbability {
 
 struct eMapMonsterSettings {
     std::vector<eMonsterProbability> fTypes;
+    int fRectMargin = 0;
+    int fMonstersMargin = 0;
 };
 
 struct eAreaSettings {
