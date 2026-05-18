@@ -974,9 +974,15 @@ eMapGenerator::generate(const std::string& name) const {
                         const ePoint pos{rect.fX + rect.fW/2 + x,
                                          rect.fY + rect.fH/2 + y};
                         const bool w = result->walkable(pos);
-                        if(w) result->mSpawnPos = pos;
+                        if(w) {
+                            result->mSpawnPos = pos;
+                            found = true;
+                            break;
+                        }
                     }
+                    if(found) break;
                 }
+                if(found) break;
             }
         }
     }

@@ -8,14 +8,9 @@
 
 #include <vector>
 
-struct eDoorsTile {
-    int fX;
-    int fY;
-};
-
 struct ESLAYERHELPERS_API eDoors {
     eWallType fType;
-    std::vector<eDoorsTile> fTiles;
+    std::vector<ePoint> fTiles;
     bool fOpen;
 
     ePointF pos() const;

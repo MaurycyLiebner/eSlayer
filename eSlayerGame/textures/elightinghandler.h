@@ -14,7 +14,7 @@ class eResolution;
 class SDL_Renderer;
 
 enum class eRenderCallType {
-    unit, missile, object, wall
+    unit, missile, item, object, wall
 };
 
 struct eRenderCall : public ePaintCall {

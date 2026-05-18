@@ -834,14 +834,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                         highlight = true;
                     }
                 }
-                mGamePainter.drawTexture(drawX, drawY, tex);
-                if(highlight) {
-                    tex->setBlendMode(SDL_BLENDMODE_ADD);
-                    tex->setAlpha(125);
-                    p.drawTexture(drawX, drawY, tex);
-                    tex->setBlendMode(SDL_BLENDMODE_BLEND);
-                    tex->clearAlphaMod();
-                }
+
+                const eRenderCall c(eRenderCallType::item, pos.fX, pos.fY,
+                                    drawX, drawY, tex, highlight, false, false);
+                mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
                 const auto& obj = *objPtr;
@@ -967,76 +963,81 @@ void eGameWidget::paintEvent(ePainter& p) {
                                     wall.fType,
                                     transparent);
                 mGamePainter.render(c);
-                bool highlight = false;
                 if(doors) {
-                    if(!mHighlightUnit.lock() && !mHighlightObject.lock() &&
-                        mHighlightDoors == std::nullopt) {
-                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
-                        const int w = tex->width();
-                        const int h = tex->height();
-                        const SDL_Rect rect{ipixel.fX - w/2, ipixel.fY - h, w, h};
-                        const bool partHighlight = SDL_PointInRect(&p, &rect);
+                    bool highlight = false;
+                    if(!mHighlightUnit.lock() && !mHighlightObject.lock()) {
                         eDoors doors;
                         doors.fOpen = open;
                         doors.fType = wall.fType;
                         auto& tiles = doors.fTiles;
+
+                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+
+                        const int pixelH = 2*texH/3;
                         switch(wall.fType) {
                         case eWallType::topLeft: {
                             for(int dy = -type; dy < nTypes - type; dy++) {
-                                const eDoorsTile tile{iPos.fX, iPos.fY + dy};
+                                const ePoint tile{iPos.fX, iPos.fY + dy};
                                 tiles.emplace_back(tile);
+
+                                const auto top = tilePosToPixel(tile).round();
+                                const SDL_Rect hRect{top.fX - tileW/2,
+                                                     top.fY - pixelH,
+                                                     tileW/2, pixelH};
+                                const bool h = SDL_PointInRect(&p, &hRect);
+                                if(h) highlight = true;
                             }
                         } break;
                         case eWallType::topRight: {
                             for(int dx = -type; dx < nTypes - type; dx++) {
-                                const eDoorsTile tile{iPos.fX + dx, iPos.fY};
+                                const ePoint tile{iPos.fX + dx, iPos.fY};
                                 tiles.emplace_back(tile);
+
+                                const auto top = tilePosToPixel(tile).round();
+                                const SDL_Rect hRect{top.fX,
+                                                     top.fY - pixelH,
+                                                     tileW/2, pixelH};
+                                const bool h = SDL_PointInRect(&p, &hRect);
+                                if(h) highlight = true;
                             }
                         } break;
                         }
-                        if(partHighlight) {
-                            highlight = true;
+
+                        if(highlight && !mHighlightDoors) {
                             setHighlightedDoors(doors);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
-                        } else {
-                            for(const auto& t : tiles) {
-                                if(iPos.fX == t.fX && iPos.fY == t.fY) {
-                                    highlight = true;
-                                    break;
-                                }
-                            }
                         }
                     }
-                }
 
-                if(doors && !open) {
-                    const std::vector<eWallTexture>* types = nullptr;
-                    switch(wall.fType) {
-                    case eWallType::topLeft:
-                        types = &info.fTLDoors;
-                        break;
-                    case eWallType::topRight:
-                        types = &info.fTRDoors;
-                        break;
-                    }
+                    if(!open) {
+                        const std::vector<eWallTexture>* types = nullptr;
+                        switch(wall.fType) {
+                        case eWallType::topLeft:
+                            types = &info.fTLDoors;
+                            break;
+                        case eWallType::topRight:
+                            types = &info.fTRDoors;
+                            break;
+                        }
 
-                    const int nTypes = types->size();
-                    if(nTypes > type) {
-                        const int texId = (*types)[type].fId;
-                        const auto& tex = texs.getTexture(texId);
-                        if(transparent) tex->setAlpha(128);
-                        mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
-                                                 eAlignment::top | eAlignment::hcenter);
-                        if(transparent) tex->clearAlphaMod();
-
-                        if(highlight) {
-                            tex->setBlendMode(SDL_BLENDMODE_ADD);
-                            tex->setAlpha(125);
-                            mGamePainter.drawTexture(ipixel.fX, bottomY, tex,
-                                                     eAlignment::top | eAlignment::hcenter);
-                            tex->setBlendMode(SDL_BLENDMODE_BLEND);
-                            tex->clearAlphaMod();
+                        const int nTypes = types->size();
+                        if(nTypes > type) {
+                            const int texId = (*types)[type].fId;
+                            const auto& tex = texs.getTexture(texId);
+                            const int texW = tex->width();
+                            const int texH = tex->height();
+                            int drawX = ipixel.fX;
+                            int drawY = bottomY;
+                            ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                                      eAlignment::top | eAlignment::hcenter);
+                            const eRenderCall c(eRenderCallType::wall,
+                                                pos.fX, pos.fY,
+                                                drawX, drawY, tex,
+                                                highlight, false, false,
+                                                wall.fType,
+                                                transparent);
+                            mGamePainter.render(c);
                         }
                     }
                 }

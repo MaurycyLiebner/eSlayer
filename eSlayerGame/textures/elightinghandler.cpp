@@ -504,8 +504,9 @@ void eLightingHandler::render(
             lightness.emplace_back(l);
         } break;
         case eRenderCallType::missile:
-        case eRenderCallType::unit: {
-            float l = 0.f;
+        case eRenderCallType::unit:
+        case eRenderCallType::item: {
+            float l = addL;
             const auto tile = mIterator.getTile(ictx, icty);
             if(tile) {
                 const auto& lighting = tile->fLighting;
