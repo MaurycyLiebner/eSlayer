@@ -714,15 +714,13 @@ bool eServerArea::triggerDoors(
         switch(doors.fType) {
         case eWallType::topLeft: {
             eTile::setOpen(tile.fWallTL, !doors.fOpen);
-            return true;
         } break;
         case eWallType::topRight: {
             eTile::setOpen(tile.fWallTR, !doors.fOpen);
-            return true;
         } break;
         }
     }
-    return false;
+    return true;
 }
 
 bool eServerArea::pickupItem(
