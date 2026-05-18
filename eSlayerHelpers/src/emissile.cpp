@@ -1,10 +1,7 @@
 #include "eSlayerHelpers/emissile.h"
 
 #include "eSlayerHelpers/epacket.h"
-
-const float speedMax = 2.55f;
-const float remDistTimeMax = 655.35f;
-const float radiusMax = 2.55f;
+#include "eSlayerHelpers/eskills.h"
 
 void eMissile::read(ePacket& p) {
     p >> fId;
@@ -14,10 +11,10 @@ void eMissile::read(ePacket& p) {
     p >> fFrom;
     p >> fPos;
     p >> fTo;
-    fSpeed = p.readFloatU8(speedMax);
+    fSpeed = p.readFloatU8(eSkill::sSpeedMax);
     p >> fToPierce;
-    fRemDistTime = p.readFloatU16(remDistTimeMax);
-    fRadius = p.readFloatU8(radiusMax);
+    fRemDistTime = p.readFloatU16(eSkill::sRangeTimeMax);
+    fRadius = p.readFloatU8(eSkill::sRadiusMax);
 }
 
 void eMissile::write(ePacket& p) const {
@@ -28,8 +25,8 @@ void eMissile::write(ePacket& p) const {
     p << fFrom;
     p << fPos;
     p << fTo;
-    p.writeFloatU8(fSpeed, speedMax);
+    p.writeFloatU8(fSpeed, eSkill::sSpeedMax);
     p << fToPierce;
-    p.writeFloatU16(fRemDistTime, remDistTimeMax);
-    p.writeFloatU8(fRadius, radiusMax);
+    p.writeFloatU16(fRemDistTime, eSkill::sRangeTimeMax);
+    p.writeFloatU8(fRadius, eSkill::sRadiusMax);
 }

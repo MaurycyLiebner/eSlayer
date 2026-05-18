@@ -1,10 +1,14 @@
 #include "eSlayerHelpers/eskills.h"
 
 #include "eSlayerHelpers/efileloaderbase.h"
-#include "eSlayerHelpers/erunsettings.h"
+#include "eSlayerHelpers/epacket.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
+
+const float eSkill::sRadiusMax = 12.75f;
+const float eSkill::sSpeedMax = 1.f;
+const float eSkill::sRangeTimeMax = 655.35f;
 
 void eSkills::load() {
     if(sLoaded) return;
@@ -41,8 +45,10 @@ void eSkills::load() {
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
             int count = jdata.value("count", 1);
-            skill.fRadius = jdata.value("radius", 0.5f);
-            skill.fSpeed = jdata.value("speed", 0.25f);
+            const uint8_t radius = jdata.value("radius", 5u);
+            skill.fRadius = ePacket::toFloatU8(radius, eSkill::sRadiusMax);
+            const float speed = jdata.value("speed", 50u);
+            skill.fSpeed = ePacket::toFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
             skill.fAngleAdjust = jdata.value("angleAdjust", true);
 
@@ -57,11 +63,13 @@ void eSkills::load() {
                 skill.fCastRange = 0.f;
             } else if(typeStr == "missile") {
                 skill.fType = eSkillType::missile;
-                skill.fRangeTime = jdata.value("range", 8.f);
+                const uint16_t range = jdata.value("range", 800u);
+                skill.fRangeTime = ePacket::toFloatU16(range, eSkill::sRangeTimeMax);
                 skill.fCastRange = 8.f;
             } else if(typeStr == "nova") {
                 skill.fType = eSkillType::nova;
-                skill.fRangeTime = jdata.value("range", 4.f);
+                const uint16_t range = jdata.value("range", 300u);
+                skill.fRangeTime = ePacket::toFloatU16(range, eSkill::sRangeTimeMax);
                 skill.fCastRange = 4.f;
             } else if(typeStr == "shoot") {
                 skill.fType = eSkillType::shoot;
@@ -69,7 +77,8 @@ void eSkills::load() {
                 skill.fType = eSkillType::throw_;
             } else if(typeStr == "wall") {
                 skill.fType = eSkillType::wall;
-                skill.fRangeTime = jdata.value("time", 100.f)*eRunSettings::sFPS;
+                const uint16_t time = jdata.value("time", 20000u);
+                skill.fRangeTime = ePacket::toFloatU16(time, eSkill::sRangeTimeMax);
                 skill.fPath = "static";
                 skill.fCastRange = 8.f;
             } else if(typeStr == "summon") {

@@ -50,9 +50,12 @@ struct eSkill {
     std::string fPath;
     int fPathId;
 
+    const static float sRangeTimeMax;
     float fRangeTime;
     float fMissileEnemyFindRange;
+    static const float sRadiusMax;
     float fRadius;
+    static const float sSpeedMax;
     float fSpeed;
     float fTime;
     float fMaxAngle;
