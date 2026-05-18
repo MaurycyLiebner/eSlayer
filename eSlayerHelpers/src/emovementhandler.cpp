@@ -21,8 +21,6 @@ void eMovementHandler::intialize(const eWalkable& w,
 
 void eMovementHandler::setRadius(const float r) {
     mRadius = r;
-    if(r > 0.5f) mTileMoveSubdivision = 1;
-    else mTileMoveSubdivision = 2;
 }
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
@@ -34,8 +32,8 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
     const auto ispos = spos.round();
     for(int sx = 0; sx < dim; sx++) {
         for(int sy = 0; sy < dim; sy++) {
-            const float x = (ispos.fX + sx - margin + 0.5f)/subdivision;
-            const float y = (ispos.fY + sy - margin + 0.5f)/subdivision;
+            const float x = (ispos.fX + sx - margin)/subdivision;
+            const float y = (ispos.fY + sy - margin)/subdivision;
             map.set({sx, sy}, mWalkable(ePointF{x, y}));
         }
     }
@@ -51,8 +49,8 @@ bool eMovementHandler::moveTo(const ePointF& dst) {
         step.fY -= margin;
         step.fX /= subdivision;
         step.fY /= subdivision;
-        step.fX += (ispos.fX + 0.5f)/subdivision;
-        step.fY += (ispos.fY + 0.5f)/subdivision;
+        step.fX += ispos.fX/subdivision;
+        step.fY += ispos.fY/subdivision;
     }
     {
             path.emplace(path.begin(), mPos);
