@@ -15,7 +15,6 @@
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
-#include "../textures/eeffectstextures.h"
 #include "../textures/emissilestextures.h"
 #include "../textures/euitextures.h"
 #include "../textures/echarstextures.h"
@@ -208,14 +207,9 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([this, server, map, clientId]() {
         eMapData data;
-        const bool r = (*server)->requestMap(*clientId, /*"basement"*/"act1_1", data);
+        const bool r = (*server)->requestMap(*clientId, "basement"/*"act1_1"*/, data);
         if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
         else map->loadData(data);
-    });
-    loading.emplace_back([&res, r]() {
-        const int id = eEffectsTextures::sEffects.id("lighting");
-        auto& lighting = eEffectsTextures::sEffects.get(id);
-        lighting.load(res, r);
     });
     loading.emplace_back([&res, r]() {
         eMissilesTextures::loadTextures(res, r);

@@ -11,7 +11,6 @@
 #include "textures/echarstextures.h"
 #include "textures/eterrstextures.h"
 #include "textures/eobjstextures.h"
-#include "textures/eeffectstextures.h"
 #include "textures/emissilestextures.h"
 #include "textures/eitemstextures.h"
 
@@ -274,10 +273,6 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eObjectNames::load();
-        });
-
-        loadings.emplace_back([&]() {
-            eEffectsTextures::load();
         });
 
         loadings.emplace_back([&]() {

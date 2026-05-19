@@ -67,13 +67,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(rapidcsv)
 
 add_executable(eSlayerGame main.cpp
-
-
     audio/emusic.cpp audio/emusic.h
     audio/emusicvector.cpp audio/emusicvector.h
     audio/esounds.cpp audio/esounds.h
     audio/esoundvector.cpp audio/esoundvector.h
-
     emainwindow.cpp emainwindow.h
     widgets/ewidget.cpp widgets/ewidget.h
     widgets/epainter.cpp widgets/epainter.h
@@ -84,7 +81,6 @@ add_executable(eSlayerGame main.cpp
     ewindowsettings.h ewindowsettings.cpp
     eloadtexthelper.cpp eloadtexthelper.h
     eresolution.cpp eresolution.h
-
     widgets/elabel.cpp widgets/elabel.h
     widgets/elabelbase.cpp widgets/elabelbase.h
     widgets/ebuttonbase.cpp widgets/ebuttonbase.h
@@ -99,47 +95,38 @@ add_executable(eSlayerGame main.cpp
     screens/echoosecharactermenu.h screens/echoosecharactermenu.cpp
     widgets/mainMenu/echoosecharacterwidget.h widgets/mainMenu/echoosecharacterwidget.cpp
     echaracters.h echaracters.cpp
-
     widgets/echeckbox.h widgets/echeckbox.cpp
     widgets/mainMenu/echaracterbutton.h widgets/mainMenu/echaracterbutton.cpp
     widgets/escrollwidget.h widgets/escrollwidget.cpp
     screens/esettingsmenu.h screens/esettingsmenu.cpp
     widgets/echeckbutton.h widgets/echeckbutton.cpp
     screens/escreenbase.h screens/escreenbase.cpp
-
     textures/etexturecollection.cpp textures/etexturecollection.h
     textures/espriteloader.h textures/espriteloader.cpp
     textures/echartextures.h textures/echartextures.cpp
     textures/echarmodel.h textures/echarmodel.cpp
     textures/echarstextures.h textures/echarstextures.cpp
     textures/echarunitmodel.h textures/echarunitmodel.cpp
-
     efileloader.h efileloader.cpp
     audio/eaudiovector.h audio/eaudiovector.cpp
     widgets/eprogressbar.h widgets/eprogressbar.cpp
     screens/eloadingscreen.h screens/eloadingscreen.cpp
     textures/eterrstextures.h textures/eterrstextures.cpp
-
     screens/egamescreen.h screens/egamescreen.cpp
     egameworld.h egameworld.cpp
     egameinput.h egameinput.cpp
     textures/elightinghandler.h textures/elightinghandler.cpp
-    textures/eeffectstextures.h textures/eeffectstextures.cpp
-    textures/eeffecttextures.h textures/eeffecttextures.cpp
     textures/erendertargetholder.h textures/erendertargetholder.cpp
     textures/etextgenerator.h textures/etextgenerator.cpp
     widgets/gameScreen/eescmenu.h widgets/gameScreen/eescmenu.cpp
     widgets/gameScreen/eescmenubutton.h widgets/gameScreen/eescmenubutton.cpp
     textures/eobjstextures.h textures/eobjstextures.cpp
-
     textures/etiletextures.h textures/etiletextures.cpp
-
     textures/etilesiterator.h textures/etilesiterator.cpp
     units/eunit.h units/eunit.cpp
     widgets/gameScreen/egamepainter.h widgets/gameScreen/egamepainter.cpp
     widgets/gameScreen/egamewidget.h widgets/gameScreen/egamewidget.cpp
     widgets/gameScreen/eunitindicator.h widgets/gameScreen/eunitindicator.cpp
-
     textures/euitextures.h textures/euitextures.cpp
     widgets/ecolors.h widgets/ecolors.cpp
     emaincharaction.h emaincharaction.cpp
@@ -179,9 +166,6 @@ add_executable(eSlayerGame main.cpp
     widgets/gameScreen/ecoinswidget.h widgets/gameScreen/ecoinswidget.cpp
     names/eobjectnames.h names/eobjectnames.cpp
     elight.h elight.cpp
-
-
-
 )
 
 include(GNUInstallDirs)
