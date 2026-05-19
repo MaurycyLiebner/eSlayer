@@ -75,20 +75,22 @@ void eGameWidget::initialize(const int clientId,
             handler(*u);
         }
     };
-    mMainAction.initialize(mServer, res, r, w, iter, clientId, teamId);
-    mMainChar = mMainAction.unit();
+    auto& pathFinderMap = map->pathFinderMap();
+    mMainAction = std::make_shared<eMainCharAction>(pathFinderMap);
+    mMainAction->initialize(mServer, res, r, w, iter, clientId, teamId);
+    mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 
     setRightSkill(0);
     setLeftSkill(0);
 
     const auto& srcEq = c.equipment();
-    auto& dstEq = mMainAction.equipment();
+    auto& dstEq = mMainAction->equipment();
     dstEq = srcEq;
     const auto& srcAttrs = c.attributes();
-    auto& dstAttrs = mMainAction.attributes();
+    auto& dstAttrs = mMainAction->attributes();
     dstAttrs = srcAttrs;
-    auto& dstStats = mMainAction.stats();
+    auto& dstStats = mMainAction->stats();
     dstStats.fBaseSkillLevels = c.skillLevels();
     dstStats.calculate(dstAttrs, dstEq);
 
@@ -102,7 +104,7 @@ void eGameWidget::initialize(const int clientId,
 }
 
 const ePointF& eGameWidget::characterPos() const {
-    return mMainAction.pos();
+    return mMainAction->pos();
 }
 
 ePointF eGameWidget::pixelToTilePos(
@@ -127,8 +129,8 @@ void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
 }
 
 void eGameWidget::stop() {
-    mMainAction.stop();
-    mMainAction.stand();
+    mMainAction->stop();
+    mMainAction->stand();
 }
 
 std::string eGameWidget::userName(const int clientId) const {
@@ -138,7 +140,7 @@ std::string eGameWidget::userName(const int clientId) const {
 }
 
 void eGameWidget::dropItem() {
-    auto& eq = mMainAction.equipment();
+    auto& eq = mMainAction->equipment();
     auto& dragged = eq.fDragged;
     if(dragged.fType == eItemType::none) return;
     mServer->dropItem(mClientId);
@@ -147,17 +149,17 @@ void eGameWidget::dropItem() {
 }
 
 void eGameWidget::sendInventoryRearranged() {
-    const auto& eq = mMainAction.equipment();
+    const auto& eq = mMainAction->equipment();
     mServer->rearrangeItems(mClientId, eq);
 }
 
 void eGameWidget::sendAttributesChanged() {
-    const auto& attrs = mMainAction.attributes();
+    const auto& attrs = mMainAction->attributes();
     mServer->changeAttributes(mClientId, attrs);
 }
 
 void eGameWidget::sendSkillLevelsChanged() {
-    const auto& stats = mMainAction.stats();
+    const auto& stats = mMainAction->stats();
     const auto& skillLevels = stats.fBaseSkillLevels;
     mServer->changeSkillLevels(mClientId, skillLevels);
 }
@@ -165,14 +167,14 @@ void eGameWidget::sendSkillLevelsChanged() {
 void eGameWidget::setLeftSkill(const int s) {
     if(mLeftSkill == s) return;
     mLeftSkill = s;
-    mMainAction.setSkillId(eSkillChoice::left, s);
+    mMainAction->setSkillId(eSkillChoice::left, s);
     mServer->setSkillId(mClientId, eSkillChoice::left, s);
 }
 
 void eGameWidget::setRightSkill(const int s) {
     if(mRightSkill == s) return;
     mRightSkill = s;
-    mMainAction.setSkillId(eSkillChoice::right, s);
+    mMainAction->setSkillId(eSkillChoice::right, s);
     mServer->setSkillId(mClientId, eSkillChoice::right, s);
 }
 
@@ -180,17 +182,17 @@ void eGameWidget::respawn() {
     mServer->respawn(mClientId);
     auto& eq = equipment();
     eq = eEquipment();
-    mMainAction.recalculateStats();
+    mMainAction->recalculateStats();
 }
 
 bool eGameWidget::switchRunning() {
-    const bool run = !mMainAction.running();
-    mMainAction.setRunning(run);
+    const bool run = !mMainAction->running();
+    mMainAction->setRunning(run);
     return run;
 }
 
 bool eGameWidget::switchWeapons() {
-    auto& eq = mMainAction.equipment();
+    auto& eq = mMainAction->equipment();
     eq.fWeapons1 = !eq.fWeapons1;
     sSendInventoryRearranged();
     return eq.fWeapons1;
@@ -230,17 +232,17 @@ void eGameWidget::consumePotion(const eItem& p) {
 
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
-    sInstance->mMainAction.recalculateStats();
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::sSendSkillLevelsChanged() {
     sInstance->sendSkillLevelsChanged();
-    sInstance->mMainAction.recalculateStats();
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::sSendAttributesChanged() {
     sInstance->sendAttributesChanged();
-    sInstance->mMainAction.recalculateStats();
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
@@ -299,12 +301,12 @@ void eGameWidget::paintEvent(ePainter& p) {
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
-        mClientId, *mServer, *mMainChar, mMainAction, res, r);
+        mClientId, *mServer, *mMainChar, *mMainAction, res, r);
     if(eInventoryWidget::sBlocked) {
-        auto& eq = mMainAction.equipment();
+        auto& eq = mMainAction->equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);
         if(r) {
-            mMainAction.recalculateStats();
+            mMainAction->recalculateStats();
             eInventoryWidget::sBlocked = false;
             eHoverWidget::sUpdateDragItem(eq);
         } else {
@@ -319,8 +321,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(worldResult.fHasMainCharData) {
             const auto& u = worldResult.fMainCharData;
             if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
-                mMainAction.setPos(u.fPos);
-                mMainAction.stop();
+                mMainAction->setPos(u.fPos);
+                mMainAction->stop();
                 setPressedUnit(nullptr);
                 setHighlightedUnit(nullptr);
                 setHighlightedObject(nullptr);
@@ -346,7 +348,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
             if(u.fHealth <= 0) {
                 if(mDeathHandler) mDeathHandler();
-                mMainAction.stop();
+                mMainAction->stop();
             }
             mMainChar->fMaxHealth = u.fMaxHealth;
             mMainChar->fBlockingActionTime = u.fBlockingActionTime;
@@ -384,7 +386,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto mouseTilePos = pixelToTilePos(mpos);
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
-        mMainAction.increment(mInput.mousePressed(),
+        mMainAction->increment(mInput.mousePressed(),
                               mInput.rightPressed(),
                               shiftPressed,
                               mouseTilePos,
@@ -1107,24 +1109,24 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
     const bool rightPressed = static_cast<bool>(
         button & eMouseButton::right);
     if(leftPressed || rightPressed) {
-        mMainAction.mousePress();
+        mMainAction->mousePress();
         if(e.altPreseed()) {
             uint32_t itemId;
             const bool r = mItemNames.at({e.x(), e.y()}, itemId);
             if(r) {
                 const auto item = mWorld.getItem(itemId);
                 if(item) {
-                    mMainAction.setPressedItem(item);
+                    mMainAction->setPressedItem(item);
                 }
             }
         } else if(const auto h = mHighlightUnit.lock()) {
             setPressedUnit(h);
         } else if(const auto o = mHighlightObject.lock()) {
-            mMainAction.setPressedObject(o);
+            mMainAction->setPressedObject(o);
         } else if(const auto i = mHighlightItem.lock()) {
-            mMainAction.setPressedItem(i);
+            mMainAction->setPressedItem(i);
         } else if(const auto d = mHighlightDoors) {
-            mMainAction.setPressedDoors(d);
+            mMainAction->setPressedDoors(d);
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));
@@ -1142,13 +1144,13 @@ bool eGameWidget::mouseReleaseEvent(const eMouseEvent& e) {
         mInput.handleMouseRelease(leftReleased, rightRelease);
         const auto schoice = leftReleased ? eSkillChoice::left :
                                  eSkillChoice::right;
-        const bool rangeAttack = mMainAction.rangedAttack(schoice);
+        const bool rangeAttack = mMainAction->rangedAttack(schoice);
         if(e.shiftPressed() || (rightRelease && rangeAttack) ||
            (rangeAttack && mPressedUnit.lock())) {
-            mMainAction.stop();
+            mMainAction->stop();
         } else {
             const auto pos = pixelToTilePos(mInput.mousePos());
-            mMainAction.mouseRelease(pos);
+            mMainAction->mouseRelease(pos);
         }
         setPressedUnit(nullptr);
     }
@@ -1231,7 +1233,7 @@ void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
         }
     }
 
-    if(u) mMainAction.setPressedUnit(u);
+    if(u) mMainAction->setPressedUnit(u);
 }
 
 void eGameWidget::addMessage(SDL_Renderer* const r,

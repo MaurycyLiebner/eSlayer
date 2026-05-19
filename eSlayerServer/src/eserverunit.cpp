@@ -13,8 +13,9 @@ int eServerUnit::sNextCharId = 0;
 eServerUnit::eServerUnit(const bool client,
                          const eCharData& data,
                          const int unitTypeId,
-                         eServerArea& area) :
-    mHandler(fPos, fAngle),
+                         eServerArea& area,
+                         ePathFinderMap& map) :
+    mHandler(fPos, fAngle, map),
     mData(data),
     mArea(area),
     mClient(client),

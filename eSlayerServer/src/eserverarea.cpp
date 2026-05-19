@@ -267,8 +267,9 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                 const auto addUnit = [&]() {
                     const auto modelParts = data.randomModelParts();
+                    auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
-                        false, data, type, *this);
+                        false, data, type, *this, map);
                     const int charId = eServerUnit::sNextCharId++;
                     ePointF pos;
                     for(int dist = 1; dist < 3; dist++) {
@@ -578,8 +579,9 @@ bool eServerArea::addClient(const int clientId,
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const std::map<std::string, std::string> partsMap{{"whole", "light"}};
     const auto modelParts = data.mapToModelParts(partsMap);
+    auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        true, data, typeId, *this);
+        true, data, typeId, *this, map);
     u->addSkill();
     u->addSkill();
     const auto& spawnPos = mMap->spawnPos();
@@ -617,8 +619,9 @@ bool eServerArea::respawn(const int clientId) {
         auto& eq = client->equipment();
         const auto& data = client->data();
         const int typeId = 0;
+        auto& map = mMap->pathFinderMap();
         const auto u = std::make_shared<eServerUnit>(
-            true, data, typeId, *this);
+            true, data, typeId, *this, map);
         u->setEquipment(eq, false);
         const auto& udata = eUnitsInfo::sUnits.get(typeId);
         const int charId = eServerUnit::sNextCharId++;
@@ -707,19 +710,7 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
 
 bool eServerArea::triggerDoors(
     const int clientId, const eDoors& doors) {
-    for(const auto& t : doors.fTiles) {
-        const bool r = mMap->inside(t.fX, t.fY);
-        if(!r) continue;
-        auto& tile = mMap->tile(t.fX, t.fY);
-        switch(doors.fType) {
-        case eWallType::topLeft: {
-            eTile::setOpen(tile.fWallTL, !doors.fOpen);
-        } break;
-        case eWallType::topRight: {
-            eTile::setOpen(tile.fWallTR, !doors.fOpen);
-        } break;
-        }
-    }
+    mMap->triggerDoors(doors);
     return true;
 }
 
@@ -1025,8 +1016,10 @@ void eServerArea::summon(eServerUnit& by,
         {"wolf", "whole"}
     };
     const auto modelParts = data.mapToModelParts(partsMap);
+
+    auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        false, data, unitId, *this);
+        false, data, unitId, *this, map);
     const int charId = eServerUnit::sNextCharId++;
     followers.emplace_back(charId);
     iniSetupUnit(u, charId, by.fTeamId, to, udata, data, modelParts);

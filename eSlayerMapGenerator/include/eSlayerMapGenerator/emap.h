@@ -1,17 +1,18 @@
 #ifndef EMAP_H
 #define EMAP_H
 
+#include "emapsettings.h"
 #include "eslayermapgeneratorexport.h"
 
-#include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/emapportion.h>
+#include <eSlayerHelpers/epathfindermap.h>
+#include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/estringidmapvector.h>
+#include <eSlayerHelpers/edoors.h>
 
-#include "emapsettings.h"
-
-#include <vector>
 #include <memory>
+#include <vector>
 
 class ePacket;
 
@@ -47,6 +48,7 @@ public:
               const int x, const int y,
               const eTile& tile) const;
     bool walkable(const ePointF& pos) const;
+    bool walkable(const ePointF& from, const ePointF& to) const;
     bool obsticle(const ePointF& pos) const;
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
@@ -67,6 +69,10 @@ public:
 
     const std::vector<eMonsterArea>& monsterAreas() const
     { return mMonsterAreas; }
+
+    ePathFinderMap& pathFinderMap() { return mPathFinderMap; }
+    void fillPathFinderMap();
+    void triggerDoors(const eDoors& doors);
 private:
     bool wallBase(const ePointF& pos,
                   const int x, const int y,
@@ -91,6 +97,8 @@ private:
     std::set<uint16_t> mUnitTypes;
 
     std::vector<eMonsterArea> mMonsterAreas;
+
+    ePathFinderMap mPathFinderMap;
 };
 
 #endif // EMAP_H

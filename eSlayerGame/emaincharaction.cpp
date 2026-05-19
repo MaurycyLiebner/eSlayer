@@ -15,10 +15,12 @@
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 
-eMainCharAction::eMainCharAction() :
+eMainCharAction::eMainCharAction(
+    ePathFinderMap& map) :
     mMainChar(std::make_shared<eUnit>()),
     mMovementHandler(mMainChar->fPos,
-                     mMainChar->fAngle) {}
+                     mMainChar->fAngle,
+                     map) {}
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eResolution& res,

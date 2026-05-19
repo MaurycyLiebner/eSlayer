@@ -45,7 +45,8 @@ public:
     eServerUnit(const bool client,
                 const eCharData& data,
                 const int unitTypeId,
-                eServerArea& area);
+                eServerArea& area,
+                ePathFinderMap& map);
 
     int unitTypeId() const { return mUnitTypeId; }
 

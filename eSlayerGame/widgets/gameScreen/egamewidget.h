@@ -64,16 +64,16 @@ public:
     void setMenuVisible(const bool v) { mMenuVisible = v; }
 
     void stop();
-    eMainCharAction& mainAction() { return mMainAction; }
+    eMainCharAction& mainAction() { return *mMainAction; }
 
     eGameInput& input() { return mInput; }
     const eGameInput& input() const { return mInput; }
 
     const std::string& cname() const { return mCName; }
     std::string userName(const int clientId) const;
-    eEquipment& equipment() { return mMainAction.equipment(); }
-    eAttributes& attributes() { return mMainAction.attributes(); }
-    eStats& stats() { return mMainAction.stats(); }
+    eEquipment& equipment() { return mMainAction->equipment(); }
+    eAttributes& attributes() { return mMainAction->attributes(); }
+    eStats& stats() { return mMainAction->stats(); }
     void dropItem();
     void sendInventoryRearranged();
     void sendAttributesChanged();
@@ -127,7 +127,7 @@ private:
     int mClientId = -1;
     std::shared_ptr<eServer> mServer;
 
-    eMainCharAction mMainAction;
+    std::shared_ptr<eMainCharAction> mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
     std::map<int, std::string> mUserNames;

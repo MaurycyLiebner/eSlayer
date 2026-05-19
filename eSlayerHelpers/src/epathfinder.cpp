@@ -3,137 +3,81 @@
 #include <cassert>
 #include <cstdlib>
 #include <deque>
-#include <limits>
-
-struct ePathFinderBoardTile {
-    int fDist = std::numeric_limits<int>::max();
-};
-
-class ePathFinderBoard : public std::vector<std::vector<ePathFinderBoardTile>> {
-  public:
-    ePathFinderBoard(const int w, const int h) :
-        mWidth(w), mHeight(h) {
-        resize(h);
-        for(int y = 0; y < h; y++) {
-            operator[](y).resize(w);
-        }
-    }
-
-    void set(const ePoint& p, const int v) {
-        operator[](p.fY)[p.fX].fDist = v;
-    }
-
-    int get(const ePoint& p) const {
-        if(p.fX < 0 || p.fX >= mWidth) return std::numeric_limits<int>::max();
-        if(p.fY < 0 || p.fY >= mHeight) return std::numeric_limits<int>::max();
-        return operator[](p.fY)[p.fX].fDist;
-    }
-private:
-    const int mWidth;
-    const int mHeight;
-};
 
 ePathFinderPath ePathFinder::findPath(
-    const ePathFinderMap& map,
-    const ePoint& from,
-    const ePoint& to,
+    ePathFinderMap& map,
+    const ePointF& from,
+    const ePointF& to,
     bool& found) {
-    found = false;
-
+    map.nextIter();
     ePathFinderPath result;
-    if(from == to) {
+    const float dist = ePointF::distance(from, to);
+    if(dist < 0.5f) {
         found = true;
         return result;
     }
 
-    const int w = map.width();
-    const int h = map.height();
-    ePathFinderBoard board(w, h);
+    const auto fromTile = ePathFinderMap::posToTile(from);
+    const auto toTile = ePathFinderMap::posToTile(to);
 
-    const auto canWalk = [&](const ePoint& tile,
-                             const int dx,
-                             const int dy) {
-        if(!map.get(tile)) return false;
-        if(dx != 0 && dy != 0) {
-            std::pair<ePoint, ePoint> surr;
-            if(dx == -1 && dy == -1) {
-                surr.first = ePoint{tile.fX, tile.fY + 1};
-                surr.second = ePoint{tile.fX + 1, tile.fY};
-            } else if(dx == -1 && dy == 1) {
-                surr.first = ePoint{tile.fX, tile.fY - 1};
-                surr.second = ePoint{tile.fX + 1, tile.fY};
-            } else if(dx == 1 && dy == 1) {
-                surr.first = ePoint{tile.fX, tile.fY - 1};
-                surr.second = ePoint{tile.fX - 1, tile.fY};
-            } else { // if(dx == 1 && dy == -1) {
-                surr.first = ePoint{tile.fX, tile.fY + 1};
-                surr.second = ePoint{tile.fX - 1, tile.fY};
-            }
-            if(!map.get(surr.first)) return false;
-            if(!map.get(surr.second)) return false;
-        }
-        return true;
-    };
+    found = false;
 
-    ePoint geoClosestTile = from;
+    ePoint geoClosestTile = fromTile;
     const auto calcMinGeoDist = [&](const ePoint& from) {
-        return std::max(std::abs(from.fX - to.fX),
-                        std::abs(from.fY - to.fY));
+        return std::max(std::abs(from.fX - toTile.fX),
+                        std::abs(from.fY - toTile.fY));
     };
-    int minGeoDist = calcMinGeoDist(from);
+    int minGeoDist = calcMinGeoDist(fromTile);
 
     std::deque<ePoint> toProcess;
-    const auto processTile = [&](const ePoint& tile,
+    const auto processTile = [&](const ePoint& from,
                                  const int dx, const int dy,
                                  const int dist) {
         if(dx == 0 && dy == 0) return;
-        const bool r = canWalk(tile, dx, dy);
+        const bool r = map.walkable(from, dx, dy);
         if(!r) return;
-        const int geoDist = calcMinGeoDist(tile);
+        const ePoint to{from.fX + dx, from.fY + dy};
+        const int geoDist = calcMinGeoDist(to);
         if(geoDist < minGeoDist) {
-            geoClosestTile = tile;
+            geoClosestTile = to;
             minGeoDist = geoDist;
         }
         const int newDist = dist + 1;
-        if(board.get(tile) > newDist) {
-            board.set(tile, newDist);
-            toProcess.push_back(tile);
+        if(map.distance(to) > newDist) {
+            map.setDistance(to, newDist);
+            toProcess.push_back(to);
         }
-        if(tile == to) {
+        if(to == toTile) {
             found = true;
         }
     };
 
     const auto pathFinder = [&](const ePoint& from) {
+        const int dist = map.distance(from);
         for(const int dx : {0, 1, -1}) {
             for(const int dy : {0, 1, -1}) {
-                const int dist = board.get(from);
-                const ePoint to{from.fX + dx, from.fY + dy};
-                processTile(to, dx, dy, dist);
+                processTile(from, dx, dy, dist);
             }
         }
     };
 
-    board.set(from, 0);
-    toProcess.push_back(from);
+    map.setDistance(fromTile, 0);
+    toProcess.push_back(fromTile);
     while(!found && !toProcess.empty()) {
         const auto t = toProcess.front();
         toProcess.pop_front();
         pathFinder(t);
     }
 
-    ePoint tile = geoClosestTile;
-    ePoint minTile = tile;
-    int minDist = board.get(tile);
-    while(tile != from) {
+    ePoint tile = found ? toTile : geoClosestTile;
+    while(tile != fromTile) {
+        ePoint minTile = tile;
+        int minDist = map.distance(tile);
         for(const int dx : {0, 1, -1}) {
             for(const int dy : {0, 1, -1}) {
                 if(dx == 0 && dy == 0) continue;
-                const ePoint dtile{tile.fX + dx,
-                                   tile.fY + dy};
-                const bool r = canWalk(dtile, dx, dy);
-                if(!r) continue;
-                const int dist = board.get(dtile);
+                const ePoint dtile{tile.fX + dx, tile.fY + dy};
+                const int dist = map.distance(dtile);
                 if(dist < minDist) {
                     minDist = dist;
                     minTile = dtile;
@@ -141,7 +85,9 @@ ePathFinderPath ePathFinder::findPath(
             }
         }
         if(tile == minTile) return result;
-        result.insert(result.begin(), {minTile, tile});
+        const auto minTilePos = ePathFinderMap::tileToPos(minTile);
+        const auto tilePos = ePathFinderMap::tileToPos(tile);
+        result.insert(result.begin(), {minTilePos, tilePos});
         tile = minTile;
     }
 

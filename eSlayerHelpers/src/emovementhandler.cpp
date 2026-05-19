@@ -6,8 +6,11 @@
 
 #include <cstdio>
 
-eMovementHandler::eMovementHandler(ePointF& pos, float& angle) :
-    mPos(pos), mAngle(angle) {}
+eMovementHandler::eMovementHandler(
+    ePointF& pos, float& angle,
+    ePathFinderMap& map) :
+    mPos(pos), mAngle(angle),
+    mMap(map) {}
 
 void eMovementHandler::intialize(const eWalkable& w,
                                  const eOtherIterator& iter,
@@ -24,47 +27,21 @@ void eMovementHandler::setRadius(const float r) {
 }
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
-    const int margin = mPathFindMargin*mTileMoveSubdivision;
-    const float subdivision = mTileMoveSubdivision;
-    const int dim = 2*margin + 1;
-    ePathFinderMap map(0, 0, dim, dim);
-    const auto spos = mPos * subdivision;
-    const auto ispos = spos.round();
-    for(int sx = 0; sx < dim; sx++) {
-        for(int sy = 0; sy < dim; sy++) {
-            const float x = (ispos.fX + sx - margin)/subdivision;
-            const float y = (ispos.fY + sy - margin)/subdivision;
-            map.set({sx, sy}, mWalkable(ePointF{x, y}));
-        }
-    }
     bool found;
-    const ePoint from{margin, margin};
-    const auto sdst = dst * subdivision;
-    const auto isdst = sdst.round();
-    const ePoint to{margin + (isdst.fX - ispos.fX),
-                    margin + (isdst.fY - ispos.fY)};
-    auto path = ePathFinder::findPath(map, from, to, found);
-    for(auto& step : path) {
-        step.fX -= margin;
-        step.fY -= margin;
-        step.fX /= subdivision;
-        step.fY /= subdivision;
-        step.fX += ispos.fX/subdivision;
-        step.fY += ispos.fY/subdivision;
-    }
-    {
-            path.emplace(path.begin(), mPos);
-            for(int i = 0; i < path.size() - 2; i++) {
-                const auto& from = path[i];
-                int j = path.size() - 1;
-                for(; j > i + 1; j--) {
-                    const bool r = walkable(from, path[j]);
-                    if(r) break;
-                }
-                path.erase(path.begin() + i + 1, path.begin() + j);
-            }
-            path.erase(path.begin());
-    }
+    auto path = ePathFinder::findPath(mMap, mPos, dst, found);
+    // {
+    //         path.emplace(path.begin(), mPos);
+    //         for(int i = 0; i < path.size() - 2; i++) {
+    //             const auto& from = path[i];
+    //             int j = path.size() - 1;
+    //             for(; j > i + 1; j--) {
+    //                 const bool r = walkable(from, path[j]);
+    //                 if(r) break;
+    //             }
+    //             path.erase(path.begin() + i + 1, path.begin() + j);
+    //         }
+    //         path.erase(path.begin());
+    // }
     mGoal.moveOnPath(path);
     return found;
 }

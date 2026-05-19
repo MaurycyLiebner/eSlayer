@@ -575,6 +575,8 @@ public:
                 }
             }
         }
+
+        mMap->fillPathFinderMap();
     }
 
     void generateWalls() const {

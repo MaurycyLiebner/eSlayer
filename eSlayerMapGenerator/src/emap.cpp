@@ -178,6 +178,10 @@ bool eMap::walkable(const ePointF& pos) const {
     return true;
 }
 
+bool eMap::walkable(const ePointF& from, const ePointF& to) const {
+    return walkable(to);
+}
+
 bool eMap::obsticle(const ePointF& pos) const {
     const int x = pos.fX;
     const int y = pos.fY;
@@ -335,11 +339,55 @@ eMapArea& eMap::area(const int id) {
     return mAreas.get(id);
 }
 
+void eMap::fillPathFinderMap() {
+    const int sw = mWidth*ePathFinderMap::sSubdivide;
+    const int sh = mHeight*ePathFinderMap::sSubdivide;
+    for(int x = 0; x < sw; x++) {
+        for(int y = 0; y < sh; y++) {
+            for(int dx = -1; dx <= 1; dx++) {
+                for(int dy = -1; dy <= 1; dy++) {
+                    mPathFinderMap.walkable(ePoint{x, y}, dx, dy);
+                }
+            }
+        }
+    }
+}
+
+void eMap::triggerDoors(const eDoors& doors) {
+    for(const auto& t : doors.fTiles) {
+        const bool r = inside(t.fX, t.fY);
+        if(!r) continue;
+        auto& tile = eMap::tile(t.fX, t.fY);
+        switch(doors.fType) {
+        case eWallType::topLeft: {
+            eTile::setOpen(tile.fWallTL, !doors.fOpen);
+        } break;
+        case eWallType::topRight: {
+            eTile::setOpen(tile.fWallTR, !doors.fOpen);
+        } break;
+        }
+
+        const int sxMin = t.fX*ePathFinderMap::sSubdivide;
+        const int syMin = t.fY*ePathFinderMap::sSubdivide;
+        const int sxMax = sxMin + ePathFinderMap::sSubdivide;
+        const int syMax = syMin + ePathFinderMap::sSubdivide;
+        for(int sx = sxMin; sx < sxMax; sx++) {
+            for(int sy = syMin; sy < syMax; sy++) {
+                mPathFinderMap.erase(ePoint{sx, sy});
+            }
+        }
+    }
+}
+
 void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
     mWidth = w;
     mHeight = h;
     mObjectsMap.resize(mHeight, std::vector<std::vector<int>>(mWidth));
+    const auto walkable = [this](const ePointF& from, const ePointF& to) {
+        return eMap::walkable(from, to);
+    };
+    mPathFinderMap.initialize(w, h, walkable);
 }
 
 void eMap::updateObjectsMap() {

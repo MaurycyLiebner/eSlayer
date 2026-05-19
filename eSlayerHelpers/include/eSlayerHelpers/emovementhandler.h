@@ -7,6 +7,7 @@
 #include "emovementgoal.h"
 
 #include <eSlayerHelpers/eteamid.h>
+#include <eSlayerHelpers/epathfindermap.h>
 
 #include <functional>
 
@@ -19,7 +20,8 @@ using eOtherIterator = std::function<void(
 
 class ESLAYERHELPERS_API eMovementHandler {
 public:
-    eMovementHandler(ePointF& pos, float& angle);
+    eMovementHandler(ePointF& pos, float& angle,
+                     ePathFinderMap& map);
 
     void intialize(const eWalkable& w,
                    const eOtherIterator& iter,
@@ -60,6 +62,7 @@ private:
 
     ePointF& mPos;
     float& mAngle;
+    ePathFinderMap& mMap;
 
     int mCharId = 0;
     eTeamId mTeamId = eTeamId::neutralHostile;
@@ -74,7 +77,7 @@ private:
     float mSpeed = 0.1f;
     float mStuckTimer = 0.f;
 
-    int mTileMoveSubdivision = 4;
+    int mTileMoveSubdivision = 2;
     int mPathFindMargin = 20;
     float mWaypointReachDist = 0.2f;
     float mNearbyUnits = 1.5f;

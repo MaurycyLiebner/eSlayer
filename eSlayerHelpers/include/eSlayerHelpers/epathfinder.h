@@ -6,9 +6,9 @@
 
 namespace ePathFinder {
     ESLAYERHELPERS_API
-    ePathFinderPath findPath(const ePathFinderMap& map,
-                             const ePoint& from,
-                             const ePoint& to,
+    ePathFinderPath findPath(ePathFinderMap& map,
+                             const ePointF& from,
+                             const ePointF& to,
                              bool& found);
 };
 

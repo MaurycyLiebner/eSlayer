@@ -6,23 +6,58 @@
 #include "epoint.h"
 
 #include <vector>
+#include <functional>
 
-class ESLAYERHELPERS_API ePathFinderMap : public std::vector<std::vector<bool>> {
+struct ePathFinderTile {
+    int fIter = 0;
+    int fDist;
+
+    bool fTop;
+    bool fTopInitialized = false;
+    bool fTopRight;
+    bool fTopRightInitialized = false;
+    bool fRight;
+    bool fRightInitialized = false;
+    bool fBottomRight;
+    bool fBottomRightInitialized = false;
+    bool fBottom;
+    bool fBottomInitialized = false;
+    bool fBottomLeft;
+    bool fBottomLeftInitialized = false;
+    bool fLeft;
+    bool fLeftInitialized = false;
+    bool fTopLeft;
+    bool fTopLeftInitialized = false;
+};
+
+class ESLAYERHELPERS_API ePathFinderMap {
 public:
-    ePathFinderMap();
-    ePathFinderMap(const int x, const int y,
-                   const int w, const int h);
+    using eWalkable = std::function<bool(
+        const ePointF& from, const ePointF& to)>;
 
-    void set(const ePoint& p, const bool v);
-    bool get(const ePoint& p) const;
+    void initialize(const int w, const int h,
+                    const eWalkable& walkable);
 
-    int width() const { return mWidth; }
-    int height() const { return mHeight; }
+    bool walkable(const ePoint& from,
+                  const int dx, const int dy);
+
+    void erase(const ePoint& tile);
+
+    void nextIter();
+    int distance(const ePoint& tile) const;
+    void setDistance(const ePoint& tile, const int dist);
+
+    static const int sSubdivide;
+    static ePoint posToTile(const ePointF& pos);
+    static ePointF tileToPos(const ePoint& tile);
 private:
-    int mX = 0;
-    int mY = 0;
+    eWalkable mWalkable;
+
     int mWidth = 0;
     int mHeight = 0;
+
+    int mIter = 0;
+    std::vector<std::vector<ePathFinderTile>> mTiles;
 };
 
 #endif // EPATHFINDERMAP_H

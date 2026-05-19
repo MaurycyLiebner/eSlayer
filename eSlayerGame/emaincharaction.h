@@ -22,7 +22,7 @@ class eResolution;
 
 class eMainCharAction {
 public:
-    eMainCharAction();
+    eMainCharAction(ePathFinderMap& map);
 
     void initialize(const std::shared_ptr<eServer>& s,
                     const eResolution& res,
