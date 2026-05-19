@@ -12,7 +12,7 @@
 class eTexture;
 
 struct eSprite {
-    const eTexture* fTex = nullptr;
+    SDL_Texture* fTex = nullptr;
     float fTexCoordLeft;
     float fTexCoordTop;
     float fTexCoordRight;

@@ -360,8 +360,7 @@ void render(SDL_Renderer* const r,
         }
     }
 
-    const auto stex = sprite.fTex;
-    const auto sdlTex = stex->tex();
+    const auto sdlTex = sprite.fTex;
     SDL_RenderGeometry(r, sdlTex,
                        verts.data(), verts.size(),
                        indices.data(), indices.size());
@@ -404,8 +403,7 @@ void drawShadow(
 
     static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
 
-    const auto& stex = *sprite.fTex;
-    const auto sdlTex = stex.tex();
+    const auto sdlTex = sprite.fTex;
     SDL_RenderGeometry(r, sdlTex, verts, 4, indices, 6);
 }
 

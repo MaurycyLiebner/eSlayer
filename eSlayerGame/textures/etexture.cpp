@@ -201,13 +201,13 @@ void eTexture::setAtlas(const SDL_Rect& rect,
 eSprite eTexture::sprite() const {
     eSprite result;
     if(mTex) {
-        result.fTex = this;
+        result.fTex = mTex;
         result.fTexCoordLeft = 0.f;
         result.fTexCoordTop = 0.f;
         result.fTexCoordRight = 1.f;
         result.fTexCoordBottom = 1.f;
     } else if(mAtlas) {
-        result.fTex = &*mAtlas;
+        result.fTex = mAtlas->tex();
         const float aw = mAtlas->width();
         const float ah = mAtlas->height();
         result.fTexCoordLeft = mX/aw;
