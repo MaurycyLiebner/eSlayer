@@ -66,106 +66,221 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(rapidcsv)
 
-add_executable(eSlayerGame main.cpp
-    audio/emusic.cpp audio/emusic.h
-    audio/emusicvector.cpp audio/emusicvector.h
-    audio/esounds.cpp audio/esounds.h
-    audio/esoundvector.cpp audio/esoundvector.h
-    emainwindow.cpp emainwindow.h
-    widgets/ewidget.cpp widgets/ewidget.h
-    widgets/epainter.cpp widgets/epainter.h
-    textures/etexture.cpp textures/etexture.h
-    widgets/emouseevent.cpp widgets/emouseevent.h
-    widgets/efontcolor.cpp widgets/efontcolor.h
-    widgets/efonts.cpp widgets/efonts.h
-    ewindowsettings.h ewindowsettings.cpp
-    eloadtexthelper.cpp eloadtexthelper.h
-    eresolution.cpp eresolution.h
-    widgets/elabel.cpp widgets/elabel.h
-    widgets/elabelbase.cpp widgets/elabelbase.h
-    widgets/ebuttonbase.cpp widgets/ebuttonbase.h
-    screens/emainmenu.h screens/emainmenu.cpp
-    screens/escreenhandler.h screens/escreenhandler.cpp
-    elanguage.h elanguage.cpp
-    widgets/mainMenu/emainmenubutton.h widgets/mainMenu/emainmenubutton.cpp
-    screens/ecreatecharactermenu.h screens/ecreatecharactermenu.cpp
-    widgets/elineedit.h widgets/elineedit.cpp
-    widgets/echeckablebutton.h widgets/echeckablebutton.cpp
-    widgets/enamedcheckbox.h widgets/enamedcheckbox.cpp
-    screens/echoosecharactermenu.h screens/echoosecharactermenu.cpp
-    widgets/mainMenu/echoosecharacterwidget.h widgets/mainMenu/echoosecharacterwidget.cpp
-    echaracters.h echaracters.cpp
-    widgets/echeckbox.h widgets/echeckbox.cpp
-    widgets/mainMenu/echaracterbutton.h widgets/mainMenu/echaracterbutton.cpp
-    widgets/escrollwidget.h widgets/escrollwidget.cpp
-    screens/esettingsmenu.h screens/esettingsmenu.cpp
-    widgets/echeckbutton.h widgets/echeckbutton.cpp
-    screens/escreenbase.h screens/escreenbase.cpp
-    textures/etexturecollection.cpp textures/etexturecollection.h
-    textures/espriteloader.h textures/espriteloader.cpp
-    textures/echartextures.h textures/echartextures.cpp
-    textures/echarmodel.h textures/echarmodel.cpp
-    textures/echarstextures.h textures/echarstextures.cpp
-    textures/echarunitmodel.h textures/echarunitmodel.cpp
-    efileloader.h efileloader.cpp
-    audio/eaudiovector.h audio/eaudiovector.cpp
-    widgets/eprogressbar.h widgets/eprogressbar.cpp
-    screens/eloadingscreen.h screens/eloadingscreen.cpp
-    textures/eterrstextures.h textures/eterrstextures.cpp
-    screens/egamescreen.h screens/egamescreen.cpp
-    egameworld.h egameworld.cpp
-    egameinput.h egameinput.cpp
-    textures/elightinghandler.h textures/elightinghandler.cpp
-    textures/erendertargetholder.h textures/erendertargetholder.cpp
-    textures/etextgenerator.h textures/etextgenerator.cpp
-    widgets/gameScreen/eescmenu.h widgets/gameScreen/eescmenu.cpp
-    widgets/gameScreen/eescmenubutton.h widgets/gameScreen/eescmenubutton.cpp
-    textures/eobjstextures.h textures/eobjstextures.cpp
-    textures/etiletextures.h textures/etiletextures.cpp
-    textures/etilesiterator.h textures/etilesiterator.cpp
-    units/eunit.h units/eunit.cpp
-    widgets/gameScreen/egamepainter.h widgets/gameScreen/egamepainter.cpp
-    widgets/gameScreen/egamewidget.h widgets/gameScreen/egamewidget.cpp
-    widgets/gameScreen/eunitindicator.h widgets/gameScreen/eunitindicator.cpp
-    textures/euitextures.h textures/euitextures.cpp
-    widgets/ecolors.h widgets/ecolors.cpp
-    emaincharaction.h emaincharaction.cpp
-    widgets/gameScreen/ehealthindicator.h widgets/gameScreen/ehealthindicator.cpp
-    widgets/gameScreen/eplayerhealthindicator.h widgets/gameScreen/eplayerhealthindicator.cpp
-    screens/etcpipgamemenu.h screens/etcpipgamemenu.cpp
-    screens/etcpipjoinmenu.h screens/etcpipjoinmenu.cpp
-    screens/eerrorscreen.h screens/eerrorscreen.cpp
-    textures/emissilestextures.h textures/emissilestextures.cpp
-    widgets/gameScreen/eskillbutton.h widgets/gameScreen/eskillbutton.cpp
-    widgets/gameScreen/eskillselectwidget.h widgets/gameScreen/eskillselectwidget.cpp
-    widgets/etexturecheckbutton.h widgets/etexturecheckbutton.cpp
-    textures/eitemstextures.h textures/eitemstextures.cpp
-    widgets/gameScreen/einventorywidget.h widgets/gameScreen/einventorywidget.cpp
-    widgets/gameScreen/einventorybagpackwidget.h widgets/gameScreen/einventorybagpackwidget.cpp
-    widgets/gameScreen/ehoverwidget.h widgets/gameScreen/ehoverwidget.cpp
-    widgets/gameScreen/eitemplacewidget.h widgets/gameScreen/eitemplacewidget.cpp
-    widgets/gameScreen/eweaponswitch.h widgets/gameScreen/eweaponswitch.cpp
-    widgets/gameScreen/egrounditemnames.h widgets/gameScreen/egrounditemnames.cpp
-    names/eitemnames.h names/eitemnames.cpp
-    names/emonsternames.h names/emonsternames.cpp
-    widgets/gameScreen/estatswidget.h widgets/gameScreen/estatswidget.cpp
-    names/eskillnames.h names/eskillnames.cpp
-    widgets/gameScreen/eskilltreeswidget.h widgets/gameScreen/eskilltreeswidget.cpp
-    widgets/gameScreen/eskilltreewidget.h widgets/gameScreen/eskilltreewidget.cpp
-    names/eskilltreenames.h names/eskilltreenames.cpp
-    names/eclassnames.h names/eclassnames.cpp
-    widgets/gameScreen/ehovergenerator.h widgets/gameScreen/ehovergenerator.cpp
-    widgets/gameScreen/ebgwidget.h widgets/gameScreen/ebgwidget.cpp
-    names/eareanames.h names/eareanames.cpp
-    widgets/gameScreen/eminimap.h widgets/gameScreen/eminimap.cpp
-    textures/emaptextures.h textures/emaptextures.cpp
-    widgets/ealignment.h
-    textures/epaintcall.h textures/epaintcall.cpp
-    erendersettings.h
+add_executable(eSlayerGame
+    main.cpp
+
+    # Audio
+    audio/eaudiovector.cpp
+    audio/eaudiovector.h
+    audio/emusic.cpp
+    audio/emusic.h
+    audio/emusicvector.cpp
+    audio/emusicvector.h
+    audio/esounds.cpp
+    audio/esounds.h
+    audio/esoundvector.cpp
+    audio/esoundvector.h
+
+    # Core
+    echaracters.cpp
+    echaracters.h
+    efileloader.cpp
+    efileloader.h
+    egameinput.cpp
+    egameinput.h
+    egameworld.cpp
+    egameworld.h
+    elanguage.cpp
+    elanguage.h
+    elight.cpp
+    elight.h
+    eloadtexthelper.cpp
+    eloadtexthelper.h
+    emaincharaction.cpp
+    emaincharaction.h
+    emainwindow.cpp
+    emainwindow.h
     erendersettings.cpp
-    widgets/gameScreen/ecoinswidget.h widgets/gameScreen/ecoinswidget.cpp
-    names/eobjectnames.h names/eobjectnames.cpp
-    elight.h elight.cpp
+    erendersettings.h
+    eresolution.cpp
+    eresolution.h
+    ewindowsettings.cpp
+    ewindowsettings.h
+
+    # Names
+    names/eareanames.cpp
+    names/eareanames.h
+    names/eclassnames.cpp
+    names/eclassnames.h
+    names/eitemnames.cpp
+    names/eitemnames.h
+    names/emonsternames.cpp
+    names/emonsternames.h
+    names/eobjectnames.cpp
+    names/eobjectnames.h
+    names/eskillnames.cpp
+    names/eskillnames.h
+    names/eskilltreenames.cpp
+    names/eskilltreenames.h
+
+    # Screens
+    screens/echoosecharactermenu.cpp
+    screens/echoosecharactermenu.h
+    screens/ecreatecharactermenu.cpp
+    screens/ecreatecharactermenu.h
+    screens/eerrorscreen.cpp
+    screens/eerrorscreen.h
+    screens/egamescreen.cpp
+    screens/egamescreen.h
+    screens/eloadingscreen.cpp
+    screens/eloadingscreen.h
+    screens/emainmenu.cpp
+    screens/emainmenu.h
+    screens/escreenbase.cpp
+    screens/escreenbase.h
+    screens/escreenhandler.cpp
+    screens/escreenhandler.h
+    screens/esettingsmenu.cpp
+    screens/esettingsmenu.h
+    screens/etcpipgamemenu.cpp
+    screens/etcpipgamemenu.h
+    screens/etcpipjoinmenu.cpp
+    screens/etcpipjoinmenu.h
+
+    # Textures
+    textures/echarmodel.cpp
+    textures/echarmodel.h
+    textures/echarstextures.cpp
+    textures/echarstextures.h
+    textures/echartextures.cpp
+    textures/echartextures.h
+    textures/echarunitmodel.cpp
+    textures/echarunitmodel.h
+    textures/eitemstextures.cpp
+    textures/eitemstextures.h
+    textures/elightinghandler.cpp
+    textures/elightinghandler.h
+    textures/emaptextures.cpp
+    textures/emaptextures.h
+    textures/emissilestextures.cpp
+    textures/emissilestextures.h
+    textures/eobjstextures.cpp
+    textures/eobjstextures.h
+    textures/epaintcall.cpp
+    textures/epaintcall.h
+    textures/erendertargetholder.cpp
+    textures/erendertargetholder.h
+    textures/espriteloader.cpp
+    textures/espriteloader.h
+    textures/eterrstextures.cpp
+    textures/eterrstextures.h
+    textures/etextgenerator.cpp
+    textures/etextgenerator.h
+    textures/etexture.cpp
+    textures/etexture.h
+    textures/etexturecollection.cpp
+    textures/etexturecollection.h
+    textures/etiletextures.cpp
+    textures/etiletextures.h
+    textures/etilesiterator.cpp
+    textures/etilesiterator.h
+    textures/euitextures.cpp
+    textures/euitextures.h
+
+    # Units
+    units/eunit.cpp
+    units/eunit.h
+
+    # Widgets
+    widgets/ebuttonbase.cpp
+    widgets/ebuttonbase.h
+    widgets/echeckablebutton.cpp
+    widgets/echeckablebutton.h
+    widgets/echeckbox.cpp
+    widgets/echeckbox.h
+    widgets/echeckbutton.cpp
+    widgets/echeckbutton.h
+    widgets/ecolors.cpp
+    widgets/ecolors.h
+    widgets/ealignment.h
+    widgets/efontcolor.cpp
+    widgets/efontcolor.h
+    widgets/efonts.cpp
+    widgets/efonts.h
+    widgets/elabel.cpp
+    widgets/elabel.h
+    widgets/elabelbase.cpp
+    widgets/elabelbase.h
+    widgets/elineedit.cpp
+    widgets/elineedit.h
+    widgets/emouseevent.cpp
+    widgets/emouseevent.h
+    widgets/enamedcheckbox.cpp
+    widgets/enamedcheckbox.h
+    widgets/epainter.cpp
+    widgets/epainter.h
+    widgets/eprogressbar.cpp
+    widgets/eprogressbar.h
+    widgets/escrollwidget.cpp
+    widgets/escrollwidget.h
+    widgets/etexturecheckbutton.cpp
+    widgets/etexturecheckbutton.h
+    widgets/ewidget.cpp
+    widgets/ewidget.h
+
+    # Widgets - Game Screen
+    widgets/gameScreen/ebgwidget.cpp
+    widgets/gameScreen/ebgwidget.h
+    widgets/gameScreen/ecoinswidget.cpp
+    widgets/gameScreen/ecoinswidget.h
+    widgets/gameScreen/eescmenu.cpp
+    widgets/gameScreen/eescmenu.h
+    widgets/gameScreen/eescmenubutton.cpp
+    widgets/gameScreen/eescmenubutton.h
+    widgets/gameScreen/egamepainter.cpp
+    widgets/gameScreen/egamepainter.h
+    widgets/gameScreen/egamewidget.cpp
+    widgets/gameScreen/egamewidget.h
+    widgets/gameScreen/egrounditemnames.cpp
+    widgets/gameScreen/egrounditemnames.h
+    widgets/gameScreen/ehealthindicator.cpp
+    widgets/gameScreen/ehealthindicator.h
+    widgets/gameScreen/ehovergenerator.cpp
+    widgets/gameScreen/ehovergenerator.h
+    widgets/gameScreen/ehoverwidget.cpp
+    widgets/gameScreen/ehoverwidget.h
+    widgets/gameScreen/einventorybagpackwidget.cpp
+    widgets/gameScreen/einventorybagpackwidget.h
+    widgets/gameScreen/einventorywidget.cpp
+    widgets/gameScreen/einventorywidget.h
+    widgets/gameScreen/eitemplacewidget.cpp
+    widgets/gameScreen/eitemplacewidget.h
+    widgets/gameScreen/eminimap.cpp
+    widgets/gameScreen/eminimap.h
+    widgets/gameScreen/eplayerhealthindicator.cpp
+    widgets/gameScreen/eplayerhealthindicator.h
+    widgets/gameScreen/eskillbutton.cpp
+    widgets/gameScreen/eskillbutton.h
+    widgets/gameScreen/eskillselectwidget.cpp
+    widgets/gameScreen/eskillselectwidget.h
+    widgets/gameScreen/eskilltreeswidget.cpp
+    widgets/gameScreen/eskilltreeswidget.h
+    widgets/gameScreen/eskilltreewidget.cpp
+    widgets/gameScreen/eskilltreewidget.h
+    widgets/gameScreen/estatswidget.cpp
+    widgets/gameScreen/estatswidget.h
+    widgets/gameScreen/eunitindicator.cpp
+    widgets/gameScreen/eunitindicator.h
+    widgets/gameScreen/eweaponswitch.cpp
+    widgets/gameScreen/eweaponswitch.h
+
+    # Widgets - Main Menu
+    widgets/mainMenu/echoosecharacterwidget.cpp
+    widgets/mainMenu/echoosecharacterwidget.h
+    widgets/mainMenu/echaracterbutton.cpp
+    widgets/mainMenu/echaracterbutton.h
+    widgets/mainMenu/emainmenubutton.cpp
+    widgets/mainMenu/emainmenubutton.h
 )
 
 include(GNUInstallDirs)
