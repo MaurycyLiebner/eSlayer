@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/eobject.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/etile.h>
+#include <eSlayerHelpers/eterrstexturesdata.h>
 
 eNovaIncrementer::eNovaIncrementer(
     eFixedSizeSetAreas& unitAreas) :
@@ -61,6 +62,52 @@ bool eNovaIncrementer::increment(
     const int minY = floor(c.fY - newRadius);
     const int maxY = floor(c.fY + newRadius);
 
+    const auto& wallTLObstacle = [&](const eTile& tile,
+                                     const int tx, const int ty) {
+        const bool doors = eTile::doors(tile.fWallTL);
+        const bool open = eTile::open(tile.fWallTL);
+        if(doors && open) {
+            const auto terrType = tile.fTerrainType;
+            const auto& info = eTerrsTexturesData::get(terrType);
+            const auto type = eTile::type(tile.fWallTR);
+            const auto& wallInfo = info.fTRDoorsOpen[type];
+
+            const float wallMin = wallInfo.fWallMin;
+            const float wallMax = wallInfo.fWallMax;
+
+            const ePointF p1{float(tx), ty + wallMin};
+            const ePointF p2{float(tx), ty + wallMax};
+            n.obstacle2(p1, p2);
+        } else {
+            const ePoint p1{tx, ty};
+            const ePoint p2{tx, ty + 1};
+            n.obstacle2(p1, p2);
+        }
+    };
+
+    const auto& wallTRObstacle = [&](const eTile& tile,
+                                     const int tx, const int ty) {
+        const bool doors = eTile::doors(tile.fWallTR);
+        const bool open = eTile::open(tile.fWallTR);
+        if(doors && open) {
+            const auto terrType = tile.fTerrainType;
+            const auto& info = eTerrsTexturesData::get(terrType);
+            const auto type = eTile::type(tile.fWallTR);
+            const auto& wallInfo = info.fTRDoorsOpen[type];
+
+            const float wallMin = wallInfo.fWallMin;
+            const float wallMax = wallInfo.fWallMax;
+
+            const ePointF p1{tx + wallMin, float(ty)};
+            const ePointF p2{tx + wallMax, float(ty)};
+            n.obstacle2(p1, p2);
+        } else {
+            const ePoint p1{tx, ty};
+            const ePoint p2{tx + 1, ty};
+            n.obstacle2(p1, p2);
+        }
+    };
+
     for(int y = minY; y <= maxY; y++) {
         for(int x = minX; x <= maxX; x++) {
             const bool insideNew = circleIntersectsTile(
@@ -95,17 +142,13 @@ bool eNovaIncrementer::increment(
             if(r) {
                 if(x >= c.fX) {
                     if(tile.fWallTL) {
-                        const ePoint p1{tx, ty};
-                        const ePoint p2{tx, ty + 1};
-                        n.obstacle2(p1, p2);
+                        wallTLObstacle(tile, tx, ty);
                     }
                 }
 
                 if(y >= c.fY) {
                     if(tile.fWallTR) {
-                        const ePoint p1{tx, ty};
-                        const ePoint p2{tx + 1, ty};
-                        n.obstacle2(p1, p2);
+                        wallTRObstacle(tile, tx, ty);
                     }
                 }
 
@@ -129,9 +172,7 @@ bool eNovaIncrementer::increment(
                 if(r) {
                     const auto& tile = mGetTile(tx, ty);
                     if(tile.fWallTL) {
-                        const ePoint p1{tx, ty};
-                        const ePoint p2{tx, ty + 1};
-                        n.obstacle2(p1, p2);
+                        wallTLObstacle(tile, tx, ty);
                     }
                 }
             }
@@ -143,9 +184,7 @@ bool eNovaIncrementer::increment(
                 if(r) {
                     const auto& tile = mGetTile(tx, ty);
                     if(tile.fWallTR) {
-                        const ePoint p1{tx, ty};
-                        const ePoint p2{tx + 1, ty};
-                        n.obstacle2(p1, p2);
+                        wallTRObstacle(tile, tx, ty);
                     }
                 }
             }
