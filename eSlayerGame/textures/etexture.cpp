@@ -214,6 +214,9 @@ eSprite eTexture::sprite() const {
         result.fTexCoordTop = mY/ah;
         result.fTexCoordRight = (mX + mWidth)/aw;
         result.fTexCoordBottom = (mY + mHeight)/ah;
+    } else if(mFlipTex) {
+        result = mFlipTex->sprite();
+        std::swap(result.fTexCoordLeft, result.fTexCoordRight);
     }
     return result;
 }
