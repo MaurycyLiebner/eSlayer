@@ -124,8 +124,12 @@ void eServerArea::iniSetupUnit(
 
     auto& m = u->movementHandler();
     m.setSpeed(uinfo.fWalkSpeed);
-    const auto w = [this](const ePointF& pos) {
-        return walkable(pos);
+    const auto wPos = [this](const ePointF& pos) {
+        return mMap->walkable(pos);
+    };
+    const auto wPath = [this](const ePointF& from,
+                              const ePointF& to) {
+        return mMap->walkable(from, to);
     };
     const auto iter = [this, charId](
         const ePointF& pos,
@@ -138,7 +142,7 @@ void eServerArea::iniSetupUnit(
             return false;
         });
     };
-    m.intialize(w, iter, charId, teamId);
+    m.intialize(wPos, wPath, iter, charId, teamId);
     m.setRadius(u->fRadius);
 
     mUnits.add(charId, u);

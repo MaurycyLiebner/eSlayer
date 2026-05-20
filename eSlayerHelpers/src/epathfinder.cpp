@@ -71,6 +71,8 @@ ePathFinderPath ePathFinder::findPath(
 
     ePoint tile = found ? toTile : geoClosestTile;
     while(tile != fromTile) {
+        const auto tilePos = ePathFinderMap::tileToPos(tile);
+        result.emplace_back(tilePos);
         ePoint minTile = tile;
         int minDist = map.distance(tile);
         for(const int dx : {0, 1, -1}) {
@@ -84,12 +86,11 @@ ePathFinderPath ePathFinder::findPath(
                 }
             }
         }
-        if(tile == minTile) return result;
-        const auto minTilePos = ePathFinderMap::tileToPos(minTile);
-        const auto tilePos = ePathFinderMap::tileToPos(tile);
-        result.insert(result.begin(), {minTilePos, tilePos});
+        if(tile == minTile) break;
         tile = minTile;
     }
+
+    std::reverse(result.begin(), result.end());
 
     return result;
 }

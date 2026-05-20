@@ -7,7 +7,9 @@
 
 #include <functional>
 
-using eWalkable = std::function<bool(const ePointF& pos)>;
+using eWalkablePos = std::function<bool(const ePointF& pos)>;
+using eWalkablePath = std::function<
+    bool(const ePointF& from, const ePointF& to)>;
 
 enum class eMovementGoalType {
     none, dir, path

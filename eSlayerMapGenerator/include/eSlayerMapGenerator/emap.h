@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/epathfindermap.h>
+#include <eSlayerHelpers/eobsticlesmap.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/estringidmapvector.h>
@@ -44,12 +45,9 @@ public:
     const std::set<uint16_t>&
     unitTypes() const { return mUnitTypes; }
 
-    bool wall(const ePointF& pos,
-              const int x, const int y,
-              const eTile& tile) const;
-    bool walkable(const ePointF& pos) const;
-    bool walkable(const ePointF& from, const ePointF& to) const;
-    bool obsticle(const ePointF& pos) const;
+    bool walkable(const ePointF& pos);
+    bool walkable(const ePointF& from, const ePointF& to);
+    bool obsticle(const ePointF& pos);
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
 
@@ -74,9 +72,6 @@ public:
     void fillPathFinderMap();
     void triggerDoors(const eDoors& doors);
 private:
-    bool wallBase(const ePointF& pos,
-                  const int x, const int y,
-                  const eTile& tile) const;
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
     const std::shared_ptr<eObject>& addObject();
@@ -99,6 +94,7 @@ private:
     std::vector<eMonsterArea> mMonsterAreas;
 
     ePathFinderMap mPathFinderMap;
+    eObsticlesMap mObsticlesMap;
 };
 
 #endif // EMAP_H

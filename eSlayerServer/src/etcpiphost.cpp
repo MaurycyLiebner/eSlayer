@@ -262,8 +262,6 @@ void eTcpIpHost::increment(const float by) {
                     p << ePacketType::objectStateChanged;
                     p << *obj;
                     mNet.broadcast(p);
-
-                    mObjectStateChanges.emplace_back(*obj);
                 }
             }
         } break;
@@ -278,11 +276,8 @@ void eTcpIpHost::increment(const float by) {
                 if(r) {
                     ePacket p;
                     p << ePacketType::doorsStateChanged;
-                    doors.fOpen = !doors.fOpen;
                     p << doors;
                     mNet.broadcast(p);
-
-                    mDoorsStateChanged.emplace_back(doors);
                 }
             }
         } break;
@@ -391,12 +386,7 @@ bool eTcpIpHost::sendMessage(const int clientId,
 
 bool eTcpIpHost::triggerDoors(const int clientId,
                               const eDoors& doors) {
-    const bool r = eLocalServer::triggerDoors(clientId, doors);
-    if(!r) return false;
-    eDoors ndoors = doors;
-    ndoors.fOpen = !ndoors.fOpen;
-    mDoorsStateChanged.emplace_back(ndoors);
-    return true;
+    return eLocalServer::triggerDoors(clientId, doors);
 }
 
 void eTcpIpHost::sendMessageToAll(

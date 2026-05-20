@@ -131,14 +131,18 @@ std::shared_ptr<eObject> eLocalServer::triggerObject(
     const int tx, const int ty) {
     const auto h = clientHandler(clientId);
     if(!h) return nullptr;
-    return h->triggerObject(objectId, tx, ty);
+    const auto obj = h->triggerObject(objectId, tx, ty);
+    if(obj) mObjectStateChanges.emplace_back(*obj);
+    return obj;
 }
 
 bool eLocalServer::triggerDoors(
     const int clientId, const eDoors& doors) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->triggerDoors(doors);
+    const bool r = h->triggerDoors(doors);
+    if(r) mDoorsStateChanged.emplace_back(doors);
+    return r;
 }
 
 bool eLocalServer::pickupItem(

@@ -27,7 +27,8 @@ public:
     void initialize(const std::shared_ptr<eServer>& s,
                     const eResolution& res,
                     SDL_Renderer* const r,
-                    const eWalkable& w,
+                    const eWalkablePos& wPos,
+                    const eWalkablePath& wPath,
                     const eOtherIterator& iter,
                     const int clientId,
                     const eTeamId teamId);

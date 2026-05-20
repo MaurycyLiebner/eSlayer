@@ -25,13 +25,14 @@ eMainCharAction::eMainCharAction(
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eResolution& res,
                                  SDL_Renderer* const r,
-                                 const eWalkable& w,
+                                 const eWalkablePos& wPos,
+                                 const eWalkablePath& wPath,
                                  const eOtherIterator& iter,
                                  const int clientId,
                                  const eTeamId teamId) {
     mClientId = clientId;
     mServer = s;
-    mMovementHandler.intialize(w, iter, clientId, teamId);
+    mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId);
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {

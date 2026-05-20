@@ -12,13 +12,15 @@ eMovementHandler::eMovementHandler(
     mPos(pos), mAngle(angle),
     mMap(map) {}
 
-void eMovementHandler::intialize(const eWalkable& w,
+void eMovementHandler::intialize(const eWalkablePos& wPos,
+                                 const eWalkablePath& wPath,
                                  const eOtherIterator& iter,
                                  const int charId,
                                  const eTeamId teamId) {
     mCharId = charId;
     mTeamId = teamId;
-    mWalkable = w;
+    mWalkablePos = wPos;
+    mWalkablePath = wPath;
     mOtherIterator = iter;
 }
 
@@ -29,19 +31,30 @@ void eMovementHandler::setRadius(const float r) {
 bool eMovementHandler::moveTo(const ePointF& dst) {
     bool found;
     auto path = ePathFinder::findPath(mMap, mPos, dst, found);
-    // {
-    //         path.emplace(path.begin(), mPos);
-    //         for(int i = 0; i < path.size() - 2; i++) {
-    //             const auto& from = path[i];
-    //             int j = path.size() - 1;
-    //             for(; j > i + 1; j--) {
-    //                 const bool r = walkable(from, path[j]);
-    //                 if(r) break;
-    //             }
-    //             path.erase(path.begin() + i + 1, path.begin() + j);
-    //         }
-    //         path.erase(path.begin());
-    // }
+    if(path.empty()) return false;
+    {
+        ePathFinderPath smooth;
+        smooth.push_back(path.front());
+
+        size_t i = 0;
+
+        while(i < path.size() - 1) {
+            size_t best = i + 1;
+
+            for(size_t j = path.size() - 1; j > i + 1; --j) {
+                if(mWalkablePath(path[i], path[j])) {
+                    best = j;
+                    break;
+                }
+            }
+
+            smooth.push_back(path[best]);
+            i = best;
+        }
+
+        path = std::move(smooth);
+    }
+
     mGoal.moveOnPath(path);
     return found;
 }
@@ -50,67 +63,9 @@ void eMovementHandler::moveInDirection(const ePointF& pos) {
     mGoal.moveInDir(pos);
 }
 
-bool eMovementHandler::walkable(const ePointF& from, const ePointF& to) const {
-    const float x0 = from.fX;
-    const float y0 = from.fY;
-    const float x1 = to.fX;
-    const float y1 = to.fY;
-
-    int x = (int)std::floor(x0);
-    int y = (int)std::floor(y0);
-
-    const int endX = (int)std::floor(x1);
-    const int endY = (int)std::floor(y1);
-
-    const float dx = x1 - x0;
-    const float dy = y1 - y0;
-
-    const int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
-    const int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
-
-    const float tDeltaX = (stepX != 0) ? std::abs(1.0f / dx) :
-                               std::numeric_limits<float>::infinity();
-    const float tDeltaY = (stepY != 0) ? std::abs(1.0f / dy) :
-                               std::numeric_limits<float>::infinity();
-
-    const float nextBoundaryX = (stepX > 0)
-                                     ? (std::floor(x0) + 1.0f)
-                                     : std::floor(x0);
-
-    const float nextBoundaryY = (stepY > 0)
-                                     ? (std::floor(y0) + 1.0f)
-                                     : std::floor(y0);
-
-    float tMaxX = (stepX != 0) ? (nextBoundaryX - x0) / dx :
-                       std::numeric_limits<float>::infinity();
-
-    float tMaxY = (stepY != 0) ? (nextBoundaryY - y0) / dy :
-                       std::numeric_limits<float>::infinity();
-
-    while(true) {
-        const bool r = mWalkable(ePointF{float(x), float(y)});
-        if(!r) return false;
-
-        if(x == endX && y == endY) {
-            break;
-        }
-
-        if(tMaxX < tMaxY) {
-            tMaxX += tDeltaX;
-            x += stepX;
-        } else {
-            tMaxY += tDeltaY;
-            y += stepY;
-        }
-    }
-    return true;
-}
-
 bool eMovementHandler::moveInDirectionIfClearPath(const ePointF& pos) {
-    const bool r = walkable(mPos, pos);
-    if(r) {
-        moveInDirection(pos);
-    }
+    const bool r = mWalkablePath(mPos, pos);
+    if(r) moveInDirection(pos);
     return r;
 }
 
@@ -138,7 +93,7 @@ bool eMovementHandler::walkable(const ePointF& pos) const {
         walkable = walkable && (dist > minDist || dist < 0.0001f);
     });
     if(!walkable) return false;
-    return mWalkable(pos);
+    return mWalkablePos(pos);
 }
 
 bool eMovementHandler::increment(const float by) {

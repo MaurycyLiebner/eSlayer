@@ -58,7 +58,7 @@ private:
 
         void setKnown(ePointF pos,
                       const int x0, const int y0,
-                      const eMap& map) {
+                      eMap& map) {
             if(fUnknown <= 0) return;
             pos.fX -= x0;
             pos.fY -= y0;

@@ -42,180 +42,16 @@ const std::shared_ptr<eObject>& eMap::object(
     return mObjects[id];
 }
 
-bool inside(const ePointF& pos,
-            const float x,
-            const float y,
-            const float width,
-            const float height) {
-    if(pos.fX < x) return false;
-    if(pos.fY < y) return false;
-    if(pos.fX >= x + width) return false;
-    if(pos.fY >= y + height) return false;
-    return true;
-};
-
-bool eMap::wallBase(const ePointF& pos,
-                    const int x, const int y,
-                    const eTile& tile) const {
-    const auto terrType = tile.fTerrainType;
-    const auto& info = eTerrsTexturesData::get(terrType);
-
-    const float thick = info.fWallsThickness;
-
-    if(tile.fWallTL) {
-        bool inWalls = true;
-        const bool doors = eTile::doors(tile.fWallTL);
-        if(doors) {
-            const bool open = eTile::open(tile.fWallTL);
-            if(open) {
-                const auto type = eTile::type(tile.fWallTL);
-                const auto& wallInfo = info.fTLDoorsOpen[type];
-                const float wallMin = wallInfo.fWallMin;
-                const float wallMax = wallInfo.fWallMax;
-                const float dy = pos.fY - y;
-                inWalls = dy > wallMin && dy < wallMax;
-            }
-        }
-        if(inWalls) {
-            const bool r = ::inside(pos, x - thick, y - thick, 2*thick, 1.f + 2*thick);
-            if(r) return true;
-        }
-    }
-
-    if(tile.fWallTR) {
-        bool inWalls = true;
-        const bool doors = eTile::doors(tile.fWallTR);
-        if(doors) {
-            const bool open = eTile::open(tile.fWallTR);
-            if(open) {
-                const auto type = eTile::type(tile.fWallTR);
-                const auto& wallInfo = info.fTRDoorsOpen[type];
-                const float wallMin = wallInfo.fWallMin;
-                const float wallMax = wallInfo.fWallMax;
-                const float dx = pos.fX - x;
-                inWalls = dx > wallMin && dx < wallMax;
-            }
-        }
-        if(inWalls) {
-            const bool r = ::inside(pos, x - thick, y - thick, 1.f + 2*thick, 2*thick);
-            if(r) return true;
-        }
-    }
-
-    return false;
+bool eMap::walkable(const ePointF& pos) {
+    return mObsticlesMap.walkable(pos);
 }
 
-bool eMap::wall(const ePointF& pos,
-                const int x, const int y,
-                const eTile& tile) const {
-    const bool r = wallBase(pos, x, y, tile);
-    if(r) return true;
-
-    if(x - 1 >= 0) {
-        const int tx = x - 1;
-        const int ty = y;
-        const auto& tile = eMap::tile(tx, ty);
-        const bool r = wallBase(pos, tx, ty, tile);
-        if(r) return true;
-    }
-
-    if(y - 1 >= 0) {
-        const int tx = x;
-        const int ty = y - 1;
-        const auto& tile = eMap::tile(tx, ty);
-        const bool r = wallBase(pos, tx, ty, tile);
-        if(r) return true;
-    }
-
-    if(y + 1 < mHeight) {
-        const int tx = x;
-        const int ty = y + 1;
-        const auto& tile = eMap::tile(tx, ty);
-        const bool r = wallBase(pos, tx, ty, tile);
-        if(r) return true;
-    }
-
-    if(x + 1 < mWidth) {
-        const int tx = x + 1;
-        const int ty = y;
-        const auto& tile = eMap::tile(tx, ty);
-        const bool r = wallBase(pos, tx, ty, tile);
-        if(r) return true;
-    }
-
-    return false;
+bool eMap::walkable(const ePointF& from, const ePointF& to) {
+    return mObsticlesMap.walkable(from, to);
 }
 
-bool eMap::walkable(const ePointF& pos) const {
-    const int x = pos.fX;
-    const int y = pos.fY;
-    if(!inside(x, y)) {
-        return false;
-    } else {
-        const auto& tile = eMap::tile(x, y);
-        const auto terrType = tile.fTerrainType;
-        if(terrType == 0) return false;
-        const auto tileType = tile.fTileType;
-        if(tileType == 0) return false;
-        const auto& info = eTerrsTexturesData::get(terrType);
-        const bool w = info.fWalkable[tileType];
-        if(!w) return false;
-
-        const bool wall = eMap::wall(pos, x, y, tile);
-        if(wall) return false;
-
-        const auto& objs = objects(x, y);
-        const bool empty = objs.empty();
-        if(empty) return true;
-        for(const auto oid : objs) {
-            const auto& o = *object(oid);
-            const auto& opos = o.fPos;
-            const bool r = ::inside(pos, opos.fX, opos.fY,
-                                    o.fSize, o.fSize);
-            if(r) return false;
-        }
-    }
-    return true;
-}
-
-bool eMap::walkable(const ePointF& from, const ePointF& to) const {
-    return walkable(to);
-}
-
-bool eMap::obsticle(const ePointF& pos) const {
-    const int x = pos.fX;
-    const int y = pos.fY;
-    if(!inside(x, y)) {
-        return false;
-    } else {
-        const auto& tile = eMap::tile(x, y);
-        const auto terrType = tile.fTerrainType;
-        if(terrType == 0) return false;
-        const auto tileType = tile.fTileType;
-        if(tileType == 0) return false;
-        const auto& info = eTerrsTexturesData::get(terrType);
-        const bool o = info.fObsticle[tileType];
-        if(o) return true;
-
-
-        const bool wall = eMap::wall(pos, x, y, tile);
-        if(wall) return true;
-
-        const auto& objs = objects(x, y);
-        const bool empty = objs.empty();
-        if(empty) return false;
-        for(const auto oid : objs) {
-            const auto& o = *object(oid);
-            const auto type = o.fObjectType;
-            const auto& info = eObjectsInfo::sObjects.get(type);
-            if(!info.fObsticle) continue;
-            const auto& opos = o.fPos;
-            const bool r = ::inside(pos, opos.fX, opos.fY,
-                                    o.fSize, o.fSize);
-            if(r) return true;
-        }
-    }
-    return false;
+bool eMap::obsticle(const ePointF& pos) {
+    return mObsticlesMap.obsticle(pos);
 }
 
 bool eMap::hasObjects(const int x, const int y) const {
@@ -340,6 +176,7 @@ eMapArea& eMap::area(const int id) {
 }
 
 void eMap::fillPathFinderMap() {
+    mObsticlesMap.fillAll();
     const int sw = mWidth*ePathFinderMap::sSubdivide;
     const int sh = mHeight*ePathFinderMap::sSubdivide;
     for(int x = 0; x < sw; x++) {
@@ -367,13 +204,26 @@ void eMap::triggerDoors(const eDoors& doors) {
         } break;
         }
 
-        const int sxMin = t.fX*ePathFinderMap::sSubdivide;
-        const int syMin = t.fY*ePathFinderMap::sSubdivide;
-        const int sxMax = sxMin + ePathFinderMap::sSubdivide;
-        const int syMax = syMin + ePathFinderMap::sSubdivide;
-        for(int sx = sxMin; sx < sxMax; sx++) {
-            for(int sy = syMin; sy < syMax; sy++) {
-                mPathFinderMap.erase(ePoint{sx, sy});
+        {
+            const int sxMin = t.fX*ePathFinderMap::sSubdivide;
+            const int syMin = t.fY*ePathFinderMap::sSubdivide;
+            const int sxMax = sxMin + ePathFinderMap::sSubdivide;
+            const int syMax = syMin + ePathFinderMap::sSubdivide;
+            for(int sx = sxMin; sx < sxMax; sx++) {
+                for(int sy = syMin; sy < syMax; sy++) {
+                    mPathFinderMap.erase(ePoint{sx, sy});
+                }
+            }
+        }
+        {
+            const int xMin = t.fX/eObsticlesMap::sTileSize - 1;
+            const int yMin = t.fY/eObsticlesMap::sTileSize - 1;
+            const int xMax = xMin + 2;
+            const int yMax = yMin + 2;
+            for(int x = xMin; x < xMax; x++) {
+                for(int y = yMin; y < yMax; y++) {
+                    mObsticlesMap.eraseTile(x, y);
+                }
             }
         }
     }
@@ -381,13 +231,127 @@ void eMap::triggerDoors(const eDoors& doors) {
 
 void eMap::generateTiles(const int w, const int h) {
     ::generateTiles(w, h, mTiles);
+
     mWidth = w;
     mHeight = h;
+
     mObjectsMap.resize(mHeight, std::vector<std::vector<int>>(mWidth));
+
     const auto walkable = [this](const ePointF& from, const ePointF& to) {
         return eMap::walkable(from, to);
     };
     mPathFinderMap.initialize(w, h, walkable);
+
+    const auto filler = [&](std::vector<eRectF>& walk,
+                            std::vector<eRectF>& missile,
+                            const int sx, const int sy) {
+        const int dim = eObsticlesMap::sTileSize;
+        const int minX = sx*dim - 1;
+        const int minY = sy*dim - 1;
+        const int maxX = minX + dim + 2;
+        const int maxY = minY + dim + 2;
+
+        for(int x = minX; x < maxX; x++) {
+            for(int y = minY; y < maxY; y++) {
+                const bool r = eMap::inside(x, y);
+                if(!r) continue;
+                const auto& tile = eMap::tile(x, y);
+
+                bool tileWalkable = true;
+                const auto terrType = tile.fTerrainType;
+                if(terrType == 0) tileWalkable = false;
+                const auto tileType = tile.fTileType;
+                if(tileType == 0) tileWalkable = false;
+                const auto& info = eTerrsTexturesData::get(terrType);
+                const float thick = info.fWallsThickness;
+                if(tileWalkable) {
+                    const bool w = info.fWalkable[tileType];
+                    if(!w) tileWalkable = false;
+                }
+
+                bool missileObsticle = false;
+                if(terrType != 0 && tileType != 0) {
+                    missileObsticle = info.fObsticle[tileType];
+                }
+
+                if(tileWalkable) {
+                    const auto& objIds = eMap::objects(x, y);
+                    for(const int id : objIds) {
+                        const auto& o = eMap::object(id);
+                        const auto& pos = o->fPos;
+                        const float size = o->fSize;
+                        walk.emplace_back(
+                            pos.fX, pos.fY, size, size);
+                    }
+                } else {
+                    walk.emplace_back(
+                        float(x), float(y), 1.f, 1.f);
+                }
+
+                if(!missileObsticle) {
+                    const auto& objIds = eMap::objects(x, y);
+                    for(const int id : objIds) {
+                        const auto& o = *eMap::object(id);
+                        const auto type = o.fObjectType;
+                        const auto& info = eObjectsInfo::sObjects.get(type);
+                        if(!info.fObsticle) continue;
+                        const auto& pos = o.fPos;
+                        const float size = o.fSize;
+                        missile.emplace_back(
+                            pos.fX, pos.fY, size, size);
+                    }
+                } else {
+                    missile.emplace_back(
+                        float(x), float(y), 1.f, 1.f);
+                }
+
+                if(tile.fWallTL) {
+                    const bool doors = eTile::doors(tile.fWallTL);
+                    const bool open = eTile::open(tile.fWallTL);
+                    if(doors && open) {
+                        const auto type = eTile::type(tile.fWallTL);
+                        const auto& wallInfo = info.fTLDoorsOpen[type];
+                        const float wallMin = wallInfo.fWallMin;
+                        const float wallMax = wallInfo.fWallMax;
+                        if(wallMin < wallMax) {
+                            const auto& r = walk.emplace_back(
+                                x - thick, y + wallMin,
+                                2*thick, wallMax - wallMin);
+                            missile.emplace_back(r);
+                        }
+                    } else {
+                        const auto& r = walk.emplace_back(
+                            x - thick, y - thick,
+                            2*thick, 1.f + 2*thick);
+                        missile.emplace_back(r);
+                    }
+                }
+
+                if(tile.fWallTR) {
+                    const bool doors = eTile::doors(tile.fWallTR);
+                    const bool open = eTile::open(tile.fWallTR);
+                    if(doors && open) {
+                        const auto type = eTile::type(tile.fWallTR);
+                        const auto& wallInfo = info.fTRDoorsOpen[type];
+                        const float wallMin = wallInfo.fWallMin;
+                        const float wallMax = wallInfo.fWallMax;
+                        if(wallMin < wallMax) {
+                            const auto& r = walk.emplace_back(
+                                x + wallMin, y - thick,
+                                wallMax - wallMin, 2*thick);
+                            missile.emplace_back(r);
+                        }
+                    } else {
+                        const auto& r = walk.emplace_back(
+                            x - thick, y - thick,
+                            1.f + 2*thick, 2*thick);
+                        missile.emplace_back(r);
+                    }
+                }
+            }
+        }
+    };
+    mObsticlesMap.initialize(filler, w, h);
 }
 
 void eMap::updateObjectsMap() {

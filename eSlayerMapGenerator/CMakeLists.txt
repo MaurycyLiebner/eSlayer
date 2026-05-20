@@ -17,6 +17,7 @@ add_library(eSlayerMapGenerator SHARED
     include/eSlayerMapGenerator/emapsettings.h src/emapsettings.cpp
     include/eSlayerMapGenerator/emap.h
     src/emap.cpp
+
 )
 
 target_include_directories(eSlayerMapGenerator

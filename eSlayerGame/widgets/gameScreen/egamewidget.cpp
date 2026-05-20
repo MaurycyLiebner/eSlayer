@@ -64,8 +64,12 @@ void eGameWidget::initialize(const int clientId,
     const auto r = renderer();
     const auto& res = resolution();
 
-    const auto w = [this](const ePointF& pos) {
+    const auto wPos = [this](const ePointF& pos) {
         return mMap->walkable(pos);
+    };
+    const auto wPath = [this](const ePointF& from,
+                              const ePointF& to) {
+        return mMap->walkable(from, to);
     };
     const auto iter = [this](const ePointF& pos,
                              const float dist,
@@ -77,7 +81,7 @@ void eGameWidget::initialize(const int clientId,
     };
     auto& pathFinderMap = map->pathFinderMap();
     mMainAction = std::make_shared<eMainCharAction>(pathFinderMap);
-    mMainAction->initialize(mServer, res, r, w, iter, clientId, teamId);
+    mMainAction->initialize(mServer, res, r, wPos, wPath, iter, clientId, teamId);
     mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 
@@ -286,17 +290,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto doors = mServer->receiveDoorsStateChanges();
         for(const auto& d : doors) {
-            for(const auto& t : d.fTiles) {
-                auto& tile = mMap->tile(t.fX, t.fY);
-                switch(d.fType) {
-                case eWallType::topLeft: {
-                    eTile::setOpen(tile.fWallTL, d.fOpen);
-                } break;
-                case eWallType::topRight: {
-                    eTile::setOpen(tile.fWallTR, d.fOpen);
-                } break;
-                }
-            }
+            mMap->triggerDoors(d);
         }
     }
     const auto& res = resolution();

@@ -23,7 +23,8 @@ public:
     eMovementHandler(ePointF& pos, float& angle,
                      ePathFinderMap& map);
 
-    void intialize(const eWalkable& w,
+    void intialize(const eWalkablePos& wPos,
+                   const eWalkablePath& wPath,
                    const eOtherIterator& iter,
                    const int charId,
                    const eTeamId teamId);
@@ -54,11 +55,8 @@ public:
     static int sChooseAnim(const int normal,
                            const int aggressive,
                            const bool isAggressive);
-
 private:
     bool walkable(const ePointF& pos) const;
-    bool walkable(const ePointF& from, const ePointF& to) const;
-    ePathFinderPath smoothPath(const ePathFinderPath& path);
 
     ePointF& mPos;
     float& mAngle;
@@ -66,7 +64,8 @@ private:
 
     int mCharId = 0;
     eTeamId mTeamId = eTeamId::neutralHostile;
-    eWalkable mWalkable;
+    eWalkablePos mWalkablePos;
+    eWalkablePath mWalkablePath;
     eOtherIterator mOtherIterator;
 
     eMovementGoal mGoal;
