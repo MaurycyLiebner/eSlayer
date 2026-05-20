@@ -164,8 +164,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/earcintervals.h
     src/earcintervals.cpp
 
-    src/eobsticlesmap.cpp
-    include/eSlayerHelpers/eobsticlesmap.h
+    src/eobstaclesmap.cpp
+    include/eSlayerHelpers/eobstaclesmap.h
     src/erect.cpp
 
 

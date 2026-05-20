@@ -37,7 +37,7 @@ struct eTileTextureData {
     bool fWallsShadow;
     bool fWallsTransparent;
 
-    std::vector<bool> fObsticle;
+    std::vector<bool> fObstacle;
     std::vector<bool> fWalkable;
 
     eFloorUse fFloorUse;

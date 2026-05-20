@@ -20,9 +20,9 @@ struct ESLAYERHELPERS_API eNova {
 
     eArcIntervals fIntervals{{0.f, 360.f}};
 
-    void obsticle1(const ePointF& pos,
+    void obstacle1(const ePointF& pos,
                    const float radius);
-    void obsticle2(const ePointF& pos1,
+    void obstacle2(const ePointF& pos1,
                    const ePointF& pos2);
     bool angleInRange(const float angle) const;
 

@@ -19,7 +19,7 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     ePointF fFrom;
     ePointF fTo;
     float fSpeed;
-    // number of obsticles missile can hit (0 - infinity)
+    // number of obstacles missile can hit (0 - infinity)
     uint8_t fToPierce;
     bool fContinuousDamage;
     float fRemDistTime;

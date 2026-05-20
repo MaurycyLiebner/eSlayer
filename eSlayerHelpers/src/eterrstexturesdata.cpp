@@ -31,14 +31,14 @@ void eTerrsTexturesData::load() {
             const auto jdata = eFileLoaderBase::parse(dir, path);
             const int count = jdata.value("count", 0);
             const auto walkable = jdata.value("walkable", std::vector<int>());
-            const auto obsticle = jdata.value("obsticle", std::vector<int>());
+            const auto obstacle = jdata.value("obstacle", std::vector<int>());
             texs.fWallsShadow = jdata.value("wallsShadow", true);
             texs.fWallsTransparent = jdata.value("wallsTransparent", true);
             texs.fWallsThickness = jdata.value("wallsThickness", 0.25f);
-            texs.fObsticle.resize(count + 1, false);
+            texs.fObstacle.resize(count + 1, false);
             texs.fWalkable.resize(count + 1, false);
             for(int i = 0; i < count; i++) {
-                texs.fObsticle[i + 1] = eVectorHelpers::contains(obsticle, i);
+                texs.fObstacle[i + 1] = eVectorHelpers::contains(obstacle, i);
                 texs.fWalkable[i + 1] = eVectorHelpers::contains(walkable, i);
             }
 

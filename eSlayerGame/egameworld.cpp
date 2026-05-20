@@ -23,8 +23,8 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
 }
 
 void eGameWorld::iniMissileInc() {
-    const auto obsticle = [this](const ePointF& pos) {
-        return mMap->obsticle(pos);
+    const auto obstacle = [this](const ePointF& pos) {
+        return mMap->obstacle(pos);
     };
 
     const auto removeMissile = [this](eMissile& m) {
@@ -49,7 +49,7 @@ void eGameWorld::iniMissileInc() {
         return static_cast<eUnitData*>(u.get());
     };
 
-    mMIncrementer.initialize(obsticle,
+    mMIncrementer.initialize(obstacle,
                              removeMissile,
                              getUnit,
                              nullptr);

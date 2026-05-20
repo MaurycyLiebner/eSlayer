@@ -8,7 +8,7 @@ float radiansToDegrees(const float angle) {
     return angle * 180 / M_PI;
 }
 
-void eNova::obsticle1(
+void eNova::obstacle1(
     const ePointF& pos, const float radius) {
     const auto toObstacle = ePointF::vector(pos, fCenter);
     const float dist = toObstacle.length();
@@ -21,7 +21,7 @@ void eNova::obsticle1(
     return fIntervals.subtract(minAngleDeg, maxAngleDeg);
 }
 
-void eNova::obsticle2(
+void eNova::obstacle2(
     const ePointF& pos1, const ePointF& pos2) {
     const float a1 = ePointF::vector(pos1, fCenter).angle();
     const float a2 = ePointF::vector(pos2, fCenter).angle();

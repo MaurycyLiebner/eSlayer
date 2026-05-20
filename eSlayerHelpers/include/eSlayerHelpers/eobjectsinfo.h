@@ -15,7 +15,7 @@ struct eObjectInfo {
     eObjectType fType;
     std::string fTexStr;
     int fTexId;
-    bool fObsticle;
+    bool fObstacle;
 };
 
 class ESLAYERHELPERS_API eObjectsInfo {

@@ -1,19 +1,19 @@
-#include "eSlayerHelpers/eobsticlesmap.h"
+#include "eSlayerHelpers/eobstaclesmap.h"
 
-const int eObsticlesMap::sTileSize = 5;
+const int eObstaclesMap::sTileSize = 5;
 
-void eObsticlesMap::initialize(const eObsticleFiller& filler,
+void eObstaclesMap::initialize(const eObstacleFiller& filler,
                                const int w, const int h) {
     const int tw = (w + sTileSize - 1)/sTileSize;
     const int th = (h + sTileSize - 1)/sTileSize;
     mWidth = tw;
     mHeight = th;
     mFiller = filler;
-    mTiles = std::vector<std::vector<eObsticleTile>>(
-        th, std::vector<eObsticleTile>(tw));
+    mTiles = std::vector<std::vector<eObstacleTile>>(
+        th, std::vector<eObstacleTile>(tw));
 }
 
-void eObsticlesMap::fillAll() {
+void eObstaclesMap::fillAll() {
     for(int x = 0 ; x < mWidth; x++) {
         for(int y = 0; y < mHeight; y++) {
             auto& t = mTiles[y][x];
@@ -23,7 +23,7 @@ void eObsticlesMap::fillAll() {
     }
 }
 
-bool eObsticlesMap::inside(
+bool eObstaclesMap::inside(
     const int x, const int y) const {
     if(x < 0) return false;
     if(y < 0) return false;
@@ -32,41 +32,41 @@ bool eObsticlesMap::inside(
     return true;
 }
 
-eObsticleTile* eObsticlesMap::tile(
+eObstacleTile* eObstaclesMap::tile(
     const int x, const int y) {
     const bool r = inside(x, y);
     if(!r) return nullptr;
     return &mTiles[y][x];
 }
 
-void eObsticlesMap::eraseTile(
+void eObstaclesMap::eraseTile(
     const int x, const int y) {
     const bool r = inside(x, y);
     if(!r) return;
-    mTiles[y][x] = eObsticleTile();
+    mTiles[y][x] = eObstacleTile();
 }
 
-bool eObsticlesMap::walkable(
+bool eObstaclesMap::walkable(
     const ePointF& pos) {
     return check(pos, true);
 }
 
-bool eObsticlesMap::walkable(
+bool eObstaclesMap::walkable(
     const ePointF& from, const ePointF& to) {
     return check(from, to, true);
 }
 
-bool eObsticlesMap::obsticle(
+bool eObstaclesMap::obstacle(
     const ePointF& pos) {
     return !check(pos, false);
 }
 
-bool eObsticlesMap::obsticle(
+bool eObstaclesMap::obstacle(
     const ePointF& from, const ePointF& to) {
     return !check(from, to, false);
 }
 
-bool eObsticlesMap::check(const ePointF& pos,
+bool eObstaclesMap::check(const ePointF& pos,
                           const bool choice) {
     const float tileSize = static_cast<float>(sTileSize);
     const int x = static_cast<int>(std::floor(pos.fX / tileSize));
@@ -90,7 +90,7 @@ bool eObsticlesMap::check(const ePointF& pos,
     return true;
 }
 
-bool eObsticlesMap::check(
+bool eObstaclesMap::check(
     const ePointF& from,
     const ePointF& to,
     const bool choice) {

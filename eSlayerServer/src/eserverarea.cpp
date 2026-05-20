@@ -33,8 +33,8 @@ eServerArea::eServerArea() :
 }
 
 void eServerArea::iniMissileInc() {
-    const auto obsticle = [this](const ePointF& pos) {
-        return mMap->obsticle(pos);
+    const auto obstacle = [this](const ePointF& pos) {
+        return mMap->obstacle(pos);
     };
 
     const auto removeMissile = [this](const eMissile& m) {
@@ -52,7 +52,7 @@ void eServerArea::iniMissileInc() {
         if(sm.fHitAction) sm.fHitAction(su);
     };
 
-    mMIncrementer.initialize(obsticle,
+    mMIncrementer.initialize(obstacle,
                              removeMissile,
                              getUnit,
                              hitAction);

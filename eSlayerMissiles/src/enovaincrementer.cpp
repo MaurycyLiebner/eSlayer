@@ -97,7 +97,7 @@ bool eNovaIncrementer::increment(
                     if(tile.fWallTL) {
                         const ePoint p1{tx, ty};
                         const ePoint p2{tx, ty + 1};
-                        n.obsticle2(p1, p2);
+                        n.obstacle2(p1, p2);
                     }
                 }
 
@@ -105,7 +105,7 @@ bool eNovaIncrementer::increment(
                     if(tile.fWallTR) {
                         const ePoint p1{tx, ty};
                         const ePoint p2{tx + 1, ty};
-                        n.obsticle2(p1, p2);
+                        n.obstacle2(p1, p2);
                     }
                 }
 
@@ -115,10 +115,10 @@ bool eNovaIncrementer::increment(
                     if(!obj) continue;
                     const auto type = obj->fObjectType;
                     const auto& info = eObjectsInfo::sObjects.get(type);
-                    if(!info.fObsticle) continue;
+                    if(!info.fObstacle) continue;
                     const auto& pos = obj->fPos;
                     const float size = info.fSize;
-                    n.obsticle1(pos, 0.5f*size);
+                    n.obstacle1(pos, 0.5f*size);
                 }
             }
 
@@ -131,7 +131,7 @@ bool eNovaIncrementer::increment(
                     if(tile.fWallTL) {
                         const ePoint p1{tx, ty};
                         const ePoint p2{tx, ty + 1};
-                        n.obsticle2(p1, p2);
+                        n.obstacle2(p1, p2);
                     }
                 }
             }
@@ -145,7 +145,7 @@ bool eNovaIncrementer::increment(
                     if(tile.fWallTR) {
                         const ePoint p1{tx, ty};
                         const ePoint p2{tx + 1, ty};
-                        n.obsticle2(p1, p2);
+                        n.obstacle2(p1, p2);
                     }
                 }
             }

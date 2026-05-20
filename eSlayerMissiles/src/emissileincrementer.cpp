@@ -13,11 +13,11 @@ eMissileIncrementer::eMissileIncrementer(
     mUnitAreas(unitAreas) {}
 
 void eMissileIncrementer::initialize(
-    const eObsticle& obsticle,
+    const eObstacle& obstacle,
     const eRemoveMissile& removeMissile,
     const eGetUnit& getUnit,
     const eHitAction& hitAction) {
-    mObsticle = obsticle;
+    mObstacle = obstacle;
     mRemoveMissile = removeMissile;
     mGetUnit = getUnit;
     mHitAction = hitAction;
@@ -65,8 +65,8 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
         mRemoveMissile(m);
         return true;
     }
-    const bool obsticle = mObsticle(newPos);
-    if(obsticle) {
+    const bool obstacle = mObstacle(newPos);
+    if(obstacle) {
         mRemoveMissile(m);
         return true;
     }

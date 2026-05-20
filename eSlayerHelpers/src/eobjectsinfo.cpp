@@ -19,7 +19,7 @@ void eObjectsInfo::load() {
             const auto& value = it.value();
             eObjectInfo info;
             info.fSize = value.value("size", 1.f);
-            info.fObsticle = jdata.value("obsticle", true);
+            info.fObstacle = jdata.value("obstacle", true);
             const auto typeStr = value.value("type", "");
             if(typeStr == "treasure") {
                 info.fType = eObjectType::treasure;

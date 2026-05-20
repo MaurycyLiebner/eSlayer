@@ -1,5 +1,5 @@
-#ifndef EOBSTICLESMAP_H
-#define EOBSTICLESMAP_H
+#ifndef EOBSTACLESMAP_H
+#define EOBSTACLESMAP_H
 
 #include "eslayerhelpersexport.h"
 
@@ -9,31 +9,31 @@
 #include <vector>
 #include <functional>
 
-struct eObsticleTile {
+struct eObstacleTile {
     bool fInitialized = false;
     std::vector<eRectF> fWalk;
     std::vector<eRectF> fMissile;
 };
 
-class ESLAYERHELPERS_API eObsticlesMap {
+class ESLAYERHELPERS_API eObstaclesMap {
 public:
-    using eObsticleFiller = std::function<
+    using eObstacleFiller = std::function<
         void(std::vector<eRectF>& walk,
              std::vector<eRectF>& missile,
              const int x, const int y)>;
-    void initialize(const eObsticleFiller& filler,
+    void initialize(const eObstacleFiller& filler,
                     const int w, const int h);
     void fillAll();
 
-    eObsticleTile* tile(const int x, const int y);
+    eObstacleTile* tile(const int x, const int y);
     bool inside(const int x, const int y) const;
     void eraseTile(const int x, const int y);
 
     bool walkable(const ePointF& pos);
     bool walkable(const ePointF& from,
                   const ePointF& to);
-    bool obsticle(const ePointF& pos);
-    bool obsticle(const ePointF& from,
+    bool obstacle(const ePointF& pos);
+    bool obstacle(const ePointF& from,
                   const ePointF& to);
 
     static const int sTileSize;
@@ -46,8 +46,8 @@ private:
 
     int mWidth = 0;
     int mHeight = 0;
-    eObsticleFiller mFiller;
-    std::vector<std::vector<eObsticleTile>> mTiles;
+    eObstacleFiller mFiller;
+    std::vector<std::vector<eObstacleTile>> mTiles;
 };
 
-#endif // EOBSTICLESMAP_H
+#endif // EOBSTACLESMAP_H

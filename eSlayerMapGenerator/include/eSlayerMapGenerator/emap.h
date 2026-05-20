@@ -6,7 +6,7 @@
 
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/epathfindermap.h>
-#include <eSlayerHelpers/eobsticlesmap.h>
+#include <eSlayerHelpers/eobstaclesmap.h>
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/estringidmapvector.h>
@@ -47,7 +47,7 @@ public:
 
     bool walkable(const ePointF& pos);
     bool walkable(const ePointF& from, const ePointF& to);
-    bool obsticle(const ePointF& pos);
+    bool obstacle(const ePointF& pos);
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
 
@@ -94,7 +94,7 @@ private:
     std::vector<eMonsterArea> mMonsterAreas;
 
     ePathFinderMap mPathFinderMap;
-    eObsticlesMap mObsticlesMap;
+    eObstaclesMap mObstaclesMap;
 };
 
 #endif // EMAP_H
