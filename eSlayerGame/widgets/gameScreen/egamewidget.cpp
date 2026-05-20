@@ -604,6 +604,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                     continue;
                 }
             }
+            float lmult = 1.f;
+            if(animId == hitId) {
+                lmult = 1.5f * (1.f - static_cast<float>(frame)/nFrames);
+            }
             const int dirs = missileTex.nDirs(animId);
             const float ainc = 360.f/dirs;
             int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
@@ -613,7 +617,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const float lradius = missileTex.lighting();
             const bool lighting = lradius > 0.01f;
             if(lighting) {
-                mGamePainter.addLight(pos.fX, pos.fY, lradius);
+                mGamePainter.addLight(pos.fX, pos.fY, lmult*lradius);
             }
             renderElements.emplace_back(eRenderElement{eRenderElementType::missile,
                                                        std::static_pointer_cast<ePositioned>(m),
@@ -622,6 +626,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(auto& n : mWorld.novas()) {
             const auto& c = n->fCenter;
             const float r = n->fRadius;
+            const float speed = n->fSpeed;
+            const float maxR = n->fMaxRadius;
             const int nMissiles = 180;
             const eVec2f displ{r, 0.f};
             const float mangle = 180.f;
@@ -634,11 +640,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             const int baseId = missileTex.baseAnimId();
             const int hitId = missileTex.hitAnimId();
             const int hitNFrames = hitId < 0 ? 0 : missileTex.nFrames(hitId);
-            const float light = missileTex.lighting();
-            const bool lighting = light > 0.01f;
-            if(lighting) {
-                mGamePainter.addLight(c.fX, c.fY, r + light);
-            }
 
             int novaFrame = n->fFrame;
             int novaAnimId = appearId;
@@ -647,6 +648,22 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(novaFrame >= nAppearFrames) {
                 novaAnimId = baseId;
                 novaFrame -= nAppearFrames;
+            }
+
+            float lmult = 1.f;
+            const float dimR = hitNFrames == 0 ? 0.8f*maxR :
+                (maxR - hitNFrames*speed);
+            if(r > dimR) {
+                lmult = 1.f - (r - dimR)/(maxR - dimR);
+                if(hitNFrames > 0) {
+                    novaAnimId = hitId;
+                    novaFrame = hitNFrames - 1 - (r - maxR)/speed;
+                }
+            }
+            const float light = missileTex.lighting();
+            const bool lighting = light > 0.01f;
+            if(lighting) {
+                mGamePainter.addLight(c.fX, c.fY, lmult*(r + light));
             }
 
             bool& ini = n->fInitialized;
