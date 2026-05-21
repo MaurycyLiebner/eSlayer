@@ -30,8 +30,8 @@ struct eTileInfo {
     int fId;
     int fTX;
     int fTY;
-    float fPX;
-    float fPY;
+    int fPX;
+    int fPY;
     std::vector<float> fLighting;
 };
 
