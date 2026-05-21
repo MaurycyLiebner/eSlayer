@@ -16,3 +16,25 @@ ePointF eDoors::pos() const {
     pos /= fTiles.size();
     return pos;
 }
+
+void eDoors::read(ePacket& p) {
+    p >> fType;
+    p >> fOpen;
+
+    uint8_t nTiles;
+    p >> nTiles;
+    for(int i = 0; i < nTiles; i++) {
+        p >> fTiles.emplace_back();
+    }
+}
+
+void eDoors::write(ePacket& p) const {
+    p << fType;
+    p << fOpen;
+
+    const uint8_t nTiles = fTiles.size();
+    p << nTiles;
+    for(const auto& t : fTiles) {
+        p << t;
+    }
+}

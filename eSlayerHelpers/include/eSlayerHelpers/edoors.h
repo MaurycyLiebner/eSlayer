@@ -3,6 +3,7 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "epacket.h"
 #include "ewalldirection.h"
 #include "epoint.h"
 
@@ -14,6 +15,9 @@ struct ESLAYERHELPERS_API eDoors {
     bool fOpen;
 
     ePointF pos() const;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
 };
 
 #endif // EDOORS_H

@@ -270,13 +270,13 @@ void eTcpIpHost::increment(const float by) {
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
                 eDoors doors;
-                p >> doors;
+                doors.read(p);
                 const bool r = triggerDoors(charId, doors);
 
                 if(r) {
                     ePacket p;
                     p << ePacketType::doorsStateChanged;
-                    p << doors;
+                    doors.write(p);
                     mNet.broadcast(p);
                 }
             }

@@ -55,6 +55,7 @@ public:
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
     void mapData(eMapData& data) const;
     void loadData(const eMapData& data);
+    bool hasPortion(const int x, const int y);
 
     int areaAt(const ePoint& pos) const;
     std::string areaName(const int id);
@@ -82,6 +83,9 @@ private:
     uint16_t mHeight = 0;
 
     eStringIdMapVector<eMapArea> mAreas;
+
+    bool mAllPresent = false;
+    std::vector<std::vector<bool>> mPresent;
 
     std::vector<std::vector<eTile>> mTiles;
     std::vector<std::shared_ptr<eObject>> mObjects;

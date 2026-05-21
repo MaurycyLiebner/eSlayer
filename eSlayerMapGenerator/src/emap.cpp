@@ -70,6 +70,12 @@ bool eMap::inside(const int x, const int y) const {
 void eMap::loadPortion(const eMapPortion& portion) {
     const auto& area = portion.fArea;
 
+    if(!mAllPresent) {
+        const int px = area.fX/eMapPortion::sBaseDim;
+        const int py = area.fY/eMapPortion::sBaseDim;
+        mPresent[py][px] = true;
+    }
+
     for(uint16_t y = 0; y < area.fHeight; y++) {
         for(uint16_t x = 0; x < area.fWidth; x++) {
             const auto& srcTile = portion.fTiles[y][x];
@@ -160,6 +166,17 @@ void eMap::loadData(const eMapData& data) {
     mUnitTypes = data.fUnitTypes;
     mSpawnPos = data.fSpawnPos;
     mAreas = data.fAreas;
+}
+
+bool eMap::hasPortion(const int x, const int y) {
+    if(x < 0) return false;
+    if(y < 0) return false;
+    if(x >= mWidth) return false;
+    if(y >= mHeight) return false;
+    if(mAllPresent) return true;
+    const int px = x/eMapPortion::sBaseDim;
+    const int py = y/eMapPortion::sBaseDim;
+    return mPresent[py][px];
 }
 
 int eMap::areaAt(const ePoint& pos) const {
@@ -537,7 +554,13 @@ void eMap::generateTiles(const int w, const int h) {
     mWidth = w;
     mHeight = h;
 
-    mObjectsMap.resize(mHeight, std::vector<std::vector<int>>(mWidth));
+    mObjectsMap.resize(h, std::vector<std::vector<int>>(w));
+
+    if(!mAllPresent) {
+        const int pw = (w + eMapPortion::sBaseDim - 1)/eMapPortion::sBaseDim;
+        const int ph = (h + eMapPortion::sBaseDim - 1)/eMapPortion::sBaseDim;
+        mPresent.resize(ph, std::vector<bool>(pw, false));
+    }
 
     const auto walkable = [this](const ePointF& from, const ePointF& to) {
         return eMap::walkable(from, to);
@@ -552,6 +575,11 @@ void eMap::generateTiles(const int w, const int h) {
         const int minY = sy*dim - 1;
         const int maxX = minX + dim + 2;
         const int maxY = minY + dim + 2;
+
+        const bool p1 = hasPortion(minX, minY);
+        if(!p1) return false;
+        const bool p2 = hasPortion(maxX, maxY);
+        if(!p2) return false;
 
         std::unordered_set<uint64_t> wallsTL;
         std::unordered_set<uint64_t> wallsTR;
@@ -671,6 +699,7 @@ void eMap::generateTiles(const int w, const int h) {
                 }
             }
         }
+        return true;
     };
     mObstaclesMap.initialize(filler, w, h);
 }

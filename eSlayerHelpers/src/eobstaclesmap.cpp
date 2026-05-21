@@ -17,8 +17,7 @@ void eObstaclesMap::fillAll() {
     for(int x = 0 ; x < mWidth; x++) {
         for(int y = 0; y < mHeight; y++) {
             auto& t = mTiles[y][x];
-            t.fInitialized = true;
-            mFiller(t.fWalk, t.fMissile, x, y);
+            t.fInitialized = mFiller(t.fWalk, t.fMissile, x, y);
         }
     }
 }
@@ -78,8 +77,7 @@ bool eObstaclesMap::check(const ePointF& pos,
     auto& walk = t->fWalk;
     auto& missile = t->fMissile;
     if(!ini) {
-        ini = true;
-        mFiller(walk, missile, x , y);
+        ini = mFiller(walk, missile, x , y);
     }
 
     for(const auto& o : (choice ? walk : missile)) {

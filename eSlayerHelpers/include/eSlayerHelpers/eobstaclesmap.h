@@ -18,7 +18,7 @@ struct eObstacleTile {
 class ESLAYERHELPERS_API eObstaclesMap {
 public:
     using eObstacleFiller = std::function<
-        void(std::vector<eRectF>& walk,
+        bool(std::vector<eRectF>& walk,
              std::vector<eRectF>& missile,
              const int x, const int y)>;
     void initialize(const eObstacleFiller& filler,

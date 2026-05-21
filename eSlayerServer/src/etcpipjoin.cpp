@@ -117,7 +117,7 @@ void eTcpIpJoin::increment(const float by) {
         } break;
         case ePacketType::doorsStateChanged: {
             eDoors doors;
-            p >> doors;
+            doors.read(p);
             mDoorsStateChanged.emplace_back(doors);
         } break;
         case ePacketType::disconnect: {
@@ -325,7 +325,7 @@ bool eTcpIpJoin::triggerDoors(const int clientId,
                               const eDoors& doors) {
     ePacket p;
     p << ePacketType::triggerDoors;
-    p << doors;
+    doors.write(p);
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send trigger doors to the host.");
     return true;

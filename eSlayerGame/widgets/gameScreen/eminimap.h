@@ -86,10 +86,12 @@ private:
                     if(dist > margin) continue;
                     const bool known = fKnown[y][x];
                     if(known) continue;
-                    fKnown[y][x] = true;
-                    fUnknown--;
                     const int mx = x + x0;
                     const int my = y + y0;
+                    const bool has = map.hasPortion(mx, my);
+                    if(!has) continue;
+                    fKnown[y][x] = true;
+                    fUnknown--;
                     const bool w = !map.hasObjects(mx, my) &&
                                    map.walkable(ePointF(mx, my));
                     if(w) continue;
