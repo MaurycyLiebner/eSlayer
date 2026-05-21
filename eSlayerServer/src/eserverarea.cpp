@@ -570,8 +570,24 @@ bool eServerArea::mapPortions(
     return addAll;
 }
 
-bool eServerArea::walkable(const ePointF& pos) const {
+bool eServerArea::walkable(
+    const ePointF& pos) const {
     return mMap->walkable(pos);
+}
+
+bool eServerArea::walkable(
+    const ePointF& from, const ePointF& to) const {
+    return mMap->walkable(from, to);
+}
+
+bool eServerArea::obstacle(
+    const ePointF& pos) const {
+    return mMap->obstacle(pos);
+}
+
+bool eServerArea::obstacle(
+    const ePointF& from, const ePointF& to) const {
+    return mMap->obstacle(from, to);
 }
 
 bool eServerArea::addClient(const int clientId,

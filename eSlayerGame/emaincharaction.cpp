@@ -27,11 +27,13 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
                                  const eWalkablePos& wPos,
                                  const eWalkablePath& wPath,
+                                 const eObstaclePath& o,
                                  const eOtherIterator& iter,
                                  const int clientId,
                                  const eTeamId teamId) {
     mClientId = clientId;
     mServer = s;
+    mObstacle = o;
     mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId);
     mMovementHandler.setMoveRandom(0.f);
 
@@ -292,6 +294,9 @@ bool eMainCharAction::handleUnitAttack(
     eCharUnitModel& model) {
     const bool rangedAttack = mStats.rangedAttack(schoice);
     if(!rangedAttack) {
+        const bool obstacle = mObstacle(mMainChar->fPos, u.fPos);
+        if(obstacle) return false;
+
         const float attackDist = mStats.attackRange(
             schoice, u.fRadius, mMainChar->fRadius);
 

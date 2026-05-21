@@ -7,7 +7,6 @@
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
 #include "../../textures/eitemstextures.h"
-#include "../../textures/echarstextures.h"
 
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
@@ -72,6 +71,10 @@ void eGameWidget::initialize(const int clientId,
                               const ePointF& to) {
         return mMap->walkable(from, to);
     };
+    const auto oPath = [this](const ePointF& from,
+                              const ePointF& to) {
+        return mMap->obstacle(from, to);
+    };
     const auto iter = [this](const ePointF& pos,
                              const float dist,
                              const eOtherHandler& handler) {
@@ -82,7 +85,9 @@ void eGameWidget::initialize(const int clientId,
     };
     auto& pathFinderMap = map->pathFinderMap();
     mMainAction = std::make_shared<eMainCharAction>(pathFinderMap);
-    mMainAction->initialize(mServer, res, r, wPos, wPath, iter, clientId, teamId);
+    mMainAction->initialize(mServer, res, r,
+                            wPos, wPath, oPath,
+                            iter, clientId, teamId);
     mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 

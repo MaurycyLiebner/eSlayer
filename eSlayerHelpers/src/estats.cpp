@@ -963,7 +963,7 @@ void eStats::calculateSkill(eSkillStats& stats,
        skill.fType == eSkillType::shoot ||
        skill.fType == eSkillType::throw_ ||
        skill.fType == eSkillType::attack) {
-        if(skill.fMissileId == -1) {
+        if(skill.fMissileId <= 0) {
             const auto& itemDataL = eItemsData::get(leftW.fDataId);
             stats.fMissileIdLW = itemDataL.fMissileId;
             const auto& itemDataR = eItemsData::get(rightW.fDataId);

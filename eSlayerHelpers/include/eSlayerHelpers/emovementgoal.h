@@ -10,6 +10,9 @@
 using eWalkablePos = std::function<bool(const ePointF& pos)>;
 using eWalkablePath = std::function<
     bool(const ePointF& from, const ePointF& to)>;
+using eObstaclePos = std::function<bool(const ePointF& pos)>;
+using eObstaclePath = std::function<
+    bool(const ePointF& from, const ePointF& to)>;
 
 enum class eMovementGoalType {
     none, dir, path

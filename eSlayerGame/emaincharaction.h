@@ -29,6 +29,7 @@ public:
                     SDL_Renderer* const r,
                     const eWalkablePos& wPos,
                     const eWalkablePath& wPath,
+                    const eObstaclePath& o,
                     const eOtherIterator& iter,
                     const int clientId,
                     const eTeamId teamId);
@@ -101,6 +102,8 @@ private:
 
     int mClientId;
     std::shared_ptr<eServer> mServer;
+
+    eObstaclePath mObstacle;
 
     std::weak_ptr<eUnit> mPressedUnit;
     std::weak_ptr<eGroundItem> mPressedItem;

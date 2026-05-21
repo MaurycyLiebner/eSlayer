@@ -48,6 +48,7 @@ public:
     bool walkable(const ePointF& pos);
     bool walkable(const ePointF& from, const ePointF& to);
     bool obstacle(const ePointF& pos);
+    bool obstacle(const ePointF& from, const ePointF& to);
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
 

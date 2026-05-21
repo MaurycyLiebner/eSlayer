@@ -80,6 +80,11 @@ public:
                      std::vector<eMapPortion>& result);
 
     bool walkable(const ePointF& pos) const;
+    bool walkable(const ePointF& from,
+                  const ePointF& to) const;
+    bool obstacle(const ePointF& pos) const;
+    bool obstacle(const ePointF& from,
+                  const ePointF& to) const;
 
     bool addClient(const int clientId,
                    eCharacter& c,

@@ -95,6 +95,8 @@ bool eUnitBaseAction::lookForAttackTarget() {
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
         if(!eTeams::areEnemies(t1, t2)) return false;
+        const bool obstacle = mArea.obstacle(mUnit.fPos, u->fPos);
+        if(obstacle) return false;
         const float dist = ePointF::distance(mUnit.fPos, u->fPos);
         int schoice;
         const bool r = stats.attackRangeSkill(

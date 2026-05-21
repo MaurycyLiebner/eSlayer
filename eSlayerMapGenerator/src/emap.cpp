@@ -57,6 +57,11 @@ bool eMap::obstacle(const ePointF& pos) {
     return mObstaclesMap.obstacle(pos);
 }
 
+bool eMap::obstacle(const ePointF& from,
+                    const ePointF& to) {
+    return mObstaclesMap.obstacle(from, to);
+}
+
 bool eMap::hasObjects(const int x, const int y) const {
     if(!inside(x, y)) return false;
     return !objects(x, y).empty();
