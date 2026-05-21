@@ -133,6 +133,8 @@ void eCharData::setAnimId(const std::string& name, const int id) {
     if(name == "run") mRunId = id;
     else if(name == "hitRecovery") mHitRecoveryId = id;
     else if(name == "block") mBlockId = id;
+    else if(name == "death") mDeathId = id;
+    else if(name == "body") mBodyId = id;
     mAnimIds[name] = id;
 }
 

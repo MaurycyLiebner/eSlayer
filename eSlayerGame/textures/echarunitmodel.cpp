@@ -4,6 +4,7 @@
 #include "echarmodel.h"
 #include "echartextures.h"
 
+#include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eexceptions.h>
 
 #include <cmath>
@@ -17,7 +18,7 @@ void eCharUnitModel::setCharModel(const std::shared_ptr<eCharModel>& model) {
 
 eTextureKey eCharUnitModel::key() const {
     const int fMax = mModel->nFrames(mAnim);
-    const int frame = fMax == 0 ? -1 : int(std::round(mFrame)) % fMax;
+    const int frame = fMax == 0 ? -1 : (eCharUnitModel::frame() % fMax);
     return eTextureKey{mAnim, frame, mDir};
 }
 
@@ -30,10 +31,14 @@ void eCharUnitModel::incFrame(const float by) {
     mFrame += by*mAnimSpeed;
     if(mClampId != -1) {
         const int fMax = mModel->nFrames(mAnim);
-        if(int(std::round(mFrame)) >= fMax) {
+        if(frame() >= fMax) {
             setAnimation(mClampId, 1.f);
         }
     }
+}
+
+int eCharUnitModel::frame() const {
+    return std::round(mFrame);
 }
 
 std::shared_ptr<eTexture> eCharUnitModel::requestTexture(
@@ -124,8 +129,15 @@ void eCharUnitModel::setAnimation(const int a, const int id,
     setAnimation(a, speed);
 }
 
-void eCharUnitModel::setAnimation(const int a,
-                                  const float speed) {
+void eCharUnitModel::setAnimation(
+    const int a, const float speed) {
+    if(a == sExplosionAnim) {
+        mAnim = a;
+        mFrame = 0.f;
+        mClampId = -1;
+        mAnimSpeed = speed;
+        return;
+    }
     if(a < 0 || a >= mModel->nAnims()) {
         eExceptions::logError("Animation id " +
                               std::to_string(a) +

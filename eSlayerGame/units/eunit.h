@@ -11,12 +11,15 @@ class eUnit : public eUnitData {
 public:
     eCharUnitModel& model() { return mModel; }
     const eCharUnitModel& model() const { return mModel; }
-    void setModel(const eCharUnitModel& model) { mModel = model; }
+    void setModel(const eCharUnitModel& model);
 
-    void setBody(const bool body) { mBody = body; }
-    bool isBody() const { return mBody; }
+    int bodyAnimId() const { return mBodyAnimId; }
+
+    void setSlayerBody(const bool body) { mSlayerBody = body; }
+    bool isSlayerBody() const { return mSlayerBody; }
 private:
-    bool mBody = false;
+    int mBodyAnimId = -1;
+    bool mSlayerBody = false;
     eCharUnitModel mModel;
 };
 

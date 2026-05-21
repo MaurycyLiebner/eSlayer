@@ -86,6 +86,8 @@ enum class eModifierType : uint8_t {
     onStruck,
     onDeath,
 
+    explode,
+
     count
 };
 

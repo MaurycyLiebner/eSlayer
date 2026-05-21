@@ -8,6 +8,8 @@
 
 eStringIdMapVector<eMissileTextures>
 eMissilesTextures::sMissiles;
+int eMissilesTextures::sFleshId = -1;
+
 bool eMissilesTextures::sDataLoaded = false;
 bool eMissilesTextures::sTexsLoaded = false;
 
@@ -67,15 +69,27 @@ void eMissilesTextures::loadData() {
     const auto jdata = eFileLoader::parse(dir, "missiles/missiles.json");
     const auto missiles = jdata.get<std::vector<std::string>>();
 
-    sMissiles.reserve(missiles.size());
+    sMissiles.reserve(missiles.size() + 1);
+    sMissiles.add("none", eMissileTextures());
     for(const auto& name : missiles) {
         const auto pathBase = "missiles/" + name + "/" + name;
         const auto jdata = eFileLoader::parse(dir, pathBase + ".json");
         const int dirs = jdata["directions"];
         const float lighting = jdata.value("lighting", 0.f);
+        const auto typeStr = jdata.value("type", "regular");
+        eMissileType type;
+        if(typeStr == "explosion") {
+            type = eMissileType::explosion;
+        } else if(typeStr == "regular") {
+            type = eMissileType::regular;
+        } else {
+            eRuntimeThrow("Unknown missile type \"" + typeStr + "\" in " +
+                          dir + "/" + pathBase + ".json");
+        }
         const auto& anims = jdata["animations"];
         eMissileTextures texs;
-        texs.setLighting(lighting);
+        texs.mLighting = lighting;
+        texs.mType = type;
         for(auto& [aname, animData] : anims.items()) {
             eMissileAnim anim;
             const int nFrames = animData.value("frames", 0);
@@ -87,8 +101,12 @@ void eMissilesTextures::loadData() {
         texs.mAppearAnimId = texs.animId("appear");
         texs.mBaseAnimId = texs.animId("base");
         texs.mHitAnimId = texs.animId("hit");
+        texs.mStayAnimId = texs.animId("stay");
 
-        sMissiles.add(name, texs);
+        const int id = sMissiles.add(name, texs);
+        if(name == "flesh") {
+            sFleshId = id;
+        }
     }
 
     for(const auto& it : eSkills::sSkills) {

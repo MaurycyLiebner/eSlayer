@@ -20,6 +20,10 @@ struct eMissileAnim {
     std::string fPath;
 };
 
+enum class eMissileType {
+    regular, explosion
+};
+
 class eMissileTextures {
     friend class eMissilesTextures;
 public:
@@ -38,13 +42,18 @@ public:
     int appearAnimId() const { return mAppearAnimId; }
     int baseAnimId() const { return mBaseAnimId; }
     int hitAnimId() const { return mHitAnimId; }
+    int stayAnimId() const { return mStayAnimId; }
 
     float lighting() const { return mLighting; }
-    void setLighting(const float l) { mLighting = l; }
+
+    eMissileType type() const { return mType; }
 private:
+    eMissileType mType = eMissileType::regular;
+
     int mAppearAnimId = -1;
     int mBaseAnimId = -1;
     int mHitAnimId = -1;
+    int mStayAnimId = -1;
 
     float mLighting = 0.f;
     eStringIdMapVector<eMissileAnim> mAnims;
@@ -58,6 +67,8 @@ public:
 
     static eStringIdMapVector<eMissileTextures>
     sMissiles;
+
+    static int sFleshId;
 private:
     static bool sDataLoaded;
     static bool sTexsLoaded;

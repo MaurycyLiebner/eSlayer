@@ -154,8 +154,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             u.fModelParts, res, r);
 
         const auto unit = std::make_shared<eUnit>();
-        if(isBody(charId)) {
-            unit->setBody(true);
+        if(isSlayerBody(charId)) {
+            unit->setSlayerBody(true);
         }
         static_cast<eUnitData&>(*unit) = u;
         eCharUnitModel model;
@@ -261,7 +261,7 @@ void eGameWorld::simulateNovas(const float by) {
     }
 }
 
-bool eGameWorld::isBody(const int charId) const {
+bool eGameWorld::isSlayerBody(const int charId) const {
     return eVectorHelpers::contains(mBodies, charId);
 }
 

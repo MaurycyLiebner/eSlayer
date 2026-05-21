@@ -36,11 +36,18 @@ void eUnitActionBase::setup(const int anim,
     const auto& data = mUnit.data();
     mUnit.fAnim = anim;
     mUnit.fAnimId += 5;
-    const int baseFrames = data.animFrames(anim);
-    if(frames == -1) frames = baseFrames;
-    const float speed = frames == 0 ? 1.f : float(baseFrames)/frames;
-    mUnit.fAnimSpeed = speed;
-    setDuration(frames);
+
+    float speed;
+    if(anim == sExplosionAnim) {
+        speed = 1.f;
+        setDuration(std::numeric_limits<float>::max());
+    } else {
+        const int baseFrames = data.animFrames(anim);
+        if(frames == -1) frames = baseFrames;
+        speed = frames == 0 ? 1.f : float(baseFrames)/frames;
+        mUnit.fAnimSpeed = speed;
+        setDuration(frames);
+    }
 
     if(a) {
         const int baseFrame = data.animActionFrame(anim);

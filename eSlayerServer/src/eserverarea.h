@@ -123,7 +123,7 @@ public:
                 const int unitId,
                 const int maxCount,
                 const std::vector<eModifier>& mods);
-    void castChance(eServerUnit& by,
+    bool castChance(eServerUnit& by,
                     const eSkillStats& skill,
                     const eWeaponChoice wchoice,
                     const ePointF& to);

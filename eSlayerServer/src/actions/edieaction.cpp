@@ -2,8 +2,6 @@
 
 #include "ewaitaction.h"
 
-#include <eSlayerHelpers/echardata.h>
-
 void eDieAction::decide() {
     switch(mStage) {
     case eDieStage::none: {

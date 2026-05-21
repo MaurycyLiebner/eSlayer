@@ -225,7 +225,8 @@ public:
     eWeaponChoice useWeapon(const int schoice);
 
     void killed(const eServerUnit& killed);
-    void die();
+    void dieAndCast(const ePointF& from);
+    void die(const bool explode = false);
     void respawn();
 
     void recalculateStats();
@@ -254,6 +255,8 @@ private:
     eServerArea& mArea;
     const bool mClient;
     const int mUnitTypeId;
+
+    bool mDead = false;
 
     bool mMoving = false;
     bool mAggressive = false;

@@ -75,7 +75,9 @@ gModifierTypeToString = {
     { eModifierType::onStriking, "onStriking" },
     { eModifierType::onKill, "onKill" },
     { eModifierType::onStruck, "onStruck" },
-    { eModifierType::onDeath, "onDeath" }
+    { eModifierType::onDeath, "onDeath" },
+
+    { eModifierType::explode, "explode" }
 };
 
 std::map<std::string, eModifierType>
@@ -142,7 +144,6 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::manaSteal:
 
     case eModifierType::meeleSplashDamage:
-    case eModifierType::knockback:
 
     case eModifierType::allSkills:
 
@@ -157,6 +158,11 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return eModValuesUsage::value1;
+
+    case eModifierType::knockback:
+    case eModifierType::explode:
+        return eModValuesUsage::none;
+
     case eModifierType::onAttack:
     case eModifierType::onStriking:
     case eModifierType::onKill:
@@ -236,7 +242,6 @@ std::string eModifier::value1Name() const {
     case eModifierType::manaSteal:
 
     case eModifierType::meeleSplashDamage:
-    case eModifierType::knockback:
 
     case eModifierType::allSkills:
 
@@ -248,6 +253,11 @@ std::string eModifier::value1Name() const {
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
         return "value";
+
+    case eModifierType::knockback:
+    case eModifierType::explode:
+        return "";
+
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
         return "length";
@@ -330,6 +340,8 @@ std::string eModifier::value2Name() const {
 
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
+
+    case eModifierType::explode:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -489,6 +501,8 @@ bool eModifierHelpers::isPercent(
 
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
+
+    case eModifierType::explode:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

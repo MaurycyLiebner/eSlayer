@@ -128,6 +128,7 @@
         <string id="51">%1% Chance to Cast Level %2 %3 When You Kill an Enemy</string>
         <string id="52">%1% Chance to Cast Level %2 %3 When Struck</string>
         <string id="53">%1% Chance to Cast Level %2 %3 When You Die</string>
+        <string id="54">Explode</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

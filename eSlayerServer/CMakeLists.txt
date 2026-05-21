@@ -45,6 +45,7 @@ add_library(eSlayerServer SHARED
     src/eitemgenerator.h src/eitemgenerator.cpp
     src/eelitemodifiers.h src/eelitemodifiers.cpp
     src/eservernova.h src/eservernova.cpp
+    src/actions/eexplodeaction.h src/actions/eexplodeaction.cpp
 
 
 )

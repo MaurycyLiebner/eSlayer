@@ -10,6 +10,8 @@
 
 class ePacket;
 
+const uint8_t sExplosionAnim = 255;
+
 enum class eUnitMod : uint8_t {
     minion,
 

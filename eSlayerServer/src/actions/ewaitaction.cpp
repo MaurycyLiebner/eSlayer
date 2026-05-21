@@ -21,7 +21,7 @@ std::shared_ptr<eWaitAction>
 eWaitAction::sCreateDeath(
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();
-    const int anim = data.animId("death");
+    const int anim = data.deathAnimId();
     return sCreate(unit, area, anim, true);
 }
 
@@ -29,7 +29,25 @@ std::shared_ptr<eWaitAction>
 eWaitAction::sCreateBody(
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();
-    const int anim = data.animId("body");
+    const int anim = data.bodyAnimId();
+    const auto result = sCreate(unit, area, anim, true);
+    if(result) result->setDuration(std::numeric_limits<float>::max());
+    return result;
+}
+
+std::shared_ptr<eWaitAction>
+eWaitAction::sCreateExplode(
+    eServerUnit& unit, eServerArea& area) {
+    const auto& data = unit.data();
+    const int anim = sExplosionAnim;
+    return sCreate(unit, area, anim, true);
+}
+
+std::shared_ptr<eWaitAction>
+eWaitAction::sCreateExplodeBody(
+    eServerUnit& unit, eServerArea& area) {
+    const auto& data = unit.data();
+    const int anim = sExplosionAnim;
     const auto result = sCreate(unit, area, anim, true);
     if(result) result->setDuration(std::numeric_limits<float>::max());
     return result;

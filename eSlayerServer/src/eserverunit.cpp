@@ -2,6 +2,7 @@
 
 #include "actions/ecomplexaction.h"
 #include "actions/edieaction.h"
+#include "actions/eexplodeaction.h"
 #include "eserverarea.h"
 
 #include <eSlayerHelpers/emovementhandler.h>
@@ -662,17 +663,7 @@ void eServerUnit::increment(const float by) {
         mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
                                    0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
-        if(fHealth <= 0) {
-            {
-                const auto& onDeath = mStats.fOnDeath;
-                const auto to = fPos;
-                const auto wchoice = eWeaponChoice::left;
-                for(const auto& o : onDeath) {
-                    mArea.castChance(*this, o, wchoice, fPos);
-                }
-            }
-            die();
-        }
+        if(fHealth <= 0) dieAndCast(fPos);
     }
 
     setPoisoned(poisoned);
@@ -771,7 +762,19 @@ void eServerUnit::killed(const eServerUnit& killed) {
     }
 }
 
-void eServerUnit::die() {
+void eServerUnit::dieAndCast(const ePointF& from) {
+    const auto& stats = eServerUnit::stats();
+    const auto& onDeath = stats.fOnDeath;
+    const auto wchoice = eWeaponChoice::left;
+    for(const auto& o : onDeath) {
+        mArea.castChance(*this, o, wchoice, from);
+    }
+    die();
+}
+
+void eServerUnit::die(const bool explode) {
+    if(mDead) return;
+    mDead = true;
     fHealth = 0;
     mStats.fHealthF = 0.f;
 
@@ -783,8 +786,13 @@ void eServerUnit::die() {
     mPoison.clear();
     mPotions.clear();
     mArea.unitKilled(*this);
-    const auto die = std::make_shared<eDieAction>(*this, mArea);
-    setChildAction(die);
+    if(explode) {
+        const auto explode = std::make_shared<eExplodeAction>(*this, mArea);
+        setChildAction(explode);
+    } else {
+        const auto die = std::make_shared<eDieAction>(*this, mArea);
+        setChildAction(die);
+    }
 }
 
 void eServerUnit::respawn() {

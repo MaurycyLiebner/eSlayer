@@ -38,6 +38,13 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
 
             {
                 auto& bossMod = mBossMods.emplace_back();
+                bossMod.fType = eModifierType::coldLength;
+                bossMod.fValue1 = 5;
+                bossMod.fValue2 = 5;
+            }
+
+            {
+                auto& bossMod = mBossMods.emplace_back();
                 bossMod.fType = eModifierType::onDeath;
                 bossMod.fValue1 = 100;
                 bossMod.fValue2 = sqrt(level);
@@ -100,6 +107,14 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
             bossMod.fType = eModifierType::damageFire;
             bossMod.fValue1 = 4 * level;
             bossMod.fValue2 = 8 * level;
+
+            {
+                auto& bossMod = mBossMods.emplace_back();
+                bossMod.fType = eModifierType::onDeath;
+                bossMod.fValue1 = 100;
+                bossMod.fValue2 = sqrt(level);
+                bossMod.fSkillId = eSkills::sSkills.id("fleshExplosion");
+            }
         } break;
         case eUnitMod::lightningEnchanted: {
             auto& minionMod = mMinionMods.emplace_back();

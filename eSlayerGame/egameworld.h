@@ -79,7 +79,7 @@ public:
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 
-    bool isBody(const int charId) const;
+    bool isSlayerBody(const int charId) const;
 
     void removeMissile(const eMissile& m);;
 private:

@@ -19,6 +19,8 @@ enum class eWeaponChoice : uint8_t;
 struct eSkillStats {
     int fSkillId = 0;
 
+    bool fExplode = false;
+
     // for chance casting
     float fCastChance = 0.f;
     int fSkillLevelId = -1;

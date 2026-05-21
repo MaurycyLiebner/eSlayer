@@ -147,7 +147,7 @@ void eMainCharAction::increment(const bool mousePressed,
         if(const auto u = mPressedUnit.lock()) {
             const auto& upos = u->fPos;
             targetPos = upos;
-            if(u->isBody()) {
+            if(u->isSlayerBody()) {
                 const float dist = ePointF::distance(upos, charPos);
                 if(dist < 0.5f) {
                     const auto bodyId = u->fCharId;

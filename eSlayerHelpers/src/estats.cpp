@@ -284,6 +284,9 @@ struct eSkillStatsHelper {
                 fSkillStats.fKnockbackRW = true;
             }
         } break;
+        case eModifierType::explode: {
+            fSkillStats.fExplode = true;
+        } break;
         case eModifierType::attackSpeed: {
             if(src == eModifierSource::skill) {
                 fSkillStats.fAttackSpeedS += 0.01f*mod.fValue1;
@@ -644,6 +647,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::onAttack:
         case eModifierType::onStriking:
         case eModifierType::onKill:
+
+        case eModifierType::explode:
             break;
         }
     };
@@ -832,6 +837,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::onAttack:
         case eModifierType::onStriking:
         case eModifierType::onKill:
+
+        case eModifierType::explode:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

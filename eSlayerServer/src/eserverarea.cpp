@@ -1039,13 +1039,15 @@ void eServerArea::summon(eServerUnit& by,
     u->setAction(a);
 }
 
-void eServerArea::castChance(eServerUnit& by,
-                       const eSkillStats& o,
-                       const eWeaponChoice wchoice,
-                       const ePointF& to) {
+bool eServerArea::castChance(
+    eServerUnit& by,
+    const eSkillStats& o,
+    const eWeaponChoice wchoice,
+    const ePointF& to) {
     const bool r = eRand::randChance(o.fCastChance);
-    if(!r) return;
-    return cast(by, o, wchoice, to);
+    if(!r) return false;
+    cast(by, o, wchoice, to);
+    return true;
 }
 
 void eServerArea::cast(eServerUnit& by,
@@ -1092,6 +1094,10 @@ void eServerArea::cast(eServerUnit& by,
     case eSkillType::passive:
     case eSkillType::throw_:
         break;
+    }
+
+    if(o.fExplode) {
+        by.die(true);
     }
 }
 

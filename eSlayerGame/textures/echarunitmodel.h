@@ -19,6 +19,7 @@ public:
     SDL_Rect requestBoundingRect() const;
 
     void incFrame(const float by);
+    int frame() const;
     std::shared_ptr<eTexture> requestTexture(
         SDL_Renderer* const r) const;
     void draw(ePainter& p) const;

@@ -802,6 +802,7 @@ eItem eItemGenerator::generateItem(
             mod.fValue1 = 50*worth;
             break;
         case eModifierType::knockback:
+        case eModifierType::explode:
             break;
 
         case eModifierType::allSkills:

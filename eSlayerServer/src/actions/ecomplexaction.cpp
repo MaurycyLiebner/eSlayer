@@ -195,16 +195,7 @@ bool eComplexAction::getHit(const eHitData& data,
                         mArea.castChance(*attacker, o, wchoice, to);
                     }
                 }
-                {
-                    const auto& stats = mUnit.stats();
-                    const auto& onDeath = stats.fOnDeath;
-                    const auto to = data.fFrom;
-                    const auto wchoice = eWeaponChoice::left;
-                    for(const auto& o : onDeath) {
-                        mArea.castChance(mUnit, o, wchoice, to);
-                    }
-                }
-                mUnit.die();
+                mUnit.dieAndCast(data.fFrom);
             } else if(data.fKnockback) {
                 const float knockbackDist = 1.f;
                 const auto dir = ePointF::vector(mUnit.fPos, data.fFrom);
