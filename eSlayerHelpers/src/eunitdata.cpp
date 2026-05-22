@@ -7,6 +7,8 @@ const float angleMax = 360.f;
 const float animSpeedMax = 100.f;
 const float blockingActionTimeMax = 25.5f;
 
+float eUnitData::sColdSpeed = 0.5f;
+
 void eUnitData::read(ePacket& p) {
     p >> fCharId;
     p >> fTeamId;
@@ -77,15 +79,27 @@ void eUnitData::setCold(const bool c) {
     }
 }
 
-bool eUnitData::poisoned() const {
+bool eUnitData::frozen() const {
     return fState & 2u;
+}
+
+void eUnitData::setFrozen(const bool f) {
+    if(f) {
+        fState |= 2u;
+    } else {
+        fState &= ~2u;
+    }
+}
+
+bool eUnitData::poisoned() const {
+    return fState & 4u;
 }
 
 void eUnitData::setPoisoned(const bool p) {
     if(p) {
-        fState |= 2u;
+        fState |= 4u;
     } else {
-        fState &= ~2u;
+        fState &= ~4u;
     }
 }
 

@@ -64,8 +64,13 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     bool cold() const;
     void setCold(const bool c);
 
+    bool frozen() const;
+    void setFrozen(const bool f);
+
     bool poisoned() const;
     void setPoisoned(const bool p);
+
+    static float sColdSpeed;
 };
 
 #endif // EUNITDATA_H

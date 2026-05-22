@@ -7,9 +7,10 @@
 #include <cstdio>
 
 eMovementHandler::eMovementHandler(
-    ePointF& pos, float& angle,
-    ePathFinderMap& map) :
-    mPos(pos), mAngle(angle),
+    eUnitData& u, ePathFinderMap& map) :
+    mUnit(u),
+    mPos(u.fPos),
+    mAngle(u.fAngle),
     mMap(map) {}
 
 void eMovementHandler::intialize(const eWalkablePos& wPos,
@@ -158,17 +159,17 @@ bool eMovementHandler::increment(const float by) {
     const float distToGoal = ePointF::distance(mPos, to);
     const float slowRadius = 0.5f;
 
-    float speedFactor = 1.0f;
+    float speed = mSpeed;
     if(distToGoal < slowRadius) {
-        speedFactor = distToGoal / slowRadius;
+        speed *= distToGoal / slowRadius;
     }
 
-    const auto targetVel = moveDir*mSpeed*speedFactor;
+    const auto targetVel = moveDir*speed;
     const float blendFactor = 0.2f;
     mVel = mVel*(1.0f - blendFactor) + targetVel*blendFactor;
 
     const float progress = eVec2f::dot(mVel, desiredDir);
-    if(progress < 0.1f*mSpeed) {
+    if(progress < 0.1f*speed) {
         mStuckTimer += by;
     } else {
         mStuckTimer = 0.f;

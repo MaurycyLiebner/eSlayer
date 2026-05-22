@@ -18,9 +18,7 @@
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
     mMainChar(std::make_shared<eUnit>()),
-    mMovementHandler(mMainChar->fPos,
-                     mMainChar->fAngle,
-                     map) {}
+    mMovementHandler(*mMainChar, map) {}
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eResolution& res,
@@ -127,6 +125,12 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(mMainChar->fHealth <= 0) return;
 
+    float scaledBy = by;
+
+    if(mMainChar->frozen() || mMainChar->cold()) {
+        scaledBy *= eUnitData::sColdSpeed;
+    }
+
     auto& model = mMainChar->model();
 
     const eSkillChoice schoice{rightPressed ?
@@ -135,7 +139,7 @@ void eMainCharAction::increment(const bool mousePressed,
 
     handleAttackStop(mousePressed, rightPressed, shiftPressed);
 
-    if(consumeActionTime(by, model)) return;
+    if(consumeActionTime(scaledBy, model)) return;
 
     const bool canUseSkill = mStats.canUseSkill(schoice);
     const bool rangeAttack = mStats.rangedAttack(schoice);
@@ -251,7 +255,7 @@ void eMainCharAction::increment(const bool mousePressed,
     if(mAttackData.fType != eAttackTargetType::none) return;
 
     const bool hasPressedUnit = !mPressedUnit.expired();
-    handleMovement(mousePressed || hasPressedUnit, targetPos, by, model);
+    handleMovement(mousePressed || hasPressedUnit, targetPos, scaledBy, model);
 }
 
 void eMainCharAction::mousePress() {

@@ -187,6 +187,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             result.fMainCharData.fBlockingActionTime = u.fBlockingActionTime;
             result.fMainCharData.fHealth = u.fHealth;
             result.fMainCharData.fMaxHealth = u.fMaxHealth;
+            result.fMainCharData.fState = u.fState;
             continue;
         }
         const auto unit = mUnits.get(charId);

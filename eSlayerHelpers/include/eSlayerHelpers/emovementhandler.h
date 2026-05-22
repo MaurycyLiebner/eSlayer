@@ -20,8 +20,7 @@ using eOtherIterator = std::function<void(
 
 class ESLAYERHELPERS_API eMovementHandler {
 public:
-    eMovementHandler(ePointF& pos, float& angle,
-                     ePathFinderMap& map);
+    eMovementHandler(eUnitData& u, ePathFinderMap& map);
 
     void intialize(const eWalkablePos& wPos,
                    const eWalkablePath& wPath,
@@ -58,6 +57,7 @@ public:
 private:
     bool walkable(const ePointF& pos) const;
 
+    const eUnitData& mUnit;
     ePointF& mPos;
     float& mAngle;
     ePathFinderMap& mMap;

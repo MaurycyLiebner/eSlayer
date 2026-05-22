@@ -332,6 +332,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainChar->fPos = u.fPos;
             }
             mMainChar->fHealth = u.fHealth;
+            mMainChar->fState = u.fState;
             {
                 auto& stats = eGameWidget::stats();
                 auto& attrs = eGameWidget::attributes();
@@ -849,7 +850,15 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(e.fType == eRenderElementType::unit) {
                 const auto u = std::static_pointer_cast<eUnit>(ePtr);
                 auto& model = u->model();
-                model.incFrame(by);
+                const bool frozen = u->frozen();
+                const bool cold = u->cold();
+                if(!frozen) {
+                    if(cold) {
+                        model.incFrame(by*eUnitData::sColdSpeed);
+                    } else {
+                        model.incFrame(by);
+                    }
+                }
                 bool highlight = false;
                 if(!mHighlightUnit.lock() && u != mMainChar &&
                     (u->fHealth > 0 || u->isSlayerBody())) {
@@ -874,10 +883,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                     highlight = p == u;
                 }
                 SDL_FColor colorMod{1.f, 1.f, 1.f, 1.f};
-                const bool cold = u->cold();
                 const bool poisoned = u->poisoned();
-                if(cold) colorMod = SDL_FColor{1.f, 1.5f, 3.f, 1.f};
-                else if(poisoned) colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
+                if(cold || frozen) {
+                    colorMod = SDL_FColor{1.f, 1.5f, 3.f, 1.f};
+                } else if(poisoned) {
+                    colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
+                }
                 const auto tex = model.requestTexture(r);
                 if(!tex) continue;
                 const auto rect = model.requestBoundingRect();

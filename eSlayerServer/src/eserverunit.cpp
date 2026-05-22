@@ -16,7 +16,7 @@ eServerUnit::eServerUnit(const bool client,
                          const int unitTypeId,
                          eServerArea& area,
                          ePathFinderMap& map) :
-    mHandler(fPos, fAngle, map),
+    mHandler(*this, map),
     mData(data),
     mArea(area),
     mClient(client),
@@ -562,18 +562,25 @@ eDamage eServerUnit::attackDamage(
 void eServerUnit::increment(const float by) {
     float scaledBy = by;
 
-    bool cold = false;
-    if(mFreezeLength > 0.f) {
+    if(mFreezeLength > 0.f && fHealth > 0) {
         mFreezeLength = std::max(0.f, mFreezeLength - by);
-        scaledBy = 0.f;
-        cold = true;
+        if(mClient) {
+            scaledBy *= eUnitData::sColdSpeed;
+            setCold(true);
+        } else {
+            scaledBy = 0.f;
+            setFrozen(true);
+        }
+    } else {
+        setFrozen(false);
     }
-    if(mColdLength > 0.f) {
+    if(mColdLength > 0.f && fHealth > 0) {
         mColdLength = std::max(0.f, mColdLength - by);
-        scaledBy *= 0.5f;
-        cold = true;
+        scaledBy *= eUnitData::sColdSpeed;
+        setCold(true);
+    } else {
+        setCold(false);
     }
-    setCold(cold);
 
     for(auto& it : mStats.fCooldowns) {
         it.second = std::max(0.f, it.second - by);
