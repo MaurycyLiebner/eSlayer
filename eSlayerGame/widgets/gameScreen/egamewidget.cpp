@@ -871,7 +871,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 SDL_FColor colorMod{1.f, 1.f, 1.f, 1.f};
                 const bool cold = u->cold();
                 const bool poisoned = u->poisoned();
-                if(cold) colorMod = SDL_FColor{0.f, 0.5f, 1.f, 1.f};
+                if(cold) colorMod = SDL_FColor{1.f, 1.5f, 3.f, 1.f};
                 else if(poisoned) colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
                 const auto tex = model.requestTexture(r);
                 if(!tex) continue;
