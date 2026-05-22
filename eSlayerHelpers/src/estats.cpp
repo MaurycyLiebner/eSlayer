@@ -217,7 +217,7 @@ struct eSkillStatsHelper {
             }
         } break;
         case eModifierType::damagePoison: {
-            const float framesLength = mod.fValue2*eRunSettings::sFPS;
+            const float framesLength = mod.fValue2*25.f;
             const float bitRate = 256.f*mod.fValue1/framesLength;
             if(lw) {
                 fPoisonBitRateLW += bitRate;
@@ -309,7 +309,7 @@ struct eSkillStatsHelper {
             fDmgMultMax.fPoisonPerFrame += 0.01f*mod.fValue1;
         } break;
         case eModifierType::coldLength: {
-            const float framesLength = mod.fValue1*eRunSettings::sFPS;
+            const float framesLength = mod.fValue1*25.f;
             if(lw) {
                 fSkillStats.fColdLengthLW += framesLength;
             }
@@ -318,7 +318,7 @@ struct eSkillStatsHelper {
             }
         } break;
         case eModifierType::freezeLength: {
-            const float framesLength = mod.fValue1*eRunSettings::sFPS;
+            const float framesLength = mod.fValue1*25.f;
             if(lw) {
                 fSkillStats.fFreezeLengthLW += framesLength;
             }
@@ -359,6 +359,21 @@ struct eSkillStatsHelper {
         }
     }
 
+    void clamp(eDamage& min, const eDamage& max) const {
+        min.fPhysical = std::min(
+            min.fPhysical, max.fPhysical);
+        min.fFire = std::min(
+            min.fFire, max.fFire);
+        min.fCold = std::min(
+            min.fCold, max.fCold);
+        min.fLightning = std::min(
+            min.fLightning, max.fLightning);
+        min.fPoisonFrameLength = std::min(
+            min.fPoisonFrameLength, max.fPoisonFrameLength);
+        min.fPoisonPerFrame = std::min(
+            min.fPoisonPerFrame, max.fPoisonPerFrame);
+    }
+
     void apply() {
         fDmgMinLWBase.fPoisonPerFrame = fPoisonBitRateLW/256.f;
         fDmgMinLWBase.fPoisonFrameLength = fPoisonFrameLengthLW;
@@ -384,6 +399,9 @@ struct eSkillStatsHelper {
         fSkillStats.fDamageMaxLW = fDmgMaxLWBase*fDmgMultMax;
         fSkillStats.fDamageMinRW = fDmgMinRWBase*fDmgMultMin;
         fSkillStats.fDamageMaxRW = fDmgMaxRWBase*fDmgMultMax;
+
+        clamp(fSkillStats.fDamageMinLW, fSkillStats.fDamageMaxLW);
+        clamp(fSkillStats.fDamageMinRW, fSkillStats.fDamageMaxRW);
 
         fSkillStats.fAttackRatingLW = (fBaseAR + fFlatARLW)*(1.f + fBonusARLW);
         fSkillStats.fAttackRatingRW = (fBaseAR + fFlatARRW)*(1.f + fBonusARRW);
@@ -649,6 +667,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::onKill:
 
         case eModifierType::explode:
+
+        case eModifierType::skillLevel:
             break;
         }
     };
@@ -883,6 +903,8 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::onStruck:
         case eModifierType::onDeath:
+
+        case eModifierType::skillLevel:
             break;
         }
     };
@@ -973,9 +995,6 @@ void eStats::calculateSkill(eSkillStats& stats,
             stats.fMissileIdRW = skill.fMissileId;
         }
     }
-    stats.fCount = skillLevel.fCount;
-    stats.fManaCost += skillLevel.fManaCost;
-    stats.fCooldown += skillLevel.fCooldown;
 
     if(skill.fType == eSkillType::attack ||
        skill.fType == eSkillType::shoot ||
@@ -990,10 +1009,29 @@ void eStats::calculateSkill(eSkillStats& stats,
                        helper, true, true);
     }
 
-    for(const auto& mod : skillLevel.fTotalModifiers) {
+    auto skillMods = skillLevel.fTotalModifiers;
+
+    if(!chanceSkill) {
+        for(const auto& s : skill.fSynergies) {
+            const int sSkillId = s.fSkillId;
+            const int sLevelId = effectiveSkillLevel(sSkillId);
+            if(sLevelId < 0) continue;
+            const auto& boost = s.boostLevel(sLevelId);
+            skillMods.addBoost(boost);
+        }
+    }
+
+    skillMods.collapse();
+
+    stats.fCount = skillMods.fCount;
+    stats.fManaCost = skillMods.fManaCost;
+    stats.fCooldown = skillMods.fCooldown;
+
+    for(const auto& mod : skillMods) {
         handleSkillMod(mod.second, eModifierSource::skill,
                        helper, true, true);
     }
+
     for(const auto& item : items) {
         if(!itemReqsMet(item)) continue;
         for(const auto& mod : item.fModifiers) {
@@ -1022,26 +1060,6 @@ void eStats::calculateSkill(eSkillStats& stats,
         for(const auto& mod : skillLevel.fTotalModifiers) {
             handleSkillMod(mod.second, eModifierSource::boost,
                            helper, true, true);
-        }
-    }
-
-    if(!chanceSkill) {
-        for(const auto& s : skill.fSynergies) {
-            const int sSkillId = s.fSkillId;
-            const int sLevelId = effectiveSkillLevel(sSkillId);
-            if(sLevelId < 0) continue;
-            const int maxLevel = s.fBoostLevels.size() - 1;
-            const int sMaxLevelId = std::min(sLevelId, maxLevel);
-            for(int level = 0; level <= sMaxLevelId; level++) {
-                const auto& boost = s.boostLevel(level);
-                stats.fCount += boost.fCount;
-                stats.fManaCost += boost.fManaCost;
-                stats.fCooldown += boost.fCooldown;
-                for(const auto& mod : boost.fTotalModifiers) {
-                    handleSkillMod(mod.second, eModifierSource::skill,
-                                   helper, true, true);
-                }
-            }
         }
     }
 
@@ -1243,10 +1261,13 @@ int eStats::effectiveSkillLevel(const int skillId) const {
 
 int eStats::incSkillLevel(const int skillId) {
     const int level = baseSkillLevel(skillId);
-    if(fBaseSkillLevels.fRemainingPoints <= 0) return level;
-    fBaseSkillLevels.fRemainingPoints--;
-    fBaseSkillLevels[skillId] = level + 1;
-    return level + 1;
+    uint8_t& rem = fBaseSkillLevels.fRemainingPoints;
+    if(rem <= 0) return level;
+    rem--;
+    uint16_t& levelRef = fBaseSkillLevels[skillId];
+    if(levelRef + 1 >= eSkills::sMaxSkillLevel) return level;
+    levelRef = level + 1;
+    return levelRef;
 }
 
 float eStats::manaCost(const int schoice) const {

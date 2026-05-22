@@ -129,6 +129,7 @@
         <string id="52">%1% Chance to Cast Level %2 %3 When Struck</string>
         <string id="53">%1% Chance to Cast Level %2 %3 When You Die</string>
         <string id="54">Explode</string>
+        <string id="55">%1 to Skill Level</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

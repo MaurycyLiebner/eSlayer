@@ -3,6 +3,7 @@
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/erand.h>
+#include <eSlayerHelpers/eskills.h>
 
 uint32_t eItemGenerator::sNextItemId = 1;
 
@@ -76,7 +77,9 @@ std::vector<eModifierType> itemTypeMods(
             // eModifierType::fireSkillDamage,
             // eModifierType::coldSkillDamage,
             // eModifierType::lightningSkillDamage,
-            // eModifierType::poisonSkillDamage
+            // eModifierType::poisonSkillDamage,
+
+            eModifierType::onStruck
         };
     } break;
     case eItemType::gloves: {
@@ -142,7 +145,13 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::fireSkillDamage,
             eModifierType::coldSkillDamage,
             eModifierType::lightningSkillDamage,
-            eModifierType::poisonSkillDamage
+            eModifierType::poisonSkillDamage,
+
+            eModifierType::onStruck,
+            eModifierType::onAttack,
+            eModifierType::onKill,
+            eModifierType::onStriking,
+            eModifierType::onDeath
         };
     } break;
     case eItemType::helmet: {
@@ -208,7 +217,9 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::fireSkillDamage,
             eModifierType::coldSkillDamage,
             eModifierType::lightningSkillDamage,
-            eModifierType::poisonSkillDamage
+            eModifierType::poisonSkillDamage,
+
+            eModifierType::onStruck
         };
     } break;
     case eItemType::armor: {
@@ -274,7 +285,9 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::fireSkillDamage,
             eModifierType::coldSkillDamage,
             eModifierType::lightningSkillDamage,
-            eModifierType::poisonSkillDamage
+            eModifierType::poisonSkillDamage,
+
+            eModifierType::onStruck
         };
     } break;
     case eItemType::belt: {
@@ -341,6 +354,11 @@ std::vector<eModifierType> itemTypeMods(
             // eModifierType::coldSkillDamage,
             // eModifierType::lightningSkillDamage,
             // eModifierType::poisonSkillDamage
+
+            eModifierType::onStruck,
+            eModifierType::onAttack,
+            eModifierType::onKill,
+            eModifierType::onStriking
         };
     } break;
     case eItemType::ring:
@@ -473,7 +491,11 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::fireSkillDamage,
             eModifierType::coldSkillDamage,
             eModifierType::lightningSkillDamage,
-            eModifierType::poisonSkillDamage
+            eModifierType::poisonSkillDamage,
+
+            eModifierType::onStriking,
+            eModifierType::onAttack,
+            eModifierType::onKill
         };
     } break;
     case eItemType::shield: {
@@ -539,7 +561,10 @@ std::vector<eModifierType> itemTypeMods(
             eModifierType::fireSkillDamage,
             eModifierType::coldSkillDamage,
             eModifierType::lightningSkillDamage,
-            eModifierType::poisonSkillDamage
+            eModifierType::poisonSkillDamage,
+
+            eModifierType::onStruck,
+            eModifierType::onDeath
         };
     } break;
     case eItemType::arrows:
@@ -676,7 +701,6 @@ eItem eItemGenerator::generateItem(
     const bool canBeNormal = type != eItemType::ring &&
                              type != eItemType::amulet;
 
-    eItemRarity rarity;
     if(worth > 4.f) {
         item.fRarity = eItemRarity::rare;
     } else if(canBeNormal && worth < 1.f) {
@@ -803,6 +827,8 @@ eItem eItemGenerator::generateItem(
             break;
         case eModifierType::knockback:
         case eModifierType::explode:
+
+        case eModifierType::skillLevel:
             break;
 
         case eModifierType::allSkills:
@@ -820,12 +846,37 @@ eItem eItemGenerator::generateItem(
         case eModifierType::poisonSkillDamage:
             mod.fValue1 = 15*worth;
             break;
+
+        case eModifierType::coldLength:
+            mod.fValue1 = 8*worth;
+            break;
+        case eModifierType::freezeLength:
+            mod.fValue1 = 4*worth;
+            break;
+
+        case eModifierType::onAttack:
+        case eModifierType::onKill:
+        case eModifierType::onStriking:
+            mod.fValue1 = 5*worth;
+            mod.fValue2 = level;
+            mod.fSkillId = eSkills::sSkills.id("frostNova");
+            break;
+        case eModifierType::onDeath:
+            mod.fValue1 = 100*worth;
+            mod.fValue2 = level;
+            mod.fSkillId = eSkills::sSkills.id("frostNova");
+            break;
+        case eModifierType::onStruck:
+            mod.fValue1 = 10*worth;
+            mod.fValue2 = sqrt(level);
+            mod.fSkillId = eSkills::sSkills.id("frostNova");
+            break;
         }
         mod.fValue1 = eModifierHelpers::clampValue(mod.fValue1, type);
         mod.fValue2 = eModifierHelpers::clampValue(mod.fValue2, type);
     };
     float remWorth = worth;
-    const int maxMods = rarity == eItemRarity::rare ? 8 : 4;
+    const int maxMods = item.fRarity == eItemRarity::rare ? 8 : 4;
     while(remWorth >= 0.25f && !modTypes.empty()) {
         const float maxWorth = std::clamp(remWorth, 0.25f, 1.f);
         const float mworth = eRand::randF(0.25f, maxWorth);

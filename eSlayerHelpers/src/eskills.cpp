@@ -5,6 +5,7 @@
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
+const int eSkills::sMaxSkillLevel = 99;
 
 const float eSkill::sRadiusMax = 12.75f;
 const float eSkill::sSpeedMax = 1.f;
@@ -93,84 +94,84 @@ void eSkills::load() {
             float cooldown = jdata.value("cooldown", 0.f);
             float manaCost = jdata.value("manaCost", 0.f);
 
-            skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
-            if(jdata.contains("levels")) {
-                std::map<eModifierType, eModifier> totalMods;
-                const auto& levels = jdata["levels"];
-                for(auto& [name, levelData] : levels.items()) {
-                    eSkillLevel level;
+            const auto parseSkillLevel = [](
+                const ordered_json& levelData, eSkillTotalMods& totalMods) {
+                eSkillLevel level;
+                auto& mods = level.fModifiers;
 
-                    count = levelData.value("count", count);
-                    level.fCount = count;
+                for(auto it = levelData.begin(); it != levelData.end(); ++it) {
+                    const auto& key = it.key();
+                    const auto& value = it.value();
 
-                    cooldown = levelData.value("cooldown", cooldown);
-                    level.fCooldown = cooldown;
-
-                    manaCost = levelData.value("manaCost", manaCost);
-                    level.fManaCost = manaCost;
-
-                    for(auto it = levelData.begin(); it != levelData.end(); ++it) {
-                        const auto& key = it.key();
-                        if(key == "count" ||
-                           key == "cooldown" ||
-                           key == "manaCost") continue;
-                        const auto& value = it.value();
-
+                    if(key == "count") {
+                        const int dc = int(value);
+                        mods.fCount += dc;
+                        totalMods.fCount += dc;
+                    } else if(key == "cooldown") {
+                        const float dc = float(value);
+                        mods.fCooldown += dc;
+                        totalMods.fCooldown += dc;
+                    } else if(key == "manaCost") {
+                        const float dm = float(value);
+                        mods.fManaCost += dm;
+                        totalMods.fManaCost += dm;
+                    } else {
                         eModifier mod;
                         mod.read(key, json(value));
-
-                        auto& totalMod = totalMods[mod.fType];
-                        totalMod.fType = mod.fType;
-                        totalMod.fValue1 += mod.fValue1;
-                        totalMod.fValue2 += mod.fValue2;
+                        totalMods.add(mod);
+                        mods.add(mod);
                     }
-
-                    level.fTotalModifiers = totalMods;
-                    skill.fLevels.emplace_back(level);
                 }
+
+                level.fTotalModifiers = totalMods;
+
+                return level;
+            };
+
+            const auto parseSkillLevels = [&](
+                const ordered_json& levelsJson,
+                std::vector<eSkillLevel>& levels) {
+                eSkillTotalMods allMods;
+                if(levelsJson.contains("all")) {
+                    const auto& all = levelsJson["all"];
+                    parseSkillLevel(all, allMods);
+                }
+                eSkillTotalMods totalMods;
+                totalMods.fCount = count;
+                totalMods.fCooldown = cooldown;
+                totalMods.fManaCost = manaCost;
+                for(int i = 1; i <= sMaxSkillLevel; i++) {
+                    const std::string levelKey = std::to_string(i);
+                    totalMods.fCount += allMods.fCount;
+                    totalMods.fCooldown += allMods.fCooldown;
+                    totalMods.fManaCost += allMods.fManaCost;
+
+                    const ordered_json empty = ordered_json::object();
+                    const ordered_json& levelData =
+                        levelsJson.contains(levelKey)
+                            ? levelsJson[levelKey]
+                            : empty;
+
+                    totalMods.addLevel(allMods);
+                    auto level = parseSkillLevel(levelData, totalMods);
+                    level.fModifiers.addLevel(allMods);
+                    levels.emplace_back(level);
+                }
+            };
+
+            skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
+            if(jdata.contains("levels")) {
+                const auto& levels = jdata["levels"];
+                parseSkillLevels(levels, skill.fLevels);
             }
             if(jdata.contains("synergies")) {
-                std::map<eModifierType, eModifier> totalMods;
+                eSkillTotalMods totalMods;
                 const auto& synergies = jdata["synergies"];
                 skill.fSynergies.reserve(synergies.size());
-                for(auto& [name, synergyData] : synergies.items()) {
+                for(auto& [name, levels] : synergies.items()) {
                     auto& synergy = skill.fSynergies.emplace_back();
                     synergy.fSkillStr = name;
-                    int count = 0;
-                    float cooldown = 0.f;
-                    float manaCost = 0.f;
-                    for(auto it = synergyData.begin(); it != synergyData.end(); ++it) {
-                        eSkillLevel level;
-
-                        count += synergyData.value("count", 0);
-                        level.fCount = count;
-
-                        cooldown += synergyData.value("cooldown", 0.f);
-                        level.fCooldown = cooldown;
-
-                        manaCost += synergyData.value("manaCost", 0.f);
-                        level.fManaCost = manaCost;
-
-                        const auto& levelData = it.value();
-                        for(auto it = levelData.begin(); it != levelData.end(); ++it) {
-                            const auto& key = it.key();
-                            if(key == "count" ||
-                               key == "cooldown" ||
-                               key == "manaCost") continue;
-                            const auto& value = it.value();
-
-                            eModifier mod;
-                            mod.read(key, json(value));
-
-                            auto& totalMod = totalMods[mod.fType];
-                            totalMod.fType = mod.fType;
-                            totalMod.fValue1 += mod.fValue1;
-                            totalMod.fValue2 += mod.fValue2;
-                        }
-
-                        level.fTotalModifiers = totalMods;
-                        synergy.fBoostLevels.emplace_back(level);
-                    }
+                    parseSkillLevels(levels, synergy.fBoostLevels);
                 }
             }
             sSkills.add(name, skill);

@@ -77,7 +77,9 @@ gModifierTypeToString = {
     { eModifierType::onStruck, "onStruck" },
     { eModifierType::onDeath, "onDeath" },
 
-    { eModifierType::explode, "explode" }
+    { eModifierType::explode, "explode" },
+
+    { eModifierType::skillLevel, "skillLevel" }
 };
 
 std::map<std::string, eModifierType>
@@ -157,6 +159,8 @@ eModValuesUsage eModifier::valuesUsed() const {
 
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
+
+    case eModifierType::skillLevel:
         return eModValuesUsage::value1;
 
     case eModifierType::knockback:
@@ -252,6 +256,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::coldSkillDamage:
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
+
+    case eModifierType::skillLevel:
         return "value";
 
     case eModifierType::knockback:
@@ -342,6 +348,8 @@ std::string eModifier::value2Name() const {
     case eModifierType::freezeLength:
 
     case eModifierType::explode:
+
+    case eModifierType::skillLevel:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -503,6 +511,8 @@ bool eModifierHelpers::isPercent(
     case eModifierType::freezeLength:
 
     case eModifierType::explode:
+
+    case eModifierType::skillLevel:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

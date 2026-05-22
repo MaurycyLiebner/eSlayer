@@ -5,6 +5,7 @@
 
 #include "estringidmapvector.h"
 #include "emodifier.h"
+#include "eskilltotalmods.h"
 
 enum class eSkillType : uint8_t {
     attack, smite, kick,
@@ -19,11 +20,9 @@ enum class eSkillType : uint8_t {
 
 struct eSkillLevel {
     int fLevel;
-    int fCount;
-    float fCooldown;
-    float fManaCost;
-    std::map<eModifierType, eModifier>
-    fTotalModifiers;
+
+    eSkillTotalMods fModifiers;
+    eSkillTotalMods fTotalModifiers;
 };
 
 struct eSynergy {
@@ -81,6 +80,7 @@ public:
     static void load();
 
     static eStringIdMapVector<eSkill> sSkills;
+    static const int sMaxSkillLevel;
 private:
     static bool sLoaded;
 };

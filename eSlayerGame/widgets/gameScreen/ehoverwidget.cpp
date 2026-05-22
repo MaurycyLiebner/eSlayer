@@ -165,38 +165,21 @@ void eHoverWidget::setHoverItem(
     mHoverItemId = item.fItemId;
 }
 
-std::map<eModifierType, eModifier>
-eHoverWidget::calculateTotalModifiers(
-    const int skillId, const int levelId,
-    int& count, float& cooldown, float& manaCost) const {
+eSkillTotalMods eHoverWidget::calculateTotalModifiers(
+    const int skillId, const int levelId) const {
     if(levelId < 0) return {};
-    std::map<eModifierType, eModifier> result;
+    eSkillTotalMods result;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto& level = skill.skillLevel(levelId);
-    count = level.fCount;
-    cooldown = level.fCooldown;
-    manaCost = level.fManaCost;
     result = level.fTotalModifiers;
     for(const auto& s : skill.fSynergies) {
         const int sSkillId = s.fSkillId;
         const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
         if(sLevelId < 0) continue;
-        const int maxLevel = s.fBoostLevels.size() - 1;
-        const int sMaxLevelId = std::min(sLevelId, maxLevel);
-        for(int level = 0; level <= sMaxLevelId; level++) {
-            const auto& boost = s.fBoostLevels[level];
-            count += boost.fCount;
-            cooldown += boost.fCooldown;
-            manaCost += boost.fManaCost;
-            for(const auto& it : boost.fTotalModifiers) {
-                const auto& mod = it.second;
-                auto& dstMod = result[mod.fType];
-                dstMod.fType = mod.fType;
-                dstMod.fValue1 += mod.fValue1;
-                dstMod.fValue2 += mod.fValue2;
-            }
-        }
+        const auto& boost = s.fBoostLevels[sLevelId];
+        result.addBoost(boost);
     }
+    result.collapse();
     return result;
 }
 
@@ -223,39 +206,35 @@ void eHoverWidget::setHoverSkill(
                 const auto& level = skill.skillLevel(levelId);
                 gen.addValue(r, 13, 1, levelId + 1,
                              eFontColor::white, eModifierType::none);
-                int count;
-                float cooldown;
-                float manaCost;
                 const auto mods = calculateTotalModifiers(
-                    skillId, levelId, count, cooldown, manaCost);
+                    skillId, levelId);
                 for(const auto& it : mods) {
                     const auto& mod = it.second;
                     const int s = static_cast<int>(mod.fType);
                     gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                                  mod.fSkillId, eFontColor::white, mod.fType);
                 }
-                if(manaCost != 0.f) {
-                    gen.addValue(r, 13, 3, manaCost,
+                if(mods.fManaCost != 0.f) {
+                    gen.addValue(r, 13, 3, mods.fManaCost,
                                  eFontColor::white, eModifierType::none);
                 }
             }
             const int nextLevelId = levelId + 1;
-            if(showNextLevel && nextLevelId >= 0) {
+            if(showNextLevel && nextLevelId >= 0 &&
+               nextLevelId < eSkills::sMaxSkillLevel) {
                 if(levelId >= 0) gen.addSpace(r);
                 const auto& level = skill.skillLevel(nextLevelId);
                 gen.addValue(r, 13, 2, nextLevelId + 1,
                              eFontColor::white, eModifierType::none);
-                int count;
-                float cooldown;
-                float manaCost;
                 const auto mods = calculateTotalModifiers(
-                    skillId, nextLevelId, count, cooldown, manaCost);
+                    skillId, nextLevelId);
                 for(const auto& it : mods) {
                     const auto& mod = it.second;
                     const int s = static_cast<int>(mod.fType);
                     gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                                  mod.fSkillId, eFontColor::white, mod.fType);
                 }
+                const float manaCost = mods.fManaCost;
                 if(manaCost != 0.f) {
                     gen.addValue(r, 13, 3, manaCost,
                                  eFontColor::white, eModifierType::none);
@@ -280,25 +259,29 @@ void eHoverWidget::setHoverSkill(
                     }
                     gen.addText(r, sTextBase, eFontColor::white);
                     const auto& sLevel = s.boostLevel(sLevelId + 1);
-                    if(sLevel.fManaCost != 0.f) {
-                        const auto manaCostFloatStr = eStringHelpers::floatToString(sLevel.fManaCost);
+                    const auto& mods = sLevel.fModifiers;
+                    const float manaCost = mods.fManaCost;
+                    if(manaCost != 0.f) {
+                        const auto manaCostFloatStr = eStringHelpers::floatToString(manaCost);
                         auto manaCostStr = eLanguage::text(13, 6);
                         manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
                         gen.addText(r, manaCostStr, eFontColor::white);
                     }
-                    if(sLevel.fCooldown != 0.f) {
-                        const auto cooldownFloatStr = eStringHelpers::floatToString(sLevel.fCooldown);
+                    const float cooldown = mods.fCooldown;
+                    if(cooldown != 0.f) {
+                        const auto cooldownFloatStr = eStringHelpers::floatToString(cooldown);
                         auto cooldownStr = eLanguage::text(13, 7);
                         cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
                         gen.addText(r, cooldownStr, eFontColor::white);
                     }
-                    if(sLevel.fCount != 0) {
-                        const auto countFloatStr = eStringHelpers::floatToString(sLevel.fCount);
+                    const int count = mods.fCount;
+                    if(count != 0) {
+                        const auto countFloatStr = eStringHelpers::floatToString(count);
                         auto countStr = eLanguage::text(13, 8);
                         countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
                         gen.addText(r, countStr, eFontColor::white);
                     }
-                    for(const auto& it : sLevel.fTotalModifiers) {
+                    for(const auto& it : mods) {
                         const auto& mod = it.second;
                         const int s = static_cast<int>(mod.fType);
                         gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,

@@ -88,6 +88,8 @@ bool addPlus(const float value,
 
     case eModifierType::coldLength:
     case eModifierType::freezeLength:
+
+    case eModifierType::skillLevel:
         return true;
 
     case eModifierType::none:

@@ -4,6 +4,7 @@
 #include "../ewidget.h"
 
 #include <eSlayerHelpers/emodifier.h>
+#include <eSlayerHelpers/eskills.h>
 
 struct eEquipment;
 struct eItem;
@@ -47,12 +48,9 @@ protected:
     bool mouseMoveEvent(const eMouseEvent& e) override;
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
-    std::map<eModifierType, eModifier>
-    calculateTotalModifiers(const int skillId,
-                            const int levelId,
-                            int& count,
-                            float& cooldown,
-                            float& manaCost) const;
+    eSkillTotalMods
+    calculateTotalModifiers(
+        const int skillId, const int levelId) const;
 
     const eAttributes& mAttrs;
     const eStats& mStats;

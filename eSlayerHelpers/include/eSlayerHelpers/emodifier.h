@@ -88,6 +88,8 @@ enum class eModifierType : uint8_t {
 
     explode,
 
+    skillLevel,
+
     count
 };
 
