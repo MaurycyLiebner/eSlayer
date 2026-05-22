@@ -839,7 +839,12 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(!ePtr) continue;
             const auto& pos = ePtr->fPos;
             const auto iPos = pos.floor();
-            const auto pixel = tilePosToPixel(pos);
+            auto pixel = tilePosToPixel(iPos);
+            pixel = pixel.round();
+            const float dx = pos.fX - iPos.fX;
+            const float dy = pos.fY - iPos.fY;
+            pixel.fX += (dx - dy)*(tileW/2);
+            pixel.fY += (dx + dy)*((tileH + 1)/2);
             const auto ipixel = pixel.round();
             if(e.fType == eRenderElementType::unit) {
                 const auto u = std::static_pointer_cast<eUnit>(ePtr);
@@ -885,7 +890,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
                 const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
-                                    pixel.fX, pixel.fY, ftex, false, false,
+                                    ipixel.fX, ipixel.fY, ftex, false, false,
                                     e.fLighting);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::item) {
