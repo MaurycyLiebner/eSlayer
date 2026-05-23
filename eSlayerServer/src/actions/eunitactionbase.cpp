@@ -38,7 +38,8 @@ void eUnitActionBase::setup(const int anim,
     mUnit.fAnimId += 5;
 
     float speed;
-    if(anim == sExplosionAnim) {
+    if(anim == sFleshExplAnim ||
+       anim == sIceExplAnim) {
         speed = 1.f;
         setDuration(std::numeric_limits<float>::max());
     } else {

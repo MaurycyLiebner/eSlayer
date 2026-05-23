@@ -48,7 +48,7 @@ void eEliteModifiers::initialize(const int nMods, const float level) {
                 bossMod.fType = eModifierType::onDeath;
                 bossMod.fValue1 = 100;
                 bossMod.fValue2 = sqrt(level);
-                bossMod.fSkillId = eSkills::sSkills.id("frostNova");
+                bossMod.fSkillId = eSkills::sSkills.id("iceExplosion");
             }
         } break;
         case eUnitMod::extraFast: {

@@ -16,10 +16,14 @@ class ePacket;
 struct eItem;
 enum class eWeaponChoice : uint8_t;
 
+enum class eExplodeType {
+    none, flesh, ice
+};
+
 struct eSkillStats {
     int fSkillId = 0;
 
-    bool fExplode = false;
+    eExplodeType fExplode = eExplodeType::none;
 
     // for chance casting
     float fCastChance = 0.f;

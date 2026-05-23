@@ -284,8 +284,11 @@ struct eSkillStatsHelper {
                 fSkillStats.fKnockbackRW = true;
             }
         } break;
-        case eModifierType::explode: {
-            fSkillStats.fExplode = true;
+        case eModifierType::fleshExplode: {
+            fSkillStats.fExplode = eExplodeType::flesh;
+        } break;
+        case eModifierType::iceExplode: {
+            fSkillStats.fExplode = eExplodeType::ice;
         } break;
         case eModifierType::attackSpeed: {
             if(src == eModifierSource::skill) {
@@ -666,7 +669,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::onStriking:
         case eModifierType::onKill:
 
-        case eModifierType::explode:
+        case eModifierType::fleshExplode:
+        case eModifierType::iceExplode:
 
         case eModifierType::skillLevel:
             break;
@@ -858,7 +862,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::onStriking:
         case eModifierType::onKill:
 
-        case eModifierType::explode:
+        case eModifierType::fleshExplode:
+        case eModifierType::iceExplode:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

@@ -1112,8 +1112,12 @@ void eServerArea::cast(eServerUnit& by,
         break;
     }
 
-    if(o.fExplode) {
-        by.die(true);
+    switch(o.fExplode) {
+    case eExplodeType::none:
+        break;
+    default:
+        by.die(o.fExplode);
+        break;
     }
 }
 

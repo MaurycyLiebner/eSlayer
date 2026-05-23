@@ -116,7 +116,8 @@ bool addPlus(const float value,
     case eModifierType::onStruck:
     case eModifierType::onDeath:
 
-    case eModifierType::explode:
+    case eModifierType::fleshExplode:
+    case eModifierType::iceExplode:
         return false;
     }
     return false;

@@ -42,7 +42,7 @@ class eServerUnit : public eUnitData {
 public:
     static int sNextCharId;
 
-    eServerUnit(const bool client,
+    eServerUnit(const bool slayer,
                 const eCharData& data,
                 const int unitTypeId,
                 eServerArea& area,
@@ -226,7 +226,8 @@ public:
 
     void killed(const eServerUnit& killed);
     void dieAndCast(const ePointF& from);
-    void die(const bool explode = false);
+
+    void die(eExplodeType type = eExplodeType::none);
     void respawn();
 
     void recalculateStats();
@@ -253,7 +254,7 @@ public:
 private:
     const eCharData& mData;
     eServerArea& mArea;
-    const bool mClient;
+    const bool mSlayer;
     const int mUnitTypeId;
 
     bool mDead = false;

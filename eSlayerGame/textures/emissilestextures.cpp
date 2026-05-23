@@ -9,6 +9,7 @@
 eStringIdMapVector<eMissileTextures>
 eMissilesTextures::sMissiles;
 int eMissilesTextures::sFleshId = -1;
+int eMissilesTextures::sIceId = -1;
 
 bool eMissilesTextures::sDataLoaded = false;
 bool eMissilesTextures::sTexsLoaded = false;
@@ -101,11 +102,12 @@ void eMissilesTextures::loadData() {
         texs.mAppearAnimId = texs.animId("appear");
         texs.mBaseAnimId = texs.animId("base");
         texs.mHitAnimId = texs.animId("hit");
-        texs.mStayAnimId = texs.animId("stay");
 
         const int id = sMissiles.add(name, texs);
         if(name == "flesh") {
             sFleshId = id;
+        } else if(name == "ice") {
+            sIceId = id;
         }
     }
 

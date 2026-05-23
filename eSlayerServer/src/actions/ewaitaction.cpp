@@ -1,6 +1,7 @@
 #include "ewaitaction.h"
 
 #include "../eserverunit.h"
+#include "eexplodeaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -37,20 +38,19 @@ eWaitAction::sCreateBody(
 
 std::shared_ptr<eWaitAction>
 eWaitAction::sCreateExplode(
+    const eExplodeType type,
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();
-    const int anim = sExplosionAnim;
+    int anim = -1;
+    switch(type) {
+    case eExplodeType::flesh:
+        anim = sFleshExplAnim;
+        break;
+    case eExplodeType::ice:
+        anim = sIceExplAnim;
+        break;
+    }
     return sCreate(unit, area, anim, true);
-}
-
-std::shared_ptr<eWaitAction>
-eWaitAction::sCreateExplodeBody(
-    eServerUnit& unit, eServerArea& area) {
-    const auto& data = unit.data();
-    const int anim = sExplosionAnim;
-    const auto result = sCreate(unit, area, anim, true);
-    if(result) result->setDuration(std::numeric_limits<float>::max());
-    return result;
 }
 
 std::shared_ptr<eWaitAction> eWaitAction::sCreate(

@@ -131,7 +131,8 @@ void eCharUnitModel::setAnimation(const int a, const int id,
 
 void eCharUnitModel::setAnimation(
     const int a, const float speed) {
-    if(a == sExplosionAnim) {
+    if(a == sFleshExplAnim ||
+       a == sIceExplAnim) {
         mAnim = a;
         mFrame = 0.f;
         mClampId = -1;

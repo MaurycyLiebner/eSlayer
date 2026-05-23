@@ -575,10 +575,14 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(!tile) continue;
-            if(u->fAnim == sExplosionAnim) {
+            const int animId = u->fAnim;
+            if(animId == sFleshExplAnim ||
+               animId == sIceExplAnim) {
                 auto& model = u->model();
                 model.incFrame(by);
-                const auto missileType = eMissilesTextures::sFleshId;
+                const auto missileType = animId == sFleshExplAnim ?
+                    eMissilesTextures::sFleshId :
+                    eMissilesTextures::sIceId;
                 auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
                 const int baseId = missileTex.baseAnimId();
                 const int nFrames = missileTex.nFrames(baseId);
@@ -597,7 +601,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                            ftex, false});
             } else {
                 const int bodyId = u->bodyAnimId();
-                const bool floor = u->fAnim == bodyId;
+                const bool floor = animId == bodyId;
                 renderElements.emplace_back(eRenderElement{floor,
                                                            eRenderElementType::unit,
                                                            std::static_pointer_cast<ePositioned>(u)});

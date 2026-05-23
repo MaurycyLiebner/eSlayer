@@ -42,7 +42,6 @@ public:
     int appearAnimId() const { return mAppearAnimId; }
     int baseAnimId() const { return mBaseAnimId; }
     int hitAnimId() const { return mHitAnimId; }
-    int stayAnimId() const { return mStayAnimId; }
 
     float lighting() const { return mLighting; }
 
@@ -53,7 +52,6 @@ private:
     int mAppearAnimId = -1;
     int mBaseAnimId = -1;
     int mHitAnimId = -1;
-    int mStayAnimId = -1;
 
     float mLighting = 0.f;
     eStringIdMapVector<eMissileAnim> mAnims;
@@ -69,6 +67,7 @@ public:
     sMissiles;
 
     static int sFleshId;
+    static int sIceId;
 private:
     static bool sDataLoaded;
     static bool sTexsLoaded;

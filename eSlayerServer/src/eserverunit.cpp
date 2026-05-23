@@ -11,7 +11,7 @@
 
 int eServerUnit::sNextCharId = 0;
 
-eServerUnit::eServerUnit(const bool client,
+eServerUnit::eServerUnit(const bool slayer,
                          const eCharData& data,
                          const int unitTypeId,
                          eServerArea& area,
@@ -19,7 +19,7 @@ eServerUnit::eServerUnit(const bool client,
     mHandler(*this, map),
     mData(data),
     mArea(area),
-    mClient(client),
+    mSlayer(slayer),
     mUnitTypeId(unitTypeId) {}
 
 
@@ -564,7 +564,7 @@ void eServerUnit::increment(const float by) {
 
     if(mFreezeLength > 0.f && fHealth > 0) {
         mFreezeLength = std::max(0.f, mFreezeLength - by);
-        if(mClient) {
+        if(mSlayer) {
             scaledBy *= eUnitData::sColdSpeed;
             setCold(true);
         } else {
@@ -690,7 +690,7 @@ bool eServerUnit::skillReady(const eSkillChoice schoice) const {
 }
 
 bool eServerUnit::skillReady(const int schoice) const {
-    if(mClient && mStats.manaCost(schoice) > mStats.fManaF) return false;
+    if(mSlayer && mStats.manaCost(schoice) > mStats.fManaF) return false;
     const int skillId = eServerUnit::skillId(schoice);
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
@@ -708,7 +708,7 @@ void eServerUnit::useSkill(const int schoice) {
     if(cooldown > 0.f) {
         mStats.fCooldowns[skillId] = cooldown*eRunSettings::sFPS;
     }
-    if(mClient) {
+    if(mSlayer) {
         const float manaCost = mStats.manaCost(schoice);
         mStats.fManaF = std::max(0.f, mStats.fManaF - manaCost);
     }
@@ -779,8 +779,13 @@ void eServerUnit::dieAndCast(const ePointF& from) {
     die();
 }
 
-void eServerUnit::die(const bool explode) {
+void eServerUnit::die(eExplodeType type) {
     if(mDead) return;
+    if(!mSlayer && type == eExplodeType::none) {
+        const bool f = frozen();
+        if(f) type = eExplodeType::ice;
+    }
+
     mDead = true;
     fHealth = 0;
     mStats.fHealthF = 0.f;
@@ -793,12 +798,14 @@ void eServerUnit::die(const bool explode) {
     mPoison.clear();
     mPotions.clear();
     mArea.unitKilled(*this);
-    if(explode) {
-        const auto explode = std::make_shared<eExplodeAction>(*this, mArea);
-        setChildAction(explode);
-    } else {
-        const auto die = std::make_shared<eDieAction>(*this, mArea);
+    if(type == eExplodeType::none) {
+        const auto die = std::make_shared<eDieAction>(
+            *this, mArea);
         setChildAction(die);
+    } else {
+        const auto explode = std::make_shared<eExplodeAction>(
+            type, *this, mArea);
+        setChildAction(explode);
     }
 }
 
@@ -871,7 +878,7 @@ int eServerUnit::countFollowers(const int charDataId) const {
 }
 
 bool eServerUnit::moving() const {
-    if(mClient) return mMoving;
+    if(mSlayer) return mMoving;
     return mHandler.moving();
 }
 
