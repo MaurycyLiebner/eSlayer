@@ -38,6 +38,7 @@
 #include <eSlayerHelpers/eskilltrees.h>
 #include <eSlayerHelpers/eclasses.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
+#include <eSlayerHelpers/eboostcursetypes.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -205,6 +206,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eLanguage::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eBoostCurseTypes::load();
         });
 
         loadings.emplace_back([&]() {

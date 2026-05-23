@@ -111,8 +111,8 @@ inline bool operator&(const eModValuesUsage a, const eModValuesUsage b) {
 
 struct ESLAYERHELPERS_API eModifier {
     eModifierType fType = eModifierType::none;
-    uint16_t fValue1 = 0; // base / min / chance
-    uint16_t fValue2 = 0; // max / level
+    int16_t fValue1 = 0; // base / min / chance
+    int16_t fValue2 = 0; // max / level
 
     uint16_t fSkillId = 0; // skill id
 

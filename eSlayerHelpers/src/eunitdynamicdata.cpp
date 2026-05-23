@@ -22,6 +22,12 @@ void eUnitDynamicData::read(ePacket& p) {
     p >> fMaxHealth;
 
     p >> fState;
+
+    uint8_t nBoosts;
+    p >> nBoosts;
+    for(int i = 0; i < nBoosts; i++) {
+        p >> fBoosts.emplace_back();
+    }
 }
 
 void eUnitDynamicData::write(ePacket& p) const {
@@ -40,4 +46,10 @@ void eUnitDynamicData::write(ePacket& p) const {
     p << fMaxHealth;
 
     p << fState;
+
+    const uint8_t nBoosts = fBoosts.size();
+    p << nBoosts;
+    for(const uint8_t b : fBoosts) {
+        p << b;
+    }
 }

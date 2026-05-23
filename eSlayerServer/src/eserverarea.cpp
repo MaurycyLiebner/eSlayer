@@ -879,7 +879,8 @@ void eServerArea::spawnMissile(const ePointF& to,
                                const int nMissiles,
                                const float pierceChance,
                                const int missileId,
-                               const float missileRangeTime,
+                               const float range,
+                               const float time,
                                const bool continuousDamage) {
     const auto skillType = skill.fType;
     auto baseDir = ePointF::vector(to, data.fFrom);
@@ -889,17 +890,18 @@ void eServerArea::spawnMissile(const ePointF& to,
         ePointF fTo;
         int fToPierce;
         int fMissileId;
-        float fRangeTime;
+        float fRange;
+        float fTime;
         eDamage fDamage;
     };
     std::vector<eMissileData> missiles;
     const auto spawnMissiles = [&](const int missileId,
-                                   const float missileRangeTime) {
+                                   const float range) {
         float maxAngle = skill.fMaxAngle;
         if(skill.fAngleAdjust) {
-            if(skill.fRangeTime > 0.f) {
+            if(range > 0.f) {
                 const float len = baseDir.length();
-                const float multBase = 1.f - 3.f*len/skill.fRangeTime;
+                const float multBase = 1.f - 3.f*len/range;
                 const float angleMult = std::clamp(multBase, 0.1f, 1.f);
                 maxAngle *= angleMult;
             }
@@ -915,7 +917,7 @@ void eServerArea::spawnMissile(const ePointF& to,
             md.fPos = data.fFrom;
             md.fTo = data.fFrom + dir;
             md.fMissileId = missileId;
-            md.fRangeTime = missileRangeTime;
+            md.fRange = range;
             md.fDamage = data.fDamage;
             if(nMissiles > 1) {
                 angle += maxAngle/(nMissiles - 1);
@@ -923,7 +925,7 @@ void eServerArea::spawnMissile(const ePointF& to,
         }
     };
     if(skillType == eSkillType::missile) {
-        spawnMissiles(missileId, missileRangeTime);
+        spawnMissiles(missileId, range);
     } else if(skillType == eSkillType::wall) {
         eVec2f perp(-baseDir.y, baseDir.x);
         perp.normalize(2*skill.fRadius);
@@ -934,12 +936,13 @@ void eServerArea::spawnMissile(const ePointF& to,
             md.fPos = pt;
             md.fTo = pt;
             md.fMissileId = skill.fMissileId;
-            md.fRangeTime = skill.fRangeTime;
+            md.fTime = skill.fTime;
+            md.fRange = 0.f;
             md.fDamage = data.fDamage;
             pt = pt + perp;
         }
     } else {
-        spawnMissiles(missileId, missileRangeTime);
+        spawnMissiles(missileId, range);
     }
     for(const auto& md : missiles) {
         const auto m = std::make_shared<eServerMissile>();
@@ -947,7 +950,8 @@ void eServerArea::spawnMissile(const ePointF& to,
         m->fTeamId = data.fAttackTeamId;
         m->fToPierce = md.fToPierce;
         m->fSpeed = skill.fSpeed;
-        m->fRemDistTime = md.fRangeTime;
+        m->fRemDist = md.fRange;
+        m->fRemTime = md.fTime;
         m->fPathType = skill.fPathId;
         m->fFrom = data.fFrom;
         m->fRadius = skill.fRadius;
@@ -981,6 +985,38 @@ void eServerArea::spawnMissile(const ePointF& to,
             u.getHit(data);
         };
         addMissile(m);
+    }
+}
+
+void eServerArea::spawnArea(const ePointF& to,
+                            const eSkill& skill,
+                            const eHitData& data,
+                            const int missileId) {
+    const float radius = skill.fRadius;
+    const int minX = to.fX - radius;
+    const int minY = to.fY - radius;
+    const int maxX = to.fX + radius;
+    const int maxY = to.fY + radius;
+    const auto minArea = mUnitAreas.posArea({minX, minY});
+    const auto maxArea = mUnitAreas.posArea({maxX, maxY});
+    const auto team = data.fAttackTeamId;
+    for(int x = minArea.fX; x <= maxArea.fX; x++) {
+        for(int y = minArea.fY; y <= maxArea.fY; y++) {
+            const eArea area{x, y};
+            const bool r = mUnitAreas.hasArea(area);
+            if(!r) continue;
+            const auto& set = mUnitAreas.at(area);
+            for(const int charId : set) {
+                const auto& u = unit(charId);
+                if(u->fHealth <= 0) continue;
+                const auto uteam = u->fTeamId;
+                if(!eTeams::areEnemies(team, uteam)) continue;
+                const auto& pos = u->fPos;
+                const float dist = ePointF::distance(pos, to);
+                if(dist > radius) continue;
+                u->getHit(data);
+            }
+        }
     }
 }
 
@@ -1079,11 +1115,13 @@ void eServerArea::cast(eServerUnit& by,
         const int nMissiles = by.skillCount(o, wchoice);
         const float pierceChance = by.pierceChance(o, wchoice);
         const int missileId = by.missileId(o, wchoice);
-        const float missileRangeTime = by.missileRangeTime(o, wchoice);
+        const float missileRange = by.missileRange(o, wchoice);
+        const float missileTime = by.missileTime(o, wchoice);
         const bool continuousDamage = skill.fType == eSkillType::wall;
         spawnMissile(to, skill, data,
                      nMissiles, pierceChance, missileId,
-                     missileRangeTime, continuousDamage);
+                     missileRange, missileTime,
+                     continuousDamage);
     } break;
     case eSkillType::nova: {
         const bool continuousDamage = false;
@@ -1100,7 +1138,7 @@ void eServerArea::cast(eServerUnit& by,
         }
     } break;
     case eSkillType::boostCurse: {
-
+        spawnArea(to, skill, data, skill.fMissileId);
     } break;
     case eSkillType::attack:
     case eSkillType::aura:

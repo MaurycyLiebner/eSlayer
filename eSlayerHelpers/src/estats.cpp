@@ -677,7 +677,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     };
 
-    for(const auto& boost : fBoosts) {
+    for(const auto& it : fBoosts) {
+        const auto& boost = it.second;
         handleItemPassiveMod(boost, false, false);
     }
 
@@ -1004,12 +1005,14 @@ void eStats::calculateSkill(eSkillStats& stats,
     if(skill.fType == eSkillType::attack ||
        skill.fType == eSkillType::shoot ||
        skill.fType == eSkillType::throw_) {
-        stats.fMissileRangeTime = fWeaponRangedRange;
+        stats.fMissileRange = fWeaponRangedRange;
     } else {
-        stats.fMissileRangeTime = skill.fRangeTime;
+        stats.fMissileRange = skill.fRange;
     }
+    stats.fMissileTime = skill.fTime;
 
-    for(const auto& boost : fBoosts) {
+    for(const auto& it : fBoosts) {
+        const auto& boost = it.second;
         handleSkillMod(boost, eModifierSource::boost,
                        helper, true, true);
     }
@@ -1032,9 +1035,22 @@ void eStats::calculateSkill(eSkillStats& stats,
     stats.fManaCost = skillMods.fManaCost;
     stats.fCooldown = skillMods.fCooldown;
 
-    for(const auto& mod : skillMods) {
-        handleSkillMod(mod.second, eModifierSource::skill,
-                       helper, true, true);
+    switch(skill.fType) {
+    case eSkillType::boostCurse: {
+        auto& bc = stats.fBoostCurse.emplace_back();
+        bc.fType = skill.fBoostCurseType;
+        bc.fMissileId = skill.fMissileId;
+        bc.fTime = skill.fTime;
+        for(const auto& mod : skillMods) {
+            bc.fMods.emplace_back(mod.second);
+        }
+    } break;
+    default: {
+        for(const auto& mod : skillMods) {
+            handleSkillMod(mod.second, eModifierSource::skill,
+                           helper, true, true);
+        }
+    } break;
     }
 
     for(const auto& item : items) {
@@ -1166,6 +1182,7 @@ bool eStats::rangedAttack(const int schoice) const {
     return skillType == eSkillType::missile ||
            skillType == eSkillType::nova ||
            skillType == eSkillType::wall ||
+           skillType == eSkillType::boostCurse ||
            skillType == eSkillType::summon ||
            skillType == eSkillType::shoot ||
            skillType == eSkillType::throw_ ||
@@ -1197,6 +1214,7 @@ float eStats::attackRange(const int schoice,
         return meeleDist;
     } else if(skill.fType == eSkillType::missile ||
               skill.fType == eSkillType::wall ||
+              skill.fType == eSkillType::boostCurse ||
               skill.fType == eSkillType::nova ||
               skill.fType == eSkillType::summon) {
         return skill.fCastRange;

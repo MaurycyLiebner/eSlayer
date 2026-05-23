@@ -59,12 +59,12 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
     }
 
     const auto oldPos = m.fPos;
-    eMissileIncrement::increment(m, by);
-    const auto& newPos = m.fPos;
-    if(m.fRemDistTime <= 0.0001f) {
+    const bool r = eMissileIncrement::increment(m, by);
+    if(r) {
         mRemoveMissile(m);
         return true;
     }
+    const auto& newPos = m.fPos;
     const bool obstacle = mObstacle(newPos);
     if(obstacle) {
         mRemoveMissile(m);

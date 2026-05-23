@@ -432,6 +432,7 @@ void eStatsWidget::updateStats() {
         case eSkillType::missile:
         case eSkillType::wall:
         case eSkillType::nova:
+        case eSkillType::boostCurse:
             lw = mStats->canUseSkill(static_cast<int>(schoice),
                                      eWeaponChoice::left);
             break;

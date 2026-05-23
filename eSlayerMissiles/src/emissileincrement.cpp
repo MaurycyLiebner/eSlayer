@@ -20,23 +20,24 @@ void moveInDir(eVec2f dir, eMissile& m, const float dist) {
     m.fPos = m.fPos + dir;
 }
 
-void linear(eMissile& m, const float by) {
+bool linear(eMissile& m, const float by) {
     m.fTime += by;
-    const float dist = std::min(m.fRemDistTime, by*m.fSpeed);
+    const float dist = std::min(m.fRemDist, by*m.fSpeed);
     auto dir = ePointF::vector(m.fTo, m.fFrom);
-    if(dir.length() == 0.f) return;
+    if(dir.length() == 0.f) return true;
     moveInDir(dir, m, dist);
-    m.fRemDistTime -= dist;
+    m.fRemDist -= dist;
+    return m.fRemDist <= 0.f;
 }
 
-void wave(eMissile& m, const float by) {
+bool wave(eMissile& m, const float by) {
     const float prevTime = m.fTime;
     m.fTime += by;
     const float currTime = m.fTime;
-    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
 
     auto dir = ePointF::vector(m.fTo, m.fFrom);
-    if(dir.length() == 0.0f) return;
+    if(dir.length() == 0.f) return true;
     dir.normalize(1.0f);
 
     const eVec2f perp(-dir.y, dir.x);
@@ -51,15 +52,16 @@ void wave(eMissile& m, const float by) {
     const auto waveMove = perp * (currOffset - prevOffset);
 
     moveInDir(forwardMove + waveMove, m, dist);
-    m.fRemDistTime -= dist;
+    m.fRemDist -= dist;
+    return m.fRemDist <= 0.f;
 }
 
-void jitter(eMissile& m, const float by) {
+bool jitter(eMissile& m, const float by) {
     m.fTime += by;
 
-    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
     auto dir = ePointF::vector(m.fTo, m.fFrom);
-    if(dir.length() == 0.0f) return;
+    if(dir.length() == 0.0f) return true;
     dir.normalize(1.0f);
 
     const eVec2f perp(-dir.y, dir.x);
@@ -68,12 +70,13 @@ void jitter(eMissile& m, const float by) {
     const float perpMult = eRand::randF_seeded(seed, -perpDist, perpDist);
 
     moveInDir(dir * dist + perp * perpMult, m, dist);
-    m.fRemDistTime -= dist;
+    m.fRemDist -= dist;
+    return m.fRemDist <= 0.f;
 }
 
-void spiral(eMissile& m, const float by) {
+bool spiral(eMissile& m, const float by) {
     m.fTime += by;
-    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
 
     const eVec2f v = ePointF::vector(m.fPos, m.fFrom);
 
@@ -103,25 +106,29 @@ void spiral(eMissile& m, const float by) {
     dir.y = m.fFrom.fY + r * std::sin(angle) - m.fPos.fY;
 
     moveInDir(dir, m, dist);
-    m.fRemDistTime -= dist;
+    m.fRemDist -= dist;
+    return m.fRemDist <= 0.f;
 }
 
-void staticF(eMissile& m, const float by) {
+bool staticF(eMissile& m, const float by) {
     m.fTime += by;
-    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const float dist = std::min(m.fRemTime, by * m.fSpeed);
     moveInDir(eVec2f{0.f, 0.f}, m, dist);
-    m.fRemDistTime -= by;
+    m.fRemTime -= by;
+    return m.fRemTime <= 0.f;
 }
 
-void wandering(eMissile& m, const float by) {
+bool wandering(eMissile& m, const float by) {
     m.fTime += by;
 
-    const float dist = std::min(m.fRemDistTime, by * m.fSpeed);
+    const float dist = std::min(m.fRemDist, by * m.fSpeed);
     const int seed = 100*(m.fId % 100) + int(m.fTime/3.f);
     const auto dir = eVec2f::random_seeded(seed);
 
     moveInDir(dir, m, dist);
-    m.fRemDistTime -= dist;
+    m.fRemDist -= dist;
+
+    return m.fRemDist <= 0.f;
 }
 
 void eMissileIncrement::initialize() {
@@ -142,7 +149,7 @@ int eMissileIncrement::incrementorId(const std::string& name) {
     return sIncrementors.id(name);
 }
 
-void eMissileIncrement::increment(eMissile& m, const float by) {
+bool eMissileIncrement::increment(eMissile& m, const float by) {
     const auto i = sIncrementors.get(m.fPathType);
     return i(m, by);
 }

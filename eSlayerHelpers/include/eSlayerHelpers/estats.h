@@ -20,6 +20,17 @@ enum class eExplodeType {
     none, flesh, ice
 };
 
+enum class eBoostCurseType {
+    regular
+};
+
+struct eBoostCurse {
+    eBoostCurseType fType;
+    int fMissileId;
+    std::vector<eModifier> fMods;
+    float fTime;
+};
+
 struct eSkillStats {
     int fSkillId = 0;
 
@@ -52,7 +63,8 @@ struct eSkillStats {
     int fMissileIdLW = -1;
     int fMissileIdRW = -1;
 
-    float fMissileRangeTime = 0.f;
+    float fMissileRange = 0.f;
+    float fMissileTime = 0.f;
 
     float fLifeStealLW = 0.f;
     float fLifeStealRW = 0.f;
@@ -75,6 +87,8 @@ struct eSkillStats {
     std::vector<eSkillStats> fOnStrikingRW;
     std::vector<eSkillStats> fOnKillLW;
     std::vector<eSkillStats> fOnKillRW;
+
+    std::vector<eBoostCurse> fBoostCurse;
 };
 
 struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
@@ -152,7 +166,7 @@ struct ESLAYERHELPERS_API eStats {
     eSkillLevels fBaseSkillLevels;
     eSkillLevels fEffectiveSkillLevels;
 
-    std::vector<eModifier> fBoosts;
+    std::multimap<eBoostCurseType, eModifier> fBoosts;
 
     bool canUseSkill(const int schoice,
                      const eWeaponChoice wchoice) const;

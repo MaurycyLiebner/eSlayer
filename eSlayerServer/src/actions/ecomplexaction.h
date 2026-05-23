@@ -40,6 +40,8 @@ struct eHitData {
     std::vector<eSkillStats> fOnAttack;
     std::vector<eSkillStats> fOnStriking;
     std::vector<eSkillStats> fOnKill;
+
+    std::vector<eBoostCurse> fBoosts;
 };
 
 class eComplexAction : public eUnitAction {
@@ -66,6 +68,9 @@ private:
     bool spawnMissile(const ePointF& to,
                       const int schoice,
                       const eWeaponChoice wchoice);
+    bool spawnArea(const ePointF& to,
+                   const int schoice,
+                   const eWeaponChoice wchoice);
     bool spawnNova(const ePointF& to,
                    const int schoice,
                    const eWeaponChoice wchoice);

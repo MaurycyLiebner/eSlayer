@@ -38,6 +38,11 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
 
     uint8_t fState;
 
+    std::vector<uint8_t> fBoosts;
+
+    void removeBoostData(const uint8_t id);
+    void addBoostData(const uint8_t id);
+
     eUnitData toUnitData() const;
     eUnitDynamicData toDynamicData() const;
 

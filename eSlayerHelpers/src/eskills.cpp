@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/eboostcursetypes.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
@@ -9,7 +10,8 @@ const int eSkills::sMaxSkillLevel = 99;
 
 const float eSkill::sRadiusMax = 12.75f;
 const float eSkill::sSpeedMax = 1.f;
-const float eSkill::sRangeTimeMax = 655.35f;
+const float eSkill::sRangeMax = 25.5f;
+const float eSkill::sTimeMax = 2550.f;
 
 void eSkills::load() {
     if(sLoaded) return;
@@ -63,13 +65,13 @@ void eSkills::load() {
                 skill.fCastRange = 0.f;
             } else if(typeStr == "missile") {
                 skill.fType = eSkillType::missile;
-                const uint16_t range = jdata.value("range", 800u);
-                skill.fRangeTime = ePacket::toFloatU16(range, eSkill::sRangeTimeMax);
+                const uint8_t range = jdata.value("range", 75u);
+                skill.fRange = ePacket::toFloatU8(range, eSkill::sRangeMax);
                 skill.fCastRange = 8.f;
             } else if(typeStr == "nova") {
                 skill.fType = eSkillType::nova;
-                const uint16_t range = jdata.value("range", 300u);
-                skill.fRangeTime = ePacket::toFloatU16(range, eSkill::sRangeTimeMax);
+                const uint8_t range = jdata.value("range", 35u);
+                skill.fRange = ePacket::toFloatU8(range, eSkill::sRangeMax);
                 skill.fCastRange = 4.f;
             } else if(typeStr == "shoot") {
                 skill.fType = eSkillType::shoot;
@@ -77,8 +79,8 @@ void eSkills::load() {
                 skill.fType = eSkillType::throw_;
             } else if(typeStr == "wall") {
                 skill.fType = eSkillType::wall;
-                const uint16_t time = jdata.value("time", 20000u);
-                skill.fRangeTime = ePacket::toFloatU16(time, eSkill::sRangeTimeMax);
+                const uint16_t time = jdata.value("time", 25u);
+                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
                 skill.fPath = "static";
                 skill.fCastRange = 8.f;
             } else if(typeStr == "summon") {
@@ -86,6 +88,17 @@ void eSkills::load() {
                 skill.fCastRange = 8.f;
             } else if(typeStr == "passive") {
                 skill.fType = eSkillType::passive;
+            } else if(typeStr == "boostCurse") {
+                skill.fType = eSkillType::boostCurse;
+                const uint8_t time = jdata.value("time", 25u);
+                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
+                const auto boostCurseTypeStr = jdata.value("boostCurseType", "");
+                const int id = eBoostCurseTypes::sTypes.id(boostCurseTypeStr);
+                if(id <= 0) {
+                    eRuntimeThrow("Invalid \"boostCurseType\" \"" + boostCurseTypeStr +
+                                  "\" in \"" + dir + "/" + name + ".json\"");
+                }
+                skill.fBoostCurseType = static_cast<eBoostCurseType>(id);
             } else {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }

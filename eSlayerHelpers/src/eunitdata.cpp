@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eunitdata.h"
 
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/evectorhelpers.h"
 
 const float radiusMax = 2.f;
 const float angleMax = 360.f;
@@ -28,6 +29,14 @@ void eUnitData::read(ePacket& p) {
 
     p >> fHealth;
     p >> fMaxHealth;
+
+    p >> fState;
+
+    uint8_t nBoosts;
+    p >> nBoosts;
+    for(int i = 0; i < nBoosts; i++) {
+        p >> fBoosts.emplace_back();
+    }
 
     uint8_t nMods;
     p >> nMods;
@@ -57,6 +66,14 @@ void eUnitData::write(ePacket& p) const {
 
     p << fHealth;
     p << fMaxHealth;
+
+    p << fState;
+
+    const uint8_t nBoosts = fBoosts.size();
+    p << nBoosts;
+    for(const uint8_t b : fBoosts) {
+        p << b;
+    }
 
     const uint8_t nMods = fMods.size();
     p << nMods;
@@ -103,6 +120,14 @@ void eUnitData::setPoisoned(const bool p) {
     }
 }
 
+void eUnitData::removeBoostData(const uint8_t id) {
+    eVectorHelpers::remove(fBoosts, id);
+}
+
+void eUnitData::addBoostData(const uint8_t id) {
+    fBoosts.emplace_back(id);
+}
+
 eUnitData eUnitData::toUnitData() const {
     eUnitData d;
     d.fPos = fPos;
@@ -120,6 +145,7 @@ eUnitData eUnitData::toUnitData() const {
     d.fMods = fMods;
     d.fModelParts = fModelParts;
     d.fState = fState;
+    d.fBoosts = fBoosts;
     return d;
 }
 
@@ -135,5 +161,6 @@ eUnitDynamicData eUnitData::toDynamicData() const {
     d.fHealth = fHealth;
     d.fMaxHealth = fMaxHealth;
     d.fState = fState;
+    d.fBoosts = fBoosts;
     return d;
 }

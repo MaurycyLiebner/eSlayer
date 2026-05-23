@@ -118,8 +118,13 @@ public:
                       const int nMissiles,
                       const float pierceChance,
                       const int missileId,
-                      const float missileRangeTime,
+                      const float range,
+                      const float time,
                       const bool continuousDamage);
+    void spawnArea(const ePointF& to,
+                   const eSkill& skill,
+                   const eHitData& data,
+                   const int missileId);
     void spawnNova(const eSkill& skill,
                    const eHitData& data,
                    const bool continuousDamage);

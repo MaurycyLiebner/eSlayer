@@ -171,6 +171,8 @@ add_library(eSlayerHelpers SHARED
     src/eskilltotalmods.cpp
     include/eSlayerHelpers/eelitemodifiersinfo.h
     src/eelitemodifiersinfo.cpp
+    include/eSlayerHelpers/eboostcursetypes.h
+    src/eboostcursetypes.cpp
 
 
 

@@ -51,6 +51,8 @@ bool eServerUnit::hitData(
     data.fOnStriking = onStriking(skill, wchoice);
     data.fOnKill = onKill(skill, wchoice);
 
+    data.fBoosts = boosts(skill, wchoice);
+
     return true;
 }
 
@@ -93,15 +95,26 @@ int eServerUnit::missileId(const eSkillStats& stats,
     return -1;
 }
 
-float eServerUnit::missileRangeTime(const int schoice,
-                                    const eWeaponChoice wchoice) const {
+float eServerUnit::missileRange(const int schoice,
+                                const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
-    return missileRangeTime(skill, wchoice);
+    return missileRange(skill, wchoice);
 }
 
-float eServerUnit::missileRangeTime(const eSkillStats& stats,
-                                    const eWeaponChoice wchoice) {
-    return stats.fMissileRangeTime;
+float eServerUnit::missileRange(const eSkillStats& stats,
+                                const eWeaponChoice wchoice) {
+    return stats.fMissileRange;
+}
+
+float eServerUnit::missileTime(const int schoice,
+                               const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return missileTime(skill, wchoice);
+}
+
+float eServerUnit::missileTime(const eSkillStats& stats,
+                               const eWeaponChoice wchoice) {
+    return stats.fMissileTime;
 }
 
 void eServerUnit::setEquipment(const eEquipment& eq,
@@ -252,6 +265,7 @@ bool eServerUnit::alwaysHit(
     const auto skillType = skill.fType;
     return skillType == eSkillType::missile ||
            skillType == eSkillType::wall ||
+           skillType == eSkillType::boostCurse ||
            skillType == eSkillType::nova;
 }
 
@@ -425,6 +439,12 @@ std::vector<eSkillStats> eServerUnit::onKill(
     return {};
 }
 
+std::vector<eBoostCurse> eServerUnit::boosts(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) const {
+    return stats.fBoostCurse;
+}
+
 float eServerUnit::meeleSplashDamage(
     const int schoice,
     const eWeaponChoice wchoice) const {
@@ -560,6 +580,22 @@ eDamage eServerUnit::attackDamage(
 }
 
 void eServerUnit::increment(const float by) {
+    {
+        bool recalc = false;
+        for(int i = 0; i < mBoosts.size(); i++) {
+            auto& b = mBoosts[i];
+            b.fRemTime -= by;
+            if(b.fRemTime <= 0.f) {
+                removeBoost(b.fType, false);
+                removeBoostData(b.fMissileId);
+                mBoosts.erase(mBoosts.begin() + i);
+                i--;
+                recalc = true;
+            }
+        }
+        if(recalc) recalculateStats();
+    }
+
     float scaledBy = by;
 
     if(mFreezeLength > 0.f && fHealth > 0) {
@@ -731,15 +767,66 @@ void eServerUnit::setSkillId(const int schoice,
 void eServerUnit::setBoosts(
     const std::vector<eModifier>& mods,
     const bool recalc) {
-    mStats.fBoosts = mods;
+    auto& b = mStats.fBoosts;
+    for(const auto& m : mods) {
+        b.emplace(eBoostCurseType::regular, m);
+    }
     if(recalc) recalculateStats();
 }
 
 void eServerUnit::addBoost(
-    const eModifier& mod,
+    const std::vector<eModifier>& mods,
+    const eBoostCurseType type,
     const bool recalc) {
-    mStats.fBoosts.emplace_back(mod);
+    auto& b = mStats.fBoosts;
+    switch(type) {
+    case eBoostCurseType::regular:
+        break;
+    default: {
+        const auto it = b.find(type);
+        if(it != b.end()) {
+            b.erase(type);
+        }
+    } break;
+    }
+    for(const auto& mod : mods) {
+        b.emplace(type, mod);
+    }
     if(recalc) recalculateStats();
+}
+
+void eServerUnit::removeBoost(
+    const eBoostCurseType type,
+    const bool recalc) {
+    switch(type) {
+    case eBoostCurseType::regular:
+        return;
+    default: {
+        auto& b = mStats.fBoosts;
+        b.erase(type);
+    } break;
+    }
+    if(recalc) recalculateStats();
+}
+
+void eServerUnit::addTimedBoost(
+    const std::vector<eModifier>& mods,
+    const eBoostCurseType type,
+    const int missileId,
+    const float time,
+    const bool recalc) {
+    if(type == eBoostCurseType::regular) return;
+    addBoost(mods, type, recalc);
+    for(int i = 0; i < mBoosts.size(); i++) {
+        const auto& b = mBoosts[i];
+        if(b.fType == type) {
+            removeBoostData(b.fMissileId);
+            mBoosts.erase(mBoosts.begin() + i);
+            i--;
+        }
+    }
+    mBoosts.emplace_back(type, missileId, time);
+    addBoostData(missileId);
 }
 
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {

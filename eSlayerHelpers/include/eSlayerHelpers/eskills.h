@@ -41,6 +41,8 @@ struct eSynergy {
     }
 };
 
+enum class eBoostCurseType;
+
 struct eSkill {
     eSkillType fType;
 
@@ -54,14 +56,16 @@ struct eSkill {
     int fUnitId;
     std::string fPath;
     int fPathId;
+    eBoostCurseType fBoostCurseType;
 
-    const static float sRangeTimeMax;
-    float fRangeTime;
+    const static float sRangeMax;
+    float fRange;
     float fMissileEnemyFindRange;
     static const float sRadiusMax;
     float fRadius;
     static const float sSpeedMax;
     float fSpeed;
+    const static float sTimeMax;
     float fTime;
     float fMaxAngle;
     bool fAngleAdjust;

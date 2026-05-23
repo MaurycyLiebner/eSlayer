@@ -333,6 +333,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
             mMainChar->fHealth = u.fHealth;
             mMainChar->fState = u.fState;
+            mMainChar->fBoosts = u.fBoosts;
             {
                 auto& stats = eGameWidget::stats();
                 auto& attrs = eGameWidget::attributes();
@@ -902,6 +903,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                                     drawX, drawY, tex, highlight, true,
                                     e.fLighting, colorMod);
                 mGamePainter.render(c);
+
+                const auto& bs = u->fBoosts;
+                if(!bs.empty()) {
+                    const auto b = model.requestBoundingRect();
+                    const int drawX = ipixel.fX + b.x + b.w/2;
+                    const int drawY = ipixel.fY + b.y - mult*50;
+                    for(const uint8_t b : u->fBoosts) {
+                        auto& missileTex = eMissilesTextures::sMissiles.get(b);
+                        const int baseId = missileTex.baseAnimId();
+                        const int nFrames = missileTex.nFrames(baseId);
+                        if(nFrames <= 0) continue;
+                        const uint16_t frame = (mFrame + 16*u->fCharId) % nFrames;
+                        const auto& ftex = missileTex.get(baseId, 0, frame);
+                        const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
+                                            drawX, drawY, ftex, false, false, true);
+                        mGamePainter.render(c);
+                    }
+                }
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
                 const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,

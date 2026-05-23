@@ -1,18 +1,20 @@
 #ifndef ESERVERUNIT_H
 #define ESERVERUNIT_H
 
-#include <eSlayerHelpers/erequestdata.h>
+#include "actions/ecomplexaction.h"
+
+#include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/edamage.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/epotiontype.h>
+#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eskillchoice.h>
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/eweapontype.h>
-#include <eSlayerHelpers/eattributes.h>
-#include <eSlayerHelpers/estats.h>
-#include <eSlayerHelpers/epotiontype.h>
 
 #include <memory>
 
@@ -36,6 +38,19 @@ enum eUnitType {
     normal,
     uniqueBoss,
     minion
+};
+
+struct eTimedBoost {
+    eTimedBoost(const eBoostCurseType type,
+                const int missileId,
+                const float time) :
+        fType(type),
+        fMissileId(missileId),
+        fRemTime(time) {}
+
+    eBoostCurseType fType;
+    int fMissileId;
+    float fRemTime;
 };
 
 class eServerUnit : public eUnitData {
@@ -76,10 +91,14 @@ public:
                   const eWeaponChoice wchoice) const;
     static int missileId(const eSkillStats& stats,
                          const eWeaponChoice wchoice);
-    float missileRangeTime(const int schoice,
-                           const eWeaponChoice wchoice) const;
-    static float missileRangeTime(const eSkillStats& stats,
-                                  const eWeaponChoice wchoice);
+    float missileRange(const int schoice,
+                       const eWeaponChoice wchoice) const;
+    static float missileRange(const eSkillStats& stats,
+                              const eWeaponChoice wchoice);
+    float missileTime(const int schoice,
+                      const eWeaponChoice wchoice) const;
+    static float missileTime(const eSkillStats& stats,
+                             const eWeaponChoice wchoice);
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
@@ -156,6 +175,8 @@ public:
         const int schoice, const eWeaponChoice wchoice) const;
     static std::vector<eSkillStats> onKill(
         const eSkillStats& stats, const eWeaponChoice wchoice);
+    std::vector<eBoostCurse> boosts(
+        const eSkillStats& stats, const eWeaponChoice wchoice) const;
 
     float meeleSplashDamage(const int schoice,
                             const eWeaponChoice wchoice) const;
@@ -205,8 +226,16 @@ public:
                     const bool recalc = true);
     void setBoosts(const std::vector<eModifier>& mods,
                    const bool recalc = true);
-    void addBoost(const eModifier& mod,
+    void addBoost(const std::vector<eModifier>& mods,
+                  const eBoostCurseType type = eBoostCurseType::regular,
                   const bool recalc = true);
+    void removeBoost(const eBoostCurseType type,
+                     const bool recalc = true);
+    void addTimedBoost(const std::vector<eModifier>& mods,
+                       const eBoostCurseType type,
+                       const int missileId,
+                       const float time,
+                       const bool recalc = true);
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);
@@ -272,6 +301,8 @@ private:
 
     float mColdLength = 0.f;
     float mFreezeLength = 0.f;
+
+    std::vector<eTimedBoost> mBoosts;
 
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;

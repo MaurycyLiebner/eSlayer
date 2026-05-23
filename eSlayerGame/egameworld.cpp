@@ -178,16 +178,18 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         uPresent.emplace(charId);
         if(charId == clientId) {
             result.fHasMainCharData = true;
-            result.fMainCharData.fCharId = u.fCharId;
-            result.fMainCharData.fPos = u.fPos;
-            result.fMainCharData.fAngle = u.fAngle;
-            result.fMainCharData.fAnim = u.fAnim;
-            result.fMainCharData.fAnimId = u.fAnimId;
-            result.fMainCharData.fAnimSpeed = u.fAnimSpeed;
-            result.fMainCharData.fBlockingActionTime = u.fBlockingActionTime;
-            result.fMainCharData.fHealth = u.fHealth;
-            result.fMainCharData.fMaxHealth = u.fMaxHealth;
-            result.fMainCharData.fState = u.fState;
+            auto& d = result.fMainCharData;
+            d.fCharId = u.fCharId;
+            d.fPos = u.fPos;
+            d.fAngle = u.fAngle;
+            d.fAnim = u.fAnim;
+            d.fAnimId = u.fAnimId;
+            d.fAnimSpeed = u.fAnimSpeed;
+            d.fBlockingActionTime = u.fBlockingActionTime;
+            d.fHealth = u.fHealth;
+            d.fMaxHealth = u.fMaxHealth;
+            d.fState = u.fState;
+            d.fBoosts = u.fBoosts;
             continue;
         }
         const auto unit = mUnits.get(charId);
@@ -201,6 +203,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         unit->fHealth = u.fHealth;
         unit->fMaxHealth = u.fMaxHealth;
         unit->fState = u.fState;
+        unit->fBoosts = u.fBoosts;
         auto& model = unit->model();
         model.setAngle(u.fAngle);
         model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);

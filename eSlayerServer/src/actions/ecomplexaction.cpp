@@ -55,6 +55,8 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(u->fPos, schoice, wchoice);
+        } else if(skill.fType == eSkillType::boostCurse) {
+            return spawnArea(u->fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(u->fPos, schoice);
         } else if(skill.fType == eSkillType::nova) {
@@ -101,6 +103,8 @@ bool eComplexAction::attack(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(target.fPos, schoice, wchoice);
+        } else if(skill.fType == eSkillType::boostCurse) {
+            return spawnArea(target.fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(target.fPos, schoice);
         } else if(skill.fType == eSkillType::nova) {
@@ -173,6 +177,14 @@ bool eComplexAction::getHit(const eHitData& data,
             if(a) mUnit.setChildAction(a);
         } else {
             hit = true;
+
+            const auto& bs = data.fBoosts;
+            if(!bs.empty()) {
+                for(const auto& b : bs) {
+                    mUnit.addTimedBoost(b.fMods, b.fType, b.fMissileId, b.fTime, false);
+                }
+                mUnit.recalculateStats();
+            }
 
             {
                 const auto& stats = mUnit.stats();
@@ -265,7 +277,8 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const int nMissiles = mUnit.skillCount(schoice, wchoice);
     const float pierceChance = mUnit.pierceChance(schoice, wchoice);
     const int missileId = mUnit.missileId(schoice, wchoice);
-    const float missileRangeTime = mUnit.missileRangeTime(schoice, wchoice);
+    const float missileRange = mUnit.missileRange(schoice, wchoice);
+    const float missileTime = mUnit.missileTime(schoice, wchoice);
     const bool continuousDamage = skill.fType == eSkillType::wall;
 
     eHitData data;
@@ -277,10 +290,12 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     auto& area = mArea;
     const auto a = [&area, to, &skill, data,
                     nMissiles, pierceChance, missileId,
-                    missileRangeTime, continuousDamage]() {
+                    missileRange, missileTime,
+                    continuousDamage]() {
         area.spawnMissile(to, skill, data,
                           nMissiles, pierceChance, missileId,
-                          missileRangeTime, continuousDamage);
+                          missileRange, missileTime,
+                          continuousDamage);
     };
     const eAttackType attackType =
         skill.fType == eSkillType::attack ||
@@ -289,6 +304,33 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         skill.fType == eSkillType::shoot ||
         skill.fType == eSkillType::throw_ ?
             eAttackType::attack : eAttackType::cast;
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, mUnit.castAnims(schoice),
+        attackType, a, schoice, wchoice);
+    if(attack) setChild(attack);
+    return attack.get();
+
+    return true;
+}
+
+bool eComplexAction::spawnArea(const ePointF& to,
+                               const int schoice,
+                               const eWeaponChoice wchoice) {
+    const auto& from = mUnit.fPos;
+    const auto dir = ePointF::vector(to, from);
+    mUnit.fAngle = dir.angle();
+    const int skillId = mUnit.skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int missileId = mUnit.missileId(schoice, wchoice);
+
+    eHitData data;
+    hitData(schoice, wchoice, data);
+
+    auto& area = mArea;
+    const auto a = [&area, to, &skill, data, missileId]() {
+        area.spawnArea(to, skill, data, missileId);
+    };
+    const eAttackType attackType = eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),
         attackType, a, schoice, wchoice);

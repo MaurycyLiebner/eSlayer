@@ -22,7 +22,8 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     // number of obstacles missile can hit (0 - infinity)
     uint8_t fToPierce;
     bool fContinuousDamage;
-    float fRemDistTime;
+    float fRemDist;
+    float fRemTime;
     float fRadius;
     float fEnemyFindRange = 0.f;
     bool fEnemy = false;
