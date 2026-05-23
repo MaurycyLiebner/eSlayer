@@ -5,13 +5,13 @@
 
 #include <map>
 
-struct eSkillLevel;
+struct eSkillLevelStats;
 
 class eSkillTotalMods : public std::multimap<eModifierType, eModifier> {
 public:
     void addLevel(const eSkillTotalMods& other);
     void add(const eModifier& mod);
-    void addBoost(const eSkillLevel& boost);
+    void addBoost(const eSkillLevelStats& boost);
     void collapse();
 
     int fCount = 0;

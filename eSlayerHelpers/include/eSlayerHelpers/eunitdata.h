@@ -13,24 +13,6 @@ class ePacket;
 const uint8_t sFleshExplAnim = 255;
 const uint8_t sIceExplAnim = 254;
 
-enum class eUnitMod : uint8_t {
-    minion,
-
-    auraEnchanted,
-    coldEnchanted,
-    cursed,
-    extraFast,
-    extraStrong,
-    fireEnchanted,
-    lightningEnchanted,
-    magicResistant,
-    manaBurn,
-    multiShot,
-    spectralHit,
-    stoneSkin,
-    teleporting
-};
-
 struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     uint32_t fCharId;
     eTeamId fTeamId;
@@ -50,7 +32,7 @@ struct ESLAYERHELPERS_API eUnitData : public ePositioned {
     uint16_t fHealth;
     uint16_t fMaxHealth;
 
-    std::vector<eUnitMod> fMods;
+    std::vector<uint8_t> fMods;
 
     eModelParts fModelParts;
 

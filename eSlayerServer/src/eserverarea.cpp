@@ -263,7 +263,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 bool boss = elite;
                 eEliteModifiers mods;
                 if(elite) {
-                    mods.initialize(1, 1.f);
+                    mods.initialize(1, 1);
                 }
 
                 const auto& udata = eUnitsInfo::sUnits.get(type);

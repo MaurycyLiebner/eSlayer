@@ -18,20 +18,26 @@ enum class eSkillType : uint8_t {
     boostCurse
 };
 
-struct eSkillLevel {
+struct eSkillLevelStats {
     int fLevel;
 
     eSkillTotalMods fModifiers;
     eSkillTotalMods fTotalModifiers;
 };
 
+struct eSkillLevelsStats : public std::vector<eSkillLevelStats> {
+    const eSkillLevelStats& skillLevel(const int skillLevelId) const {
+        return (*this)[std::clamp(skillLevelId, 0, int(size()) - 1)];
+    }
+};
+
 struct eSynergy {
     std::string fSkillStr;
     int fSkillId;
-    std::vector<eSkillLevel> fBoostLevels;
+    eSkillLevelsStats fBoostLevels;
 
-    const eSkillLevel& boostLevel(const int boostLevelId) const {
-        return fBoostLevels[std::clamp(boostLevelId, 0, int(fBoostLevels.size()) - 1)];
+    const eSkillLevelStats& boostLevel(const int boostLevelId) const {
+        return fBoostLevels.skillLevel(boostLevelId);
     }
 };
 
@@ -62,11 +68,11 @@ struct eSkill {
     float fCastRange;
     std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
-    std::vector<eSkillLevel> fLevels;
+    eSkillLevelsStats fLevels;
     std::vector<eSynergy> fSynergies;
 
-    const eSkillLevel& skillLevel(const int skillLevelId) const {
-        return fLevels[std::clamp(skillLevelId, 0, int(fLevels.size()) - 1)];
+    const eSkillLevelStats& skillLevel(const int skillLevelId) const {
+        return fLevels.skillLevel(skillLevelId);
     }
 };
 
@@ -78,6 +84,16 @@ struct eUnitSkill {
 class ESLAYERHELPERS_API eSkills {
 public:
     static void load();
+
+    static eSkillLevelStats parseSkillLevel(
+        const ordered_json& levelData,
+        eSkillTotalMods& totalMods);
+    static void parseSkillLevels(
+        const ordered_json& levelsJson,
+        std::vector<eSkillLevelStats>& levels,
+        const int count = 0,
+        const float cooldown = 0.f,
+        const float manaCost = 0.f);
 
     static eStringIdMapVector<eSkill> sSkills;
     static const int sMaxSkillLevel;

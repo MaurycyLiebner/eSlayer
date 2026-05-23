@@ -58,7 +58,7 @@ void eSkillTotalMods::add(const eModifier& mod) {
     }
 }
 
-void eSkillTotalMods::addBoost(const eSkillLevel& boost) {
+void eSkillTotalMods::addBoost(const eSkillLevelStats& boost) {
     const auto& total = boost.fTotalModifiers;
     fCount += total.fCount;
     fCooldown += total.fCooldown;

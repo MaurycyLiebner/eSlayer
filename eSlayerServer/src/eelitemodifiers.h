@@ -7,13 +7,13 @@ class eServerUnit;
 
 class eEliteModifiers {
 public:
-    void initialize(const int nMods, const float level);
+    void initialize(const int nMods, const int level);
 
     void apply(eServerUnit& u, const bool boss);
 private:
-    std::set<eUnitMod> mMods;
-    std::vector<eModifier> mBossMods;
-    std::vector<eModifier> mMinionMods;
+    eSkillTotalMods mBossMods;
+    eSkillTotalMods mMinionMods;
+    std::set<uint8_t> mMods;
 };
 
 #endif // EELITEMODIFIERS_H

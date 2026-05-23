@@ -169,6 +169,8 @@ add_library(eSlayerHelpers SHARED
     src/erect.cpp
     include/eSlayerHelpers/eskilltotalmods.h
     src/eskilltotalmods.cpp
+    include/eSlayerHelpers/eelitemodifiersinfo.h
+    src/eelitemodifiersinfo.cpp
 
 
 

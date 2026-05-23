@@ -168,22 +168,6 @@
         <string id="7">Cooldown %1</string>
         <string id="8">Count +%1</string>
     </group>
-    <group id="14">
-        <string id="0">Minion</string>
-        <string id="1">Aura Enchanted</string>
-        <string id="2">Cold Enchanted</string>
-        <string id="3">Cursed</string>
-        <string id="4">Extra Fast</string>
-        <string id="5">Extra Strong</string>
-        <string id="6">Fire Enchanted</string>
-        <string id="7">Lightning Enchanted</string>
-        <string id="8">Magic Resistant</string>
-        <string id="9">Mana Burn</string>
-        <string id="10">Multi-Shot</string>
-        <string id="11">Spectral Hit</string>
-        <string id="12">Stone Skin</string>
-        <string id="13">Teleporting</string>
-    </group>
     <group id="15">
         <string id="0">Closed Door</string>
         <string id="1">Open Door</string>

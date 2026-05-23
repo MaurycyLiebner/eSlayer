@@ -45,7 +45,6 @@ void eSkills::load() {
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
-            int count = jdata.value("count", 1);
             const uint8_t radius = jdata.value("radius", 5u);
             skill.fRadius = ePacket::toFloatU8(radius, eSkill::sRadiusMax);
             const float speed = jdata.value("speed", 50u);
@@ -91,78 +90,15 @@ void eSkills::load() {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }
 
+            int count = jdata.value("count", 1);
             float cooldown = jdata.value("cooldown", 0.f);
             float manaCost = jdata.value("manaCost", 0.f);
-
-            const auto parseSkillLevel = [](
-                const ordered_json& levelData, eSkillTotalMods& totalMods) {
-                eSkillLevel level;
-                auto& mods = level.fModifiers;
-
-                for(auto it = levelData.begin(); it != levelData.end(); ++it) {
-                    const auto& key = it.key();
-                    const auto& value = it.value();
-
-                    if(key == "count") {
-                        const int dc = int(value);
-                        mods.fCount += dc;
-                        totalMods.fCount += dc;
-                    } else if(key == "cooldown") {
-                        const float dc = float(value);
-                        mods.fCooldown += dc;
-                        totalMods.fCooldown += dc;
-                    } else if(key == "manaCost") {
-                        const float dm = float(value);
-                        mods.fManaCost += dm;
-                        totalMods.fManaCost += dm;
-                    } else {
-                        eModifier mod;
-                        mod.read(key, json(value));
-                        totalMods.add(mod);
-                        mods.add(mod);
-                    }
-                }
-
-                level.fTotalModifiers = totalMods;
-
-                return level;
-            };
-
-            const auto parseSkillLevels = [&](
-                const ordered_json& levelsJson,
-                std::vector<eSkillLevel>& levels) {
-                eSkillTotalMods allMods;
-                if(levelsJson.contains("all")) {
-                    const auto& all = levelsJson["all"];
-                    parseSkillLevel(all, allMods);
-                }
-                eSkillTotalMods totalMods;
-                totalMods.fCount = count;
-                totalMods.fCooldown = cooldown;
-                totalMods.fManaCost = manaCost;
-                for(int i = 1; i <= sMaxSkillLevel; i++) {
-                    const std::string levelKey = std::to_string(i);
-                    totalMods.fCount += allMods.fCount;
-                    totalMods.fCooldown += allMods.fCooldown;
-                    totalMods.fManaCost += allMods.fManaCost;
-
-                    const ordered_json empty = ordered_json::object();
-                    const ordered_json& levelData =
-                        levelsJson.contains(levelKey)
-                            ? levelsJson[levelKey]
-                            : empty;
-
-                    totalMods.addLevel(allMods);
-                    auto level = parseSkillLevel(levelData, totalMods);
-                    level.fModifiers.addLevel(allMods);
-                    levels.emplace_back(level);
-                }
-            };
 
             skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
             if(jdata.contains("levels")) {
                 const auto& levels = jdata["levels"];
-                parseSkillLevels(levels, skill.fLevels);
+                parseSkillLevels(levels, skill.fLevels,
+                                 count, cooldown, manaCost);
             }
             if(jdata.contains("synergies")) {
                 eSkillTotalMods totalMods;
@@ -191,5 +127,76 @@ void eSkills::load() {
                 eExceptions::showDialog("Unrecognized synergy \"" + name + "\".");
             }
         }
+    }
+}
+
+eSkillLevelStats eSkills::parseSkillLevel(
+    const ordered_json& levelData,
+    eSkillTotalMods& totalMods) {
+    eSkillLevelStats level;
+    auto& mods = level.fModifiers;
+
+    for(auto it = levelData.begin(); it != levelData.end(); ++it) {
+        const auto& key = it.key();
+        const auto& value = it.value();
+
+        if(key == "count") {
+            const int dc = int(value);
+            mods.fCount += dc;
+            totalMods.fCount += dc;
+        } else if(key == "cooldown") {
+            const float dc = float(value);
+            mods.fCooldown += dc;
+            totalMods.fCooldown += dc;
+        } else if(key == "manaCost") {
+            const float dm = float(value);
+            mods.fManaCost += dm;
+            totalMods.fManaCost += dm;
+        } else {
+            eModifier mod;
+            mod.read(key, json(value));
+            totalMods.add(mod);
+            mods.add(mod);
+        }
+    }
+
+    level.fTotalModifiers = totalMods;
+
+    return level;
+}
+
+void eSkills::parseSkillLevels(
+    const ordered_json& levelsJson,
+    std::vector<eSkillLevelStats>& levels,
+    const int count,
+    const float cooldown,
+    const float manaCost) {
+    eSkillTotalMods totalMods;
+    totalMods.fCount = count;
+    totalMods.fCooldown = cooldown;
+    totalMods.fManaCost = manaCost;
+
+    eSkillTotalMods allMods;
+    if(levelsJson.contains("all")) {
+        const auto& all = levelsJson["all"];
+        parseSkillLevel(all, allMods);
+    }
+
+    for(int i = 1; i <= sMaxSkillLevel; i++) {
+        const std::string levelKey = std::to_string(i);
+        totalMods.fCount += allMods.fCount;
+        totalMods.fCooldown += allMods.fCooldown;
+        totalMods.fManaCost += allMods.fManaCost;
+
+        const ordered_json empty = ordered_json::object();
+        const ordered_json& levelData =
+            levelsJson.contains(levelKey)
+                ? levelsJson[levelKey]
+                : empty;
+
+        totalMods.addLevel(allMods);
+        auto level = parseSkillLevel(levelData, totalMods);
+        level.fModifiers.addLevel(allMods);
+        levels.emplace_back(level);
     }
 }

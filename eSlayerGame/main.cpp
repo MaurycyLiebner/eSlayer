@@ -21,6 +21,7 @@
 #include "names/eclassnames.h"
 #include "names/eareanames.h"
 #include "names/eobjectnames.h"
+#include "names/eelitemodifiersnames.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -36,6 +37,7 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eskilltrees.h>
 #include <eSlayerHelpers/eclasses.h>
+#include <eSlayerHelpers/eelitemodifiersinfo.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -282,6 +284,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eAttributes::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eEliteModifiersInfo::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eEliteModifiersNames::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

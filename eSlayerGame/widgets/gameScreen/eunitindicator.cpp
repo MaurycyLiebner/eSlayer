@@ -3,7 +3,7 @@
 #include "../../units/eunit.h"
 #include "../ecolors.h"
 #include "../../names/emonsternames.h"
-#include "../../elanguage.h"
+#include "../../names/eelitemodifiersnames.h"
 
 void eUnitIndicator::initialize() {
     eHealthIndicator::initialize();
@@ -23,7 +23,7 @@ void eUnitIndicator::initialize() {
 void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
                              const std::map<int, std::string>& names) {
     mUnit = u;
-    std::string mods;
+    std::string modsStr;
     if(u) {
         const auto it = names.find(u->fCharId);
         if(it == names.end()) {
@@ -33,14 +33,15 @@ void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
         } else {
             setText(it->second);
         }
-        for(const auto m : u->fMods) {
-            if(!mods.empty()) mods += ", ";
-            mods += eLanguage::text(14, static_cast<int>(m));
+        const auto& mods = u->fMods;
+        for(const auto m : mods) {
+            if(!modsStr.empty()) modsStr += ", ";
+            modsStr += eEliteModifiersNames::name(m);
         }
     } else {
         setText("");
     }
-    mModsLabel->setText(mods);
+    mModsLabel->setText(modsStr);
     mModsLabel->fitContent();
     mModsLabel->align(eAlignment::hcenter);
 }
