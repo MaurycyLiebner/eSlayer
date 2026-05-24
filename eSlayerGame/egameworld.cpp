@@ -233,7 +233,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const auto missileType = m.fType;
         auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
         const int apearId = missileTex.appearAnimId();
-        const int baseId = missileTex.appearAnimId();
+        const int baseId = missileTex.baseAnimId();
         mm->fAnimId = apearId >= 0 ? apearId : baseId;
         reinterpret_cast<eMissile&>(*mm) = m;
         mMissiles.add(m.fId, mm);

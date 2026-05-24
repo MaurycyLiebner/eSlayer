@@ -47,6 +47,7 @@ struct eSkillStats {
     int fCount = 0;
     float fManaCost = 0.f;
     float fCooldown = 0.f;
+    float fRadius = 0.f;
 
     eDamage fDamageMinLW;
     eDamage fDamageMaxLW;

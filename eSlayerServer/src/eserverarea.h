@@ -124,14 +124,17 @@ public:
                       const float pierceChance,
                       const int missileId,
                       const float range,
+                      const float radius,
                       const float time,
                       const bool continuousDamage);
     void spawnArea(const ePointF& to,
                    const eSkill& skill,
                    const eHitData& data,
+                   const float radius,
                    const int missileId);
     void spawnNova(const eSkill& skill,
                    const eHitData& data,
+                   const float radius,
                    const bool continuousDamage);
     void summon(eServerUnit& by,
                 ePointF to,

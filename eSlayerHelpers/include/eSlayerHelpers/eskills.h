@@ -19,8 +19,6 @@ enum class eSkillType : uint8_t {
 };
 
 struct eSkillLevelStats {
-    int fLevel;
-
     eSkillTotalMods fModifiers;
     eSkillTotalMods fTotalModifiers;
 };
@@ -67,7 +65,6 @@ struct eSkill {
     float fRange;
     float fMissileEnemyFindRange;
     static const float sRadiusMax;
-    float fRadius;
     static const float sSpeedMax;
     float fSpeed;
     const static float sTimeMax;
@@ -102,7 +99,8 @@ public:
         std::vector<eSkillLevelStats>& levels,
         const int count = 0,
         const float cooldown = 0.f,
-        const float manaCost = 0.f);
+        const float manaCost = 0.f,
+        const uint8_t radiusU = 0);
 
     static eStringIdMapVector<eSkill> sSkills;
     static const int sMaxSkillLevel;

@@ -18,3 +18,8 @@ std::string eStringHelpers::floatToString(const float value) {
     oss << value;
     return oss.str();
 }
+
+std::string eStringHelpers::floatToStringWithSign(const float value) {
+    const auto str = floatToString(value);
+    return value >= 0.f ? "+" + str : str;
+}

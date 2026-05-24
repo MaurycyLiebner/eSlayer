@@ -1033,6 +1033,7 @@ void eStats::calculateSkill(eSkillStats& stats,
 
     stats.fCount = skillMods.fCount;
     stats.fManaCost = skillMods.fManaCost;
+    stats.fRadius = skillMods.fRadius;
     stats.fCooldown = skillMods.fCooldown;
 
     switch(skill.fType) {

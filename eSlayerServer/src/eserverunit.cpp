@@ -117,6 +117,17 @@ float eServerUnit::missileTime(const eSkillStats& stats,
     return stats.fMissileTime;
 }
 
+float eServerUnit::radius(const int schoice,
+                          const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return radius(skill, wchoice);
+}
+
+float eServerUnit::radius(const eSkillStats& stats,
+                          const eWeaponChoice wchoice) {
+    return stats.fRadius;
+}
+
 void eServerUnit::setEquipment(const eEquipment& eq,
                                const bool recalc) {
     mEquipment = eq;

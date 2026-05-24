@@ -13,6 +13,8 @@ namespace eStringHelpers {
 
     ESLAYERHELPERS_API
     std::string floatToString(const float value);
+    ESLAYERHELPERS_API
+    std::string floatToStringWithSign(const float value);
 }
 
 #endif // ESTRINGHELPERS_H

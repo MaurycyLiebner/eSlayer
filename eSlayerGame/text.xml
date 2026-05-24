@@ -166,7 +166,11 @@
         <string id="5">%1:</string>
         <string id="6">Mana Cost %1</string>
         <string id="7">Cooldown %1</string>
-        <string id="8">Count +%1</string>
+        <string id="8">Count %1</string>
+        <string id="9">Radius: %1</string>
+        <string id="10">Radius %1</string>
+        <string id="11">Cooldown: %1</string>
+        <string id="12">Count: %1</string>
     </group>
     <group id="15">
         <string id="0">Closed Door</string>

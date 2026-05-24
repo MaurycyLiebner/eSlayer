@@ -279,22 +279,23 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const int missileId = mUnit.missileId(schoice, wchoice);
     const float missileRange = mUnit.missileRange(schoice, wchoice);
     const float missileTime = mUnit.missileTime(schoice, wchoice);
+    const float radius = mUnit.radius(schoice, wchoice);
     const bool continuousDamage = skill.fType == eSkillType::wall;
 
     eHitData data;
     hitData(schoice, wchoice, data);
     if(continuousDamage) {
-        data.fDamage = data.fDamage/eRunSettings::sFPS;
+        data.fDamage = data.fDamage/25.f;
     }
 
     auto& area = mArea;
     const auto a = [&area, to, &skill, data,
                     nMissiles, pierceChance, missileId,
-                    missileRange, missileTime,
+                    missileRange, radius, missileTime,
                     continuousDamage]() {
         area.spawnMissile(to, skill, data,
                           nMissiles, pierceChance, missileId,
-                          missileRange, missileTime,
+                          missileRange, radius, missileTime,
                           continuousDamage);
     };
     const eAttackType attackType =
@@ -322,13 +323,14 @@ bool eComplexAction::spawnArea(const ePointF& to,
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int missileId = mUnit.missileId(schoice, wchoice);
+    const float radius = mUnit.radius(schoice, wchoice);
 
     eHitData data;
     hitData(schoice, wchoice, data);
 
     auto& area = mArea;
-    const auto a = [&area, to, &skill, data, missileId]() {
-        area.spawnArea(to, skill, data, missileId);
+    const auto a = [&area, to, &skill, data, radius, missileId]() {
+        area.spawnArea(to, skill, data, radius, missileId);
     };
     const eAttackType attackType = eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
@@ -348,16 +350,17 @@ bool eComplexAction::spawnNova(
     mUnit.fAngle = dir.angle();
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
+    const float radius = mUnit.radius(schoice, wchoice);
     const bool continuousDamage = false;
     eHitData data;
     hitData(schoice, wchoice, data);
     if(continuousDamage) {
-        data.fDamage = data.fDamage/eRunSettings::sFPS;
+        data.fDamage = data.fDamage/25.f;
     }
 
     auto& area = mArea;
-    const auto a = [&area, &skill, data, continuousDamage]() {
-        area.spawnNova(skill, data, continuousDamage);
+    const auto a = [&area, &skill, data, radius, continuousDamage]() {
+        area.spawnNova(skill, data, radius, continuousDamage);
     };
     const eAttackType attackType = eAttackType::cast;
     const auto attack = eAttackAction::sCreate(

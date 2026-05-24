@@ -48,8 +48,6 @@ void eSkills::load() {
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
-            const uint8_t radius = jdata.value("radius", 5u);
-            skill.fRadius = ePacket::toFloatU8(radius, eSkill::sRadiusMax);
             const float speed = jdata.value("speed", 50u);
             skill.fSpeed = ePacket::toFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
@@ -116,15 +114,17 @@ void eSkills::load() {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }
 
-            int count = jdata.value("count", 1);
+            int count = jdata.value("count", 0);
             float cooldown = jdata.value("cooldown", 0.f);
             float manaCost = jdata.value("manaCost", 0.f);
+            uint8_t radius = jdata.value("radius", 0);
 
             skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
             if(jdata.contains("levels")) {
                 const auto& levels = jdata["levels"];
                 parseSkillLevels(levels, skill.fLevels,
-                                 count, cooldown, manaCost);
+                                 count, cooldown, manaCost,
+                                 radius);
             }
             if(jdata.contains("synergies")) {
                 eSkillTotalMods totalMods;
@@ -178,6 +178,10 @@ eSkillLevelStats eSkills::parseSkillLevel(
             const float dm = float(value);
             mods.fManaCost += dm;
             totalMods.fManaCost += dm;
+        } else if(key == "radius") {
+            const uint8_t dr = uint8_t(value);
+            mods.setRadiusU(mods.fRadiusU + dr);
+            totalMods.setRadiusU(totalMods.fRadiusU + dr);
         } else {
             eModifier mod;
             mod.read(key, json(value));
@@ -196,11 +200,13 @@ void eSkills::parseSkillLevels(
     std::vector<eSkillLevelStats>& levels,
     const int count,
     const float cooldown,
-    const float manaCost) {
+    const float manaCost,
+    const uint8_t radiusU) {
     eSkillTotalMods totalMods;
     totalMods.fCount = count;
     totalMods.fCooldown = cooldown;
     totalMods.fManaCost = manaCost;
+    totalMods.setRadiusU(radiusU);
 
     eSkillTotalMods allMods;
     if(levelsJson.contains("all")) {
@@ -210,9 +216,6 @@ void eSkills::parseSkillLevels(
 
     for(int i = 1; i <= sMaxSkillLevel; i++) {
         const std::string levelKey = std::to_string(i);
-        totalMods.fCount += allMods.fCount;
-        totalMods.fCooldown += allMods.fCooldown;
-        totalMods.fManaCost += allMods.fManaCost;
 
         const ordered_json empty = ordered_json::object();
         const ordered_json& levelData =
@@ -222,7 +225,8 @@ void eSkills::parseSkillLevels(
 
         totalMods.addLevel(allMods);
         auto level = parseSkillLevel(levelData, totalMods);
-        level.fModifiers.addLevel(allMods);
+        auto& mods = level.fModifiers;
+        mods.addLevel(allMods);
         levels.emplace_back(level);
     }
 }

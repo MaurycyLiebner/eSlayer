@@ -1,8 +1,14 @@
 #include "eSlayerHelpers/eskilltotalmods.h"
 
 #include "eSlayerHelpers/eskills.h"
+#include "eSlayerHelpers/epacket.h"
 
 void eSkillTotalMods::addLevel(const eSkillTotalMods& other) {
+    fCount += other.fCount;
+    fCooldown += other.fCooldown;
+    fManaCost += other.fManaCost;
+    setRadiusU(fRadiusU + other.fRadiusU);
+
     for(const auto& it : other) {
         const auto& mod = it.second;
         add(mod);
@@ -155,4 +161,9 @@ void eSkillTotalMods::collapse() {
     for(const auto type : toErase) {
         erase(type);
     }
+}
+
+void eSkillTotalMods::setRadiusU(const uint8_t r) {
+    fRadiusU = r;
+    fRadius = ePacket::toFloatU8(r, eSkill::sRadiusMax);
 }
