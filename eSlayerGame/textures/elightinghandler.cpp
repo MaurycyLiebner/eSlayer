@@ -283,7 +283,8 @@ void render(SDL_Renderer* const r,
             eTexture& tex,
             std::vector<float>& lightness,
             const SDL_FColor& colorMod,
-            const float opacity) {
+            const float opacity,
+            const float scale) {
     if(lightness.empty()) {
         lightness.emplace_back(0.f);
         lightness.emplace_back(0.f);
@@ -294,12 +295,12 @@ void render(SDL_Renderer* const r,
     const int nStrips = lightness.size() - 1;
     if(nStrips < 1) return;
     const float vTexCoordW = 1.f/nStrips;
-    const int tw = tex.width();
-    const int th = tex.height();
+    const float tw = tex.width()*scale;
+    const float th = tex.height()*scale;
     const float vPosW = vTexCoordW*tw;
 
-    const int ox = tex.offsetX();
-    const int oy = tex.offsetY();
+    const float ox = tex.offsetX()*scale;
+    const float oy = tex.offsetY()*scale;
 
     std::vector<SDL_Vertex> verts;
     const int nVerts = 4*nStrips;
@@ -479,6 +480,7 @@ void eLightingHandler::render(
 
             lightness.emplace_back(l);
         } break;
+        case eRenderCallType::area:
         case eRenderCallType::missile:
         case eRenderCallType::unit:
         case eRenderCallType::item: {
@@ -540,5 +542,5 @@ void eLightingHandler::render(
         }
     }
     const float opacity = c.fTransparent ? 0.5f : 1.f;
-    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod, opacity);
+    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod, opacity, c.fScale);
 }

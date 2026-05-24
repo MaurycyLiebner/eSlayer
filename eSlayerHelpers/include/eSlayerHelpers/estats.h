@@ -24,6 +24,10 @@ enum class eBoostCurseType {
     regular
 };
 
+enum class eBoostCurseTarget {
+    enemyArea
+};
+
 struct eBoostCurse {
     eBoostCurseType fType;
     int fMissileId;

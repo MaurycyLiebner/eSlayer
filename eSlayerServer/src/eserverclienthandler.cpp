@@ -19,6 +19,7 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);
     data.fNovas = mArea->novaData(mClientId);
+    data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
     data.fBodies = mArea->bodies(mClientId);
     mArea->mapPortions(mClientId, data.fMapPortions);

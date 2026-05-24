@@ -44,6 +44,7 @@ public:
     int hitAnimId() const { return mHitAnimId; }
 
     float lighting() const { return mLighting; }
+    float radius() const { return mRadius; }
 
     eMissileType type() const { return mType; }
 private:
@@ -54,6 +55,7 @@ private:
     int mHitAnimId = -1;
 
     float mLighting = 0.f;
+    float mRadius = 0.f;
     eStringIdMapVector<eMissileAnim> mAnims;
 };
 

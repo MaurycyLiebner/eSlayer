@@ -173,6 +173,7 @@ add_library(eSlayerHelpers SHARED
     src/eelitemodifiersinfo.cpp
     include/eSlayerHelpers/eboostcursetypes.h
     src/eboostcursetypes.cpp
+    include/eSlayerHelpers/eskillarea.h include/eSlayerHelpers/eskillarea.cpp
 
 
 

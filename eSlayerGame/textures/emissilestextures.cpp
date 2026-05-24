@@ -78,6 +78,7 @@ void eMissilesTextures::loadData() {
         const int dirs = jdata["directions"];
         const float lighting = jdata.value("lighting", 0.f);
         const auto typeStr = jdata.value("type", "regular");
+        const float radius = jdata.value("radius", 0.f);
         eMissileType type;
         if(typeStr == "explosion") {
             type = eMissileType::explosion;
@@ -91,6 +92,7 @@ void eMissilesTextures::loadData() {
         eMissileTextures texs;
         texs.mLighting = lighting;
         texs.mType = type;
+        texs.mRadius = radius;
         for(auto& [aname, animData] : anims.items()) {
             eMissileAnim anim;
             const int nFrames = animData.value("frames", 0);
@@ -114,6 +116,7 @@ void eMissilesTextures::loadData() {
     for(const auto& it : eSkills::sSkills) {
         auto& skill = it.fValue;
         skill.fMissileId = sMissiles.id(skill.fMissileStr);
+        skill.fAreaMissileId = sMissiles.id(skill.fAreaMissileStr);
     }
 
     for(const auto& it : eItemsData::sItems) {

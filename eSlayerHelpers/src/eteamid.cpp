@@ -9,6 +9,8 @@ eTeams::sEnemies;
 bool eTeams::areEnemies(
     const eTeamId team1, const eTeamId team2) {
     if(team1 == team2) return false;
+    if(team1 == eTeamId::neutral ||
+       team2 == eTeamId::neutral) return false;
     if(team1 == eTeamId::neutralHostile ||
        team2 == eTeamId::neutralHostile) return true;
     if(team1 == eTeamId::neutralFriendly ||

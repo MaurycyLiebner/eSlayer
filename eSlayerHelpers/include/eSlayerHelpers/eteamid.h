@@ -6,6 +6,7 @@
 #include <cstdint>
 
 enum class eTeamId : uint8_t {
+    neutral,
     neutralHostile,
     neutralFriendly,
     playerTeam0

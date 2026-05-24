@@ -4,6 +4,7 @@
 #include "eserverunit.h"
 #include "eservermissile.h"
 #include "eservernova.h"
+#include "eserverskillarea.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/enovaincrementer.h>
@@ -36,6 +37,7 @@ struct eClientData {
     std::set<int> fKnownItems;
     uint32_t fLatestMissile;
     uint32_t fLatestNova;
+    uint32_t fLatestSkillArea;
     eAreas fKnownMap;
     int fKnownBodies = 0;
     std::vector<int> fBodies;
@@ -64,6 +66,8 @@ public:
     missileData(const int clientId);
     std::vector<eNova>
     novaData(const int clientId);
+    std::vector<eSkillArea>
+    skillAreaData(const int clientId);
     std::vector<int>
     bodies(const int clientId);
 
@@ -109,6 +113,7 @@ public:
     void changeSkillLevels(const int clientId, const eSkillLevels& skillLevels);
     void consumePotion(const int clientId, const uint32_t itemId);
 
+    void addSkillArea(const std::shared_ptr<eServerSkillArea>& a);
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void addNova(const std::shared_ptr<eServerNova>& n);
 
@@ -193,6 +198,7 @@ private:
     static eTeamId sNextTeamId;
 
     eIdMapVector<eServerMissile> mMissiles;
+    eIdMapVector<eServerSkillArea> mSkillAreas;
     eIdMapVector<eServerNova> mNovas;
     eIdMapVector<eServerUnit> mUnits;
     eIdMapVector<eItem> mItemsOnGround;

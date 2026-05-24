@@ -14,7 +14,7 @@ class eResolution;
 class SDL_Renderer;
 
 enum class eRenderCallType {
-    unit, missile, item, object, wall
+    unit, missile, item, object, wall, area
 };
 
 struct eRenderCall : public ePaintCall {
@@ -27,7 +27,8 @@ struct eRenderCall : public ePaintCall {
                 const bool lighting = false,
                 const SDL_FColor& colorMod = {1.f, 1.f, 1.f, 1.f},
                 const eWallType wall = eWallType::topLeft,
-                const bool transparent = false) :
+                const bool transparent = false,
+                const float scale = 1.f) :
         ePaintCall{px, py, tex},
         fType(type),
         fHighlight(highlight),
@@ -36,7 +37,8 @@ struct eRenderCall : public ePaintCall {
         fWallType(wall),
         fTransparent(transparent),
         fLighting(lighting),
-        fTX(tx), fTY(ty) {}
+        fTX(tx), fTY(ty),
+        fScale(scale) {}
 
     eRenderCallType fType;
     bool fHighlight;
@@ -47,6 +49,7 @@ struct eRenderCall : public ePaintCall {
     bool fLighting;
     float fTX;
     float fTY;
+    float fScale;
 };
 
 class eLightingHandler {

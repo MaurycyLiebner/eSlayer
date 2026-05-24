@@ -37,6 +37,14 @@ void eRequestData::read(ePacket& p) {
         n.read(p);
     }
 
+    uint16_t nSkillAreas;
+    p >> nSkillAreas;
+    fSkillAreas.reserve(fSkillAreas.size() + nSkillAreas);
+    for(int i = 0; i < nSkillAreas; i++) {
+        auto& a = fSkillAreas.emplace_back();
+        p >> a;
+    }
+
     uint16_t nNewItems;
     p >> nNewItems;
     fNewItems.reserve(fNewItems.size() + nNewItems);
@@ -98,6 +106,12 @@ void eRequestData::write(ePacket& p) const {
     p << nNovas;
     for(const auto& n : fNovas) {
         n.write(p);
+    }
+
+    const uint16_t nSkillAreas = fSkillAreas.size();
+    p << nSkillAreas;
+    for(const auto& a : fSkillAreas) {
+        p << a;
     }
 
     const uint16_t nNewItems = fNewItems.size();

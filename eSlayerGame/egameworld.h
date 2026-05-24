@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/egrounditem.h>
 #include <eSlayerHelpers/enova.h>
+#include <eSlayerHelpers/eskillarea.h>
 
 class eMap;
 class eMainCharAction;
@@ -29,6 +30,10 @@ struct eExtendedNova : public eNova {
     bool fInitialized = false;
     int fFrame = 0;
     std::vector<std::shared_ptr<eExtendedMissile>> fMissiles;
+};
+
+struct eExtendedSkillArea : public eSkillArea {
+    int fFrame = 0;
 };
 
 class eGameWorld {
@@ -58,6 +63,7 @@ public:
 
     void simulateMissiles(const float by);
     void simulateNovas(const float by);
+    void simulateSkillAreas(const float by);
 
     eIdMapVector<eUnit>& units() { return mUnits; }
     const eIdMapVector<eUnit>& units() const { return mUnits; }
@@ -67,6 +73,9 @@ public:
 
     eIdMapVector<eExtendedNova>& novas() { return mNovas; }
     const eIdMapVector<eExtendedNova>& novas() const { return mNovas; }
+
+    eIdMapVector<eExtendedSkillArea>& skillAreas() { return mSkillAreas; }
+    const eIdMapVector<eExtendedSkillArea>& skillAreas() const { return mSkillAreas; }
 
     std::shared_ptr<eUnit> getUnit(const int id) const {
         return mUnits.get(id);
@@ -92,6 +101,7 @@ private:
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;
     eIdMapVector<eExtendedNova> mNovas;
+    eIdMapVector<eExtendedSkillArea> mSkillAreas;
     eIdMapVector<eGroundItem> mGroundItems;
     eFixedSizeSetAreas mUnitAreas;
     eMissileIncrementer mMIncrementer;

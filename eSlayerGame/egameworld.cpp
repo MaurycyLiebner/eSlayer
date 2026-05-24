@@ -134,6 +134,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& updatedUnits = data.fUpdatedUnits;
     const auto& missiles = data.fMissiles;
     const auto& novas = data.fNovas;
+    const auto& skillAreas = data.fSkillAreas;
     const auto& newItems = data.fNewItems;
     const auto& removedItemIds = data.fRemovedItemIds;
     std::set<int> uPresent;
@@ -244,6 +245,12 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mNovas.add(n.fId, nn);
     }
 
+    for(const auto& a : skillAreas) {
+        const auto aa = std::make_shared<eExtendedSkillArea>();
+        static_cast<eSkillArea&>(*aa) = a;
+        mSkillAreas.add(a.fId, aa);
+    }
+
     return result;
 }
 
@@ -262,6 +269,15 @@ void eGameWorld::simulateMissiles(const float by) {
 void eGameWorld::simulateNovas(const float by) {
     for(const auto& n : mNovas) {
         mNIncrementer.increment(*n, by);
+    }
+}
+
+void eGameWorld::simulateSkillAreas(const float by) {
+    for(const auto& a : mSkillAreas) {
+        float& time = a->fRemTime;
+        time -= by;
+        if(time > 0.f) continue;
+        mSkillAreas.remove(a->fId);
     }
 }
 

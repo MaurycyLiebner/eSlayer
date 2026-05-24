@@ -382,6 +382,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     mWorld.simulateMissiles(by);
     mWorld.simulateNovas(by);
+    mWorld.simulateSkillAreas(by);
 
     const auto& mpos = mInput.mousePos();
     if(!mMenuVisible) {
@@ -389,10 +390,10 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto w = window();
         const bool shiftPressed = w->shiftPressed();
         mMainAction->increment(mInput.mousePressed(),
-                              mInput.rightPressed(),
-                              shiftPressed,
-                              mouseTilePos,
-                              by);
+                               mInput.rightPressed(),
+                               shiftPressed,
+                               mouseTilePos,
+                               by);
     }
 
     mFrame++;
@@ -405,9 +406,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto& terrTypes = mMap->terrainTypes();
         const auto& objTypes = mMap->objectTypes();
 
-
         enum class eRenderElementType {
-            unit, missile, item, object, wall
+            area, item, wall, object, unit, missile
         };
 
         struct eRenderElement {
@@ -641,7 +641,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                     animId = baseId;
                     frame = 0;
                     nFrames = missileTex.nFrames(animId);
-                } else if(animId == hitId) {
+                }
+
+                if(animId == hitId || animId <= 0) {
                     mWorld.removeMissile(*m);
                     continue;
                 }
@@ -791,16 +793,42 @@ void eGameWidget::paintEvent(ePainter& p) {
             n->fFrame++;
         }
 
-        const auto typePriority = [](const eRenderElementType t) {
-            switch(t) {
-            case eRenderElementType::item:    return 0;
-            case eRenderElementType::wall:    return 1;
-            case eRenderElementType::object:  return 2;
-            case eRenderElementType::unit:    return 3;
-            case eRenderElementType::missile: return 4;
+        auto& areas = mWorld.skillAreas();
+        for(const auto& a : areas) {
+            const auto missileType = a->fMissileId;
+            if(missileType == 0) continue;
+            auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+            const int appearAnimId = missileTex.appearAnimId();
+            const int baseAnimId = missileTex.baseAnimId();
+            int animId = appearAnimId;
+            int appearFrames = 0;
+            if(appearAnimId >= 0) {
+                appearFrames = missileTex.nFrames(appearAnimId);
             }
-            return 0;
-        };
+            int frame = a->fFrame++;
+            if(frame >= appearFrames) {
+                if(baseAnimId >= 0) {
+                    animId = baseAnimId;
+                    frame -= appearFrames;
+                } else {
+                    areas.remove(a->fId);
+                    continue;
+                }
+            }
+            const float l = missileTex.lighting();
+            const bool lighting = l > 0.01f;
+            if(lighting) {
+                const auto& c = a->fPos;
+                const float aR = a->fRadius;
+                mGamePainter.addLight(c.fX, c.fY, aR*l);
+            }
+
+            const auto& ftex = missileTex.get(animId, 0, frame);
+            renderElements.emplace_back(eRenderElement{true,
+                                                       eRenderElementType::area,
+                                                       std::static_pointer_cast<ePositioned>(a),
+                                                       ftex, lighting});
+        }
 
         std::sort(renderElements.begin(), renderElements.end(),
                   [&](const eRenderElement& e1,
@@ -825,7 +853,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
             if(p1.fY != p2.fY) return p1.fY < p2.fY;
             if(p1.fX != p2.fX) return p1.fX < p2.fX;
-            return typePriority(e1.fType) < typePriority(e2.fType);
+            return static_cast<int>(e1.fType) < static_cast<int>(e2.fType);
         });
 
         setHighlightedUnit(nullptr);
@@ -917,7 +945,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         const uint16_t frame = (mFrame + 16*u->fCharId) % nFrames;
                         const auto& ftex = missileTex.get(baseId, 0, frame);
                         const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
-                                            drawX, drawY, ftex, false, false, true);
+                                            drawX, drawY, ftex, false, false, false);
                         mGamePainter.render(c);
                     }
                 }
@@ -926,6 +954,20 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
                                     ipixel.fX, ipixel.fY, ftex, false, false,
                                     e.fLighting);
+                mGamePainter.render(c);
+            } else if(e.fType == eRenderElementType::area) {
+                const auto a = std::static_pointer_cast<eExtendedSkillArea>(ePtr);
+                const auto missileType = a->fMissileId;
+                if(missileType == 0) continue;
+                auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+                const float aR = a->fRadius;
+                const float texR = missileTex.radius();
+                const float scale = aR/texR;
+                const auto& ftex = e.fTex;
+                const eRenderCall c(eRenderCallType::area, pos.fX, pos.fY,
+                                    ipixel.fX, ipixel.fY, ftex, false, false,
+                                    e.fLighting, {1.f, 1.f, 1.f, 1.f},
+                                    eWallType::topLeft, false, scale);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::item) {
                 const auto i = std::static_pointer_cast<eGroundItem>(ePtr);

@@ -582,15 +582,24 @@ eDamage eServerUnit::attackDamage(
 void eServerUnit::increment(const float by) {
     {
         bool recalc = false;
-        for(int i = 0; i < mBoosts.size(); i++) {
-            auto& b = mBoosts[i];
-            b.fRemTime -= by;
-            if(b.fRemTime <= 0.f) {
+        if(fHealth <= 0 && !mBoosts.empty()) {
+            recalc = true;
+            for(const auto& b : mBoosts) {
                 removeBoost(b.fType, false);
                 removeBoostData(b.fMissileId);
-                mBoosts.erase(mBoosts.begin() + i);
-                i--;
-                recalc = true;
+            }
+            mBoosts.clear();
+        } else {
+            for(int i = 0; i < mBoosts.size(); i++) {
+                auto& b = mBoosts[i];
+                b.fRemTime -= by;
+                if(b.fRemTime <= 0.f) {
+                    removeBoost(b.fType, false);
+                    removeBoostData(b.fMissileId);
+                    mBoosts.erase(mBoosts.begin() + i);
+                    i--;
+                    recalc = true;
+                }
             }
         }
         if(recalc) recalculateStats();

@@ -404,6 +404,13 @@ void eServerArea::increment(const float by) {
         mNIncrementer.increment(*n, by);
     }
 
+    for(const auto& a : mSkillAreas) {
+        float& time = a->fRemTime;
+        time -= by;
+        if(time > 0.f) continue;
+        mSkillAreas.remove(a->fId);
+    }
+
     removePlannedUnits();
 
     mTime += by;
@@ -624,6 +631,7 @@ bool eServerArea::addClient(const int clientId,
     auto& clientData = mClientData[clientId];
     clientData.fLatestMissile = 0;
     clientData.fLatestNova = 0;
+    clientData.fLatestSkillArea = 0;
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
@@ -846,6 +854,28 @@ eServerArea::novaData(const int clientId) {
     return result;
 }
 
+std::vector<eSkillArea>
+eServerArea::skillAreaData(const int clientId) {
+    std::vector<eSkillArea> result;
+    const auto u = unit(clientId);
+    if(!u) return result;
+    result.reserve(mSkillAreas.actualSize());
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return result;
+    auto& clientData = it->second;
+    auto& latestSkillArea = clientData.fLatestSkillArea;
+    auto newLatestSkillArea = latestSkillArea;
+    for(const auto& a : mSkillAreas) {
+        if(a->fId <= latestSkillArea) continue;
+        newLatestSkillArea = std::max(newLatestSkillArea, a->fId);
+        const float dist = ePointF::distance(a->fPos, u->fPos);
+        if(dist > 20.f) continue;
+        result.emplace_back(*a);
+    }
+    latestSkillArea = newLatestSkillArea;
+    return result;
+}
+
 std::vector<int>
 eServerArea::bodies(const int clientId) {
     const auto it = mClientData.find(clientId);
@@ -858,6 +888,11 @@ eServerArea::bodies(const int clientId) {
         result.emplace_back(bodies[i]);
     }
     return result;
+}
+
+void eServerArea::addSkillArea(
+    const std::shared_ptr<eServerSkillArea>& a) {
+    mSkillAreas.add(a->fId, a);
 }
 
 void eServerArea::addMissile(const std::shared_ptr<eServerMissile>& m) {
@@ -1018,6 +1053,14 @@ void eServerArea::spawnArea(const ePointF& to,
             }
         }
     }
+    const int area = skill.fAreaMissileId;
+    if(area <= 0) return;
+    const auto a = std::make_shared<eServerSkillArea>();
+    a->fMissileId = area;
+    a->fRemTime = 25.f;
+    a->fRadius = radius;
+    a->fPos = to;
+    addSkillArea(a);
 }
 
 void eServerArea::spawnNova(const eSkill& skill,

@@ -69,7 +69,7 @@ void eMissileCollision::test(const ePointF& oldPos,
                              const eMissile& m,
                              eResult& result) {
     if(u.fHealth <= 0) return;
-    if(u.fTeamId == m.fTeamId) return;
+    if(!eTeams::areEnemies(u.fTeamId, m.fTeamId)) return;
     if(!m.fContinuousDamage) {
         if(m.fPierced.find(u.fCharId) != m.fPierced.end()) return;
     }

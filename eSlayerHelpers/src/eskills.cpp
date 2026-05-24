@@ -1,8 +1,9 @@
 #include "eSlayerHelpers/eskills.h"
 
+#include "eSlayerHelpers/eboostcursetypes.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/epacket.h"
-#include "eSlayerHelpers/eboostcursetypes.h"
+#include "eSlayerHelpers/estats.h"
 
 bool eSkills::sLoaded = false;
 eStringIdMapVector<eSkill> eSkills::sSkills;
@@ -90,8 +91,10 @@ void eSkills::load() {
                 skill.fType = eSkillType::passive;
             } else if(typeStr == "boostCurse") {
                 skill.fType = eSkillType::boostCurse;
+
                 const uint8_t time = jdata.value("time", 25u);
                 skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
+
                 const auto boostCurseTypeStr = jdata.value("boostCurseType", "");
                 const int id = eBoostCurseTypes::sTypes.id(boostCurseTypeStr);
                 if(id <= 0) {
@@ -99,6 +102,16 @@ void eSkills::load() {
                                   "\" in \"" + dir + "/" + name + ".json\"");
                 }
                 skill.fBoostCurseType = static_cast<eBoostCurseType>(id);
+
+                const auto boostCurseTargetStr = jdata.value("boostCurseTarget", "");
+                if(boostCurseTargetStr == "enemyArea") {
+                    skill.fBoostCurseTarget = eBoostCurseTarget::enemyArea;
+                } else {
+                    eRuntimeThrow("Invalid \"boostCurseTarget\" \"" + boostCurseTargetStr +
+                                  "\" in \"" + dir + "/" + name + ".json\"");
+                }
+
+                skill.fAreaMissileStr = jdata.value("areaMissile", "none");
             } else {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }

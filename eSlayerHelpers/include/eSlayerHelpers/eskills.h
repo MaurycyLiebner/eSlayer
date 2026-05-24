@@ -42,6 +42,7 @@ struct eSynergy {
 };
 
 enum class eBoostCurseType;
+enum class eBoostCurseTarget;
 
 struct eSkill {
     eSkillType fType;
@@ -57,6 +58,10 @@ struct eSkill {
     std::string fPath;
     int fPathId;
     eBoostCurseType fBoostCurseType;
+    eBoostCurseTarget fBoostCurseTarget;
+
+    std::string fAreaMissileStr;
+    int fAreaMissileId;
 
     const static float sRangeMax;
     float fRange;
