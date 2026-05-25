@@ -9,9 +9,9 @@ class eItemGenerator {
 public:
     static void applyItemId(eItem& item);
     static eItem generatePotion(
-        const float level, const float worth);
+        const int level, const float worth);
     static eItem generateItem(
-        const float level, const float worth);
+        const int level, const float worth);
 private:
     static uint32_t sNextItemId;
 };

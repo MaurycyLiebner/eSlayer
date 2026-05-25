@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/eskills.h"
+#include "eSlayerHelpers/eitemaffixes.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -69,6 +70,16 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     item.fMaxDmg = itemE->FloatAttribute("maxDmg");
     item.fDefense = itemE->FloatAttribute("defense");
     item.fBlockChance = itemE->FloatAttribute("blockChance");
+
+    const auto prefixStr = itemE->Attribute("prefix");
+    if(prefixStr) {
+        item.fPrefix = eItemAffixes::sPrefixes.id(prefixStr);
+    }
+
+    const auto suffixStr = itemE->Attribute("suffix");
+    if(suffixStr) {
+        item.fSuffix = eItemAffixes::sSuffixes.id(suffixStr);
+    }
 
     auto modsE = itemE->FirstChildElement("modifiers");
     if(modsE) {
@@ -404,6 +415,17 @@ void gWriteItem(const eItem& item,
     default:
         break;
     }
+
+    if(item.fPrefix) {
+        const auto name = eItemAffixes::sPrefixes.name(item.fPrefix);
+        itemE->SetAttribute("prefix", name.c_str());
+    }
+
+    if(item.fSuffix) {
+        const auto name = eItemAffixes::sSuffixes.name(item.fSuffix);
+        itemE->SetAttribute("suffix", name.c_str());
+    }
+
     const auto modsE = itemE->InsertNewChildElement("modifiers");
     for(const auto& mod : item.fModifiers) {
         gWriteModifier(mod, modsE);

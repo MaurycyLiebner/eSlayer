@@ -39,6 +39,7 @@
 #include <eSlayerHelpers/eclasses.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 #include <eSlayerHelpers/eboostcursetypes.h>
+#include <eSlayerHelpers/eitemaffixes.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -246,6 +247,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eItemsData::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eItemAffixes::load();
         });
 
         loadings.emplace_back([&]() {

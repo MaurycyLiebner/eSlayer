@@ -66,10 +66,7 @@ void eHoverWidget::setHoverItem(
         eHoverGenerator gen(res);
 
         {
-            const auto name = eItemNames::name(item.fDataId);
-            const auto socketsText = item.fSockets > 0 ?
-                " [" + std::to_string(item.fSockets) + "]" :
-                "";
+            const auto name = eItemNames::name(item);
             eFontColor color{eFontColor::normal};
             switch(item.fRarity) {
             case eItemRarity::normal:
@@ -89,7 +86,7 @@ void eHoverWidget::setHoverItem(
                 break;
             }
 
-            gen.addText(r, name + socketsText, color);
+            gen.addText(r, name, color);
         }
         switch(item.fType) {
         case eItemType::armor:

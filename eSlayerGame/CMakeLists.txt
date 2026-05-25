@@ -122,6 +122,8 @@ add_executable(eSlayerGame
     names/eskillnames.h
     names/eskilltreenames.cpp
     names/eskilltreenames.h
+    names/eelitemodifiersnames.cpp
+    names/eelitemodifiersnames.h
 
     # Screens
     screens/echoosecharactermenu.cpp
@@ -281,7 +283,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    names/eelitemodifiersnames.h names/eelitemodifiersnames.cpp
 )
 
 include(GNUInstallDirs)

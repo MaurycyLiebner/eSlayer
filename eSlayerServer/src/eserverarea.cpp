@@ -154,12 +154,7 @@ void eServerArea::addGroundItem(
     const ePointF& pos, const eItem& item) {
     const auto itemId = item.fItemId;
     const auto groundItem = std::make_shared<eGroundItem>();
-    groundItem->fItemId = itemId;
-    groundItem->fDataId = item.fDataId;
-    groundItem->fType = item.fType;
-    groundItem->fSubType = item.fSubType;
-    groundItem->fRarity = item.fRarity;
-    groundItem->fSockets = item.fSockets;
+    static_cast<eItemBase&>(*groundItem) = item;
     const auto baseTile = mItemTiles.posArea(pos);
     bool found = false;
     for(int dist = 0; dist < 100; dist++) {
@@ -192,7 +187,7 @@ void eServerArea::addGroundItem(
 }
 
 void eServerArea::generateItems(
-    const ePointF& pos, const float level,
+    const ePointF& pos, const int level,
     const float worth) {
     float remWorth = worth;
     while(remWorth >= 0.25f) {
@@ -203,14 +198,14 @@ void eServerArea::generateItems(
 }
 
 void eServerArea::generateItem(
-    const ePointF& pos, const float level,
+    const ePointF& pos, const int level,
     const float worth) {
     const auto item = eItemGenerator::generateItem(level, worth);
     addGroundItem(pos, item);
 }
 
 void eServerArea::generatePotion(
-    const ePointF& pos, const float level,
+    const ePointF& pos, const int level,
     const float worth) {
     const auto item = eItemGenerator::generatePotion(level, worth);
     addGroundItem(pos, item);
@@ -725,7 +720,7 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
             if(state != 0) return nullptr;
             const float fx = tx + obj->fSize + 0.5f;
             const ePointF pos{fx, float(ty)};
-            generateItems(pos, 5.f, 7.5f);
+            generateItems(pos, 5, 7.5f);
             state = 1;
         } break;
         case eObjectType::none:

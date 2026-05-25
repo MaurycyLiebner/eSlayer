@@ -4,6 +4,7 @@
 
 std::map<eItemType, std::string>
 gItemTypeToString = {
+    {eItemType::none, "none"},
     {eItemType::boots, "boots"},
     {eItemType::gloves, "gloves"},
     {eItemType::helmet, "helmet"},
@@ -28,9 +29,13 @@ gStringToItemType = [] {
 }();
 
 eItemType eItemTypeHelpers::type(const std::string& name) {
-    return gStringToItemType[name];
+    const auto it = gStringToItemType.find(name);
+    if(it == gStringToItemType.end()) return eItemType::none;
+    return it->second;
 }
 
 std::string eItemTypeHelpers::name(const eItemType type) {
-    return gItemTypeToString[type];
+    const auto it = gItemTypeToString.find(type);
+    if(it == gItemTypeToString.end()) return "none";
+    return it->second;
 }

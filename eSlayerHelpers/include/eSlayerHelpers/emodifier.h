@@ -46,13 +46,13 @@ enum class eModifierType : uint8_t {
 
     fireResistance,
     coldResistance,
-    lightningResitance,
+    lightningResistance,
     poisonResistance,
     physicalResistance,
 
     maxFireResistance,
     maxColdResistance,
-    maxLightningResitance,
+    maxLightningResistance,
     maxPoisonResistance,
     maxPhysicalResistance,
 

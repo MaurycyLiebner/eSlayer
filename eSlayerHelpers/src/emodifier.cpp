@@ -37,13 +37,13 @@ gModifierTypeToString = {
 
     { eModifierType::fireResistance, "fireResistance" },
     { eModifierType::coldResistance, "coldResistance" },
-    { eModifierType::lightningResitance, "lightningResitance" },
+    { eModifierType::lightningResistance, "lightningResistance" },
     { eModifierType::poisonResistance, "poisonResistance" },
     { eModifierType::physicalResistance, "physicalResistance" },
 
     { eModifierType::maxFireResistance, "maxFireResistance" },
     { eModifierType::maxColdResistance, "maxColdResistance" },
-    { eModifierType::maxLightningResitance, "maxLightningResitance" },
+    { eModifierType::maxLightningResistance, "maxLightningResistance" },
     { eModifierType::maxPoisonResistance, "maxPoisonResistance" },
     { eModifierType::maxPhysicalResistance, "maxPhysicalResistance" },
 
@@ -128,13 +128,13 @@ eModValuesUsage eModifier::valuesUsed() const {
 
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
+    case eModifierType::lightningResistance:
     case eModifierType::poisonResistance:
     case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
+    case eModifierType::maxLightningResistance:
     case eModifierType::maxPoisonResistance:
     case eModifierType::maxPhysicalResistance:
 
@@ -229,13 +229,13 @@ std::string eModifier::value1Name() const {
 
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
+    case eModifierType::lightningResistance:
     case eModifierType::poisonResistance:
     case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
+    case eModifierType::maxLightningResistance:
     case eModifierType::maxPoisonResistance:
     case eModifierType::maxPhysicalResistance:
 
@@ -316,13 +316,13 @@ std::string eModifier::value2Name() const {
 
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
+    case eModifierType::lightningResistance:
     case eModifierType::poisonResistance:
     case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
+    case eModifierType::maxLightningResistance:
     case eModifierType::maxPoisonResistance:
     case eModifierType::maxPhysicalResistance:
 
@@ -463,13 +463,13 @@ bool eModifierHelpers::isPercent(
 
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
+    case eModifierType::lightningResistance:
     case eModifierType::poisonResistance:
     case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
+    case eModifierType::maxLightningResistance:
     case eModifierType::maxPoisonResistance:
     case eModifierType::maxPhysicalResistance:
 

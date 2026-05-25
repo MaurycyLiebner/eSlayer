@@ -60,13 +60,13 @@ bool addPlus(const float value,
 
     case eModifierType::fireResistance:
     case eModifierType::coldResistance:
-    case eModifierType::lightningResitance:
+    case eModifierType::lightningResistance:
     case eModifierType::poisonResistance:
     case eModifierType::physicalResistance:
 
     case eModifierType::maxFireResistance:
     case eModifierType::maxColdResistance:
-    case eModifierType::maxLightningResitance:
+    case eModifierType::maxLightningResistance:
     case eModifierType::maxPoisonResistance:
     case eModifierType::maxPhysicalResistance:
 

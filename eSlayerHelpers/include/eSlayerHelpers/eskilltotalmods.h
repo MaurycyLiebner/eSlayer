@@ -16,6 +16,7 @@ public:
     void add(const eModifier& mod);
     void addBoost(const eSkillLevelStats& boost);
     void collapse();
+    void collapseSkillLevel();
 
     int fCount = 0;
     float fManaCost = 0.f;
@@ -24,6 +25,9 @@ public:
     float fRadius = 0.f;
 
     void setRadiusU(const uint8_t r);
+private:
+    void applyMod(eModifier& mod,
+                  const eModifierType multType) const;
 };
 
 #endif // ESKILLTOTALMODS_H

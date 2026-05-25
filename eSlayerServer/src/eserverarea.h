@@ -183,15 +183,16 @@ private:
                       const eUnitInfo& uinfo,
                       const eCharData& data,
                       const eModelParts& modelParts);
-    void addGroundItem(const ePointF& pos, const eItem& item);
+    void addGroundItem(const ePointF& pos,
+                       const eItem& item);
     void generateItems(const ePointF& pos,
-                       const float level,
+                       const int level,
                        const float worth);
     void generateItem(const ePointF& pos,
-                      const float level,
+                      const int level,
                       const float worth);
     void generatePotion(const ePointF& pos,
-                        const float level,
+                        const int level,
                         const float worth);
 
     float mTime = 0.f;

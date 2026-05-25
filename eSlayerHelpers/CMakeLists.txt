@@ -47,10 +47,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/evec2.h
     include/eSlayerHelpers/epathfinder.h
     src/epathfinder.cpp
-
     include/eSlayerHelpers/epathfinderpath.h
-
-
     include/eSlayerHelpers/epathfindermap.h
     src/epathfindermap.cpp
     src/epathfinderpath.cpp
@@ -58,14 +55,12 @@ add_library(eSlayerHelpers SHARED
     src/emovementhandler.cpp
     include/eSlayerHelpers/emovementgoal.h
     src/emovementgoal.cpp
-
     include/eSlayerHelpers/eexceptions.h src/eexceptions.cpp
     include/eSlayerHelpers/eunitdata.h
     src/eunitdata.cpp
     include/eSlayerHelpers/eunitdynamicdata.h
     src/eunitdynamicdata.cpp
     include/eSlayerHelpers/echardata.h
-
     src/echardata.cpp
     include/eSlayerHelpers/efileloaderbase.h
     src/efileloaderbase.cpp
@@ -87,10 +82,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/epositioned.h
     include/eSlayerHelpers/estringidmapvector.h
     include/eSlayerHelpers/earea.h
-
     include/eSlayerHelpers/eskills.h
     src/eskills.cpp
-
     include/eSlayerHelpers/esetareas.h
     src/esetareas.cpp
     include/eSlayerHelpers/edamage.h
@@ -125,12 +118,8 @@ add_library(eSlayerHelpers SHARED
     src/eweapontype.cpp
     include/eSlayerHelpers/estringhelpers.h
     src/estringhelpers.cpp
-
-
     include/eSlayerHelpers/eterrstexturesdata.h
     src/eterrstexturesdata.cpp
-
-
     include/eSlayerHelpers/emapportion.h
     src/emapportion.cpp
     include/eSlayerHelpers/eareas.h
@@ -163,7 +152,6 @@ add_library(eSlayerHelpers SHARED
     src/edoors.cpp
     include/eSlayerHelpers/earcintervals.h
     src/earcintervals.cpp
-
     src/eobstaclesmap.cpp
     include/eSlayerHelpers/eobstaclesmap.h
     src/erect.cpp
@@ -173,10 +161,9 @@ add_library(eSlayerHelpers SHARED
     src/eelitemodifiersinfo.cpp
     include/eSlayerHelpers/eboostcursetypes.h
     src/eboostcursetypes.cpp
-    include/eSlayerHelpers/eskillarea.h include/eSlayerHelpers/eskillarea.cpp
-
-
-
+    include/eSlayerHelpers/eskillarea.h src/eskillarea.cpp
+    include/eSlayerHelpers/eitemaffixes.h
+    src/eitemaffixes.cpp
 )
 
 target_include_directories(eSlayerHelpers

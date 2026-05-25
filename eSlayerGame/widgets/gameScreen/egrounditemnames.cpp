@@ -40,7 +40,7 @@ eGroundItemNames::requestTexture(
     const eGroundItem& item) {
     const auto it = mTexs.find(item.fItemId);
     if(it != mTexs.end()) return it->second;
-    const auto name = eItemNames::name(item.fDataId);
+    const auto name = eItemNames::name(item);
     eFontColor color{eFontColor::normal};
     switch(item.fRarity) {
     case eItemRarity::normal:
@@ -61,10 +61,7 @@ eGroundItemNames::requestTexture(
     }
 
     eTextGenerator gen(mR, color, mFont);
-    const auto socketsText = item.fSockets > 0 ?
-                                 " [" + std::to_string(item.fSockets) + "]" :
-                                 "";
-    const auto tex = gen.generate(name + socketsText);
+    const auto tex = gen.generate(name);
     mTexs[item.fItemId] = tex;
     return tex;
 }

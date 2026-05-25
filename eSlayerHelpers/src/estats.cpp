@@ -577,7 +577,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::coldResistance:
             fColdResistance += 0.01f*mod.fValue1;
             break;
-        case eModifierType::lightningResitance:
+        case eModifierType::lightningResistance:
             fLightningResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::poisonResistance:
@@ -593,7 +593,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::maxColdResistance:
             fMaxColdResistance += 0.01f*mod.fValue1;
             break;
-        case eModifierType::maxLightningResitance:
+        case eModifierType::maxLightningResistance:
             fMaxLightningResistance += 0.01f*mod.fValue1;
             break;
         case eModifierType::maxPoisonResistance:
@@ -887,13 +887,13 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::fireResistance:
         case eModifierType::coldResistance:
-        case eModifierType::lightningResitance:
+        case eModifierType::lightningResistance:
         case eModifierType::poisonResistance:
         case eModifierType::physicalResistance:
 
         case eModifierType::maxFireResistance:
         case eModifierType::maxColdResistance:
-        case eModifierType::maxLightningResitance:
+        case eModifierType::maxLightningResistance:
         case eModifierType::maxPoisonResistance:
         case eModifierType::maxPhysicalResistance:
 

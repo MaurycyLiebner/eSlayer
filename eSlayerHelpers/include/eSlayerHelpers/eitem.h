@@ -8,8 +8,11 @@
 
 #include <vector>
 
-struct ESLAYERHELPERS_API eItem {
+struct ESLAYERHELPERS_API eItemBase {
     uint32_t fItemId = 0;
+
+    uint8_t fPrefix = 0;
+    uint8_t fSuffix = 0;
 
     uint8_t fDataId = 0;
     eItemType fType = eItemType::none;
@@ -17,7 +20,9 @@ struct ESLAYERHELPERS_API eItem {
 
     eItemRarity fRarity = eItemRarity::normal;
     uint8_t fSockets = 0;
+};
 
+struct ESLAYERHELPERS_API eItem : public eItemBase {
     uint8_t fRequiredLevel = 0;
 
     uint16_t fMinDmg = 0; // min weapon / shield / boots damage

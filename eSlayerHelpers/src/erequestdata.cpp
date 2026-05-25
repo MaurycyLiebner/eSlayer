@@ -49,8 +49,7 @@ void eRequestData::read(ePacket& p) {
     p >> nNewItems;
     fNewItems.reserve(fNewItems.size() + nNewItems);
     for(int i = 0; i < nNewItems; i++) {
-        auto& it = fNewItems.emplace_back();
-        it.read(p);
+        p >> fNewItems.emplace_back();
     }
 
     uint16_t nRemovedItems;
@@ -117,7 +116,7 @@ void eRequestData::write(ePacket& p) const {
     const uint16_t nNewItems = fNewItems.size();
     p << nNewItems;
     for(const auto& i : fNewItems) {
-        i.write(p);
+        p << i;
     }
 
     const uint16_t nRemovedItems = fRemovedItemIds.size();

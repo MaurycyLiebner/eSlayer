@@ -75,36 +75,36 @@ void eSkillTotalMods::addBoost(const eSkillLevelStats& boost) {
     }
 }
 
-void eSkillTotalMods::collapse() {
-    const auto applyMod = [&](
-        eModifier& mod, const eModifierType multType) {
-        const auto it = find(multType);
-        if(it == end()) return;
-        const auto& multMod = it->second;
-        switch(multType) {
-        case eModifierType::defensePercent:
-        case eModifierType::attackRatingPercent:
-        case eModifierType::lifePercent:
-        case eModifierType::manaPercent:
-        case eModifierType::poisonSkillDamage: {
-            mod.fValue1 *= 1.f + 0.01f*multMod.fValue1;
-        } break;
-        case eModifierType::damagePercent:
-        case eModifierType::fireSkillDamage:
-        case eModifierType::coldSkillDamage:
-        case eModifierType::lightningSkillDamage: {
-            mod.fValue1 *= 1.f + 0.01f*multMod.fValue1;
-            mod.fValue2 *= 1.f + 0.01f*multMod.fValue2;
-        } break;
-        case eModifierType::skillLevel: {
-            mod.fValue2 = std::clamp(mod.fValue2 + multMod.fValue1,
-                                     0, eSkills::sMaxSkillLevel - 1);
-        } break;
-        default:
-            break;
-        }
-    };
+void eSkillTotalMods::applyMod(
+    eModifier& mod, const eModifierType multType) const {
+    const auto it = find(multType);
+    if(it == end()) return;
+    const auto& multMod = it->second;
+    switch(multType) {
+    case eModifierType::defensePercent:
+    case eModifierType::attackRatingPercent:
+    case eModifierType::lifePercent:
+    case eModifierType::manaPercent:
+    case eModifierType::poisonSkillDamage: {
+        mod.fValue1 *= 1.f + 0.01f*multMod.fValue1;
+    } break;
+    case eModifierType::damagePercent:
+    case eModifierType::fireSkillDamage:
+    case eModifierType::coldSkillDamage:
+    case eModifierType::lightningSkillDamage: {
+        mod.fValue1 *= 1.f + 0.01f*multMod.fValue1;
+        mod.fValue2 *= 1.f + 0.01f*multMod.fValue2;
+    } break;
+    case eModifierType::skillLevel: {
+        mod.fValue2 = std::clamp(mod.fValue2 + multMod.fValue1,
+                                 0, eSkills::sMaxSkillLevel - 1);
+    } break;
+    default:
+        break;
+    }
+};
 
+void eSkillTotalMods::collapse() {
     std::vector<eModifierType> toErase;
     for(auto& it : *this) {
         auto& mod = it.second;
@@ -145,6 +145,29 @@ void eSkillTotalMods::collapse() {
             applyMod(mod, eModifierType::damagePercent);
             toErase.emplace_back(eModifierType::damagePercent);
             break;
+        case eModifierType::onAttack:
+        case eModifierType::onStriking:
+        case eModifierType::onKill:
+        case eModifierType::onStruck:
+        case eModifierType::onDeath:
+            applyMod(mod, eModifierType::skillLevel);
+            toErase.emplace_back(eModifierType::skillLevel);
+            break;
+        default:
+            break;
+        }
+    }
+
+    for(const auto type : toErase) {
+        erase(type);
+    }
+}
+
+void eSkillTotalMods::collapseSkillLevel() {
+    std::vector<eModifierType> toErase;
+    for(auto& it : *this) {
+        auto& mod = it.second;
+        switch(mod.fType) {
         case eModifierType::onAttack:
         case eModifierType::onStriking:
         case eModifierType::onKill:
