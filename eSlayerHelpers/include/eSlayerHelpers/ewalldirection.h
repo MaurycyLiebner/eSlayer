@@ -1,15 +1,21 @@
 #ifndef EWALLDIRECTION_H
 #define EWALLDIRECTION_H
 
+#include <cstdint>
+
 enum class eWallDirection {
     none,
-    topRight, rightCorner,
-    bottomRight, verticalBottom,
-    bottomLeft, leftCorner,
-    topLeft, verticalTop
+    topRight,
+    rightCorner,
+    bottomRight,
+    verticalBottom,
+    bottomLeft,
+    leftCorner,
+    topLeft,
+    verticalTop
 };
 
-enum class eWallType {
+enum class eWallType : uint8_t {
     topLeft, topRight
 };
 

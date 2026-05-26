@@ -108,16 +108,28 @@ void eMapsSettings::load() {
                         const auto target = cit.key();
                         const auto& jConn = cit.value();
 
-                        eConnectionType conn;
+                        eConnectionType connType;
                         const auto type = jConn.value("type", "plain");
                         if(type == "cave") {
-                            conn = eConnectionType::cave;
+                            connType = eConnectionType::cave;
                         } else if(type == "portal") {
-                            conn = eConnectionType::portal;
+                            connType = eConnectionType::portal;
+                        } else if(type == "stairs") {
+                            connType = eConnectionType::stairs;
+                        } else if(type == "plain") {
+                            connType = eConnectionType::plain;
                         } else {
-                            conn = eConnectionType::plain;
+                            eRuntimeThrow("Invalid connection type \"" + type + "\".");
                         }
-                        area.fConnections[target] = conn;
+                        auto& conn = area.fConnections[target];
+                        conn.fType = connType;
+                        const bool entrance = jConn.value("entrance", false);
+                        if(entrance) {
+                            conn.fDir = eConnectionDir::down;
+                        } else {
+                            conn.fDir = eConnectionDir::up;
+                        }
+                        conn.fMap = jConn.value("map", "");
                     }
                 }
                 map.fAreas.add(areaName, area);

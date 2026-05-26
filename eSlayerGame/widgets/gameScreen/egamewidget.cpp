@@ -426,6 +426,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             int fTerrainType;
             eWallType fType;
             uint8_t fEncoded;
+            uint8_t fEncodedStairs;
         };
 
         std::vector<eRenderElement> renderElements;
@@ -455,12 +456,14 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
             const auto& tile = mMap->tile(x, y);
             const auto addWall = [&](const eWallType wallType,
-                                     const uint8_t encoded) {
+                                     const uint8_t encoded,
+                                     const uint8_t encodedStairs) {
                 const auto wall = std::make_shared<eWall>();
                 wall->fPos = ePointF{x, y};
                 wall->fTerrainType = tile.fTerrainType;
                 wall->fType = wallType;
                 wall->fEncoded = encoded;
+                wall->fEncodedStairs = encodedStairs;
                 switch(wallType) {
                 case eWallType::topRight: {
                     if(x == uipos.fX) {
@@ -484,11 +487,9 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const auto terrType = tile.fTerrainType;
                 const auto& info = eTerrsTexturesData::get(terrType);
-                bool wall_;
-                bool doors;
-                bool open;
-                uint8_t type;
-                eTile::decodeWall(encoded, wall_, doors, open, type);
+                const bool doors = eTile::doors(encoded);
+                const bool open = eTile::open(encoded);
+                const uint8_t type = eTile::type(encoded);
                 const std::vector<eWallTexture>* types = nullptr;
                 switch(wallType) {
                 case eWallType::topLeft:
@@ -519,8 +520,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
             };
-            if(tile.fWallTL) addWall(eWallType::topLeft, tile.fWallTL);
-            if(tile.fWallTR) addWall(eWallType::topRight, tile.fWallTR);
+            if(tile.fWallTL) addWall(eWallType::topLeft, tile.fWallTL, tile.fStairsTL);
+            if(tile.fWallTR) addWall(eWallType::topRight, tile.fWallTR, tile.fStairsTR);
         };
 
         mTileIterator.nextIteration(this);
@@ -864,6 +865,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         setHighlightedObject(nullptr);
         setHighlightedItem(nullptr);
         setHighlightedDoors(std::nullopt);
+        setHighlightedStairs(std::nullopt);
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
                 setPressedUnit(nullptr);
@@ -912,7 +914,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                             setHighlightedUnit(u);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
-                            mHighlightDoors = std::nullopt;
+                            mHighlightDoors.reset();
+                            mHighlightStairs.reset();
                         }
                     }
                 }
@@ -1054,11 +1057,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto terrType = wall.fTerrainType;
                 const auto& info = eTerrsTexturesData::get(terrType);
                 const uint8_t encoded = wall.fEncoded;
-                bool wall_;
-                bool doors;
-                bool open;
-                uint8_t type;
-                eTile::decodeWall(encoded, wall_, doors, open, type);
+                const bool doors = eTile::doors(encoded);
+                const bool open = eTile::open(encoded);
+                const uint8_t sencoded = wall.fEncodedStairs;
+                const bool stairs = eTile::stairs(sencoded);
+                const uint8_t type = eTile::type(encoded);
                 const std::vector<eWallTexture>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
@@ -1168,6 +1171,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                             setHighlightedDoors(doors);
                             mHighlightObject.reset();
                             mHighlightItem.reset();
+                            mHighlightStairs.reset();
                         }
                     }
 
@@ -1201,6 +1205,95 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                 transparent);
                             mGamePainter.render(c);
                         }
+                    }
+                } else if(stairs) {
+                    const int stype = eTile::stairsType(sencoded);
+                    const bool sup = eTile::stairsUp(sencoded);
+                    bool highlight = false;
+                    if(!mHighlightUnit.lock() &&
+                       !mHighlightObject.lock() &&
+                       !mHighlightDoors) {
+                        eStairs stairs;
+                        stairs.fType = wall.fType;
+                        auto& tiles = stairs.fTiles;
+
+                        const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+
+                        const int pixelH = 2*texH/3;
+                        switch(wall.fType) {
+                        case eWallType::topLeft: {
+                            for(int dy = -stype; dy < nTypes - stype; dy++) {
+                                const ePoint tile{iPos.fX, iPos.fY + dy};
+                                tiles.emplace_back(tile);
+
+                                const auto top = tilePosToPixel(tile).round();
+                                const SDL_Rect hRect{top.fX - tileW/2,
+                                                     top.fY - pixelH,
+                                                     tileW/2, pixelH};
+                                const bool h = SDL_PointInRect(&p, &hRect);
+                                if(h) highlight = true;
+                            }
+                        } break;
+                        case eWallType::topRight: {
+                            for(int dx = -stype; dx < nTypes - stype; dx++) {
+                                const ePoint tile{iPos.fX + dx, iPos.fY};
+                                tiles.emplace_back(tile);
+
+                                const auto top = tilePosToPixel(tile).round();
+                                const SDL_Rect hRect{top.fX,
+                                                     top.fY - pixelH,
+                                                     tileW/2, pixelH};
+                                const bool h = SDL_PointInRect(&p, &hRect);
+                                if(h) highlight = true;
+                            }
+                        } break;
+                        }
+
+                        if(!tiles.empty()) {
+                            const auto& tile = tiles[0];
+                            const auto mapId = mMap->stairsMapId(
+                                tile.fX, tile.fY, wall.fType);
+                            if(mapId) {
+                                stairs.fMapId = *mapId;
+                                if(highlight && !mHighlightStairs) {
+                                    setHighlightedStairs(stairs);
+                                    mHighlightObject.reset();
+                                    mHighlightItem.reset();
+                                }
+                            }
+                        }
+                    }
+
+                    const std::vector<eWallTexture>* types = nullptr;
+                    switch(wall.fType) {
+                    case eWallType::topLeft:
+                        types = sup ? &info.fTLStairsUp :
+                                      &info.fTLStairsDown;
+                        break;
+                    case eWallType::topRight:
+                        types = sup ? &info.fTRStairsUp :
+                                      &info.fTRStairsDown;
+                        break;
+                    }
+
+                    const int nTypes = types->size();
+                    if(nTypes > stype) {
+                        const int texId = (*types)[stype].fId;
+                        const auto& tex = texs.getTexture(texId);
+                        const int texW = tex->width();
+                        const int texH = tex->height();
+                        int drawX = ipixel.fX;
+                        int drawY = bottomY;
+                        ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                                  eAlignment::top | eAlignment::hcenter);
+                        const eRenderCall c(eRenderCallType::wall,
+                                            pos.fX, pos.fY,
+                                            drawX, drawY, tex,
+                                            highlight, false, false,
+                                            SDL_FColor{1.f, 1.f, 1.f, 1.f},
+                                            wall.fType,
+                                            transparent);
+                        mGamePainter.render(c);
                     }
                 }
             }
@@ -1336,7 +1429,8 @@ void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     }
 }
 
-void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
+void eGameWidget::setHighlightedObject(
+    const std::shared_ptr<eObject>& obj) {
     mHighlightObject = obj;
     if(obj) {
         const auto type = obj->fObjectType;
@@ -1353,7 +1447,8 @@ void eGameWidget::setHighlightedObject(const std::shared_ptr<eObject>& obj) {
     }
 }
 
-void eGameWidget::setHighlightedDoors(const std::optional<eDoors>& doors) {
+void eGameWidget::setHighlightedDoors(
+    const std::optional<eDoors>& doors) {
     mHighlightDoors = doors;
     if(doors != std::nullopt) {
         const auto pos = doors->pos();
@@ -1371,7 +1466,28 @@ void eGameWidget::setHighlightedDoors(const std::optional<eDoors>& doors) {
     }
 }
 
-void eGameWidget::setHighlightedItem(const std::shared_ptr<eGroundItem>& i) {
+void eGameWidget::setHighlightedStairs(
+    const std::optional<eStairs>& stairs) {
+    mHighlightStairs = stairs;
+    if(stairs != std::nullopt) {
+        const auto pos = stairs->pos();
+        const auto pixel = tilePosToPixel(pos);
+        const auto ipixel = pixel.floor();
+        const auto& res = resolution();
+        const float mult = res.multiplier();
+        const int h = 100*mult;
+        const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
+        const auto mapId = stairs->fMapId;
+        const auto areaNameBase = eMapsSettings::sMaps.name(mapId);
+        const auto areaName = eAreaNames::name(areaNameBase);
+        eHoverWidget::sSetGameTooltip(areaName, rect);
+    } else {
+        eHoverWidget::sSetGameTooltip("");
+    }
+}
+
+void eGameWidget::setHighlightedItem(
+    const std::shared_ptr<eGroundItem>& i) {
     mHighlightItem = i;
     if(i) {
         const auto& pos = i->fPos;
@@ -1381,7 +1497,8 @@ void eGameWidget::setHighlightedItem(const std::shared_ptr<eGroundItem>& i) {
     }
 }
 
-void eGameWidget::setPressedUnit(const std::shared_ptr<eUnit>& u) {
+void eGameWidget::setPressedUnit(
+    const std::shared_ptr<eUnit>& u) {
     mPressedUnit = u;
     if(mUnitIndicator) {
         if(u) {

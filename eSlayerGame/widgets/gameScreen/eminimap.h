@@ -169,13 +169,23 @@ private:
                         }
                     }
 
+                    bool mod = false;
+                    if(map.inside(mx, my)) {
+                        const auto& tile = map.tile(mx, my);
+                        mod = tile.fStairsTL || tile.fStairsTR;
+                    }
+
                     if(texId1 != -1) {
                         const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
+                        if(mod) tex1->setColorMod(255, 0, 0);
                         p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
+                        if(mod) tex1->clearColorMod();
                     }
                     if(texId2 != -1) {
                         const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
+                        if(mod) tex2->setColorMod(255, 0, 0);
                         p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
+                        if(mod) tex2->clearColorMod();
                     }
                 }
             }

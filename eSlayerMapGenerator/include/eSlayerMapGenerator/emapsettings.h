@@ -8,7 +8,7 @@
 #include <string>
 
 enum class eConnectionType {
-    plain, cave, portal
+    plain, cave, portal, stairs
 };
 
 enum class eAreaType {
@@ -37,6 +37,16 @@ struct eMapMonsterSettings {
     int fMonstersMargin = 0;
 };
 
+enum class eConnectionDir : uint8_t {
+    up, down
+};
+
+struct eConnectionSettings {
+    eConnectionType fType;
+    eConnectionDir fDir;
+    std::string fMap;
+};
+
 struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
@@ -48,7 +58,7 @@ struct eAreaSettings {
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;
-    std::map<std::string, eConnectionType> fConnections;
+    std::map<std::string, eConnectionSettings> fConnections;
 };
 
 struct eMapSettings {

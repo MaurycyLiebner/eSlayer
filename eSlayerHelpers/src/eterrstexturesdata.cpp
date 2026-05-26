@@ -59,7 +59,7 @@ void eTerrsTexturesData::load() {
 
                 const auto handle = [&](const std::string& side) {
                     eWallTextures result;
-
+                    if(!wallsJS.contains(side)) return result;
                     const auto& arr = wallsJS[side];
 
                     std::vector<std::vector<eWallTexture>> parsed;
@@ -137,6 +137,8 @@ void eTerrsTexturesData::load() {
             parse("walls", texs.fTLWalls, texs.fTRWalls);
             parse("doorsOpen", texs.fTLDoorsOpen, texs.fTRDoorsOpen);
             parse("doors", texs.fTLDoors, texs.fTRDoors);
+            parse("stairsDown", texs.fTLStairsDown, texs.fTRStairsDown);
+            parse("stairsUp", texs.fTLStairsUp, texs.fTRStairsUp);
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }

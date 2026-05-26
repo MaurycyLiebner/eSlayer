@@ -40,6 +40,18 @@ struct ESLAYERHELPERS_API eMapPortion {
     void read(ePacket& p);
 };
 
+enum class eWallType : uint8_t;
+enum class eConnectionDir : uint8_t;
+
+struct eMapStairs {
+    uint16_t fX;
+    uint16_t fY;
+    uint8_t fDim;
+    eWallType fWallType;
+    eConnectionDir fStairsDir;
+    uint8_t fMapId;
+};
+
 struct ESLAYERHELPERS_API eMapData {
     uint16_t fTotalWidth = 0;
     uint16_t fTotalHeight = 0;
@@ -54,6 +66,8 @@ struct ESLAYERHELPERS_API eMapData {
     ePoint fSpawnPos;
 
     eStringIdMapVector<eMapArea> fAreas;
+
+    std::vector<eMapStairs> fStairs;
 
     void write(ePacket& p) const;
     void read(ePacket& p);

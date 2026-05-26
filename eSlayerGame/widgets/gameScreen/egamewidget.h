@@ -111,6 +111,7 @@ private:
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
     void setHighlightedObject(const std::shared_ptr<eObject>& obj);
     void setHighlightedDoors(const std::optional<eDoors>& doors);
+    void setHighlightedStairs(const std::optional<eStairs>& stairs);
     void setHighlightedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
 
@@ -141,6 +142,7 @@ private:
     std::weak_ptr<eGroundItem> mHighlightItem;
 
     std::optional<eDoors> mHighlightDoors;
+    std::optional<eStairs> mHighlightStairs;
 
     std::shared_ptr<eMap> mMap;
     eTilesIterator mTileIterator;

@@ -106,7 +106,7 @@ void generateTiles(const int w, const int h,
         auto& row = tiles.emplace_back();
         row.reserve(w);
         for(int x = 0; x < w; x++) {
-            row.emplace_back(eTile{0, 0, 0, 0});
+            row.emplace_back(eTile{0, 0, 0, 0, 0, 0});
         }
     }
 }
@@ -157,11 +157,12 @@ bool eMap::extractPortion(
 void eMap::mapData(eMapData& data) const {
     data.fTotalWidth = mWidth;
     data.fTotalHeight = mHeight;
-    data.fObjectTypes = mObjectTypes;
     data.fTerrainTypes = mTerrainTypes;
+    data.fObjectTypes = mObjectTypes;
     data.fUnitTypes = mUnitTypes;
     data.fSpawnPos = mSpawnPos;
     data.fAreas = mAreas;
+    data.fStairs = mStairs;
 }
 
 void eMap::loadData(const eMapData& data) {
@@ -171,6 +172,7 @@ void eMap::loadData(const eMapData& data) {
     mUnitTypes = data.fUnitTypes;
     mSpawnPos = data.fSpawnPos;
     mAreas = data.fAreas;
+    mStairs = data.fStairs;
 }
 
 bool eMap::hasPortion(const int x, const int y) {
@@ -252,6 +254,42 @@ void eMap::triggerDoors(const eDoors& doors) {
             }
         }
     }
+}
+
+std::optional<int> eMap::stairsMapId(
+    const int x, const int y,
+    const eWallType type) const {
+    for(const auto& s : mStairs) {
+        if(s.fX != x) continue;
+        if(s.fY != y) continue;
+        if(s.fWallType != type) continue;
+        return s.fMapId;
+    }
+    return std::nullopt;
+}
+
+void eMap::addStairs(
+    const int x, const int y,
+    const eWallType wallType,
+    const eConnectionDir dir,
+    const uint8_t type,
+    const int mapId) {
+    auto& tile = eMap::tile(x, y);
+    const bool up = dir == eConnectionDir::up;
+    switch(wallType) {
+    case eWallType::topLeft:
+        tile.fStairsTL = eTile::encodeStairs(true, up, type);
+        break;
+    case eWallType::topRight:
+        tile.fStairsTR = eTile::encodeStairs(true, up, type);
+        break;
+    }
+    auto& stairs = mStairs.emplace_back();
+    stairs.fX = x;
+    stairs.fY = y;
+    stairs.fWallType = wallType;
+    stairs.fStairsDir = dir;
+    stairs.fMapId = mapId;
 }
 
 class eWallTL {

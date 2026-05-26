@@ -1,6 +1,6 @@
 #include "eSlayerHelpers/edoors.h"
 
-ePointF eDoors::pos() const {
+ePointF eDoorsStairsBase::pos() const {
     ePointF pos{0.f, 0.f};
     if(fTiles.empty()) return pos;
     for(const auto& t : fTiles) {
@@ -17,9 +17,8 @@ ePointF eDoors::pos() const {
     return pos;
 }
 
-void eDoors::read(ePacket& p) {
+void eDoorsStairsBase::read(ePacket& p) {
     p >> fType;
-    p >> fOpen;
 
     uint8_t nTiles;
     p >> nTiles;
@@ -28,13 +27,32 @@ void eDoors::read(ePacket& p) {
     }
 }
 
-void eDoors::write(ePacket& p) const {
+void eDoorsStairsBase::write(ePacket& p) const {
     p << fType;
-    p << fOpen;
 
     const uint8_t nTiles = fTiles.size();
     p << nTiles;
     for(const auto& t : fTiles) {
         p << t;
     }
+}
+
+void eStairs::read(ePacket& p) {
+    eDoorsStairsBase::read(p);
+    p >> fMapId;
+}
+
+void eStairs::write(ePacket& p) const {
+    eDoorsStairsBase::write(p);
+    p << fMapId;
+}
+
+void eDoors::read(ePacket& p) {
+    eDoorsStairsBase::read(p);
+    p >> fOpen;
+}
+
+void eDoors::write(ePacket& p) const {
+    eDoorsStairsBase::write(p);
+    p << fOpen;
 }

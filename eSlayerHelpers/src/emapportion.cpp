@@ -70,6 +70,12 @@ void eMapData::write(ePacket& p) const {
         p << it.fName;
         p << it.fValue;
     }
+
+    const uint8_t nStairs = fStairs.size();
+    p << nStairs;
+    for(const auto& s : fStairs) {
+        p << s;
+    }
 }
 
 void eMapData::read(ePacket& p) {
@@ -113,5 +119,11 @@ void eMapData::read(ePacket& p) {
         eMapArea area;
         p >> area;
         fAreas.add(name, area);
+    }
+
+    uint8_t nStairs;
+    p >> nStairs;
+    for(int i = 0; i < nStairs; i++) {
+        p >> fStairs.emplace_back();
     }
 }

@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 class ePacket;
 
@@ -73,6 +74,15 @@ public:
     ePathFinderMap& pathFinderMap() { return mPathFinderMap; }
     void fillPathFinderMap();
     void triggerDoors(const eDoors& doors);
+
+    std::optional<int> stairsMapId(
+        const int x, const int y,
+        const eWallType type) const;
+    void addStairs(const int x, const int y,
+                   const eWallType wallType,
+                   const eConnectionDir dir,
+                   const uint8_t type,
+                   const int mapId);
 private:
     void generateTiles(const int w, const int h);
     void updateObjectsMap();
@@ -100,6 +110,8 @@ private:
 
     ePathFinderMap mPathFinderMap;
     eObstaclesMap mObstaclesMap;
+
+    std::vector<eMapStairs> mStairs;
 };
 
 #endif // EMAP_H

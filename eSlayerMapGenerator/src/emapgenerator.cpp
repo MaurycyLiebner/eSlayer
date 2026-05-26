@@ -29,7 +29,6 @@ struct eConnection {
     int fH;
 };
 
-
 struct eEdge {
     int fX1;
     int fY1;
@@ -140,13 +139,15 @@ public:
              const int w, const int h,
              const std::shared_ptr<eMap>& map,
              const eAreaSettings& settings,
+             const eMapSettings& mapSettings,
              const int margin) :
         mName(name),
         mX(x), mY(y),
         mWidth(w), mHeight(h),
         mMargin(margin),
         mMap(map),
-        mSettings(settings) {}
+        mSettings(settings),
+        mMapSettings(mapSettings) {}
 
     void addConnection(const eConnection& conn) {
         mConnecitons.emplace_back(conn);
@@ -528,22 +529,22 @@ public:
                         const bool doors = inDoorsRect(x, y, eWallType::topLeft);
                         if(x == minX && y != maxY + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTL = eTile::encodeWall(true, doors, false, 0);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, false, 0);
                         }
                         if(x == maxX + 1 && y != maxY + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTL = eTile::encodeWall(true, doors, false, 0);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, false, 0);
                         }
                     }
                     if(wallTR && !dst.fWallTR) {
                         const bool doors = inDoorsRect(x, y, eWallType::topRight);
                         if(y == minY && x != maxX + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTR = eTile::encodeWall(true, doors, false, 0);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, false, 0);
                         }
                         if(y == maxY + 1 && x != maxX + 1) {
                             dst.fTerrainType = terrType;
-                            dst.fWallTR = eTile::encodeWall(true, doors, false, 0);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, false, 0);
                         }
                     }
                 }
@@ -587,6 +588,10 @@ public:
         const auto& trWalls = terrTypeInfo.fTRWalls;
         const auto& tlDoors = terrTypeInfo.fTLDoors;
         const auto& trDoors = terrTypeInfo.fTRDoors;
+        const auto& tlStairsDown = terrTypeInfo.fTLStairsDown;
+        const auto& trStairsDown = terrTypeInfo.fTRStairsDown;
+        const auto& tlStairsUp = terrTypeInfo.fTLStairsUp;
+        const auto& trStairsUp = terrTypeInfo.fTRStairsUp;
         auto& tiles = mMap->mTiles;
         const int h = mMap->height();
         const int w = mMap->width();
@@ -617,26 +622,53 @@ public:
         const auto& tlDoorsSizes = tlDoors.fSizes;
         const int maxTLDoorsSizeClamp = tlDoorsSizes.empty() ? 0 :
             tlDoorsSizes.back();
-        const auto maxTLSize = [&](const int x, const int y,
-                                   const bool doors) {
-            const int maxSize = doors ? maxTLDoorsSizeClamp :
-                                        maxTLSizeClamp;
+
+        const auto maxTLSizeBase = [&](const int x, const int y,
+                                       const int maxSize,
+                                       const bool doors) {
             for(int i = 0; i < maxSize; i++) {
                 const bool r = hasTLWall(x, y + i, doors);
                 if(!r) return i;
             }
             return maxSize;
         };
+        const auto maxTLSize = [&](const int x, const int y,
+                                   const bool doors) {
+            const int maxSize = doors ? maxTLDoorsSizeClamp :
+                                        maxTLSizeClamp;
+            return maxTLSizeBase(x, y, maxSize, doors);
+        };
 
-        const auto chooseTLVec = [&](const int maxSize,
-                                     const bool doors) {
-            const auto& d = doors ? tlDoors.fDataIds :
-                                    tlWalls.fDataIds;
+        const std::vector<int> ref;
+
+        const auto chooseVec = [&ref](const int maxSize,
+                                      const std::vector<std::vector<int>>& d)
+            -> const std::vector<int>& {
             for(int i = d.size() - 1; i >= 0; i--) {
                 const auto& v = d[i];
                 if(v.size() <= maxSize) return v;
             }
-            return d[0];
+            return ref;
+        };
+
+        const auto chooseTLVec = [&](const int maxSize,
+                                     const bool doors)
+            -> const std::vector<int>& {
+            const auto& d = doors ? tlDoors.fDataIds :
+                                    tlWalls.fDataIds;
+            return chooseVec(maxSize, d);
+        };
+
+        const auto chooseTLStairsDownVec = [&](const int maxSize)
+            -> const std::vector<int>& {
+            const auto& d = tlStairsDown.fDataIds;
+            return chooseVec(maxSize, d);
+        };
+
+        const auto chooseTLStairsUpVec = [&](const int maxSize)
+            -> const std::vector<int>& {
+            const auto& d = tlStairsUp.fDataIds;
+            return chooseVec(maxSize, d);
         };
 
         const auto hasTRWall = [w, h, &tiles](const int x, const int y,
@@ -660,17 +692,16 @@ public:
             return eTile::doors(src.fWallTR);
         };
 
-
         const auto& trWallsSizes = trWalls.fSizes;
         const int maxTRSizeClamp = trWallsSizes.empty() ? 0 :
             trWallsSizes.back();
         const auto& trDoorsSizes = trDoors.fSizes;
         const int maxTRDoorsSizeClamp = trDoorsSizes.empty() ? 0 :
             trDoorsSizes.back();
-        const auto maxTRSize = [&](const int x, const int y,
-                                   const bool doors) {
-            const int maxSize = doors ? maxTRDoorsSizeClamp :
-                                        maxTRSizeClamp;
+
+        const auto maxTRSizeBase = [&](const int x, const int y,
+                                       const int maxSize,
+                                       const bool doors) {
             for(int i = 0; i < maxSize; i++) {
                 const bool r = hasTRWall(x + i, y, doors);
                 if(!r) return i;
@@ -678,16 +709,72 @@ public:
             return maxSize;
         };
 
+        const auto maxTRSize = [&](const int x, const int y,
+                                   const bool doors) {
+            const int maxSize = doors ? maxTRDoorsSizeClamp :
+                                        maxTRSizeClamp;
+            return maxTRSizeBase(x, y, maxSize, doors);
+        };
+
         const auto chooseTRVec = [&](const int maxSize,
-                                     const bool doors) {
+                                     const bool doors)
+            -> const std::vector<int>& {
             const auto& d = doors ? trDoors.fDataIds :
                                     trWalls.fDataIds;
-            for(int i = d.size() - 1; i >= 0; i--) {
-                const auto& v = d[i];
-                if(v.size() <= maxSize) return v;
-            }
-            return d[0];
+            return chooseVec(maxSize, d);
         };
+
+        const auto& trStairDownSizes = trStairsDown.fSizes;
+        const int maxTRStairsDownClamp = trStairDownSizes.empty() ? 0 :
+                                         trStairDownSizes.back();
+        const auto& trStairUpSizes = trStairsUp.fSizes;
+        const int maxTRStairsUpClamp = trStairUpSizes.empty() ? 0 :
+                                       trStairUpSizes.back();
+
+        const auto maxTRStairsDownSize = [&](const int x, const int y) {
+            const int maxSize = maxTRStairsDownClamp;
+            return maxTRSizeBase(x, y, maxSize, false);
+        };
+
+        const auto maxTRStairsUpSize = [&](const int x, const int y) {
+            const int maxSize = maxTRStairsUpClamp;
+            return maxTRSizeBase(x, y, maxSize, false);
+        };
+
+        const auto& tlStairDownSizes = tlStairsDown.fSizes;
+        const int maxTLStairsDownClamp = tlStairDownSizes.empty() ? 0 :
+                                         tlStairDownSizes.back();
+        const auto& tlStairUpSizes = tlStairsUp.fSizes;
+        const int maxTLStairsUpClamp = tlStairUpSizes.empty() ? 0 :
+                                       tlStairUpSizes.back();
+
+        const auto maxTLStairsDownSize = [&](const int x, const int y) {
+            const int maxSize = maxTLStairsDownClamp;
+            return maxTLSizeBase(x, y, maxSize, false);
+        };
+
+        const auto maxTLStairsUpSize = [&](const int x, const int y) {
+            const int maxSize = maxTLStairsUpClamp;
+            return maxTLSizeBase(x, y, maxSize, false);
+        };
+
+        const auto chooseTRStairsDownVec = [&](const int maxSize)
+            -> const std::vector<int>& {
+            const auto& d = trStairsDown.fDataIds;
+            return chooseVec(maxSize, d);
+        };
+
+        const auto chooseTRStairsUpVec = [&](const int maxSize)
+            -> const std::vector<int>& {
+            const auto& d = trStairsUp.fDataIds;
+            return chooseVec(maxSize, d);
+        };
+
+        struct eExtendedStairs : public eMapStairs {
+            const std::vector<int>* fVPtr = nullptr;
+        };
+
+        std::vector<eExtendedStairs> stairsOptions;
 
         for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
             for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
@@ -696,11 +783,11 @@ public:
                     if(r) {
                         const bool doors = hasTLDoors(x, y);
                         const int maxSize = maxTLSize(x, y, doors);
-                        const auto v = chooseTLVec(maxSize, doors);
+                        const auto& v = chooseTLVec(maxSize, doors);
                         const int size = v.size();
                         for(int dy = 0; dy < size; dy++) {
                             auto& dst = tiles[y + dy][x];
-                            dst.fWallTL = eTile::encodeWall(true, doors, false, v[dy]);
+                            dst.fWallTL = eTile::encodeWall(true, doors, false, false, v[dy]);
                         }
                     }
                 }
@@ -709,14 +796,133 @@ public:
                     if(r) {
                         const bool doors = hasTRDoors(x, y);
                         const int maxSize = maxTRSize(x, y, doors);
-                        const auto v = chooseTRVec(maxSize, doors);
+                        const auto& v = chooseTRVec(maxSize, doors);
                         const int size = v.size();
                         for(int dx = 0; dx < size; dx++) {
                             auto& dst = tiles[y][x + dx];
-                            dst.fWallTR = eTile::encodeWall(true, doors, false, v[dx]);
+                            dst.fWallTR = eTile::encodeWall(true, doors, false, false, v[dx]);
                         }
                     }
                 }
+
+                const auto& tile = tiles[y][x];
+                if(tile.fWallTL) {
+                    const bool doors = eTile::doors(tile.fWallTL);
+                    if(!doors) {
+                        {
+                            const int maxSize = maxTLStairsDownSize(x, y);
+                            const auto& v = chooseTLStairsDownVec(maxSize);
+                            const int size = v.size();
+                            if(size > 0) {
+                                auto& s = stairsOptions.emplace_back();
+                                s.fX = x;
+                                s.fY = y;
+                                s.fDim = size;
+                                s.fWallType = eWallType::topLeft;
+                                s.fStairsDir = eConnectionDir::down;
+                                s.fVPtr = &v;
+                            }
+                        }
+                        {
+                            const int maxSize = maxTLStairsUpSize(x, y);
+                            const auto& v = chooseTLStairsUpVec(maxSize);
+                            const int size = v.size();
+                            if(size > 0) {
+                                auto& s = stairsOptions.emplace_back();
+                                s.fX = x;
+                                s.fY = y;
+                                s.fDim = size;
+                                s.fWallType = eWallType::topLeft;
+                                s.fStairsDir = eConnectionDir::up;
+                                s.fVPtr = &v;
+                            }
+                        }
+                    }
+                }
+                if(tile.fWallTR) {
+                    const bool doors = eTile::doors(tile.fWallTR);
+                    if(!doors) {
+                        {
+                            const int maxSize = maxTRStairsDownSize(x, y);
+                            const auto& v = chooseTRStairsDownVec(maxSize);
+                            const int size = v.size();
+                            if(size > 0) {
+                                auto& s = stairsOptions.emplace_back();
+                                s.fX = x;
+                                s.fY = y;
+                                s.fDim = size;
+                                s.fWallType = eWallType::topRight;
+                                s.fStairsDir = eConnectionDir::down;
+                                s.fVPtr = &v;
+                            }
+                        }
+                        {
+                            const int maxSize = maxTRStairsUpSize(x, y);
+                            const auto& v = chooseTRStairsUpVec(maxSize);
+                            const int size = v.size();
+                            if(size > 0) {
+                                auto& s = stairsOptions.emplace_back();
+                                s.fX = x;
+                                s.fY = y;
+                                s.fDim = size;
+                                s.fWallType = eWallType::topRight;
+                                s.fStairsDir = eConnectionDir::up;
+                                s.fVPtr = &v;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const int stairsMinDist = 5;
+        eRand::randomShuffle(stairsOptions);
+        std::vector<eExtendedStairs> used;
+        for(const auto& it : mSettings.fConnections) {
+            const auto& conn = it.second;
+            const auto type = conn.fType;
+            if(type != eConnectionType::stairs) continue;
+            const auto& name = it.first;
+            const int mapId = eMapsSettings::sMaps.id(name);
+            if(mapId < 0) continue;
+            if(stairsOptions.empty()) continue;
+            eExtendedStairs stairs;
+
+            bool tooClose = false;
+            do {
+                if(stairsOptions.empty()) break;
+                stairs = stairsOptions.back();
+                stairsOptions.pop_back();
+                for(const auto& u : used) {
+                    const float dist = ePointF::distance(
+                        {stairs.fX, stairs.fY}, {u.fX, u.fY});
+                    if(dist < stairsMinDist) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+            } while(tooClose);
+            if(tooClose) continue;
+            const int x = stairs.fX;
+            const int y = stairs.fY;
+            used.emplace_back(stairs);
+            const auto& v = *stairs.fVPtr;
+            const int size = v.size();
+            switch(stairs.fWallType) {
+            case eWallType::topLeft: {
+                for(int dy = 0; dy < size; dy++) {
+                    auto& dst = tiles[y + dy][x];
+                    mMap->addStairs(x, y, stairs.fWallType,
+                                    conn.fDir, v[dy], mapId);
+                }
+            } break;
+            case eWallType::topRight: {
+                for(int dx = 0; dx < size; dx++) {
+                    auto& dst = tiles[y][x + dx];
+                    mMap->addStairs(x, y, stairs.fWallType,
+                                    conn.fDir, v[dx], mapId);
+                }
+            } break;
             }
         }
     }
@@ -740,6 +946,7 @@ private:
 
     std::shared_ptr<eMap> mMap;
     eAreaSettings mSettings;
+    eMapSettings mMapSettings;
 };
 
 enum class eDir {
@@ -901,12 +1108,14 @@ eMapGenerator::generate(const std::string& name) const {
 
         auto& area = areas[place];
         area = eDungeon(name, x, y, areaDim, areaDim,
-                        result, settings, connHalfLen);
+                        result, settings, mapSettings,
+                        connHalfLen);
 
-        for(const auto& conn : settings.fConnections) {
-            const auto connType = conn.second;
+        for(const auto& it : settings.fConnections) {
+            const auto& conn = it.second;
+            const auto connType = conn.fType;
             if(connType != eConnectionType::plain) continue;
-            const auto name = conn.first;
+            const auto name = it.first;
             const int settingsId = mapSettings.fAreas.id(name);
             const auto settings = mapSettings.fAreas.get(settingsId);
             const auto connPlace = genArea(name, settings, place);
