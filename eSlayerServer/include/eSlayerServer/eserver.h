@@ -23,6 +23,7 @@ struct eDoors;
 struct eServerData {
     std::string fName;
     std::string fIp;
+    std::string fPassword;
 };
 
 struct eOtherUsers {
@@ -51,6 +52,8 @@ using eServerFailureHandler = std::function<void(
 
 class ESLAYERSERVER_API eServer {
 public:
+    eServer(const eServerData& data);
+
     void setFailureHandler(const eServerFailureHandler& h);
 
     virtual bool initialize() = 0;
@@ -135,6 +138,10 @@ public:
     pickupBody(const int clientId,
                const int32_t bodyId) = 0;
 
+    const std::string& ip() const { return mData.fIp; }
+    const std::string& name() const { return mData.fName; }
+    const std::string& password() const { return mData.fPassword; }
+
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
@@ -150,6 +157,8 @@ protected:
     std::vector<eObject> mObjectStateChanges;
     std::vector<eDoors> mDoorsStateChanged;
 private:
+    const eServerData mData;
+
     eServerFailureHandler mFailure;
 };
 

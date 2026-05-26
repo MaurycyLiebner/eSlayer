@@ -6,6 +6,7 @@
 #include "../widgets/ecolors.h"
 #include "../widgets/elineedit.h"
 #include "../widgets/etexturecheckbutton.h"
+
 #include "../widgets/gameScreen/ebgwidget.h"
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
@@ -13,6 +14,7 @@
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/ehoverwidget.h"
 #include "../widgets/gameScreen/eminimap.h"
+#include "../widgets/gameScreen/estatuswidget.h"
 #include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
@@ -75,6 +77,11 @@ void eGameScreen::initialize(const int clientId,
 
     mMiniMap = new eMiniMap(window());
     mMiniMap->resize(width(), height());
+    eGameSettings settings;
+    settings.fType = server->name();
+    settings.fIP = server->ip();
+    settings.fPassword = server->password();
+    mMiniMap->initialize(settings);
     mMiniMap->setMap(map);
     addWidget(mMiniMap);
     mMiniMap->setShowMap(false);

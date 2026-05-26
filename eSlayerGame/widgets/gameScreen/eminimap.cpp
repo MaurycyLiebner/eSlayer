@@ -1,6 +1,7 @@
 #include "eminimap.h"
 
 #include "../../textures/etextgenerator.h"
+#include "estatuswidget.h"
 
 #include <eSlayerHelpers/erunsettings.h>
 
@@ -15,6 +16,19 @@ eMiniMap::eMiniMap(eMainWindow* const window) :
 
 eMiniMap::~eMiniMap() {
     sInstance = nullptr;
+}
+
+void eMiniMap::initialize(const eGameSettings& settings) {
+    mStatusWidget = new eStatusWidget(window());
+    mStatusWidget->initialize(settings);
+    addWidget(mStatusWidget);
+    mStatusWidget->align(eAlignment::top | eAlignment::right);
+    const auto& res = resolution();
+    const float mult = res.multiplier();
+    const int x = mStatusWidget->x();
+    const int y = mStatusWidget->y();
+    const int margin = mult*25;
+    mStatusWidget->move(x - margin, y + margin);
 }
 
 void eMiniMap::setMap(const std::shared_ptr<eMap>& map) {
@@ -95,4 +109,14 @@ void eMiniMap::showAreaName(const std::string& name) {
     const eTextGenerator gen(r, eFontColor::redBlack, font, shift);
     mAreaStr = gen.generate(name);
     mAreaStrCounter = 6*eRunSettings::sFPS;
+
+    mStatusWidget->setAreaName(name);
+}
+void eMiniMap::setShowMap(const bool s) {
+    mShowMap = s;
+    mStatusWidget->setVisible(s);
+}
+
+void eMiniMap::switchShowMap() {
+    setShowMap(!mShowMap);
 }

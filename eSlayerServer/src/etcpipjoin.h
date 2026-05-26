@@ -9,7 +9,7 @@
 
 class eTcpIpJoin : public eServer {
 public:
-    eTcpIpJoin(const std::string& ip);
+    using eServer::eServer;
     ~eTcpIpJoin();
 
     bool initialize() override;
@@ -73,7 +73,6 @@ public:
     bool pickupBody(const int clientId,
                     const int32_t bodyId) override;
 private:
-    const std::string mIP;
     eTCPNetwork mNet;
     bool mInitialized = false;
 

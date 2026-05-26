@@ -7,17 +7,20 @@
 #include <eSlayerHelpers/epoint.h>
 #include <eSlayerMapGenerator/emap.h>
 
+class eStatusWidget;
+struct eGameSettings;
+
 class eMiniMap : public eWidget {
 public:
     eMiniMap(eMainWindow* const window);
     ~eMiniMap();
 
+    void initialize(const eGameSettings& settings);
+
     void setMap(const std::shared_ptr<eMap>& map);
     void setPos(const ePointF& pos);
-    void setShowMap(const bool s)
-    { mShowMap = s; }
-    void switchShowMap()
-    { mShowMap = !mShowMap; }
+    void setShowMap(const bool s);
+    void switchShowMap();
 
     void setCharacterHorizontalPos(const float hpos)
     { mHPos = hpos; }
@@ -33,6 +36,8 @@ private:
     std::shared_ptr<eMap> mMap;
     ePointF mPos;
     float mHPos = 0.5f;
+
+    eStatusWidget* mStatusWidget = nullptr;
 
     struct eMiniMapArea {
         static const int sAreaDim = 10;

@@ -22,6 +22,7 @@
 #include "names/eareanames.h"
 #include "names/eobjectnames.h"
 #include "names/eelitemodifiersnames.h"
+#include "names/eservernames.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -40,6 +41,8 @@
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 #include <eSlayerHelpers/eboostcursetypes.h>
 #include <eSlayerHelpers/eitemaffixes.h>
+
+#include <eSlayerMapGenerator/emapsettings.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -302,6 +305,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eEliteModifiersNames::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eServerNames::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eMapsSettings::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

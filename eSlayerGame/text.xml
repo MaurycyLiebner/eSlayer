@@ -172,6 +172,10 @@
         <string id="11">Cooldown: %1</string>
         <string id="12">Count: %1</string>
     </group>
+    <group id="14">
+        <string id="0">IP: %1</string>
+        <string id="1">Password: %1</string>
+    </group>
     <group id="15">
         <string id="0">Closed Door</string>
         <string id="1">Open Door</string>

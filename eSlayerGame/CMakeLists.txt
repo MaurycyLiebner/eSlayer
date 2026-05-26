@@ -124,6 +124,8 @@ add_executable(eSlayerGame
     names/eskilltreenames.h
     names/eelitemodifiersnames.cpp
     names/eelitemodifiersnames.h
+    names/eservernames.cpp
+    names/eservernames.h
 
     # Screens
     screens/echoosecharactermenu.cpp
@@ -275,6 +277,8 @@ add_executable(eSlayerGame
     widgets/gameScreen/eunitindicator.h
     widgets/gameScreen/eweaponswitch.cpp
     widgets/gameScreen/eweaponswitch.h
+    widgets/gameScreen/estatuswidget.cpp
+    widgets/gameScreen/estatuswidget.h
 
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp

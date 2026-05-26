@@ -858,7 +858,6 @@ private:
 
 std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
-    eMapsSettings::load();
     const auto mapId = eMapsSettings::sMaps.id(name);
     if(mapId < 0) {
         eRuntimeThrow("No map \"" + name + "\" settings found.");

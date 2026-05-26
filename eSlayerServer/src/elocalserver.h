@@ -12,6 +12,7 @@ struct eAttackData;
 
 class eLocalServer : public eServer {
 public:
+    using eServer::eServer;
     bool initialize() override;
 
     int connect() override;

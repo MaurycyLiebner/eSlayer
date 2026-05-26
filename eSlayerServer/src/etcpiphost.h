@@ -7,6 +7,7 @@
 
 class eTcpIpHost : public eLocalServer {
 public:
+    using eLocalServer::eLocalServer;
     ~eTcpIpHost();
 
     bool initialize() override;

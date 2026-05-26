@@ -11,14 +11,17 @@
 std::shared_ptr<eServer> eSlayerServer::generate(
     const eServerData& data) {
     if(data.fName == "single_player") {
-        return std::make_shared<eSinglePlayerServer>();
+        return std::make_shared<eSinglePlayerServer>(data);
     } else if(data.fName == "tcp_ip_host") {
-        return std::make_shared<eTcpIpHost>();
+        return std::make_shared<eTcpIpHost>(data);
     } else if(data.fName == "tcp_ip_join") {
-        return std::make_shared<eTcpIpJoin>(data.fIp);
+        return std::make_shared<eTcpIpJoin>(data);
     }
     return nullptr;
 }
+
+eServer::eServer(const eServerData& data) :
+    mData(data) {}
 
 void eServer::setFailureHandler(const eServerFailureHandler& h) {
     mFailure = h;

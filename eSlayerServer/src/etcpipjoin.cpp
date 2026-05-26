@@ -8,9 +8,6 @@
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
 
-eTcpIpJoin::eTcpIpJoin(const std::string& ip) :
-    mIP(ip) {}
-
 eTcpIpJoin::~eTcpIpJoin() {
     if(mInitialized) mNet.shutdown();
 }
@@ -21,7 +18,8 @@ bool eTcpIpJoin::initialize() {
         failed("Disconnected", "Failed to initialize SDL3_net.");
         return false;
     }
-    const bool r = mNet.connect(mIP.data(), 4000);
+    const auto& ip = eServer::ip();;
+    const bool r = mNet.connect(ip.data(), 4000);
     if(!r) failed("Disconnected", "Failed to connect to the host.");
     return r;
 }
