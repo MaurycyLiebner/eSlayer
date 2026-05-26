@@ -67,7 +67,7 @@ public:
 
     bool aggressive() const { return mAggressive; }
 
-    float level() const { return mAttributes.fLevel; }
+    int level() const { return mAttributes.fLevel; }
 
     bool hitData(const eSkillStats& skill,
                  const eWeaponChoice wchoice,

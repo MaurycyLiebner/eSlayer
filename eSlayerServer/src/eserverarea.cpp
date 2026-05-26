@@ -707,6 +707,14 @@ bool eServerArea::pickupBody(
 std::shared_ptr<eObject> eServerArea::triggerObject(
     const int clientId, const int objectId,
     const int tx, const int ty) {
+    const int areaMId = mMap->areaAt({tx, ty});
+    if(areaMId < 0) return nullptr;
+    const auto& area = mMap->area(areaMId);
+    const auto mapId = area.fMapId;
+    const auto areaId = area.fAreaId;
+    const auto& mapSett = eMapsSettings::sMaps.get(mapId);
+    const auto& areaSett = mapSett.fAreas.get(areaId);
+    const auto level = areaSett.fLevel;
     const auto& objIds = mMap->objects(tx, ty);
     for(const auto id : objIds) {
         const auto& obj = mMap->object(id);
@@ -720,7 +728,7 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
             if(state != 0) return nullptr;
             const float fx = tx + obj->fSize + 0.5f;
             const ePointF pos{fx, float(ty)};
-            generateItems(pos, 5, 7.5f);
+            generateItems(pos, level, 7.5f);
             state = 1;
         } break;
         case eObjectType::none:
@@ -1301,7 +1309,7 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 }
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
-    const float level = killed.level();
+    const int level = killed.level();
     const auto type = killed.unitType();
     float worth = 0.f;
     switch(type) {

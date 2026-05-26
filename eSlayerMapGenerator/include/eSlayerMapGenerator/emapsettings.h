@@ -47,15 +47,18 @@ struct eAreaSettings {
     std::vector<eTypeProbability> fOutsideObjects;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
+    uint8_t fLevel = 0;
     std::map<std::string, eConnectionType> fConnections;
 };
 
 struct eMapSettings {
     eStringIdMapVector<eAreaSettings> fAreas;
+};
 
+struct eMapsSettings {
     static void load();
 
-    static std::map<std::string, eMapSettings> sMaps;
+    static eStringIdMapVector<eMapSettings> sMaps;
 private:
     static bool sLoaded;
 };

@@ -371,11 +371,15 @@ void eGameWidget::paintEvent(ePainter& p) {
     if(mLastArea != areaId && areaId >= 0) {
         mLastArea = areaId;
         const auto areaNameBase = mMap->areaName(areaId);
-        const auto area = mMap->area(areaId);
+        const auto& area = mMap->area(areaId);
         const auto areaName = eAreaNames::name(areaNameBase);
         eMiniMap::sShowAreaName(areaName);
-        mGamePainter.setLightness(area.fLightness);
-        mGamePainter.setContrast(area.fContrast);
+        const auto mapId = area.fMapId;
+        const auto areaId = area.fAreaId;
+        const auto& mapSett = eMapsSettings::sMaps.get(mapId);
+        const auto& areaSett = mapSett.fAreas.get(areaId);
+        mGamePainter.setLightness(areaSett.fLightness);
+        mGamePainter.setContrast(areaSett.fContrast);
     }
 
     mServer->changeState(mClientId, *mMainChar);

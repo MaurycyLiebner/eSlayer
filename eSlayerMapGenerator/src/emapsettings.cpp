@@ -5,11 +5,11 @@
 #include <eSlayerHelpers/efileloaderbase.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 
-std::map<std::string, eMapSettings>
-eMapSettings::sMaps;
-bool eMapSettings::sLoaded = false;
+eStringIdMapVector<eMapSettings>
+eMapsSettings::sMaps;
+bool eMapsSettings::sLoaded = false;
 
-void eMapSettings::load() {
+void eMapsSettings::load() {
     if(sLoaded) return;
     sLoaded = true;
 
@@ -38,16 +38,17 @@ void eMapSettings::load() {
                 const auto areaTypeStr = jArea.value("type", "open");
                 if(areaTypeStr == "dungeon") {
                     area.fType = eAreaType::dungeon;
-                } else {
+                } else if(areaTypeStr == "open") {
                     area.fType = eAreaType::open;
+                } else {
+                    eRuntimeThrow("Invalid area type \"" + areaTypeStr + "\".");
                 }
                 const auto terrTypeStr = jArea.value("terrain", "grass");
                 area.fTerrainType = eTerrsTexturesData::id(terrTypeStr);
-                // lightness / contrast
                 area.fLightness = jArea.value("lightness", 180);
                 area.fContrast  = jArea.value("contrast", 140);
+                area.fLevel = jArea.value("level", 0);
 
-                // monsters
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;
                     auto& mtypes = monsters.fTypes;
@@ -72,7 +73,6 @@ void eMapSettings::load() {
                 }
 
                 area.fObjectsMargin = jArea.value("objectsMargin", 4);
-                // objects
                 if(jArea.contains("objects")) {
                     const auto& items = jArea["objects"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
@@ -88,7 +88,6 @@ void eMapSettings::load() {
                 }
 
                 area.fOutsideObjectsMargin = jArea.value("outObjectsMargin", 1);
-                // out objects
                 if(jArea.contains("outObjects")) {
                     const auto& items = jArea["outObjects"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
@@ -103,7 +102,6 @@ void eMapSettings::load() {
                     }
                 }
 
-                // connections
                 if(jArea.contains("connections")) {
                     const auto& items = jArea["connections"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
@@ -125,7 +123,7 @@ void eMapSettings::load() {
                 map.fAreas.add(areaName, area);
             }
 
-            sMaps[name] = map;
+            sMaps.add(name, map);
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + name + ".json");
         }

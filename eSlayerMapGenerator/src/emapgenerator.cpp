@@ -858,12 +858,12 @@ private:
 
 std::shared_ptr<eMap>
 eMapGenerator::generate(const std::string& name) const {
-    eMapSettings::load();
-    const auto it = eMapSettings::sMaps.find(name);
-    if(it == eMapSettings::sMaps.end()) {
+    eMapsSettings::load();
+    const auto mapId = eMapsSettings::sMaps.id(name);
+    if(mapId < 0) {
         eRuntimeThrow("No map \"" + name + "\" settings found.");
     }
-    const auto& mapSettings = it->second;
+    const auto& mapSettings = eMapsSettings::sMaps.get(mapId);
     if(mapSettings.fAreas.size() == 0) {
         eRuntimeThrow("No areas to generate for \"" + name + "\"");
     }
@@ -958,11 +958,11 @@ eMapGenerator::generate(const std::string& name) const {
     for(const auto& it : areas) {
         const auto& area = it.second;
         const auto& name = area.name();
-        eMapArea mapArea;
         const int id = mapSettings.fAreas.id(name);
-        const auto& sett = mapSettings.fAreas.get(id);
-        mapArea.fLightness = sett.fLightness;
-        mapArea.fContrast = sett.fContrast;
+        if(id < 0) continue;
+        eMapArea mapArea;
+        mapArea.fMapId = mapId;
+        mapArea.fAreaId = id;
         const auto rect = area.rect();
         mapArea.fRect = rect;
         result->mAreas.add(name, mapArea);

@@ -24,8 +24,8 @@ struct eMapPortionArea {
 
 struct eMapArea {
     eRect fRect;
-    uint8_t fLightness = 180;
-    uint8_t fContrast = 140;
+    uint8_t fMapId;
+    uint8_t fAreaId;
 };
 
 struct ESLAYERHELPERS_API eMapPortion {
