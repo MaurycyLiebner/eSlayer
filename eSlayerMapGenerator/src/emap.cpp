@@ -574,24 +574,12 @@ private:
     bool matches(const int x, const int y) const {
         if(!mMap.inside(x, y)) return false;
         const auto& tile = mMap.tile(x, y);
-        const auto terrType = tile.fTerrainType;
-        const auto tileType = tile.fTileType;
-
         switch(mType) {
-        case eType::walkObstacle: {
-            if(terrType == 0) return true;
-            if(tileType == 0) return true;
-            const auto& info = eTerrsTexturesData::get(terrType);
-            return !info.fWalkable[tileType];
-        } break;
-        case eType::missileObstacle: {
-            if(terrType == 0) return false;
-            if(tileType == 0) return false;
-            const auto& info = eTerrsTexturesData::get(terrType);
-            return info.fObstacle[tileType];
-        } break;
+        case eType::walkObstacle:
+            return !tile.walkable();
+        case eType::missileObstacle:
+            return tile.obstacle();
         }
-
         return false;
     }
 
@@ -651,16 +639,7 @@ void eMap::generateTiles(const int w, const int h) {
                 const uint64_t key = (uint64_t(uint32_t(x)) << 32) |
                                       uint32_t(y);
 
-                bool tileWalkable = true;
-
-                const auto terrType = tile.fTerrainType;
-                if(terrType == 0) tileWalkable = false;
-                const auto tileType = tile.fTileType;
-                if(tileType == 0) tileWalkable = false;
-                const auto& info = eTerrsTexturesData::get(terrType);
-                if(tileWalkable) {
-                    tileWalkable = info.fWalkable[tileType];
-                }
+                const bool tileWalkable = tile.walkable();
 
                 if(tileWalkable) {
                     const auto& objIds = eMap::objects(x, y);
@@ -684,10 +663,7 @@ void eMap::generateTiles(const int w, const int h) {
                     }
                 }
 
-                bool missileObstacle = false;
-                if(terrType != 0 && tileType != 0) {
-                    missileObstacle = info.fObstacle[tileType];
-                }
+                const bool missileObstacle = tile.obstacle();
 
                 if(!missileObstacle) {
                     const auto& objIds = eMap::objects(x, y);

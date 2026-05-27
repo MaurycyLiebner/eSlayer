@@ -164,6 +164,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eskillarea.h src/eskillarea.cpp
     include/eSlayerHelpers/eitemaffixes.h
     src/eitemaffixes.cpp
+    src/etile.cpp
 )
 
 target_include_directories(eSlayerHelpers

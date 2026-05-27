@@ -15,6 +15,9 @@ struct ESLAYERHELPERS_API eTile {
     uint8_t fStairsTL;
     uint8_t fStairsTR;
 
+    bool walkable() const;
+    bool obstacle() const;
+
     static uint8_t encodeWall(
         const bool wall,
         const bool doors,

@@ -794,6 +794,8 @@ public:
                     const auto& tile = mMap->tile(xx, yy);
                     if(tile.fWallTL) return false;
                     if(tile.fWallTR) return false;
+                    const bool w = tile.walkable();
+                    if(!w) return false;
                 }
             }
             return true;
