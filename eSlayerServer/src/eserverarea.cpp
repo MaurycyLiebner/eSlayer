@@ -646,6 +646,7 @@ bool eServerArea::addClient(
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
+    clientData.fBodies = mBodies[clientId];
 
     iniSetupUnit(u);
     const auto a = std::make_shared<eClientAction>(*u, *this);
@@ -722,6 +723,7 @@ bool eServerArea::respawn(const int clientId) {
             if(it != mClientData.end()) {
                 auto& client = it->second;
                 client.fBodies.emplace_back(charId);
+                mBodies[clientId].emplace_back(charId);
             }
         }
     }
@@ -760,6 +762,7 @@ bool eServerArea::pickupBody(
     dst.moveFrom(src);
     if(src.empty()) {
         bodies.erase(bit);
+        eVectorHelpers::remove(mBodies[clientId], charId);
         planRemoveUnit(charId);
     }
     u->recalculateStats();

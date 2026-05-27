@@ -231,6 +231,7 @@ private:
 
     std::vector<int> mUnitsToRemove;
     std::map<int, eClientData> mClientData;
+    std::map<int, std::vector<int>> mBodies;
 
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;
