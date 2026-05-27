@@ -776,6 +776,29 @@ public:
 
         std::vector<eExtendedStairs> stairsOptions;
 
+        const int stairsMargin = 3;
+        const auto spaceForStairs = [&](
+            const int x, const int y,
+            const eWallType type) {
+            const int idx = type == eWallType::topLeft ? 1 : 0;
+            const int idy = type == eWallType::topRight ? 1 : 0;
+            const int jdx = type == eWallType::topRight ? 1 : 0;
+            const int jdy = type == eWallType::topLeft ? 1 : 0;
+            for(int i = 1; i <= stairsMargin; i++) {
+                const int jMargin = stairsMargin/2 + 1;
+                for(int j = -jMargin; j <= jMargin; j++) {
+                    const int xx = x + i*idx + j*jdx;
+                    const int yy = y + i*idy + j*jdy;
+                    const bool i = mMap->inside(xx, yy);
+                    if(!i) return false;
+                    const auto& tile = mMap->tile(xx, yy);
+                    if(tile.fWallTL) return false;
+                    if(tile.fWallTR) return false;
+                }
+            }
+            return true;
+        };
+
         for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
             for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
                 {
@@ -808,7 +831,8 @@ public:
                 const auto& tile = tiles[y][x];
                 if(tile.fWallTL) {
                     const bool doors = eTile::doors(tile.fWallTL);
-                    if(!doors) {
+                    const bool space = spaceForStairs(x, y, eWallType::topLeft);
+                    if(!doors && space) {
                         {
                             const int maxSize = maxTLStairsDownSize(x, y);
                             const auto& v = chooseTLStairsDownVec(maxSize);
@@ -841,7 +865,8 @@ public:
                 }
                 if(tile.fWallTR) {
                     const bool doors = eTile::doors(tile.fWallTR);
-                    if(!doors) {
+                    const bool space = spaceForStairs(x, y, eWallType::topRight);
+                    if(!doors && space) {
                         {
                             const int maxSize = maxTRStairsDownSize(x, y);
                             const auto& v = chooseTRStairsDownVec(maxSize);
