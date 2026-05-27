@@ -1200,28 +1200,43 @@ void eGameWidget::paintEvent(ePainter& p) {
                         }
 
                         const int nTypes = types->size();
-                        if(nTypes > type) {
-                            const int texId = (*types)[type].fId;
-                            const auto& tex = texs.getTexture(texId);
-                            const int texW = tex->width();
-                            const int texH = tex->height();
-                            int drawX = ipixel.fX;
-                            int drawY = bottomY;
-                            ePainter::drawCoordinates(drawX, drawY, texW, texH,
-                                                      eAlignment::top | eAlignment::hcenter);
-                            const eRenderCall c(eRenderCallType::wall,
-                                                pos.fX, pos.fY,
-                                                drawX, drawY, tex,
-                                                highlight, false, false,
-                                                SDL_FColor{1.f, 1.f, 1.f, 1.f},
-                                                wall.fType,
-                                                transparent);
-                            mGamePainter.render(c);
-                        }
+                        if(nTypes <= type) continue;
+                        const int texId = (*types)[type].fId;
+                        const auto& tex = texs.getTexture(texId);
+                        const int texW = tex->width();
+                        const int texH = tex->height();
+                        int drawX = ipixel.fX;
+                        int drawY = bottomY;
+                        ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                                  eAlignment::top | eAlignment::hcenter);
+                        const eRenderCall c(eRenderCallType::wall,
+                                            pos.fX, pos.fY,
+                                            drawX, drawY, tex,
+                                            highlight, false, false,
+                                            SDL_FColor{1.f, 1.f, 1.f, 1.f},
+                                            wall.fType,
+                                            transparent);
+                        mGamePainter.render(c);
                     }
                 } else if(stairs) {
                     const int stype = eTile::stairsType(sencoded);
                     const bool sup = eTile::stairsUp(sencoded);
+
+                    const std::vector<eWallTexture>* types = nullptr;
+                    switch(wall.fType) {
+                    case eWallType::topLeft:
+                        types = sup ? &info.fTLStairsUp :
+                                      &info.fTLStairsDown;
+                        break;
+                    case eWallType::topRight:
+                        types = sup ? &info.fTRStairsUp :
+                                      &info.fTRStairsDown;
+                        break;
+                    }
+
+                    const int nTypes = types->size();
+                    if(nTypes <= stype) continue;
+
                     bool highlight = false;
                     if(!mHighlightUnit.lock() &&
                        !mHighlightObject.lock() &&
@@ -1277,37 +1292,22 @@ void eGameWidget::paintEvent(ePainter& p) {
                         }
                     }
 
-                    const std::vector<eWallTexture>* types = nullptr;
-                    switch(wall.fType) {
-                    case eWallType::topLeft:
-                        types = sup ? &info.fTLStairsUp :
-                                      &info.fTLStairsDown;
-                        break;
-                    case eWallType::topRight:
-                        types = sup ? &info.fTRStairsUp :
-                                      &info.fTRStairsDown;
-                        break;
-                    }
-
-                    const int nTypes = types->size();
-                    if(nTypes > stype) {
-                        const int texId = (*types)[stype].fId;
-                        const auto& tex = texs.getTexture(texId);
-                        const int texW = tex->width();
-                        const int texH = tex->height();
-                        int drawX = ipixel.fX;
-                        int drawY = bottomY;
-                        ePainter::drawCoordinates(drawX, drawY, texW, texH,
-                                                  eAlignment::top | eAlignment::hcenter);
-                        const eRenderCall c(eRenderCallType::wall,
-                                            pos.fX, pos.fY,
-                                            drawX, drawY, tex,
-                                            highlight, false, false,
-                                            SDL_FColor{1.f, 1.f, 1.f, 1.f},
-                                            wall.fType,
-                                            transparent);
-                        mGamePainter.render(c);
-                    }
+                    const int texId = (*types)[stype].fId;
+                    const auto& tex = texs.getTexture(texId);
+                    const int texW = tex->width();
+                    const int texH = tex->height();
+                    int drawX = ipixel.fX;
+                    int drawY = bottomY;
+                    ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                              eAlignment::top | eAlignment::hcenter);
+                    const eRenderCall c(eRenderCallType::wall,
+                                        pos.fX, pos.fY,
+                                        drawX, drawY, tex,
+                                        highlight, false, false,
+                                        SDL_FColor{1.f, 1.f, 1.f, 1.f},
+                                        wall.fType,
+                                        transparent);
+                    mGamePainter.render(c);
                 }
             }
         }
