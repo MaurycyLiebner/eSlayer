@@ -28,9 +28,6 @@ public:
                    const int charId,
                    const eTeamId teamId);
 
-    void setPathFindMargin(const int m)
-    { mPathFindMargin = m; }
-
     int charId() const { return mCharId; }
 
     const ePointF& pos() const { return mPos; }
@@ -76,8 +73,6 @@ private:
     float mSpeed = 0.1f;
     float mStuckTimer = 0.f;
 
-    int mTileMoveSubdivision = 2;
-    int mPathFindMargin = 20;
     float mWaypointReachDist = 0.2f;
     float mNearbyUnits = 1.5f;
 

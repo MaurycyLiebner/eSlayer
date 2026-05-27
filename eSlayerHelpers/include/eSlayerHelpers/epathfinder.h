@@ -9,6 +9,7 @@ namespace ePathFinder {
     ePathFinderPath findPath(ePathFinderMap& map,
                              const ePointF& from,
                              const ePointF& to,
+                             const int maxDist,
                              bool& found);
 };
 

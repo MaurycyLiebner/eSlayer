@@ -31,7 +31,8 @@ void eMovementHandler::setRadius(const float r) {
 
 bool eMovementHandler::moveTo(const ePointF& dst) {
     bool found;
-    auto path = ePathFinder::findPath(mMap, mPos, dst, found);
+    const int maxDist = 20*ePathFinderMap::sSubdivide;
+    auto path = ePathFinder::findPath(mMap, mPos, dst, maxDist, found);
     if(path.empty()) return false;
     {
         ePathFinderPath smooth;

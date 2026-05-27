@@ -8,6 +8,7 @@ ePathFinderPath ePathFinder::findPath(
     ePathFinderMap& map,
     const ePointF& from,
     const ePointF& to,
+    const int maxDist,
     bool& found) {
     map.nextIter();
     ePathFinderPath result;
@@ -45,7 +46,9 @@ ePathFinderPath ePathFinder::findPath(
         const int newDist = dist + 1;
         if(map.distance(to) > newDist) {
             map.setDistance(to, newDist);
-            toProcess.push_back(to);
+            if(newDist <= maxDist) {
+                toProcess.push_back(to);
+            }
         }
         if(to == toTile) {
             found = true;
