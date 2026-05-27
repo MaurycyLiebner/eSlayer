@@ -15,6 +15,8 @@ public:
     eMiniMap(eMainWindow* const window);
     ~eMiniMap();
 
+    static void clearAll();
+
     void initialize(const eGameSettings& settings);
 
     void setMap(const std::shared_ptr<eMap>& map);
@@ -34,6 +36,7 @@ private:
     void showAreaName(const std::string& name);
 
     std::shared_ptr<eMap> mMap;
+    std::string mMapName;
     ePointF mPos;
     float mHPos = 0.5f;
 
@@ -54,10 +57,10 @@ private:
             const auto& tex = eMapTextures::sWalls.getTexture(0);
             fTileW = tex->width();
             fTileH = tex->height();
-            const int w = sAreaDim*fTileW;
-            const int h = sAreaDim*fTileH;
 
             fTex = std::make_shared<eTexture>();
+            const int w = sAreaDim*fTileW;
+            const int h = sAreaDim*fTileH;
             fTex->create(fR, w, h);
         }
 
@@ -86,109 +89,137 @@ private:
                 for(int y = dy0; y <= dy1; y++) {
                     if(y < 0) y = 0;
                     else if(y >= sAreaDim) break;
-                    const ePointF xypos{float(x), float(y)};
+                    const ePointF xypos{x, y};
                     const float dist = ePointF::distance(pos, xypos);
                     if(dist > margin) continue;
                     const bool known = fKnown[y][x];
                     if(known) continue;
-                    const int mx = x + x0;
-                    const int my = y + y0;
-                    const bool has = map.hasPortion(mx, my);
-                    if(!has) continue;
-                    fKnown[y][x] = true;
-                    fUnknown--;
-                    const bool w = !map.hasObjects(mx, my) &&
-                                   map.walkable(ePointF(mx, my));
-                    if(w) continue;
-                    bool walkable[3][3];
-                    for(int dx = -1; dx <= 1; dx++) {
-                        for(int dy = -1; dy <= 1; dy++) {
-                            const int mx2 = mx + dx;
-                            const int my2 = my + dy;
-                            const bool w = !map.hasObjects(mx2, my2) &&
-                                           map.walkable(ePointF(mx2, my2));
-                            walkable[1 + dy][1 + dx] = w;
-                        }
-                    }
-                    const float texX = xOffset + (x - y) * (fTileW / 2.0f);
-                    const float texY = (x + y) * (fTileH / 2.0f);
-
-                    int texId1 = -1;
-                    int texId2 = -1;
-
-                    int mask = 0;
-
-                    if(!walkable[0][1]) mask |= 1; // top-right
-                    if(!walkable[1][2]) mask |= 2; // bottom-right
-                    if(!walkable[2][1]) mask |= 4; // bottom-left
-                    if(!walkable[1][0]) mask |= 8; // top-left
-
-                    if(mask == 0) {
-                        texId1 = 12; // no surrounding walls (fully open)
-                    } else if(mask == 1) {
-                        texId1 = 8; // wall only top-right
-                    } else if(mask == 2) {
-                        texId1 = 9; // wall only bottom-right
-                    } else if(mask == 3) {
-                        texId1 = 3; // walls top-right + bottom-right (vertical edge on right)
-                    } else if(mask == 4) {
-                        texId1 = 10; // wall only bottom-left
-                    } else if(mask == 5) {
-                        texId1 = 1; // walls top-right + bottom-left (diagonal split)
-                        texId2 = 7;
-                    } else if(mask == 6) {
-                        texId1 = 4; // walls bottom-right + bottom-left (horizontal edge bottom)
-                    } else if(mask == 7) {
-                        texId1 = 7; // walls top-right + bottom-right + bottom-left (missing top-left)
-                    } else if(mask == 8) {
-                        texId1 = 11; // wall only top-left
-                    } else if(mask == 9) {
-                        texId1 = 2; // walls top-left + top-right (horizontal edge top)
-                    } else if(mask == 10) {
-                        texId1 = 0; // walls top-left + bottom-right (diagonal split)
-                        texId2 = 6;
-                    } else if(mask == 11) {
-                        texId1 = 0; // walls top-left + top-right + bottom-right (missing bottom-left)
-                    } else if(mask == 12) {
-                        texId1 = 5; // walls top-left + bottom-left (vertical edge on left)
-                    } else if(mask == 13) {
-                        texId1 = 1; // walls top-left + top-right + bottom-left (missing bottom-right)
-                    } else if(mask == 14) {
-                        texId1 = 6; // walls bottom-left + bottom-right + top-left (missing top-right) → reuse
-                    } else if(mask == 15) {
-                        if(walkable[0][0]) {
-                            texId1 = 13;
-                        } else if(walkable[0][2]) {
-                            texId1 = 14;
-                        } else if(walkable[2][2]) {
-                            texId1 = 15;
-                        } else if(walkable[2][0]) {
-                            texId1 = 16;
-                        } else {
-                            continue;
-                        }
-                    }
-
-                    bool mod = false;
-                    if(map.inside(mx, my)) {
-                        const auto& tile = map.tile(mx, my);
-                        mod = tile.fStairsTL || tile.fStairsTR;
-                    }
-
-                    if(texId1 != -1) {
-                        const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
-                        if(mod) tex1->setColorMod(255, 0, 0);
-                        p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
-                        if(mod) tex1->clearColorMod();
-                    }
-                    if(texId2 != -1) {
-                        const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
-                        if(mod) tex2->setColorMod(255, 0, 0);
-                        p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
-                        if(mod) tex2->clearColorMod();
-                    }
+                    setKnown(p, x0, y0, x, y, map, xOffset);
                 }
             }
+        }
+
+        bool setKnown(ePainter& p,
+                      const int x0, const int y0,
+                      const int x, const int y,
+                      eMap& map, const float xOffset) {
+            const int mx = x + x0;
+            const int my = y + y0;
+            const bool has = map.hasPortion(mx, my);
+            if(!has) return false;
+            fKnown[y][x] = true;
+            fUnknown--;
+            const bool w = !map.hasObjects(mx, my) &&
+                           map.walkable(ePointF(mx, my));
+            if(w) return true;
+            bool walkable[3][3];
+            for(int dx = -1; dx <= 1; dx++) {
+                for(int dy = -1; dy <= 1; dy++) {
+                    const int mx2 = mx + dx;
+                    const int my2 = my + dy;
+                    const bool w = !map.hasObjects(mx2, my2) &&
+                                   map.walkable(ePointF(mx2, my2));
+                    walkable[1 + dy][1 + dx] = w;
+                }
+            }
+            const float texX = xOffset + (x - y) * (fTileW / 2.0f);
+            const float texY = (x + y) * (fTileH / 2.0f);
+
+            int texId1 = -1;
+            int texId2 = -1;
+
+            int mask = 0;
+
+            if(!walkable[0][1]) mask |= 1; // top-right
+            if(!walkable[1][2]) mask |= 2; // bottom-right
+            if(!walkable[2][1]) mask |= 4; // bottom-left
+            if(!walkable[1][0]) mask |= 8; // top-left
+
+            if(mask == 0) {
+                texId1 = 12; // no surrounding walls (fully open)
+            } else if(mask == 1) {
+                texId1 = 8; // wall only top-right
+            } else if(mask == 2) {
+                texId1 = 9; // wall only bottom-right
+            } else if(mask == 3) {
+                texId1 = 3; // walls top-right + bottom-right (vertical edge on right)
+            } else if(mask == 4) {
+                texId1 = 10; // wall only bottom-left
+            } else if(mask == 5) {
+                texId1 = 1; // walls top-right + bottom-left (diagonal split)
+                texId2 = 7;
+            } else if(mask == 6) {
+                texId1 = 4; // walls bottom-right + bottom-left (horizontal edge bottom)
+            } else if(mask == 7) {
+                texId1 = 7; // walls top-right + bottom-right + bottom-left (missing top-left)
+            } else if(mask == 8) {
+                texId1 = 11; // wall only top-left
+            } else if(mask == 9) {
+                texId1 = 2; // walls top-left + top-right (horizontal edge top)
+            } else if(mask == 10) {
+                texId1 = 0; // walls top-left + bottom-right (diagonal split)
+                texId2 = 6;
+            } else if(mask == 11) {
+                texId1 = 0; // walls top-left + top-right + bottom-right (missing bottom-left)
+            } else if(mask == 12) {
+                texId1 = 5; // walls top-left + bottom-left (vertical edge on left)
+            } else if(mask == 13) {
+                texId1 = 1; // walls top-left + top-right + bottom-left (missing bottom-right)
+            } else if(mask == 14) {
+                texId1 = 6; // walls bottom-left + bottom-right + top-left (missing top-right) → reuse
+            } else if(mask == 15) {
+                if(walkable[0][0]) {
+                    texId1 = 13;
+                } else if(walkable[0][2]) {
+                    texId1 = 14;
+                } else if(walkable[2][2]) {
+                    texId1 = 15;
+                } else if(walkable[2][0]) {
+                    texId1 = 16;
+                } else {
+                    return true;
+                }
+            }
+
+            bool mod = false;
+            if(map.inside(mx, my)) {
+                const auto& tile = map.tile(mx, my);
+                mod = tile.fStairsTL || tile.fStairsTR;
+            }
+
+            if(texId1 != -1) {
+                const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
+                if(mod) tex1->setColorMod(255, 0, 0);
+                p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
+                if(mod) tex1->clearColorMod();
+            }
+            if(texId2 != -1) {
+                const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
+                if(mod) tex2->setColorMod(255, 0, 0);
+                p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
+                if(mod) tex2->clearColorMod();
+            }
+            return true;
+        }
+
+        bool tryFillingPastKnown(const int x0, const int y0,
+                                 eMap& map) {
+            if(fPastKnown.empty()) return true;
+            initialize();
+            const auto h = fTex->createTargetHolder(fR);
+            ePainter p(fR);
+            const float xOffset = fTex->width()/2.f;
+            for(int x = 0; x < sAreaDim; x++) {
+                for(int y = 0; y < sAreaDim; y++) {
+                    const bool k = fPastKnown[y][x];
+                    if(!k) continue;
+                    const bool r = setKnown(p, x0, y0, x, y, map, xOffset);
+                    if(!r) return false;
+                    fPastKnown[y][x] = false;
+                }
+            }
+            fPastKnown.clear();
+            return true;
         }
 
         const eResolution* fRes = nullptr;
@@ -202,11 +233,16 @@ private:
         int fUnknown = sAreaDim*sAreaDim;
         std::vector<std::vector<bool>> fKnown;
         std::shared_ptr<eTexture> fTex;
+
+        std::vector<std::vector<bool>> fPastKnown;
     };
 
     bool mShowMap = false;
 
-    std::vector<std::vector<eMiniMapArea>> mAreas;
+    using eAreas = std::vector<std::vector<eMiniMapArea>>;
+    eAreas mAreas;
+
+    static std::map<std::string, eAreas> sAreasMap;
 
     int mAreaStrCounter = 0;
     std::shared_ptr<eTexture> mAreaStr;

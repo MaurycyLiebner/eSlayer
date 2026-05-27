@@ -7,6 +7,7 @@
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
+std::map<std::string, eMiniMap::eAreas> eMiniMap::sAreasMap;
 eMiniMap* eMiniMap::sInstance = nullptr;
 
 eMiniMap::eMiniMap(eMainWindow* const window) :
@@ -15,7 +16,29 @@ eMiniMap::eMiniMap(eMainWindow* const window) :
 }
 
 eMiniMap::~eMiniMap() {
+    for(auto& row : mAreas) {
+        for(auto& a : row) {
+            if(!a.fInitialized) continue;
+            a.fTex = nullptr;
+            const int dim = eMiniMapArea::sAreaDim;
+            if(a.fPastKnown.empty()) {
+                a.fPastKnown.resize(dim, std::vector<bool>(dim, false));
+            }
+            for(int y = 0; y < dim; y++) {
+                for(int x = 0; x < dim; x++) {
+                    a.fPastKnown[y][x] = a.fPastKnown[y][x] || a.fKnown[y][x];
+                }
+            }
+            a.fKnown.clear();
+            a.fInitialized = false;
+        }
+    }
+    sAreasMap[mMapName] = mAreas;
     sInstance = nullptr;
+}
+
+void eMiniMap::clearAll() {
+    sAreasMap.clear();
 }
 
 void eMiniMap::initialize(const eGameSettings& settings) {
@@ -33,15 +56,20 @@ void eMiniMap::initialize(const eGameSettings& settings) {
 
 void eMiniMap::setMap(const std::shared_ptr<eMap>& map) {
     mMap = map;
+    mMapName = map->name();
 
-    mAreas.clear();
-    const int areaDim = eMiniMapArea::sAreaDim;
-    const int w = (mMap->width() + areaDim - 1)/areaDim;
-    const int h = (mMap->height() + areaDim - 1)/areaDim;
+    const auto it = sAreasMap.find(mMapName);
+    if(it == sAreasMap.end()) {
+        const int areaDim = eMiniMapArea::sAreaDim;
+        const int w = (mMap->width() + areaDim - 1)/areaDim;
+        const int h = (mMap->height() + areaDim - 1)/areaDim;
 
-    const auto r = renderer();
-    const auto& res = resolution();
-    mAreas.resize(h, std::vector<eMiniMapArea>(w, {&res, r}));
+        const auto r = renderer();
+        const auto& res = resolution();
+        mAreas.resize(h, std::vector<eMiniMapArea>(w, {&res, r}));
+    } else {
+        mAreas = it->second;
+    }
 }
 
 void eMiniMap::setPos(const ePointF& pos) {
@@ -76,8 +104,11 @@ void eMiniMap::paintEvent(ePainter& p) {
                                   float(y*areaDim)};
                 const float dist = ePointF::distance(pos, mPos);
                 auto& a = mAreas[y][x];
+                const int x0 = x*areaDim;
+                const int y0 = y*areaDim;
+                a.tryFillingPastKnown(x0, y0, *mMap);
                 if(dist < 20.f) {
-                    a.setKnown(mPos, x*areaDim, y*areaDim, *mMap);
+                    a.setKnown(mPos, x0, y0, *mMap);
                 }
                 const auto& tex = a.fTex;
                 if(!tex) continue;

@@ -11,6 +11,7 @@
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
+#include "../widgets/gameScreen/eminimap.h"
 #include "../erendersettings.h"
 
 #include "../textures/eterrstextures.h"
@@ -211,6 +212,7 @@ void eScreenHandler::showGame(eServerData serverData,
     const int height = mWindow->height();
 
     const auto finish = [this, map, server, clientId, serverC, teamId]() {
+        eMiniMap::clearAll();
         finishGameShow(map, *server, *clientId, *serverC, *teamId);
     };
 
