@@ -10,6 +10,9 @@
 
 uint32_t sNextObjectId = 1;
 
+eMap::eMap(const std::string& name) :
+    mName(name) {}
+
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
@@ -43,6 +46,16 @@ std::shared_ptr<eObject> eMap::object(
 const std::shared_ptr<eObject>& eMap::object(
     const int id) const {
     return mObjects[id];
+}
+
+ePointF eMap::spawnPos(const std::string& entranceMap) const {
+    const int mapId = eMapsSettings::sMaps.id(entranceMap);
+    for(const auto& s : mStairs) {
+        const auto sMapId = s.fMapId;
+        if(sMapId != mapId) continue;
+        return {s.fX, s.fY};
+    }
+    return spawnPos();
 }
 
 bool eMap::walkable(const ePointF& pos) {

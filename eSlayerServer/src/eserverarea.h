@@ -171,7 +171,19 @@ public:
                           const eUnitIter& iter) const;
 
     void unitKilled(const eServerUnit& killed);
+
+    static bool moveClient(const int clientId,
+                           eServerArea& from,
+                           eServerArea& to,
+                           ePointF& spawnPos);
 private:
+    bool addClient(const int clientId,
+                   const std::shared_ptr<eServerUnit>& u,
+                   const eScreenDimensions& screenDims,
+                   const std::string& entranceMap,
+                   ePointF& spawnPos);
+    bool findPlaceForUnit(
+        const ePointF& pos, ePointF& result) const;
     void iniMissileInc();
     void iniNovaInc();
 
@@ -183,6 +195,7 @@ private:
                       const eUnitInfo& uinfo,
                       const eCharData& data,
                       const eModelParts& modelParts);
+    void iniSetupUnit(const std::shared_ptr<eServerUnit>& u);
     void addGroundItem(const ePointF& pos,
                        const eItem& item);
     void generateItems(const ePointF& pos,

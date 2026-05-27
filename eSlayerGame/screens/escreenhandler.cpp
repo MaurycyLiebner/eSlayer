@@ -165,10 +165,43 @@ void eScreenHandler::showTcpIpJoinMenu() {
     mWindow->setWidget(w);
 }
 
+void loadObjectTypes(const eResolution& res,
+                     SDL_Renderer* const r,
+                     const std::shared_ptr<eMap>& map) {
+    const auto& objTypes = map->objectTypes();
+    for(const auto& objType : objTypes) {
+        const auto& objInfo = eObjectsInfo::sObjects.get(objType);
+        const auto objTexId = objInfo.fTexId;
+        auto& texs = eObjsTextures::get(objTexId);
+        texs.load(res, r);
+    }
+}
+
+void loadTerrainTypes(const eResolution& res,
+                      SDL_Renderer* const r,
+                      const std::shared_ptr<eMap>& map) {
+    const auto& terrTypes = map->terrainTypes();
+    for(const auto& terrType : terrTypes) {
+        auto& texs = eTerrsTextures::get(terrType);
+        texs.load(res, r);
+    }
+}
+
+void loadUnitTypes(const eResolution& res,
+                   SDL_Renderer* const r,
+                   const std::shared_ptr<eMap>& map) {
+    const auto& unitTypes = map->unitTypes();
+    for(const auto& unitType : unitTypes) {
+        auto& u = eCharsTextures::get(unitType);
+        u.loadAll(res, r);
+    }
+}
+
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const auto map = std::make_shared<eMap>();
+    const std::string mapName = "basement_1"/*"act1_1"*/;
+    const auto map = std::make_shared<eMap>(mapName);
     const auto clientId = std::make_shared<int>();
     const auto teamId = std::make_shared<eTeamId>();
     const auto serverC = std::make_shared<eCharacter>(c);
@@ -177,17 +210,8 @@ void eScreenHandler::showGame(eServerData serverData,
     const int width = mWindow->width();
     const int height = mWindow->height();
 
-    const auto finish = [this, width, height,
-                         map, server, clientId,
-                         serverC, teamId]() {
-        const auto w = new eGameScreen(mWindow);
-        w->resize(width, height);
-        w->setExitAction([this]() {
-            showMainMenu();
-        });
-        w->initialize(*clientId, *server, map,
-                      *serverC, *teamId);
-        mWindow->setWidget(w);
+    const auto finish = [this, map, server, clientId, serverC, teamId]() {
+        finishGameShow(map, *server, *clientId, *serverC, *teamId);
     };
 
     std::vector<eAction> loading;
@@ -205,9 +229,9 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([this, server, map, clientId]() {
+    loading.emplace_back([this, server, mapName, map, clientId]() {
         eMapData data;
-        const bool r = (*server)->requestMap(*clientId, "basement_1"/*"act1_1"*/, data);
+        const bool r = (*server)->requestMap(*clientId, mapName, data);
         if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
         else map->loadData(data);
     });
@@ -215,27 +239,13 @@ void eScreenHandler::showGame(eServerData serverData,
         eMissilesTextures::loadTextures(res, r);
     });
     loading.emplace_back([&res, r, map]() {
-        const auto& terrTypes = map->terrainTypes();
-        for(const auto& terrType : terrTypes) {
-            auto& texs = eTerrsTextures::get(terrType);
-            texs.load(res, r);
-        }
+        loadTerrainTypes(res, r, map);
     });
     loading.emplace_back([&res, r, map]() {
-        const auto& objTypes = map->objectTypes();
-        for(const auto& objType : objTypes) {
-            const auto& objInfo = eObjectsInfo::sObjects.get(objType);
-            const auto objTexId = objInfo.fTexId;
-            auto& texs = eObjsTextures::get(objTexId);
-            texs.load(res, r);
-        }
+        loadObjectTypes(res, r, map);
     });
     loading.emplace_back([&res, r, map]() {
-        const auto& unitTypes = map->unitTypes();
-        for(const auto& unitType : unitTypes) {
-            auto& u = eCharsTextures::get(unitType);
-            u.loadAll(res, r);
-        }
+        loadUnitTypes(res, r, map);
     });
     loading.emplace_back([&res, r]() {
         eUITextures::sLoad(r, res);
@@ -255,6 +265,40 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([]() {
         eRenderSettings::read();
     });
+    showLoadingScreen(loading, finish);
+}
+
+void eScreenHandler::moveToMap(
+    const int clientId, const eTeamId teamId,
+    const eCharacter& c,
+    const std::shared_ptr<eServer>& server,
+    const std::string& mapName) {
+    const auto map = std::make_shared<eMap>(mapName);
+
+    const auto& res = mWindow->resolution();
+
+    const auto finish = [this, map, server, clientId, c, teamId]() {
+        finishGameShow(map, server, clientId, c, teamId);
+    };
+
+    std::vector<eAction> loading;
+    const auto r = mWindow->renderer();
+    loading.emplace_back([this, server, map, mapName, clientId]() {
+        eMapData data;
+        const bool r = server->requestMap(clientId, mapName, data);
+        if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
+        else map->loadData(data);
+    });
+    loading.emplace_back([&res, r, map]() {
+        loadTerrainTypes(res, r, map);
+    });
+    loading.emplace_back([&res, r, map]() {
+        loadObjectTypes(res, r, map);
+    });
+    loading.emplace_back([&res, r, map]() {
+        loadUnitTypes(res, r, map);
+    });
+
     showLoadingScreen(loading, finish);
 }
 
@@ -304,6 +348,29 @@ void eScreenHandler::showErrorMsg(const std::string& msg,
     w->initialize(msg, subMsg, [this]() {
         showMainMenu();
     });
+    mWindow->setWidget(w);
+}
+
+void eScreenHandler::finishGameShow(
+    const std::shared_ptr<eMap>& map,
+    const std::shared_ptr<eServer>& server,
+    const int clientId,
+    const eCharacter& c, const eTeamId teamId) {
+    const int width = mWindow->width();
+    const int height = mWindow->height();
+    const auto w = new eGameScreen(mWindow);
+    w->resize(width, height);
+    w->setExitAction([this]() {
+        showMainMenu();
+    });
+    const auto moveToMap = [this, server](const std::string& mapName) {
+        const auto gw = eGameWidget::sInstance;
+        const int clientId = gw->clientId();
+        const auto teamId = gw->team();
+        const auto c = gw->character();
+        eScreenHandler::moveToMap(clientId, teamId, c, server, mapName);
+    };
+    w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);
 }
 

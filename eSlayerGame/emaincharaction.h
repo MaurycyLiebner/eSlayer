@@ -38,6 +38,7 @@ public:
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedObject(const std::shared_ptr<eObject>& o);
     void setPressedDoors(const std::optional<eDoors>& d);
+    void setPressedStairs(const std::optional<eStairs>& s);
 
     void increment(const bool mousePressed,
                    const bool rightPressed,
@@ -109,6 +110,7 @@ private:
     std::weak_ptr<eGroundItem> mPressedItem;
     std::weak_ptr<eObject> mPressedObject;
     std::optional<eDoors> mPressedDoors;
+    std::optional<eStairs> mPressedStairs;
 
     std::shared_ptr<eUnit> mMainChar;
     eCharTextures* mMainCharTexs = nullptr;

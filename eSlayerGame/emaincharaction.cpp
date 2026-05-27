@@ -6,6 +6,7 @@
 
 #include "widgets/gameScreen/einventorywidget.h"
 #include "widgets/gameScreen/ehoverwidget.h"
+#include "widgets/gameScreen/egamewidget.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -14,6 +15,8 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+
+#include <eSlayerMapGenerator/emapsettings.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -81,7 +84,8 @@ void eMainCharAction::setPressedUnit(
     if(u) {
         mPressedItem.reset();
         mPressedObject.reset();
-        mPressedDoors = std::nullopt;
+        mPressedDoors.reset();
+        mPressedStairs.reset();
     }
     mPressedUnit = u;
 }
@@ -91,7 +95,8 @@ void eMainCharAction::setPressedItem(
     if(i) {
         mPressedUnit.reset();
         mPressedObject.reset();
-        mPressedDoors = std::nullopt;
+        mPressedDoors.reset();
+        mPressedStairs.reset();
     }
     mPressedItem = i;
 }
@@ -101,7 +106,8 @@ void eMainCharAction::setPressedObject(
     if(o) {
         mPressedItem.reset();
         mPressedUnit.reset();
-        mPressedDoors = std::nullopt;
+        mPressedDoors.reset();
+        mPressedStairs.reset();
     }
     mPressedObject = o;
 }
@@ -112,8 +118,20 @@ void eMainCharAction::setPressedDoors(
         mPressedItem.reset();
         mPressedUnit.reset();
         mPressedObject.reset();
+        mPressedStairs.reset();
     }
     mPressedDoors = d;
+}
+
+void eMainCharAction::setPressedStairs(
+    const std::optional<eStairs>& s) {
+    if(s) {
+        mPressedItem.reset();
+        mPressedUnit.reset();
+        mPressedObject.reset();
+        mPressedDoors.reset();
+    }
+    mPressedStairs = s;
 }
 
 void eMainCharAction::increment(const bool mousePressed,
@@ -233,18 +251,26 @@ void eMainCharAction::increment(const bool mousePressed,
         } else {
             targetPos = closesPos;
         }
-    } else if(mPressedDoors) {
-        const auto& d = *mPressedDoors;
-        const auto doorsPos = d.pos();
+    } else if(mPressedStairs || mPressedDoors) {
+        using eDS = eDoorsStairsBase;
+        const eDS& d = mPressedStairs ? static_cast<eDS&>(*mPressedStairs) :
+                                        static_cast<eDS&>(*mPressedDoors);
+        const auto pos = d.pos();
 
-        const float dist = ePointF::distance(doorsPos, charPos);
+        const float dist = ePointF::distance(pos, charPos);
         if(dist < 0.5f) {
-            mServer->triggerDoors(mClientId, d);
+            if(mPressedDoors) {
+                mServer->triggerDoors(mClientId, *mPressedDoors);
+            } else if(mPressedStairs) {
+                const auto mapId = mPressedStairs->fMapId;
+                const auto mapName = eMapsSettings::sMaps.name(mapId);
+                eGameWidget::sMoveToMap(mapName);
+            }
             mClickAction = mousePressed;
             stop();
             return;
         } else {
-            targetPos = doorsPos;
+            targetPos = pos;
         }
     }
 
@@ -447,6 +473,7 @@ void eMainCharAction::stop() {
     mPressedItem.reset();
     mPressedObject.reset();
     mPressedDoors.reset();
+    mPressedStairs.reset();
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }

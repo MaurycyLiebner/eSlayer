@@ -35,6 +35,8 @@ struct eScreenMessage {
     int fFramesRemaining;
 };
 
+using eMoveToMapAction = std::function<void(const std::string& mapName)>;
+
 class eGameWidget : public eLabel {
 public:
     eGameWidget(eMainWindow* const window);
@@ -44,7 +46,8 @@ public:
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
                     const eCharacter& c,
-                    const eTeamId teamId);
+                    const eTeamId teamId,
+                    const eMoveToMapAction& move);
 
     int tileWidth() const { return mInput.tileWidth(); }
     int tileHeight() const { return mInput.tileHeight(); }
@@ -66,6 +69,8 @@ public:
     void stop();
     eMainCharAction& mainAction() { return *mMainAction; }
 
+    eCharacter character();
+
     eGameInput& input() { return mInput; }
     const eGameInput& input() const { return mInput; }
 
@@ -74,6 +79,7 @@ public:
     eEquipment& equipment() { return mMainAction->equipment(); }
     eAttributes& attributes() { return mMainAction->attributes(); }
     eStats& stats() { return mMainAction->stats(); }
+    eTeamId team() const { return mTeamId; }
     void dropItem();
     void sendInventoryRearranged();
     void sendAttributesChanged();
@@ -101,6 +107,7 @@ public:
     static void sSendInventoryRearranged();
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
+    static void sMoveToMap(const std::string& mapName);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -120,6 +127,8 @@ private:
 
     std::string mCName;
     bool mHardcore;
+
+    eTeamId mTeamId;
 
     eGameWorld mWorld;
     eGameInput mInput;
@@ -162,6 +171,8 @@ private:
     eRespawnHandler mRespawnHandler;
 
     int mLastArea = -1;
+
+    eMoveToMapAction mMoveAction;
 };
 
 #endif // EGAMEWIDGET_H

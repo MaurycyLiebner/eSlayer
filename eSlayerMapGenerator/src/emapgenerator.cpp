@@ -1073,7 +1073,7 @@ eMapGenerator::generate(const std::string& name) const {
     if(mapSettings.fAreas.size() == 0) {
         eRuntimeThrow("No areas to generate for \"" + name + "\"");
     }
-    const auto result = std::make_shared<eMap>();
+    const auto result = std::make_shared<eMap>(name);
     result->mAllPresent = true;
 
     const int areaDim = 80;

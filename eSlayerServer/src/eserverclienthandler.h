@@ -24,6 +24,7 @@ public:
                      float& resultTime);
     bool receiveEquipment(eEquipment& data);
 
+    const std::shared_ptr<eServerArea>& area() const { return mArea; }
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 
     bool changeState(const eUnitData& u);

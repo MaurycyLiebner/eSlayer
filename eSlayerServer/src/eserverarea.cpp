@@ -122,6 +122,15 @@ void eServerArea::iniSetupUnit(
     u->fBlockingActionTime = 0.f;
     u->fModelParts = modelParts;
 
+    iniSetupUnit(u);
+}
+
+void eServerArea::iniSetupUnit(
+    const std::shared_ptr<eServerUnit>& u) {
+    const auto charId = u->fCharId;
+    const auto teamId = u->fTeamId;
+    const auto typeId = u->unitTypeId();
+    const auto& uinfo = eUnitsInfo::sUnits.get(typeId);
     auto& m = u->movementHandler();
     m.setSpeed(uinfo.fWalkSpeed);
     const auto wPos = [this](const ePointF& pos) {
@@ -132,11 +141,11 @@ void eServerArea::iniSetupUnit(
         return mMap->walkable(from, to);
     };
     const auto iter = [this, charId](
-        const ePointF& pos,
-        const float dist,
-        const eOtherHandler& handler) {
+                          const ePointF& pos,
+                          const float dist,
+                          const eOtherHandler& handler) {
         iterateOverUnits(pos, dist, [handler, charId](
-            const std::shared_ptr<eServerUnit>& u) {
+                                        const std::shared_ptr<eServerUnit>& u) {
             if(charId == u->fCharId) return false;
             handler(*u);
             return false;
@@ -265,27 +274,14 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const auto& data = eCharDataInfo::get(udata.fCharData);
 
                 const auto addUnit = [&]() {
+                    ePointF pos;
+                    const bool r = findPlaceForUnit({x, y}, pos);
+                    if(!r) return;
                     const auto modelParts = data.randomModelParts();
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
                         false, data, type, *this, map);
                     const int charId = eServerUnit::sNextCharId++;
-                    ePointF pos;
-                    for(int dist = 1; dist < 3; dist++) {
-                        const int maxTries = 10;
-                        for(int i = 0; i <= maxTries; i++) {
-                            if(i == maxTries) return;
-                            const float dx = eRand::randF(-dist, dist);
-                            const float dy = eRand::randF(-dist, dist);
-                            const ePointF tryPos{float(x + dx), float(y + dy)};
-                            const auto u = unit(tryPos);
-                            if(u) continue;
-                            const bool w = walkable(tryPos);
-                            if(!w) continue;
-                            pos = tryPos;
-                            break;
-                        }
-                    }
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, udata, data, modelParts);
 
@@ -631,6 +627,72 @@ bool eServerArea::addClient(const int clientId,
     const auto area = unitArea(*u);
     clientData.fArea = area;
 
+    return true;
+}
+
+bool eServerArea::addClient(
+    const int clientId,
+    const std::shared_ptr<eServerUnit>& u,
+    const eScreenDimensions& screenDims,
+    const std::string& entranceMap,
+    ePointF& spawnPos) {
+    const auto cu = unit(clientId);
+    if(cu) return false;
+
+    auto& clientData = mClientData[clientId];
+    clientData.fLatestMissile = 0;
+    clientData.fLatestNova = 0;
+    clientData.fLatestSkillArea = 0;
+    clientData.fScreen = screenDims;
+    const auto area = unitArea(*u);
+    clientData.fArea = area;
+
+    iniSetupUnit(u);
+    const auto a = std::make_shared<eClientAction>(*u, *this);
+    u->setAction(a);
+    const auto pos = mMap->spawnPos(entranceMap);
+    findPlaceForUnit(pos, spawnPos);
+    u->fPos = spawnPos;
+    return true;
+}
+
+bool eServerArea::findPlaceForUnit(
+    const ePointF& pos, ePointF& result) const {
+    const int x = pos.fX;
+    const int y = pos.fY;
+    for(int dist = 1; dist < 5; dist++) {
+        const int maxTries = 10;
+        for(int i = 0; i <= maxTries; i++) {
+            const float dx = eRand::randF(-dist, dist);
+            const float dy = eRand::randF(-dist, dist);
+            const ePointF tryPos{float(x + dx), float(y + dy)};
+            const auto u = unit(tryPos);
+            if(u) continue;
+            const bool w = walkable(tryPos);
+            if(!w) continue;
+            result = tryPos;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool eServerArea::moveClient(
+    const int clientId,
+    eServerArea& from,
+    eServerArea& to,
+    ePointF& spawnPos) {
+    const auto u = from.unit(clientId);
+    if(!u) return false;
+    const auto& clientData = from.mClientData[clientId];
+    const auto fromMap = from.mMap;
+    const auto& fromName = fromMap->name();
+    const bool r = to.addClient(
+        clientId, u, clientData.fScreen,
+        fromName, spawnPos);
+    if(!r) return false;
+    from.mClientData.erase(clientId);
+    from.removeClient(clientId);
     return true;
 }
 

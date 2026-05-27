@@ -17,10 +17,7 @@ public:
 
     static bool load(const std::string& path,
                      eCharacter& c);
-    bool write(const std::string& path,
-               const eEquipment& eq,
-               const eAttributes& attrs,
-               const eSkillLevels& skillLevels) const;
+    bool write(const std::string& path) const;
 
     const std::string& name() const { return mName; }
     bool hardcore() const { return mHardcore; }

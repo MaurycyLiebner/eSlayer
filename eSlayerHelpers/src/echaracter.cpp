@@ -468,10 +468,7 @@ void gWriteSkillLevels(XMLElement* const e,
     }
 }
 
-bool eCharacter::write(const std::string& path,
-                       const eEquipment& eq,
-                       const eAttributes& attrs,
-                       const eSkillLevels& skillLevels) const {
+bool eCharacter::write(const std::string& path) const {
     XMLDocument doc;
 
     const auto decl = doc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
@@ -491,34 +488,34 @@ bool eCharacter::write(const std::string& path,
 
     const auto attrE = rootE->InsertNewChildElement("attributes");
     const auto strE = attrE->InsertNewChildElement("strength");
-    strE->SetText(attrs.fStrength);
+    strE->SetText(mAttributes.fStrength);
     const auto dexE = attrE->InsertNewChildElement("dexterity");
-    dexE->SetText(attrs.fDexterity);
+    dexE->SetText(mAttributes.fDexterity);
     const auto vitE = attrE->InsertNewChildElement("vitality");
-    vitE->SetText(attrs.fVitality);
+    vitE->SetText(mAttributes.fVitality);
     const auto eneE = attrE->InsertNewChildElement("energy");
-    eneE->SetText(attrs.fEnergy);
+    eneE->SetText(mAttributes.fEnergy);
 
-    gWriteSkillLevels(rootE, skillLevels);
+    gWriteSkillLevels(rootE, mSkillLevels);
 
     const auto eqE = rootE->InsertNewChildElement("equipment");
-    gWriteItemSlot(eq.fBoots, "boots", eqE);
-    gWriteItemSlot(eq.fGloves, "gloves", eqE);
-    gWriteItemSlot(eq.fHelmet, "helmet", eqE);
-    gWriteItemSlot(eq.fArmor, "armor", eqE);
-    gWriteItemSlot(eq.fBelt, "belt", eqE);
-    gWriteItemSlot(eq.fRingL, "ringL", eqE);
-    gWriteItemSlot(eq.fRingR, "ringR", eqE);
-    gWriteItemSlot(eq.fAmulet, "amulet", eqE);
-    gWriteItemSlot(eq.fWeapon1L, "weapon1L", eqE);
-    gWriteItemSlot(eq.fWeapon1R, "weapon1R", eqE);
-    gWriteItemSlot(eq.fWeapon2L, "weapon2L", eqE);
-    gWriteItemSlot(eq.fWeapon2R, "weapon2R", eqE);
-    gWriteItemSlot(eq.fDragged, "dragged", eqE);
-    gWriteInventory(eq.fInventory, "inventory", eqE);
-    gWriteInventory(eq.fBeltPotions, "beltPotions", eqE);
-    gWriteInventory(eq.fBeltHiddenPotions, "beltPotionsHidden", eqE);
-    gWriteInventory(eq.fStash, "stash", eqE);
+    gWriteItemSlot(mEquipment.fBoots, "boots", eqE);
+    gWriteItemSlot(mEquipment.fGloves, "gloves", eqE);
+    gWriteItemSlot(mEquipment.fHelmet, "helmet", eqE);
+    gWriteItemSlot(mEquipment.fArmor, "armor", eqE);
+    gWriteItemSlot(mEquipment.fBelt, "belt", eqE);
+    gWriteItemSlot(mEquipment.fRingL, "ringL", eqE);
+    gWriteItemSlot(mEquipment.fRingR, "ringR", eqE);
+    gWriteItemSlot(mEquipment.fAmulet, "amulet", eqE);
+    gWriteItemSlot(mEquipment.fWeapon1L, "weapon1L", eqE);
+    gWriteItemSlot(mEquipment.fWeapon1R, "weapon1R", eqE);
+    gWriteItemSlot(mEquipment.fWeapon2L, "weapon2L", eqE);
+    gWriteItemSlot(mEquipment.fWeapon2R, "weapon2R", eqE);
+    gWriteItemSlot(mEquipment.fDragged, "dragged", eqE);
+    gWriteInventory(mEquipment.fInventory, "inventory", eqE);
+    gWriteInventory(mEquipment.fBeltPotions, "beltPotions", eqE);
+    gWriteInventory(mEquipment.fBeltHiddenPotions, "beltPotionsHidden", eqE);
+    gWriteInventory(mEquipment.fStash, "stash", eqE);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {

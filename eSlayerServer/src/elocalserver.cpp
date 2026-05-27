@@ -52,8 +52,12 @@ bool eLocalServer::requestMap(
     } else {
         area = areaIt->second;
     }
-    h->setArea(area);
+    const auto& carea = h->area();
     map->mapData(data);
+    if(carea) {
+        eServerArea::moveClient(clientId, *carea, *area, data.fSpawnPos);
+    }
+    h->setArea(area);
     return true;
 }
 

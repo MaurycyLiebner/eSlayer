@@ -28,8 +28,8 @@ bool eCharacters::add(const std::string& name,
         }
     }
     auto& c = mCharacters.emplace_back(name, hardcore);
-    const bool r = c.write(eGameDir::path("Save/" + name + ".xml"),
-                           eEquipment(), eAttributes(), eSkillLevels());
+    const auto path = eGameDir::path("Save/" + name + ".xml");
+    const bool r = c.write(path);
     return r;
 }
 

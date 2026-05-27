@@ -23,8 +23,12 @@ class ESLAYERMAPGENERATOR_API eMap {
     friend class eDungeon;
     friend class eServer;
 public:
+    eMap(const std::string& name);
+
     int width() const { return mWidth; }
     int height() const { return mHeight; }
+
+    const std::string& name() const { return mName; }
 
     const eTile& tile(const int x, const int y) const;
     eTile& tile(const int x, const int y);
@@ -35,7 +39,8 @@ public:
                                     const uint32_t objectId) const;
     const std::shared_ptr<eObject>& object(const int id) const;
 
-    const ePoint& spawnPos() const { return mSpawnPos; }
+    const ePointF& spawnPos() const { return mSpawnPos; }
+    ePointF spawnPos(const std::string& entranceMap) const;
 
     const std::set<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
@@ -88,7 +93,9 @@ private:
     void updateObjectsMap();
     const std::shared_ptr<eObject>& addObject();
 
-    ePoint mSpawnPos{0, 0};
+    const std::string mName;
+
+    ePointF mSpawnPos{0, 0};
 
     uint16_t mWidth = 0;
     uint16_t mHeight = 0;

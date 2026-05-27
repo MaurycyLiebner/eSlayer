@@ -25,14 +25,15 @@ class eBgWidget;
 class eGameScreen : public eScreenBase {
 public:
     eGameScreen(eMainWindow* const window);
-    ~eGameScreen();
 
+    using eMoveToMapAction = std::function<void(const std::string& mapName)>;
     void setExitAction(const eAction& a);
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
                     const eCharacter& c,
-                    const eTeamId teamId);
+                    const eTeamId teamId,
+                    const eMoveToMapAction& move);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;

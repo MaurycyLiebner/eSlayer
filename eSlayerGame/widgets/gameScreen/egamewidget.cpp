@@ -50,14 +50,18 @@ void eGameWidget::initialize(const int clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
                              const eCharacter& c,
-                             const eTeamId teamId) {
+                             const eTeamId teamId,
+                             const eMoveToMapAction& move) {
     mCName = c.name();
     mUserNames[clientId] = mCName;
     mHardcore = c.hardcore();
+    mTeamId = teamId;
 
     mClientId = clientId;
     mServer = server;
     mMap = map;
+
+    mMoveAction = move;
 
     initializeTextures();
 
@@ -215,14 +219,19 @@ void eGameWidget::disconnect() {
 }
 
 void eGameWidget::save() {
-    const eCharacter c(mCName, mHardcore);
+    const auto c = character();
     const auto path = eGameDir::path(
         "Save/" + mCName + ".xml");
-    const auto& eq = equipment();
-    const auto& attrs = attributes();
+    c.write(path);
+}
+
+eCharacter eGameWidget::character() {
+    eCharacter c(mCName, mHardcore);
+    c.equipment() = equipment();
+    c.attributes() = attributes();
     const auto& stats = eGameWidget::stats();
-    const auto& skillLevels = stats.fBaseSkillLevels;
-    c.write(path, eq, attrs, skillLevels);
+    c.skillLevels() = stats.fBaseSkillLevels;
+    return c;
 }
 
 void eGameWidget::sendMessage(const std::string& text) {
@@ -253,6 +262,10 @@ void eGameWidget::sSendSkillLevelsChanged() {
 void eGameWidget::sSendAttributesChanged() {
     sInstance->sendAttributesChanged();
     sInstance->mMainAction->recalculateStats();
+}
+
+void eGameWidget::sMoveToMap(const std::string& mapName) {
+    sInstance->mMoveAction(mapName);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
@@ -1378,6 +1391,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
             mMainAction->setPressedItem(i);
         } else if(const auto d = mHighlightDoors) {
             mMainAction->setPressedDoors(d);
+        } else if(const auto s = mHighlightStairs) {
+            mMainAction->setPressedStairs(s);
         }
         mInput.handleMousePress(leftPressed, rightPressed,
                                 float(e.x()), float(e.y()));

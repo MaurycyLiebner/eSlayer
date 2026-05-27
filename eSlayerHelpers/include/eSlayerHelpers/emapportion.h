@@ -63,7 +63,7 @@ struct ESLAYERHELPERS_API eMapData {
     uint8_t fLight = 180;
     uint8_t fContrast = 140;
 
-    ePoint fSpawnPos;
+    ePointF fSpawnPos;
 
     eStringIdMapVector<eMapArea> fAreas;
 
