@@ -79,7 +79,6 @@ void eGameScreen::initialize(const int clientId,
     mMiniMap->initialize(settings);
     mMiniMap->setMap(map);
     addWidget(mMiniMap);
-    mMiniMap->setShowMap(false);
 
     mBottomWid = new eBgWidget(window());
     mBottomWid->setHugePadding();

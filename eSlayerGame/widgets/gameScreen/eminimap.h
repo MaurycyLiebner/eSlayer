@@ -238,6 +238,7 @@ private:
     };
 
     bool mShowMap = false;
+    static bool sShowMap;
 
     using eAreas = std::vector<std::vector<eMiniMapArea>>;
     eAreas mAreas;

@@ -9,6 +9,7 @@
 
 std::map<std::string, eMiniMap::eAreas> eMiniMap::sAreasMap;
 eMiniMap* eMiniMap::sInstance = nullptr;
+bool eMiniMap::sShowMap = false;
 
 eMiniMap::eMiniMap(eMainWindow* const window) :
     eWidget(window) {
@@ -52,6 +53,7 @@ void eMiniMap::initialize(const eGameSettings& settings) {
     const int y = mStatusWidget->y();
     const int margin = mult*25;
     mStatusWidget->move(x - margin, y + margin);
+    setShowMap(sShowMap);
 }
 
 void eMiniMap::setMap(const std::shared_ptr<eMap>& map) {
@@ -145,6 +147,7 @@ void eMiniMap::showAreaName(const std::string& name) {
 }
 void eMiniMap::setShowMap(const bool s) {
     mShowMap = s;
+    sShowMap = s;
     mStatusWidget->setVisible(s);
 }
 
