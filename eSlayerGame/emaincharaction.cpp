@@ -288,6 +288,63 @@ void eMainCharAction::increment(const bool mousePressed,
 
     const bool hasPressedUnit = !mPressedUnit.expired();
     handleMovement(mousePressed || hasPressedUnit, targetPos, scaledBy, model);
+
+    const float angle = mMainChar->fAngle;
+    const float margin = 25.f;
+    eDoors doors;
+    const auto assignDoors = [&](const eWallType wall,
+                                 const int x0, const int y0) {
+        const auto& tile = mMap->tile(x0, y0);
+        const uint8_t encoded = wall == eWallType::topLeft ?
+            tile.fWallTL : tile.fWallTR;
+        if(!encoded) return;
+        const bool r = eTile::doors(encoded);
+        if(!r) return;
+
+        const auto terrType = tile.fTerrainType;
+        const auto& info = eTerrsTexturesData::get(terrType);
+        const std::vector<eWallTexture>* types = nullptr;
+        float dist;
+        switch(wall) {
+        case eWallType::topLeft:
+            dist = charPos.fX - x0;
+            types = &info.fTLDoorsOpen;
+            break;
+        case eWallType::topRight:
+            dist = charPos.fY - y0;
+            types = &info.fTRDoorsOpen;
+            break;
+        }
+        if(dist > info.fWallsThickness + 0.2f) return;
+        const int nTypes = types->size();
+
+        const uint8_t type = eTile::type(encoded);
+        const bool open = eTile::open(encoded);
+        doors = eDoors(wall, type, nTypes, x0, y0, open);
+    };
+
+    if(angle < 270.f + margin && angle > 270.f - margin) {
+        assignDoors(eWallType::topRight, charPos.fX, charPos.fY);
+    } else if(angle < 180.f + margin && angle > 180.f - margin) {
+        assignDoors(eWallType::topLeft, charPos.fX, charPos.fY);
+    } else if(angle < 90.f + margin && angle > 90.f - margin) {
+        assignDoors(eWallType::topRight, charPos.fX, charPos.fY + 1);
+    } else if(angle < margin || angle > 360.f - margin) {
+        assignDoors(eWallType::topLeft, charPos.fX + 1, charPos.fY);
+    } else {
+        return;
+    }
+
+    if(doors.fOpen) {
+        return;
+    }
+    const auto& tiles = doors.fTiles;
+    if(tiles.empty()) {
+        return;
+    }
+    if(mMovementHandler.pushTime() > 3.f) {
+        mServer->triggerDoors(mClientId, doors);
+    }
 }
 
 void eMainCharAction::mousePress() {

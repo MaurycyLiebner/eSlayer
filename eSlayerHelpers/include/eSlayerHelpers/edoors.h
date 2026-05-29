@@ -10,6 +10,11 @@
 #include <vector>
 
 struct ESLAYERHELPERS_API eDoorsStairsBase {
+    eDoorsStairsBase();
+    eDoorsStairsBase(const eWallType wallType,
+                     const int type, const int nTypes,
+                     const int x0, const int y0);
+
     eWallType fType;
     std::vector<ePoint> fTiles;
 
@@ -21,6 +26,12 @@ struct ESLAYERHELPERS_API eDoorsStairsBase {
 
 struct ESLAYERHELPERS_API eStairs :
     public eDoorsStairsBase {
+    eStairs();
+    eStairs(const eWallType wallType,
+            const int type, const int nTypes,
+            const int x0, const int y0,
+            const uint8_t mapId);
+
     uint8_t fMapId;
 
     void read(ePacket& p) override;
@@ -28,7 +39,13 @@ struct ESLAYERHELPERS_API eStairs :
 };
 
 struct ESLAYERHELPERS_API eDoors :
-    public eDoorsStairsBase  {
+    public eDoorsStairsBase {
+    eDoors();
+    eDoors(const eWallType wallType,
+           const int type, const int nTypes,
+           const int x0, const int y0,
+           const bool open);
+
     bool fOpen;
 
     void read(ePacket& p) override;

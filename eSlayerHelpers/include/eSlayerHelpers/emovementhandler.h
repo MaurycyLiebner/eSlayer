@@ -38,6 +38,7 @@ public:
     void setRadius(const float r);
     void setMoveRandom(const float r) { mMoveRandom = r; }
     float stuckTime() const { return mStuckTimer; }
+    float pushTime() const { return mPushTimer; }
 
     bool increment(const float by);
 
@@ -72,6 +73,8 @@ private:
     float mRadius = 0.4f;
     float mSpeed = 0.1f;
     float mStuckTimer = 0.f;
+
+    float mPushTimer = 0.f;
 
     float mWaypointReachDist = 0.2f;
     float mNearbyUnits = 1.5f;

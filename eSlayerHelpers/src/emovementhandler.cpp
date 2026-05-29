@@ -190,7 +190,9 @@ bool eMovementHandler::increment(const float by) {
     const auto newPos = mPos + mVel*by;
     if(walkable(newPos)) {
         mPos = newPos;
+        mPushTimer = 0.f;
     } else {
+        mPushTimer += by;
         const auto tryX = ePointF{newPos.fX, mPos.fY};
         const auto tryY = ePointF{mPos.fX, newPos.fY};
         if(walkable(tryX)) {

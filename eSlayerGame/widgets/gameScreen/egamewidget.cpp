@@ -1134,41 +1134,28 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(doors) {
                     bool highlight = false;
                     if(!mHighlightUnit.lock() && !mHighlightObject.lock()) {
-                        eDoors doors;
-                        doors.fOpen = open;
-                        doors.fType = wall.fType;
+                        eDoors doors(wall.fType, type, nTypes, iPos.fX, iPos.fY, open);
                         auto& tiles = doors.fTiles;
 
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
-
                         const int pixelH = 2*texH/3;
-                        switch(wall.fType) {
-                        case eWallType::topLeft: {
-                            for(int dy = -type; dy < nTypes - type; dy++) {
-                                const ePoint tile{iPos.fX, iPos.fY + dy};
-                                tiles.emplace_back(tile);
-
-                                const auto top = tilePosToPixel(tile).round();
-                                const SDL_Rect hRect{top.fX - tileW/2,
-                                                     top.fY - pixelH,
-                                                     tileW/2, pixelH};
-                                const bool h = SDL_PointInRect(&p, &hRect);
-                                if(h) highlight = true;
+                        for(const auto& tile : tiles) {
+                            const auto top = tilePosToPixel(tile).round();
+                            SDL_Rect hRect;
+                            switch(wall.fType) {
+                            case eWallType::topLeft: {
+                                hRect = SDL_Rect{top.fX - tileW/2,
+                                                 top.fY - pixelH,
+                                                 tileW/2, pixelH};
+                            } break;
+                            case eWallType::topRight: {
+                                hRect = SDL_Rect{top.fX,
+                                                 top.fY - pixelH,
+                                                 tileW/2, pixelH};
+                            } break;
                             }
-                        } break;
-                        case eWallType::topRight: {
-                            for(int dx = -type; dx < nTypes - type; dx++) {
-                                const ePoint tile{iPos.fX + dx, iPos.fY};
-                                tiles.emplace_back(tile);
-
-                                const auto top = tilePosToPixel(tile).round();
-                                const SDL_Rect hRect{top.fX,
-                                                     top.fY - pixelH,
-                                                     tileW/2, pixelH};
-                                const bool h = SDL_PointInRect(&p, &hRect);
-                                if(h) highlight = true;
-                            }
-                        } break;
+                            const bool h = SDL_PointInRect(&p, &hRect);
+                            if(h) highlight = true;
                         }
 
                         if(highlight && !mHighlightDoors) {
@@ -1232,40 +1219,29 @@ void eGameWidget::paintEvent(ePainter& p) {
                     if(!mHighlightUnit.lock() &&
                        !mHighlightObject.lock() &&
                        !mHighlightDoors) {
-                        eStairs stairs;
-                        stairs.fType = wall.fType;
+                        eStairs stairs(wall.fType, stype, nTypes,
+                                       iPos.fX, iPos.fY, 0);
                         auto& tiles = stairs.fTiles;
 
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
-
                         const int pixelH = 2*texH/3;
-                        switch(wall.fType) {
-                        case eWallType::topLeft: {
-                            for(int dy = -stype; dy < nTypes - stype; dy++) {
-                                const ePoint tile{iPos.fX, iPos.fY + dy};
-                                tiles.emplace_back(tile);
-
-                                const auto top = tilePosToPixel(tile).round();
-                                const SDL_Rect hRect{top.fX - tileW/2,
-                                                     top.fY - pixelH,
-                                                     tileW/2, pixelH};
-                                const bool h = SDL_PointInRect(&p, &hRect);
-                                if(h) highlight = true;
+                        for(const auto& tile : tiles) {
+                            const auto top = tilePosToPixel(tile).round();
+                            SDL_Rect hRect;
+                            switch(wall.fType) {
+                            case eWallType::topLeft: {
+                                hRect = SDL_Rect{top.fX - tileW/2,
+                                                 top.fY - pixelH,
+                                                 tileW/2, pixelH};
+                            } break;
+                            case eWallType::topRight: {
+                                hRect = SDL_Rect{top.fX,
+                                                 top.fY - pixelH,
+                                                 tileW/2, pixelH};
+                            } break;
                             }
-                        } break;
-                        case eWallType::topRight: {
-                            for(int dx = -stype; dx < nTypes - stype; dx++) {
-                                const ePoint tile{iPos.fX + dx, iPos.fY};
-                                tiles.emplace_back(tile);
-
-                                const auto top = tilePosToPixel(tile).round();
-                                const SDL_Rect hRect{top.fX,
-                                                     top.fY - pixelH,
-                                                     tileW/2, pixelH};
-                                const bool h = SDL_PointInRect(&p, &hRect);
-                                if(h) highlight = true;
-                            }
-                        } break;
+                            const bool h = SDL_PointInRect(&p, &hRect);
+                            if(h) highlight = true;
                         }
 
                         if(!tiles.empty()) {

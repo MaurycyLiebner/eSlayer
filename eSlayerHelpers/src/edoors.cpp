@@ -1,5 +1,28 @@
 #include "eSlayerHelpers/edoors.h"
 
+eDoorsStairsBase::eDoorsStairsBase() {}
+
+eDoorsStairsBase::eDoorsStairsBase(
+    const eWallType wallType,
+    const int type, const int nTypes,
+    const int x0, const int y0) :
+    fType(wallType) {
+    switch(wallType) {
+    case eWallType::topLeft: {
+        for(int dy = -type; dy < nTypes - type; dy++) {
+            const ePoint tile{x0, y0 + dy};
+            fTiles.emplace_back(tile);
+        }
+    } break;
+    case eWallType::topRight: {
+        for(int dx = -type; dx < nTypes - type; dx++) {
+            const ePoint tile{x0 + dx, y0};
+            fTiles.emplace_back(tile);
+        }
+    } break;
+    }
+}
+
 ePointF eDoorsStairsBase::pos() const {
     ePointF pos{0.f, 0.f};
     if(fTiles.empty()) return pos;
@@ -37,6 +60,15 @@ void eDoorsStairsBase::write(ePacket& p) const {
     }
 }
 
+eStairs::eStairs() {}
+
+eStairs::eStairs(const eWallType wallType,
+                 const int type, const int nTypes,
+                 const int x0, const int y0,
+                 const uint8_t mapId) :
+    eDoorsStairsBase(wallType, type, nTypes, x0, y0),
+    fMapId(mapId) {}
+
 void eStairs::read(ePacket& p) {
     eDoorsStairsBase::read(p);
     p >> fMapId;
@@ -46,6 +78,15 @@ void eStairs::write(ePacket& p) const {
     eDoorsStairsBase::write(p);
     p << fMapId;
 }
+
+eDoors::eDoors() {}
+
+eDoors::eDoors(const eWallType wallType,
+               const int type, const int nTypes,
+               const int x0, const int y0,
+               const bool open) :
+    eDoorsStairsBase(wallType, type, nTypes, x0, y0),
+    fOpen(open) {}
 
 void eDoors::read(ePacket& p) {
     eDoorsStairsBase::read(p);
