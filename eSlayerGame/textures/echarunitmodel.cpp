@@ -101,27 +101,6 @@ void eCharUnitModel::generatePreview(
     }
 }
 
-void eCharUnitModel::draw(ePainter& p,
-                          const eResolution& res,
-                          const bool highlight,
-                          const std::shared_ptr<eTexture>& tex,
-                          const SDL_Rect& texRect,
-                          const SDL_Color& colorMod) const {
-    const bool mod = colorMod.a > 0;
-    if(mod) tex->setColorMod(colorMod.r, colorMod.g, colorMod.b);
-    p.drawTexture(texRect.x, texRect.y, tex);
-    if(mod) tex->clearColorMod();
-
-    if(highlight) {
-        tex->setBlendMode(SDL_BLENDMODE_ADD);
-        tex->setAlpha(125);
-        p.drawTexture(texRect.x, texRect.y, tex);
-        tex->setBlendMode(SDL_BLENDMODE_BLEND);
-        tex->clearAlphaMod();
-    }
-    p.fillRect(SDL_Rect{-2, -2, 4, 4}, SDL_Color{255, 0, 0, 255});
-}
-
 void eCharUnitModel::setAnimation(const int a, const int id,
                                   const float speed) {
     if(id <= mAnimId) return;

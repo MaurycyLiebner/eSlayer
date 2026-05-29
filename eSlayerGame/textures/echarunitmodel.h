@@ -40,13 +40,6 @@ public:
     void generatePreview(const eResolution& res,
                          SDL_Renderer* const r);
 private:
-    void draw(ePainter& p,
-              const eResolution& res,
-              const bool highlight,
-              const std::shared_ptr<eTexture>& tex,
-              const SDL_Rect& texRect,
-              const SDL_Color& colorMod) const;
-
     int mAnim = 0;
     int mAnimId = -1;
     float mAnimSpeed = 1.f;
