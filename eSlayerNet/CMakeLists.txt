@@ -16,7 +16,8 @@ include(FetchContent)
 FetchContent_Declare(
     SDL3_net
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_net.git
-    GIT_TAG 6623e846d93e0e7474877c21380aef852aac7e18
+    GIT_TAG prerelease-3.1.0
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(SDL3_net)
@@ -25,7 +26,6 @@ add_library(eSlayerNet SHARED
     include/eSlayerNet/eslayernetexport.h
     include/eSlayerNet/etcpnetwork.h
     src/etcpnetwork.cpp
-
 )
 
 target_include_directories(eSlayerNet

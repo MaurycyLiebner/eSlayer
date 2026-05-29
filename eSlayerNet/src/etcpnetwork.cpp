@@ -27,7 +27,7 @@ void eTCPNetwork::shutdown() {
 }
 
 bool eTCPNetwork::startServer(const uint16_t port) {
-    mServer = NET_CreateServer(nullptr, port);
+    mServer = NET_CreateServer(nullptr, port, 0);
     return mServer;
 }
 
@@ -41,7 +41,7 @@ bool eTCPNetwork::connect(const char* host, const uint16_t port) {
         return false;
     }
 
-    mClientSocket = NET_CreateClient(addr, port);
+    mClientSocket = NET_CreateClient(addr, port, 0);
 
     NET_UnrefAddress(addr);
 
