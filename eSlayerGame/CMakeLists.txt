@@ -190,6 +190,10 @@ add_executable(eSlayerGame
     textures/etilesiterator.h
     textures/euitextures.cpp
     textures/euitextures.h
+    textures/etexturecolorholder.cpp
+    textures/etexturecolorholder.h
+    textures/eiteminstancetexture.cpp
+    textures/eiteminstancetexture.h
 
     # Units
     units/eunit.cpp
@@ -287,8 +291,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    textures/etexturecolorholder.h textures/etexturecolorholder.cpp
-    textures/eiteminstancetexture.h textures/eiteminstancetexture.cpp
 )
 
 include(GNUInstallDirs)
