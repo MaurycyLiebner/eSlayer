@@ -470,11 +470,8 @@ void eMainCharAction::updateMovementAnimation(
     float speed = 1.f;
 
     if(moved) {
-        mMainChar->fPos = mMovementHandler.pos();
-
         const float angle = mMovementHandler.angle();
         speed = 0.5f*(1.f + mStats.fWalkRun);
-        mMainChar->fAngle = angle;
         model.setAngle(angle);
 
         if(run) {
