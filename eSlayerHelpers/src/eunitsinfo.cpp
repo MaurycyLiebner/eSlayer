@@ -34,6 +34,7 @@ void eUnitsInfo::load() {
 
             eUnitInfo u;
             u.fRadius = jdata.value("radius", 0.4f);
+            u.fLevel = jdata.value("level", 1);
             u.fWalkSpeed = jdata.value("walkSpeed", 0.1f);
             u.fRunSpeed = jdata.value("runSpeed", u.fWalkSpeed);
             const auto textures = jdata.value("textures", "none");

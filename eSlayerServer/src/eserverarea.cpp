@@ -262,15 +262,15 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const auto type = typeData.fType;
                 const bool add = eRand::randChance(typeData.fProbability);
                 if(!add) continue;
+                const auto& udata = eUnitsInfo::sUnits.get(type);
 
                 const bool elite = eRand::randChance(typeData.fEliteProbability);
                 bool boss = elite;
                 eEliteModifiers mods;
                 if(elite) {
-                    mods.initialize(1, 1);
+                    mods.initialize(1, udata.fLevel);
                 }
 
-                const auto& udata = eUnitsInfo::sUnits.get(type);
                 const auto& data = eCharDataInfo::get(udata.fCharData);
 
                 const auto addUnit = [&]() {
