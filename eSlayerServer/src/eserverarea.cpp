@@ -602,7 +602,9 @@ bool eServerArea::addClient(const int clientId,
         true, data, typeId, *this, map);
     u->addSkill();
     u->addSkill();
-    const auto& spawnPos = mMap->spawnPos();
+    ePointF spawnPos;
+    const auto pos = mMap->spawnPos();
+    findPlaceForUnit(pos, spawnPos);
     teamId = sNextTeamId;
     iniSetupUnit(u, clientId, teamId, spawnPos, udata, data, modelParts);
     sNextTeamId = static_cast<eTeamId>(static_cast<int>(sNextTeamId) + 1);
@@ -661,8 +663,8 @@ bool eServerArea::findPlaceForUnit(
     const ePointF& pos, ePointF& result) const {
     const int x = pos.fX;
     const int y = pos.fY;
-    for(int dist = 1; dist < 5; dist++) {
-        const int maxTries = 10;
+    for(int dist = 0; dist < 5; dist++) {
+        const int maxTries = dist == 0 ? 1 : 10;
         for(int i = 0; i <= maxTries; i++) {
             const float dx = eRand::randF(-dist, dist);
             const float dy = eRand::randF(-dist, dist);
