@@ -2,6 +2,7 @@
 #define EMINIMAP_H
 
 #include "../../textures/emaptextures.h"
+#include "../../textures/etexturecolorholder.h"
 #include "../ewidget.h"
 
 #include <eSlayerHelpers/epoint.h>
@@ -181,23 +182,23 @@ private:
                 }
             }
 
-            bool mod = false;
+            eTextureColorSetting color;
             if(map.inside(mx, my)) {
                 const auto& tile = map.tile(mx, my);
-                mod = tile.fStairsTL || tile.fStairsTR;
+                if(tile.fStairsTL || tile.fStairsTR) {
+                    color.set(1.f, 0.f, 0.f);
+                }
             }
 
             if(texId1 != -1) {
                 const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
-                if(mod) tex1->setColorMod(255, 0, 0);
+                const eTextureColorHolder mod(color, tex1);
                 p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
-                if(mod) tex1->clearColorMod();
             }
             if(texId2 != -1) {
                 const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
-                if(mod) tex2->setColorMod(255, 0, 0);
+                const eTextureColorHolder mod(color, tex2);
                 p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
-                if(mod) tex2->clearColorMod();
             }
             return true;
         }

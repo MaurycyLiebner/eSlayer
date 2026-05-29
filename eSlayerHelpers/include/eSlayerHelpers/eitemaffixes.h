@@ -3,6 +3,7 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "ecolor.h"
 #include "eskills.h"
 #include "eitemdata.h"
 #include "estringidmapvector.h"
@@ -10,6 +11,7 @@
 struct ESLAYERHELPERS_API eItemAffix {
     std::vector<eItemType> fTypes;
     eSkillLevelsStats fLevels;
+    eColor fColor;
 
     void generate(const int level, float& remWorth,
                   std::vector<eModifier>& mods) const;

@@ -67,6 +67,14 @@ void eItemAffixes::load() {
                         level.fTotalModifiers.collapseSkillLevel();
                     }
                 }
+                mod.fColor = eColor{1.f, 1.f, 1.f, 1.f};
+                if(jdata.contains("color")) {
+                    const auto& color = jdata["color"];
+                    mod.fColor.fR = color.value("r", 1.f);
+                    mod.fColor.fG = color.value("g", 1.f);
+                    mod.fColor.fB = color.value("b", 1.f);
+                    mod.fColor.fA = color.value("a", 1.f);
+                }
                 modMap.add(name, mod);
             } catch(...) {
                 eRuntimeThrow("Failed to parse affix \"" + name + "\".");

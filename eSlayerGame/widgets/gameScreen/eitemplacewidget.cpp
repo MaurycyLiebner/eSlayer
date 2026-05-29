@@ -1,6 +1,7 @@
 #include "eitemplacewidget.h"
 
-#include "../../textures/eitemstextures.h"
+#include "../../textures/etexturecolorholder.h"
+#include "../../textures/eiteminstancetexture.h"
 #include "einventorywidget.h"
 #include "ehoverwidget.h"
 #include "egamewidget.h"
@@ -82,32 +83,34 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     const auto& item = mEq->*mDst;
     const auto rect = eWidget::rect();
     const bool h = hovered();
+    eTextureColorSetting color;
     if(h) {
         const bool dragging = mEq->fDragged.fType != eItemType::none;
         if(!dragging) {
             if(item.fType != eItemType::none) {
-                mTex->setColorMod(0, 175, 0);
+                color.set(0.f, 0.7f, 0.f);
             }
         } else if(draggedCompatible()) {
-            mTex->setColorMod(0, 175, 0);
+            color.set(0.f, 0.7f, 0.f);
         } else {
-            mTex->setColorMod(175, 0, 0);
+            color.set(0.7f, 0.f, 0.f);
         }
     } else if(item.fType != eItemType::none) {
         const bool met = mStats->itemReqsMet(item);
         if(met) {
-            mTex->setColorMod(100, 100, 100);
+            color.set(0.4f, 0.4f, 0.4f);
         } else {
-            mTex->setColorMod(175, 0, 0);
+            color.set(0.7f, 0.f, 0.f);
         }
     }
-    p.drawTexture(0, 0, mTex);
-    mTex->clearColorMod();
+    {
+        const eTextureColorHolder mod(color, mTex);
+        p.drawTexture(0, 0, mTex);
+    }
     if(item.fType == eItemType::none) return;
     const auto r = renderer();
     const auto& res = resolution();
-    auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);
-    itemTex.request(r, res);
-    const auto& tex = itemTex.fTex;
-    p.drawTexture(rect, itemTex.fTex, eAlignment::center);
+    const eItemInstanceTexture tex(r, res, item);
+    const auto mod = tex.request();
+    p.drawTexture(rect, mod.fTex, eAlignment::center);
 }

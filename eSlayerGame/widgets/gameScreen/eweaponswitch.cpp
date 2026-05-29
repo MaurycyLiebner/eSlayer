@@ -2,6 +2,7 @@
 
 #include "../echeckablebutton.h"
 #include "../../textures/euitextures.h"
+#include "../../textures/etexturecolorholder.h"
 
 #include <eSlayerHelpers/eequipment.h>
 
@@ -18,9 +19,9 @@ public:
 protected:
     void paintEvent(ePainter& p) override {
         const bool darken = !checked() & !hovered();
-        if(darken) mTex->setColorMod(100, 100, 100);
+        const eTextureColorHolder mod(
+            darken, 0.4f, 0.4f, 0.4f, 1.f, mTex);
         p.drawTexture(0, 0, mTex);
-        if(darken) mTex->clearColorMod();
     }
 private:
     std::shared_ptr<eTexture> mTex;

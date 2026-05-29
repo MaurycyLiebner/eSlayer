@@ -3,6 +3,8 @@
 
 #include "../ewidget.h"
 
+#include "../../textures/eiteminstancetexture.h"
+
 #include <eSlayerHelpers/emodifier.h>
 #include <eSlayerHelpers/eskills.h>
 
@@ -25,7 +27,7 @@ public:
     void setGameTooltip(const std::string& text,
                         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
-    void setItemDataId(const int dataId);
+    void setItem(const eItem& item);
 
     void setHoverItem(const eItem& item,
                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
@@ -57,7 +59,7 @@ private:
 
     eDropAction mDropAction;
     SDL_Point mMousePos;
-    std::shared_ptr<eTexture> mItem;
+    eItemInstanceTexture mItem;
 
     int mHoverSkillId = -1;
     int mHoverItemId = -1;

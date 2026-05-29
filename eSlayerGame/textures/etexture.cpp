@@ -161,18 +161,45 @@ void eTexture::setAlpha(const Uint8 alpha) {
     else SDL_SetTextureAlphaMod(mTex, alpha);
 }
 
+void eTexture::setAlphaF(const float alpha) {
+    if(mFlipTex) mFlipTex->setAlphaF(alpha);
+    else if(mAtlas) mAtlas->setAlphaF(alpha);
+    else SDL_SetTextureAlphaModFloat(mTex, alpha);}
+
 void eTexture::clearAlphaMod() {
     setAlpha(255);
 }
 
-void eTexture::setColorMod(const Uint8 r, const Uint8 g, const Uint8 b) {
+void eTexture::setColorMod(
+    const Uint8 r, const Uint8 g, const Uint8 b) {
     if(mFlipTex) mFlipTex->setColorMod(r, g, b);
     else if(mAtlas) mAtlas->setColorMod(r, g, b);
     else SDL_SetTextureColorMod(mTex, r, g, b);
 }
 
+void eTexture::setColorModF(
+    const float r, const float g, const float b) {
+    if(mFlipTex) mFlipTex->setColorModF(r, g, b);
+    else if(mAtlas) mAtlas->setColorModF(r, g, b);
+    else SDL_SetTextureColorModFloat(mTex, r, g, b);
+}
+
 void eTexture::clearColorMod() {
     setColorMod(255, 255, 255);
+}
+
+float eTexture::alphaModF() const {
+    if(mFlipTex) return mFlipTex->alphaModF();
+    if(mAtlas) return mAtlas->alphaModF();
+    float a;
+    SDL_GetTextureAlphaModFloat(mTex, &a);
+    return a;
+}
+
+void eTexture::colorModF(float& r, float& g, float& b) const {
+    if(mFlipTex) return mFlipTex->colorModF(r, g, b);
+    if(mAtlas) return mAtlas->colorModF(r, g, b);
+    SDL_GetTextureColorModFloat(mTex, &r, &g, &b);
 }
 
 void eTexture::setBlendMode(const SDL_BlendMode mode) {

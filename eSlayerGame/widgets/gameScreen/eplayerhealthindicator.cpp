@@ -1,6 +1,7 @@
 #include "eplayerhealthindicator.h"
 
 #include "../../textures/euitextures.h"
+#include "../../textures/etexturecolorholder.h"
 
 void ePlayerHealthIndicator::initialize(
     const std::shared_ptr<eTexture>& bg,
@@ -30,13 +31,18 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
         p.drawTexture(x*baseWidth, 0, mFg);
     }
     const auto& col = color();
-    if(col.r + col.g + col.b > 600) {
-        mBg->setColorMod(55, 55, 55);
+    {
+        eTextureColorSetting color;
+        const bool darken = col.r + col.g + col.b > 600;
+        const eTextureColorHolder mod(
+            darken, 0.2f, 0.2f, 0.2f, 1.f, mBg);
+        for(int x = 0; x < mNColumns; x++) {
+            p.drawTexture(x*baseWidth, 0, mBg);
+        }
     }
-    for(int x = 0; x < mNColumns; x++) {
-        p.drawTexture(x*baseWidth, 0, mBg);
-    }
-    mBg->setColorMod(col.r, col.g, col.b);
+    eTextureColorSetting color;
+    color.set(col);
+    const eTextureColorHolder mod(color, mBg);
     const int innerW = mBg->width();
     const int totalW = mNColumns*innerW;
     const float frac = float(value)/max;
@@ -51,7 +57,6 @@ void ePlayerHealthIndicator::paintEvent(ePainter& p) {
         if(remW <= 0) break;
     }
     p.setClipRect(nullptr);
-    mBg->clearColorMod();
 }
 
 bool ePlayerHealthIndicator::mouseMoveEvent(const eMouseEvent& e) {

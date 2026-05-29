@@ -6,6 +6,7 @@
 #include "../../textures/eterrstextures.h"
 #include "../../textures/emissilestextures.h"
 #include "../../textures/etextgenerator.h"
+#include "../../textures/eiteminstancetexture.h"
 #include "../../textures/eitemstextures.h"
 
 #include "../../names/eareanames.h"
@@ -995,6 +996,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 auto& itex = eItemsTextures::getByItemDataId(dataId);
                 itex.request(r, res);
                 const auto& tex = itex.fTinyTex;
+                const auto colorMod = eItemInstanceTexture::color(*i);
                 bool highlight = false;
                 const int texW = tex->width();
                 const int texH = tex->height();
@@ -1012,7 +1014,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
 
                 const eRenderCall c(eRenderCallType::item, pos.fX, pos.fY,
-                                    drawX, drawY, tex, highlight, false, false);
+                                    drawX, drawY, tex, highlight, false, false,
+                                    colorMod);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);

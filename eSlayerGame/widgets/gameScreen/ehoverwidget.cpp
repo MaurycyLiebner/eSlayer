@@ -1,7 +1,5 @@
 #include "ehoverwidget.h"
 
-#include "../../textures/eitemstextures.h"
-
 #include "../../names/eitemnames.h"
 #include "../../elanguage.h"
 #include "ehovergenerator.h"
@@ -40,17 +38,13 @@ void eHoverWidget::setGameTooltip(
     mGameHoverRect = rect;
 }
 
-void eHoverWidget::setItemDataId(
-    const int dataId) {
-    if(dataId == -1) {
-        mItem = nullptr;
+void eHoverWidget::setItem(const eItem& item) {
+    if(item.fType == eItemType::none) {
+        mItem.reset();
     } else {
         const auto r = renderer();
         const auto& res = resolution();
-        const auto name = eItemsData::name(dataId);
-        auto& itemTex = eItemsTextures::get(name);
-        itemTex.request(r, res);
-        mItem = itemTex.fTex;
+        mItem = eItemInstanceTexture(r, res, item);
     }
 }
 
@@ -330,12 +324,7 @@ void eHoverWidget::setHoverSkill(
 
 void eHoverWidget::sUpdateDragItem(const eEquipment& eq) {
     if(!sInstance) return;
-    if(eq.fDragged.fType == eItemType::none) {
-        sInstance->setItemDataId(-1);
-    } else {
-        const int dataId = eq.fDragged.fDataId;
-        sInstance->setItemDataId(dataId);
-    }
+    sInstance->setItem(eq.fDragged);
 }
 
 void eHoverWidget::sSetHoverItem(
@@ -383,8 +372,9 @@ void eHoverWidget::paintEvent(ePainter& p) {
             my = wy + wh + margin;
         }
     };
-    if(mItem) {
-        p.drawTexture(mx, my, mItem, eAlignment::center);
+    const auto item = mItem.request();
+    if(item.fTex) {
+        p.drawTexture(mx, my, item.fTex, eAlignment::center);
     } else if(mHover) {
         calcPos(mHoverRect, false);
         eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p, align);

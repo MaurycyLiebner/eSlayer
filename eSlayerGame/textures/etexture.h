@@ -81,9 +81,13 @@ public:
     bool isNull() const;
 
     void setAlpha(const Uint8 alpha);
+    void setAlphaF(const float alpha);
     void clearAlphaMod();
     void setColorMod(const Uint8 r, const Uint8 g, const Uint8 b);
+    void setColorModF(const float r, const float g, const float b);
     void clearColorMod();
+    float alphaModF() const;
+    void colorModF(float& r, float& g, float& b) const;
 
     void setBlendMode(const SDL_BlendMode mode);
 
