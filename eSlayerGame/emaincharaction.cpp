@@ -10,13 +10,14 @@
 
 #include <eSlayerServer/eserver.h>
 
+#include <eSlayerMapGenerator/emapsettings.h>
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
-
-#include <eSlayerMapGenerator/emapsettings.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -26,15 +27,20 @@ eMainCharAction::eMainCharAction(
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eResolution& res,
                                  SDL_Renderer* const r,
-                                 const eWalkablePos& wPos,
-                                 const eWalkablePath& wPath,
-                                 const eObstaclePath& o,
+                                 const std::shared_ptr<eMap>& map,
                                  const eOtherIterator& iter,
                                  const int clientId,
                                  const eTeamId teamId) {
     mClientId = clientId;
     mServer = s;
-    mObstacle = o;
+    mMap = map;
+    const auto wPos = [this](const ePointF& pos) {
+        return mMap->walkable(pos);
+    };
+    const auto wPath = [this](const ePointF& from,
+                              const ePointF& to) {
+        return mMap->walkable(from, to);
+    };
     mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId);
     mMovementHandler.setMoveRandom(0.f);
 
@@ -324,7 +330,7 @@ bool eMainCharAction::handleUnitAttack(
     eCharUnitModel& model) {
     const bool rangedAttack = mStats.rangedAttack(schoice);
     if(!rangedAttack) {
-        const bool obstacle = mObstacle(mMainChar->fPos, u.fPos);
+        const bool obstacle = mMap->obstacle(mMainChar->fPos, u.fPos);
         if(obstacle) return false;
 
         const float attackDist = mStats.attackRange(

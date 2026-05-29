@@ -69,17 +69,7 @@ void eGameWidget::initialize(const int clientId,
     const auto r = renderer();
     const auto& res = resolution();
 
-    const auto wPos = [this](const ePointF& pos) {
-        return mMap->walkable(pos);
-    };
-    const auto wPath = [this](const ePointF& from,
-                              const ePointF& to) {
-        return mMap->walkable(from, to);
-    };
-    const auto oPath = [this](const ePointF& from,
-                              const ePointF& to) {
-        return mMap->obstacle(from, to);
-    };
+
     const auto iter = [this](const ePointF& pos,
                              const float dist,
                              const eOtherHandler& handler) {
@@ -90,9 +80,7 @@ void eGameWidget::initialize(const int clientId,
     };
     auto& pathFinderMap = map->pathFinderMap();
     mMainAction = std::make_shared<eMainCharAction>(pathFinderMap);
-    mMainAction->initialize(mServer, res, r,
-                            wPos, wPath, oPath,
-                            iter, clientId, teamId);
+    mMainAction->initialize(mServer, res, r, mMap, iter, clientId, teamId);
     mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 

@@ -1,6 +1,8 @@
 #ifndef EMAINCHARACTION_H
 #define EMAINCHARACTION_H
 
+class eMap;
+
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/emovementhandler.h>
@@ -27,9 +29,7 @@ public:
     void initialize(const std::shared_ptr<eServer>& s,
                     const eResolution& res,
                     SDL_Renderer* const r,
-                    const eWalkablePos& wPos,
-                    const eWalkablePath& wPath,
-                    const eObstaclePath& o,
+                    const std::shared_ptr<eMap>& map,
                     const eOtherIterator& iter,
                     const int clientId,
                     const eTeamId teamId);
@@ -103,8 +103,7 @@ private:
 
     int mClientId;
     std::shared_ptr<eServer> mServer;
-
-    eObstaclePath mObstacle;
+    std::shared_ptr<eMap> mMap;
 
     std::weak_ptr<eUnit> mPressedUnit;
     std::weak_ptr<eGroundItem> mPressedItem;
