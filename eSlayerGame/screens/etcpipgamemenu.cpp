@@ -1,7 +1,7 @@
 #include "etcpipgamemenu.h"
 
 #include "../widgets/mainMenu/emainmenubutton.h"
-#include "../elanguage.h"
+#include "../etext.h"
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -17,7 +17,7 @@ void eTcpIpGameMenu::initialize(const eAction& hostGameA,
 
     const auto ipTextLabel = new eLabel(window());
     ipTextLabel->setFontColor(eFontColor::gray);
-    ipTextLabel->setText(eLanguage::text(8, 3));
+    ipTextLabel->setText(eText::text(8, 3));
     ipTextLabel->fitContent();
     w->addWidget(ipTextLabel);
 
@@ -29,12 +29,12 @@ void eTcpIpGameMenu::initialize(const eAction& hostGameA,
     w->addWidget(ipLabel);
 
     const auto host = new eMainMenuButton(
-        eLanguage::text(8, 0), window());
+        eText::text(8, 0), window());
     host->setPressAction(hostGameA);
     w->addWidget(host);
 
     const auto join = new eMainMenuButton(
-        eLanguage::text(8, 1), window());
+        eText::text(8, 1), window());
     join->setPressAction(joinGameA);
     w->addWidget(join);
 
@@ -52,7 +52,7 @@ void eTcpIpGameMenu::initialize(const eAction& hostGameA,
 
     {
         const auto e = new eMainMenuButton(
-            eLanguage::text(8, 2), window());
+            eText::text(8, 2), window());
         inner->addWidget(e);
         e->setPressAction(exitA);
         e->align(eAlignment::bottom | eAlignment::left);

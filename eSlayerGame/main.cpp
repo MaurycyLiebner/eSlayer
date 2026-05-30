@@ -4,6 +4,7 @@
 #include "emainwindow.h"
 #include "eresolution.h"
 #include "ewindowsettings.h"
+#include "etext.h"
 #include "elanguage.h"
 
 #include "screens/escreenhandler.h"
@@ -200,6 +201,10 @@ int main(int argc, char* argv[]) {
         std::vector<eAction> loadings;
 
         loadings.emplace_back([&]() {
+            eLanguage::load();
+        });
+
+        loadings.emplace_back([&]() {
             eMusic::loadMenu();
             music.playMenuMusic();
         });
@@ -209,7 +214,7 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eLanguage::load();
+            eText::load();
         });
 
         loadings.emplace_back([&]() {

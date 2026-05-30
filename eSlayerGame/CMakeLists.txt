@@ -90,8 +90,8 @@ add_executable(eSlayerGame
     egameinput.h
     egameworld.cpp
     egameworld.h
-    elanguage.cpp
-    elanguage.h
+    etext.cpp
+    etext.h
     elight.cpp
     elight.h
     eloadtexthelper.cpp
@@ -291,6 +291,7 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
+    elanguage.h elanguage.cpp
 )
 
 include(GNUInstallDirs)

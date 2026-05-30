@@ -44,7 +44,7 @@ bool eItemNames::load() {
     const auto dir = "Items";
 
     {
-        const auto strMap = eFileLoader::loadNames(dir, "names.txt");
+        const auto strMap = eFileLoader::loadNames(dir, "names");
         for(const auto& it : strMap) {
             const auto id = eItemsData::id(it.first);
             sInstance.mNames[id] = it.second;
@@ -52,7 +52,7 @@ bool eItemNames::load() {
     }
 
     {
-        const auto strMap = eFileLoader::loadNames(dir, "/Affixes/Prefixes/names.txt");
+        const auto strMap = eFileLoader::loadNames(dir, "/Affixes/Prefixes/names");
         for(const auto& it : strMap) {
             const auto id = eItemAffixes::sPrefixes.id(it.first);
             sInstance.mPrefixNames[id] = it.second;
@@ -60,7 +60,7 @@ bool eItemNames::load() {
     }
 
     {
-        const auto strMap = eFileLoader::loadNames(dir, "/Affixes/Suffixes/names.txt");
+        const auto strMap = eFileLoader::loadNames(dir, "/Affixes/Suffixes/names");
         for(const auto& it : strMap) {
             const auto id = eItemAffixes::sSuffixes.id(it.first);
             sInstance.mSuffixNames[id] = it.second;

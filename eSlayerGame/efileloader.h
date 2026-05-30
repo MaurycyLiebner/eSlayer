@@ -30,7 +30,12 @@ public:
                                  const std::string& path);
     static std::map<std::string, std::string>
     loadNames(const std::string& dir,
-              const std::string& path);
+              std::string path);
+    using eGroup = std::map<int, std::string>;
+    using eStrings = std::map<int, eGroup>;
+    static eStrings
+    loadText(const std::string& dir,
+             std::string path);
 };
 
 #endif // EFILELOADER_H

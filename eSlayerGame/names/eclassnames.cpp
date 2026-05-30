@@ -13,7 +13,7 @@ std::string eClassNames::name(const int itemDataId) {
 
 bool eClassNames::load() {
     const auto dir = "Classes";
-    const auto strMap = eFileLoader::loadNames(dir, "names.txt");
+    const auto strMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : strMap) {
         const auto id = eClasses::sClasses.id(it.first);
         sInstance.mNames[id] = it.second;

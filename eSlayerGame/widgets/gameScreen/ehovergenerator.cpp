@@ -2,7 +2,7 @@
 
 #include "../../textures/etextgenerator.h"
 #include "../epainter.h"
-#include "../../elanguage.h"
+#include "../../etext.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eskills.h>
@@ -130,7 +130,7 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const int skillId,
                                const eFontColor color,
                                const eModifierType type) {
-    auto text = eLanguage::text(g, s);
+    auto text = eText::text(g, s);
 
     std::string minStr;
     if(addPlus(min, type)) minStr = "+";

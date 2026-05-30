@@ -1,152 +1,37 @@
 #include "elanguage.h"
 
-#include <cstring>
 #include <eSlayerHelpers/eexceptions.h>
-#include <eSlayerHelpers/egamedir.h>
-#include <fstream>
+#include <eSlayerHelpers/efileloaderbase.h>
 
-eLanguage eLanguage::sInstance;
+eLanguage eLanguage::sLanguage{"english", "en"};
+std::vector<eLanguage> eLanguage::sLanguages;
+bool eLanguage::sLoaded = false;
 
-eLanguage::eLanguage() {}
+eLanguage::eLanguage(const std::string& name,
+                     const std::string& suffix) :
+    fName(name), fSuffix(suffix) {}
 
-bool eLanguage::load() {
-    return sInstance.loadImpl();
-}
-
-const std::string &eLanguage::text(const int g, const int s) {
-    return sInstance.textImpl(g, s);
-}
-
-const std::string &eLanguage::textImpl(const int g, const int s) {
-    const auto git = mText.find(g);
-    if(git == mText.end()) {
-        eRuntimeThrow("Groud id " + std::to_string(g) + " missing from text.xml.");
-    }
-    const auto& group = git->second;
-    const auto sit = group.find(s);
-    if(sit == group.end()) {
-        eRuntimeThrow("String id " + std::to_string(s) + " missing from group " + std::to_string(g) + " text.xml.");
-    }
-    return sit->second;
-}
-
-bool match(const std::string& str, const std::string& line,
-           const int oldIndex, int& newIndex) {
-    const int ls = line.size();
-    const int iMax = str.size();
-    newIndex = oldIndex;
-    for(int i = 0; i < iMax; i++, newIndex++) {
-        const int lineIndex = oldIndex + i;
-        if(lineIndex >= ls) return false;
-        const auto strC = str[i];
-        const auto lineC = line[lineIndex];
-        if(strC != lineC) return false;
-    }
-    return true;
-}
-
-void skipSpaces(const std::string& line, int& index) {
-    const int ls = line.size();
-    if(index >= ls) return;
-    while(line[index] == ' ') {
-        index++;
-        if(index >= ls) break;
+void eLanguage::setLanguage(const std::string& name) {
+    for(const auto& l : sLanguages) {
+        if(l.fName != name) continue;
+        sLanguage = l;
+        break;
     }
 }
 
-bool readId(const std::string& line,
-            const int oldIndex,
-            int& newIndex,
-            int& id) {
-    const int ls = line.size();
-    newIndex = oldIndex;
-    if(newIndex >= ls) return false;
-    {
-        const bool q = line[newIndex++] == '"';
-        if(!q) return false;
-    }
-    if(newIndex >= ls) return false;
-    std::string numberStr;
-    while(newIndex < ls) {
-        const auto c = line[newIndex];
-        if(c == '"') break;
-        if(!std::isdigit(c)) return false;
-        numberStr = numberStr + c;
-        newIndex++;
-    }
-    id = std::stoi(numberStr);
-    {
-        if(newIndex >= ls) return false;
-        const bool q = line[newIndex++] == '"';
-        if(!q) return false;
-    }
-    return true;
-}
+void eLanguage::load() {
+    if(sLoaded) return;
+    sLoaded = true;
 
-using eGroup = std::map<int, std::string>;
-using eStrings = std::map<int, eGroup>;
-bool parse(const std::string& path,
-           eStrings& strings) {
-    std::ifstream file(path);
-    if(!file.good()) {
-        eRuntimeThrow("File missing " + path);
-        return false;
-    }
+    const auto dir = "Languages";
 
-    eGroup* group = nullptr;
-    std::string line;
-    while(std::getline(file, line)) {
-        if(line.empty()) continue;
-        const int ls = line.size();
-        int index = 0;
-        {
-            skipSpaces(line, index);
-            if(index >= ls) continue;
+    try {
+        const auto jdata = eFileLoaderBase::parse(dir, "languages.json");
+        const auto languages = jdata.get<std::vector<std::vector<std::string>>>();
+        for(const auto& l : languages) {
+            sLanguages.emplace_back(l[0], l[1]);
         }
-        {
-            int newIndex;
-            const bool isGroup = match("<group id=", line, index, newIndex);
-            if(isGroup) {
-                index = newIndex;
-                if(index >= ls) continue;
-                int id;
-                const bool r = readId(line, index, newIndex, id);
-                if(!r) continue;
-                index = newIndex;
-                if(index >= ls) continue;
-                group = &strings[id];
-                continue;
-            }
-        }
-        {
-            int newIndex;
-            const bool isString = match("<string id=", line, index, newIndex);
-            if(isString) {
-                index = newIndex;
-                if(index >= ls) continue;
-                int id;
-                const bool r = readId(line, index, newIndex, id);
-                if(!r) continue;
-                index = newIndex + 1;
-                if(index >= ls) continue;
-                if(!group) continue;
-                auto& str = (*group)[id];
-                while(index < ls && line[index] != '<') {
-                    str.push_back(line[index++]);
-                }
-                continue;
-            }
-        }
+    } catch(...) {
+        eRuntimeThrow("Failed to parse " + dir + "/languages.json");
     }
-    return true;
 }
-
-bool eLanguage::loadImpl() {
-    if(mLoaded) return true;
-    const auto path = eGameDir::path("text.xml");
-    const bool r = parse(path, mText);
-    if(!r) return false;
-    mLoaded = true;
-    return true;
-}
-

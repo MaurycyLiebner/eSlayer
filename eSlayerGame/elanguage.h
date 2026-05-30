@@ -1,26 +1,24 @@
 #ifndef ELANGUAGE_H
 #define ELANGUAGE_H
 
-#include <map>
 #include <string>
+#include <vector>
 
-class eLanguage {
-public:
-    eLanguage();
+struct eLanguage {
+    eLanguage(const std::string& name,
+              const std::string& suffix);
 
-    static bool load();
+    std::string fName;
+    std::string fSuffix;
 
-    static const std::string& text(const int g, const int s);
+    static eLanguage sLanguage;
+    static std::vector<eLanguage> sLanguages;
+
+    static void setLanguage(const std::string& name);
+
+    static void load();
 private:
-    static eLanguage sInstance;
-    const std::string& textImpl(const int g, const int s);
-
-    bool loadImpl();
-
-    bool mLoaded = false;
-    using eGroup = std::map<int, std::string>;
-    using eStrings = std::map<int, eGroup>;
-    eStrings mText;
+    static bool sLoaded;
 };
 
 #endif // ELANGUAGE_H

@@ -14,7 +14,7 @@ std::string eEliteModifiersNames::name(const int eliteId) {
 
 bool eEliteModifiersNames::load() {
     const auto dir = "Units";
-    const auto nameStrMap = eFileLoader::loadNames(dir, "Elite/names.txt");
+    const auto nameStrMap = eFileLoader::loadNames(dir, "Elite/names");
     for(const auto& it : nameStrMap) {
         const auto id = eEliteModifiersInfo::sElite.id(it.first);
         sInstance.mNames[id] = it.second;

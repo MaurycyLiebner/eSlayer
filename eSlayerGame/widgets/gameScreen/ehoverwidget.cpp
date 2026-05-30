@@ -1,7 +1,7 @@
 #include "ehoverwidget.h"
 
 #include "../../names/eitemnames.h"
-#include "../../elanguage.h"
+#include "../../etext.h"
 #include "ehovergenerator.h"
 #include "../../names/eskillnames.h"
 
@@ -213,7 +213,7 @@ void eHoverWidget::setHoverSkill(
             if(cooldown != mods.fCooldown) {
                 cooldown = mods.fCooldown;
                 const auto cooldownFloatStr = eStringHelpers::floatToString(cooldown);
-                auto cooldownStr = eLanguage::text(13, 11);
+                auto cooldownStr = eText::text(13, 11);
                 cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
                 gen.addText(r, cooldownStr, eFontColor::white);
             }
@@ -221,7 +221,7 @@ void eHoverWidget::setHoverSkill(
             if(radius != mods.fRadius) {
                 radius = mods.fRadius;
                 const auto radiusFloatStr = eStringHelpers::floatToString(radius);
-                auto radiusStr = eLanguage::text(13, 9);
+                auto radiusStr = eText::text(13, 9);
                 radiusStr = eStringHelpers::replaceAll(radiusStr, "%1", radiusFloatStr);
                 gen.addText(r, radiusStr, eFontColor::white);
             }
@@ -229,7 +229,7 @@ void eHoverWidget::setHoverSkill(
             if(count != mods.fCount) {
                 count = mods.fCount;
                 const auto countFloatStr = eStringHelpers::floatToString(count);
-                auto countStr = eLanguage::text(13, 12);
+                auto countStr = eText::text(13, 12);
                 countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
                 gen.addText(r, countStr, eFontColor::white);
             }
@@ -237,7 +237,7 @@ void eHoverWidget::setHoverSkill(
             if(manaCost != mods.fManaCost) {
                 manaCost = mods.fManaCost;
                 const auto manaCostFloatStr = eStringHelpers::floatToString(manaCost);
-                auto manaCostStr = eLanguage::text(13, 3);
+                auto manaCostStr = eText::text(13, 3);
                 manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
                 gen.addText(r, manaCostStr, eFontColor::white);
             }
@@ -262,7 +262,7 @@ void eHoverWidget::setHoverSkill(
 
             if(showNextLevel && !skill.fSynergies.empty()) {
                 bool addedSynergiesText = false;
-                const auto textBase = eLanguage::text(13, 5);
+                const auto textBase = eText::text(13, 5);
                 for(const auto& s : skill.fSynergies) {
                     const int sSkillId = s.fSkillId;
                     const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
@@ -271,7 +271,7 @@ void eHoverWidget::setHoverSkill(
                     const auto sTextBase = eStringHelpers::replaceAll(textBase, "%1", sName);
                     if(!addedSynergiesText) {
                         addedSynergiesText = true;
-                        auto text = eLanguage::text(13, 4);
+                        auto text = eText::text(13, 4);
                         text = eStringHelpers::replaceAll(text, "%1", name);
                         gen.addSpace(r);
                         gen.addText(r, text, eFontColor::green);
@@ -285,7 +285,7 @@ void eHoverWidget::setHoverSkill(
                     const float cooldown = mods.fCooldown;
                     if(cooldown != 0.f) {
                         const auto cooldownFloatStr = eStringHelpers::floatToStringWithSign(cooldown);
-                        auto cooldownStr = eLanguage::text(13, 7);
+                        auto cooldownStr = eText::text(13, 7);
                         cooldownStr = eStringHelpers::replaceAll(cooldownStr, "%1", cooldownFloatStr);
                         gen.addText(r, cooldownStr, eFontColor::white);
                     }
@@ -293,7 +293,7 @@ void eHoverWidget::setHoverSkill(
                     const float radius = mods.fRadius;
                     if(radius != 0.f) {
                         const auto radiusFloatStr = eStringHelpers::floatToStringWithSign(radius);
-                        auto radiusStr = eLanguage::text(13, 10);
+                        auto radiusStr = eText::text(13, 10);
                         radiusStr = eStringHelpers::replaceAll(radiusStr, "%1", radiusFloatStr);
                         gen.addText(r, radiusStr, eFontColor::white);
                     }
@@ -301,7 +301,7 @@ void eHoverWidget::setHoverSkill(
                     const int count = mods.fCount;
                     if(count != 0) {
                         const auto countFloatStr = eStringHelpers::floatToStringWithSign(count);
-                        auto countStr = eLanguage::text(13, 8);
+                        auto countStr = eText::text(13, 8);
                         countStr = eStringHelpers::replaceAll(countStr, "%1", countFloatStr);
                         gen.addText(r, countStr, eFontColor::white);
                     }
@@ -309,7 +309,7 @@ void eHoverWidget::setHoverSkill(
                     const float manaCost = mods.fManaCost;
                     if(manaCost != 0.f) {
                         const auto manaCostFloatStr = eStringHelpers::floatToStringWithSign(manaCost);
-                        auto manaCostStr = eLanguage::text(13, 6);
+                        auto manaCostStr = eText::text(13, 6);
                         manaCostStr = eStringHelpers::replaceAll(manaCostStr, "%1", manaCostFloatStr);
                         gen.addText(r, manaCostStr, eFontColor::white);
                     }

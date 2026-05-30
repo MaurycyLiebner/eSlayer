@@ -12,5 +12,5 @@ std::string eServerNames::name(
 
 void eServerNames::load() {
     const auto dir = "Servers";
-    sMap = eFileLoader::loadNames(dir, "names.txt");
+    sMap = eFileLoader::loadNames(dir, "names");
 }

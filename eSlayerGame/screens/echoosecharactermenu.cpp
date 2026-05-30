@@ -4,7 +4,7 @@
 #include "../widgets/mainMenu/echoosecharacterwidget.h"
 #include "../widgets/escrollwidget.h"
 
-#include "../elanguage.h"
+#include "../etext.h"
 
 eChooseCharacterMenu::eChooseCharacterMenu(eMainWindow* const window) :
     eScreenBase(window) {}
@@ -34,7 +34,7 @@ void eChooseCharacterMenu::initialize(
     const auto inner = eScreenBase::addInner();
 
     const auto e = new eMainMenuButton(
-        eLanguage::text(3, 0), window());
+        eText::text(3, 0), window());
     e->setPressAction(exit);
     inner->addWidget(e);
     e->align(eAlignment::bottom);
@@ -47,10 +47,10 @@ void eChooseCharacterMenu::initialize(
     sw->setScrollStep(buttHeight);
 
     const auto dc = new eMainMenuButton(
-        eLanguage::text(3, 3), window());
+        eText::text(3, 3), window());
     dc->setEnabled(false);
     const auto o = new eMainMenuButton(
-        eLanguage::text(3, 1), window());
+        eText::text(3, 1), window());
     o->setEnabled(false);
 
     const auto c = new eChooseCharacterWidget(window());
@@ -73,7 +73,7 @@ void eChooseCharacterMenu::initialize(
     cwb->setNoPadding();
 
     const auto cnc = new eMainMenuButton(
-        eLanguage::text(3, 2), window());
+        eText::text(3, 2), window());
     cnc->setPressAction(createCharacter);
     cwb->addWidget(cnc);
 
@@ -87,7 +87,7 @@ void eChooseCharacterMenu::initialize(
         const auto ask = new eLabel(window());
         ask->setSmallFontSize();
         ask->setWrapWidth(w);
-        ask->setText(eLanguage::text(3, 4));
+        ask->setText(eText::text(3, 4));
         ask->fitContent();
         mDialog->addWidget(ask);
 
@@ -95,7 +95,7 @@ void eChooseCharacterMenu::initialize(
         buttonsW->setNoPadding();
 
         const auto yes = new eMainMenuButton(
-            eLanguage::text(3, 5), window());
+            eText::text(3, 5), window());
         yes->fitContent();
         yes->setPressAction([this, deleteCharacter, cc]() {
             deleteCharacter(cc);
@@ -104,7 +104,7 @@ void eChooseCharacterMenu::initialize(
         buttonsW->addWidget(yes);
 
         const auto no = new eMainMenuButton(
-            eLanguage::text(3, 6), window());
+            eText::text(3, 6), window());
         no->fitContent();
         no->setPressAction([this]() {
             closeDialog();

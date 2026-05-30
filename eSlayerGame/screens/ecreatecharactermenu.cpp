@@ -5,7 +5,7 @@
 #include "../widgets/enamedcheckbox.h"
 #include "../emainwindow.h"
 
-#include "../elanguage.h"
+#include "../etext.h"
 
 eCreateCharacterMenu::eCreateCharacterMenu(eMainWindow * const window) :
     eScreenBase(window) {}
@@ -25,14 +25,14 @@ void eCreateCharacterMenu::initialize(
     const auto inner = eScreenBase::addInner();
 
     const auto e = new eMainMenuButton(
-        eLanguage::text(2, 0), window);
+        eText::text(2, 0), window);
     e->setPressAction(exit);
     inner->addWidget(e);
 
     const auto nw = new eWidget(window);
 
     const auto nl = new eLabel(window);
-    nl->setText(eLanguage::text(2, 2));
+    nl->setText(eText::text(2, 2));
     nl->fitContent();
     nw->addWidget(nl);
 
@@ -43,7 +43,7 @@ void eCreateCharacterMenu::initialize(
     window->startTextInput();
 
     const auto h = new eNamedCheckBox(window);
-    h->initialize(eLanguage::text(2, 3));
+    h->initialize(eText::text(2, 3));
     nw->addWidget(h);
 
     const int pp = res.smallPadding();
@@ -52,7 +52,7 @@ void eCreateCharacterMenu::initialize(
     inner->addWidget(nw);
 
     const auto o = new eMainMenuButton(
-        eLanguage::text(2, 1), window);
+        eText::text(2, 1), window);
     o->setPressAction([ok, n]() {
         ok(n->text(), false);
     });

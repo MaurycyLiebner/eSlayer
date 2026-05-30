@@ -1,6 +1,6 @@
 #include "estatswidget.h"
 
-#include "../../elanguage.h"
+#include "../../etext.h"
 #include "../../names/eskillnames.h"
 #include "../elabel.h"
 #include "../ebuttonbase.h"
@@ -392,20 +392,20 @@ void eStatsWidget::paintEvent(ePainter& p) {
 }
 
 void eStatsWidget::updateStats() {
-    mLevel->setValues({eLanguage::text(11, 16),
+    mLevel->setValues({eText::text(11, 16),
                        std::to_string(mAttrs->fLevel)});
-    mExp->setValues({eLanguage::text(11, 17),
+    mExp->setValues({eText::text(11, 17),
                      std::to_string(int(mAttrs->fExp))});
-    mNextLevel->setValues({eLanguage::text(11, 18),
+    mNextLevel->setValues({eText::text(11, 18),
                            std::to_string(mAttrs->nextLevelExp())});
 
-    mStrength->setText({eLanguage::text(11, 0)},
+    mStrength->setText({eText::text(11, 0)},
                        std::vector<float>{mStats->fStrength});
-    mDexterity->setText({eLanguage::text(11, 1)},
+    mDexterity->setText({eText::text(11, 1)},
                        std::vector<float>{mStats->fDexterity});
-    mVitality->setText({eLanguage::text(11, 2)},
+    mVitality->setText({eText::text(11, 2)},
                        std::vector<float>{mStats->fVitality});
-    mEnergy->setText({eLanguage::text(11, 3)},
+    mEnergy->setText({eText::text(11, 3)},
                       std::vector<float>{mStats->fEnergy});
 
     const auto handleSkill = [&](const eSkillStats& skillStats,
@@ -450,7 +450,7 @@ void eStatsWidget::updateStats() {
                              skillStats.fDamageMaxRW.total());
         }
 
-        skillDmg->setText({skillName, eLanguage::text(11, 4)}, dmg);
+        skillDmg->setText({skillName, eText::text(11, 4)}, dmg);
 
         const bool noARL = skillType == eSkillType::missile ||
                            skillType == eSkillType::wall ||
@@ -470,7 +470,7 @@ void eStatsWidget::updateStats() {
             if(rw) {
                 AR.emplace_back(skillStats.fAttackRatingRW);
             }
-            skillAR->setText({skillName, eLanguage::text(11, 5)}, AR);
+            skillAR->setText({skillName, eText::text(11, 5)}, AR);
         }
     };
 
@@ -483,30 +483,30 @@ void eStatsWidget::updateStats() {
                 mRightSkillDmg,
                 mRightSkillAR);
 
-    mDefense->setText({eLanguage::text(11, 6)},
+    mDefense->setText({eText::text(11, 6)},
                       std::vector<float>{mStats->fDefense});
 
-    mStamina->setText({eLanguage::text(11, 7)},
+    mStamina->setText({eText::text(11, 7)},
                       {mStats->fStamina, mStats->fStamina});
-    mLife->setText({eLanguage::text(11, 8)},
+    mLife->setText({eText::text(11, 8)},
                    {mStats->fMaxHealth, mStats->fHealthF});
-    mMana->setText({eLanguage::text(11, 9)},
+    mMana->setText({eText::text(11, 9)},
                     {mStats->fMaxMana, mStats->fManaF});
 
-    mFireResistance->setText({eLanguage::text(11, 10),
-                              eLanguage::text(11, 14)},
+    mFireResistance->setText({eText::text(11, 10),
+                              eText::text(11, 14)},
                              std::vector<float>{100*mStats->fFireResistance});
-    mColdResistance->setText({eLanguage::text(11, 11),
-                              eLanguage::text(11, 14)},
+    mColdResistance->setText({eText::text(11, 11),
+                              eText::text(11, 14)},
                              std::vector<float>{100*mStats->fColdResistance});
-    mLightningResistance->setText({eLanguage::text(11, 12),
-                                   eLanguage::text(11, 14)},
+    mLightningResistance->setText({eText::text(11, 12),
+                                   eText::text(11, 14)},
                                   std::vector<float>{100*mStats->fLightningResistance});
-    mPoisonResistance->setText({eLanguage::text(11, 13),
-                                eLanguage::text(11, 14)},
+    mPoisonResistance->setText({eText::text(11, 13),
+                                eText::text(11, 14)},
                                std::vector<float>{100*mStats->fPoisonResistance});
 
-    mStatPointsRem->setText({eLanguage::text(11, 15)},
+    mStatPointsRem->setText({eText::text(11, 15)},
                             std::vector<float>{float(mAttrs->fStatPoints)});
 
     mStrIncButton->setEnabled(mAttrs->fStatPoints > 0);

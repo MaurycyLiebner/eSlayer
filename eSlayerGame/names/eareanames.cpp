@@ -13,6 +13,6 @@ std::string eAreaNames::name(const std::string& nameBase) {
 
 bool eAreaNames::load() {
     const auto dir = "Maps";
-    sInstance.mNames = eFileLoader::loadNames(dir, "names.txt");
+    sInstance.mNames = eFileLoader::loadNames(dir, "names");
     return true;
 }

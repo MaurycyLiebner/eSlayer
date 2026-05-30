@@ -17,12 +17,12 @@ std::string eSkillNames::description(const int skillId) {
 
 bool eSkillNames::load() {
     const auto dir = "Skills";
-    const auto nameStrMap = eFileLoader::loadNames(dir, "names.txt");
+    const auto nameStrMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : nameStrMap) {
         const auto id = eSkills::sSkills.id(it.first);
         sInstance.mNames[id] = it.second;
     }
-    const auto descStrMap = eFileLoader::loadNames(dir, "descriptions.txt");
+    const auto descStrMap = eFileLoader::loadNames(dir, "descriptions");
     for(const auto& it : descStrMap) {
         const auto id = eSkills::sSkills.id(it.first);
         sInstance.mDescriptions[id] = it.second;

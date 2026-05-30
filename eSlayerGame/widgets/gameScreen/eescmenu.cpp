@@ -1,6 +1,6 @@
 #include "eescmenu.h"
 
-#include "../../elanguage.h"
+#include "../../etext.h"
 #include "../../erendersettings.h"
 #include "eescmenubutton.h"
 
@@ -11,21 +11,21 @@ void eESCMenu::initialize(const eAction& return_,
     removeChildren();
 
     const auto optionsB = new eESCMenuButton(
-        eLanguage::text(5, 0), window());
+        eText::text(5, 0), window());
     addWidget(optionsB);
     optionsB->setPressAction([this]() {
         showOptions();
     });
 
     const auto exitB = new eESCMenuButton(
-        eLanguage::text(5, 1), window());
+        eText::text(5, 1), window());
     addWidget(exitB);
     exitB->setPressAction([exit]() {
         if(exit) exit();
     });
 
     const auto returnB = new eESCMenuButton(
-        eLanguage::text(5, 2), window());
+        eText::text(5, 2), window());
     addWidget(returnB);
     returnB->setPressAction([return_]() {
         if(return_) return_();
@@ -55,21 +55,21 @@ void eESCMenu::showOptions() {
     removeChildren();
 
     const auto soundOptionsB = new eESCMenuButton(
-        eLanguage::text(5, 6), window());
+        eText::text(5, 6), window());
     addWidget(soundOptionsB);
     soundOptionsB->setPressAction([this]() {
         showSoundOptions();
     });
 
     const auto videoOptionsB = new eESCMenuButton(
-        eLanguage::text(5, 7), window());
+        eText::text(5, 7), window());
     addWidget(videoOptionsB);
     videoOptionsB->setPressAction([this]() {
         showVideoOptions();
     });
 
     const auto previousB = new eESCMenuButton(
-        eLanguage::text(5, 5), window());
+        eText::text(5, 5), window());
     addWidget(previousB);
     previousB->setPressAction([this]() {
         initialize(mReturn, mExit);
@@ -91,11 +91,11 @@ void eESCMenu::showSoundOptions() {
     removeChildren();
 
     const auto soundOptionsB = new eESCMenuButton(
-        eLanguage::text(5, 6), window());
+        eText::text(5, 6), window());
     addWidget(soundOptionsB);
 
     const auto previousB = new eESCMenuButton(
-        eLanguage::text(5, 5), window());
+        eText::text(5, 5), window());
     addWidget(previousB);
     previousB->setPressAction([this]() {
         showOptions();
@@ -118,12 +118,12 @@ void eESCMenu::showVideoOptions() {
     const int w = buttonMaxWidth();
 
     const auto videoOptionsB = new eESCMenuButton(
-        eLanguage::text(5, 7), window());
+        eText::text(5, 7), window());
     addWidget(videoOptionsB);
 
-    const auto qualityStrs = {eLanguage::text(5, 11), // low
-                              eLanguage::text(5, 10), // medium
-                              eLanguage::text(5, 9)}; // high
+    const auto qualityStrs = {eText::text(5, 11), // low
+                              eText::text(5, 10), // medium
+                              eText::text(5, 9)}; // high
     const auto name = eRenderSettings::sLightingQuality.fName;
     int lqId;
     if(name == "low") {
@@ -142,12 +142,12 @@ void eESCMenu::showVideoOptions() {
     };
 
     const auto lightingQualityB = new eESCMenuSwitchButton(
-        eLanguage::text(5, 8), qualityStrs, lqId,
+        eText::text(5, 8), qualityStrs, lqId,
         lightingQualityA, window(), w);
     addWidget(lightingQualityB);
 
     const auto previousB = new eESCMenuButton(
-        eLanguage::text(5, 5), window());
+        eText::text(5, 5), window());
     addWidget(previousB);
     previousB->setPressAction([this]() {
         showOptions();

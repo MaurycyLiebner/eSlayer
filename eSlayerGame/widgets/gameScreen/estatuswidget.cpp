@@ -1,7 +1,7 @@
 #include "estatuswidget.h"
 
 #include "../elabel.h"
-#include "../../elanguage.h"
+#include "../../etext.h"
 #include "../../names/eservernames.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
@@ -33,7 +33,7 @@ void eStatusWidget::initialize(
         const auto ip = new eLabel(window());
         ip->setTinyFontSize();
         ip->setTinyPadding();
-        auto fullIpStr = eLanguage::text(14, 0);
+        auto fullIpStr = eText::text(14, 0);
         fullIpStr = eStringHelpers::replaceAll(
             fullIpStr, "%1", ipStr);
         ip->setText(fullIpStr);
@@ -47,7 +47,7 @@ void eStatusWidget::initialize(
         const auto pass = new eLabel(window());
         pass->setTinyFontSize();
         pass->setTinyPadding();
-        auto fullPassStr = eLanguage::text(14, 1);
+        auto fullPassStr = eText::text(14, 1);
         fullPassStr = eStringHelpers::replaceAll(
             fullPassStr, "%1", passStr);
         pass->setText(fullPassStr);

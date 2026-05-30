@@ -1,7 +1,7 @@
 #include "eerrorscreen.h"
 
 #include "../widgets/elabel.h"
-#include "../elanguage.h"
+#include "../etext.h"
 
 void eErrorScreen::initialize(
     const std::string& msg,
@@ -35,7 +35,7 @@ void eErrorScreen::initialize(
     const auto escLabel = new eLabel(w);
     escLabel->setHugeFontSize();
     escLabel->setFontColor(eFontColor::gray);
-    escLabel->setText(eLanguage::text(9, 0));
+    escLabel->setText(eText::text(9, 0));
     escLabel->fitContent();
     inner->addWidget(escLabel);
 

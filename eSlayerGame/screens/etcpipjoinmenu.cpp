@@ -1,7 +1,7 @@
 #include "etcpipjoinmenu.h"
 
 #include "../widgets/mainMenu/emainmenubutton.h"
-#include "../elanguage.h"
+#include "../etext.h"
 #include "../widgets/elineedit.h"
 
 #include <eSlayerNet/etcpnetwork.h>
@@ -34,13 +34,13 @@ void eTcpIpJoinMenu::initialize(const eJoinAction& joinGameA,
 
     {
         const auto e = new eMainMenuButton(
-            eLanguage::text(8, 6), window());
+            eText::text(8, 6), window());
         inner->addWidget(e);
         e->setPressAction(exitA);
         e->align(eAlignment::bottom | eAlignment::left);
 
         const auto j = new eMainMenuButton(
-            eLanguage::text(8, 5), window());
+            eText::text(8, 5), window());
         inner->addWidget(j);
         j->setPressAction([joinGameA, ipEdit]() {
             joinGameA(ipEdit->text());

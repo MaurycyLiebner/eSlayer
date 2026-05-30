@@ -2,6 +2,8 @@
 
 #include "textures/etexture.h"
 #include "eloadtexthelper.h"
+#include "etext.h"
+#include "elanguage.h"
 
 #include <eSlayerHelpers/eexceptions.h>
 #include <eSlayerHelpers/erunsettings.h>
@@ -96,7 +98,9 @@ TTF_Font* eFileLoader::loadTTFFont(const int size,
 
 std::map<std::string, std::string>
 eFileLoader::loadNames(const std::string& dir,
-                       const std::string& path) {
+                       std::string path) {
+    const auto suffix = eLanguage::sLanguage.fSuffix;
+    path = path + "_" + suffix + ".txt";
     std::map<std::string, std::string> result;
     if(eRunSettings::sUseZip) {
         const auto data = sInstance.load(dir, path);
@@ -104,6 +108,23 @@ eFileLoader::loadNames(const std::string& dir,
     } else {
         const auto filePath = sFilePath(dir, path);
         eLoadTextHelper::load(filePath, result);
+    }
+    return result;
+}
+
+eFileLoader::eStrings
+eFileLoader::loadText(
+    const std::string& dir,
+    std::string path) {
+    const auto suffix = eLanguage::sLanguage.fSuffix;
+    path = path + "_" + suffix + ".xml";
+    eStrings result;
+    if(eRunSettings::sUseZip) {
+        const auto data = sInstance.load(dir, path);
+        eText::parse(data, result);
+    } else {
+        const auto filePath = sFilePath(dir, path);
+        eText::parse(filePath, result);
     }
     return result;
 }

@@ -12,7 +12,7 @@
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
 
-#include "../../elanguage.h"
+#include "../../etext.h"
 
 #include "eunitindicator.h"
 #include "ehoverwidget.h"
@@ -271,7 +271,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& name = u.fName;
             mUserNames[u.fClientId] = name;
             if(u.fJustJoined) {
-                auto text = eLanguage::text(12, 0);
+                auto text = eText::text(12, 0);
                 text = eStringHelpers::replaceAll(text, "%1", name);
                 addMessage(r, text);
             }
@@ -279,7 +279,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto leftUsers = mServer->receiveLeftUsers();
         for(const int clientId : leftUsers) {
             const auto& name = mUserNames[clientId];
-            auto text = eLanguage::text(12, 1);
+            auto text = eText::text(12, 1);
             text = eStringHelpers::replaceAll(text, "%1", name);
             addMessage(r, text);
         }
@@ -1441,7 +1441,7 @@ void eGameWidget::setHighlightedDoors(
         const int h = 100*mult;
         const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
         const int s = doors->fOpen ? 1 : 0;
-        const auto text = eLanguage::text(15, s);
+        const auto text = eText::text(15, s);
         eHoverWidget::sSetGameTooltip(text, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");

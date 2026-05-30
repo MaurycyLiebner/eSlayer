@@ -2,7 +2,7 @@
 
 #include "../widgets/mainMenu/emainmenubutton.h"
 #include "../widgets/echeckbutton.h"
-#include "../elanguage.h"
+#include "../etext.h"
 
 eSettingsMenu::eSettingsMenu(const eWindowSettings& iniSettings,
                              eMainWindow* const window) :
@@ -87,8 +87,8 @@ void eSettingsMenu::initialize(const eAction& exitA,
 
     {
         const auto text = mSettings.fFullscreen ?
-                              eLanguage::text(4, 2) : // windowed screen
-                              eLanguage::text(4, 3); // full screen
+                              eText::text(4, 2) : // windowed screen
+                              eText::text(4, 3); // full screen
         const auto fs = new eMainMenuButton(text, window());
         fs->fitContent();
         col1->addWidget(fs);
@@ -97,8 +97,8 @@ void eSettingsMenu::initialize(const eAction& exitA,
             const bool f = !mSettings.fFullscreen;
             mSettings.fFullscreen = f;
             fullscreenA(f);
-            fs->setText(f ? eLanguage::text(4, 2) : // windowed screen
-                            eLanguage::text(4, 3)); // full screen
+            fs->setText(f ? eText::text(4, 2) : // windowed screen
+                            eText::text(4, 3)); // full screen
             fs->fitContent();
             fs->align(eAlignment::hcenter);
         });
@@ -109,13 +109,13 @@ void eSettingsMenu::initialize(const eAction& exitA,
 
     {
         const auto e = new eMainMenuButton(
-            eLanguage::text(4, 1), window());
+            eText::text(4, 1), window());
         inner->addWidget(e);
         e->setPressAction(exitA);
         e->align(eAlignment::bottom | eAlignment::left);
 
         const auto o = new eMainMenuButton(
-            eLanguage::text(4, 0), window());
+            eText::text(4, 0), window());
         inner->addWidget(o);
         o->setPressAction([this, settingsA]() {
             settingsA(mSettings);

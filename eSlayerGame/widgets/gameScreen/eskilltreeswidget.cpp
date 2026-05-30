@@ -4,7 +4,7 @@
 #include "../ebuttonbase.h"
 #include "../../names/eskilltreenames.h"
 #include "../elabel.h"
-#include "../../elanguage.h"
+#include "../../etext.h"
 
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eclasses.h>
@@ -48,7 +48,7 @@ void eSkillTreesWidget::initialize(
     remainingLabel->setWrapWidth(tabWidth);
     remainingLabel->setTextAlignment(eAlignment::center);
     remainingLabel->setFont(font);
-    remainingLabel->setText(eLanguage::text(13, 0));
+    remainingLabel->setText(eText::text(13, 0));
     remainingLabel->fitContent();
     tabWidget->addWidget(remainingLabel);
     remainingLabel->align(eAlignment::hcenter);

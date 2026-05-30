@@ -1,6 +1,6 @@
 #include "egamescreen.h"
 
-#include "../elanguage.h"
+#include "../etext.h"
 #include "../emainwindow.h"
 #include "../textures/euitextures.h"
 #include "../widgets/ecolors.h"
@@ -99,7 +99,7 @@ void eGameScreen::initialize(const int clientId,
 
     mExperienceIndicator = new ePlayerHealthIndicator(window());
     mExperienceIndicator->setColor(eColors::sExperience);
-    mExperienceIndicator->setName(eLanguage::text(7, 3));
+    mExperienceIndicator->setName(eText::text(7, 3));
     mExperienceIndicator->initialize(eUITextures::sExpBar2,
                                      eUITextures::sExpBar1, 6);
     centerWid->addWidget(mExperienceIndicator);
@@ -109,14 +109,14 @@ void eGameScreen::initialize(const int clientId,
 
     mHealthIndicator = new ePlayerHealthIndicator(window());
     mHealthIndicator->setColor(eColors::sHealth);
-    mHealthIndicator->setName(eLanguage::text(7, 0));
+    mHealthIndicator->setName(eText::text(7, 0));
     mHealthIndicator->initialize(eUITextures::sLifeBar2,
                                  eUITextures::sLifeBar1, 1);
     healthMana->addWidget(mHealthIndicator);
 
     mManaIndicator = new ePlayerHealthIndicator(window());
     mManaIndicator->setColor(eColors::sMana);
-    mManaIndicator->setName(eLanguage::text(7, 1));
+    mManaIndicator->setName(eText::text(7, 1));
     mManaIndicator->initialize(eUITextures::sLifeBar2,
                                eUITextures::sLifeBar1, 1);
     healthMana->addWidget(mManaIndicator);
@@ -142,7 +142,7 @@ void eGameScreen::initialize(const int clientId,
 
     mStaminaIndicator = new ePlayerHealthIndicator(window());
     mStaminaIndicator->setColor(eColors::sStamina);
-    mStaminaIndicator->setName(eLanguage::text(7, 2));
+    mStaminaIndicator->setName(eText::text(7, 2));
     mStaminaIndicator->initialize(eUITextures::sStaminaBar2,
                                   eUITextures::sStaminaBar1, 1);
     staminaWid->addWidget(mStaminaIndicator);
@@ -395,14 +395,14 @@ void eGameScreen::showDeadMenu() {
     const auto line1 = new eLabel(window());
     line1->setExtraHugeFontSize();
     line1->setFontColor(eFontColor::redBlack);
-    line1->setText(eLanguage::text(5, 3));
+    line1->setText(eText::text(5, 3));
     line1->fitContent();
     mDeadMenu->addWidget(line1);
 
     const auto line2 = new eLabel(window());
     line2->setExtraHugeFontSize();
     line2->setFontColor(eFontColor::redBlack);
-    line2->setText(eLanguage::text(5, 4));
+    line2->setText(eText::text(5, 4));
     line2->fitContent();
     mDeadMenu->addWidget(line2);
 
