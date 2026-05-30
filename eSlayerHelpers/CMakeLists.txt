@@ -166,6 +166,8 @@ add_library(eSlayerHelpers SHARED
     src/eitemaffixes.cpp
     src/etile.cpp
     include/eSlayerHelpers/ecolor.h
+    include/eSlayerHelpers/eauratypes.h
+    src/eauratypes.cpp
 )
 
 target_include_directories(eSlayerHelpers

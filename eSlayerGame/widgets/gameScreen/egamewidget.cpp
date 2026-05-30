@@ -801,6 +801,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                            std::static_pointer_cast<ePositioned>(m),
                                                            ftex, lighting});
             } break;
+            default:
+                break;
             }
 
             n->fFrame++;
@@ -940,20 +942,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto tex = model.requestTexture(r);
                 if(!tex) continue;
                 const auto rect = model.requestBoundingRect();
-                const int drawX = ipixel.fX + rect.x;
-                const int drawY = ipixel.fY + rect.y;
-                const eRenderCall c(eRenderCallType::unit, pos.fX, pos.fY,
-                                    drawX, drawY, tex, highlight, true,
-                                    e.fLighting, colorMod);
-                mGamePainter.render(c);
 
                 const auto& bs = u->fBoosts;
                 if(!bs.empty()) {
-                    const auto b = model.requestBoundingRect();
-                    const int drawX = ipixel.fX + b.x + b.w/2;
-                    const int drawY = ipixel.fY + b.y - mult*50;
-                    for(const uint8_t b : u->fBoosts) {
-                        auto& missileTex = eMissilesTextures::sMissiles.get(b);
+                    for(const uint8_t boost : u->fBoosts) {
+                        auto& missileTex = eMissilesTextures::sMissiles.get(boost);
+                        const int drawX = ipixel.fX + rect.x + rect.w/2;
+                        int drawY;
+                        const auto type = missileTex.type();
+                        switch(type) {
+                        case eMissileType::regular:
+                        case eMissileType::explosion: {
+                            drawY = ipixel.fY + rect.y - mult*50;
+                        } break;
+                        case eMissileType::aura: {
+                            drawY = ipixel.fY;
+                        } break;
+                        }
+
                         const int baseId = missileTex.baseAnimId();
                         const int nFrames = missileTex.nFrames(baseId);
                         if(nFrames <= 0) continue;
@@ -964,6 +970,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                         mGamePainter.render(c);
                     }
                 }
+
+                const int drawX = ipixel.fX + rect.x;
+                const int drawY = ipixel.fY + rect.y;
+                const eRenderCall c(eRenderCallType::unit, pos.fX, pos.fY,
+                                    drawX, drawY, tex, highlight, true,
+                                    e.fLighting, colorMod);
+                mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
                 const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,

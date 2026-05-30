@@ -84,6 +84,8 @@ void eMissilesTextures::loadData() {
             type = eMissileType::explosion;
         } else if(typeStr == "regular") {
             type = eMissileType::regular;
+        } else if(typeStr == "aura") {
+            type = eMissileType::aura;
         } else {
             eRuntimeThrow("Unknown missile type \"" + typeStr + "\" in " +
                           dir + "/" + pathBase + ".json");

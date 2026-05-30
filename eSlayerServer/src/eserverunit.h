@@ -241,6 +241,12 @@ public:
                        const float time,
                        const bool recalc = true);
 
+    void addAura(const eAura& aura, const bool recalc = true);
+    void removeAllAuras(const bool recalc = true);
+    bool isAuraSource() const;
+    float maxAuraRange() const;
+    bool addAurasTo(eServerUnit& target) const;
+
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);
     const std::shared_ptr<eComplexAction>&
@@ -264,7 +270,6 @@ public:
     void respawn();
 
     void recalculateStats();
-    void recalculateSkillStats(const int schoice);
 
     int addSkill();
 
@@ -307,6 +312,7 @@ private:
     float mFreezeLength = 0.f;
 
     std::vector<eTimedBoost> mBoosts;
+    std::vector<uint8_t> mAuras;
 
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;

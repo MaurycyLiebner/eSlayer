@@ -103,7 +103,7 @@ bool gWeaponIsMeele(const eWeaponType subtype) {
 }
 
 enum class eModifierSource {
-    item, skill, boost
+    item, skill, boost, aura
 };
 
 struct eSkillStatsHelper {
@@ -522,6 +522,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fEffectiveSkillLevels = fBaseSkillLevels;
 
+    fAuras.clear();
+
     const auto handleItemPassiveMod = [&](const eModifier& mod,
                                           const bool lw,
                                           const bool rw) {
@@ -680,6 +682,30 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     for(const auto& it : fBoosts) {
         const auto& boost = it.second;
         handleItemPassiveMod(boost, false, false);
+    }
+
+    for(const auto& stats : fSkills) {
+        const auto id = stats.fSkillId;
+        const auto& skill = eSkills::sSkills.get(id);
+        if(skill.fType != eSkillType::aura) continue;
+        const auto level = fEffectiveSkillLevels.skillLevel(id);
+        if(level < 0) continue;
+        const auto& levelStats = skill.skillLevel(level);
+        const auto& mods = levelStats.fTotalModifiers;
+        auto& a = fAuras.emplace_back();
+        a.fRange = mods.fRadius;
+        a.fType = skill.fAuraType;
+        a.fTarget = skill.fAuraTarget;
+        a.fMissileId = skill.fAreaMissileId;
+        a.fMods.reserve(mods.size());
+        for(const auto& m : mods) {
+            a.fMods.emplace_back(m.second);
+        }
+    }
+
+    for(const auto& it : fAuraBoosts) {
+        const auto& aura = it.second;
+        handleItemPassiveMod(aura, false, false);
     }
 
     for(const auto& it : fEffectiveSkillLevels) {
@@ -1014,6 +1040,12 @@ void eStats::calculateSkill(eSkillStats& stats,
     for(const auto& it : fBoosts) {
         const auto& boost = it.second;
         handleSkillMod(boost, eModifierSource::boost,
+                       helper, true, true);
+    }
+
+    for(const auto& it : fAuraBoosts) {
+        const auto& aura = it.second;
+        handleSkillMod(aura, eModifierSource::aura,
                        helper, true, true);
     }
 

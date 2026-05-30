@@ -781,7 +781,7 @@ void eServerUnit::setSkillId(const int schoice,
                              const bool recalc) {
     auto& skill = mStats.skill(schoice);
     skill.fSkillId = skillId;
-    if(recalc) recalculateSkillStats(schoice);
+    if(recalc) recalculateStats();
 }
 
 void eServerUnit::setBoosts(
@@ -827,6 +827,66 @@ void eServerUnit::removeBoost(
     } break;
     }
     if(recalc) recalculateStats();
+}
+
+void eServerUnit::addAura(
+    const eAura& aura,
+    const bool recalc) {
+    mAuras.emplace_back(aura.fMissileId);
+    addBoostData(aura.fMissileId);
+    auto& a = mStats.fAuraBoosts;
+    const auto type = aura.fType;
+    const auto it = a.find(type);
+    if(it != a.end()) {
+        a.erase(type);
+    }
+    const auto& mods = aura.fMods;
+    for(const auto& mod : mods) {
+        a.emplace(type, mod);
+    }
+    if(recalc) recalculateStats();
+}
+
+void eServerUnit::removeAllAuras(
+    const bool recalc) {
+    for(const auto a : mAuras) {
+        removeBoostData(a);
+    }
+    mAuras.clear();
+    auto& a = mStats.fAuraBoosts;
+    if(a.empty()) return;
+    a.clear();
+    if(recalc) recalculateStats();
+}
+
+bool eServerUnit::isAuraSource() const {
+    return !mStats.fAuras.empty();
+}
+
+float eServerUnit::maxAuraRange() const {
+    float result = 0.f;
+    for(const auto& a : mStats.fAuras) {
+        result = std::max(a.fRange, result);
+    }
+    return result;
+}
+
+bool eServerUnit::addAurasTo(eServerUnit& target) const {
+    bool result = false;
+    const float dist = ePointF::distance(fPos, target.fPos);
+    for(const auto& a : mStats.fAuras) {
+        switch(a.fTarget) {
+        case eAuraTarget::allies: {
+            const bool e = eTeams::areEnemies(fTeamId, target.fTeamId);
+            if(e) continue;
+        } break;
+        }
+
+        if(a.fRange < dist) continue;
+        target.addAura(a, false);
+        result = true;
+    }
+    return result;
 }
 
 void eServerUnit::addTimedBoost(
@@ -944,10 +1004,6 @@ void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     fMaxHealth = std::ceil(mStats.fMaxHealth);
     fHealth = std::ceil(mStats.fHealthF);
-}
-
-void eServerUnit::recalculateSkillStats(const int schoice) {
-    mStats.calculateSkill(schoice, mEquipment);
 }
 
 int eServerUnit::addSkill() {

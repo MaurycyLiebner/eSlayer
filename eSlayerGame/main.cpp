@@ -42,6 +42,7 @@
 #include <eSlayerHelpers/eclasses.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 #include <eSlayerHelpers/eboostcursetypes.h>
+#include <eSlayerHelpers/eauratypes.h>
 #include <eSlayerHelpers/eitemaffixes.h>
 
 #include <eSlayerMapGenerator/emapsettings.h>
@@ -224,6 +225,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eBoostCurseTypes::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eAuraTypes::load();
         });
 
         loadings.emplace_back([&]() {

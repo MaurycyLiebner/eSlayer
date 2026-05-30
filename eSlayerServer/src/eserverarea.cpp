@@ -372,11 +372,30 @@ void eServerArea::increment(const float by) {
         }
     }
 
+    std::set<int> newAuraSources;
+    const bool recalcAura = (mAuraRecalcCounter++ % mAuraRecalcSpan) == 0;
     for(const auto& area : unitAreas) {
         if(!mUnitAreas.hasArea(area)) continue;
         const auto units = mUnitAreas.at(area);
         for(const int charId : units) {
             const auto u = mUnits.get(charId);
+            if(!u) continue;
+            if(recalcAura) {
+                u->removeAllAuras(false);
+                if(u->fHealth > 0) {
+                    if(u->isAuraSource()) {
+                        newAuraSources.emplace(charId);
+                    }
+                    bool recalc = false;
+                    for(const auto id : mAuraSources) {
+                        const auto uu = mUnits.get(id);
+                        if(!uu) continue;
+                        const bool r = uu->addAurasTo(*u);
+                        recalc = r || recalc;
+                    }
+                    if(recalc) u->recalculateStats();
+                }
+            }
             const auto oldArea = unitArea(*u);
             u->increment(by);
             const auto newArea = unitArea(*u);
@@ -386,6 +405,7 @@ void eServerArea::increment(const float by) {
             }
         }
     }
+    if(recalcAura) std::swap(newAuraSources, mAuraSources);
 
     for(const auto& m : mMissiles) {
         mMIncrementer.increment(*m, by);

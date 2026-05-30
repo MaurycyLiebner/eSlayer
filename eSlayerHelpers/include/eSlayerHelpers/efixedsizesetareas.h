@@ -17,6 +17,7 @@ public:
     ePointF areaPos(const eArea& area) const;
 
     void clear();
+    void clear(const eArea& area);
     bool hasArea(const eArea& area) const;
     void erase(const eArea& area, const int id);
     void emplace(const eArea& area, const int id);

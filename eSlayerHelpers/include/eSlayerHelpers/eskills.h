@@ -42,6 +42,9 @@ struct eSynergy {
 enum class eBoostCurseType;
 enum class eBoostCurseTarget;
 
+enum class eAuraType;
+enum class eAuraTarget;
+
 struct eSkill {
     eSkillType fType;
 
@@ -55,8 +58,12 @@ struct eSkill {
     int fUnitId;
     std::string fPath;
     int fPathId;
+
     eBoostCurseType fBoostCurseType;
     eBoostCurseTarget fBoostCurseTarget;
+
+    eAuraType fAuraType;
+    eAuraTarget fAuraTarget;
 
     std::string fAreaMissileStr;
     int fAreaMissileId;

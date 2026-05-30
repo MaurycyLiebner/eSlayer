@@ -224,6 +224,9 @@ private:
     const int mUnitAreaDim = 4;
     const int mUnitAreaMargin = 3;
     eFixedSizeSetAreas mUnitAreas;
+    const int mAuraRecalcSpan = 12;
+    int mAuraRecalcCounter = 0;
+    std::set<int> mAuraSources;
     const int mItemAreaDim = 4;
     eFixedSizeSetAreas mItemAreas;
     const int mItemTileSubdivision = 2;

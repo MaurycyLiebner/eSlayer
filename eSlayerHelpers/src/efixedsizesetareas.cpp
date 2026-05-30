@@ -42,6 +42,10 @@ void eFixedSizeSetAreas::clear() {
     }
 }
 
+void eFixedSizeSetAreas::clear(const eArea& area) {
+    mAreas[area.fY][area.fX].clear();
+}
+
 bool eFixedSizeSetAreas::hasArea(const eArea& area) const {
     if(area.fX < 0 || area.fY < 0) return false;
     if(area.fX >= mWidth || area.fY >= mHeight) return false;

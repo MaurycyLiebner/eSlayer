@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eskills.h"
 
 #include "eSlayerHelpers/eboostcursetypes.h"
+#include "eSlayerHelpers/eauratypes.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/estats.h"
@@ -106,6 +107,26 @@ void eSkills::load() {
                     skill.fBoostCurseTarget = eBoostCurseTarget::enemyArea;
                 } else {
                     eRuntimeThrow("Invalid \"boostCurseTarget\" \"" + boostCurseTargetStr +
+                                  "\" in \"" + dir + "/" + name + ".json\"");
+                }
+
+                skill.fAreaMissileStr = jdata.value("areaMissile", "none");
+            } else if(typeStr == "aura") {
+                skill.fType = eSkillType::aura;
+
+                const auto auraTypeStr = jdata.value("auraType", "");
+                const int id = eAuraTypes::sTypes.id(auraTypeStr);
+                if(id < 0) {
+                    eRuntimeThrow("Invalid \"auraType\" \"" + auraTypeStr +
+                                  "\" in \"" + dir + "/" + name + ".json\"");
+                }
+                skill.fAuraType = static_cast<eAuraType>(id);
+
+                const auto auraTargetStr = jdata.value("auraTarget", "");
+                if(auraTargetStr == "allies") {
+                    skill.fAuraTarget = eAuraTarget::allies;
+                } else {
+                    eRuntimeThrow("Invalid \"auraTarget\" \"" + auraTargetStr +
                                   "\" in \"" + dir + "/" + name + ".json\"");
                 }
 

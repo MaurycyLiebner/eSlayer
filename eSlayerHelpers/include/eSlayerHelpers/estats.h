@@ -24,6 +24,10 @@ enum class eBoostCurseType {
     regular
 };
 
+enum class eAuraType {
+
+};
+
 enum class eBoostCurseTarget {
     enemyArea
 };
@@ -33,6 +37,18 @@ struct eBoostCurse {
     int fMissileId;
     std::vector<eModifier> fMods;
     float fTime;
+};
+
+enum class eAuraTarget {
+    allies
+};
+
+struct eAura {
+    eAuraType fType;
+    eAuraTarget fTarget;
+    int fMissileId;
+    std::vector<eModifier> fMods;
+    float fRange;
 };
 
 struct eSkillStats {
@@ -172,6 +188,8 @@ struct ESLAYERHELPERS_API eStats {
     eSkillLevels fEffectiveSkillLevels;
 
     std::multimap<eBoostCurseType, eModifier> fBoosts;
+    std::multimap<eAuraType, eModifier> fAuraBoosts;
+    std::vector<eAura> fAuras;
 
     bool canUseSkill(const int schoice,
                      const eWeaponChoice wchoice) const;
