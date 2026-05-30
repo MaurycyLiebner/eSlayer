@@ -24,6 +24,7 @@
 #include "names/eobjectnames.h"
 #include "names/eelitemodifiersnames.h"
 #include "names/eservernames.h"
+#include "names/elanguagenames.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -202,6 +203,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eLanguage::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eLanguageNames::load();
         });
 
         loadings.emplace_back([&]() {

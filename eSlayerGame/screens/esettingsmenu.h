@@ -20,8 +20,7 @@ public:
     using eApplyAction = std::function<void(const eWindowSettings&)>;
     using eFullscreenA = std::function<void(const bool)>;
     void initialize(const eAction& exitA,
-                    const eApplyAction& settingsA,
-                    const eFullscreenA& fullscreenA);
+                    const eApplyAction& settingsA);
 private:
     const eWindowSettings mIniSettings;
     eWindowSettings mSettings;

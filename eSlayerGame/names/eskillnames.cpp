@@ -2,7 +2,6 @@
 
 #include "../efileloader.h"
 
-#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eskills.h>
 
 eSkillNames eSkillNames::sInstance;

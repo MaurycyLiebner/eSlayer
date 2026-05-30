@@ -21,6 +21,18 @@
 #include "../textures/echarstextures.h"
 #include "../textures/emaptextures.h"
 
+#include "../names/eitemnames.h"
+#include "../names/emonsternames.h"
+#include "../names/eskillnames.h"
+#include "../names/eskilltreenames.h"
+#include "../names/eclassnames.h"
+#include "../names/eareanames.h"
+#include "../names/eobjectnames.h"
+#include "../names/eelitemodifiersnames.h"
+#include "../names/eservernames.h"
+#include "../names/elanguagenames.h"
+#include "../etext.h"
+
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 
@@ -316,17 +328,73 @@ void eScreenHandler::showSettings() {
     };
 
     const auto applyAction = [this](const eWindowSettings& sett) {
+        mWindow->setFullscreen(sett.fFullscreen);
         mWindow->setResolution(sett.fRes);
+        const auto& oldL = eLanguage::sLanguage.fName;
+        const auto& newL = sett.fLanguage.fName;
+        const bool languageChanged = oldL != newL;
+        if(languageChanged) {
+            eLanguage::sLanguage = sett.fLanguage;
+        }
         sett.write();
-        showMainMenu();
+        if(languageChanged) {
+            std::vector<eAction> loadings;
+
+            loadings.emplace_back([&]() {
+                eLanguageNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eText::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eSkillTreeNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eClassNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eItemNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eAreaNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eMonsterNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eSkillNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eObjectNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eEliteModifiersNames::load();
+            });
+
+            loadings.emplace_back([&]() {
+                eServerNames::load();
+            });
+
+            const auto finish = [this]() {
+                showMainMenu();
+            };
+
+            showLoadingScreen(loadings, finish);
+        } else {
+            showMainMenu();
+        }
     };
 
-    const auto fullscreenA = [this](const bool fullscreen) {
-        mWindow->setFullscreen(fullscreen);
-        showSettings();
-    };
-
-    w->initialize(exitAction, applyAction, fullscreenA);
+    w->initialize(exitAction, applyAction);
     mWindow->setWidget(w);
 }
 

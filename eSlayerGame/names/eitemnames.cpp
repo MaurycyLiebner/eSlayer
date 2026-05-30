@@ -3,7 +3,6 @@
 #include "../efileloader.h"
 
 #include <eSlayerHelpers/eitem.h>
-#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eitemaffixes.h>
 #include <eSlayerHelpers/estringhelpers.h>

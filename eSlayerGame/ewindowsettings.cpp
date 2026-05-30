@@ -1,6 +1,7 @@
 #include "ewindowsettings.h"
 
 #include "eloadtexthelper.h"
+#include "elanguage.h"
 
 #include <eSlayerHelpers/egamedir.h>
 
@@ -17,7 +18,8 @@ void eWindowSettings::write() const {
     const auto wStr = std::to_string(fRes.width());
     file << "width" << " " << "\"" << wStr << "\"" << "\n";
     const auto hStr = std::to_string(fRes.height());
-    file << "height" << " " << "\"" << hStr << "\"";
+    file << "height" << " " << "\"" << hStr << "\"" << "\n";
+    file << "language" << " " << "\"" << fLanguage.fName << "\"";
     file.close();
 }
 
@@ -36,5 +38,8 @@ bool eWindowSettings::read() {
         const int height = std::stoi(heightStr);
         fRes = eResolution(width, height);
     }
+    const auto languageStr = settings["language"];
+    eLanguage::setLanguage(languageStr);
+    fLanguage = eLanguage::sLanguage;
     return true;
 }

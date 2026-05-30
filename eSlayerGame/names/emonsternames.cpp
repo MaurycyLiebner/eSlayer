@@ -2,7 +2,6 @@
 
 #include "../efileloader.h"
 
-#include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/echardatainfo.h>
 
 eMonsterNames eMonsterNames::sInstance;

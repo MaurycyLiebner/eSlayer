@@ -2,10 +2,12 @@
 #define EWINDOWSETTINGS_H
 
 #include "eresolution.h"
+#include "elanguage.h"
 
 struct eWindowSettings {
     bool fFullscreen = false;
     eResolution fRes = eResolution(1280, 720);
+    eLanguage fLanguage = eLanguage::sLanguage;
 
     void write() const;
     bool read();
