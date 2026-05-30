@@ -260,7 +260,7 @@ void eGameWidget::sMoveToMap(const std::string& mapName) {
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
-    const float by = 1.f;
+    const float by = 25.f/eRunSettings::sFPS;
     mServer->increment(by);
 
     const auto r = renderer();

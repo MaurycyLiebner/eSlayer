@@ -661,7 +661,7 @@ void eServerUnit::increment(const float by) {
         for(int i = 0; i < mPoison.size(); i++) {
             auto& p = mPoison[i];
             p.fFrameLength -= by;
-            poisonDmg = std::max(poisonDmg, p.fPerFrame);
+            poisonDmg = std::max(poisonDmg, by*p.fPerFrame);
             if(p.fFrameLength <= 0.f) {
                 mPoison.erase(mPoison.begin() + i);
                 i--;
@@ -762,7 +762,7 @@ void eServerUnit::useSkill(const int schoice) {
     const int skillId = eServerUnit::skillId(schoice);
     const float cooldown = mStats.cooldown(schoice);
     if(cooldown > 0.f) {
-        mStats.fCooldowns[skillId] = cooldown*eRunSettings::sFPS;
+        mStats.fCooldowns[skillId] = cooldown*25.f;
     }
     if(mSlayer) {
         const float manaCost = mStats.manaCost(schoice);

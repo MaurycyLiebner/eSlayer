@@ -19,7 +19,7 @@ struct ESLAYERHELPERS_API eDamage {
                fFire +
                fCold +
                fLightning +
-               fPoisonPerFrame/eRunSettings::sFPS;
+               fPoisonPerFrame/25.f;
     }
 
     eDamage operator/(const float div) const {
