@@ -124,12 +124,20 @@ void eESCMenu::showVideoOptions() {
     const auto qualityStrs = {eLanguage::text(5, 11), // low
                               eLanguage::text(5, 10), // medium
                               eLanguage::text(5, 9)}; // high
-    const std::vector<int> lightingQualityValues = {1, 3, 5};
-    const int lqId = eVectorHelpers::index(lightingQualityValues,
-                                           eRenderSettings::sLightingQuality);
+    const auto name = eRenderSettings::sLightingQuality.fName;
+    int lqId;
+    if(name == "low") {
+        lqId = 0;
+    } else if(name == "medium") {
+        lqId = 1;
+    } else if(name == "high") {
+        lqId = 2;
+    } else {
+        lqId = 0;
+    }
 
-    const auto lightingQualityA = [lightingQualityValues](const int id) {
-        eRenderSettings::sLightingQuality = lightingQualityValues[id];
+    const auto lightingQualityA = [](const int id) {
+        eRenderSettings::sLightingQuality = eRenderSettings::sLightingQualityOptions[id];
         eRenderSettings::write();
     };
 

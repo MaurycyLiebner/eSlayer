@@ -79,7 +79,7 @@ bool lineIntersection(
 }
 
 void eLightingHandler::calculateLighting() {
-    mTileDiv = eRenderSettings::sLightingQuality;
+    mTileDiv = eRenderSettings::sLightingQuality.fSubdivision;
     mNDots = mTileDiv + 1;
 
     mIterator.iterate([&](eTileInfo& tile) {
