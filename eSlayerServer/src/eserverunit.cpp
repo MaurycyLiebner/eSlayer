@@ -523,7 +523,13 @@ int eServerUnit::skillCount(
 int eServerUnit::skillCount(
     const eSkillStats& stats,
     const eWeaponChoice wchoice) {
-    return stats.fCount;
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fCountLW;
+    case eWeaponChoice::right:
+        return stats.fCountRW;
+    }
+    return -1;
 }
 
 float eServerUnit::pierceChance(const int schoice,

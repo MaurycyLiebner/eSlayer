@@ -1078,29 +1078,6 @@ void eStats::calculateSkill(eSkillStats& stats,
             helper.fDmgMaxRWBase.fPhysical += maxFootDmg;
         }
     }
-    if(skill.fType == eSkillType::missile ||
-       skill.fType == eSkillType::shoot ||
-       skill.fType == eSkillType::throw_ ||
-       skill.fType == eSkillType::attack) {
-        if(skill.fMissileId <= 0) {
-            const auto& itemDataL = eItemsData::get(leftW.fDataId);
-            stats.fMissileIdLW = itemDataL.fMissileId;
-            const auto& itemDataR = eItemsData::get(rightW.fDataId);
-            stats.fMissileIdRW = itemDataR.fMissileId;
-        } else {
-            stats.fMissileIdLW = skill.fMissileId;
-            stats.fMissileIdRW = skill.fMissileId;
-        }
-    }
-
-    if(skill.fType == eSkillType::attack ||
-       skill.fType == eSkillType::shoot ||
-       skill.fType == eSkillType::throw_) {
-        stats.fMissileRange = fWeaponRangedRange;
-    } else {
-        stats.fMissileRange = skill.fRange;
-    }
-    stats.fMissileTime = skill.fTime;
 
     for(const auto& it : fBoosts) {
         const auto& boost = it.second;
@@ -1128,7 +1105,38 @@ void eStats::calculateSkill(eSkillStats& stats,
 
     skillMods.collapse();
 
-    stats.fCount = skillMods.fCount;
+
+    if(skill.fType == eSkillType::missile ||
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_ ||
+        skill.fType == eSkillType::attack) {
+        if(skill.fMissileId <= 0) {
+            const auto& itemDataL = eItemsData::get(leftW.fDataId);
+            stats.fMissileIdLW = itemDataL.fMissileId;
+            const auto& itemDataR = eItemsData::get(rightW.fDataId);
+            stats.fMissileIdRW = itemDataR.fMissileId;
+        } else {
+            stats.fMissileIdLW = skill.fMissileId;
+            stats.fMissileIdRW = skill.fMissileId;
+        }
+    }
+
+    if(skill.fType == eSkillType::attack ||
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_) {
+        stats.fMissileRange = fWeaponRangedRange;
+    } else {
+        stats.fMissileRange = skill.fRange;
+    }
+    stats.fMissileTime = skill.fTime;
+
+    if(stats.fMissileIdLW > 0) {
+        stats.fCountLW = std::max(1, skillMods.fCount);
+    }
+    if(stats.fMissileIdRW > 0) {
+        stats.fCountRW = std::max(1, skillMods.fCount);
+    }
+
     stats.fManaCost = skillMods.fManaCost;
     stats.fRadius = skillMods.fRadius;
     stats.fCooldown = skillMods.fCooldown;

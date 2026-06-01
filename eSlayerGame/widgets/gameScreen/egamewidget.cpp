@@ -668,7 +668,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     nFrames = missileTex.nFrames(animId);
                 }
 
-                if(animId == hitId || animId <= 0) {
+                if(animId == hitId || animId < 0) {
                     mWorld.removeMissile(*m);
                     continue;
                 }

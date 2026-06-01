@@ -63,7 +63,6 @@ struct eSkillStats {
     float fCastChance = 0.f;
     int fSkillLevelId = -1;
 
-    int fCount = 0;
     float fManaCost = 0.f;
     float fCooldown = 0.f;
     float fRadius = 0.f;
@@ -83,6 +82,9 @@ struct eSkillStats {
 
     float fAttackRatingLW = 0.f;
     float fAttackRatingRW = 0.f;
+
+    int fCountLW = 0;
+    int fCountRW = 0;
 
     int fMissileIdLW = -1;
     int fMissileIdRW = -1;
