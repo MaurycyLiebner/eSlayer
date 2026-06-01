@@ -715,7 +715,16 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         const auto level = fEffectiveSkillLevels.skillLevel(id);
         if(level < 0) continue;
         const auto& levelStats = skill.skillLevel(level);
-        const auto& mods = levelStats.fTotalModifiers;
+        auto mods = levelStats.fTotalModifiers;
+
+        for(const auto& s : skill.fSynergies) {
+            const int sSkillId = s.fSkillId;
+            const int sLevelId = effectiveSkillLevel(sSkillId);
+            if(sLevelId < 0) continue;
+            const auto& boost = s.boostLevel(sLevelId);
+            mods.addBoost(boost);
+        }
+
         auto& a = fAuras.emplace_back();
         a.fRange = mods.fRadius;
         a.fType = skill.fAuraType;
