@@ -48,17 +48,32 @@ struct eTileTextureData {
     eWallTextures fTLWalls;
     eWallTextures fTRWalls;
 
+    eWallTextures fBLWalls;
+    eWallTextures fBRWalls;
+
     eWallTextures fTLDoors;
     eWallTextures fTRDoors;
+
+    eWallTextures fBLDoors;
+    eWallTextures fBRDoors;
 
     eWallTextures fTLDoorsOpen;
     eWallTextures fTRDoorsOpen;
 
+    eWallTextures fBLDoorsOpen;
+    eWallTextures fBRDoorsOpen;
+
     eWallTextures fTLStairsDown;
     eWallTextures fTRStairsDown;
 
+    eWallTextures fBLStairsDown;
+    eWallTextures fBRStairsDown;
+
     eWallTextures fTLStairsUp;
     eWallTextures fTRStairsUp;
+
+    eWallTextures fBLStairsUp;
+    eWallTextures fBRStairsUp;
 };
 
 class ESLAYERHELPERS_API eTerrsTexturesData {

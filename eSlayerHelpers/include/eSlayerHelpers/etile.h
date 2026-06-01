@@ -22,12 +22,13 @@ struct ESLAYERHELPERS_API eTile {
         const bool wall,
         const bool doors,
         const bool open,
-        const bool stairs,
+        const bool other,
         const uint8_t type) {
         return (static_cast<uint8_t>(wall) << 0) |
                (static_cast<uint8_t>(doors) << 1) |
                (static_cast<uint8_t>(open) << 2) |
-               (type << 3);
+               (static_cast<uint8_t>(other) << 3) |
+               (type << 4);
     }
 
     static bool doors(const uint8_t encoded) {
@@ -46,8 +47,12 @@ struct ESLAYERHELPERS_API eTile {
         }
     }
 
+    static bool other(const uint8_t encoded) {
+        return (encoded >> 3) & 1;
+    }
+
     static uint8_t type(const uint8_t encoded) {
-        return (encoded >> 3);
+        return (encoded >> 4);
     }
 
     static bool stairs(const uint8_t encoded) {

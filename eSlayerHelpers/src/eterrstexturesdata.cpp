@@ -52,7 +52,9 @@ void eTerrsTexturesData::load() {
 
             const auto parse = [&jdata](const std::string& name,
                                         eWallTextures& tl,
-                                        eWallTextures& tr) {
+                                        eWallTextures& tr,
+                                        eWallTextures& br,
+                                        eWallTextures& bl) {
                 if(!jdata.contains(name)) return;
 
                 const auto& wallsJS = jdata[name];
@@ -132,13 +134,22 @@ void eTerrsTexturesData::load() {
 
                 tl = handle("tl");
                 tr = handle("tr");
+                br = handle("br");
+                if(br.empty()) br = tl;
+                bl = handle("bl");
+                if(bl.empty()) bl = tr;
             };
 
-            parse("walls", texs.fTLWalls, texs.fTRWalls);
-            parse("doorsOpen", texs.fTLDoorsOpen, texs.fTRDoorsOpen);
-            parse("doors", texs.fTLDoors, texs.fTRDoors);
-            parse("stairsDown", texs.fTLStairsDown, texs.fTRStairsDown);
-            parse("stairsUp", texs.fTLStairsUp, texs.fTRStairsUp);
+            parse("walls", texs.fTLWalls, texs.fTRWalls,
+                  texs.fBRWalls, texs.fBLWalls);
+            parse("doorsOpen", texs.fTLDoorsOpen, texs.fTRDoorsOpen,
+                  texs.fBRDoorsOpen, texs.fBLDoorsOpen);
+            parse("doors", texs.fTLDoors, texs.fTRDoors,
+                  texs.fBRDoors, texs.fBLDoors);
+            parse("stairsDown", texs.fTLStairsDown, texs.fTRStairsDown,
+                  texs.fBRStairsDown, texs.fBLStairsDown);
+            parse("stairsUp", texs.fTLStairsUp, texs.fTRStairsUp,
+                  texs.fBRStairsUp, texs.fBLStairsUp);
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
         }

@@ -1146,15 +1146,18 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const uint8_t sencoded = wall.fEncodedStairs;
                 const bool stairs = eTile::stairs(sencoded);
                 const uint8_t type = eTile::type(encoded);
+                const bool other = eTile::other(encoded);
                 const std::vector<eWallTexture>* types = nullptr;
                 switch(wall.fType) {
                 case eWallType::topLeft:
-                    types = doors ? &info.fTLDoorsOpen :
-                                    &info.fTLWalls;
+                    types = other ?
+                        (doors ? &info.fBRDoorsOpen : &info.fBRWalls) :
+                        (doors ? &info.fTLDoorsOpen : &info.fTLWalls);
                     break;
                 case eWallType::topRight:
-                    types = doors ? &info.fTRDoorsOpen :
-                                    &info.fTRWalls;
+                    types = other ?
+                        (doors ? &info.fBLDoorsOpen : &info.fBLWalls):
+                        (doors ? &info.fTRDoorsOpen : &info.fTRWalls);
                     break;
                 }
 
