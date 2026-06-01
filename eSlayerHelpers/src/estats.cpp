@@ -9,6 +9,10 @@
 #include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/eweaponchoice.h"
 
+uint32_t eAura::sNextId = 1;
+
+eAura::eAura() : fId(sNextId++) {}
+
 bool eStats::canUseSkill(
     const int schoice,
     const eWeaponChoice wchoice) const {

@@ -246,6 +246,7 @@ public:
     bool isAuraSource() const;
     float maxAuraRange() const;
     bool addAurasTo(eServerUnit& target) const;
+    const std::set<uint32_t>& auraIds() const { return mAuraIds; }
 
     void setAction(const std::shared_ptr<eComplexAction>& a);
     void setChildAction(const std::shared_ptr<eUnitAction>& a);
@@ -312,7 +313,8 @@ private:
     float mFreezeLength = 0.f;
 
     std::vector<eTimedBoost> mBoosts;
-    std::vector<uint8_t> mAuras;
+    std::set<uint8_t> mAuras;
+    std::set<uint32_t> mAuraIds;
 
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;

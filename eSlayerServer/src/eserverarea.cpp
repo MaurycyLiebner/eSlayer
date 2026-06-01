@@ -381,19 +381,22 @@ void eServerArea::increment(const float by) {
             const auto u = mUnits.get(charId);
             if(!u) continue;
             if(recalcAura) {
+                const auto oldAuraIds = u->auraIds();
                 u->removeAllAuras(false);
                 if(u->fHealth > 0) {
                     if(u->isAuraSource()) {
                         newAuraSources.emplace(charId);
                     }
-                    bool recalc = false;
                     for(const auto id : mAuraSources) {
                         const auto uu = mUnits.get(id);
                         if(!uu) continue;
-                        const bool r = uu->addAurasTo(*u);
-                        recalc = r || recalc;
+                        uu->addAurasTo(*u);
                     }
-                    if(recalc) u->recalculateStats();
+                    const auto& newAuraIds = u->auraIds();
+                    const bool recalc = oldAuraIds != newAuraIds;
+                    if(recalc) {
+                        u->recalculateStats();
+                    }
                 }
             }
             const auto oldArea = unitArea(*u);

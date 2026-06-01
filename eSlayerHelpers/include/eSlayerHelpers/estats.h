@@ -44,6 +44,9 @@ enum class eAuraTarget {
 };
 
 struct eAura {
+    eAura();
+    uint32_t fId;
+    static uint32_t sNextId;
     eAuraType fType;
     eAuraTarget fTarget;
     int fMissileId;

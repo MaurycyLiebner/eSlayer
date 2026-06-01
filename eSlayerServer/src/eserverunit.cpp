@@ -832,7 +832,8 @@ void eServerUnit::removeBoost(
 void eServerUnit::addAura(
     const eAura& aura,
     const bool recalc) {
-    mAuras.emplace_back(aura.fMissileId);
+    mAuraIds.emplace(aura.fId);
+    mAuras.emplace(aura.fMissileId);
     addBoostData(aura.fMissileId);
     auto& a = mStats.fAuraBoosts;
     const auto type = aura.fType;
@@ -853,6 +854,7 @@ void eServerUnit::removeAllAuras(
         removeBoostData(a);
     }
     mAuras.clear();
+    mAuraIds.clear();
     auto& a = mStats.fAuraBoosts;
     if(a.empty()) return;
     a.clear();
