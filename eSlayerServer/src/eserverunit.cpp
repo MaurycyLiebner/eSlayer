@@ -812,6 +812,7 @@ void eServerUnit::addBoost(
     for(const auto& mod : mods) {
         b.emplace(type, mod);
     }
+    mArea.boostsAurasChanged(fCharId);
     if(recalc) recalculateStats();
 }
 
@@ -826,6 +827,7 @@ void eServerUnit::removeBoost(
         b.erase(type);
     } break;
     }
+    mArea.boostsAurasChanged(fCharId);
     if(recalc) recalculateStats();
 }
 

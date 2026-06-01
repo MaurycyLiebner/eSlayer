@@ -988,6 +988,14 @@ eServerArea::bodies(const int clientId) {
     return result;
 }
 
+bool eServerArea::boostsAurasChanged(const int clientId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& clientData = it->second;
+    clientData.fUpdateBoostsAuras = true;
+    return true;
+}
+
 bool eServerArea::updateBoostsAuras(const int clientId) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;

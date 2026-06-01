@@ -71,6 +71,7 @@ public:
     skillAreaData(const int clientId);
     std::vector<int>
     bodies(const int clientId);
+    bool boostsAurasChanged(const int clientId);
     bool updateBoostsAuras(const int clientId);
     std::multimap<eBoostCurseType, eModifier>
     boosts(const int clientId);
