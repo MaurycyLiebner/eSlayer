@@ -884,6 +884,10 @@ bool eServerUnit::addAurasTo(eServerUnit& target) const {
             const bool e = eTeams::areEnemies(fTeamId, target.fTeamId);
             if(e) continue;
         } break;
+        case eAuraTarget::enemies: {
+            const bool e = eTeams::areEnemies(fTeamId, target.fTeamId);
+            if(!e) continue;
+        } break;
         }
 
         if(a.fRange < dist) continue;

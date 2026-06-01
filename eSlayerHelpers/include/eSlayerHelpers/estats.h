@@ -40,7 +40,7 @@ struct eBoostCurse {
 };
 
 enum class eAuraTarget {
-    allies
+    allies, enemies
 };
 
 struct eAura {

@@ -125,6 +125,8 @@ void eSkills::load() {
                 const auto auraTargetStr = jdata.value("auraTarget", "");
                 if(auraTargetStr == "allies") {
                     skill.fAuraTarget = eAuraTarget::allies;
+                } else if(auraTargetStr == "enemies") {
+                    skill.fAuraTarget = eAuraTarget::enemies;
                 } else {
                     eRuntimeThrow("Invalid \"auraTarget\" \"" + auraTargetStr +
                                   "\" in \"" + dir + "/" + name + ".json\"");
