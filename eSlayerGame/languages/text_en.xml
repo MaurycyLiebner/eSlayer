@@ -131,6 +131,7 @@
         <string id="54">Flesh Explode</string>
         <string id="55">Ice Explode</string>
         <string id="56">%1 to Skill Level</string>
+        <string id="57">Level %2 %3 Aura When Equipped</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

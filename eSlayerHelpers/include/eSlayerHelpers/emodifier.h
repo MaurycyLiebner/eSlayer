@@ -91,6 +91,8 @@ enum class eModifierType : uint8_t {
 
     skillLevel,
 
+    aura,
+
     count
 };
 

@@ -641,6 +641,26 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const auto skill = statsFromMod(mod, eq);
             fOnDeath.emplace_back(skill);
         } break;
+        case eModifierType::aura: {
+            const auto id = mod.fSkillId;
+            const auto& skill = eSkills::sSkills.get(id);
+            if(skill.fType == eSkillType::aura) {
+                const auto level = mod.fValue2;
+                if(level >= 0) {
+                    const auto& levelStats = skill.skillLevel(level);
+                    const auto& mods = levelStats.fTotalModifiers;
+                    auto& a = fAuras.emplace_back();
+                    a.fRange = mods.fRadius;
+                    a.fType = skill.fAuraType;
+                    a.fTarget = skill.fAuraTarget;
+                    a.fMissileId = skill.fAreaMissileId;
+                    a.fMods.reserve(mods.size());
+                    for(const auto& m : mods) {
+                        a.fMods.emplace_back(m.second);
+                    }
+                }
+            }
+        } break;
         case eModifierType::none:
         case eModifierType::count:
 
@@ -941,6 +961,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::onDeath:
 
         case eModifierType::skillLevel:
+
+        case eModifierType::aura:
             break;
         }
     };

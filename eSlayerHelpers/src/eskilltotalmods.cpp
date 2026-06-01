@@ -47,7 +47,8 @@ void eSkillTotalMods::add(const eModifier& mod) {
     case eModifierType::onStriking:
     case eModifierType::onKill:
     case eModifierType::onStruck:
-    case eModifierType::onDeath: {
+    case eModifierType::onDeath:
+    case eModifierType::aura: {
         emplace(mod.fType, mod);
     } break;
     default: {
@@ -150,6 +151,8 @@ void eSkillTotalMods::collapse() {
         case eModifierType::onKill:
         case eModifierType::onStruck:
         case eModifierType::onDeath:
+
+        case eModifierType::aura:
             applyMod(mod, eModifierType::skillLevel);
             toErase.emplace_back(eModifierType::skillLevel);
             break;
@@ -173,6 +176,8 @@ void eSkillTotalMods::collapseSkillLevel() {
         case eModifierType::onKill:
         case eModifierType::onStruck:
         case eModifierType::onDeath:
+
+        case eModifierType::aura:
             applyMod(mod, eModifierType::skillLevel);
             toErase.emplace_back(eModifierType::skillLevel);
             break;

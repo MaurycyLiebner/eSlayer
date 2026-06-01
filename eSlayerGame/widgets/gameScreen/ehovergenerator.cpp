@@ -118,6 +118,8 @@ bool addPlus(const float value,
 
     case eModifierType::fleshExplode:
     case eModifierType::iceExplode:
+
+    case eModifierType::aura:
         return false;
     }
     return false;
