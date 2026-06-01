@@ -947,13 +947,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(!bs.empty()) {
                     for(const uint8_t boost : u->fBoosts) {
                         auto& missileTex = eMissilesTextures::sMissiles.get(boost);
-                        const int drawX = ipixel.fX + rect.x + rect.w/2;
+                        const int drawX = ipixel.fX;
                         int drawY;
                         const auto type = missileTex.type();
                         switch(type) {
                         case eMissileType::regular:
                         case eMissileType::explosion: {
-                            drawY = ipixel.fY + rect.y - mult*50;
+                            drawY = ipixel.fY - mult*100;
                         } break;
                         case eMissileType::aura: {
                             drawY = ipixel.fY;
