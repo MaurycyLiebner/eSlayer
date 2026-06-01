@@ -48,6 +48,14 @@ void eEliteModifiersInfo::load() {
                 const ordered_json empty = ordered_json::object();
                 eSkills::parseSkillLevels(empty, elite.fBoss);
             }
+            elite.fBossColorMod = eColor{1.f, 1.f, 1.f, 1.f};
+            if(jdata.contains("bossColorMod")) {
+                const auto& color = jdata["bossColorMod"];
+                elite.fBossColorMod.fR = color.value("r", 1.f);
+                elite.fBossColorMod.fG = color.value("g", 1.f);
+                elite.fBossColorMod.fB = color.value("b", 1.f);
+                elite.fBossColorMod.fA = color.value("a", 1.f);
+            }
             sElite.add(name, elite);
         } catch(...) {
             eRuntimeThrow("Failed to parse elite modifiers \"" + name + "\".");

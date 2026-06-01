@@ -5,10 +5,12 @@
 
 #include "estringidmapvector.h"
 #include "eskills.h"
+#include "ecolor.h"
 
 struct eEliteInfo {
     eSkillLevelsStats fMinions;
     eSkillLevelsStats fBoss;
+    eColor fBossColorMod{1.f, 1.f, 1.f, 1.f};
 };
 
 class ESLAYERHELPERS_API eEliteModifiersInfo {

@@ -2,6 +2,7 @@
 #define EUNITINFO_H
 
 #include "emodifier.h"
+#include "ecolor.h"
 
 struct eUnitInfo {
     int fCharData;
@@ -9,6 +10,7 @@ struct eUnitInfo {
     float fWalkSpeed;
     float fRunSpeed;
     int fLevel;
+    eColor fColor;
 
     std::map<uint16_t, uint16_t> fSkills;
     std::vector<eModifier> fModifiers;

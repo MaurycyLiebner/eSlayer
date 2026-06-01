@@ -30,6 +30,8 @@
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+#include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/eelitemodifiersinfo.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -951,6 +953,24 @@ void eGameWidget::paintEvent(ePainter& p) {
                 } else if(poisoned) {
                     colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
                 }
+                {
+                    const auto infoId = u->fCharDataId;
+                    const auto& info = eUnitsInfo::sUnits.get(infoId);
+                    const auto& color = info.fColor;
+                    colorMod.r *= color.fR;
+                    colorMod.g *= color.fG;
+                    colorMod.b *= color.fB;
+                    colorMod.a *= color.fA;
+                }
+                for(const auto mod : u->fMods) {
+                    const auto& info = eEliteModifiersInfo::sElite.get(mod);
+                    const auto& color = info.fBossColorMod;
+                    colorMod.r *= color.fR;
+                    colorMod.g *= color.fG;
+                    colorMod.b *= color.fB;
+                    colorMod.a *= color.fA;
+                }
+
                 const auto tex = model.requestTexture(r);
                 if(!tex) continue;
                 const auto rect = model.requestBoundingRect();

@@ -53,6 +53,14 @@ void eUnitsInfo::load() {
                     u.fSkills[skillId] = skillLevel;
                 }
             }
+            u.fColor = eColor{1.f, 1.f, 1.f, 1.f};
+            if(jdata.contains("color")) {
+                const auto& color = jdata["color"];
+                u.fColor.fR = color.value("r", 1.f);
+                u.fColor.fG = color.value("g", 1.f);
+                u.fColor.fB = color.value("b", 1.f);
+                u.fColor.fA = color.value("a", 1.f);
+            }
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
