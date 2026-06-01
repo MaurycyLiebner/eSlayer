@@ -22,6 +22,12 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
     data.fBodies = mArea->bodies(mClientId);
+    const bool update = mArea->updateBoostsAuras(mClientId);
+    data.fUpdateBoostsAuras = update;
+    if(update) {
+        data.fBoosts = mArea->boosts(mClientId);
+        data.fAuras = mArea->auras(mClientId);
+    }
     mArea->mapPortions(mClientId, data.fMapPortions);
     const auto u = mArea->unit(mClientId);
     data.fMana = u ? std::floor(u->mana()) : 0;

@@ -363,6 +363,15 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
         }
 
+        if(worldResult.fUpdateBoostsAuras) {
+            auto& stats = eGameWidget::stats();
+            auto& attrs = eGameWidget::attributes();
+            const auto& eq = eGameWidget::equipment();
+            stats.fBoosts = worldResult.fBoosts;
+            stats.fAuraBoosts = worldResult.fAuras;
+            stats.calculate(attrs, eq);
+        }
+
         auto& model = mMainChar->model();
         model.setAggressive(worldResult.fAggressive);
     }

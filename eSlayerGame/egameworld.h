@@ -51,6 +51,9 @@ public:
         uint16_t fMana = 0;
         uint16_t fLevel = 0;
         uint16_t fExperience = 0;
+        bool fUpdateBoostsAuras = false;
+        std::multimap<eBoostCurseType, eModifier> fBoosts;
+        std::multimap<eAuraType, eModifier> fAuras;
     };
 
     eProcessResult processServerData(

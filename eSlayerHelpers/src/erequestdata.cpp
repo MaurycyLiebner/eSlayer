@@ -78,6 +78,32 @@ void eRequestData::read(ePacket& p) {
     for(int i = 0; i < nBodies; i++) {
         p >> fBodies.emplace_back();
     }
+
+    p >> fUpdateBoostsAuras;
+
+    if(fUpdateBoostsAuras) {
+        fBoosts.clear();
+        uint8_t nBoosts;
+        p >> nBoosts;
+        for(int i = 0; i < nBoosts; i++) {
+            eBoostCurseType type;
+            p >> type;
+            eModifier mod;
+            mod.read(p);
+            fBoosts.emplace(type, mod);
+        }
+
+        fAuras.clear();
+        uint8_t nAuras;
+        p >> nAuras;
+        for(int i = 0; i < nAuras; i++) {
+            eAuraType type;
+            p >> type;
+            eModifier mod;
+            mod.read(p);
+            fAuras.emplace(type, mod);
+        }
+    }
 }
 
 void eRequestData::write(ePacket& p) const {
@@ -139,5 +165,24 @@ void eRequestData::write(ePacket& p) const {
     p << nBodies;
     for(const auto b : fBodies) {
         p << b;
+    }
+
+    p << fUpdateBoostsAuras;
+    if(fUpdateBoostsAuras) {
+        const uint8_t nBoosts = fBoosts.size();
+        p << nBoosts;
+        for(const auto& it : fBoosts) {
+            p << it.first;
+            auto& mod = it.second;
+            mod.write(p);
+        }
+
+        const uint8_t nAuras = fAuras.size();
+        p << nAuras;
+        for(const auto& it : fAuras) {
+            p << it.first;
+            auto& mod = it.second;
+            mod.write(p);
+        }
     }
 }

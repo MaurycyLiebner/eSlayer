@@ -395,6 +395,11 @@ void eServerArea::increment(const float by) {
                     const auto& newAuraIds = u->auraIds();
                     const bool recalc = oldAuraIds != newAuraIds;
                     if(recalc) {
+                        const auto it = mClientData.find(charId);
+                        if(it != mClientData.end()) {
+                            auto& client = it->second;
+                            client.fUpdateBoostsAuras = true;
+                        }
                         u->recalculateStats();
                     }
                 }
@@ -981,6 +986,31 @@ eServerArea::bodies(const int clientId) {
         result.emplace_back(bodies[i]);
     }
     return result;
+}
+
+bool eServerArea::updateBoostsAuras(const int clientId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& clientData = it->second;
+    const bool result = clientData.fUpdateBoostsAuras;
+    clientData.fUpdateBoostsAuras = false;
+    return result;
+}
+
+std::multimap<eBoostCurseType, eModifier>
+eServerArea::boosts(const int clientId) {
+    const auto u = unit(clientId);
+    if(!u) return {};
+    const auto& stats = u->stats();
+    return stats.fBoosts;
+}
+
+std::multimap<eAuraType, eModifier>
+eServerArea::auras(const int clientId) {
+    const auto u = unit(clientId);
+    if(!u) return {};
+    const auto& stats = u->stats();
+    return stats.fAuraBoosts;
 }
 
 void eServerArea::addSkillArea(

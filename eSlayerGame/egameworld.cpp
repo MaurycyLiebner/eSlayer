@@ -128,6 +128,11 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     for(const auto b : data.fBodies) {
         mBodies.emplace_back(b);
     }
+    result.fUpdateBoostsAuras = data.fUpdateBoostsAuras;
+    if(result.fUpdateBoostsAuras) {
+        result.fBoosts = data.fBoosts;
+        result.fAuras = data.fAuras;
+    }
     result.fReceived = true;
     mUnitAreas.clear();
     const auto& newUnits = data.fNewUnits;

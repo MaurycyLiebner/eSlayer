@@ -41,6 +41,7 @@ struct eClientData {
     eAreas fKnownMap;
     int fKnownBodies = 0;
     std::vector<int> fBodies;
+    bool fUpdateBoostsAuras = false;
 };
 
 class eServerArea {
@@ -70,6 +71,11 @@ public:
     skillAreaData(const int clientId);
     std::vector<int>
     bodies(const int clientId);
+    bool updateBoostsAuras(const int clientId);
+    std::multimap<eBoostCurseType, eModifier>
+    boosts(const int clientId);
+    std::multimap<eAuraType, eModifier>
+    auras(const int clientId);
 
     eArea unitArea(const int charId) const;
     eArea unitArea(const eServerUnit& u) const;
