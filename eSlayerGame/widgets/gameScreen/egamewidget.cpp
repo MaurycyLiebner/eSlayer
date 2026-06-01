@@ -954,19 +954,48 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const auto& bs = u->fBoosts;
                 if(!bs.empty()) {
+                    int nCurses = 0;
+                    int nAuras = 0;
+                    for(const uint8_t boost : u->fBoosts) {
+                        const auto& missileTex = eMissilesTextures::sMissiles.get(boost);
+                        const auto type = missileTex.type();
+                        switch(type) {
+                        case eMissileType::curse:
+                            nCurses++;
+                            break;
+                        case eMissileType::aura:
+                            nAuras++;
+                            break;
+                        default:
+                            continue;
+                        }
+                    }
+                    const int displayFrames = 100;
+                    const uint16_t frame = mFrame + 16*u->fCharId;
+                    int curseId = nCurses <= 0 ? -1 :
+                        (frame / displayFrames) % nCurses;
+                    int auraId = nAuras <= 0 ? -1 :
+                        (frame / displayFrames) % nAuras;
                     for(const uint8_t boost : u->fBoosts) {
                         auto& missileTex = eMissilesTextures::sMissiles.get(boost);
                         const int drawX = ipixel.fX;
                         int drawY;
                         const auto type = missileTex.type();
                         switch(type) {
-                        case eMissileType::regular:
-                        case eMissileType::explosion: {
+                        case eMissileType::curse: {
+                            if(curseId-- != 0) {
+                                continue;
+                            }
                             drawY = ipixel.fY - mult*100;
                         } break;
                         case eMissileType::aura: {
+                            if(auraId-- != 0) {
+                                continue;
+                            }
                             drawY = ipixel.fY;
                         } break;
+                        default:
+                            continue;
                         }
 
                         const int baseId = missileTex.baseAnimId();

@@ -21,7 +21,8 @@ struct eMissileAnim {
 };
 
 enum class eMissileType {
-    regular, explosion, aura
+    regular, explosion,
+    curse, aura
 };
 
 class eMissileTextures {

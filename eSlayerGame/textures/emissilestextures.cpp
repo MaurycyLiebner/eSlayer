@@ -84,6 +84,8 @@ void eMissilesTextures::loadData() {
             type = eMissileType::explosion;
         } else if(typeStr == "regular") {
             type = eMissileType::regular;
+        } else if(typeStr == "curse") {
+            type = eMissileType::curse;
         } else if(typeStr == "aura") {
             type = eMissileType::aura;
         } else {
