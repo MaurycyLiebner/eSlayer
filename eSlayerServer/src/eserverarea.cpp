@@ -306,6 +306,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                         u->setSkillId(schoice, skillId, false);
                     }
                     u->recalculateStats();
+                    u->recalculateAuras();
 
                     const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
                     u->setAction(a);
@@ -648,6 +649,7 @@ bool eServerArea::addClient(const int clientId,
     const auto& skillLevels = c.skillLevels();
     u->setSkillLevels(skillLevels, false);
     u->recalculateStats();
+    u->recalculateAuras();
 
     auto& clientData = mClientData[clientId];
     clientData.fLatestMissile = 0;
@@ -796,6 +798,7 @@ bool eServerArea::pickupBody(
         planRemoveUnit(charId);
     }
     u->recalculateStats();
+    u->recalculateAuras();
     return true;
 }
 
@@ -860,6 +863,7 @@ bool eServerArea::pickupItem(
         const bool r = eq.add(*item, met);
         if(!r) return false;
         u->recalculateStats();
+        u->recalculateAuras();
     }
     mGroundItems.remove(itemId);
     mItemsOnGround.remove(itemId);
@@ -1261,6 +1265,7 @@ void eServerArea::summon(eServerUnit& by,
         u->setSkillId(schoice, 0, false);
     }
     u->recalculateStats();
+    u->recalculateAuras();
 
     const auto byPtr = unit(by.fCharId);
     const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);

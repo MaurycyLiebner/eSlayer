@@ -211,6 +211,7 @@ struct ESLAYERHELPERS_API eStats {
 
     void calculate(const eAttributes& attr,
                    const eEquipment& eq);
+    void calculateAuras(const eEquipment& eq);
 
     void calculateSkill(const int schoice,
                         const eEquipment& eq);

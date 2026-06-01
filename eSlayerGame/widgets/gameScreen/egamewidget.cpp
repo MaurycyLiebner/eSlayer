@@ -96,6 +96,7 @@ void eGameWidget::initialize(const int clientId,
     auto& dstStats = mMainAction->stats();
     dstStats.fBaseSkillLevels = c.skillLevels();
     dstStats.calculate(dstAttrs, dstEq);
+    dstStats.calculateAuras(dstEq);
 
     mWorld.initialize(clientId, mMainChar);
 
@@ -348,6 +349,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     attrs.fLevel = newLevel;
                     const auto& eq = eGameWidget::equipment();
                     stats.calculate(attrs, eq);
+                    stats.calculateAuras(eq);
                 }
             }
             if(u.fHealth <= 0) {
@@ -370,6 +372,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             stats.fBoosts = worldResult.fBoosts;
             stats.fAuraBoosts = worldResult.fAuras;
             stats.calculate(attrs, eq);
+            stats.calculateAuras(eq);
         }
 
         auto& model = mMainChar->model();

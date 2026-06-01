@@ -271,6 +271,7 @@ public:
     void respawn();
 
     void recalculateStats();
+    void recalculateAuras();
 
     int addSkill();
 

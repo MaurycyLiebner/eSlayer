@@ -504,6 +504,7 @@ void eMainCharAction::stopAttack() {
 
 void eMainCharAction::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
+    mStats.calculateAuras(mEquipment);
     updateWalkRunSpeed();
 }
 

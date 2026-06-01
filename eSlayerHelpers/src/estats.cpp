@@ -526,8 +526,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fEffectiveSkillLevels = fBaseSkillLevels;
 
-    fAuras.clear();
-
     const auto handleItemPassiveMod = [&](const eModifier& mod,
                                           const bool lw,
                                           const bool rw) {
@@ -642,24 +640,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             fOnDeath.emplace_back(skill);
         } break;
         case eModifierType::aura: {
-            const auto id = mod.fSkillId;
-            const auto& skill = eSkills::sSkills.get(id);
-            if(skill.fType == eSkillType::aura) {
-                const auto level = mod.fValue2;
-                if(level >= 0) {
-                    const auto& levelStats = skill.skillLevel(level);
-                    const auto& mods = levelStats.fTotalModifiers;
-                    auto& a = fAuras.emplace_back();
-                    a.fRange = mods.fRadius;
-                    a.fType = skill.fAuraType;
-                    a.fTarget = skill.fAuraTarget;
-                    a.fMissileId = skill.fAreaMissileId;
-                    a.fMods.reserve(mods.size());
-                    for(const auto& m : mods) {
-                        a.fMods.emplace_back(m.second);
-                    }
-                }
-            }
+
         } break;
         case eModifierType::none:
         case eModifierType::count:
@@ -706,34 +687,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     for(const auto& it : fBoosts) {
         const auto& boost = it.second;
         handleItemPassiveMod(boost, false, false);
-    }
-
-    for(const auto& stats : fSkills) {
-        const auto id = stats.fSkillId;
-        const auto& skill = eSkills::sSkills.get(id);
-        if(skill.fType != eSkillType::aura) continue;
-        const auto level = fEffectiveSkillLevels.skillLevel(id);
-        if(level < 0) continue;
-        const auto& levelStats = skill.skillLevel(level);
-        auto mods = levelStats.fTotalModifiers;
-
-        for(const auto& s : skill.fSynergies) {
-            const int sSkillId = s.fSkillId;
-            const int sLevelId = effectiveSkillLevel(sSkillId);
-            if(sLevelId < 0) continue;
-            const auto& boost = s.boostLevel(sLevelId);
-            mods.addBoost(boost);
-        }
-
-        auto& a = fAuras.emplace_back();
-        a.fRange = mods.fRadius;
-        a.fType = skill.fAuraType;
-        a.fTarget = skill.fAuraTarget;
-        a.fMissileId = skill.fAreaMissileId;
-        a.fMods.reserve(mods.size());
-        for(const auto& m : mods) {
-            a.fMods.emplace_back(m.second);
-        }
     }
 
     for(const auto& it : fAuraBoosts) {
@@ -858,6 +811,83 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fManaRegeneration = fMaxMana*(100.f + manaRegBonus)/300000.f;
     fHealthRegeneration = lifeRegBonus/256.f;
+}
+
+void eStats::calculateAuras(const eEquipment& eq) {
+    fAuras.clear();
+
+    const auto& leftW = (eq.fWeapons1 ?
+                             eq.fWeapon1L :
+                             eq.fWeapon2L);
+    const auto& rightW = (eq.fWeapons1 ?
+                              eq.fWeapon1R :
+                              eq.fWeapon2R);
+
+    const auto items = {
+        eq.fBoots,
+        eq.fGloves,
+        eq.fHelmet,
+        eq.fArmor,
+        eq.fBelt,
+        eq.fRingL,
+        eq.fRingR,
+        eq.fAmulet,
+        leftW,
+        rightW,
+    };
+
+    for(const auto& item : items) {
+        const auto& mods = item.fModifiers;
+        for(const auto& mod : mods) {
+            if(mod.fType != eModifierType::aura) continue;
+            const auto id = mod.fSkillId;
+            const auto& skill = eSkills::sSkills.get(id);
+            if(skill.fType == eSkillType::aura) {
+                const auto level = mod.fValue2;
+                if(level >= 0) {
+                    const auto& levelStats = skill.skillLevel(level);
+                    const auto& mods = levelStats.fTotalModifiers;
+                    auto& a = fAuras.emplace_back();
+                    a.fRange = mods.fRadius;
+                    a.fType = skill.fAuraType;
+                    a.fTarget = skill.fAuraTarget;
+                    a.fMissileId = skill.fAreaMissileId;
+                    a.fMods.reserve(mods.size());
+                    for(const auto& m : mods) {
+                        a.fMods.emplace_back(m.second);
+                    }
+                }
+            }
+        }
+    }
+
+    for(const auto& stats : fSkills) {
+        const auto id = stats.fSkillId;
+        const auto& skill = eSkills::sSkills.get(id);
+        if(skill.fType != eSkillType::aura) continue;
+        const auto level = fEffectiveSkillLevels.skillLevel(id);
+        if(level < 0) continue;
+        const auto& levelStats = skill.skillLevel(level);
+        auto mods = levelStats.fTotalModifiers;
+
+        for(const auto& s : skill.fSynergies) {
+            const int sSkillId = s.fSkillId;
+            const int sLevelId = effectiveSkillLevel(sSkillId);
+            if(sLevelId < 0) continue;
+            const auto& boost = s.boostLevel(sLevelId);
+            mods.addBoost(boost);
+        }
+
+        auto& a = fAuras.emplace_back();
+        a.fRange = mods.fRadius;
+        a.fType = skill.fAuraType;
+        a.fTarget = skill.fAuraTarget;
+        a.fMissileId = skill.fAreaMissileId;
+        a.fMods.reserve(mods.size());
+        for(const auto& m : mods) {
+            a.fMods.emplace_back(m.second);
+        }
+    }
 }
 
 void eStats::calculateSkill(

@@ -131,19 +131,28 @@ float eServerUnit::radius(const eSkillStats& stats,
 void eServerUnit::setEquipment(const eEquipment& eq,
                                const bool recalc) {
     mEquipment = eq;
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::setAttributes(const eAttributes& attrs,
                                 const bool recalc) {
     mAttributes = attrs;
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
                                  const bool recalc) {
     mStats.fBaseSkillLevels = skillLevels;
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::consumePotion(const uint32_t itemId) {
@@ -613,7 +622,10 @@ void eServerUnit::increment(const float by) {
                 }
             }
         }
-        if(recalc) recalculateStats();
+        if(recalc) {
+            recalculateStats();
+            recalculateAuras();
+        }
     }
 
     float scaledBy = by;
@@ -781,7 +793,10 @@ void eServerUnit::setSkillId(const int schoice,
                              const bool recalc) {
     auto& skill = mStats.skill(schoice);
     skill.fSkillId = skillId;
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::setBoosts(
@@ -791,7 +806,10 @@ void eServerUnit::setBoosts(
     for(const auto& m : mods) {
         b.emplace(eBoostCurseType::regular, m);
     }
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::addBoost(
@@ -813,7 +831,10 @@ void eServerUnit::addBoost(
         b.emplace(type, mod);
     }
     mArea.boostsAurasChanged(fCharId);
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::removeBoost(
@@ -828,7 +849,10 @@ void eServerUnit::removeBoost(
     } break;
     }
     mArea.boostsAurasChanged(fCharId);
-    if(recalc) recalculateStats();
+    if(recalc) {
+        recalculateStats();
+        recalculateAuras();
+    }
 }
 
 void eServerUnit::addAura(
@@ -1012,6 +1036,10 @@ void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     fMaxHealth = std::ceil(mStats.fMaxHealth);
     fHealth = std::ceil(mStats.fHealthF);
+}
+
+void eServerUnit::recalculateAuras() {
+    mStats.calculateAuras(mEquipment);
 }
 
 int eServerUnit::addSkill() {
