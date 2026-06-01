@@ -646,6 +646,7 @@ void eServerUnit::increment(const float by) {
             setFrozen(true);
         }
     } else {
+        mFreezeLength = 0.f;
         setFrozen(false);
     }
     if(mColdLength > 0.f && fHealth > 0) {
@@ -653,6 +654,7 @@ void eServerUnit::increment(const float by) {
         scaledBy *= eUnitData::sColdSpeed;
         setCold(true);
     } else {
+        mColdLength = 0.f;
         setCold(false);
     }
 
@@ -745,6 +747,8 @@ void eServerUnit::increment(const float by) {
                                    0.f, mStats.fMaxMana);
         fHealth = std::ceil(mStats.fHealthF);
         if(fHealth <= 0) dieAndCast(fPos);
+    } else {
+        mPoison.clear();
     }
 
     setPoisoned(poisoned);
