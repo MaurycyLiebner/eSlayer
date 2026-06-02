@@ -32,6 +32,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
+#include <eSlayerHelpers/erunsettings.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 

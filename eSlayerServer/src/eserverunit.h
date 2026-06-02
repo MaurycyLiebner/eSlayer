@@ -313,6 +313,9 @@ private:
     float mColdLength = 0.f;
     float mFreezeLength = 0.f;
 
+    const float mDealsDamagePeriod = 50.f;
+    float mDealsDamageCounter = 0.f;
+
     std::vector<eTimedBoost> mBoosts;
     std::set<uint8_t> mAuras;
     std::set<uint32_t> mAuraIds;

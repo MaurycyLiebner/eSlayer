@@ -120,6 +120,12 @@ bool addPlus(const float value,
     case eModifierType::iceExplode:
 
     case eModifierType::aura:
+
+    case eModifierType::dealsFireDamage:
+    case eModifierType::dealsColdDamage:
+    case eModifierType::dealsLightningDamage:
+    case eModifierType::dealsPoisonDamage:
+    case eModifierType::dealsPhysicalDamage:
         return false;
     }
     return false;

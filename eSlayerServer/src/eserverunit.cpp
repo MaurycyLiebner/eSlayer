@@ -634,6 +634,20 @@ void eServerUnit::increment(const float by) {
         }
     }
 
+    mDealsDamageCounter += by;
+    if(mDealsDamageCounter >= mDealsDamagePeriod) {
+        mDealsDamageCounter -= mDealsDamagePeriod;
+        const auto& max = mStats.fDealsDamageMax;
+        if(max.total() > 0.f) {
+            eHitData data;
+            const auto& min = mStats.fDealsDamageMin;
+            data.fDamage = eDamage::sRandom(min, max);
+            data.fAlwaysHit = true;
+            data.fFrom = fPos;
+            getHit(data);
+        }
+    }
+
     float scaledBy = by;
 
     if(mFreezeLength > 0.f && fHealth > 0) {

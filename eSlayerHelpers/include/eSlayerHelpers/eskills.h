@@ -4,7 +4,6 @@
 #include "eslayerhelpersexport.h"
 
 #include "estringidmapvector.h"
-#include "emodifier.h"
 #include "emodscollection.h"
 
 enum class eSkillType : uint8_t {
@@ -68,7 +67,6 @@ struct eSkill {
     float fMaxAngle;
     bool fAngleAdjust;
     float fCastRange;
-    std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
     eModsCollectionLevels fLevels;
     std::vector<eSynergy> fSynergies;

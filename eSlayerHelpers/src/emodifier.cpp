@@ -82,7 +82,13 @@ gModifierTypeToString = {
 
     { eModifierType::skillLevel, "skillLevel" },
 
-    { eModifierType::aura, "aura" }
+    { eModifierType::aura, "aura" },
+
+    { eModifierType::dealsFireDamage, "dealsFireDamage" },
+    { eModifierType::dealsColdDamage, "dealsColdDamage" },
+    { eModifierType::dealsLightningDamage, "dealsLightningDamage" },
+    { eModifierType::dealsPoisonDamage, "dealsPoisonDamage" },
+    { eModifierType::dealsPhysicalDamage, "dealsPhysicalDamage" }
 };
 
 std::map<std::string, eModifierType>
@@ -99,14 +105,22 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::none:
     case eModifierType::count:
         return eModValuesUsage::none;
+
     case eModifierType::damagePercent:
     case eModifierType::damageValue:
     case eModifierType::damageFire:
     case eModifierType::damageCold:
     case eModifierType::damageLightning:
     case eModifierType::damagePoison:
+
+    case eModifierType::dealsFireDamage:
+    case eModifierType::dealsColdDamage:
+    case eModifierType::dealsLightningDamage:
+    case eModifierType::dealsPoisonDamage:
+    case eModifierType::dealsPhysicalDamage:
         return eModValuesUsage::value1 |
                eModValuesUsage::value2;
+
     case eModifierType::walkRun:
     case eModifierType::attackSpeed:
     case eModifierType::castRate:
@@ -179,6 +193,7 @@ eModValuesUsage eModifier::valuesUsed() const {
         return eModValuesUsage::value1 |
                eModValuesUsage::value2 |
                eModValuesUsage::skillId;
+
     case eModifierType::aura:
         return eModValuesUsage::value2 |
                eModValuesUsage::skillId;
@@ -214,6 +229,12 @@ std::string eModifier::value1Name() const {
     case eModifierType::damageFire:
     case eModifierType::damageCold:
     case eModifierType::damageLightning:
+
+    case eModifierType::dealsFireDamage:
+    case eModifierType::dealsColdDamage:
+    case eModifierType::dealsLightningDamage:
+    case eModifierType::dealsPoisonDamage:
+    case eModifierType::dealsPhysicalDamage:
         return "min";
     case eModifierType::damagePoison:
         return "damage";
@@ -296,6 +317,12 @@ std::string eModifier::value2Name() const {
     case eModifierType::damageFire:
     case eModifierType::damageCold:
     case eModifierType::damageLightning:
+
+    case eModifierType::dealsFireDamage:
+    case eModifierType::dealsColdDamage:
+    case eModifierType::dealsLightningDamage:
+    case eModifierType::dealsPoisonDamage:
+    case eModifierType::dealsPhysicalDamage:
         return "max";
     case eModifierType::damagePoison:
         return "duration";
@@ -528,6 +555,12 @@ bool eModifierHelpers::isPercent(
     case eModifierType::skillLevel:
 
     case eModifierType::aura:
+
+    case eModifierType::dealsFireDamage:
+    case eModifierType::dealsColdDamage:
+    case eModifierType::dealsLightningDamage:
+    case eModifierType::dealsPoisonDamage:
+    case eModifierType::dealsPhysicalDamage:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

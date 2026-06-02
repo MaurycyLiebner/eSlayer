@@ -135,6 +135,26 @@ void eModsCollection::collapse() {
             applyMod(mod, eModifierType::damagePercent);
             toErase.emplace_back(eModifierType::damagePercent);
             break;
+        case eModifierType::dealsFireDamage:
+            applyMod(mod, eModifierType::fireSkillDamage);
+            toErase.emplace_back(eModifierType::fireSkillDamage);
+            break;
+        case eModifierType::dealsColdDamage:
+            applyMod(mod, eModifierType::coldSkillDamage);
+            toErase.emplace_back(eModifierType::coldSkillDamage);
+            break;
+        case eModifierType::dealsLightningDamage:
+            applyMod(mod, eModifierType::lightningSkillDamage);
+            toErase.emplace_back(eModifierType::lightningSkillDamage);
+            break;
+        case eModifierType::dealsPoisonDamage:
+            applyMod(mod, eModifierType::poisonSkillDamage);
+            toErase.emplace_back(eModifierType::poisonSkillDamage);
+            break;
+        case eModifierType::dealsPhysicalDamage:
+            applyMod(mod, eModifierType::damagePercent);
+            toErase.emplace_back(eModifierType::damagePercent);
+            break;
         case eModifierType::onAttack:
         case eModifierType::onStriking:
         case eModifierType::onKill:

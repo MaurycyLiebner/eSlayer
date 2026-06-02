@@ -1,7 +1,6 @@
 #ifndef EDAMAGE_H
 #define EDAMAGE_H
 
-#include "eSlayerHelpers/erunsettings.h"
 #include "eslayerhelpersexport.h"
 
 #include <algorithm>

@@ -524,6 +524,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fMaxPoisonResistance = 0.75f;
     fMaxPhysicalResistance = 0.75f;
 
+    fDealsDamageMin = eDamage();
+    fDealsDamageMax = eDamage();
+
     fEffectiveSkillLevels = fBaseSkillLevels;
 
     const auto handleItemPassiveMod = [&](const eModifier& mod,
@@ -639,9 +642,33 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const auto skill = statsFromMod(mod, eq);
             fOnDeath.emplace_back(skill);
         } break;
-        case eModifierType::aura: {
 
+        case eModifierType::dealsFireDamage: {
+            fDealsDamageMin.fFire += mod.fValue1;
+            fDealsDamageMax.fFire += mod.fValue2;
         } break;
+        case eModifierType::dealsColdDamage: {
+            fDealsDamageMin.fCold += mod.fValue1;
+            fDealsDamageMax.fCold += mod.fValue2;
+        } break;
+        case eModifierType::dealsLightningDamage: {
+            fDealsDamageMin.fLightning += mod.fValue1;
+            fDealsDamageMax.fLightning += mod.fValue2;
+        } break;
+        case eModifierType::dealsPoisonDamage: {
+            const float framesLength = mod.fValue2*25.f;
+            const float bitRate = 256.f*mod.fValue1/framesLength;
+            fDealsDamageMin.fPoisonPerFrame += bitRate/256.f;
+            fDealsDamageMax.fPoisonFrameLength += framesLength;
+        } break;
+        case eModifierType::dealsPhysicalDamage: {
+            fDealsDamageMin.fPhysical += mod.fValue1;
+            fDealsDamageMax.fPhysical += mod.fValue2;
+        } break;
+
+        case eModifierType::aura: {
+        } break;
+
         case eModifierType::none:
         case eModifierType::count:
 
@@ -1002,6 +1029,12 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::skillLevel:
 
         case eModifierType::aura:
+
+        case eModifierType::dealsFireDamage:
+        case eModifierType::dealsColdDamage:
+        case eModifierType::dealsLightningDamage:
+        case eModifierType::dealsPoisonDamage:
+        case eModifierType::dealsPhysicalDamage:
             break;
         }
     };

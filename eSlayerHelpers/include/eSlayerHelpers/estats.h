@@ -185,6 +185,9 @@ struct ESLAYERHELPERS_API eStats {
     float fMaxPoisonResistance = 0.75f;
     float fMaxPhysicalResistance = 0.75f;
 
+    eDamage fDealsDamageMin;
+    eDamage fDealsDamageMax;
+
     eWeaponType fWeaponTypeL = eWeaponType::none;
     eWeaponType fWeaponTypeR = eWeaponType::none;
 

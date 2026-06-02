@@ -85,7 +85,7 @@
         <string id="8">Adds %1 to %2 Fire Damage</string>
         <string id="9">Adds %1 to %2 Lightning Damage</string>
         <string id="10">Adds %1 to %2 Cold Damage</string>
-        <string id="11">%1 Posion Damage Over %2 Seconds</string>
+        <string id="11">%1 Poison Damage Over %2 Seconds</string>
         <string id="12">%1 to Attack Rating</string>
         <string id="13">%1% to Attack Rating</string>
         <string id="14">%1% Increased Chance of Blocking</string>
@@ -132,6 +132,11 @@
         <string id="55">Ice Explode</string>
         <string id="56">%1 to Skill Level</string>
         <string id="57">Level %2 %3 Aura When Equipped</string>
+        <string id="58">Deals %1 to %2 Fire Damage</string>
+        <string id="59">Deals %1 to %2 Cold Damage</string>
+        <string id="60">Deals %1 to %2 Lightning Damage</string>
+        <string id="61">Deals %1 Poison Damage Over %2 Seconds</string>
+        <string id="62">Deals %1 to %2 Physical Damage</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

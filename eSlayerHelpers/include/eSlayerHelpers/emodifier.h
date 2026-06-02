@@ -93,6 +93,12 @@ enum class eModifierType : uint8_t {
 
     aura,
 
+    dealsFireDamage,
+    dealsColdDamage,
+    dealsLightningDamage,
+    dealsPoisonDamage,
+    dealsPhysicalDamage,
+
     count
 };
 
