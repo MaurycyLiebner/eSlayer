@@ -8,8 +8,8 @@
 #include "ecolor.h"
 
 struct eEliteInfo {
-    eSkillLevelsStats fMinions;
-    eSkillLevelsStats fBoss;
+    eModsCollectionLevels fMinions;
+    eModsCollectionLevels fBoss;
     eColor fBossColorMod{1.f, 1.f, 1.f, 1.f};
 };
 

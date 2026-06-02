@@ -150,7 +150,7 @@ void eSkills::load() {
                                  radius);
             }
             if(jdata.contains("synergies")) {
-                eModifiersCollection totalMods;
+                eModsCollection totalMods;
                 const auto& synergies = jdata["synergies"];
                 skill.fSynergies.reserve(synergies.size());
                 for(auto& [name, levels] : synergies.items()) {
@@ -179,10 +179,10 @@ void eSkills::load() {
     }
 }
 
-eSkillLevelStats eSkills::parseSkillLevel(
+eModsCollectionLevel eSkills::parseSkillLevel(
     const ordered_json& levelData,
-    eModifiersCollection& totalMods) {
-    eSkillLevelStats level;
+    eModsCollection& totalMods) {
+    eModsCollectionLevel level;
     auto& mods = level.fModifiers;
 
     for(auto it = levelData.begin(); it != levelData.end(); ++it) {
@@ -220,18 +220,18 @@ eSkillLevelStats eSkills::parseSkillLevel(
 
 void eSkills::parseSkillLevels(
     const ordered_json& levelsJson,
-    std::vector<eSkillLevelStats>& levels,
+    std::vector<eModsCollectionLevel>& levels,
     const int count,
     const float cooldown,
     const float manaCost,
     const uint8_t radiusU) {
-    eModifiersCollection totalMods;
+    eModsCollection totalMods;
     totalMods.fCount = count;
     totalMods.fCooldown = cooldown;
     totalMods.fManaCost = manaCost;
     totalMods.setRadiusU(radiusU);
 
-    eModifiersCollection allMods;
+    eModsCollection allMods;
     if(levelsJson.contains("all")) {
         const auto& all = levelsJson["all"];
         parseSkillLevel(all, allMods);

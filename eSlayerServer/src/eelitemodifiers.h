@@ -11,8 +11,8 @@ public:
 
     void apply(eServerUnit& u, const bool boss);
 private:
-    eModifiersCollection mBossMods;
-    eModifiersCollection mMinionMods;
+    eModsCollection mBossMods;
+    eModsCollection mMinionMods;
     std::set<uint8_t> mMods;
 };
 

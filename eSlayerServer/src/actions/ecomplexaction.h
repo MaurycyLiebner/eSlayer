@@ -13,7 +13,6 @@
 #include <memory>
 
 struct eSkill;
-struct eSkillLevelStats;
 struct eUnitSkill;
 
 struct eHitData {

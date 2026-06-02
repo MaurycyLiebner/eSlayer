@@ -10,7 +10,7 @@
 
 struct ESLAYERHELPERS_API eItemAffix {
     std::vector<eItemType> fTypes;
-    eSkillLevelsStats fLevels;
+    eModsCollectionLevels fLevels;
     eColor fColor;
 
     void generate(const int level, float& remWorth,

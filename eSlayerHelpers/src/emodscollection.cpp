@@ -1,9 +1,9 @@
-#include "eSlayerHelpers/emodifierscollection.h"
+#include "eSlayerHelpers/emodscollection.h"
 
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/epacket.h"
 
-void eModifiersCollection::addBoost(const eModifiersCollection& other) {
+void eModsCollection::addBoost(const eModsCollection& other) {
     fCount += other.fCount;
     fCooldown += other.fCooldown;
     fManaCost += other.fManaCost;
@@ -15,7 +15,7 @@ void eModifiersCollection::addBoost(const eModifiersCollection& other) {
     }
 }
 
-void eModifiersCollection::add(const eModifier& mod) {
+void eModsCollection::add(const eModifier& mod) {
     switch(mod.fType) {
     case eModifierType::damagePoison: {
         auto it = find(mod.fType);
@@ -65,7 +65,7 @@ void eModifiersCollection::add(const eModifier& mod) {
     }
 }
 
-void eModifiersCollection::applyMod(
+void eModsCollection::applyMod(
     eModifier& mod, const eModifierType multType) const {
     const auto it = find(multType);
     if(it == end()) return;
@@ -94,7 +94,7 @@ void eModifiersCollection::applyMod(
     }
 };
 
-void eModifiersCollection::collapse() {
+void eModsCollection::collapse() {
     std::vector<eModifierType> toErase;
     for(auto& it : *this) {
         auto& mod = it.second;
@@ -155,7 +155,7 @@ void eModifiersCollection::collapse() {
     }
 }
 
-void eModifiersCollection::collapseSkillLevel() {
+void eModsCollection::collapseSkillLevel() {
     std::vector<eModifierType> toErase;
     for(auto& it : *this) {
         auto& mod = it.second;
@@ -180,7 +180,7 @@ void eModifiersCollection::collapseSkillLevel() {
     }
 }
 
-void eModifiersCollection::setRadiusU(const uint8_t r) {
+void eModsCollection::setRadiusU(const uint8_t r) {
     fRadiusU = r;
     fRadius = ePacket::toFloatU8(r, eSkill::sRadiusMax);
 }

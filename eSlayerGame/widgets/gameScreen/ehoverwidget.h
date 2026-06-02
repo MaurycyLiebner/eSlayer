@@ -50,7 +50,7 @@ protected:
     bool mouseMoveEvent(const eMouseEvent& e) override;
     bool mousePressEvent(const eMouseEvent& e) override;
 private:
-    eModifiersCollection
+    eModsCollection
     calculateTotalModifiers(
         const int skillId, const int levelId) const;
 

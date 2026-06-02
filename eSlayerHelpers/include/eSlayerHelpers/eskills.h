@@ -5,7 +5,7 @@
 
 #include "estringidmapvector.h"
 #include "emodifier.h"
-#include "emodifierscollection.h"
+#include "emodscollection.h"
 
 enum class eSkillType : uint8_t {
     attack, smite, kick,
@@ -18,13 +18,13 @@ enum class eSkillType : uint8_t {
     boostCurse
 };
 
-struct eSkillLevelStats {
-    eModifiersCollection fModifiers;
-    eModifiersCollection fTotalModifiers;
+struct eModsCollectionLevel {
+    eModsCollection fModifiers;
+    eModsCollection fTotalModifiers;
 };
 
-struct eSkillLevelsStats : public std::vector<eSkillLevelStats> {
-    const eSkillLevelStats& skillLevel(const int skillLevelId) const {
+struct eModsCollectionLevels : public std::vector<eModsCollectionLevel> {
+    const eModsCollectionLevel& skillLevel(const int skillLevelId) const {
         return (*this)[std::clamp(skillLevelId, 0, int(size()) - 1)];
     }
 };
@@ -32,9 +32,9 @@ struct eSkillLevelsStats : public std::vector<eSkillLevelStats> {
 struct eSynergy {
     std::string fSkillStr;
     int fSkillId;
-    eSkillLevelsStats fBoostLevels;
+    eModsCollectionLevels fBoostLevels;
 
-    const eSkillLevelStats& boostLevel(const int boostLevelId) const {
+    const eModsCollectionLevel& boostLevel(const int boostLevelId) const {
         return fBoostLevels.skillLevel(boostLevelId);
     }
 };
@@ -81,10 +81,10 @@ struct eSkill {
     float fCastRange;
     std::vector<eModifier> fModifiers;
     std::vector<std::string> fCastAnims;
-    eSkillLevelsStats fLevels;
+    eModsCollectionLevels fLevels;
     std::vector<eSynergy> fSynergies;
 
-    const eSkillLevelStats& skillLevel(const int skillLevelId) const {
+    const eModsCollectionLevel& skillLevel(const int skillLevelId) const {
         return fLevels.skillLevel(skillLevelId);
     }
 };
@@ -98,12 +98,12 @@ class ESLAYERHELPERS_API eSkills {
 public:
     static void load();
 
-    static eSkillLevelStats parseSkillLevel(
+    static eModsCollectionLevel parseSkillLevel(
         const ordered_json& levelData,
-        eModifiersCollection& totalMods);
+        eModsCollection& totalMods);
     static void parseSkillLevels(
         const ordered_json& levelsJson,
-        std::vector<eSkillLevelStats>& levels,
+        std::vector<eModsCollectionLevel>& levels,
         const int count = 0,
         const float cooldown = 0.f,
         const float manaCost = 0.f,

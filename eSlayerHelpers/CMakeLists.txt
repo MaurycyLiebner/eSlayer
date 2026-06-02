@@ -155,8 +155,8 @@ add_library(eSlayerHelpers SHARED
     src/eobstaclesmap.cpp
     include/eSlayerHelpers/eobstaclesmap.h
     src/erect.cpp
-    include/eSlayerHelpers/emodifierscollection.h
-    src/emodifierscollection.cpp
+    include/eSlayerHelpers/emodscollection.h
+    src/emodscollection.cpp
     include/eSlayerHelpers/eelitemodifiersinfo.h
     src/eelitemodifiersinfo.cpp
     include/eSlayerHelpers/eboostcursetypes.h
