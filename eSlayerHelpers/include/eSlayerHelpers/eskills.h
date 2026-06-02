@@ -5,7 +5,7 @@
 
 #include "estringidmapvector.h"
 #include "emodifier.h"
-#include "eskilltotalmods.h"
+#include "emodifierscollection.h"
 
 enum class eSkillType : uint8_t {
     attack, smite, kick,
@@ -19,8 +19,8 @@ enum class eSkillType : uint8_t {
 };
 
 struct eSkillLevelStats {
-    eSkillTotalMods fModifiers;
-    eSkillTotalMods fTotalModifiers;
+    eModifiersCollection fModifiers;
+    eModifiersCollection fTotalModifiers;
 };
 
 struct eSkillLevelsStats : public std::vector<eSkillLevelStats> {
@@ -100,7 +100,7 @@ public:
 
     static eSkillLevelStats parseSkillLevel(
         const ordered_json& levelData,
-        eSkillTotalMods& totalMods);
+        eModifiersCollection& totalMods);
     static void parseSkillLevels(
         const ordered_json& levelsJson,
         std::vector<eSkillLevelStats>& levels,

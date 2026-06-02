@@ -11,8 +11,8 @@ public:
 
     void apply(eServerUnit& u, const bool boss);
 private:
-    eSkillTotalMods mBossMods;
-    eSkillTotalMods mMinionMods;
+    eModifiersCollection mBossMods;
+    eModifiersCollection mMinionMods;
     std::set<uint8_t> mMods;
 };
 

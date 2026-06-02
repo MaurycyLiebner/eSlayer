@@ -1,9 +1,9 @@
-#include "eSlayerHelpers/eskilltotalmods.h"
+#include "eSlayerHelpers/emodifierscollection.h"
 
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/epacket.h"
 
-void eSkillTotalMods::addLevel(const eSkillTotalMods& other) {
+void eModifiersCollection::addBoost(const eModifiersCollection& other) {
     fCount += other.fCount;
     fCooldown += other.fCooldown;
     fManaCost += other.fManaCost;
@@ -15,7 +15,7 @@ void eSkillTotalMods::addLevel(const eSkillTotalMods& other) {
     }
 }
 
-void eSkillTotalMods::add(const eModifier& mod) {
+void eModifiersCollection::add(const eModifier& mod) {
     switch(mod.fType) {
     case eModifierType::damagePoison: {
         auto it = find(mod.fType);
@@ -65,18 +65,7 @@ void eSkillTotalMods::add(const eModifier& mod) {
     }
 }
 
-void eSkillTotalMods::addBoost(const eSkillLevelStats& boost) {
-    const auto& total = boost.fTotalModifiers;
-    fCount += total.fCount;
-    fCooldown += total.fCooldown;
-    fManaCost += total.fManaCost;
-    for(const auto& it : total) {
-        const auto& mod = it.second;
-        add(mod);
-    }
-}
-
-void eSkillTotalMods::applyMod(
+void eModifiersCollection::applyMod(
     eModifier& mod, const eModifierType multType) const {
     const auto it = find(multType);
     if(it == end()) return;
@@ -105,7 +94,7 @@ void eSkillTotalMods::applyMod(
     }
 };
 
-void eSkillTotalMods::collapse() {
+void eModifiersCollection::collapse() {
     std::vector<eModifierType> toErase;
     for(auto& it : *this) {
         auto& mod = it.second;
@@ -166,7 +155,7 @@ void eSkillTotalMods::collapse() {
     }
 }
 
-void eSkillTotalMods::collapseSkillLevel() {
+void eModifiersCollection::collapseSkillLevel() {
     std::vector<eModifierType> toErase;
     for(auto& it : *this) {
         auto& mod = it.second;
@@ -191,7 +180,7 @@ void eSkillTotalMods::collapseSkillLevel() {
     }
 }
 
-void eSkillTotalMods::setRadiusU(const uint8_t r) {
+void eModifiersCollection::setRadiusU(const uint8_t r) {
     fRadiusU = r;
     fRadius = ePacket::toFloatU8(r, eSkill::sRadiusMax);
 }

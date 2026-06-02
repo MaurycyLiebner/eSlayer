@@ -156,10 +156,10 @@ void eHoverWidget::setHoverItem(
     mHoverItemId = item.fItemId;
 }
 
-eSkillTotalMods eHoverWidget::calculateTotalModifiers(
+eModifiersCollection eHoverWidget::calculateTotalModifiers(
     const int skillId, const int levelId) const {
     if(levelId < 0) return {};
-    eSkillTotalMods result;
+    eModifiersCollection result;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto& level = skill.skillLevel(levelId);
     result = level.fTotalModifiers;
@@ -168,7 +168,7 @@ eSkillTotalMods eHoverWidget::calculateTotalModifiers(
         const int sLevelId = mStats.effectiveSkillLevel(sSkillId);
         if(sLevelId < 0) continue;
         const auto& boost = s.fBoostLevels[sLevelId];
-        result.addBoost(boost);
+        result.addBoost(boost.fTotalModifiers);
     }
     result.collapse();
     return result;
@@ -191,7 +191,7 @@ void eHoverWidget::setHoverSkill(
         gen.addText(r, name, eFontColor::green);
         gen.addText(r, desc, eFontColor::white);
 
-        const auto printMods = [&](const eSkillTotalMods& mods) {
+        const auto printMods = [&](const eModifiersCollection& mods) {
             for(const auto& it : mods) {
                 const auto& mod = it.second;
                 const int s = static_cast<int>(mod.fType);

@@ -1,5 +1,5 @@
-#ifndef ESKILLTOTALMODS_H
-#define ESKILLTOTALMODS_H
+#ifndef EMODIFIERSCOLLECTION_H
+#define EMODIFIERSCOLLECTION_H
 
 #include "eslayerhelpersexport.h"
 
@@ -7,14 +7,11 @@
 
 #include <map>
 
-struct eSkillLevelStats;
-
-class ESLAYERHELPERS_API eSkillTotalMods :
+class ESLAYERHELPERS_API eModifiersCollection :
     public std::multimap<eModifierType, eModifier> {
 public:
-    void addLevel(const eSkillTotalMods& other);
+    void addBoost(const eModifiersCollection& other);
     void add(const eModifier& mod);
-    void addBoost(const eSkillLevelStats& boost);
     void collapse();
     void collapseSkillLevel();
 
@@ -30,4 +27,4 @@ private:
                   const eModifierType multType) const;
 };
 
-#endif // ESKILLTOTALMODS_H
+#endif // EMODIFIERSCOLLECTION_H

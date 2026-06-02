@@ -150,7 +150,7 @@ void eSkills::load() {
                                  radius);
             }
             if(jdata.contains("synergies")) {
-                eSkillTotalMods totalMods;
+                eModifiersCollection totalMods;
                 const auto& synergies = jdata["synergies"];
                 skill.fSynergies.reserve(synergies.size());
                 for(auto& [name, levels] : synergies.items()) {
@@ -181,7 +181,7 @@ void eSkills::load() {
 
 eSkillLevelStats eSkills::parseSkillLevel(
     const ordered_json& levelData,
-    eSkillTotalMods& totalMods) {
+    eModifiersCollection& totalMods) {
     eSkillLevelStats level;
     auto& mods = level.fModifiers;
 
@@ -225,13 +225,13 @@ void eSkills::parseSkillLevels(
     const float cooldown,
     const float manaCost,
     const uint8_t radiusU) {
-    eSkillTotalMods totalMods;
+    eModifiersCollection totalMods;
     totalMods.fCount = count;
     totalMods.fCooldown = cooldown;
     totalMods.fManaCost = manaCost;
     totalMods.setRadiusU(radiusU);
 
-    eSkillTotalMods allMods;
+    eModifiersCollection allMods;
     if(levelsJson.contains("all")) {
         const auto& all = levelsJson["all"];
         parseSkillLevel(all, allMods);
@@ -246,10 +246,10 @@ void eSkills::parseSkillLevels(
                 ? levelsJson[levelKey]
                 : empty;
 
-        totalMods.addLevel(allMods);
+        totalMods.addBoost(allMods);
         auto level = parseSkillLevel(levelData, totalMods);
         auto& mods = level.fModifiers;
-        mods.addLevel(allMods);
+        mods.addBoost(allMods);
         levels.emplace_back(level);
     }
 }

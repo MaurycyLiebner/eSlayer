@@ -875,7 +875,7 @@ void eStats::calculateAuras(const eEquipment& eq) {
             const int sLevelId = effectiveSkillLevel(sSkillId);
             if(sLevelId < 0) continue;
             const auto& boost = s.boostLevel(sLevelId);
-            mods.addBoost(boost);
+            mods.addBoost(boost.fTotalModifiers);
         }
 
         auto& a = fAuras.emplace_back();
@@ -1099,7 +1099,7 @@ void eStats::calculateSkill(eSkillStats& stats,
             const int sLevelId = effectiveSkillLevel(sSkillId);
             if(sLevelId < 0) continue;
             const auto& boost = s.boostLevel(sLevelId);
-            skillMods.addBoost(boost);
+            skillMods.addBoost(boost.fTotalModifiers);
         }
     }
 
