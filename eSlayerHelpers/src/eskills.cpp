@@ -133,6 +133,8 @@ void eSkills::load() {
                 }
 
                 skill.fAreaMissileStr = jdata.value("areaMissile", "none");
+                skill.fSelfAreaMissileStr = jdata.value(
+                    "selfAreaMissile", skill.fAreaMissileStr);
             } else {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }

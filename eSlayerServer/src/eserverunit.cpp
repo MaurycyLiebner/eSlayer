@@ -634,17 +634,19 @@ void eServerUnit::increment(const float by) {
         }
     }
 
-    mDealsDamageCounter += by;
-    if(mDealsDamageCounter >= mDealsDamagePeriod) {
-        mDealsDamageCounter -= mDealsDamagePeriod;
-        const auto& max = mStats.fDealsDamageMax;
-        if(max.total() > 0.f) {
-            eHitData data;
-            const auto& min = mStats.fDealsDamageMin;
-            data.fDamage = eDamage::sRandom(min, max);
-            data.fAlwaysHit = true;
-            data.fFrom = fPos;
-            getHit(data);
+    if(fHealth > 0) {
+        mDealsDamageCounter += by;
+        if(mDealsDamageCounter >= mDealsDamagePeriod) {
+            mDealsDamageCounter -= mDealsDamagePeriod;
+            const auto& max = mStats.fDealsDamageMax;
+            if(max.total() > 0.f) {
+                eHitData data;
+                const auto& min = mStats.fDealsDamageMin;
+                data.fDamage = eDamage::sRandom(min, max);
+                data.fAlwaysHit = true;
+                data.fFrom = fPos;
+                getHit(data);
+            }
         }
     }
 
@@ -881,10 +883,15 @@ void eServerUnit::removeBoost(
 
 void eServerUnit::addAura(
     const eAura& aura,
+    const bool self,
     const bool recalc) {
     mAuraIds.emplace(aura.fId);
-    mAuras.emplace(aura.fMissileId);
-    addBoostData(aura.fMissileId);
+    const auto missileId = self ?
+        aura.fSelfMissileId : aura.fMissileId;
+    if(missileId > 0) {
+        mAuras.emplace(missileId);
+        addBoostData(missileId);
+    }
     auto& a = mStats.fAuraBoosts;
     const auto type = aura.fType;
     const auto it = a.find(type);
@@ -925,6 +932,7 @@ float eServerUnit::maxAuraRange() const {
 
 bool eServerUnit::addAurasTo(eServerUnit& target) const {
     bool result = false;
+    const bool self = &target == this;
     const float dist = ePointF::distance(fPos, target.fPos);
     for(const auto& a : mStats.fAuras) {
         switch(a.fTarget) {
@@ -934,12 +942,21 @@ bool eServerUnit::addAurasTo(eServerUnit& target) const {
         } break;
         case eAuraTarget::enemies: {
             const bool e = eTeams::areEnemies(fTeamId, target.fTeamId);
-            if(!e) continue;
+            if(!e) {
+                if(self) {
+                    const auto selfMissileId = a.fSelfMissileId;
+                    if(selfMissileId > 0) {
+                        target.mAuras.emplace(selfMissileId);
+                        target.addBoostData(selfMissileId);
+                    }
+                }
+                continue;
+            }
         } break;
         }
 
         if(a.fRange < dist) continue;
-        target.addAura(a, false);
+        target.addAura(a, self, false);
         result = true;
     }
     return result;

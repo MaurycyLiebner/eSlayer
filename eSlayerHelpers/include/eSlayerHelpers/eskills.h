@@ -56,6 +56,9 @@ struct eSkill {
     std::string fAreaMissileStr;
     int fAreaMissileId;
 
+    std::string fSelfAreaMissileStr;
+    int fSelfAreaMissileId;
+
     const static float sRangeMax;
     float fRange;
     float fMissileEnemyFindRange;

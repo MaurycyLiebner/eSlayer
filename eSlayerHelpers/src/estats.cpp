@@ -863,6 +863,20 @@ void eStats::calculateAuras(const eEquipment& eq) {
         rightW,
     };
 
+    const auto addAura = [&](const eSkill& skill,
+                             const eModsCollection& mods) {
+        auto& a = fAuras.emplace_back();
+        a.fRange = mods.fRadius;
+        a.fType = skill.fAuraType;
+        a.fTarget = skill.fAuraTarget;
+        a.fMissileId = skill.fAreaMissileId;
+        a.fSelfMissileId = skill.fSelfAreaMissileId;
+        a.fMods.reserve(mods.size());
+        for(const auto& m : mods) {
+            a.fMods.emplace_back(m.second);
+        }
+    };
+
     for(const auto& item : items) {
         const auto& mods = item.fModifiers;
         for(const auto& mod : mods) {
@@ -874,15 +888,7 @@ void eStats::calculateAuras(const eEquipment& eq) {
                 if(level >= 0) {
                     const auto& levelStats = skill.skillLevel(level);
                     const auto& mods = levelStats.fTotalModifiers;
-                    auto& a = fAuras.emplace_back();
-                    a.fRange = mods.fRadius;
-                    a.fType = skill.fAuraType;
-                    a.fTarget = skill.fAuraTarget;
-                    a.fMissileId = skill.fAreaMissileId;
-                    a.fMods.reserve(mods.size());
-                    for(const auto& m : mods) {
-                        a.fMods.emplace_back(m.second);
-                    }
+                    addAura(skill, mods);
                 }
             }
         }
@@ -905,15 +911,9 @@ void eStats::calculateAuras(const eEquipment& eq) {
             mods.addBoost(boost.fTotalModifiers);
         }
 
-        auto& a = fAuras.emplace_back();
-        a.fRange = mods.fRadius;
-        a.fType = skill.fAuraType;
-        a.fTarget = skill.fAuraTarget;
-        a.fMissileId = skill.fAreaMissileId;
-        a.fMods.reserve(mods.size());
-        for(const auto& m : mods) {
-            a.fMods.emplace_back(m.second);
-        }
+        mods.collapse();
+
+        addAura(skill, mods);
     }
 }
 

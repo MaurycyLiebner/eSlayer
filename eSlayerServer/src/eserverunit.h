@@ -241,7 +241,9 @@ public:
                        const float time,
                        const bool recalc = true);
 
-    void addAura(const eAura& aura, const bool recalc = true);
+    void addAura(const eAura& aura,
+                 const bool self,
+                 const bool recalc = true);
     void removeAllAuras(const bool recalc = true);
     bool isAuraSource() const;
     float maxAuraRange() const;

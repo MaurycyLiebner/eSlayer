@@ -121,6 +121,7 @@ void eMissilesTextures::loadData() {
         auto& skill = it.fValue;
         skill.fMissileId = sMissiles.id(skill.fMissileStr);
         skill.fAreaMissileId = sMissiles.id(skill.fAreaMissileStr);
+        skill.fSelfAreaMissileId = sMissiles.id(skill.fSelfAreaMissileStr);
     }
 
     for(const auto& it : eItemsData::sItems) {

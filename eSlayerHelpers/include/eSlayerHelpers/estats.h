@@ -50,6 +50,7 @@ struct eAura {
     eAuraType fType;
     eAuraTarget fTarget;
     int fMissileId;
+    int fSelfMissileId;
     std::vector<eModifier> fMods;
     float fRange;
 };
