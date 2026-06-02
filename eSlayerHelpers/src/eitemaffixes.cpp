@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/erand.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 
+const int eItemAffixes::sMaxItemLevel = 99;
 std::map<eItemType, std::vector<int>>
 eItemAffixes::sTypePrefixes;
 eStringIdMapVector<eItemAffix>
@@ -61,7 +62,8 @@ void eItemAffixes::load() {
                 }
                 if(jdata.contains("modifiers")) {
                     const auto& jmods = jdata["modifiers"];
-                    eSkills::parseSkillLevels(jmods, mod.fLevels);
+                    eModsCollectionLevel::parseLevels(
+                        jmods, mod.fLevels, sMaxItemLevel);
                     for(auto& level : mod.fLevels) {
                         level.fModifiers.collapseSkillLevel();
                         level.fTotalModifiers.collapseSkillLevel();

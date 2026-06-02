@@ -4,7 +4,7 @@
 #include "eslayerhelpersexport.h"
 
 #include "ecolor.h"
-#include "eskills.h"
+#include "emodscollection.h"
 #include "eitemdata.h"
 #include "estringidmapvector.h"
 
@@ -21,6 +21,7 @@ class ESLAYERHELPERS_API eItemAffixes {
 public:
     static void load();
 
+    static const int sMaxItemLevel;
     static std::map<eItemType, std::vector<int>> sTypePrefixes;
     static eStringIdMapVector<eItemAffix> sPrefixes;
     static std::map<eItemType, std::vector<int>> sTypeSuffixes;

@@ -4,7 +4,7 @@
 #include "eslayerhelpersexport.h"
 
 #include "estringidmapvector.h"
-#include "eskills.h"
+#include "emodscollection.h"
 #include "ecolor.h"
 
 struct eEliteInfo {
@@ -18,6 +18,7 @@ public:
     static void load();
 
     static eStringIdMapVector<eEliteInfo> sElite;
+    static const int sMaxUnitLevel;
 private:
     static bool sLoaded;
 };

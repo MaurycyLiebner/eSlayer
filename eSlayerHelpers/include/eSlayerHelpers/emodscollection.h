@@ -27,4 +27,28 @@ private:
                   const eModifierType multType) const;
 };
 
+struct ESLAYERHELPERS_API eModsCollectionLevel {
+    eModsCollection fModifiers;
+    eModsCollection fTotalModifiers;
+
+    static eModsCollectionLevel parseLevel(
+        const ordered_json& levelData,
+        eModsCollection& totalMods);
+    static void parseLevels(
+        const ordered_json& levelsJson,
+        std::vector<eModsCollectionLevel>& levels,
+        const int maxLevel,
+        const int count = 0,
+        const float cooldown = 0.f,
+        const float manaCost = 0.f,
+        const uint8_t radiusU = 0);
+};
+
+struct ESLAYERHELPERS_API eModsCollectionLevels :
+    public std::vector<eModsCollectionLevel> {
+    const eModsCollectionLevel& skillLevel(const int skillLevelId) const {
+        return (*this)[std::clamp(skillLevelId, 0, int(size()) - 1)];
+    }
+};
+
 #endif // EMODSCOLLECTION_H

@@ -145,9 +145,11 @@ void eSkills::load() {
             skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
             if(jdata.contains("levels")) {
                 const auto& levels = jdata["levels"];
-                parseSkillLevels(levels, skill.fLevels,
-                                 count, cooldown, manaCost,
-                                 radius);
+                eModsCollectionLevel::parseLevels(
+                    levels, skill.fLevels,
+                    eSkills::sMaxSkillLevel,
+                    count, cooldown, manaCost,
+                    radius);
             }
             if(jdata.contains("synergies")) {
                 eModsCollection totalMods;
@@ -156,7 +158,9 @@ void eSkills::load() {
                 for(auto& [name, levels] : synergies.items()) {
                     auto& synergy = skill.fSynergies.emplace_back();
                     synergy.fSkillStr = name;
-                    parseSkillLevels(levels, synergy.fBoostLevels);
+                    eModsCollectionLevel::parseLevels(
+                        levels, synergy.fBoostLevels,
+                        eSkills::sMaxSkillLevel);
                 }
             }
             sSkills.add(name, skill);
@@ -176,80 +180,5 @@ void eSkills::load() {
                 eExceptions::showDialog("Unrecognized synergy \"" + name + "\".");
             }
         }
-    }
-}
-
-eModsCollectionLevel eSkills::parseSkillLevel(
-    const ordered_json& levelData,
-    eModsCollection& totalMods) {
-    eModsCollectionLevel level;
-    auto& mods = level.fModifiers;
-
-    for(auto it = levelData.begin(); it != levelData.end(); ++it) {
-        const auto& key = it.key();
-        const auto& value = it.value();
-
-        if(key == "count") {
-            const int dc = int(value);
-            mods.fCount += dc;
-            totalMods.fCount += dc;
-        } else if(key == "cooldown") {
-            const float dc = float(value);
-            mods.fCooldown += dc;
-            totalMods.fCooldown += dc;
-        } else if(key == "manaCost") {
-            const float dm = float(value);
-            mods.fManaCost += dm;
-            totalMods.fManaCost += dm;
-        } else if(key == "radius") {
-            const uint8_t dr = uint8_t(value);
-            mods.setRadiusU(mods.fRadiusU + dr);
-            totalMods.setRadiusU(totalMods.fRadiusU + dr);
-        } else {
-            eModifier mod;
-            mod.read(key, json(value));
-            totalMods.add(mod);
-            mods.add(mod);
-        }
-    }
-
-    level.fTotalModifiers = totalMods;
-
-    return level;
-}
-
-void eSkills::parseSkillLevels(
-    const ordered_json& levelsJson,
-    std::vector<eModsCollectionLevel>& levels,
-    const int count,
-    const float cooldown,
-    const float manaCost,
-    const uint8_t radiusU) {
-    eModsCollection totalMods;
-    totalMods.fCount = count;
-    totalMods.fCooldown = cooldown;
-    totalMods.fManaCost = manaCost;
-    totalMods.setRadiusU(radiusU);
-
-    eModsCollection allMods;
-    if(levelsJson.contains("all")) {
-        const auto& all = levelsJson["all"];
-        parseSkillLevel(all, allMods);
-    }
-
-    for(int i = 1; i <= sMaxSkillLevel; i++) {
-        const std::string levelKey = std::to_string(i);
-
-        const ordered_json empty = ordered_json::object();
-        const ordered_json& levelData =
-            levelsJson.contains(levelKey)
-                ? levelsJson[levelKey]
-                : empty;
-
-        totalMods.addBoost(allMods);
-        auto level = parseSkillLevel(levelData, totalMods);
-        auto& mods = level.fModifiers;
-        mods.addBoost(allMods);
-        levels.emplace_back(level);
     }
 }

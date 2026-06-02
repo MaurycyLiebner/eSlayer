@@ -18,17 +18,6 @@ enum class eSkillType : uint8_t {
     boostCurse
 };
 
-struct eModsCollectionLevel {
-    eModsCollection fModifiers;
-    eModsCollection fTotalModifiers;
-};
-
-struct eModsCollectionLevels : public std::vector<eModsCollectionLevel> {
-    const eModsCollectionLevel& skillLevel(const int skillLevelId) const {
-        return (*this)[std::clamp(skillLevelId, 0, int(size()) - 1)];
-    }
-};
-
 struct eSynergy {
     std::string fSkillStr;
     int fSkillId;
@@ -97,17 +86,6 @@ struct eUnitSkill {
 class ESLAYERHELPERS_API eSkills {
 public:
     static void load();
-
-    static eModsCollectionLevel parseSkillLevel(
-        const ordered_json& levelData,
-        eModsCollection& totalMods);
-    static void parseSkillLevels(
-        const ordered_json& levelsJson,
-        std::vector<eModsCollectionLevel>& levels,
-        const int count = 0,
-        const float cooldown = 0.f,
-        const float manaCost = 0.f,
-        const uint8_t radiusU = 0);
 
     static eStringIdMapVector<eSkill> sSkills;
     static const int sMaxSkillLevel;

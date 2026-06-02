@@ -4,6 +4,7 @@
 
 eStringIdMapVector<eEliteInfo>
 eEliteModifiersInfo::sElite;
+const int eEliteModifiersInfo::sMaxUnitLevel = 99;
 bool eEliteModifiersInfo::sLoaded = false;
 
 void eEliteModifiersInfo::load() {
@@ -36,17 +37,21 @@ void eEliteModifiersInfo::load() {
             const auto jdata = eFileLoaderBase::parse(dir, "Elite/" + name + ".json");
             if(jdata.contains("minions")) {
                 const auto& minions = jdata["minions"];
-                eSkills::parseSkillLevels(minions, elite.fMinions);
+                eModsCollectionLevel::parseLevels(
+                    minions, elite.fMinions, sMaxUnitLevel);
             } else {
                 const ordered_json empty = ordered_json::object();
-                eSkills::parseSkillLevels(empty, elite.fMinions);
+                eModsCollectionLevel::parseLevels(
+                    empty, elite.fMinions, sMaxUnitLevel);
             }
             if(jdata.contains("boss")) {
                 const auto& boss = jdata["boss"];
-                eSkills::parseSkillLevels(boss, elite.fBoss);
+                eModsCollectionLevel::parseLevels(
+                    boss, elite.fBoss, sMaxUnitLevel);
             } else {
                 const ordered_json empty = ordered_json::object();
-                eSkills::parseSkillLevels(empty, elite.fBoss);
+                eModsCollectionLevel::parseLevels(
+                    empty, elite.fBoss, sMaxUnitLevel);
             }
             elite.fBossColorMod = eColor{1.f, 1.f, 1.f, 1.f};
             if(jdata.contains("bossColorMod")) {
