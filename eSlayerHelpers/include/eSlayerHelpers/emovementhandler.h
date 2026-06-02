@@ -45,7 +45,8 @@ public:
     bool moving() const { return mGoal.moving(); }
     eMovementGoalType goalType() const { return mGoal.type(); }
     void stopMoving();
-    bool moveTo(const ePointF& pos);
+    bool moveTo(const std::vector<ePointF>& pos,
+                const bool foundOnly = false);
     void moveInDirection(const ePointF& pos);
     bool moveInDirectionIfClearPath(const ePointF& pos);
 

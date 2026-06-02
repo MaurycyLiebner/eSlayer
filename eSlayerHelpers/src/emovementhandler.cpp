@@ -29,10 +29,12 @@ void eMovementHandler::setRadius(const float r) {
     mRadius = r;
 }
 
-bool eMovementHandler::moveTo(const ePointF& dst) {
+bool eMovementHandler::moveTo(const std::vector<ePointF>& pos,
+                              const bool foundOnly) {
     bool found;
     const int maxDist = 20*ePathFinderMap::sSubdivide;
-    auto path = ePathFinder::findPath(mMap, mPos, dst, maxDist, found);
+    auto path = ePathFinder::findPath(mMap, mPos, pos, maxDist, found);
+    if(foundOnly && !found) return false;
     if(path.empty()) return false;
     {
         ePathFinderPath smooth;

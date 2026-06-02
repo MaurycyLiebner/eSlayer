@@ -21,32 +21,61 @@ void eMoveToTarget::increment(const float by) {
         handler.stopMoving();
         return finishAction();
     }
-    if(mTargetId != -1) {
-        const auto target = mArea.unit(mTargetId);
-        if(target) {
-            const float dist = ePointF::distance(target->fPos, mUnit.fPos);
-            if(dist < mArriveDist + 0.5f*(mUnit.fRadius + target->fRadius)) {
-                handler.stopMoving();
-                finishAction();
-            } else {
-                const float targetChange = ePointF::distance(target->fPos, mTargetPos);
-                const float dist = ePointF::distance(mTargetPos, mUnit.fPos);
-                if(targetChange > 0.5f*dist || !handler.moving()) {
-                    setTarget(*target);
-                }
-            }
+    const bool moving = handler.moving();
+    for(const auto& t : mTargets) {
+        const auto target = mArea.unit(t.fId);
+        if(!target) continue;
+        const auto& targetPos = target->fPos;
+        const float dist = ePointF::distance(targetPos, mUnit.fPos);
+        if(dist < mArriveDist + 0.5f*(mUnit.fRadius + target->fRadius)) {
+            handler.stopMoving();
+            finishAction();
+            mTargets.clear();
+            break;
         } else {
-            mTargetId = -1;
+            const float targetChange = ePointF::distance(targetPos, t.fPos);
+            const float dist = ePointF::distance(targetPos, mUnit.fPos);
+            if(targetChange > 0.5f*dist || !moving) {
+                std::vector<eUnitTarget> targets;
+                for(auto& t : mTargets) {
+                    const auto target = mArea.unit(t.fId);
+                    if(!target) continue;
+                    if(target->fHealth < 0) continue;
+                    targets.emplace_back(target->fCharId, target->fPos);
+                }
+                setTarget(targets, mFoundOnly);
+                break;
+            }
         }
     }
 }
 
-void eMoveToTarget::setTarget(const eServerUnit& u) {
+bool eMoveToTarget::setTarget(const std::vector<eUnitTarget>& targets,
+                              const bool foundOnly) {
     auto& handler = mUnit.movementHandler();
-    const bool r = handler.moveInDirectionIfClearPath(u.fPos);
-    if(!r) handler.moveTo(u.fPos);
-    mTargetId = u.fCharId;
-    mTargetPos = u.fPos;
+    bool canMove = false;
+    for(const auto& t : targets) {
+        const bool r = handler.moveInDirectionIfClearPath(t.fPos);
+        if(r) {
+            canMove = true;
+            break;
+        }
+    }
+    if(!canMove) {
+        std::vector<ePointF> tos;
+        tos.reserve(targets.size());
+        for(const auto& t : targets) {
+            tos.emplace_back(t.fPos);
+        }
+        const bool r = handler.moveTo(tos, foundOnly);
+        if(!r && foundOnly) {
+            handler.stopMoving();
+            finishAction();
+            return false;
+        }
+    }
+    mTargets = targets;
+    mFoundOnly = foundOnly;
     const bool a = mUnit.aggressive();
     if(mRunAnimId != -1) {
         mUnit.fAnim = mRunAnimId;
@@ -55,4 +84,5 @@ void eMoveToTarget::setTarget(const eServerUnit& u) {
             mWalkAnimId, mWalkReadyAnimId, a);
     }
     mUnit.fAnimId++;
+    return true;
 }

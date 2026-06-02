@@ -8,7 +8,7 @@ namespace ePathFinder {
     ESLAYERHELPERS_API
     ePathFinderPath findPath(ePathFinderMap& map,
                              const ePointF& from,
-                             const ePointF& to,
+                             const std::vector<ePointF>& tos,
                              const int maxDist,
                              bool& found);
 };

@@ -1,4 +1,6 @@
-#include "../include/eSlayerHelpers/epathfinder.h"
+#include "eSlayerHelpers/epathfinder.h"
+
+#include "eSlayerHelpers/evectorhelpers.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -7,26 +9,42 @@
 ePathFinderPath ePathFinder::findPath(
     ePathFinderMap& map,
     const ePointF& from,
-    const ePointF& to,
+    const std::vector<ePointF>& tos,
     const int maxDist,
     bool& found) {
     map.nextIter();
     ePathFinderPath result;
-    const float dist = ePointF::distance(from, to);
-    if(dist < 0.5f) {
-        found = true;
+    if(tos.empty()) {
+        found = false;
         return result;
+    }
+    for(const auto& to : tos) {
+        const float dist = ePointF::distance(from, to);
+        if(dist < 0.5f) {
+            found = true;
+            return result;
+        }
     }
 
     const auto fromTile = ePathFinderMap::posToTile(from);
-    const auto toTile = ePathFinderMap::posToTile(to);
+    std::vector<ePoint> toTiles;
+    for(const auto& to : tos) {
+        const auto toTile = ePathFinderMap::posToTile(to);
+        toTiles.emplace_back(toTile);
+    }
+    ePoint toTile = toTiles[0];
 
     found = false;
 
     ePoint geoClosestTile = fromTile;
     const auto calcMinGeoDist = [&](const ePoint& from) {
-        return std::max(std::abs(from.fX - toTile.fX),
-                        std::abs(from.fY - toTile.fY));
+        int result = std::numeric_limits<int>::max();
+        for(const auto& toTile : toTiles) {
+            const int r = std::max(std::abs(from.fX - toTile.fX),
+                                   std::abs(from.fY - toTile.fY));
+            if(r < result) result = r;
+        }
+        return result;
     };
     int minGeoDist = calcMinGeoDist(fromTile);
 
@@ -50,7 +68,8 @@ ePathFinderPath ePathFinder::findPath(
                 toProcess.push_back(to);
             }
         }
-        if(to == toTile) {
+        if(eVectorHelpers::contains(toTiles, to)) {
+            toTile = to;
             found = true;
         }
     };

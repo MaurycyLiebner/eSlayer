@@ -5,6 +5,15 @@
 
 #include <eSlayerHelpers/epoint.h>
 
+struct eUnitTarget {
+    eUnitTarget(const uint32_t id,
+                const ePointF& pos) :
+        fId(id), fPos(pos) {}
+
+    uint32_t fId;
+    ePointF fPos;
+};
+
 class eMoveToTarget : public eUnitAction {
 public:
     eMoveToTarget(eServerUnit& unit,
@@ -16,10 +25,11 @@ public:
     void increment(const float by) override;
 
     void setArriveDist(const float dist) { mArriveDist = dist; }
-    void setTarget(const eServerUnit& u);
+    bool setTarget(const std::vector<eUnitTarget>& targets,
+                   const bool foundOnly);
 protected:
-    int mTargetId = -1;
-    ePointF mTargetPos{0.f, 0.f};
+    std::vector<eUnitTarget> mTargets;
+    bool mFoundOnly = false;
 private:
     const int mRunAnimId;
     const int mWalkAnimId;

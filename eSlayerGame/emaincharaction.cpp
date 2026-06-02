@@ -452,7 +452,7 @@ void eMainCharAction::handleMovement(
     }
 
     if(!moved) {
-        if(mousePressed) mMovementHandler.moveTo(pos);
+        if(mousePressed) mMovementHandler.moveTo({pos});
         moved = mMovementHandler.increment(by);
     }
 
@@ -521,7 +521,7 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
     } else if(mPressedUnit.expired() &&
               mPressedItem.expired() &&
               mPressedObject.expired()) {
-        mMovementHandler.moveTo(mousePos);
+        mMovementHandler.moveTo({mousePos});
     }
 }
 

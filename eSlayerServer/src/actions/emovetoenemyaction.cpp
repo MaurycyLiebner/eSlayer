@@ -17,7 +17,7 @@ eMoveToEnemyAction::eMoveToEnemyAction(
     mMaxDist(maxDist) {}
 
 void eMoveToEnemyAction::increment(const float by) {
-    if(mTargetId == -1) {
+    if(mTargets.empty()) {
         const bool r = findNewTarget();
         if(!r) return finishAction();
     }
@@ -29,13 +29,16 @@ void eMoveToEnemyAction::setMaxDist(const float maxDist) {
 }
 
 bool eMoveToEnemyAction::findNewTarget() {
+    std::vector<eUnitTarget> targets;
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
         if(u->fHealth <= 0) return false;
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
         if(!eTeams::areEnemies(t1, t2)) return false;
-        setTarget(*u);
-        return true;
+        targets.emplace_back(u->fCharId, u->fPos);
+        return false;
     };
-    return mArea.iterateOverUnits(mUnit.fPos, mMaxDist, iter);
+    mArea.iterateOverUnits(mUnit.fPos, mMaxDist, iter);
+    if(targets.empty()) return false;
+    return setTarget(targets, true);
 }

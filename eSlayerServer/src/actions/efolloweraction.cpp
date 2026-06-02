@@ -51,7 +51,7 @@ void eFollowerAction::moveTo(eServerUnit& follow) {
     const auto move = std::make_shared<eMoveToTarget>(
         mUnit, mArea, mRunAnimId,
         mWalkAnimId, mWalkReadyAnimId);
-    move->setTarget(follow);
+    move->setTarget({{follow.fCharId, follow.fPos}}, false);
     move->setArriveDist(1.f);
     setChild(move);
 }
