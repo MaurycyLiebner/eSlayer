@@ -1,6 +1,8 @@
 #ifndef EMAPSETTINGS_H
 #define EMAPSETTINGS_H
 
+#include "eslayermapgeneratorexport.h"
+
 #include <eSlayerHelpers/estringidmapvector.h>
 
 #include <cstdint>
@@ -65,7 +67,7 @@ struct eMapSettings {
     eStringIdMapVector<eAreaSettings> fAreas;
 };
 
-struct eMapsSettings {
+struct ESLAYERMAPGENERATOR_API eMapsSettings {
     static void load();
 
     static eStringIdMapVector<eMapSettings> sMaps;
