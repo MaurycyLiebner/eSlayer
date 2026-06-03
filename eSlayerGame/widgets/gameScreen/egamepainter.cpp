@@ -101,9 +101,12 @@ void eGamePainter::addWallShadow(
     const int tx, const int ty,
     const eWallType dir,
     const float wallMin,
-    const float wallMax) {
+    const float wallMax,
+    const bool minFeatherForce,
+    const bool maxFeatherForce) {
     auto o = std::make_unique<eWallLightBlocker>(
-        tx, ty, dir, wallMin, wallMax);
+        tx, ty, dir, wallMin, wallMax,
+        minFeatherForce, maxFeatherForce);
     std::unique_ptr<eBlockerBase> b = std::move(o);
     mLightingTex.addBlocker(b);
 }

@@ -44,15 +44,21 @@ struct eWallLightBlocker : public eBlockerBase {
                       const float ty,
                       const eWallType dir,
                       const float wallMin,
-                      const float wallMax) :
+                      const float wallMax,
+                      const bool minFeatherForce,
+                      const bool maxFeatherForce) :
         eBlockerBase(eBlockerBaseType::wall, tx, ty),
         fDir(dir),
         fWallMin(wallMin),
-        fWallMax(wallMax) {}
+        fWallMax(wallMax),
+        fMinFeatherForce(minFeatherForce),
+        fMaxFeatherForce(maxFeatherForce) {}
 
     eWallType fDir;
     float fWallMin;
     float fWallMax;
+    bool fMinFeatherForce;
+    bool fMaxFeatherForce;
 };
 
 #endif // ELIGHT_H

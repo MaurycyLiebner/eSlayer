@@ -34,7 +34,9 @@ public:
     void addWallShadow(const int tx, const int ty,
                        const eWallType dir,
                        const float wallMin,
-                       const float wallMax);
+                       const float wallMax,
+                       const bool minFeatherForce,
+                       const bool maxFeatherForce);
 private:
     std::vector<eLight> mLights;
     bool mRenderItemNames = false;

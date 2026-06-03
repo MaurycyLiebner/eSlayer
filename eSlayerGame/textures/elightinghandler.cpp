@@ -143,8 +143,10 @@ void eLightingHandler::calculateLighting() {
                                     const int ity = std::round(bref.fTY);
                                     ePointF p1;
                                     ePointF p2;
-                                    const bool featherMin = wref.fWallMin != 0.f;
-                                    const bool featherMax = wref.fWallMax != 1.f;
+                                    const bool featherMin = wref.fMinFeatherForce ||
+                                                            wref.fWallMin != 0.f;
+                                    const bool featherMax = wref.fMaxFeatherForce ||
+                                                            wref.fWallMax != 1.f;
                                     switch(wref.fDir) {
                                     case eWallType::topLeft: {
                                         if(tx == itx && tile.fTY != ity) continue;

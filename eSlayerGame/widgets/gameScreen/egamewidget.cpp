@@ -529,7 +529,98 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(info.fWallsShadow) {
                     const float wallMin = open ? wtex.fWallMin : 0.f;
                     const float wallMax = open ? wtex.fWallMax : 1.f;
-                    mGamePainter.addWallShadow(x, y, wallType, wallMin, wallMax);
+                    bool minFeatherForce = false;
+                    bool maxFeatherForce = false;
+
+                    {
+                        int dx = 0;
+                        int dy = 0;
+                        uint8_t eTile::*wallPtr = nullptr;
+                        uint8_t eTile::*otherWallPtr = nullptr;
+                        switch(wallType) {
+                        case eWallType::topLeft:
+                            dy = 1;
+                            wallPtr = &eTile::fWallTL;
+                            otherWallPtr = &eTile::fWallTR;
+                            break;
+                        case eWallType::topRight:
+                            dx = 1;
+                            wallPtr = &eTile::fWallTR;
+                            otherWallPtr = &eTile::fWallTL;
+                            break;
+                        }
+                        const int xMin = x - dx;
+                        const int yMin = y - dy;
+                        const bool rMin = mMap->inside(xMin, yMin);
+                        if(rMin) {
+                            const auto& min = mMap->tile(xMin, yMin);
+                            const auto minWall = min.*wallPtr;
+                            if(!minWall) {
+                                minFeatherForce = true;
+                                const auto otherWall = tile.*otherWallPtr;
+                                if(otherWall) { // top corner
+                                    if(upos.fX < x && upos.fY < y) {
+                                        minFeatherForce = false;
+                                    }
+                                } else {
+                                    const int sx = x - dy;
+                                    const int sy = y - dx;
+                                    const bool rs = mMap->inside(sx, sy);
+                                    if(rs) {
+                                        const auto& sideOther = mMap->tile(sx, sy);
+                                        const auto sideOtherWall = sideOther.*otherWallPtr;
+                                        if(sideOtherWall) { // left / right corner
+                                            switch(wallType) {
+                                            case eWallType::topLeft: { // right corner
+                                                if(upos.fX > x && upos.fY < y) {
+                                                    minFeatherForce = false;
+                                                }
+                                            } break;
+                                            case eWallType::topRight: { // left corner
+                                                if(upos.fX < x && upos.fY > y) {
+                                                    minFeatherForce = false;
+                                                }
+                                            } break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        const int xMax = x + dx;
+                        const int yMax = y + dy;
+                        const bool rMax = mMap->inside(xMax, yMax);
+                        if(rMax) {
+                            const auto& max = mMap->tile(xMax, yMax);
+                            const auto maxWall = max.*wallPtr;
+                            if(!maxWall) {
+                                maxFeatherForce = true;
+                                const auto otherWall = max.*otherWallPtr;
+                                if(otherWall) { // left / right corner
+                                    switch(wallType) {
+                                    case eWallType::topLeft: { // left corner
+                                        if(upos.fX < xMax && upos.fY > yMax) {
+                                            maxFeatherForce = false;
+                                        }
+                                    } break;
+                                    case eWallType::topRight: { // right corner
+                                        if(upos.fX > xMax && upos.fY < yMax) {
+                                            maxFeatherForce = false;
+                                        }
+                                    } break;
+                                    }
+                                } else { // bottom corner
+                                    if(upos.fX > xMax && upos.fY > yMax) {
+                                        maxFeatherForce = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    mGamePainter.addWallShadow(
+                        x, y, wallType, wallMin, wallMax,
+                        minFeatherForce, maxFeatherForce);
                 }
 
                 renderElements.emplace_back(eRenderElement{false,
