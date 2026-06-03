@@ -290,6 +290,7 @@ public:
     bool moving() const;
 
     eUnitType unitType() const { return mType; }
+    void setUnitType(const eUnitType type) { mType = type; }
 
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);

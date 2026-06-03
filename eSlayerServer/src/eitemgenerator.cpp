@@ -15,6 +15,7 @@ void eItemGenerator::applyItemId(eItem& item) {
 eItem eItemGenerator::generatePotion(
     const int level, const float worth) {
     eItem item;
+    eItemGenerator::applyItemId(item);
     std::vector<int> typeIds;
     for(int i = 0; i < eItemsData::sItems.size(); i++) {
         const auto& itemData = eItemsData::get(i);
@@ -45,7 +46,11 @@ eItem eItemGenerator::generateItem(
     item.fDataId = typeId;
     item.fType = type;
     item.fSubType = itemData.fSubtype;
-    item.fRequiredLevel = level;
+    if(type == eItemType::potion) {
+        item.fRequiredLevel = 1;
+    } else {
+        item.fRequiredLevel = level;
+    }
 
     if(type == eItemType::potion) return item;
 

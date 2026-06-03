@@ -289,6 +289,11 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                     if(elite) {
                         mods.apply(*u, boss);
+                        if(boss) {
+                            u->setUnitType(eUnitType::uniqueBoss);
+                        } else {
+                            u->setUnitType(eUnitType::minion);
+                        }
                         boss = false;
                     }
 
