@@ -151,7 +151,7 @@ bool gReadSkillLevels(const XMLElement* parentE,
     auto skillsE = parentE->FirstChildElement("skills");
     if(skillsE) {
         auto skillE = skillsE->FirstChildElement("skill");
-        while (skillE) {
+        while(skillE) {
             const auto typeStr = skillE->Attribute("type");
 
             int level = 0;
@@ -165,6 +165,42 @@ bool gReadSkillLevels(const XMLElement* parentE,
             skillE = skillE->NextSiblingElement("skill");
         }
     }
+    return true;
+}
+
+
+void gReadSkillHotkeys(XMLElement* const e,
+                       const std::string& leftRight,
+                       std::map<int, int>& map) {
+    const auto name = leftRight + "SkillHotkeys";
+    const auto skillsE = e->FirstChildElement(name.c_str());
+    if(skillsE) {
+        auto skillE = skillsE->FirstChildElement("hotkey");
+        while(skillE) {
+            const auto typeStr = skillE->Attribute("skill");
+
+            int key = 0;
+            skillE->QueryIntAttribute("key", &key);
+
+            if(typeStr && key > 0) {
+                const int skillId = eSkills::sSkills.id(typeStr);
+                map[key] = skillId;
+            }
+
+            skillE = skillE->NextSiblingElement("hotkey");
+        }
+    }
+}
+
+bool gReadSkill(XMLElement* const e,
+                const std::string& leftRight,
+                int& skillId) {
+    const auto nameE = leftRight + "Skill";
+    const auto skillE = e->FirstChildElement(nameE.c_str());
+    if(!skillE) return false;
+    const auto skillName = skillE->Attribute("skill");
+    skillId = eSkills::sSkills.id(skillName);
+    if(skillId < 0) skillId = 0;
     return true;
 }
 
@@ -223,6 +259,10 @@ bool eCharacter::load(const std::string& path,
 
     // skills
     gReadSkillLevels(rootE, c.mSkillLevels);
+    gReadSkill(rootE, "left", c.mLeftSkill);
+    gReadSkill(rootE, "right", c.mRightSkill);
+    gReadSkillHotkeys(rootE, "left", c.mLeftHotkeys);
+    gReadSkillHotkeys(rootE, "right", c.mRightHotkeys);
 
     // equipment
     if(const auto eqE = rootE->FirstChildElement("equipment")) {
@@ -458,14 +498,38 @@ void gWriteSkillLevels(XMLElement* const e,
                        const eSkillLevels& skillLevels) {
     const auto skillsE = e->InsertNewChildElement("skills");
     for(const auto& s : skillLevels) {
-        const auto skillE = skillsE->InsertNewChildElement("skill");
         const int skillId = s.first;
         if(skillId == 0) continue;
+        const auto skillE = skillsE->InsertNewChildElement("skill");
         const auto name = eSkills::sSkills.name(skillId);
         skillE->SetAttribute("type", name.c_str());
         const int level = s.second;
         skillE->SetAttribute("level", level + 1);
     }
+}
+
+void gWriteSkillHotkeys(XMLElement* const e,
+                        const std::string& leftRight,
+                        const std::map<int, int>& map) {
+    const auto name = leftRight + "SkillHotkeys";
+    const auto skillsE = e->InsertNewChildElement(name.c_str());
+    for(const auto& s : map) {
+        const int hotkeyId = s.first;
+        const int skillId = s.second;
+        const auto skillE = skillsE->InsertNewChildElement("hotkey");
+        const auto name = eSkills::sSkills.name(skillId);
+        skillE->SetAttribute("skill", name.c_str());
+        skillE->SetAttribute("key", hotkeyId);
+    }
+}
+
+void gWriteSkill(XMLElement* const e,
+                 const std::string& leftRight,
+                 const int skillId) {
+    const auto nameE = leftRight + "Skill";
+    const auto skillE = e->InsertNewChildElement(nameE.c_str());
+    const auto name = eSkills::sSkills.name(skillId);
+    skillE->SetAttribute("skill", name.c_str());
 }
 
 bool eCharacter::write(const std::string& path) const {
@@ -497,6 +561,10 @@ bool eCharacter::write(const std::string& path) const {
     eneE->SetText(mAttributes.fEnergy);
 
     gWriteSkillLevels(rootE, mSkillLevels);
+    gWriteSkill(rootE, "left", mLeftSkill);
+    gWriteSkill(rootE, "right", mRightSkill);
+    gWriteSkillHotkeys(rootE, "left", mLeftHotkeys);
+    gWriteSkillHotkeys(rootE, "right", mRightHotkeys);
 
     const auto eqE = rootE->InsertNewChildElement("equipment");
     gWriteItemSlot(mEquipment.fBoots, "boots", eqE);

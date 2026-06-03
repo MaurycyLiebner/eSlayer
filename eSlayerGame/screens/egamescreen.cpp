@@ -42,6 +42,9 @@ void eGameScreen::initialize(const int clientId,
                              const eCharacter& c,
                              const eTeamId teamId,
                              const eMoveToMapAction& move) {
+    eSkillButton::sLeftMap = c.leftHotkeys();
+    eSkillButton::sRightMap = c.rightHotkeys();
+
     mGameWidget = new eGameWidget(window());
     mGameWidget->resize(width(), height());
     addWidget(mGameWidget);
@@ -89,10 +92,11 @@ void eGameScreen::initialize(const int clientId,
     mLeftSkillButton = new eSkillButton(window());
     mLeftSkillButton->initialize(static_cast<int>(eSkillChoice::left));
     mLeftSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::left, mLeftSkillButton, mLeftSkill,
-                      eSkillChoice::left);
+        openSkillMenu(eAlignment::left, mLeftSkillButton,
+                      mLeftSkill, eSkillChoice::left);
     });
     bottomInnerWidget->addWidget(mLeftSkillButton);
+    mLeftSkillButton->setSkillId(c.leftSkill());
 
     const auto centerWid = new eWidget(window());
     centerWid->setNoPadding();
@@ -174,10 +178,11 @@ void eGameScreen::initialize(const int clientId,
     mRightSkillButton = new eSkillButton(window());
     mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
     mRightSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::right, mRightSkillButton, mRightSkill,
-                      eSkillChoice::right);
+        openSkillMenu(eAlignment::right, mRightSkillButton,
+                      mRightSkill, eSkillChoice::right);
     });
     bottomInnerWidget->addWidget(mRightSkillButton);
+    mRightSkillButton->setSkillId(c.rightSkill());
 
     bottomInnerWidget->stackHorizontally();
     bottomInnerWidget->fitContent();

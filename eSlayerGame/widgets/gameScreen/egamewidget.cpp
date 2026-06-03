@@ -1,5 +1,7 @@
 #include "egamewidget.h"
 
+#include "eskillbutton.h"
+
 #include "../../emainwindow.h"
 
 #include "../../textures/eobjstextures.h"
@@ -87,8 +89,8 @@ void eGameWidget::initialize(const int clientId,
     mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 
-    setRightSkill(0);
-    setLeftSkill(0);
+    setRightSkill(c.rightSkill());
+    setLeftSkill(c.leftSkill());
 
     const auto& srcEq = c.equipment();
     auto& dstEq = mMainAction->equipment();
@@ -224,6 +226,10 @@ eCharacter eGameWidget::character() {
     c.attributes() = attributes();
     const auto& stats = eGameWidget::stats();
     c.skillLevels() = stats.fBaseSkillLevels;
+    c.leftSkill() = mLeftSkill;
+    c.rightSkill() = mRightSkill;
+    c.leftHotkeys() = eSkillButton::sLeftMap;
+    c.rightHotkeys() = eSkillButton::sRightMap;
     return c;
 }
 
