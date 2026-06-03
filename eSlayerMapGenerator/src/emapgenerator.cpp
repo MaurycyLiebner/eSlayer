@@ -215,16 +215,17 @@ public:
         return from;
     }
 
-    eConnection chooseConnection(const eAreaPlace& from,
-                                 const eAreaPlace& to,
-                                 const int width, const int halfLen) {
+    std::optional<eConnection>
+    chooseConnection(const eAreaPlace& from,
+                     const eAreaPlace& to,
+                     const int width, const int halfLen) {
         const auto fromRect = boundingRect(from);
         const auto toRect = boundingRect(to);
         const auto edgeO = sharedEdge(fromRect, toRect);
-        if(edgeO == std::nullopt) return eConnection{0, 0, 0, 0};
+        if(edgeO == std::nullopt) return std::nullopt;
         const auto& edge = edgeO.value();
         const auto connEdgeO = middlePortionInt(edge, width);
-        if(connEdgeO == std::nullopt) return eConnection{0, 0, 0, 0};
+        if(connEdgeO == std::nullopt) return std::nullopt;
         const auto& connEdge = connEdgeO.value();
         return extrudeEdge(connEdge, halfLen);
     }
@@ -293,9 +294,10 @@ eMapGenerator::generate(const std::string& name) const {
             const auto connPlace = genArea(name, settings, place);
             const auto conn_ = placer.chooseConnection(
                 place, connPlace, connWidth, connHalfLen);
-            area.addConnection(conn_);
+            if(!conn_) continue;
+            area.addConnection(*conn_);
             auto& connArea = areas[connPlace];
-            connArea.addConnection(conn_);
+            connArea.addConnection(*conn_);
         }
 
         return place;

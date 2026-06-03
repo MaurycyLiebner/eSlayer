@@ -3,6 +3,16 @@
 
 #include "echamber.h"
 
+enum class eDir {
+    none,
+    topLeft, topRight,
+    bottomRight, bottomLeft
+};
+
+namespace eDirHelpers {
+    eDir flip(const eDir dir);
+}
+
 class eDungeonGenerator {
 public:
     static void generate(

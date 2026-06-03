@@ -1,5 +1,21 @@
 #include "edungeongenerator.h"
 
+eDir eDirHelpers::flip(const eDir dir) {
+    switch(dir) {
+    case eDir::none:
+        return eDir::none;
+    case eDir::topLeft:
+        return eDir::bottomRight;
+    case eDir::topRight:
+        return eDir::bottomLeft;
+    case eDir::bottomRight:
+        return eDir::topLeft;
+    case eDir::bottomLeft:
+        return eDir::topRight;
+    }
+    return eDir::none;
+}
+
 void eDungeonGenerator::generate(
     const eRect& rect,
     std::vector<eChamber>& chambers,
@@ -7,12 +23,6 @@ void eDungeonGenerator::generate(
     const int roomSize = 6;
     const int connThick = 2;
     const int connLen = 4;
-
-    enum class eDir {
-        none,
-        topLeft, topRight,
-        bottomRight, bottomLeft
-    };
 
     struct eRoom {
         int fRelX;
@@ -68,22 +78,6 @@ void eDungeonGenerator::generate(
                relY >= 0 && relY < yNRooms;
     };
 
-    const auto flipDir = [](const eDir from) {
-        switch(from) {
-        case eDir::none:
-            return eDir::none;
-        case eDir::topLeft:
-            return eDir::bottomRight;
-        case eDir::topRight:
-            return eDir::bottomLeft;
-        case eDir::bottomRight:
-            return eDir::topLeft;
-        case eDir::bottomLeft:
-            return eDir::topRight;
-        }
-        return eDir::none;
-    };
-
     const auto moveInDir = [](const eDir dir,
                               int& relX, int& relY) {
         switch(dir) {
@@ -115,7 +109,7 @@ void eDungeonGenerator::generate(
         eDir dir = eDir::none;
 
         for(int i = 0; i < 10; i++) {
-            const auto excl = flipDir(dir);
+            const auto excl = eDirHelpers::flip(dir);
             bool hasRoomB = false;
 
             int newRelY = relY;
@@ -131,7 +125,7 @@ void eDungeonGenerator::generate(
             } while(dir == excl || !hasRoomB);
 
             rooms[relY][relX].enableInDir(dir);
-            const auto fdir = flipDir(dir);
+            const auto fdir = eDirHelpers::flip(dir);
             auto& newRoom = rooms[newRelY][newRelX];
             newRoom.fEnabled = true;
             newRoom.enableInDir(fdir);
