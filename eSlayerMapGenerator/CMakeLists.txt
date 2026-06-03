@@ -19,6 +19,7 @@ add_library(eSlayerMapGenerator SHARED
     src/emap.cpp
     src/edungeongenerator.h src/edungeongenerator.cpp
     src/echamber.h src/echamber.cpp
+    src/eopengenerator.h src/eopengenerator.cpp
 
 )
 

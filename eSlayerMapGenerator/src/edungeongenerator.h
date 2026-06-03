@@ -5,9 +5,10 @@
 
 class eDungeonGenerator {
 public:
-    static void generate(const eRect& rect,
-                         std::vector<eChamber>& chambers,
-                         std::vector<eRect>& doors);
+    static void generate(
+        const eRect& rect,
+        std::vector<eChamber>& chambers,
+        std::vector<eRect>& doors);
 };
 
 #endif // EDUNGEONGENERATOR_H

@@ -1,6 +1,7 @@
 #include "eSlayerMapGenerator/emapgenerator.h"
 
 #include "edungeongenerator.h"
+#include "eopengenerator.h"
 
 #include "eSlayerMapGenerator/emapsettings.h"
 #include "eSlayerMapGenerator/emap.h"
@@ -197,8 +198,8 @@ public:
         case eAreaType::open: {
             rectWalls = false;
             fillEmptySapces = true;
-            const auto in = rect.inset(mMargin);
-            chambers.emplace_back(in);
+            eOpenGenerator::generate(
+                rect, chambers, doors, mMargin);
         } break;
         }
 
