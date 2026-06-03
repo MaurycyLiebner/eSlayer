@@ -170,8 +170,34 @@ public:
         mExtendedRect = rect;
     }
 
+    struct eChamber {
+        eChamber() {}
+        eChamber(const eRect& r) :
+            fRects{r} {}
+        eChamber(const std::vector<eRect>& r) :
+            fRects{r} {}
+
+        std::vector<eRect> fRects;
+
+        bool contains(const ePoint& p) const {
+            for(const auto& r : fRects) {
+                const bool c = r.contains(p);
+                if(c) return true;
+            }
+            return false;
+        }
+
+        bool wallTL(const ePoint& p) const {
+            return contains(p) != contains({p.fX - 1, p.fY});
+        }
+
+        bool wallTR(const ePoint& p) const {
+            return contains(p) != contains({p.fX, p.fY - 1});
+        }
+    };
+
     void generateDungeon(const eRect& rect,
-                         std::vector<eRect>& terrainRects,
+                         std::vector<eChamber>& chambers,
                          std::vector<eRect>& doors) const {
         const int roomSize = 6;
         const int connThick = 2;
@@ -184,6 +210,9 @@ public:
         };
 
         struct eRoom {
+            int fRelX;
+            int fRelY;
+
             int fAbsX;
             int fAbsY;
 
@@ -217,10 +246,13 @@ public:
         const int roomRectDim = roomSize + connLen;
         const int xNRooms = rect.fW/roomRectDim;
         const int yNRooms = rect.fH/roomRectDim;
-        std::vector<std::vector<eRoom>> rooms(yNRooms, std::vector<eRoom>(xNRooms));
+        std::vector<std::vector<eRoom>> rooms(
+            yNRooms, std::vector<eRoom>(xNRooms));
         for(int x = 0; x < xNRooms; x++) {
             for(int y = 0; y < yNRooms; y++) {
                 auto& r = rooms[y][x];
+                r.fRelX = x;
+                r.fRelY = y;
                 r.fAbsX = rect.fX + x*roomRectDim;
                 r.fAbsY = rect.fY + y*roomRectDim;
             }
@@ -308,62 +340,113 @@ public:
             generateRandomPath();
         }
 
+        const auto addBRConn = [&](const eRoom& room) {
+            if(room.fBRConn) {
+                {
+                    const eRect rect{room.fAbsX + roomSize,
+                                     room.fAbsY + (roomSize - connThick)/2,
+                                     0, connThick};
+                    doors.emplace_back(rect);
+                }
+                const eRect rect{room.fAbsX + roomSize,
+                                 room.fAbsY + (roomSize - connThick)/2,
+                                 connLen, connThick};
+                chambers.emplace_back(rect);
+                {
+                    const eRect rect{room.fAbsX + roomSize + connLen,
+                                     room.fAbsY + (roomSize - connThick)/2,
+                                     0, connThick};
+                    doors.emplace_back(rect);
+                }
+            }
+        };
+
+        const auto addBLConn = [&](const eRoom& room) {
+            if(room.fBLConn) {
+                {
+                    const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                     room.fAbsY + roomSize,
+                                     connThick, 0};
+                    doors.emplace_back(rect);
+                }
+                const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                 room.fAbsY + roomSize,
+                                 connThick, connLen};
+                chambers.emplace_back(rect);
+                {
+                    const eRect rect{room.fAbsX + (roomSize - connThick)/2,
+                                     room.fAbsY + roomSize + connLen,
+                                     connThick, 0};
+                    doors.emplace_back(rect);
+                }
+            }
+        };
+
+        const auto trySquareMerge = [&](
+            const eRoom& room) {
+            if(room.fRelY >= yNRooms - 1) return false;
+            if(room.fRelX >= xNRooms - 1) return false;
+            if(!room.fBRConn) return false;
+            if(!room.fBLConn) return false;
+            auto& roomBR = rooms[room.fRelY][room.fRelX + 1];
+            if(!roomBR.fEnabled) return false;
+            if(!roomBR.fBLConn) return false;
+            auto& roomBL = rooms[room.fRelY + 1][room.fRelX];
+            if(!roomBL.fEnabled) return false;
+            if(!roomBL.fBRConn) return false;
+            auto& roomB = rooms[room.fRelY + 1][room.fRelX + 1];
+            if(!roomB.fEnabled) return false;
+            roomBR.fEnabled = false;
+            roomBL.fEnabled = false;
+            roomB.fEnabled = false;
+            auto& c = chambers.emplace_back();
+            const int dim1 = 2*roomSize + connLen;
+            const int dim2 = 2*roomSize/3;
+            const int d = roomSize - dim2;
+            const int dim3 = connLen + 2*d;
+            c.fRects.emplace_back(room.fAbsX,
+                                  room.fAbsY,
+                                  dim1, dim2);
+            c.fRects.emplace_back(room.fAbsX,
+                                  room.fAbsY + dim2,
+                                  dim2, dim3);
+            c.fRects.emplace_back(roomBR.fAbsX + d,
+                                  roomBR.fAbsY + dim2,
+                                  dim2, dim3);
+            c.fRects.emplace_back(roomBL.fAbsX,
+                                  roomBL.fAbsY + d,
+                                  dim1, dim2);
+            addBRConn(roomBR);
+            addBLConn(roomBL);
+            addBRConn(roomB);
+            addBLConn(roomB);
+            return true;
+        };
+
         for(const auto& row : rooms) {
             for(const auto& room : row) {
                 if(!room.fEnabled) continue;
+                const bool r = trySquareMerge(room);
+                if(r) continue;
+                addBRConn(room);
+                addBLConn(room);
                 const eRect rect{room.fAbsX, room.fAbsY,
                                  roomSize, roomSize};
-                terrainRects.emplace_back(rect);
-                if(room.fBRConn) {
-                    {
-                        const eRect rect{room.fAbsX + roomSize,
-                                         room.fAbsY + (roomSize - connThick)/2,
-                                         0, connThick};
-                        doors.emplace_back(rect);
-                    }
-                    const eRect rect{room.fAbsX + roomSize,
-                                     room.fAbsY + (roomSize - connThick)/2,
-                                     connLen, connThick};
-                    terrainRects.emplace_back(rect);
-                    {
-                        const eRect rect{room.fAbsX + roomSize + connLen,
-                                         room.fAbsY + (roomSize - connThick)/2,
-                                         0, connThick};
-                        doors.emplace_back(rect);
-                    }
-                }
-                if(room.fBLConn) {
-                    {
-                        const eRect rect{room.fAbsX + (roomSize - connThick)/2,
-                                         room.fAbsY + roomSize,
-                                         connThick, 0};
-                        doors.emplace_back(rect);
-                    }
-                    const eRect rect{room.fAbsX + (roomSize - connThick)/2,
-                                     room.fAbsY + roomSize,
-                                     connThick, connLen};
-                    terrainRects.emplace_back(rect);
-                    {
-                        const eRect rect{room.fAbsX + (roomSize - connThick)/2,
-                                         room.fAbsY + roomSize + connLen,
-                                         connThick, 0};
-                        doors.emplace_back(rect);
-                    }
-                }
+                chambers.emplace_back(rect);
             }
         }
     }
 
     void generate() const {
         const auto rect = eDungeon::rect();
-        std::vector<eRect> terrainRects;
+        std::vector<eChamber> chambers;
         std::vector<eRect> doors;
         for(const auto& c : mConnecitons) {
             const eRect connRect{c.fX, c.fY, c.fW, c.fH};
             eRect connIn;
             eRect::intersection(rect, connRect, connIn);
             if(connIn.fW <= 0 || connIn.fH <= 0) continue;
-            terrainRects.emplace_back(connIn);
+            chambers.emplace_back(connIn);
         }
 
         bool rectWalls = false;
@@ -373,22 +456,22 @@ public:
         case eAreaType::dungeon: {
             rectWalls = true;
             fillEmptySapces = false;
-            generateDungeon(rect, terrainRects, doors);
+            generateDungeon(rect, chambers, doors);
         } break;
         case eAreaType::open: {
             rectWalls = false;
             fillEmptySapces = true;
             const auto in = rect.inset(mMargin);
-            terrainRects.emplace_back(in);
+            chambers.emplace_back(in);
         } break;
         }
 
         const auto inRect = [&](const int x, const int y,
-                                const eRect* const skip = nullptr) {
+                                const eChamber* const skip = nullptr) {
             const ePoint p{x, y};
-            for(const auto& rect : terrainRects) {
-                if(&rect == skip) continue;
-                const bool r = rect.contains(p);
+            for(const auto& c : chambers) {
+                if(&c == skip) continue;
+                const bool r = c.contains(p);
                 if(r) return true;
             }
             return false;
@@ -417,15 +500,15 @@ public:
         };
 
         const auto shouldWall = [&](const int x, const int y,
-                                    const eRect& srect,
+                                    const eChamber& sc,
                                     bool& wallTL, bool& wallTR) {
             wallTL = true;
             wallTR = true;
             const ePoint p{x, y};
-            for(const auto& r : terrainRects) {
-                if(&r == &srect) continue;
-                const auto inside = [&r, &srect](const int x, const int y) {
-                    return r.contains({x, y}) || srect.contains({x, y});
+            for(const auto& c : chambers) {
+                if(&c == &sc) continue;
+                const auto inside = [&c, &sc](const int x, const int y) {
+                    return c.contains({x, y}) || sc.contains({x, y});
                 };
                 const bool wallTL_ = inside(x, y) != inside(x - 1, y);
                 if(!wallTL_) wallTL = false;
@@ -462,19 +545,16 @@ public:
         };
 
         const auto tryAddObject =
-            [this](const eRect& rect,
+            [this](const eChamber& c,
                    const int x, const int y,
                    const int objMargin,
                    const std::vector<eTypeProbability>& objs) {
             if(objs.empty()) return;
             for(int dx = -objMargin; dx <= objMargin; dx++) {
                 const int xx = x + dx;
-                if(xx < rect.fX) return;
-                if(xx >= rect.fX + rect.fW) return;
                 for(int dy = -objMargin; dy <= objMargin; dy++) {
                     const int yy = y + dy;
-                    if(yy < rect.fY) return;
-                    if(yy >= rect.fY + rect.fH) return;
+                    if(!c.contains({xx, yy})) return;
                     const auto& objs = mMap->objects(x + dx, y + dy);
                     if(!objs.empty()) return;
                 }
@@ -499,48 +579,50 @@ public:
 
         const auto& ms = mSettings.fMonsters;
         auto& mareas = mMap->mMonsterAreas;
-        for(const auto& srect : terrainRects) {
-            auto& marea = mareas.emplace_back();
-            marea.fRect = srect;
-            marea.fSettings = ms;
+        for(const auto& sc : chambers) {
+            for(const auto& rect : sc.fRects) {
+                auto& marea = mareas.emplace_back();
+                marea.fRect = rect;
+                marea.fSettings = ms;
 
-            const int minX = srect.fX;
-            const int maxX = srect.fX + srect.fW - 1;
-            const int minY = srect.fY;
-            const int maxY = srect.fY + srect.fH - 1;
-            for(int x = minX; x <= maxX + 1; x++) {
-                for(int y = minY; y <= maxY + 1; y++) {
-                    auto& dst = tiles[y][x];
-                    if(x <= maxX && y <= maxY) {
-                        setTileTerrain(x, y, dst);
-                    }
-
-                    const int m = mSettings.fObjectsMargin;
-                    const auto& objs = mSettings.fObjects;
-                    tryAddObject(srect, x, y, m, objs);
-
-                    bool wallTL = true;
-                    bool wallTR = true;
-                    if(!rectWalls) {
-                        shouldWall(x, y, srect, wallTL, wallTR);
-                    }
-
-                    if(wallTL && !dst.fWallTL) {
-                        const bool doors = inDoorsRect(x, y, eWallType::topLeft);
-                        const bool tl = x == minX && y != maxY + 1;
-                        const bool br = x == maxX + 1 && y != maxY + 1;
-                        if(tl || br) {
-                            dst.fTerrainType = terrType;
-                            dst.fWallTL = eTile::encodeWall(true, doors, false, br, 0);
+                const int minX = rect.fX;
+                const int maxX = rect.fX + rect.fW - 1;
+                const int minY = rect.fY;
+                const int maxY = rect.fY + rect.fH - 1;
+                for(int x = minX; x <= maxX + 1; x++) {
+                    for(int y = minY; y <= maxY + 1; y++) {
+                        auto& dst = tiles[y][x];
+                        if(x <= maxX && y <= maxY) {
+                            setTileTerrain(x, y, dst);
                         }
-                    }
-                    if(wallTR && !dst.fWallTR) {
-                        const bool doors = inDoorsRect(x, y, eWallType::topRight);
-                        const bool tr = y == minY && x != maxX + 1;
-                        const bool bl = y == maxY + 1 && x != maxX + 1;
-                        if(tr || bl) {
-                            dst.fTerrainType = terrType;
-                            dst.fWallTR = eTile::encodeWall(true, doors, false, bl, 0);
+
+                        const int m = mSettings.fObjectsMargin;
+                        const auto& objs = mSettings.fObjects;
+                        tryAddObject(sc, x, y, m, objs);
+
+                        bool wallTL = sc.wallTL({x, y});
+                        bool wallTR = sc.wallTR({x, y});
+                        if(!rectWalls) {
+                            shouldWall(x, y, sc, wallTL, wallTR);
+                        }
+
+                        if(wallTL && !dst.fWallTL) {
+                            const bool doors = inDoorsRect(x, y, eWallType::topLeft);
+                            const bool tl = x == minX && y != maxY + 1;
+                            const bool br = x == maxX + 1 && y != maxY + 1;
+                            if(tl || br) {
+                                dst.fTerrainType = terrType;
+                                dst.fWallTL = eTile::encodeWall(true, doors, false, br, 0);
+                            }
+                        }
+                        if(wallTR && !dst.fWallTR) {
+                            const bool doors = inDoorsRect(x, y, eWallType::topRight);
+                            const bool tr = y == minY && x != maxX + 1;
+                            const bool bl = y == maxY + 1 && x != maxX + 1;
+                            if(tr || bl) {
+                                dst.fTerrainType = terrType;
+                                dst.fWallTR = eTile::encodeWall(true, doors, false, bl, 0);
+                            }
                         }
                     }
                 }
@@ -568,7 +650,7 @@ public:
 
                     const int m = mSettings.fOutsideObjectsMargin;
                     const auto& objs = mSettings.fOutsideObjects;
-                    tryAddObject(rect, x, y, m, objs);
+                    tryAddObject({{rect}}, x, y, m, objs);
                 }
             }
         }
