@@ -20,9 +20,13 @@ struct eConnection {
 class eDungeon {
 public:
     eDungeon();
-    eDungeon(const std::string& name, const int x, const int y, const int w, const int h,
-             const std::shared_ptr<eMap>& map, const eAreaSettings& settings,
-             const eMapSettings& mapSettings, const int margin);
+    eDungeon(const std::string& name,
+             const int x, const int y,
+             const int w, const int h,
+             const std::shared_ptr<eMap>& map,
+             const eAreaSettings& settings,
+             const eMapSettings& mapSettings,
+             const int margin);
 
     void addConnection(const eConnection& conn);
 
