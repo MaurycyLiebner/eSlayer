@@ -20,6 +20,7 @@ class ePacket;
 
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
+    friend class eWallFinisher;
     friend class eDungeon;
     friend class eServer;
 public:
