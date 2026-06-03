@@ -38,6 +38,9 @@ protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
 private:
+    void setLeftSkill(const int skillId);
+    void setRightSkill(const int skillId);
+
     void hotkeyPressed(const int fkey);
     void consumePotion(const int x);
 
@@ -90,8 +93,13 @@ private:
     eSkillButton* mLeftSkillButton = nullptr;
     eSkillButton* mRightSkillButton = nullptr;
     eWidget* mSkillMenu = nullptr;
+
     int mLeftSkill = 0;
     int mRightSkill = 0;
+
+    int mOtherLeftSkill = 0;
+    int mOtherRightSkill = 0;
+
     eTextureCheckButton* mRunButton = nullptr;
 
     eLineEdit* mMessage = nullptr;

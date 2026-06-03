@@ -187,6 +187,14 @@ void eGameWidget::setRightSkill(const int s) {
     mServer->setSkillId(mClientId, eSkillChoice::right, s);
 }
 
+void eGameWidget::setOtherLeftSkill(const int s) {
+    mOtherLeftSkill = s;
+}
+
+void eGameWidget::setOtherRightSkill(const int s) {
+    mOtherRightSkill = s;
+}
+
 void eGameWidget::respawn() {
     mServer->respawn(mClientId);
     auto& eq = equipment();
@@ -228,6 +236,8 @@ eCharacter eGameWidget::character() {
     c.skillLevels() = stats.fBaseSkillLevels;
     c.leftSkill() = mLeftSkill;
     c.rightSkill() = mRightSkill;
+    c.otherLeftSkill() = mOtherLeftSkill;
+    c.otherRightSkill() = mOtherRightSkill;
     c.leftHotkeys() = eSkillButton::sLeftMap;
     c.rightHotkeys() = eSkillButton::sRightMap;
     return c;

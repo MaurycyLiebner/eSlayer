@@ -45,6 +45,12 @@ public:
     const int& rightSkill() const { return mRightSkill; }
     int& rightSkill() { return mRightSkill; }
 
+    const int& otherLeftSkill() const { return mOtherLeftSkill; }
+    int& otherLeftSkill() { return mOtherLeftSkill; }
+
+    const int& otherRightSkill() const { return mOtherRightSkill; }
+    int& otherRightSkill() { return mOtherRightSkill; }
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
@@ -56,6 +62,8 @@ private:
     eSkillLevels mSkillLevels;
     int mLeftSkill = 0;
     int mRightSkill = 0;
+    int mOtherLeftSkill = 0;
+    int mOtherRightSkill = 0;
     std::map<int, int> mLeftHotkeys;
     std::map<int, int> mRightHotkeys;
 };

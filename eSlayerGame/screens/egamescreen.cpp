@@ -219,6 +219,13 @@ void eGameScreen::initialize(const int clientId,
         }
     });
     addWidget(mDragWidget);
+
+    mLeftSkill = c.leftSkill();
+    mRightSkill = c.rightSkill();
+    mOtherLeftSkill = c.otherLeftSkill();
+    mOtherRightSkill = c.otherRightSkill();
+    mGameWidget->setOtherLeftSkill(mOtherLeftSkill);
+    mGameWidget->setOtherRightSkill(mOtherRightSkill);
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -258,6 +265,16 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             showInventoryMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_W) {
+        const int leftTmp = mLeftSkill;
+        setLeftSkill(mOtherLeftSkill);
+        mOtherLeftSkill = leftTmp;
+        mGameWidget->setOtherLeftSkill(leftTmp);
+
+        const int rightTmp = mRightSkill;
+        setRightSkill(mOtherRightSkill);
+        mOtherRightSkill = rightTmp;
+        mGameWidget->setOtherRightSkill(rightTmp);
+
         mGameWidget->switchWeapons();
         if(mInventoryMenu) {
             mInventoryMenu->updateWeapons();
@@ -373,19 +390,29 @@ void eGameScreen::paintEvent(ePainter&) {
     }
 }
 
+void eGameScreen::setLeftSkill(const int skillId) {
+    mLeftSkill = skillId;
+    mGameWidget->setLeftSkill(skillId);
+    mLeftSkillButton->setSkillId(skillId);
+}
+
+void eGameScreen::setRightSkill(const int skillId) {
+    mRightSkill = skillId;
+    mGameWidget->setRightSkill(skillId);
+    mRightSkillButton->setSkillId(skillId);
+}
+
 void eGameScreen::hotkeyPressed(const int fkey) {
     const auto itL = eSkillButton::sLeftMap.find(fkey);
     if(itL != eSkillButton::sLeftMap.end()) {
         const int skillId = itL->second;
-        mGameWidget->setLeftSkill(skillId);
-        mLeftSkillButton->setSkillId(skillId);
+        setLeftSkill(skillId);
         return;
     }
     const auto itR = eSkillButton::sRightMap.find(fkey);
     if(itR != eSkillButton::sRightMap.end()) {
         const int skillId = itR->second;
-        mGameWidget->setRightSkill(skillId);
-        mRightSkillButton->setSkillId(skillId);
+        setRightSkill(skillId);
         return;
     }
 }

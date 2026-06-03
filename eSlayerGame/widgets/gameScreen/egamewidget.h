@@ -88,6 +88,9 @@ public:
     void setLeftSkill(const int s);
     void setRightSkill(const int s);
 
+    void setOtherLeftSkill(const int s);
+    void setOtherRightSkill(const int s);
+
     const std::shared_ptr<eServer>& server() const { return mServer; }
     int clientId() const { return mClientId; }
 
@@ -164,8 +167,11 @@ private:
 
     eUnitIndicator* mUnitIndicator = nullptr;
 
-    int mLeftSkill = -1;
-    int mRightSkill = -1;
+    int mLeftSkill = 0;
+    int mRightSkill = 0;
+
+    int mOtherLeftSkill = 0;
+    int mOtherRightSkill = 0;
 
     eDeathHandler mDeathHandler;
     eRespawnHandler mRespawnHandler;

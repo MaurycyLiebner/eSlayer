@@ -261,12 +261,16 @@ bool eCharacter::load(const std::string& path,
     gReadSkillLevels(rootE, c.mSkillLevels);
     gReadSkill(rootE, "left", c.mLeftSkill);
     gReadSkill(rootE, "right", c.mRightSkill);
+    gReadSkill(rootE, "otherLeft", c.mOtherLeftSkill);
+    gReadSkill(rootE, "otherRight", c.mOtherRightSkill);
     gReadSkillHotkeys(rootE, "left", c.mLeftHotkeys);
     gReadSkillHotkeys(rootE, "right", c.mRightHotkeys);
 
     // equipment
     if(const auto eqE = rootE->FirstChildElement("equipment")) {
         auto& eq = c.mEquipment;
+        const int active = eqE->IntAttribute("activeWeapons", 1);
+        eq.fWeapons1 = active == 1;
         gReadItemSlot(eq.fBoots,   "boots",   eqE);
         gReadItemSlot(eq.fGloves,  "gloves",  eqE);
         gReadItemSlot(eq.fHelmet,  "helmet",  eqE);
@@ -563,10 +567,13 @@ bool eCharacter::write(const std::string& path) const {
     gWriteSkillLevels(rootE, mSkillLevels);
     gWriteSkill(rootE, "left", mLeftSkill);
     gWriteSkill(rootE, "right", mRightSkill);
+    gWriteSkill(rootE, "otherLeft", mOtherLeftSkill);
+    gWriteSkill(rootE, "otherRight", mOtherRightSkill);
     gWriteSkillHotkeys(rootE, "left", mLeftHotkeys);
     gWriteSkillHotkeys(rootE, "right", mRightHotkeys);
 
     const auto eqE = rootE->InsertNewChildElement("equipment");
+    eqE->SetAttribute("activeWeapons", mEquipment.fWeapons1 ? 1 : 2);
     gWriteItemSlot(mEquipment.fBoots, "boots", eqE);
     gWriteItemSlot(mEquipment.fGloves, "gloves", eqE);
     gWriteItemSlot(mEquipment.fHelmet, "helmet", eqE);
