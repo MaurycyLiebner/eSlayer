@@ -404,18 +404,19 @@ public:
             const int dim2 = 2*roomSize/3;
             const int d = roomSize - dim2;
             const int dim3 = connLen + 2*d;
-            c.fRects.emplace_back(room.fAbsX,
-                                  room.fAbsY,
-                                  dim1, dim2);
-            c.fRects.emplace_back(room.fAbsX,
-                                  room.fAbsY + dim2,
-                                  dim2, dim3);
-            c.fRects.emplace_back(roomBR.fAbsX + d,
-                                  roomBR.fAbsY + dim2,
-                                  dim2, dim3);
-            c.fRects.emplace_back(roomBL.fAbsX,
-                                  roomBL.fAbsY + d,
-                                  dim1, dim2);
+            auto& rects = c.fRects;
+            rects.emplace_back(room.fAbsX,
+                               room.fAbsY,
+                               dim1, dim2);
+            rects.emplace_back(room.fAbsX,
+                               room.fAbsY + dim2,
+                               dim2, dim3);
+            rects.emplace_back(roomBR.fAbsX + d,
+                               roomBR.fAbsY + dim2,
+                               dim2, dim3);
+            rects.emplace_back(roomBL.fAbsX,
+                               roomBL.fAbsY + d,
+                               dim1, dim2);
             addBRConn(roomBR);
             addBLConn(roomBL);
             addBRConn(roomB);
@@ -423,11 +424,52 @@ public:
             return true;
         };
 
+        const auto tryCrossMerge = [&](const eRoom& room) {
+            if(room.fRelY >= yNRooms - 2) return false;
+            if(room.fRelX >= xNRooms - 2) return false;
+            if(!room.fBLConn) return false;
+            auto& roomBL = rooms[room.fRelY + 1][room.fRelX];
+            if(!roomBL.fEnabled) return false;
+            if(!roomBL.fBLConn) return false;
+            if(!roomBL.fBRConn) return false;
+            if(!roomBL.fTLConn) return false;
+            auto& roomBLBL = rooms[room.fRelY + 2][room.fRelX];
+            if(!roomBLBL.fEnabled) return false;
+            auto& roomBLBR = rooms[room.fRelY + 1][room.fRelX + 1];
+            if(!roomBLBR.fEnabled) return false;
+            auto& roomBLTL = rooms[room.fRelY + 1][room.fRelX - 1];
+            if(!roomBLTL.fEnabled) return false;
+            roomBL.fEnabled = false;
+            roomBLBL.fEnabled = false;
+            roomBLBR.fEnabled = false;
+            roomBLTL.fEnabled = false;
+            auto& c = chambers.emplace_back();
+            const int dim1 = 2*roomSize + connLen;
+            const int dim2 = 2*roomSize/3;
+            const int d = roomSize - dim2;
+            const int dim3 = connLen + 2*d;
+            auto& rects = c.fRects;
+            rects.emplace_back(room.fAbsX, room.fAbsY,
+                               roomSize, 3*roomSize + 2*connLen);
+            rects.emplace_back(roomBLTL.fAbsX, roomBLTL.fAbsY,
+                               roomSize + connLen, roomSize);
+            rects.emplace_back(roomBLBR.fAbsX - connLen, roomBLBR.fAbsY,
+                               roomSize + connLen, roomSize);
+            addBRConn(roomBLBL);
+            addBLConn(roomBLBL);
+            addBRConn(roomBLBR);
+            addBLConn(roomBLBR);
+            addBLConn(roomBLTL);
+            return true;
+        };
+
         for(const auto& row : rooms) {
             for(const auto& room : row) {
                 if(!room.fEnabled) continue;
-                const bool r = trySquareMerge(room);
+                const bool r = tryCrossMerge(room);
                 if(r) continue;
+                const bool rr = trySquareMerge(room);
+                if(rr) continue;
                 addBRConn(room);
                 addBLConn(room);
                 const eRect rect{room.fAbsX, room.fAbsY,
