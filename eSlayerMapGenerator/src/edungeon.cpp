@@ -196,10 +196,12 @@ void eDungeon::generate() const {
 
     const auto tryAddObject = [&](ePlacementHelper& helper,
                                   const std::vector<eChamber>& cs,
-                                  const uint16_t type) {
+                                  const eTypeCount& os) {
         if(cs.empty()) return false;
-        const int id = helper.get();
+        int area;
+        const int id = helper.get(area);
         if(id < 0) return false;
+        if(area < os.fMinArea) return false;
         const auto& c = cs[id];
         const auto& rects = c.fRects;
         if(rects.empty()) return false;
@@ -211,6 +213,7 @@ void eDungeon::generate() const {
 
         calcMaxArea(c, maxA, xMax, yMax);
         if(maxA == 0) return false;
+        const auto type = os.fType;
         const auto& info = eObjectsInfo::sObjects.get(type);
         auto& obj = *mMap->addObject({xMax, yMax});
         obj.fObjectType = type;
@@ -282,7 +285,8 @@ void eDungeon::generate() const {
     const auto& objs = mSettings.fObjects;
     for(const auto& os : objs) {
         for(int i = 0; i < os.fCount; i++) {
-            tryAddObject(helper, chambers, os.fType);
+            const bool r = tryAddObject(helper, chambers, os);
+            if(!r) break;
         }
     }
 
@@ -315,7 +319,8 @@ void eDungeon::generate() const {
         const auto& objs = mSettings.fOutsideObjects;
         for(const auto& os : objs) {
             for(int i = 0; i < os.fCount; i++) {
-                tryAddObject(helper, ochambers, os.fType);
+                const bool r = tryAddObject(helper, ochambers, os);
+                if(!r) break;
             }
         }
     }

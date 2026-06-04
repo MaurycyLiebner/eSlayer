@@ -60,6 +60,7 @@ void eMapsSettings::load() {
                         result.fCount = values.value("count", 1);
                         result.fGroupSize = values.value("groupSize", 1);
                         result.fElite = values.value("elite", false);
+                        result.fMinArea = values.value("minArea", 0);
                         const auto type = eCharDataInfo::id(mname);
                         result.fType = type;
                         if(type == -1) {
@@ -70,32 +71,36 @@ void eMapsSettings::load() {
                     }
                 }
 
-                if(jArea.contains("objects")) {
-                    const auto& items = jArea["objects"];
+                const auto parseObjects = [&](const ordered_json& items,
+                                              std::vector<eTypeCount>& vec) {
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto oname = cit.key();
-                        const int count = cit.value();
                         const int type = eObjectsInfo::sObjects.id(oname);
                         if(type == -1) {
-                            eRuntimeThrow("Invalid object type \"" + name +
+                            eRuntimeThrow("Invalid object type \"" + oname +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        area.fObjects.emplace_back(type, count);
+                        const auto& values = cit.value();
+                        int count = 1;
+                        int minArea = 0;
+                        if(values.is_number_integer()) {
+                            count = values;
+                        } else {
+                            count = values.value("count", 1);
+                            minArea = values.value("minArea", 0);
+                        }
+                        vec.emplace_back(type, count, minArea);
                     }
+                };
+
+                if(jArea.contains("objects")) {
+                    const auto& items = jArea["objects"];
+                    parseObjects(items, area.fObjects);
                 }
 
                 if(jArea.contains("outObjects")) {
                     const auto& items = jArea["outObjects"];
-                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
-                        const auto oname = cit.key();
-                        const int count = cit.value();
-                        const int type = eObjectsInfo::sObjects.id(oname);
-                        if(type == -1) {
-                            eRuntimeThrow("Invalid object type \"" + name +
-                                          "\" in " + dir + "/" + name + ".json");
-                        }
-                        area.fOutsideObjects.emplace_back(type, count);
-                    }
+                    parseObjects(items, area.fOutsideObjects);
                 }
 
                 if(jArea.contains("connections")) {

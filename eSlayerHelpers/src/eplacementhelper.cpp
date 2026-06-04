@@ -7,11 +7,12 @@ void ePlacementHelper::add(
     mMap.emplace(count, id);
 }
 
-int ePlacementHelper::get() {
+int ePlacementHelper::get(int& area) {
     if(mMap.empty()) return -1;
     const auto end = mMap.end();
     const auto it = std::prev(end);
     const int id = it->second;
+    area = it->first;
     return id;
 }
 

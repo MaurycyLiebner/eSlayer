@@ -10,7 +10,7 @@ public:
     ePlacementHelper();
 
     void add(const int id, const int count);
-    int get();
+    int get(int& area);
     void set(const int id, const int count);
 private:
     std::multimap<int, int> mMap;

@@ -20,12 +20,15 @@ enum class eAreaType {
 struct eTypeCount {
     eTypeCount() {}
     eTypeCount(const uint16_t type,
-               const int count) :
+               const int count,
+               const int minArea) :
         fType(type),
-        fCount(count) {}
+        fCount(count),
+        fMinArea(minArea) {}
 
     uint16_t fType;
     int fCount;
+    int fMinArea;
 };
 
 struct eMonsterCount : public eTypeCount {

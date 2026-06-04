@@ -308,8 +308,10 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         const auto& types = ma.fSettings.fTypes;
         for(const auto& us : types) {
             const auto tryAddUnits = [&]() {
-                const int id = helper.get();
+                int area;
+                const int id = helper.get(area);
                 if(id < 0) return false;
+                if(area < us.fMinArea) return false;
                 const auto& c = chambers[id];
                 const auto& rects = c.fRects;
                 if(rects.empty()) return false;
@@ -334,7 +336,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const auto addUnit = [&]() {
                     ePointF pos;
                     const bool r = findPlaceForUnit({xMax, yMax}, pos);
-                    if(!r) return;
+                    if(!r) return false;
                     const auto modelParts = data.randomModelParts();
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
@@ -373,11 +375,13 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                     const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
                     u->setAction(a);
+                    return true;
                 };
 
                 const int nUnits = us.fGroupSize;
                 for(int i = 0; i < nUnits; i++) {
-                    addUnit();
+                    const bool r = addUnit();
+                    if(!r) break;
                 }
 
                 calcMaxArea(c, maxA, xMax, yMax);
@@ -387,7 +391,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             };
 
             for(int i = 0; i < us.fCount; i++) {
-                tryAddUnits();
+                const bool r = tryAddUnits();
+                if(!r) break;
             }
         }
     }
