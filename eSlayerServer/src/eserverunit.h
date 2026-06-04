@@ -17,6 +17,7 @@
 #include <eSlayerHelpers/eweapontype.h>
 
 #include <memory>
+#include <atomic>
 
 class eUnitAction;
 class eComplexAction;
@@ -55,7 +56,7 @@ struct eTimedBoost {
 
 class eServerUnit : public eUnitData {
 public:
-    static int sNextCharId;
+    static std::atomic<uint32_t> sNextCharId;
 
     eServerUnit(const bool slayer,
                 const eCharData& data,

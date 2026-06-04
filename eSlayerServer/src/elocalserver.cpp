@@ -4,6 +4,8 @@
 
 #include <eSlayerHelpers/echaracter.h>
 
+#include <thread>
+
 bool eLocalServer::initialize() {
     return true;
 }
@@ -24,40 +26,52 @@ bool eLocalServer::disconnect(const int clientId) {
 
 void eLocalServer::increment(const float by) {
     mTime += by;
-    for(const auto& a : mAreas) {
-        a.second->increment(by);
+    checkMapsReady();
+    for(const auto& it : mMaps) {
+        const auto& ma = it.second;
+        const auto& area = ma.fArea;
+        area->increment(by);
     }
 }
 
 bool eLocalServer::requestMap(
     const int clientId,
     const std::string& name,
-    eMapData& data) {
+    const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const auto mapIt = mMaps.find(name);
     std::shared_ptr<eMap> map;
-    if(mapIt == mMaps.end()) {
-        map = eSlayerMapGenerator::generate(name);
-        mMaps[name] = map;
-    } else {
-        map = mapIt->second;
-    }
-    const auto areaIt = mAreas.find(name);
     std::shared_ptr<eServerArea> area;
-    if(areaIt == mAreas.end()) {
-        area = std::make_shared<eServerArea>();
-        area->initialize(map);
-        mAreas[name] = area;
+    const auto ofunc = [this, func, clientId](const eMapAndArea& ma) {
+        const auto h = clientHandler(clientId);
+        if(!h) return;
+        const auto& area = ma.fArea;
+        const auto& carea = h->area();
+        eMapData data;
+        const auto& map = ma.fMap;
+        map->mapData(data);
+        if(carea) {
+            eServerArea::moveClient(clientId, *carea, *area, data.fSpawnPos);
+        }
+        h->setArea(area);
+        func(data);
+        return;
+    };
+    if(mapIt == mMaps.end()) {
+        mMapReadyActions[name].emplace_back(ofunc);
+        std::thread t([this, name]() {
+            const auto map = eSlayerMapGenerator::generate(name);
+            const auto area = std::make_shared<eServerArea>();
+            area->initialize(map);
+            const eMapAndArea result{name, map, area};
+            mReady.push_back(result);
+        });
+        t.detach();
     } else {
-        area = areaIt->second;
+        const auto& ma = mapIt->second;
+        ofunc(ma);
     }
-    const auto& carea = h->area();
-    map->mapData(data);
-    if(carea) {
-        eServerArea::moveClient(clientId, *carea, *area, data.fSpawnPos);
-    }
-    h->setArea(area);
     return true;
 }
 
@@ -197,6 +211,25 @@ bool eLocalServer::pickupBody(
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->pickupBody(bodyId);
+}
+
+void eLocalServer::mapReady(const eMapAndArea& ma) {
+    const auto& name = ma.fName;
+    mMaps[name] = ma;
+    const auto& as = mMapReadyActions[name];
+    for(const auto& a : as) {
+        a(ma);
+    }
+    mMapReadyActions.erase(name);
+}
+
+void eLocalServer::checkMapsReady() {
+    mReady.with_lock([this](std::vector<eMapAndArea>& v) {
+        for(const auto& ma : v) {
+            mapReady(ma);
+        }
+        v.clear();
+    });
 }
 
 eServerClientHandler*

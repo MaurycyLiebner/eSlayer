@@ -50,6 +50,8 @@ struct eMessage {
 using eServerFailureHandler = std::function<void(
     const std::string& msg, const std::string& subMsg)>;
 
+using eMapReadyAction = std::function<void(const eMapData& data)>;
+
 class ESLAYERSERVER_API eServer {
 public:
     eServer(const eServerData& data);
@@ -62,11 +64,12 @@ public:
     virtual bool disconnect(const int clientId) = 0;
 
     virtual void increment(const float by) = 0;
+    virtual void checkMapsReady() {}
 
     virtual bool
     requestMap(const int clientId,
                const std::string& name,
-               eMapData& data) = 0;
+               const eMapReadyAction& func) = 0;
     virtual bool
     spawn(const int clientId,
           eCharacter& c,

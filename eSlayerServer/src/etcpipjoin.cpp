@@ -130,7 +130,7 @@ void eTcpIpJoin::increment(const float by) {
 bool eTcpIpJoin::requestMap(
     const int clientId,
     const std::string& name,
-    eMapData& data) {
+    const eMapReadyAction& func) {
     ePacket p;
     p << ePacketType::map;
     p << name;
@@ -151,7 +151,9 @@ bool eTcpIpJoin::requestMap(
             p >> type;
 
             if(type == ePacketType::map) {
+                eMapData data;
                 data.read(p);
+                func(data);
                 return true;
             }
         }

@@ -9,7 +9,7 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/echardatainfo.h>
 
-int eServerUnit::sNextCharId = 0;
+std::atomic<uint32_t> eServerUnit::sNextCharId = 1;
 
 eServerUnit::eServerUnit(const bool slayer,
                          const eCharData& data,
@@ -21,7 +21,6 @@ eServerUnit::eServerUnit(const bool slayer,
     mArea(area),
     mSlayer(slayer),
     mUnitTypeId(unitTypeId) {}
-
 
 bool eServerUnit::hitData(
     const eSkillStats& skill,

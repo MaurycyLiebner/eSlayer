@@ -40,6 +40,10 @@ private:
                         const std::shared_ptr<eServer>& server,
                         const int clientId, const eCharacter& c,
                         const eTeamId teamId);
+    bool requestMap(eServer& server,
+                    const int clientId,
+                    const std::string& mapName,
+                    eMapData& data);
     void loadCharacters();
 
     eMainWindow* const mWindow;

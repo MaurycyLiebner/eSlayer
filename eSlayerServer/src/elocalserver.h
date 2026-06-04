@@ -5,10 +5,17 @@
 
 #include "eserverclienthandler.h"
 #include "eserverarea.h"
+#include "ethreadsafevector.h"
 
 #include <map>
 
 struct eAttackData;
+
+struct eMapAndArea {
+    std::string fName;
+    std::shared_ptr<eMap> fMap;
+    std::shared_ptr<eServerArea> fArea;
+};
 
 class eLocalServer : public eServer {
 public:
@@ -22,7 +29,7 @@ public:
 
     bool requestMap(const int clientId,
                     const std::string& name,
-                    eMapData& data) override;
+                    const eMapReadyAction& func) override;
     bool spawn(const int clientId,
                eCharacter& c,
                eTeamId& teamId,
@@ -71,14 +78,20 @@ public:
                        const uint32_t itemId) override;
     bool pickupBody(const int clientId,
                     const int32_t bodyId) override;
+
+    void mapReady(const eMapAndArea& ma);
+    void checkMapsReady() override;
 protected:
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 private:
     float mTime = 0.f;
 
-    std::map<std::string, std::shared_ptr<eServerArea>> mAreas;
-    std::map<std::string, std::shared_ptr<eMap>> mMaps;
+    std::map<std::string, eMapAndArea> mMaps;
+    using eOMapReadyAction = std::function<void(const eMapAndArea& ma)>;
+    std::map<std::string, std::vector<eOMapReadyAction>> mMapReadyActions;
+
+    eThreadSafeVector<eMapAndArea> mReady;
 };
 
 #endif // ELOCALSERVER_H

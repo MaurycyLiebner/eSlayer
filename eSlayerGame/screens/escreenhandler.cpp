@@ -213,7 +213,7 @@ void loadUnitTypes(const eResolution& res,
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const std::string mapName = "basement_1"/*"act1_1"*/;
+    const std::string mapName = /*"basement_1"*/"act1_1";
     const auto map = std::make_shared<eMap>(mapName);
     const auto clientId = std::make_shared<int>();
     const auto teamId = std::make_shared<eTeamId>();
@@ -245,9 +245,8 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([this, server, mapName, map, clientId]() {
         eMapData data;
-        const bool r = (*server)->requestMap(*clientId, mapName, data);
-        if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
-        else map->loadData(data);
+        const bool r = requestMap(**server, *clientId, mapName, data);
+        if(r) map->loadData(data);
     });
     loading.emplace_back([&res, r]() {
         eMissilesTextures::loadTextures(res, r);
@@ -299,9 +298,8 @@ void eScreenHandler::moveToMap(
     const auto r = mWindow->renderer();
     loading.emplace_back([this, server, map, mapName, clientId]() {
         eMapData data;
-        const bool r = server->requestMap(clientId, mapName, data);
-        if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
-        else map->loadData(data);
+        const bool r = requestMap(*server, clientId, mapName, data);
+        if(r) map->loadData(data);
     });
     loading.emplace_back([&res, r, map]() {
         loadTerrainTypes(res, r, map);
@@ -442,6 +440,32 @@ void eScreenHandler::finishGameShow(
     };
     w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);
+}
+
+bool eScreenHandler::requestMap(
+    eServer& server,
+    const int clientId,
+    const std::string& mapName,
+    eMapData& data) {
+    bool ready = false;
+    const auto readyFunc = [&ready, &data](
+        const eMapData& dataT) {
+        data = dataT;
+        ready = true;
+    };
+    const bool r = server.requestMap(clientId, mapName, readyFunc);
+    if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
+    uint32_t time = 0;
+    while(!ready) {
+        SDL_Delay(32);
+        time += 32;
+        server.checkMapsReady();
+        if(time > 10000) {
+            showErrorMsg("Disconnected", "Map request timed out.");
+            return false;
+        }
+    }
+    return true;
 }
 
 void eScreenHandler::loadCharacters() {

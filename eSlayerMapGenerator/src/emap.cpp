@@ -7,8 +7,9 @@
 
 #include <optional>
 #include <unordered_set>
+#include <atomic>
 
-uint32_t sNextObjectId = 1;
+std::atomic<uint32_t> sNextObjectId = 1;
 
 eMap::eMap(const std::string& name) :
     mName(name) {}

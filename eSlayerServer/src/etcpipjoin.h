@@ -21,7 +21,7 @@ public:
 
     bool requestMap(const int clientId,
                     const std::string& name,
-                    eMapData& data) override;
+                    const eMapReadyAction& func) override;
     bool spawn(const int clientId,
                eCharacter& c,
                eTeamId& teamId,
