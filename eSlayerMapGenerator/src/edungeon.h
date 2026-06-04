@@ -53,7 +53,7 @@ private:
 
     int mMargin;
 
-    std::vector<eConnection> mConnecitons;
+    std::vector<eConnection> mConnections;
 
     std::shared_ptr<eMap> mMap;
     eAreaSettings mSettings;

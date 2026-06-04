@@ -28,6 +28,8 @@ void eMapsSettings::load() {
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
             eMapSettings map;
 
+            map.fMaxSize = jdata.value("maxSize", 80);
+
             const auto& jAreas = jdata.at("areas");
 
             for(auto it = jAreas.begin(); it != jAreas.end(); ++it) {
@@ -46,8 +48,9 @@ void eMapsSettings::load() {
                 const auto terrTypeStr = jArea.value("terrain", "grass");
                 area.fTerrainType = eTerrsTexturesData::id(terrTypeStr);
                 area.fLightness = jArea.value("lightness", 180);
-                area.fContrast  = jArea.value("contrast", 140);
+                area.fContrast = jArea.value("contrast", 140);
                 area.fLevel = jArea.value("level", 0);
+                area.fSize = jArea.value("size", 50);
 
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;

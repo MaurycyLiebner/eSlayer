@@ -18,7 +18,8 @@ public:
     static void generate(
         const eRect& rect,
         std::vector<eChamber>& chambers,
-        std::vector<eRect>& doors);
+        std::vector<eRect>& doors,
+        const int size);
 };
 
 #endif // EDUNGEONGENERATOR_H

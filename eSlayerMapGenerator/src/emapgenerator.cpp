@@ -249,7 +249,7 @@ eMapGenerator::generate(const std::string& name) const {
     const auto result = std::make_shared<eMap>(name);
     result->mAllPresent = true;
 
-    const int areaDim = 80;
+    const int areaDim = mapSettings.fMaxSize;
 
     std::map<eAreaPlace, eDungeon> areas;
 

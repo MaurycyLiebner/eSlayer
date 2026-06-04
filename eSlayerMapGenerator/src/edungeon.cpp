@@ -26,13 +26,13 @@ eDungeon::eDungeon(const std::string& name,
     mMapSettings(mapSettings) {}
 
 void eDungeon::addConnection(const eConnection& conn) {
-    mConnecitons.emplace_back(conn);
+    mConnections.emplace_back(conn);
 }
 
 void eDungeon::shift(const int dx, const int dy) {
     mX += dx;
     mY += dy;
-    for(auto& conn : mConnecitons) {
+    for(auto& conn : mConnections) {
         conn.fX += dx;
         conn.fY += dy;
     }
@@ -50,7 +50,7 @@ void eDungeon::generate() const {
     const auto rect = eDungeon::rect();
     std::vector<eChamber> chambers;
     std::vector<eRect> doors;
-    for(const auto& c : mConnecitons) {
+    for(const auto& c : mConnections) {
         const eRect connRect{c.fX, c.fY, c.fW, c.fH};
         eRect connIn;
         eRect::intersection(rect, connRect, connIn);
@@ -67,7 +67,7 @@ void eDungeon::generate() const {
     case eAreaType::dungeon: {
         rectWalls = true;
         fillEmptySapces = false;
-        eDungeonGenerator::generate(rect, chambers, doors);
+        eDungeonGenerator::generate(rect, chambers, doors, mSettings.fSize);
     } break;
     case eAreaType::open: {
         rectWalls = false;

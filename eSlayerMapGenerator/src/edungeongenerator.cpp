@@ -19,7 +19,8 @@ eDir eDirHelpers::flip(const eDir dir) {
 void eDungeonGenerator::generate(
     const eRect& rect,
     std::vector<eChamber>& chambers,
-    std::vector<eRect>& doors) {
+    std::vector<eRect>& doors,
+    const int size) {
     const int roomSize = 6;
     const int connThick = 2;
     const int connLen = 4;
@@ -103,12 +104,13 @@ void eDungeonGenerator::generate(
 
     rooms[firstRelY][firstRelX].fEnabled = true;
 
-    const auto generateRandomPath = [&]() {
+    const auto generateRandomPath = [&](
+        int& roomCounter, const int pathLen) {
         int relX = firstRelX;
         int relY = firstRelY;
         eDir dir = eDir::none;
 
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < pathLen; i++) {
             const auto excl = eDirHelpers::flip(dir);
             bool hasRoomB = false;
 
@@ -127,16 +129,22 @@ void eDungeonGenerator::generate(
             rooms[relY][relX].enableInDir(dir);
             const auto fdir = eDirHelpers::flip(dir);
             auto& newRoom = rooms[newRelY][newRelX];
+            if(!newRoom.fEnabled) roomCounter++;
             newRoom.fEnabled = true;
             newRoom.enableInDir(fdir);
 
             relY = newRelY;
             relX = newRelX;
+
+            if(roomCounter >= size) break;
         }
     };
 
-    for(int i = 0; i < 5; i++) {
-        generateRandomPath();
+    int roomCounter = 0;
+    const int pathLen = 1 + 4*sqrt(size)/3;
+    for(int i = 0; i < 8; i++) {
+        generateRandomPath(roomCounter, pathLen);
+        if(roomCounter >= size) break;
     }
 
     const auto addBRConn = [&](const eRoom& room) {

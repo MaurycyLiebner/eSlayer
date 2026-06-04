@@ -59,11 +59,13 @@ struct eAreaSettings {
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;
+    uint16_t fSize = 0;
     std::map<std::string, eConnectionSettings> fConnections;
 };
 
 struct eMapSettings {
     eStringIdMapVector<eAreaSettings> fAreas;
+    int fMaxSize = 80;
 };
 
 struct ESLAYERMAPGENERATOR_API eMapsSettings {
