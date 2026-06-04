@@ -736,17 +736,14 @@ void eMap::generateTiles(const int w, const int h) {
     mObstaclesMap.initialize(filler, w, h);
 }
 
-void eMap::updateObjectsMap() {
-    const int iMax = mObjects.size();
-    for(int i = 0; i < iMax; i++) {
-        const auto& o = *mObjects[i];
-        const auto iPos = o.fPos.floor();
-        mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
-    }
-}
-
-const std::shared_ptr<eObject>& eMap::addObject() {
-    const auto& obj = mObjects.emplace_back(std::make_shared<eObject>());
+std::shared_ptr<eObject> eMap::addObject(
+    const ePointF& pos) {
+    const auto obj = std::make_shared<eObject>();
+    obj->fPos = pos;
+    const auto ipos = pos.floor();
+    const int id = mObjects.size();
+    mObjectsMap[ipos.fY][ipos.fX].emplace_back(id);
+    mObjects.emplace_back(obj);
     obj->fObjectId = sNextObjectId++;
     return obj;
 }

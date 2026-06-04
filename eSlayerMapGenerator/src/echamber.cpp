@@ -1,4 +1,4 @@
-#include "echamber.h"
+#include "../include/eSlayerMapGenerator/echamber.h"
 
 eChamber::eChamber() {}
 
@@ -7,6 +7,14 @@ eChamber::eChamber(const eRect& r) :
 
 eChamber::eChamber(const std::vector<eRect>& r) :
     fRects{r} {}
+
+int eChamber::area() const {
+    int result = 0;
+    for(const auto& r : fRects) {
+        result += r.fW*r.fH;
+    }
+    return result;
+}
 
 bool eChamber::contains(const ePoint& p) const {
     for(const auto& r : fRects) {

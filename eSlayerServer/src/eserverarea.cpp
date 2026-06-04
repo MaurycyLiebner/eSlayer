@@ -22,6 +22,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/eplacementhelper.h>
 
 eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
 
@@ -230,41 +231,98 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mItemTiles.initialize(w, h, -mItemTileSubdivision);
 
     const auto& mareas = map->monsterAreas();
-    for(const auto& marea : mareas) {
-        const auto& rect = marea.fRect;
-        const auto& ms = marea.fSettings;
-        const auto& types = ms.fTypes;
-        if(types.empty()) continue;
 
-        const int unitMargin = ms.fMonstersMargin;
+    const auto checkMargin = [&](const int x, const int y,
+                                 const eChamber& c) {
+        const int unitMargin = 1;
+        for(int dx = -unitMargin; dx <= unitMargin; dx++) {
+            const int xx = x + dx;
+            for(int dy = -unitMargin; dy <= unitMargin; dy++) {
+                const int yy = y + dy;
+                if(!c.contains({xx, yy})) return false;
+                const auto& objs = mMap->objects(xx, yy);
+                if(!objs.empty()) return false;
+                const auto uarea = mUnitAreas.posArea(ePoint{xx, yy});
+                if(!mUnitAreas.hasArea(uarea)) continue;
+                const auto& us = mUnitAreas.at(uarea);
+                if(!us.empty()) return false;
+            }
+        }
+        return true;
+    };
 
-        const auto tryAddUnits = [&](const int x, const int y) {
-            for(int dx = -unitMargin; dx <= unitMargin; dx++) {
+    const auto calcArea = [&](const int x, const int y,
+                              const eChamber& c) {
+        int dim;
+        for(dim = 0;; dim++) {
+            for(int dx = -dim; dx <= dim; dx++) {
                 const int xx = x + dx;
-                if(xx < 0) return;
-                if(xx >= w) return;
-                for(int dy = -unitMargin; dy <= unitMargin; dy++) {
+                for(int dy = -dim; dy <= dim; dy++) {
                     const int yy = y + dy;
-                    if(yy < 0) return;
-                    if(yy >= h) return;
+                    if(std::abs(dx) != dim && std::abs(dy) != dim) continue;
+                    if(!c.contains({xx, yy})) return dim;
+                    const auto& objs = mMap->objects(xx, yy);
+                    if(!objs.empty()) return dim;
                     const auto uarea = mUnitAreas.posArea(ePoint{xx, yy});
                     if(!mUnitAreas.hasArea(uarea)) continue;
                     const auto& us = mUnitAreas.at(uarea);
-                    if(!us.empty()) return;
+                    if(!us.empty()) return dim;
                 }
             }
+        }
+        return dim;
+    };
 
-            const int nTypes = types.size();
-            const int startId = eRand::rand() % nTypes;
-            for(int i = 0; i < nTypes; i++) {
-                const int typeId = (startId + i) % nTypes;
-                const auto& typeData = types[typeId];
-                const auto type = typeData.fType;
-                const bool add = eRand::randChance(typeData.fProbability);
-                if(!add) continue;
-                const auto& udata = eUnitsInfo::sUnits.get(type);
+    const auto calcMaxArea = [&](const eChamber& c,
+                                 int& maxA,
+                                 int& xMax,
+                                 int& yMax) {
+        maxA = 0;
+        for(const auto& r : c.fRects) {
+            for(int x = r.fX; x < r.fX + r.fW; x++) {
+                for(int y = r.fY; y < r.fY + r.fH; y++) {
+                    const bool r = checkMargin(x, y, c);
+                    if(!r) continue;
+                    const int a = calcArea(x, y, c);
+                    if(a <= maxA) continue;
+                    maxA = a;
+                    xMax = x;
+                    yMax = y;
+                }
+            }
+        }
+    };
 
-                const bool elite = eRand::randChance(typeData.fEliteProbability);
+    for(const auto& ma : mareas) {
+        const auto& chambers = ma.fChambers;
+        ePlacementHelper helper;
+        for(int i = 0; i < chambers.size(); i++) {
+            const auto& sc = chambers[i];
+            int maxA = 0;
+            int xMax;
+            int yMax;
+            calcMaxArea(sc, maxA, xMax, yMax);
+            helper.add(i, maxA);
+        }
+
+        const auto& types = ma.fSettings.fTypes;
+        for(const auto& us : types) {
+            const auto tryAddUnits = [&]() {
+                const int id = helper.get();
+                if(id < 0) return false;
+                const auto& c = chambers[id];
+                const auto& rects = c.fRects;
+                if(rects.empty()) return false;
+                const auto& r0 = rects[0];
+
+                int maxA = 0;
+                int xMax = r0.fX;
+                int yMax = r0.fY;
+
+                calcMaxArea(c, maxA, xMax, yMax);
+                if(maxA == 0) return false;
+                const auto& udata = eUnitsInfo::sUnits.get(us.fType);
+                const bool elite = us.fElite;
                 bool boss = elite;
                 eEliteModifiers mods;
                 if(elite) {
@@ -275,12 +333,12 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                 const auto addUnit = [&]() {
                     ePointF pos;
-                    const bool r = findPlaceForUnit({x, y}, pos);
+                    const bool r = findPlaceForUnit({xMax, yMax}, pos);
                     if(!r) return;
                     const auto modelParts = data.randomModelParts();
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
-                        false, data, type, *this, map);
+                        false, data, us.fType, *this, map);
                     const int charId = eServerUnit::sNextCharId++;
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, udata, data, modelParts);
@@ -317,17 +375,19 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     u->setAction(a);
                 };
 
-                const int nUnits = typeData.fGroupSize;
+                const int nUnits = us.fGroupSize;
                 for(int i = 0; i < nUnits; i++) {
                     addUnit();
                 }
-            }
-        };
 
-        const int rectMargin = ms.fRectMargin;
-        for(int x = rect.fX + rectMargin; x < rect.fX + rect.fW - rectMargin; x++) {
-            for(int y = rect.fY + rectMargin; y < rect.fY + rect.fH - rectMargin; y++) {
-                tryAddUnits(x, y);
+                calcMaxArea(c, maxA, xMax, yMax);
+                helper.set(id, maxA);
+
+                return true;
+            };
+
+            for(int i = 0; i < us.fCount; i++) {
+                tryAddUnits();
             }
         }
     }

@@ -1,7 +1,7 @@
 #ifndef EOPENGENERATOR_H
 #define EOPENGENERATOR_H
 
-#include "echamber.h"
+#include "../include/eSlayerMapGenerator/echamber.h"
 
 class eOpenGenerator {
 public:

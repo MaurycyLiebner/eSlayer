@@ -168,6 +168,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/ecolor.h
     include/eSlayerHelpers/eauratypes.h
     src/eauratypes.cpp
+    include/eSlayerHelpers/eplacementhelper.h
+    src/eplacementhelper.cpp
 )
 
 target_include_directories(eSlayerHelpers

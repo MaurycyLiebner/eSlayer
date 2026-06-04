@@ -17,26 +17,24 @@ enum class eAreaType {
     open, dungeon
 };
 
-struct eTypeProbability {
-    eTypeProbability() {}
-    eTypeProbability(const uint16_t type,
-                     const float prob) :
+struct eTypeCount {
+    eTypeCount() {}
+    eTypeCount(const uint16_t type,
+               const int count) :
         fType(type),
-        fProbability(prob) {}
+        fCount(count) {}
 
     uint16_t fType;
-    float fProbability;
+    int fCount;
 };
 
-struct eMonsterProbability : public eTypeProbability {
+struct eMonsterCount : public eTypeCount {
     int fGroupSize;
-    float fEliteProbability;
+    bool fElite;
 };
 
 struct eMapMonsterSettings {
-    std::vector<eMonsterProbability> fTypes;
-    int fRectMargin = 0;
-    int fMonstersMargin = 0;
+    std::vector<eMonsterCount> fTypes;
 };
 
 enum class eConnectionDir : uint8_t {
@@ -53,10 +51,8 @@ struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
     eMapMonsterSettings fMonsters;
-    int fObjectsMargin = 4;
-    std::vector<eTypeProbability> fObjects;
-    int fOutsideObjectsMargin = 1;
-    std::vector<eTypeProbability> fOutsideObjects;
+    std::vector<eTypeCount> fObjects;
+    std::vector<eTypeCount> fOutsideObjects;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;

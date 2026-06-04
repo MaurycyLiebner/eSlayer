@@ -1,8 +1,10 @@
 #ifndef EMAP_H
 #define EMAP_H
 
-#include "emapsettings.h"
 #include "eslayermapgeneratorexport.h"
+
+#include "emapsettings.h"
+#include "echamber.h"
 
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/epathfindermap.h>
@@ -70,7 +72,7 @@ public:
     eMapArea& area(const int id);
 
     struct eMonsterArea {
-        eRect fRect;
+        std::vector<eChamber> fChambers;
         eMapMonsterSettings fSettings;
     };
 
@@ -91,8 +93,7 @@ public:
                    const int mapId);
 private:
     void generateTiles(const int w, const int h);
-    void updateObjectsMap();
-    const std::shared_ptr<eObject>& addObject();
+    std::shared_ptr<eObject> addObject(const ePointF& pos);
 
     const std::string mName;
 

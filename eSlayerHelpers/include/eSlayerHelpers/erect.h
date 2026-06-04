@@ -28,6 +28,11 @@ struct ESLAYERHELPERS_API eRect {
     static bool intersection(const eRect& a, const eRect& b, eRect& out);
 
     eRect inset(const int by) const;
+
+    static std::vector<eRect> subtract(
+        const eRect &a, const eRect &b);
+    static std::vector<eRect> subtractAll(
+        const eRect &A, const std::vector<eRect> &B);
 };
 
 struct ESLAYERHELPERS_API eRectF {

@@ -213,7 +213,7 @@ void loadUnitTypes(const eResolution& res,
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const std::string mapName = "basement_1"/*"act1_1"*/;
+    const std::string mapName = /*"basement_1"*/"act1_1";
     const auto map = std::make_shared<eMap>(mapName);
     const auto clientId = std::make_shared<int>();
     const auto teamId = std::make_shared<eTeamId>();

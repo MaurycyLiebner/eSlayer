@@ -26,7 +26,8 @@ void eRect::sum(const eRect& other) {
     fH = bottom - top;
 }
 
-bool eRect::intersection(const eRect& a, const eRect& b, eRect& out) {
+bool eRect::intersection(
+    const eRect& a, const eRect& b, eRect& out) {
     const int left = std::max(a.fX, b.fX);
     const int top = std::max(a.fY, b.fY);
     const int right = std::min(a.fX + a.fW, b.fX + b.fW);
@@ -52,6 +53,52 @@ eRect eRect::inset(const int by) const {
     result.fW -= 2 * by;
     result.fH -= 2 * by;
     return result;
+}
+
+std::vector<eRect> eRect::subtract(
+    const eRect& a, const eRect& b) {
+    std::vector<eRect> result;
+    eRect inter;
+    if(!intersection(a, b, inter)) {
+        result.push_back(a);
+        return result;
+    }
+
+    // Top rectangle
+    if(inter.fY > a.fY) {
+        result.push_back({a.fX, a.fY, a.fW, inter.fY - a.fY});
+    }
+    // Bottom rectangle
+    if(inter.fY + inter.fH < a.fY + a.fH) {
+        result.push_back({a.fX, inter.fY + inter.fH, a.fW, (a.fY + a.fH) - (inter.fY + inter.fH)});
+    }
+    // Left rectangle
+    if(inter.fX > a.fX) {
+        result.push_back({a.fX, inter.fY, inter.fX - a.fX, inter.fH});
+    }
+    // Right rectangle
+    if(inter.fX + inter.fW < a.fX + a.fW) {
+        result.push_back({inter.fX + inter.fW, inter.fY, (a.fX + a.fW) - (inter.fX + inter.fW), inter.fH});
+    }
+
+    return result;
+}
+
+std::vector<eRect> eRect::subtractAll(
+    const eRect& A, const std::vector<eRect>& B) {
+    std::vector<eRect> current;
+    current.push_back(A);
+
+    for(const auto& b : B) {
+        std::vector<eRect> next;
+        for(const auto& r : current) {
+            std::vector<eRect> diff = subtract(r, b);
+            next.insert(next.end(), diff.begin(), diff.end());
+        }
+        current = std::move(next);
+    }
+
+    return current;
 }
 
 bool pointInRect(

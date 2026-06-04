@@ -4,6 +4,7 @@
 #include "eopengenerator.h"
 #include "ewallfinisher.h"
 
+#include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 
@@ -75,16 +76,6 @@ void eDungeon::generate() const {
     } break;
     }
 
-    const auto inRect = [&](const int x, const int y, const eChamber* const skip = nullptr) {
-        const ePoint p{x, y};
-        for (const auto& c : chambers) {
-            if(&c == skip) continue;
-            const bool r = c.contains(p);
-            if(r) return true;
-        }
-        return false;
-    };
-
     const auto inDoorsRect = [&](const int x, const int y, const eWallType type) {
         const ePoint p{x, y};
         for(const auto& rect : doors) {
@@ -149,45 +140,105 @@ void eDungeon::generate() const {
         }
     };
 
-    const auto tryAddObject = [this](const eChamber& c, const int x, const int y,
-                                     const int objMargin,
-                                     const std::vector<eTypeProbability>& objs) {
-        if(objs.empty()) return;
+
+    const auto calcArea = [&](const int x, const int y,
+                              const eChamber& c) {
+        int dim;
+        for(dim = 0;; dim++) {
+            for(int dx = -dim; dx <= dim; dx++) {
+                const int xx = x + dx;
+                for(int dy = -dim; dy <= dim; dy++) {
+                    const int yy = y + dy;
+                    if(std::abs(dx) != dim && std::abs(dy) != dim) continue;
+                    if(!c.contains({xx, yy})) return dim;
+                    const auto& objs = mMap->objects(xx, yy);
+                    if(!objs.empty()) return dim;
+                }
+            }
+        }
+        return dim;
+    };
+
+    const auto checkMargin = [&](const int x, const int y,
+                                 const eChamber& c) {
+        const int objMargin = 1;
         for(int dx = -objMargin; dx <= objMargin; dx++) {
             const int xx = x + dx;
             for(int dy = -objMargin; dy <= objMargin; dy++) {
                 const int yy = y + dy;
-                if(!c.contains({xx, yy})) return;
-                const auto& objs = mMap->objects(x + dx, y + dy);
-                if(!objs.empty()) return;
+                if(!c.contains({xx, yy})) return false;
+                const auto& objs = mMap->objects(xx, yy);
+                if(!objs.empty()) return false;
             }
         }
+        return true;
+    };
 
-        const int startId = eRand::rand() % objs.size();
-        for(int i = 0; i < objs.size(); i++) {
-            const int idx = (startId + i) % objs.size();
-            const auto& o = objs[idx];
-            const bool add = eRand::randChance(o.fProbability);
-            if(!add) continue;
-            const auto& info = eObjectsInfo::sObjects.get(o.fType);
-            auto& obj = *mMap->addObject();
-            obj.fObjectType = o.fType;
-            obj.fSubtype = eRand::rand();
-            obj.fPos.fX = x;
-            obj.fPos.fY = y;
-            obj.fSize = info.fSize;
-            return;
+    const auto calcMaxArea = [&](const eChamber& c,
+                                 int& maxA,
+                                 int& xMax,
+                                 int& yMax) {
+        maxA = 0;
+        for(const auto& r : c.fRects) {
+            for(int x = r.fX; x < r.fX + r.fW; x++) {
+                for(int y = r.fY; y < r.fY + r.fH; y++) {
+                    const bool r = checkMargin(x, y, c);
+                    if(!r) continue;
+                    const int a = calcArea(x, y, c);
+                    if(a <= maxA) continue;
+                    maxA = a;
+                    xMax = x + eRand::rand(0, a/2);
+                    yMax = y + eRand::rand(0, a/2);
+                }
+            }
         }
     };
 
-    const auto& ms = mSettings.fMonsters;
-    auto& mareas = mMap->mMonsterAreas;
-    for(const auto& sc : chambers) {
-        for(const auto& rect : sc.fRects) {
-            auto& marea = mareas.emplace_back();
-            marea.fRect = rect;
-            marea.fSettings = ms;
+    const auto tryAddObject = [&](ePlacementHelper& helper,
+                                  const std::vector<eChamber>& cs,
+                                  const uint16_t type) {
+        if(cs.empty()) return false;
+        const int id = helper.get();
+        if(id < 0) return false;
+        const auto& c = cs[id];
+        const auto& rects = c.fRects;
+        if(rects.empty()) return false;
+        const auto& r0 = rects[0];
 
+        int maxA = 0;
+        int xMax = r0.fX;
+        int yMax = r0.fY;
+
+        calcMaxArea(c, maxA, xMax, yMax);
+        if(maxA == 0) return false;
+        const auto& info = eObjectsInfo::sObjects.get(type);
+        auto& obj = *mMap->addObject({xMax, yMax});
+        obj.fObjectType = type;
+        obj.fSubtype = eRand::rand();
+        obj.fSize = info.fSize;
+
+        calcMaxArea(c, maxA, xMax, yMax);
+        helper.set(id, maxA);
+
+        return true;
+    };
+
+    const auto& ms = mSettings.fMonsters;
+
+    auto& mareas = mMap->mMonsterAreas;
+    auto& marea = mareas.emplace_back();
+    marea.fChambers = chambers;
+    marea.fSettings = ms;
+
+    ePlacementHelper helper;
+    for(int i = 0; i < chambers.size(); i++) {
+        const auto& sc = chambers[i];
+        int maxA = 0;
+        int xMax;
+        int yMax;
+        calcMaxArea(sc, maxA, xMax, yMax);
+        helper.add(i, maxA);
+        for(const auto& rect : sc.fRects) {
             const int minX = rect.fX;
             const int maxX = rect.fX + rect.fW - 1;
             const int minY = rect.fY;
@@ -198,10 +249,6 @@ void eDungeon::generate() const {
                     if(x <= maxX && y <= maxY) {
                         setTileTerrain(x, y, dst);
                     }
-
-                    const int m = mSettings.fObjectsMargin;
-                    const auto& objs = mSettings.fObjects;
-                    tryAddObject(sc, x, y, m, objs);
 
                     bool wallTL = sc.wallTL({x, y});
                     bool wallTR = sc.wallTR({x, y});
@@ -232,28 +279,43 @@ void eDungeon::generate() const {
         }
     }
 
-    if(fillEmptySapces) {
-        const auto treeId = eObjectsInfo::sObjects.id("tree");
-        const auto& treeInfo = eObjectsInfo::sObjects.get(treeId);
-        const auto& rect = mExtendedRect;
-        for(int x = rect.fX; x < rect.fX + rect.fW; x++) {
-            for(int y = rect.fY; y < rect.fY + rect.fH; y++) {
-                const bool r = inRect(x, y, nullptr);
-                if(r) continue;
-                auto& dst = tiles[y][x];
-                setTileTerrain(x, y, dst);
-                {
-                    const bool r = inRect(x + 1, y, nullptr);
-                    if(r) continue;
-                }
-                {
-                    const bool r = inRect(x, y + 1, nullptr);
-                    if(r) continue;
-                }
+    const auto& objs = mSettings.fObjects;
+    for(const auto& os : objs) {
+        for(int i = 0; i < os.fCount; i++) {
+            tryAddObject(helper, chambers, os.fType);
+        }
+    }
 
-                const int m = mSettings.fOutsideObjectsMargin;
-                const auto& objs = mSettings.fOutsideObjects;
-                tryAddObject({{rect}}, x, y, m, objs);
+    if(fillEmptySapces) {
+        std::vector<eRect> allRects;
+        for(const auto& c : chambers) {
+            const auto& cr = c.fRects;
+            allRects.insert(allRects.end(), cr.begin(), cr.end());
+        }
+        const auto rects = eRect::subtractAll(mExtendedRect, allRects);
+        ePlacementHelper helper;
+        std::vector<eChamber> ochambers;
+        for(const auto& r : rects) {
+            for(int x = r.fX; x < r.fX + r.fW; x++) {
+                for(int y = r.fY; y < r.fY + r.fH; y++) {
+                    auto& dst = tiles[y][x];
+                    setTileTerrain(x, y, dst);
+                }
+            }
+
+            auto& c = ochambers.emplace_back();
+            c.fRects = {r};
+            int maxA = 0;
+            int xMax;
+            int yMax;
+            calcMaxArea(c, maxA, xMax, yMax);
+            const int id = ochambers.size() - 1;
+            helper.add(id, maxA);
+        }
+        const auto& objs = mSettings.fOutsideObjects;
+        for(const auto& os : objs) {
+            for(int i = 0; i < os.fCount; i++) {
+                tryAddObject(helper, ochambers, os.fType);
             }
         }
     }

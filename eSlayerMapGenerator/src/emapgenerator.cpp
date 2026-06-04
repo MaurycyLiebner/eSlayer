@@ -376,8 +376,6 @@ eMapGenerator::generate(const std::string& name) const {
         area.generateWalls();
     }
 
-    result->updateObjectsMap();
-
     const auto& ms = settings.fMonsters;
     const auto& types = ms.fTypes;
     for(const auto& type : types) {

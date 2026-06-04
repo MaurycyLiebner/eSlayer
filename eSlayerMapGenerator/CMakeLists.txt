@@ -15,14 +15,12 @@ add_library(eSlayerMapGenerator SHARED
     include/eSlayerMapGenerator/emapgenerator.h src/emapgenerator.cpp
     include/eSlayerMapGenerator/eslayermapgeneratorexport.h
     include/eSlayerMapGenerator/emapsettings.h src/emapsettings.cpp
-    include/eSlayerMapGenerator/emap.h
-    src/emap.cpp
+    include/eSlayerMapGenerator/emap.h src/emap.cpp
     src/edungeongenerator.h src/edungeongenerator.cpp
-    src/echamber.h src/echamber.cpp
+    include/eSlayerMapGenerator/echamber.h src/echamber.cpp
     src/eopengenerator.h src/eopengenerator.cpp
     src/ewallfinisher.h src/ewallfinisher.cpp
     src/edungeon.h src/edungeon.cpp
-
 )
 
 target_include_directories(eSlayerMapGenerator

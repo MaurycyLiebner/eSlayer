@@ -52,16 +52,14 @@ void eMapsSettings::load() {
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;
                     auto& mtypes = monsters.fTypes;
-                    monsters.fMonstersMargin = jArea.value("monsterMargin", 4);
-                    monsters.fRectMargin = jArea.value("wallMargin", 4);
                     const auto& items = jArea["monsters"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto mname = cit.key();
                         const auto& values = cit.value();
-                        eMonsterProbability result;
-                        result.fProbability = values.value("probability", 0.f);
+                        eMonsterCount result;
+                        result.fCount = values.value("count", 1);
                         result.fGroupSize = values.value("groupSize", 1);
-                        result.fEliteProbability = values.value("eliteProbability", 0.f);
+                        result.fElite = values.value("elite", false);
                         const auto type = eCharDataInfo::id(mname);
                         result.fType = type;
                         if(type == -1) {
@@ -72,33 +70,31 @@ void eMapsSettings::load() {
                     }
                 }
 
-                area.fObjectsMargin = jArea.value("objectsMargin", 4);
                 if(jArea.contains("objects")) {
                     const auto& items = jArea["objects"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto oname = cit.key();
-                        const float prob = cit.value();
+                        const int count = cit.value();
                         const int type = eObjectsInfo::sObjects.id(oname);
                         if(type == -1) {
                             eRuntimeThrow("Invalid object type \"" + name +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        area.fObjects.emplace_back(type, prob);
+                        area.fObjects.emplace_back(type, count);
                     }
                 }
 
-                area.fOutsideObjectsMargin = jArea.value("outObjectsMargin", 1);
                 if(jArea.contains("outObjects")) {
                     const auto& items = jArea["outObjects"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto oname = cit.key();
-                        const float prob = cit.value();
+                        const int count = cit.value();
                         const int type = eObjectsInfo::sObjects.id(oname);
                         if(type == -1) {
                             eRuntimeThrow("Invalid object type \"" + name +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        area.fOutsideObjects.emplace_back(type, prob);
+                        area.fOutsideObjects.emplace_back(type, count);
                     }
                 }
 

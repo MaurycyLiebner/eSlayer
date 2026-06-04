@@ -1,7 +1,7 @@
 #ifndef EDUNGEONGENERATOR_H
 #define EDUNGEONGENERATOR_H
 
-#include "echamber.h"
+#include "../include/eSlayerMapGenerator/echamber.h"
 
 enum class eDir {
     none,
