@@ -121,7 +121,7 @@ struct eSkillStats {
 struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
     eSkillLevels() : std::map<uint16_t, uint16_t>{{0, 0}} {}
 
-    uint8_t fRemainingPoints = 10;
+    uint8_t fRemainingPoints = 0;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

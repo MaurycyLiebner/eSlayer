@@ -150,6 +150,10 @@ bool gReadSkillLevels(const XMLElement* parentE,
                       eSkillLevels& skillLevels) {
     auto skillsE = parentE->FirstChildElement("skills");
     if(skillsE) {
+        const auto ptsE = skillsE->FirstChildElement("points");
+        if(ptsE) {
+            skillLevels.fRemainingPoints = ptsE->IntText(0);
+        }
         auto skillE = skillsE->FirstChildElement("skill");
         while(skillE) {
             const auto typeStr = skillE->Attribute("type");
@@ -246,15 +250,24 @@ bool eCharacter::load(const std::string& path,
     // attributes
     if(const auto attrE = rootE->FirstChildElement("attributes")) {
         auto& attrs = c.mAttributes;
-        const auto getAttr = [&](const std::string& name) {
+        const auto getAttr = [&](const std::string& name,
+                                 const int default_) {
             const auto ele = attrE->FirstChildElement(name.c_str());
-            if(!ele) return 0;
+            if(!ele) return default_;
             return ele->IntText();
         };
-        attrs.fStrength  = getAttr("strength");
-        attrs.fDexterity = getAttr("dexterity");
-        attrs.fVitality  = getAttr("vitality");
-        attrs.fEnergy    = getAttr("energy");
+        const auto getAttrF = [&](const std::string& name) {
+            const auto ele = attrE->FirstChildElement(name.c_str());
+            if(!ele) return 0.f;
+            return ele->FloatText();
+        };
+        attrs.fLevel  = getAttr("level", 1);
+        attrs.fExp  = getAttrF("experience");
+        attrs.fStrength  = getAttr("strength", 1);
+        attrs.fDexterity = getAttr("dexterity", 1);
+        attrs.fVitality  = getAttr("vitality", 1);
+        attrs.fEnergy    = getAttr("energy", 1);
+        attrs.fStatPoints = getAttr("points", 0);
     }
 
     // skills
@@ -408,6 +421,8 @@ void gWriteInventory(const std::vector<eInventoryItem>& items,
 void gWriteSkillLevels(XMLElement* const e,
                        const eSkillLevels& skillLevels) {
     const auto skillsE = e->InsertNewChildElement("skills");
+    const auto ptsE = skillsE->InsertNewChildElement("points");
+    ptsE->SetText(skillLevels.fRemainingPoints);
     for(const auto& s : skillLevels) {
         const int skillId = s.first;
         if(skillId == 0) continue;
@@ -462,6 +477,10 @@ bool eCharacter::write(const std::string& path) const {
     deadE->SetText(mDead ? "true" : "false");
 
     const auto attrE = rootE->InsertNewChildElement("attributes");
+    const auto levelE = attrE->InsertNewChildElement("level");
+    levelE->SetText(mAttributes.fLevel);
+    const auto expE = attrE->InsertNewChildElement("experience");
+    expE->SetText(mAttributes.fExp);
     const auto strE = attrE->InsertNewChildElement("strength");
     strE->SetText(mAttributes.fStrength);
     const auto dexE = attrE->InsertNewChildElement("dexterity");
@@ -470,6 +489,8 @@ bool eCharacter::write(const std::string& path) const {
     vitE->SetText(mAttributes.fVitality);
     const auto eneE = attrE->InsertNewChildElement("energy");
     eneE->SetText(mAttributes.fEnergy);
+    const auto ptsE = attrE->InsertNewChildElement("points");
+    ptsE->SetText(mAttributes.fStatPoints);
 
     gWriteSkillLevels(rootE, mSkillLevels);
     gWriteSkill(rootE, "left", mLeftSkill);
