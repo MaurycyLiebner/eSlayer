@@ -510,7 +510,8 @@ void eServerArea::increment(const float by) {
 void eServerArea::unitsData(
     const int clientId,
     std::vector<eUnitData>& newUnits,
-    std::vector<eUnitDynamicData>& updatedUnits) {
+    std::vector<eUnitDynamicData>& updatedUnits,
+    std::vector<eDeadUnitDynamicData>& updatedDeadUnits) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return;
     auto& clientData = it->second;
@@ -539,7 +540,11 @@ void eServerArea::unitsData(
                     newUnits.emplace_back(u->toUnitData());
                     known.emplace(charId);
                 } else {
-                    updatedUnits.emplace_back(u->toDynamicData());
+                    if(charId != clientId && u->fHealth <= 0) {
+                        updatedDeadUnits.emplace_back(u->toDynamicDeadData());
+                    } else {
+                        updatedUnits.emplace_back(u->toDynamicData());
+                    }
                 }
             }
         }

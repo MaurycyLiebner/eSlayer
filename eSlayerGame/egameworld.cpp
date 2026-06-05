@@ -96,6 +96,12 @@ void eGameWorld::iniNovaInc() {
                              nullptr);
 }
 
+void eGameWorld::addUnit(const ePointF& pos, const int charId) {
+    const auto area = mUnitAreas.posArea(pos);
+    mUnitAreas.emplace(area, charId);
+    mUsedUnitAreas.emplace(area);
+}
+
 void eGameWorld::initialize(const int clientId,
                             const std::shared_ptr<eUnit>& mainChar) {
     const int w = mMap->width();
@@ -133,9 +139,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         result.fAuras = data.fAuras;
     }
     result.fReceived = true;
-    mUnitAreas.clear();
+    for(const auto& a : mUsedUnitAreas) {
+        mUnitAreas.clear(a);
+    }
+    mUsedUnitAreas.clear();
     const auto& newUnits = data.fNewUnits;
     const auto& updatedUnits = data.fUpdatedUnits;
+    const auto& updatedDeadUnits = data.fUpdatedDeadUnits;
     const auto& missiles = data.fMissiles;
     const auto& novas = data.fNovas;
     const auto& skillAreas = data.fSkillAreas;
@@ -146,8 +156,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     // Process new units — full initialization with textures/models
     for(const auto& u : newUnits) {
         const int charId = u.fCharId;
-        const auto area = mUnitAreas.posArea(u.fPos);
-        mUnitAreas.emplace(area, charId);
+        addUnit(u.fPos, charId);
         uPresent.emplace(charId);
         if(charId == clientId) {
             result.fHasMainCharData = true;
@@ -181,8 +190,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     // Process updated units — lightweight dynamic data only
     for(const auto& u : updatedUnits) {
         const int charId = u.fCharId;
-        const auto area = mUnitAreas.posArea(u.fPos);
-        mUnitAreas.emplace(area, charId);
+        addUnit(u.fPos, charId);
         uPresent.emplace(charId);
         if(charId == clientId) {
             result.fHasMainCharData = true;
@@ -196,10 +204,22 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         auto& model = unit->model();
         model.setAngle(u.fAngle);
         model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
-        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unit->fTeamId) && u.fHealth > 0) {
+        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unit->fTeamId)) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) result.fAggressive = true;
         }
+    }
+
+    for(const auto& u : updatedDeadUnits) {
+        const int charId = u.fCharId;
+        const auto unit = mUnits.get(charId);
+        if(!unit) continue;
+        addUnit(unit->fPos, charId);
+        uPresent.emplace(charId);
+        unit->fHealth = 0;
+        static_cast<eUnitDynamicDataBase&>(*unit) = u;
+        auto& model = unit->model();
+        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
     }
 
     for(const auto& u : mUnits) {

@@ -16,7 +16,9 @@ bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
-    mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
+    mArea->unitsData(mClientId, data.fNewUnits,
+                     data.fUpdatedUnits,
+                     data.fUpdatedDeadUnits);
     data.fMissiles = mArea->missileData(mClientId);
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);

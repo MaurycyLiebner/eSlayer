@@ -57,7 +57,8 @@ public:
 
     void unitsData(const int clientId,
                    std::vector<eUnitData>& newUnits,
-                   std::vector<eUnitDynamicData>& updatedUnits);
+                   std::vector<eUnitDynamicData>& updatedUnits,
+                   std::vector<eDeadUnitDynamicData>& updatedDeadUnits);
     void itemsData(const int clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);

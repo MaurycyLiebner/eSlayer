@@ -29,6 +29,7 @@ struct ESLAYERHELPERS_API eUnitData :
 
     eUnitData toUnitData() const;
     eUnitDynamicData toDynamicData() const;
+    eDeadUnitDynamicData toDynamicDeadData() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

@@ -98,6 +98,8 @@ private:
     void iniMissileInc();
     void iniNovaInc();
 
+    void addUnit(const ePointF& pos, const int charId);
+
     const std::shared_ptr<eMap>& mMap;
     int mClientId;
     std::shared_ptr<eUnit> mMainChar;
@@ -107,6 +109,7 @@ private:
     eIdMapVector<eExtendedSkillArea> mSkillAreas;
     eIdMapVector<eGroundItem> mGroundItems;
     eFixedSizeSetAreas mUnitAreas;
+    std::set<eArea> mUsedUnitAreas;
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;
 };

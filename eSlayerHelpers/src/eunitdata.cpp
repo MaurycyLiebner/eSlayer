@@ -96,3 +96,8 @@ eUnitData eUnitData::toUnitData() const {
 eUnitDynamicData eUnitData::toDynamicData() const {
     return static_cast<const eUnitDynamicData&>(*this);
 }
+
+eDeadUnitDynamicData eUnitData::toDynamicDeadData() const {
+    const auto& u = static_cast<const eUnitDynamicDataBase&>(*this);
+    return reinterpret_cast<const eDeadUnitDynamicData&>(u);
+}
