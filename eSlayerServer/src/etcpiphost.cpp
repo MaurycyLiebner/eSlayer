@@ -182,6 +182,9 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::body: {
 
         } break;
+        case ePacketType::bodyPickedUp: {
+
+        } break;
         case ePacketType::teams: {
 
         } break;
@@ -349,7 +352,7 @@ void eTcpIpHost::increment(const float by) {
                     }
                     {
                         ePacket p;
-                        p << ePacketType::bodyPickuped;
+                        p << ePacketType::bodyPickedUp;
                         p << bodyId;
                         mNet.sendToClient(tcpClientId, p);
                     }

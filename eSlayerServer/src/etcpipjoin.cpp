@@ -32,31 +32,16 @@ int eTcpIpJoin::connect() {
         failed("Disconnected", "Failed to send connection request.");
         return -1;
     }
-    uint32_t time = 0;
-    while(true) {
-        mNet.update();
-
-        eNetPacket pkt;
-
-        while(mNet.pollPacket(pkt)) {
-            auto& p = pkt.fPacket;
-            ePacketType type;
-            p >> type;
-
-            if(type == ePacketType::connect) {
-                int32_t clientId;
-                p >> clientId;
-                return clientId;
-            }
+    int32_t clientId = -1;
+    const auto handler = [&](ePacket& p, const ePacketType type) {
+        if(type == ePacketType::connect) {
+            p >> clientId;
+            return true;
         }
-
-        SDL_Delay(16);
-        time += 16;
-        if(time > 10000) {
-            failed("Disconnected", "Connection timed out.");
-            return -1;
-        }
-    }
+        return false;
+    };
+    waitFor(10000, "Connection timed out.", handler);
+    return clientId;
 }
 
 bool eTcpIpJoin::disconnect(const int clientId) {
@@ -118,7 +103,7 @@ void eTcpIpJoin::increment(const float by) {
             doors.read(p);
             mDoorsStateChanged.emplace_back(doors);
         } break;
-        case ePacketType::bodyPickuped: {
+        case ePacketType::bodyPickedUp: {
             uint32_t bodyId;
             p >> bodyId;
             mBodiesPickedUp.emplace_back(bodyId);
@@ -144,32 +129,16 @@ bool eTcpIpJoin::requestMap(
         failed("Disconnected", "Failed to send map request to the host.");
         return false;
     }
-    uint32_t time = 0;
-    while(true) {
-        mNet.update();
-
-        eNetPacket pkt;
-
-        while(mNet.pollPacket(pkt)) {
-            auto& p = pkt.fPacket;
-            ePacketType type;
-            p >> type;
-
-            if(type == ePacketType::map) {
-                eMapData data;
-                data.read(p);
-                func(data);
-                return true;
-            }
+    const auto handler = [&](ePacket& p, const ePacketType type) {
+        if(type == ePacketType::map) {
+            eMapData data;
+            data.read(p);
+            func(data);
+            return true;
         }
-
-        SDL_Delay(16);
-        time += 16;
-        if(time > 10000) {
-            failed("Disconnected", "Map request timed out.");
-            return false;
-        }
-    }
+        return false;
+    };
+    return waitFor(10000, "Map request timed out.", handler);
 }
 
 bool eTcpIpJoin::spawn(
@@ -186,49 +155,32 @@ bool eTcpIpJoin::spawn(
         failed("Disconnected", "Failed to send spawn request to the host.");
         return false;
     }
-    uint32_t time = 0;
-    while(true) {
-        mNet.update();
-
-        eNetPacket pkt;
-
-        while(mNet.pollPacket(pkt)) {
-            auto& p = pkt.fPacket;
-            ePacketType type;
-            p >> type;
-
-            if(type == ePacketType::spawn) {
-                uint8_t nClients;
-                p >> nClients;
-                for(uint8_t i = 0; i < nClients; i++) {
-                    int clientId;
-                    p >> clientId;
-                    std::string name;
-                    p >> name;
-                    mNewUsers.emplace_back(clientId, name, false);
-                }
-                auto& eq = c.equipment();
-                eq = eEquipment();
-                eq.read(p);
-
-                for(auto& b : c.bodies()) {
-                    p >> b.fBodyId;
-                }
-
-                eTeams::read(p);
-                p >> teamId;
-                return true;
+    const auto handler = [&](ePacket& p, const ePacketType type) {
+        if(type == ePacketType::spawn) {
+            uint8_t nClients;
+            p >> nClients;
+            for(uint8_t i = 0; i < nClients; i++) {
+                int clientId;
+                p >> clientId;
+                std::string name;
+                p >> name;
+                mNewUsers.emplace_back(clientId, name, false);
             }
-        }
+            auto& eq = c.equipment();
+            eq = eEquipment();
+            eq.read(p);
 
-        SDL_Delay(16);
-        time += 16;
-        if(time > 10000) {
-            failed("Disconnected", "Character request timed out.");
-            return false;
+            for(auto& b : c.bodies()) {
+                p >> b.fBodyId;
+            }
+
+            eTeams::read(p);
+            p >> teamId;
+            return true;
         }
-    }
-    return true;
+        return false;
+    };
+    return waitFor(10000, "Character request timed out.", handler);
 }
 
 bool eTcpIpJoin::requestData(const int clientId,
@@ -305,32 +257,15 @@ bool eTcpIpJoin::respawn(const int clientId,
     p << ePacketType::respawn;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
-    uint32_t time = 0;
-    while(true) {
-        mNet.update();
-
-        eNetPacket pkt;
-
-        while(mNet.pollPacket(pkt)) {
-            auto& p = pkt.fPacket;
-            ePacketType type;
-            p >> type;
-
-            if(type == ePacketType::body) {
-                p >> bodyId;
-                beq.bodyRead(p);
-                return true;
-            }
+    const auto handler = [&](ePacket& p, const ePacketType type) {
+        if(type == ePacketType::body) {
+            p >> bodyId;
+            beq.bodyRead(p);
+            return true;
         }
-
-        SDL_Delay(16);
-        time += 16;
-        if(time > 10000) {
-            failed("Disconnected", "Body request timed out.");
-            return false;
-        }
-    }
-    return true;
+        return false;
+    };
+    return waitFor(10000, "Body request timed out.", handler);
 }
 
 bool eTcpIpJoin::setSkillId(const int clientId,
@@ -446,5 +381,34 @@ bool eTcpIpJoin::pickupBody(
     p << bodyId;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a pickup body to the host.");
+    return true;
+}
+
+bool eTcpIpJoin::waitFor(
+    const uint32_t wait,
+    const std::string& error,
+    const ePacketHandler& handler) {
+    uint32_t time = 0;
+    while(true) {
+        mNet.update();
+
+        eNetPacket pkt;
+
+        while(mNet.pollPacket(pkt)) {
+            auto& p = pkt.fPacket;
+            ePacketType type;
+            p >> type;
+
+            const bool r = handler(p, type);
+            if(r) return true;
+        }
+
+        SDL_Delay(16);
+        time += 16;
+        if(time > wait) {
+            failed("Disconnected", error);
+            return false;
+        }
+    }
     return true;
 }

@@ -7,6 +7,8 @@
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eequipment.h>
 
+enum class ePacketType : uint8_t;
+
 class eTcpIpJoin : public eServer {
 public:
     using eServer::eServer;
@@ -75,6 +77,12 @@ public:
     bool pickupBody(const int clientId,
                     const uint32_t bodyId) override;
 private:
+    using ePacketHandler = std::function<bool(
+        ePacket& p, const ePacketType type)>;
+    bool waitFor(const uint32_t wait,
+                 const std::string& error,
+                 const ePacketHandler& handler);
+
     eTCPNetwork mNet;
     bool mInitialized = false;
 
