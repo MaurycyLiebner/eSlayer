@@ -11,6 +11,13 @@ std::string eClassNames::name(const int itemDataId) {
 }
 
 bool eClassNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eClassNames::reload() {
+    sInstance.mNames.clear();
     const auto dir = "Classes";
     const auto strMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : strMap) {

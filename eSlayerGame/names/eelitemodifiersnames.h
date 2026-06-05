@@ -8,6 +8,7 @@ class eEliteModifiersNames {
 public:
     static std::string name(const int eliteId);
     static bool load();
+    static bool reload();
 private:
     static eEliteModifiersNames sInstance;
 

@@ -15,6 +15,14 @@ std::string eSkillNames::description(const int skillId) {
 }
 
 bool eSkillNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eSkillNames::reload() {
+    sInstance.mNames.clear();
+    sInstance.mDescriptions.clear();
     const auto dir = "Skills";
     const auto nameStrMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : nameStrMap) {

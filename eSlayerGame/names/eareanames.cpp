@@ -9,6 +9,12 @@ std::string eAreaNames::name(const std::string& nameBase) {
 }
 
 bool eAreaNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eAreaNames::reload() {
     const auto dir = "Maps";
     sInstance.mNames = eFileLoader::loadNames(dir, "names");
     return true;

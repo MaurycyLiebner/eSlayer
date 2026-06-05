@@ -9,6 +9,7 @@ public:
     static std::string name(const int skillId);
     static std::string description(const int skillId);
     static bool load();
+    static bool reload();
 private:
     static eSkillNames sInstance;
 

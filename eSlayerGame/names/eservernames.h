@@ -8,7 +8,9 @@ class eServerNames {
 public:
     static std::string name(const std::string& key);
     static void load();
+    static void reload();
 private:
+    static bool sLoaded;
     static std::map<std::string, std::string> sMap;
 };
 

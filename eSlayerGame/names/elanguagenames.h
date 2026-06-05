@@ -8,6 +8,7 @@ class eLanguageNames {
 public:
     static const std::string& name(const std::string& bname);
     static bool load();
+    static bool reload();
 private:
     static eLanguageNames sInstance;
 

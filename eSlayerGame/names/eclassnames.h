@@ -8,6 +8,7 @@ class eClassNames {
 public:
     static std::string name(const int charId);
     static bool load();
+    static bool reload();
 private:
     static eClassNames sInstance;
 

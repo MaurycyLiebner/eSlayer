@@ -12,6 +12,13 @@ std::string eEliteModifiersNames::name(const int eliteId) {
 }
 
 bool eEliteModifiersNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eEliteModifiersNames::reload() {
+    sInstance.mNames.clear();
     const auto dir = "Units";
     const auto nameStrMap = eFileLoader::loadNames(dir, "Elite/names");
     for(const auto& it : nameStrMap) {

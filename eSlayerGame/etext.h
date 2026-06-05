@@ -10,6 +10,7 @@ public:
     eText();
 
     static bool load();
+    static bool reload();
     using eGroup = std::map<int, std::string>;
     using eStrings = std::map<int, eGroup>;
     static bool parse(const std::string& path,
@@ -23,6 +24,7 @@ private:
     const std::string& textImpl(const int g, const int s);
 
     bool loadImpl();
+    bool reloadImpl();
 
     bool mLoaded = false;
     eStrings mText;

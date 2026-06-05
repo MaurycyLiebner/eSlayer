@@ -8,6 +8,7 @@ class eObjectNames {
 public:
     static std::string name(const int objectId);
     static bool load();
+    static bool reload();
 private:
     static eObjectNames sInstance;
 

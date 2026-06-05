@@ -11,6 +11,13 @@ std::string eObjectNames::name(const int objectId) {
 }
 
 bool eObjectNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eObjectNames::reload() {
+    sInstance.mNames.clear();
     const auto dir = "Objects";
     const auto strMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : strMap) {

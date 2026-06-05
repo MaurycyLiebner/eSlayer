@@ -15,6 +15,7 @@ public:
     static std::string suffixName(const int id);
 
     static bool load();
+    static bool reload();
 private:
     static eItemNames sInstance;
 

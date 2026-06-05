@@ -11,6 +11,13 @@ std::string eMonsterNames::name(const int itemDataId) {
 }
 
 bool eMonsterNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eMonsterNames::reload() {
+    sInstance.mNames.clear();
     const auto dir = "Units";
     const auto strMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : strMap) {

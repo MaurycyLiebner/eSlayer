@@ -2,6 +2,7 @@
 
 #include "../efileloader.h"
 
+bool eServerNames::sLoaded = false;
 std::map<std::string, std::string>
 eServerNames::sMap;
 
@@ -11,6 +12,12 @@ std::string eServerNames::name(
 }
 
 void eServerNames::load() {
+    if(sLoaded) return;
+    sLoaded = true;
+    reload();
+}
+
+void eServerNames::reload() {
     const auto dir = "Servers";
     sMap = eFileLoader::loadNames(dir, "names");
 }

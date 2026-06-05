@@ -18,6 +18,10 @@ bool eText::load() {
     return sInstance.loadImpl();
 }
 
+bool eText::reload() {
+    return sInstance.reloadImpl();
+}
+
 const std::string &eText::text(const int g, const int s) {
     return sInstance.textImpl(g, s);
 }
@@ -158,8 +162,12 @@ bool eText::parse(
 
 bool eText::loadImpl() {
     if(mLoaded) return true;
+    mLoaded = true;
+    return reloadImpl();
+}
+
+bool eText::reloadImpl() {
     const auto dir = "Languages";
     mText = eFileLoader::loadText(dir, "text");
-    mLoaded = true;
     return true;
 }

@@ -11,6 +11,13 @@ std::string eSkillTreeNames::name(const int itemDataId) {
 }
 
 bool eSkillTreeNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eSkillTreeNames::reload() {
+    sInstance.mNames.clear();
     const auto dir = "Classes";
     const auto strMap = eFileLoader::loadNames(dir, "skillTrees/names");
     for(const auto& it : strMap) {

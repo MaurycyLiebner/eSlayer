@@ -40,6 +40,16 @@ std::string eItemNames::suffixName(const int id) {
 }
 
 bool eItemNames::load() {
+    if(sInstance.mLoaded) return true;
+    sInstance.mLoaded = true;
+    return reload();
+}
+
+bool eItemNames::reload() {
+    sInstance.mNames.clear();
+    sInstance.mPrefixNames.clear();
+    sInstance.mSuffixNames.clear();
+
     const auto dir = "Items";
 
     {

@@ -361,47 +361,47 @@ void eScreenHandler::showSettings() {
             std::vector<eAction> loadings;
 
             loadings.emplace_back([&]() {
-                eLanguageNames::load();
+                eLanguageNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eText::load();
+                eText::reload();
             });
 
             loadings.emplace_back([&]() {
-                eSkillTreeNames::load();
+                eSkillTreeNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eClassNames::load();
+                eClassNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eItemNames::load();
+                eItemNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eAreaNames::load();
+                eAreaNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eMonsterNames::load();
+                eMonsterNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eSkillNames::load();
+                eSkillNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eObjectNames::load();
+                eObjectNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eEliteModifiersNames::load();
+                eEliteModifiersNames::reload();
             });
 
             loadings.emplace_back([&]() {
-                eServerNames::load();
+                eServerNames::reload();
             });
 
             const auto finish = [this]() {
