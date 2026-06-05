@@ -202,9 +202,9 @@ bool eTcpIpJoin::spawn(
                     p >> name;
                     mNewUsers.emplace_back(clientId, name, false);
                 }
-
-                c = eCharacter();
-                c.read(p);
+                auto& eq = c.equipment();
+                eq = eEquipment();
+                eq.read(p);
                 eTeams::read(p);
                 p >> teamId;
                 return true;

@@ -129,8 +129,8 @@ void eTcpIpHost::increment(const float by) {
                             const auto name = h ? h->name() : "";
                             p << name;
                         }
-
-                        c.write(p);
+                        const auto& eq = c.equipment();
+                        eq.write(p);
                         eTeams::write(p);
                         p << teamId;
                         mNet.sendToClient(pkt.fClientID, p);
@@ -142,7 +142,6 @@ void eTcpIpHost::increment(const float by) {
                         p << charId;
                         const auto name = c.name();
                         p << name;
-                        c.write(p);
                         mNet.broadcast(p);
 
                         mNewUsers.emplace_back(charId, name, true);
