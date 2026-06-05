@@ -432,8 +432,8 @@ void eTcpIpHost::sendMessageToAll(
 bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const auto it = mClientIdMap.find(tcpClientId);
     if(it == mClientIdMap.end()) return false;
-    mClientIdMap.erase(tcpClientId);
     const int charId = it->second;
+    mClientIdMap.erase(tcpClientId);
     disconnect(charId);
     {
         ePacket p;

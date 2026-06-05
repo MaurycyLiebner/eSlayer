@@ -854,6 +854,11 @@ bool eServerArea::respawn(const int clientId,
 
 bool eServerArea::removeClient(const int clientId) {
     planRemoveUnit(clientId);
+    const auto& bodies = mBodies[clientId];
+    for(const auto bodyId : bodies) {
+        planRemoveUnit(bodyId);
+    }
+    mBodies.erase(clientId);
     const int r = mClientData.erase(clientId);
     return r > 0;
 }

@@ -19,6 +19,11 @@ int eLocalServer::connect() {
 bool eLocalServer::disconnect(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
+    for(const auto& it : mMaps) {
+        const auto& ma = it.second;
+        const auto& a = ma.fArea;
+        a->removeClient(clientId);
+    }
     h->disconnect();
     mClientHandlers.erase(clientId);
     return true;
