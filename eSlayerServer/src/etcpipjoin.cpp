@@ -118,6 +118,11 @@ void eTcpIpJoin::increment(const float by) {
             doors.read(p);
             mDoorsStateChanged.emplace_back(doors);
         } break;
+        case ePacketType::bodyPickuped: {
+            uint32_t bodyId;
+            p >> bodyId;
+            mBodiesPickedUp.emplace_back(bodyId);
+        } break;
         case ePacketType::disconnect: {
             failed("Disconnected", "Host closed the connection.");
         } break;
@@ -205,6 +210,11 @@ bool eTcpIpJoin::spawn(
                 auto& eq = c.equipment();
                 eq = eEquipment();
                 eq.read(p);
+
+                for(auto& b : c.bodies()) {
+                    p >> b.fBodyId;
+                }
+
                 eTeams::read(p);
                 p >> teamId;
                 return true;
@@ -288,11 +298,38 @@ bool eTcpIpJoin::stopAttack(const int clientId) {
     return true;
 }
 
-bool eTcpIpJoin::respawn(const int clientId) {
+bool eTcpIpJoin::respawn(const int clientId,
+                         eBodyEquipment& beq,
+                         int& bodyId) {
     ePacket p;
     p << ePacketType::respawn;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
+    uint32_t time = 0;
+    while(true) {
+        mNet.update();
+
+        eNetPacket pkt;
+
+        while(mNet.pollPacket(pkt)) {
+            auto& p = pkt.fPacket;
+            ePacketType type;
+            p >> type;
+
+            if(type == ePacketType::body) {
+                p >> bodyId;
+                beq.bodyRead(p);
+                return true;
+            }
+        }
+
+        SDL_Delay(16);
+        time += 16;
+        if(time > 10000) {
+            failed("Disconnected", "Body request timed out.");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -403,7 +440,7 @@ bool eTcpIpJoin::consumePotion(
 }
 
 bool eTcpIpJoin::pickupBody(
-    const int clientId, const int32_t bodyId) {
+    const int clientId, const uint32_t bodyId) {
     ePacket p;
     p << ePacketType::pickupBody;
     p << bodyId;

@@ -61,6 +61,7 @@ void eGameWidget::initialize(const int clientId,
     mCName = c.name();
     mUserNames[clientId] = mCName;
     mHardcore = c.hardcore();
+    mBodies = c.bodies();
     mTeamId = teamId;
 
     mClientId = clientId;
@@ -196,9 +197,12 @@ void eGameWidget::setOtherRightSkill(const int s) {
 }
 
 void eGameWidget::respawn() {
-    mServer->respawn(mClientId);
+    eBodyEquipment beq;
+    int bodyId;
+    mServer->respawn(mClientId, beq, bodyId);
+    mBodies.emplace_back(eBody{bodyId, beq});
     auto& eq = equipment();
-    eq = eEquipment();
+    eq.takeBody();
     mMainAction->recalculateStats();
 }
 
@@ -240,6 +244,7 @@ eCharacter eGameWidget::character() {
     c.otherRightSkill() = mOtherRightSkill;
     c.leftHotkeys() = eSkillButton::sLeftMap;
     c.rightHotkeys() = eSkillButton::sRightMap;
+    c.bodies() = mBodies;
     return c;
 }
 
@@ -320,10 +325,20 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& d : doors) {
             mMap->triggerDoors(d);
         }
+        const auto bodies = mServer->receiveBodiesPickedUp();
+        for(const auto bodyId : bodies) {
+            for(int i = 0; i < mBodies.size(); i++) {
+                const auto& b = mBodies[i];
+                if(b.fBodyId != bodyId) continue;
+                mBodies.erase(mBodies.begin() + i);
+                break;
+            }
+        }
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
-        mClientId, *mServer, *mMainChar, *mMainAction, res, r);
+        mClientId, *mServer, *mMainChar,
+        *mMainAction, res, r, mBodies);
     if(eInventoryWidget::sBlocked) {
         auto& eq = mMainAction->equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);
@@ -1598,7 +1613,7 @@ void eGameWidget::initializeTextures() {
 void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
     if(mUnitIndicator && !mPressedUnit.lock()) {
-        mUnitIndicator->setUnit(u, mUserNames);
+        mUnitIndicator->setUnit(u, mUserNames, mCName);
     }
 }
 
@@ -1675,9 +1690,9 @@ void eGameWidget::setPressedUnit(
     mPressedUnit = u;
     if(mUnitIndicator) {
         if(u) {
-            mUnitIndicator->setUnit(u, mUserNames);
+            mUnitIndicator->setUnit(u, mUserNames, mCName);
         } else {
-            mUnitIndicator->setUnit(mHighlightUnit.lock(), mUserNames);
+            mUnitIndicator->setUnit(mHighlightUnit.lock(), mUserNames, mCName);
         }
     }
 

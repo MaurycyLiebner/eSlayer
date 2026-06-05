@@ -279,37 +279,43 @@ int eEquipment::beltX(const uint32_t itemId) const {
     return -1;
 }
 
-void eEquipment::moveFrom(eEquipment& srcEq) {
-    fInventory.moveFrom(srcEq.fInventory);
-
-    const auto tryMove = [&](eItem eEquipment::* ptr) {
+void eEquipment::moveFrom(eBodyEquipment& srcEq) {
+    const auto tryMove = [&](eItem eBodyEquipment::* ptr) {
         auto& src = srcEq.*ptr;
         if(src.fType == eItemType::none) return true;
         auto& dst = this->*ptr;
-        if(dst.fType != eItemType::none) return false;
-        const bool r = canPlace(src, dst);
-        if(r) {
-            std::swap(src, dst);
-        } else {
-            const bool r = fInventory.tryAdd(src);
-            if(!r) return false;
-            src = eItem();
+        if(dst.fType == eItemType::none) {
+            const bool r = canPlace(src, dst);
+            if(r) {
+                std::swap(src, dst);
+                return true;
+            }
         }
+        const bool r = fInventory.tryAdd(src);
+        if(!r) return false;
+        src = eItem();
+
         return true;
     };
-    tryMove(&eEquipment::fBoots);
-    tryMove(&eEquipment::fGloves);
-    tryMove(&eEquipment::fHelmet);
-    tryMove(&eEquipment::fArmor);
-    tryMove(&eEquipment::fBelt);
-    tryMove(&eEquipment::fRingL);
-    tryMove(&eEquipment::fRingR);
-    tryMove(&eEquipment::fAmulet);
-    tryMove(&eEquipment::fWeapon1L);
-    tryMove(&eEquipment::fWeapon1R);
-    tryMove(&eEquipment::fWeapon2L);
-    tryMove(&eEquipment::fWeapon2R);
-    tryMove(&eEquipment::fDragged);
+    tryMove(&eBodyEquipment::fBoots);
+    tryMove(&eBodyEquipment::fGloves);
+    tryMove(&eBodyEquipment::fHelmet);
+    tryMove(&eBodyEquipment::fArmor);
+    tryMove(&eBodyEquipment::fBelt);
+    tryMove(&eBodyEquipment::fRingL);
+    tryMove(&eBodyEquipment::fRingR);
+    tryMove(&eBodyEquipment::fAmulet);
+    tryMove(&eBodyEquipment::fWeapon1L);
+    tryMove(&eBodyEquipment::fWeapon1R);
+    tryMove(&eBodyEquipment::fWeapon2L);
+    tryMove(&eBodyEquipment::fWeapon2R);
+    tryMove(&eBodyEquipment::fDragged);
+}
+
+void eEquipment::moveFrom(eEquipment& srcEq) {
+    fInventory.moveFrom(srcEq.fInventory);
+
+    moveFrom(static_cast<eBodyEquipment&>(srcEq));
 
     fBeltPotions.moveFrom(srcEq.fBeltPotions);
     fBeltHiddenPotions.moveFrom(srcEq.fBeltHiddenPotions);
@@ -329,7 +335,26 @@ bool eEquipment::empty() const {
     return empty;
 }
 
-void eEquipment::read(ePacket& p) {
+bool eBodyEquipment::bodyEmpty() const {
+    bool empty = true;
+    iterateOverBody([&](eItem eBodyEquipment::*it) {
+        const auto& thisV = this->*it;
+        if(thisV.fType == eItemType::none) return;
+        empty = false;
+    });
+    return empty;
+}
+
+eBodyEquipment eBodyEquipment::takeBody() {
+    eBodyEquipment result;
+    iterateOverBody([&](eItem eBodyEquipment::*it) {
+        result.*it = this->*it;
+        this->*it = eItem();
+    });
+    return result;
+}
+
+void eBodyEquipment::bodyRead(ePacket& p) {
     fBoots.read(p);
     fGloves.read(p);
     fHelmet.read(p);
@@ -344,16 +369,9 @@ void eEquipment::read(ePacket& p) {
     fWeapon2R.read(p);
     p >> fWeapons1;
     fDragged.read(p);
-    p >> fInventoryGold;
-
-    fInventory.read(p);
-    fBeltPotions.read(p);
-    fBeltHiddenPotions.read(p);
-    fStash.read(p);
-    p >> fStashGold;
 }
 
-void eEquipment::write(ePacket& p) const {
+void eBodyEquipment::bodyWrite(ePacket& p) const {
     fBoots.write(p);
     fGloves.write(p);
     fHelmet.write(p);
@@ -368,6 +386,45 @@ void eEquipment::write(ePacket& p) const {
     fWeapon2R.write(p);
     p << fWeapons1;
     fDragged.write(p);
+}
+
+void eBodyEquipment::iterateOverBody(const eIter& iter) {
+    iterateOverBody([this, iter](eItem eBodyEquipment::*it) {
+        iter(this->*it);
+    });
+}
+
+void eBodyEquipment::iterateOverBody(const eItemAction& a) {
+    for(const auto it : {&eEquipment::fBoots,
+                         &eEquipment::fGloves,
+                         &eEquipment::fHelmet,
+                         &eEquipment::fArmor,
+                         &eEquipment::fBelt,
+                         &eEquipment::fRingL,
+                         &eEquipment::fRingR,
+                         &eEquipment::fAmulet,
+                         &eEquipment::fWeapon1L,
+                         &eEquipment::fWeapon1R,
+                         &eEquipment::fWeapon2L,
+                         &eEquipment::fWeapon2R,
+                         &eEquipment::fDragged}) {
+        a(it);
+    }
+}
+
+void eEquipment::read(ePacket& p) {
+    bodyRead(p);
+    p >> fInventoryGold;
+
+    fInventory.read(p);
+    fBeltPotions.read(p);
+    fBeltHiddenPotions.read(p);
+    fStash.read(p);
+    p >> fStashGold;
+}
+
+void eEquipment::write(ePacket& p) const {
+    bodyWrite(p);
     p << fInventoryGold;
 
     fInventory.write(p);

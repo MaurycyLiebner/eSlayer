@@ -50,7 +50,9 @@ public:
                 const eAttackData& target) override;
     bool stopAttack(const int clientId) override;
 
-    bool respawn(const int clientId) override;
+    bool respawn(const int clientId,
+                 eBodyEquipment& beq,
+                 int& bodyId) override;
 
     bool setSkillId(const int clientId,
                     const eSkillChoice schoice,
@@ -76,11 +78,13 @@ public:
                            const eSkillLevels& skillLevels) override;
     bool consumePotion(const int clientId,
                        const uint32_t itemId) override;
-    bool pickupBody(const int clientId,
-                    const int32_t bodyId) override;
+    bool pickupBody(const int clientId, const uint32_t bodyId) override;
 
     void mapReady(const eMapAndArea& ma);
     void checkMapsReady() override;
+    void respawnAndGetBody(const int clientId,
+                           eBodyEquipment& beq,
+                           int& bodyId);
 protected:
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

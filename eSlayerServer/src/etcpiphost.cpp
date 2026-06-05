@@ -129,8 +129,14 @@ void eTcpIpHost::increment(const float by) {
                             const auto name = h ? h->name() : "";
                             p << name;
                         }
+
                         const auto& eq = c.equipment();
                         eq.write(p);
+
+                        for(auto& b : c.bodies()) {
+                            p << b.fBodyId;
+                        }
+
                         eTeams::write(p);
                         p << teamId;
                         mNet.sendToClient(pkt.fClientID, p);
@@ -171,6 +177,9 @@ void eTcpIpHost::increment(const float by) {
 
         } break;
         case ePacketType::equipment: {
+
+        } break;
+        case ePacketType::body: {
 
         } break;
         case ePacketType::teams: {
@@ -228,7 +237,16 @@ void eTcpIpHost::increment(const float by) {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                respawn(charId);
+                eBodyEquipment beq;
+                int bodyId;
+                const bool r = respawn(charId, beq, bodyId);
+                if(r) {
+                    ePacket p;
+                    p << ePacketType::body;
+                    p << bodyId;
+                    beq.bodyWrite(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
             }
         } break;
         case ePacketType::setSkillId: {
@@ -316,17 +334,25 @@ void eTcpIpHost::increment(const float by) {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
                 const int charId = it->second;
-                int32_t bodyId;
+                uint32_t bodyId;
                 p >> bodyId;
                 const bool r = pickupBody(charId, bodyId);
                 if(r) {
-                    eEquipment data;
-                    const bool r = receiveEquipment(charId, data);
-                    if(!r) continue;
-                    ePacket p;
-                    p << ePacketType::equipment;
-                    data.write(p);
-                    mNet.sendToClient(tcpClientId, p);
+                    {
+                        eEquipment data;
+                        const bool r = receiveEquipment(charId, data);
+                        if(!r) continue;
+                        ePacket p;
+                        p << ePacketType::equipment;
+                        data.write(p);
+                        mNet.sendToClient(tcpClientId, p);
+                    }
+                    {
+                        ePacket p;
+                        p << ePacketType::bodyPickuped;
+                        p << bodyId;
+                        mNet.sendToClient(tcpClientId, p);
+                    }
                 } else {
                     ePacket p;
                     p << ePacketType::unblockEquipment;

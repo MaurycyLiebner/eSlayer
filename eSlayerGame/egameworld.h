@@ -16,6 +16,7 @@
 #include <eSlayerHelpers/enova.h>
 #include <eSlayerHelpers/eskillarea.h>
 
+struct eBody;
 class eMap;
 class eMainCharAction;
 
@@ -62,7 +63,8 @@ public:
         const eUnit& mainChar,
         eMainCharAction& mainAct,
         const eResolution& res,
-        SDL_Renderer* const r);
+        SDL_Renderer* const r,
+        const std::vector<eBody>& bodies);
 
     void simulateMissiles(const float by);
     void simulateNovas(const float by);
@@ -91,8 +93,6 @@ public:
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 
-    bool isSlayerBody(const int charId) const;
-
     void removeMissile(const eMissile& m);;
 private:
     void iniMissileInc();
@@ -109,7 +109,6 @@ private:
     eFixedSizeSetAreas mUnitAreas;
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;
-    std::vector<int> mBodies;
 };
 
 #endif // EGAMEWORLD_H

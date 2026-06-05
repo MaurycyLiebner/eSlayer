@@ -170,6 +170,7 @@ add_library(eSlayerHelpers SHARED
     src/eauratypes.cpp
     include/eSlayerHelpers/eplacementhelper.h
     src/eplacementhelper.cpp
+    include/eSlayerHelpers/ebody.h
 )
 
 target_include_directories(eSlayerHelpers

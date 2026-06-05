@@ -115,7 +115,6 @@ void eServerArea::iniSetupUnit(
     u->fState = 0;
     u->fCharDataId = uinfo.fCharData;
     u->fRadius = uinfo.fRadius;
-    u->fPos = pos;
     u->fAnim = data.animId("stand");
     u->fAnimId = 0;
     u->fAnimSpeed = 1.f;
@@ -123,14 +122,16 @@ void eServerArea::iniSetupUnit(
     u->fBlockingActionTime = 0.f;
     u->fModelParts = modelParts;
 
-    iniSetupUnit(u);
+    iniSetupUnit(u, pos);
 }
 
 void eServerArea::iniSetupUnit(
-    const std::shared_ptr<eServerUnit>& u) {
+    const std::shared_ptr<eServerUnit>& u,
+    const ePointF& pos) {
     const auto charId = u->fCharId;
     const auto teamId = u->fTeamId;
     const auto typeId = u->unitTypeId();
+    u->fPos = pos;
     const auto& uinfo = eUnitsInfo::sUnits.get(typeId);
     auto& m = u->movementHandler();
     m.setSpeed(uinfo.fWalkSpeed);
@@ -729,6 +730,14 @@ bool eServerArea::addClient(const int clientId,
     const auto area = unitArea(*u);
     clientData.fArea = area;
 
+    for(auto& body : c.bodies()) {
+        auto& bodyEq = body.fEq;
+        bodyEq.iterateOverBody([](eItem& item) {
+            eItemGenerator::applyItemId(item);
+        });
+        spawnBody(clientId, body.fEq, body.fBodyId);
+    }
+
     return true;
 }
 
@@ -748,14 +757,12 @@ bool eServerArea::addClient(
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
-    clientData.fBodies = mBodies[clientId];
 
-    iniSetupUnit(u);
-    const auto a = std::make_shared<eClientAction>(*u, *this);
-    u->setAction(a);
     const auto pos = mMap->spawnPos(entranceMap);
     findPlaceForUnit(pos, spawnPos);
-    u->fPos = spawnPos;
+    iniSetupUnit(u, spawnPos);
+    const auto a = std::make_shared<eClientAction>(*u, *this);
+    u->setAction(a);
     return true;
 }
 
@@ -799,38 +806,49 @@ bool eServerArea::moveClient(
     return true;
 }
 
-bool eServerArea::respawn(const int clientId) {
+bool eServerArea::spawnBody(const int clientId,
+                            const eBodyEquipment& beq,
+                            int& bodyId) {
+    const auto client = unit(clientId);
+    if(!client) return false;
+    const auto& data = client->data();
+    const int typeId = 0;
+    auto& map = mMap->pathFinderMap();
+    const auto u = std::make_shared<eServerUnit>(
+        true, data, typeId, *this, map);
+    eEquipment bodyEq;
+    static_cast<eBodyEquipment&>(bodyEq) = beq;
+    u->setEquipment(bodyEq, false);
+    const auto& udata = eUnitsInfo::sUnits.get(typeId);
+    const int charId = eServerUnit::sNextCharId++;
+    const auto& modelParts = client->fModelParts;
+    const auto teamId = client->fTeamId;
+    const auto& pos = client->fPos;
+    iniSetupUnit(u, charId, teamId, pos, udata, data, modelParts);
+    u->fHealth = 0;
+    u->fAnim = data.animId("body");
+    bodyId = charId;
+    mBodies[clientId].emplace_back(charId);
+    return true;
+}
+
+bool eServerArea::respawn(const int clientId,
+                          eBodyEquipment& beq,
+                          int& bodyId) {
     const auto client = unit(clientId);
     if(!client) return false;
     const bool createBody = true;
     if(createBody) {
         auto& eq = client->equipment();
-        const auto& data = client->data();
-        const int typeId = 0;
-        auto& map = mMap->pathFinderMap();
-        const auto u = std::make_shared<eServerUnit>(
-            true, data, typeId, *this, map);
-        u->setEquipment(eq, false);
-        const auto& udata = eUnitsInfo::sUnits.get(typeId);
-        const int charId = eServerUnit::sNextCharId++;
-        const auto& modelParts = client->fModelParts;
-        const auto teamId = client->fTeamId;
-        const auto& pos = client->fPos;
-        iniSetupUnit(u, charId, teamId, pos, udata, data, modelParts);
-        u->fHealth = 0;
-        u->fAnim = data.animId("body");
-        client->setEquipment(eEquipment());
-        {
-            const auto it = mClientData.find(clientId);
-            if(it != mClientData.end()) {
-                auto& client = it->second;
-                client.fBodies.emplace_back(charId);
-                mBodies[clientId].emplace_back(charId);
-            }
-        }
+        beq = eq.takeBody();
+        const bool r = spawnBody(clientId, beq, bodyId);
+        if(!r) return false;
     }
     client->respawn();
-    client->fPos = mMap->spawnPos();
+    const auto pos = mMap->spawnPos();
+    auto spawnPos = pos;
+    findPlaceForUnit(pos, spawnPos);
+    client->fPos = spawnPos;
     return true;
 }
 
@@ -850,7 +868,7 @@ bool eServerArea::pickupBody(
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& client = it->second;
-    auto& bodies = client.fBodies;
+    auto& bodies = mBodies[clientId];
     const auto bit = std::find(bodies.begin(), bodies.end(), charId);
     if(bit == bodies.end()) return false;
     const auto body = unit(charId);
@@ -864,7 +882,6 @@ bool eServerArea::pickupBody(
     dst.moveFrom(src);
     if(src.empty()) {
         bodies.erase(bit);
-        eVectorHelpers::remove(mBodies[clientId], charId);
         planRemoveUnit(charId);
     }
     u->recalculateStats();
@@ -1045,20 +1062,6 @@ eServerArea::skillAreaData(const int clientId) {
         result.emplace_back(*a);
     }
     latestSkillArea = newLatestSkillArea;
-    return result;
-}
-
-std::vector<int>
-eServerArea::bodies(const int clientId) {
-    const auto it = mClientData.find(clientId);
-    if(it == mClientData.end()) return {};
-    auto& clientData = it->second;
-    std::vector<int> result;
-    const auto& bodies = clientData.fBodies;
-    const int known = clientData.fKnownBodies;
-    for(int i = known; i < bodies.size(); i++) {
-        result.emplace_back(bodies[i]);
-    }
     return result;
 }
 

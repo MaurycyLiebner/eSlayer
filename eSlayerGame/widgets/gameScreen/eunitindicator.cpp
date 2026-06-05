@@ -21,22 +21,27 @@ void eUnitIndicator::initialize() {
 }
 
 void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
-                             const std::map<int, std::string>& names) {
+                             const std::map<int, std::string>& names,
+                             const std::string& slayerName) {
     mUnit = u;
     std::string modsStr;
     if(u) {
-        const auto it = names.find(u->fCharId);
-        if(it == names.end()) {
-            const int typeId = u->fCharDataId;
-            const auto name = eMonsterNames::name(typeId);
-            setText(name);
+        if(u->isSlayerBody()) {
+            setText(slayerName);
         } else {
-            setText(it->second);
-        }
-        const auto& mods = u->fMods;
-        for(const auto m : mods) {
-            if(!modsStr.empty()) modsStr += ", ";
-            modsStr += eEliteModifiersNames::name(m);
+            const auto it = names.find(u->fCharId);
+            if(it == names.end()) {
+                const int typeId = u->fCharDataId;
+                const auto name = eMonsterNames::name(typeId);
+                setText(name);
+            } else {
+                setText(it->second);
+            }
+            const auto& mods = u->fMods;
+            for(const auto m : mods) {
+                if(!modsStr.empty()) modsStr += ", ";
+                modsStr += eEliteModifiersNames::name(m);
+            }
         }
     } else {
         setText("");

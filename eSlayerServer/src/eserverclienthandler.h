@@ -30,7 +30,7 @@ public:
     bool changeState(const eUnitData& u);
     bool attack(const eAttackData& target);
     bool stopAttack();
-    bool respawn();
+    bool respawn(eBodyEquipment& beq, int& bodyId);
     bool spawn(eCharacter& c,
                eTeamId& teamId,
                const eScreenDimensions& screenDims);

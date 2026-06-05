@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+#include <eSlayerHelpers/ebody.h>
 
 eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mMap(map),
@@ -111,7 +112,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const eUnit& mainChar,
     eMainCharAction& mainAct,
     const eResolution& res,
-    SDL_Renderer* const r) {
+    SDL_Renderer* const r,
+    const std::vector<eBody>& bodies) {
     eProcessResult result;
 
     eRequestData data;
@@ -125,9 +127,6 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     result.fMana = data.fMana;
     result.fLevel = data.fLevel;
     result.fExperience = data.fExperience;
-    for(const auto b : data.fBodies) {
-        mBodies.emplace_back(b);
-    }
     result.fUpdateBoostsAuras = data.fUpdateBoostsAuras;
     if(result.fUpdateBoostsAuras) {
         result.fBoosts = data.fBoosts;
@@ -160,8 +159,11 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             u.fModelParts, res, r);
 
         const auto unit = std::make_shared<eUnit>();
-        if(isSlayerBody(charId)) {
-            unit->setSlayerBody(true);
+        for(const auto& b : bodies) {
+            if(b.fBodyId == charId) {
+                unit->setSlayerBody(true);
+                break;
+            }
         }
         static_cast<eUnitData&>(*unit) = u;
         eCharUnitModel model;
@@ -284,10 +286,6 @@ void eGameWorld::simulateSkillAreas(const float by) {
         if(time > 0.f) continue;
         mSkillAreas.remove(a->fId);
     }
-}
-
-bool eGameWorld::isSlayerBody(const int charId) const {
-    return eVectorHelpers::contains(mBodies, charId);
 }
 
 void eGameWorld::removeMissile(const eMissile& m) {

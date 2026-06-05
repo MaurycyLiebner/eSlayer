@@ -235,17 +235,10 @@ bool eCharacter::load(const std::string& path,
                path.c_str());
         return false;
     }
-    const auto deadE = rootE->FirstChildElement("dead");
-    if(!deadE) {
-        printf("Missing dead element in %s.\n",
-               path.c_str());
-        return false;
-    }
+
     c.mName = nameE->GetText();
     const std::string hardcoreV(hardcoreE->GetText());
     c.mHardcore = isTrue(hardcoreV);
-    const std::string deadV(deadE->GetText());
-    c.mDead = isTrue(deadV);
 
     // attributes
     if(const auto attrE = rootE->FirstChildElement("attributes")) {
@@ -279,11 +272,8 @@ bool eCharacter::load(const std::string& path,
     gReadSkillHotkeys(rootE, "left", c.mLeftHotkeys);
     gReadSkillHotkeys(rootE, "right", c.mRightHotkeys);
 
-    // equipment
-    if(const auto eqE = rootE->FirstChildElement("equipment")) {
-        auto& eq = c.mEquipment;
-        const int active = eqE->IntAttribute("activeWeapons", 1);
-        eq.fWeapons1 = active == 1;
+    const auto readEq = [](eBodyEquipment& eq,
+                            XMLElement* const eqE) {
         gReadItemSlot(eq.fBoots,   "boots",   eqE);
         gReadItemSlot(eq.fGloves,  "gloves",  eqE);
         gReadItemSlot(eq.fHelmet,  "helmet",  eqE);
@@ -297,11 +287,25 @@ bool eCharacter::load(const std::string& path,
         gReadItemSlot(eq.fWeapon2L,"weapon2L",eqE);
         gReadItemSlot(eq.fWeapon2R,"weapon2R",eqE);
         gReadItemSlot(eq.fDragged, "dragged", eqE);
+    };
 
+    // equipment
+    if(const auto eqE = rootE->FirstChildElement("equipment")) {
+        auto& eq = c.mEquipment;
+        const int active = eqE->IntAttribute("activeWeapons", 1);
+        eq.fWeapons1 = active == 1;
+        readEq(eq, eqE);
         gReadInventory(eq.fInventory, "inventory", eqE);
         gReadInventory(eq.fBeltPotions, "beltPotions", eqE);
         gReadInventory(eq.fBeltHiddenPotions, "beltPotionsHidden", eqE);
         gReadInventory(eq.fStash, "stash", eqE);
+    }
+
+    if(const auto eqE = rootE->FirstChildElement("bodyEquipment")) {
+        auto& body = c.mBodies.emplace_back();
+        body.fBodyId = 0;
+        auto& eq = body.fEq;
+        readEq(eq, eqE);
     }
 
     return true;
@@ -473,9 +477,6 @@ bool eCharacter::write(const std::string& path) const {
     const auto hardcoreE = rootE->InsertNewChildElement("hardcore");
     hardcoreE->SetText(mHardcore ? "true" : "false");
 
-    const auto deadE = rootE->InsertNewChildElement("dead");
-    deadE->SetText(mDead ? "true" : "false");
-
     const auto attrE = rootE->InsertNewChildElement("attributes");
     const auto levelE = attrE->InsertNewChildElement("level");
     levelE->SetText(mAttributes.fLevel);
@@ -500,25 +501,37 @@ bool eCharacter::write(const std::string& path) const {
     gWriteSkillHotkeys(rootE, "left", mLeftHotkeys);
     gWriteSkillHotkeys(rootE, "right", mRightHotkeys);
 
+    const auto writeEq = [](const eBodyEquipment& eq,
+                            XMLElement* const eqE) {
+        gWriteItemSlot(eq.fBoots, "boots", eqE);
+        gWriteItemSlot(eq.fGloves, "gloves", eqE);
+        gWriteItemSlot(eq.fHelmet, "helmet", eqE);
+        gWriteItemSlot(eq.fArmor, "armor", eqE);
+        gWriteItemSlot(eq.fBelt, "belt", eqE);
+        gWriteItemSlot(eq.fRingL, "ringL", eqE);
+        gWriteItemSlot(eq.fRingR, "ringR", eqE);
+        gWriteItemSlot(eq.fAmulet, "amulet", eqE);
+        gWriteItemSlot(eq.fWeapon1L, "weapon1L", eqE);
+        gWriteItemSlot(eq.fWeapon1R, "weapon1R", eqE);
+        gWriteItemSlot(eq.fWeapon2L, "weapon2L", eqE);
+        gWriteItemSlot(eq.fWeapon2R, "weapon2R", eqE);
+        gWriteItemSlot(eq.fDragged, "dragged", eqE);
+    };
+
     const auto eqE = rootE->InsertNewChildElement("equipment");
     eqE->SetAttribute("activeWeapons", mEquipment.fWeapons1 ? 1 : 2);
-    gWriteItemSlot(mEquipment.fBoots, "boots", eqE);
-    gWriteItemSlot(mEquipment.fGloves, "gloves", eqE);
-    gWriteItemSlot(mEquipment.fHelmet, "helmet", eqE);
-    gWriteItemSlot(mEquipment.fArmor, "armor", eqE);
-    gWriteItemSlot(mEquipment.fBelt, "belt", eqE);
-    gWriteItemSlot(mEquipment.fRingL, "ringL", eqE);
-    gWriteItemSlot(mEquipment.fRingR, "ringR", eqE);
-    gWriteItemSlot(mEquipment.fAmulet, "amulet", eqE);
-    gWriteItemSlot(mEquipment.fWeapon1L, "weapon1L", eqE);
-    gWriteItemSlot(mEquipment.fWeapon1R, "weapon1R", eqE);
-    gWriteItemSlot(mEquipment.fWeapon2L, "weapon2L", eqE);
-    gWriteItemSlot(mEquipment.fWeapon2R, "weapon2R", eqE);
-    gWriteItemSlot(mEquipment.fDragged, "dragged", eqE);
+    writeEq(mEquipment, eqE);
     gWriteInventory(mEquipment.fInventory, "inventory", eqE);
     gWriteInventory(mEquipment.fBeltPotions, "beltPotions", eqE);
     gWriteInventory(mEquipment.fBeltHiddenPotions, "beltPotionsHidden", eqE);
     gWriteInventory(mEquipment.fStash, "stash", eqE);
+
+    if(!mBodies.empty()) {
+        const auto& body = mBodies[0];
+        const auto& bodyEq = body.fEq;
+        const auto eqE = rootE->InsertNewChildElement("bodyEquipment");
+        writeEq(bodyEq, eqE);
+    }
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {
@@ -532,17 +545,30 @@ bool eCharacter::write(const std::string& path) const {
 void eCharacter::read(ePacket& p) {
     p >> mName;
     p >> mHardcore;
-    p >> mDead;
     mEquipment.read(p);
     mAttributes.read(p);
     mSkillLevels.read(p);
+
+    uint8_t nBodies;
+    p >> nBodies;
+    for(int i = 0; i < nBodies; i++) {
+        auto& b = mBodies.emplace_back();
+        p >> b.fBodyId;
+        b.fEq.bodyRead(p);
+    }
 }
 
 void eCharacter::write(ePacket& p) const {
     p << mName;
     p << mHardcore;
-    p << mDead;
     mEquipment.write(p);
     mAttributes.write(p);
     mSkillLevels.write(p);
+
+    const uint8_t nBodies = mBodies.size();
+    p << nBodies;
+    for(const auto& b : mBodies) {
+        p << b.fBodyId;
+        b.fEq.bodyWrite(p);
+    }
 }

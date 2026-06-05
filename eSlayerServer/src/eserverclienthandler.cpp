@@ -21,7 +21,6 @@ bool eServerClientHandler::receiveData(eRequestData& data,
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
-    data.fBodies = mArea->bodies(mClientId);
     const bool update = mArea->updateBoostsAuras(mClientId);
     data.fUpdateBoostsAuras = update;
     if(update) {
@@ -98,9 +97,10 @@ bool eServerClientHandler::stopAttack() {
     return true;
 }
 
-bool eServerClientHandler::respawn() {
+bool eServerClientHandler::respawn(eBodyEquipment& beq,
+                                   int& bodyId) {
     if(!mArea) return false;
-    return mArea->respawn(mClientId);
+    return mArea->respawn(mClientId, beq, bodyId);
 }
 
 bool eServerClientHandler::spawn(eCharacter& c,

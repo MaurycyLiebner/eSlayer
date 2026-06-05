@@ -21,7 +21,6 @@ struct ESLAYERHELPERS_API eRequestData {
     std::vector<eGroundItem> fNewItems;
     std::vector<uint32_t> fRemovedItemIds;
     std::vector<eMapPortion> fMapPortions;
-    std::vector<int32_t> fBodies;
     bool fUpdateBoostsAuras;
     std::multimap<eBoostCurseType, eModifier> fBoosts;
     std::multimap<eAuraType, eModifier> fAuras;

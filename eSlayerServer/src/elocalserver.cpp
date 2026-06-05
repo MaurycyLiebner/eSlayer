@@ -130,10 +130,12 @@ bool eLocalServer::stopAttack(const int clientId) {
     return h->stopAttack();
 }
 
-bool eLocalServer::respawn(const int clientId) {
+bool eLocalServer::respawn(const int clientId,
+                           eBodyEquipment& beq,
+                           int& bodyId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->respawn();
+    return h->respawn(beq, bodyId);
 }
 
 bool eLocalServer::setSkillId(const int clientId,
@@ -207,10 +209,12 @@ bool eLocalServer::consumePotion(
 }
 
 bool eLocalServer::pickupBody(
-    const int clientId, const int32_t bodyId) {
+    const int clientId, const uint32_t bodyId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->pickupBody(bodyId);
+    const bool r = h->pickupBody(bodyId);
+    if(r) mBodiesPickedUp.emplace_back(bodyId);
+    return r;
 }
 
 void eLocalServer::mapReady(const eMapAndArea& ma) {

@@ -14,6 +14,7 @@ class eRequestData;
 class eCharacter;
 struct eAttackData;
 struct eWeaponData;
+struct eBodyEquipment;
 struct eEquipment;
 struct eAttributes;
 struct eSkillLevels;
@@ -98,7 +99,9 @@ public:
     stopAttack(const int clientId) = 0;
 
     virtual bool
-    respawn(const int clientId) = 0;
+    respawn(const int clientId,
+            eBodyEquipment& beq,
+            int& bodyId) = 0;
 
     virtual bool
     setSkillId(const int clientId,
@@ -139,7 +142,7 @@ public:
                   const uint32_t itemId) = 0;
     virtual bool
     pickupBody(const int clientId,
-               const int32_t bodyId) = 0;
+               const uint32_t bodyId) = 0;
 
     const std::string& ip() const { return mData.fIp; }
     const std::string& name() const { return mData.fName; }
@@ -150,6 +153,7 @@ public:
     std::vector<eMessage> receiveMessages();
     std::vector<eObject> receiveObjectStateChanges();
     std::vector<eDoors> receiveDoorsStateChanges();
+    std::vector<uint32_t> receiveBodiesPickedUp();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -159,6 +163,7 @@ protected:
     std::vector<eMessage> mMessages;
     std::vector<eObject> mObjectStateChanges;
     std::vector<eDoors> mDoorsStateChanged;
+    std::vector<uint32_t> mBodiesPickedUp;
 private:
     const eServerData mData;
 

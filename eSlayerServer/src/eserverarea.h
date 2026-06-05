@@ -39,8 +39,6 @@ struct eClientData {
     uint32_t fLatestNova;
     uint32_t fLatestSkillArea;
     eAreas fKnownMap;
-    int fKnownBodies = 0;
-    std::vector<int> fBodies;
     bool fUpdateBoostsAuras = false;
 };
 
@@ -69,8 +67,6 @@ public:
     novaData(const int clientId);
     std::vector<eSkillArea>
     skillAreaData(const int clientId);
-    std::vector<int>
-    bodies(const int clientId);
     bool boostsAurasChanged(const int clientId);
     bool updateBoostsAuras(const int clientId);
     std::multimap<eBoostCurseType, eModifier>
@@ -101,7 +97,9 @@ public:
                    eCharacter& c,
                    eTeamId& teamId,
                    const eScreenDimensions& screenDims);
-    bool respawn(const int clientId);
+    bool respawn(const int clientId,
+                 eBodyEquipment& beq,
+                 int& bodyId);
     bool removeClient(const int clientId);
     bool planRemoveUnit(const int charId);
     bool pickupBody(const int clientId, const int charId);
@@ -184,6 +182,9 @@ public:
                            eServerArea& to,
                            ePointF& spawnPos);
 private:
+    bool spawnBody(const int clientId,
+                   const eBodyEquipment& beq,
+                   int& bodyId);
     bool addClient(const int clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,
@@ -202,7 +203,8 @@ private:
                       const eUnitInfo& uinfo,
                       const eCharData& data,
                       const eModelParts& modelParts);
-    void iniSetupUnit(const std::shared_ptr<eServerUnit>& u);
+    void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
+                      const ePointF& pos);
     void addGroundItem(const ePointF& pos,
                        const eItem& item);
     void generateItems(const ePointF& pos,

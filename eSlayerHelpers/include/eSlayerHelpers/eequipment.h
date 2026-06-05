@@ -36,7 +36,7 @@ private:
     int mHeight;
 };
 
-struct ESLAYERHELPERS_API eEquipment {
+struct ESLAYERHELPERS_API eBodyEquipment {
     eItem fBoots;
     eItem fGloves;
     eItem fHelmet;
@@ -53,6 +53,20 @@ struct ESLAYERHELPERS_API eEquipment {
 
     eItem fDragged;
 
+    bool bodyEmpty() const;
+    eBodyEquipment takeBody();
+
+    void bodyRead(ePacket& p);
+    void bodyWrite(ePacket& p) const;
+
+    using eIter = std::function<void(eItem& item)>;
+    void iterateOverBody(const eIter& iter);
+private:
+    using eItemAction = std::function<void(eItem eBodyEquipment::*it)>;
+    static void iterateOverBody(const eItemAction& a);
+};
+
+struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     static const int fBeltHPotionSlots = 4;
     static const int fBeltVPotionSlots = 4;
     eInventoryItems fBeltHiddenPotions{fBeltHPotionSlots,
@@ -85,6 +99,7 @@ struct ESLAYERHELPERS_API eEquipment {
     eItem takePotion(const int x);
     int beltX(const uint32_t itemId) const;
 
+    void moveFrom(eBodyEquipment& srcEq);
     void moveFrom(eEquipment& srcEq);
     bool empty() const;
 

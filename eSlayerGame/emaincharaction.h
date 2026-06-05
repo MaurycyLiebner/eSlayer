@@ -67,6 +67,7 @@ public:
     void setAttributes(const eAttributes& attr);
     void setEquipment(const eEquipment& eq);
     eEquipment& equipment() { return mEquipment; }
+    std::vector<eEquipment>& bodyEquipments() { return mBodyEquipments; }
     eAttributes& attributes() { return mAttributes; }
     eStats& stats() { return mStats; }
     void recalculateStats();
@@ -116,6 +117,7 @@ private:
     eAttackData mAttackData;
 
     eEquipment mEquipment;
+    std::vector<eEquipment> mBodyEquipments;
     eAttributes mAttributes;
     eStats mStats;
 

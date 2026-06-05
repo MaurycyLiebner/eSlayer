@@ -57,6 +57,12 @@ std::vector<eDoors> eServer::receiveDoorsStateChanges() {
     return result;
 }
 
+std::vector<uint32_t> eServer::receiveBodiesPickedUp() {
+    std::vector<uint32_t> result;
+    std::swap(mBodiesPickedUp, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

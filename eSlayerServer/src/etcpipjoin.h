@@ -42,7 +42,9 @@ public:
                 const eAttackData& target) override;
     bool stopAttack(const int clientId) override;
 
-    bool respawn(const int clientId) override;
+    bool respawn(const int clientId,
+                 eBodyEquipment& beq,
+                 int& bodyId) override;
 
     bool setSkillId(const int clientId,
                     const eSkillChoice schoice,
@@ -71,7 +73,7 @@ public:
     bool consumePotion(const int clientId,
                        const uint32_t itemId) override;
     bool pickupBody(const int clientId,
-                    const int32_t bodyId) override;
+                    const uint32_t bodyId) override;
 private:
     eTCPNetwork mNet;
     bool mInitialized = false;
