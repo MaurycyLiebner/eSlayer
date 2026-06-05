@@ -5,6 +5,8 @@
 
 #include "epositioned.h"
 
+#include <set>
+
 class ePacket;
 
 struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
@@ -23,7 +25,7 @@ struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
 
     uint8_t fState;
 
-    std::vector<uint8_t> fBoosts;
+    std::set<uint8_t> fBoosts;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

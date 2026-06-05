@@ -33,14 +33,14 @@ void eEliteModifiers::initialize(const int nMods, const int level) {
 void eEliteModifiers::apply(eServerUnit& u, const bool boss) {
     if(boss) {
         for(const auto m : mMods) {
-            u.fMods.emplace_back(m);
+            u.fMods.emplace(m);
         }
         for(const auto& it : mBossMods) {
             const auto& mod = it.second;
             u.addBoost({mod}, eBoostCurseType::regular, false);
         }
     } else {
-        u.fMods.emplace_back(0);
+        u.fMods.emplace(0);
         for(const auto& it : mMinionMods) {
             const auto& mod = it.second;
             u.addBoost({mod}, eBoostCurseType::regular, false);

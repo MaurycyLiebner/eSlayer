@@ -35,13 +35,17 @@ void eUnitData::read(ePacket& p) {
     uint8_t nBoosts;
     p >> nBoosts;
     for(int i = 0; i < nBoosts; i++) {
-        p >> fBoosts.emplace_back();
+        uint8_t b;
+        p >> b;
+        fBoosts.emplace(b);
     }
 
     uint8_t nMods;
     p >> nMods;
     for(uint8_t i = 0; i < nMods; i++) {
-        p >> fMods.emplace_back();
+        uint8_t m;
+        p >> m;
+        fMods.emplace(m);
     }
 
     fModelParts.read(p);
@@ -121,11 +125,11 @@ void eUnitData::setPoisoned(const bool p) {
 }
 
 void eUnitData::removeBoostData(const uint8_t id) {
-    eVectorHelpers::remove(fBoosts, id);
+    fBoosts.erase(id);
 }
 
 void eUnitData::addBoostData(const uint8_t id) {
-    fBoosts.emplace_back(id);
+    fBoosts.emplace(id);
 }
 
 eUnitData eUnitData::toUnitData() const {

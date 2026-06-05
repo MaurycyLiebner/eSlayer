@@ -26,7 +26,9 @@ void eUnitDynamicData::read(ePacket& p) {
     uint8_t nBoosts;
     p >> nBoosts;
     for(int i = 0; i < nBoosts; i++) {
-        p >> fBoosts.emplace_back();
+        uint8_t b;
+        p >> b;
+        fBoosts.emplace(b);
     }
 }
 
