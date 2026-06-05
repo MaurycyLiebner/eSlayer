@@ -47,16 +47,33 @@ void eScreenHandler::showMainMenu() {
     const int height = mWindow->height();
     w->resize(width, height);
 
-    const auto singlePlayer = [this]() {
-        const eServerData serverData{"single_player", ""};
-        showCreateOrChooseCharacterMenu(serverData);
+    const auto showBlockDialog = [w]() {
+        const auto okAction = [w]() {
+            w->closeDialog();
+        };
+        w->showDialog(eText::text(1, 4),
+                      nullptr, nullptr,
+                      okAction);
     };
 
-    const auto tcpIpGame = [this]() {
-        showTcpIpGameMenu();
+    const auto singlePlayer = [this, showBlockDialog]() {
+        if(mBlockGameStart) {
+            showBlockDialog();
+        } else {
+            const eServerData serverData{"single_player", ""};
+            showCreateOrChooseCharacterMenu(serverData);
+        }
     };
 
-    const auto settings = [this]() {
+    const auto tcpIpGame = [this, showBlockDialog]() {
+        if(mBlockGameStart) {
+            showBlockDialog();
+        } else {
+            showTcpIpGameMenu();
+        }
+    };
+
+    const auto settings = [this, w]() {
         showSettings();
     };
 
@@ -212,8 +229,9 @@ void loadUnitTypes(const eResolution& res,
 
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
+    mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const std::string mapName = /*"basement_1"*/"act1_1";
+    const std::string mapName = "basement_1"/*"act1_1"*/;
     const auto map = std::make_shared<eMap>(mapName);
     const auto clientId = std::make_shared<int>();
     const auto teamId = std::make_shared<eTeamId>();
@@ -327,6 +345,10 @@ void eScreenHandler::showSettings() {
 
     const auto applyAction = [this](const eWindowSettings& sett) {
         mWindow->setFullscreen(sett.fFullscreen);
+        const auto& res = mWindow->resolution();
+        if(mGameStarted && res != sett.fRes) {
+            mBlockGameStart = true;
+        }
         mWindow->setResolution(sett.fRes);
         const auto& oldL = eLanguage::sLanguage.fName;
         const auto& newL = sett.fLanguage.fName;

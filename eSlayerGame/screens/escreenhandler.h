@@ -45,7 +45,12 @@ private:
                     const std::string& mapName,
                     eMapData& data);
     void loadCharacters();
+    void showDialog(const std::string& text,
+                    const eAction& yesAction,
+                    const eAction& noAction);
 
+    bool mGameStarted = false;
+    bool mBlockGameStart = false;
     eMainWindow* const mWindow;
     eCharacters mCharacters;
 };

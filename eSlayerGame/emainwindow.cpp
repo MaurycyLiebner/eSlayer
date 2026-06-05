@@ -69,7 +69,7 @@ eWidget* eMainWindow::takeWidget() {
 }
 
 void eMainWindow::setResolution(const eResolution& res) {
-    if(mSettings.fRes == res && !mFirstFullscrenSetting) return;
+    if(mSettings.fRes == res && !mFirstResolutionSetting) return;
     mFirstResolutionSetting = false;
     mSettings.fRes = res;
     const int w = res.width();
@@ -99,8 +99,8 @@ int eMainWindow::exec() {
 
     SDL_Event e;
 
-    const bool showFPS = false;
-    const double fpsClamp = eRunSettings::sFPS;
+    const bool showFPS = true;//false;
+    const double fpsClamp = 2500;//eRunSettings::sFPS;
 
     int c = 0;
     int fpsVal = 0;

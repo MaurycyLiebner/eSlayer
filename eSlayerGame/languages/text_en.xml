@@ -5,6 +5,8 @@
         <string id="1">TCP/IP game</string>
         <string id="2">Settings</string>
         <string id="3">Exit game</string>
+        <string id="4">Settings changed. Please restart the game.</string>
+        <string id="5">Ok</string>
     </group>
     <group id="2">
         <string id="0">Exit</string>

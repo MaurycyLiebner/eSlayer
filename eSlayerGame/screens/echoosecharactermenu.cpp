@@ -9,19 +9,6 @@
 eChooseCharacterMenu::eChooseCharacterMenu(eMainWindow* const window) :
     eScreenBase(window) {}
 
-class eDialog : public eLabel {
-public:
-    using eLabel::eLabel;
-protected:
-    void paintEvent(ePainter& p) {
-        const auto rect = eWidget::rect();
-        p.fillRect(rect, SDL_Color{0, 0, 0, 255});
-        const int lineWidth = eLabel::lineWidth();
-        p.drawRect(rect, SDL_Color{255, 255, 255, 255},
-                   lineWidth);
-    }
-};
-
 void eChooseCharacterMenu::initialize(
     const eAction& exit,
     const eOkAction& ok,
@@ -78,50 +65,18 @@ void eChooseCharacterMenu::initialize(
     cwb->addWidget(cnc);
 
     dc->setPressAction([this, deleteCharacter, c]() {
-        if(mDialog) return;
         const auto cc = c->current();
         if(cc.empty()) return;
-        mDialog = new eDialog(window());
-        const int w = eWidget::width()/3;
-
-        const auto ask = new eLabel(window());
-        ask->setSmallFontSize();
-        ask->setWrapWidth(w);
-        ask->setText(eText::text(3, 4));
-        ask->fitContent();
-        mDialog->addWidget(ask);
-
-        const auto buttonsW = new eWidget(window());
-        buttonsW->setNoPadding();
-
-        const auto yes = new eMainMenuButton(
-            eText::text(3, 5), window());
-        yes->fitContent();
-        yes->setPressAction([this, deleteCharacter, cc]() {
+        const auto yesAction = [this, deleteCharacter, cc]() {
             deleteCharacter(cc);
             closeDialog();
-        });
-        buttonsW->addWidget(yes);
-
-        const auto no = new eMainMenuButton(
-            eText::text(3, 6), window());
-        no->fitContent();
-        no->setPressAction([this]() {
+        };
+        const auto noAction = [this]() {
             closeDialog();
-        });
-        buttonsW->addWidget(no);
-
-        buttonsW->setWidth(w);
-        buttonsW->layoutHorizontallyWithoutSpaces();
-        buttonsW->fitContent();
-        mDialog->addWidget(buttonsW);
-
-        mDialog->stackVertically();
-        mDialog->fitContent();
-
-        addWidget(mDialog);
-        mDialog->align(eAlignment::center);
-        buttonsW->align(eAlignment::hcenter);
+        };
+        showDialog(eText::text(3, 4),
+                   yesAction, noAction,
+                   nullptr);
     });
     cwb->addWidget(dc);
 
@@ -148,21 +103,4 @@ void eChooseCharacterMenu::initialize(
     o->align(eAlignment::bottom);
 
     inner->layoutHorizontallyWithoutSpaces();
-}
-
-bool eChooseCharacterMenu::keyPressEvent(
-    const eKeyPressEvent& e) {
-    if(e.key() == SDL_SCANCODE_ESCAPE) {
-        if(mDialog) {
-            closeDialog();
-            return true;
-        }
-    }
-    return eScreenBase::keyPressEvent(e);
-}
-
-void eChooseCharacterMenu::closeDialog() {
-    if(!mDialog) return;
-    mDialog->deleteLater();
-    mDialog = nullptr;
 }
