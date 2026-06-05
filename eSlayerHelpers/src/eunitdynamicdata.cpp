@@ -7,14 +7,10 @@ const float animSpeedMax = 100.f;
 const float blockingActionTimeMax = 25.5f;
 
 void eUnitDynamicData::read(ePacket& p) {
-    p >> fCharId;
+    eUnitDynamicDataBase::read(p);
 
     p >> fPos;
     fAngle = p.readFloatU8(angleMax);
-
-    p >> fAnim;
-    p >> fAnimId;
-    fAnimSpeed = p.readFloatU16(animSpeedMax);
 
     fBlockingActionTime = p.readFloatU8(blockingActionTimeMax);
 
@@ -33,14 +29,10 @@ void eUnitDynamicData::read(ePacket& p) {
 }
 
 void eUnitDynamicData::write(ePacket& p) const {
-    p << fCharId;
+    eUnitDynamicDataBase::write(p);
 
     p << fPos;
     p.writeFloatU8(fAngle, angleMax);
-
-    p << fAnim;
-    p << fAnimId;
-    p.writeFloatU16(fAnimSpeed, animSpeedMax);
 
     p.writeFloatU8(fBlockingActionTime, blockingActionTimeMax);
 
@@ -54,4 +46,20 @@ void eUnitDynamicData::write(ePacket& p) const {
     for(const uint8_t b : fBoosts) {
         p << b;
     }
+}
+
+void eUnitDynamicDataBase::read(ePacket& p) {
+    p >> fCharId;
+
+    p >> fAnim;
+    p >> fAnimId;
+    fAnimSpeed = p.readFloatU16(animSpeedMax);
+}
+
+void eUnitDynamicDataBase::write(ePacket& p) const {
+    p << fCharId;
+
+    p << fAnim;
+    p << fAnimId;
+    p.writeFloatU16(fAnimSpeed, animSpeedMax);
 }

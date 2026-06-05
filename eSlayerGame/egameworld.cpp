@@ -187,31 +187,12 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         if(charId == clientId) {
             result.fHasMainCharData = true;
             auto& d = result.fMainCharData;
-            d.fCharId = u.fCharId;
-            d.fPos = u.fPos;
-            d.fAngle = u.fAngle;
-            d.fAnim = u.fAnim;
-            d.fAnimId = u.fAnimId;
-            d.fAnimSpeed = u.fAnimSpeed;
-            d.fBlockingActionTime = u.fBlockingActionTime;
-            d.fHealth = u.fHealth;
-            d.fMaxHealth = u.fMaxHealth;
-            d.fState = u.fState;
-            d.fBoosts = u.fBoosts;
+            static_cast<eUnitDynamicData&>(d) = u;
             continue;
         }
         const auto unit = mUnits.get(charId);
         if(!unit) continue;
-        unit->fPos = u.fPos;
-        unit->fAngle = u.fAngle;
-        unit->fAnim = u.fAnim;
-        unit->fAnimId = u.fAnimId;
-        unit->fAnimSpeed = u.fAnimSpeed;
-        unit->fBlockingActionTime = u.fBlockingActionTime;
-        unit->fHealth = u.fHealth;
-        unit->fMaxHealth = u.fMaxHealth;
-        unit->fState = u.fState;
-        unit->fBoosts = u.fBoosts;
+        static_cast<eUnitDynamicData&>(*unit) = u;
         auto& model = unit->model();
         model.setAngle(u.fAngle);
         model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);

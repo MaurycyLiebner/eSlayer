@@ -9,14 +9,21 @@
 
 class ePacket;
 
-struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
+struct ESLAYERHELPERS_API eUnitDynamicDataBase {
     uint32_t fCharId;
-
-    float fAngle;
 
     uint8_t fAnim;
     uint32_t fAnimId;
     float fAnimSpeed;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
+};
+
+struct ESLAYERHELPERS_API eUnitDynamicData :
+    public eUnitDynamicDataBase,
+    public ePositioned {
+    float fAngle;
 
     float fBlockingActionTime;
 
@@ -29,6 +36,13 @@ struct ESLAYERHELPERS_API eUnitDynamicData : public ePositioned {
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+private:
+    using eUnitDynamicDataBase::write;
+    using eUnitDynamicDataBase::read;
+};
+
+struct ESLAYERHELPERS_API eDeadUnitDynamicData :
+    public eUnitDynamicDataBase {
 };
 
 #endif // EUNITDYNAMICDATA_H

@@ -3,7 +3,6 @@
 
 #include "eslayerhelpersexport.h"
 
-#include "epositioned.h"
 #include "echardata.h"
 #include "eunitdynamicdata.h"
 #include "eteamid.h"
@@ -13,32 +12,17 @@ class ePacket;
 const uint8_t sFleshExplAnim = 255;
 const uint8_t sIceExplAnim = 254;
 
-struct ESLAYERHELPERS_API eUnitData : public ePositioned {
-    uint32_t fCharId;
+struct ESLAYERHELPERS_API eUnitData :
+    public eUnitDynamicData {
     eTeamId fTeamId;
 
     uint8_t fCharDataId;
 
     float fRadius;
 
-    float fAngle;
-
-    uint8_t fAnim;
-    uint32_t fAnimId;
-    float fAnimSpeed;
-
-    float fBlockingActionTime;
-
-    uint16_t fHealth;
-    uint16_t fMaxHealth;
-
     std::set<uint8_t> fMods;
 
     eModelParts fModelParts;
-
-    uint8_t fState;
-
-    std::set<uint8_t> fBoosts;
 
     void removeBoostData(const uint8_t id);
     void addBoostData(const uint8_t id);
