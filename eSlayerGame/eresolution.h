@@ -35,7 +35,10 @@ struct eResolutionBase {
 
     friend bool operator<(const eResolutionBase& r1,
                           const eResolutionBase& r2) {
-        return r1.fWidth < r2.fWidth;
+        if(r1.fWidth != r2.fWidth) {
+            return r1.fWidth < r2.fWidth;
+        }
+        return r1.fHeight < r2.fHeight;
     }
 };
 
