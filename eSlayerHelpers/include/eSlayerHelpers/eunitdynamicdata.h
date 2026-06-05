@@ -5,6 +5,8 @@
 
 #include "epositioned.h"
 
+#include <eSlayerHelpers/eanimid.h>
+
 #include <set>
 
 class ePacket;
@@ -13,7 +15,7 @@ struct ESLAYERHELPERS_API eUnitDynamicDataBase {
     uint32_t fCharId;
 
     uint8_t fAnim;
-    uint32_t fAnimId;
+    eAnimId fAnimId;
     float fAnimSpeed;
 
     void read(ePacket& p);

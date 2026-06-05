@@ -83,6 +83,6 @@ bool eMoveToTarget::setTarget(const std::vector<eUnitTarget>& targets,
         mUnit.fAnim = eMovementHandler::sChooseAnim(
             mWalkAnimId, mWalkReadyAnimId, a);
     }
-    mUnit.fAnimId++;
+    mUnit.fAnimId.increment(1);
     return true;
 }

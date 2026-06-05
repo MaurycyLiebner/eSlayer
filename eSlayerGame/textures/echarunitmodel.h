@@ -3,6 +3,8 @@
 
 #include "echarmodel.h"
 
+#include <eSlayerHelpers/eanimid.h>
+
 class eGamePainter;
 class ePainter;
 class eResolution;
@@ -29,7 +31,8 @@ public:
 
     void setAnimationSpeed(const float speed);
 
-    void setAnimation(const int a, const int id,
+    void setAnimation(const int a,
+                      const eAnimId& id,
                       const float speed);
     void setAnimation(const int a,
                       const float speed);
@@ -41,7 +44,7 @@ public:
                          SDL_Renderer* const r);
 private:
     int mAnim = 0;
-    int mAnimId = -1;
+    eAnimId mAnimId;
     float mAnimSpeed = 1.f;
     float mFrame = 0.f;
     int mClampId = -1;

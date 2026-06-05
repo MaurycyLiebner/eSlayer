@@ -35,7 +35,7 @@ void eUnitActionBase::setup(const int anim,
     mBlockingAction = blocking;
     const auto& data = mUnit.data();
     mUnit.fAnim = anim;
-    mUnit.fAnimId += 5;
+    mUnit.fAnimId.increment(5);
 
     float speed;
     if(anim == sFleshExplAnim ||

@@ -101,9 +101,10 @@ void eCharUnitModel::generatePreview(
     }
 }
 
-void eCharUnitModel::setAnimation(const int a, const int id,
-                                  const float speed) {
-    if(id <= mAnimId) return;
+void eCharUnitModel::setAnimation(
+    const int a, const eAnimId& id,
+    const float speed) {
+    if(!eAnimId::isAfter(id, mAnimId)) return;
     mAnimId = id;
     setAnimation(a, speed);
 }

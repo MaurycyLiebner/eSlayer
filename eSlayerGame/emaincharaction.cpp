@@ -488,7 +488,7 @@ void eMainCharAction::updateMovementAnimation(
     }
 
     if(mMainChar->fAnim != animId) {
-        mMainChar->fAnimId++;
+        mMainChar->fAnimId.increment(1);
     }
 
     mMainChar->fAnim = animId;
@@ -568,7 +568,7 @@ void eMainCharAction::stand() {
     const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
 
     mMainChar->fAnim = animId;
-    mMainChar->fAnimId++;
+    mMainChar->fAnimId.increment(1);
     mMainChar->fAnimSpeed = 1.f;
     model.setAnimation(animId, 1.f);
 }

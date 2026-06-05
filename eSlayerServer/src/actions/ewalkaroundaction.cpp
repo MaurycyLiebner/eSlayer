@@ -28,7 +28,7 @@ void eWalkAroundAction::increment(const float by) {
     if(anim != mCurrentAnim) {
         mCurrentAnim = anim;
         mUnit.fAnim = anim;
-        mUnit.fAnimId += 5;
+        mUnit.fAnimId.increment(5);
     }
 
     auto& h = mUnit.movementHandler();

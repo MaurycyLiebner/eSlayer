@@ -76,7 +76,7 @@ void eYieldWaitAction::increment(const float by) {
                 mWalkAnimId, mWalkReadyAnimId, a);
             if(walkAnim != -1) {
                 mUnit.fAnim = walkAnim;
-                mUnit.fAnimId += 5;
+                mUnit.fAnimId.increment(5);
             }
         }
         if(yieldDir.length() > 0.001f) {
@@ -94,7 +94,7 @@ void eYieldWaitAction::increment(const float by) {
                 mStandAnimId, mStandReadyAnimId, a);
             if(standAnim != -1) {
                 mUnit.fAnim = standAnim;
-                mUnit.fAnimId += 5;
+                mUnit.fAnimId.increment(5);
             }
         }
     }

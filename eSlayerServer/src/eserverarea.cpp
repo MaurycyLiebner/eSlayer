@@ -116,7 +116,7 @@ void eServerArea::iniSetupUnit(
     u->fCharDataId = uinfo.fCharData;
     u->fRadius = uinfo.fRadius;
     u->fAnim = data.animId("stand");
-    u->fAnimId = 0;
+    u->fAnimId = eAnimId{0};
     u->fAnimSpeed = 1.f;
     u->fAngle = eRand::randF(0.f, 360.f);
     u->fBlockingActionTime = 0.f;
