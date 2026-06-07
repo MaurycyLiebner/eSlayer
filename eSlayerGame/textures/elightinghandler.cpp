@@ -104,16 +104,20 @@ void eLightingHandler::calculateLighting() {
     mIterator.iterate([&](eTileInfo& tile) {
         const auto lightCell = mIterator.getCellAtPos(
             tile.fTX, tile.fTY);
-        const auto& lights = lightCell->fLights;
         auto& lighting = tile.fLighting;
+        if(!lightCell) {
+            lighting.resize(mNDots*mNDots, mLightness);
+            return;
+        }
+        const auto& lights = lightCell->fLights;
         lighting.resize(mNDots*mNDots);
         for(int y = 0; y < mNDots; y++) {
+            const int yShift = y*mNDots;
             const float ty = tile.fTY + float(y)/mTileDiv;
             for(int x = 0; x < mNDots; x++) {
                 const float tx = tile.fTX + float(x)/mTileDiv;
-                float& v = lighting[y*mNDots + x];
+                float& v = lighting[yShift + x];
                 v = mLightness;
-                if(!lightCell) continue;
                 const ePointF tp{tx, ty};
                 for(const auto& l : lights) {
                     const ePointF lp{l.fTX, l.fTY};
