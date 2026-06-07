@@ -129,6 +129,8 @@ struct eSkillStatsHelper {
     eSkillStats& fSkillStats;
     eSkillType fSkillType;
 
+    float fManaBurn = 0.f;
+
     float fBaseAR = 0.f;
 
     float fFlatARLW = 0.f;
@@ -360,6 +362,9 @@ struct eSkillStatsHelper {
             if(rw) {
                 fSkillStats.fOnKillRW.emplace_back(skill);
             }
+        } break;
+        case eModifierType::manaBurn: {
+            fSkillStats.fManaBurn += 0.01f*mod.fValue1;
         } break;
         default:
             break;
@@ -707,6 +712,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::iceExplode:
 
         case eModifierType::skillLevel:
+
+        case eModifierType::manaBurn:
             break;
         }
     };
@@ -992,6 +999,8 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::fleshExplode:
         case eModifierType::iceExplode:
+
+        case eModifierType::manaBurn:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

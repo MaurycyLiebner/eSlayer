@@ -108,6 +108,7 @@ public:
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
     const eStats& stats() const { return mStats; }
+    eStats& stats() { return mStats; }
 
     void setEquipment(const eEquipment& eq,
                       const bool recalc = true);
@@ -187,6 +188,11 @@ public:
                             const eWeaponChoice wchoice) const;
     static float meeleSplashDamage(const eSkillStats& stats,
                                    const eWeaponChoice wchoice);
+
+    float manaBurn(const int schoice,
+                   const eWeaponChoice wchoice) const;
+    static float manaBurn(const eSkillStats& stats,
+                          const eWeaponChoice wchoice);
 
     std::vector<eModifier> skillModifiers(
         const int schoice,

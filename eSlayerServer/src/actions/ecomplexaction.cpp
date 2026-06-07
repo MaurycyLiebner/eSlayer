@@ -178,6 +178,8 @@ bool eComplexAction::getHit(const eHitData& data,
         } else {
             hit = true;
 
+            auto& stats = mUnit.stats();
+
             const auto& bs = data.fBoosts;
             if(!bs.empty()) {
                 for(const auto& b : bs) {
@@ -188,7 +190,6 @@ bool eComplexAction::getHit(const eHitData& data,
             }
 
             {
-                const auto& stats = mUnit.stats();
                 const auto& onStruck = stats.fOnStruck;
                 const auto to = data.fFrom;
                 const auto wchoice = eWeaponChoice::left;
@@ -199,6 +200,7 @@ bool eComplexAction::getHit(const eHitData& data,
             mUnit.coldFor(data.fColdLength);
             mUnit.freezeFor(data.fFreezeLength);
             const float dmg = mUnit.takeDamage(data.fDamage);
+            stats.fManaF = std::max(0.f, stats.fManaF - dmg*data.fManaBurn);
             if(mUnit.fHealth <= 0) {
                 if(attacker && attacker->fHealth > 0) {
                     const auto& onKill = data.fOnKill;

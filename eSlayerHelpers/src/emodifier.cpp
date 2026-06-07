@@ -88,7 +88,9 @@ gModifierTypeToString = {
     { eModifierType::dealsColdDamage, "dealsColdDamage" },
     { eModifierType::dealsLightningDamage, "dealsLightningDamage" },
     { eModifierType::dealsPoisonDamage, "dealsPoisonDamage" },
-    { eModifierType::dealsPhysicalDamage, "dealsPhysicalDamage" }
+    { eModifierType::dealsPhysicalDamage, "dealsPhysicalDamage" },
+
+    { eModifierType::manaBurn, "manaBurn" }
 };
 
 std::map<std::string, eModifierType>
@@ -178,6 +180,8 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::freezeLength:
 
     case eModifierType::skillLevel:
+
+    case eModifierType::manaBurn:
         return eModValuesUsage::value1;
 
     case eModifierType::knockback:
@@ -292,6 +296,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::poisonSkillDamage:
 
     case eModifierType::skillLevel:
+
+    case eModifierType::manaBurn:
         return "value";
 
     case eModifierType::coldLength:
@@ -387,6 +393,8 @@ std::string eModifier::value2Name() const {
     case eModifierType::iceExplode:
 
     case eModifierType::skillLevel:
+
+    case eModifierType::manaBurn:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -518,6 +526,8 @@ bool eModifierHelpers::isPercent(
     case eModifierType::coldSkillDamage:
     case eModifierType::lightningSkillDamage:
     case eModifierType::poisonSkillDamage:
+
+    case eModifierType::manaBurn:
         return true;
 
     case eModifierType::none:

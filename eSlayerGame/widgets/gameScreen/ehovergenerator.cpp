@@ -90,6 +90,8 @@ bool addPlus(const float value,
     case eModifierType::freezeLength:
 
     case eModifierType::skillLevel:
+
+    case eModifierType::manaBurn:
         return true;
 
     case eModifierType::none:

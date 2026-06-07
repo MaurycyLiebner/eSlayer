@@ -99,6 +99,8 @@ enum class eModifierType : uint8_t {
     dealsPoisonDamage,
     dealsPhysicalDamage,
 
+    manaBurn,
+
     count
 };
 

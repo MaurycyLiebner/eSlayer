@@ -52,6 +52,8 @@ bool eServerUnit::hitData(
 
     data.fBoosts = boosts(skill, wchoice);
 
+    data.fManaBurn = manaBurn(skill, wchoice);
+
     return true;
 }
 
@@ -481,6 +483,12 @@ float eServerUnit::meeleSplashDamage(
         return stats.fMeeleSplashDamageRW;
     }
     return 0.f;
+}
+
+float eServerUnit::manaBurn(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    return stats.fManaBurn;
 }
 
 std::vector<eModifier>

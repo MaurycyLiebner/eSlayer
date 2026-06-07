@@ -108,6 +108,8 @@ struct eSkillStats {
     float fFreezeLengthLW = 0.f;
     float fFreezeLengthRW = 0.f;
 
+    float fManaBurn = 0.f;
+
     std::vector<eSkillStats> fOnAttackLW;
     std::vector<eSkillStats> fOnAttackRW;
     std::vector<eSkillStats> fOnStrikingLW;
