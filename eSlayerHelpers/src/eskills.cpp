@@ -52,7 +52,7 @@ void eSkills::load() {
             const float speed = jdata.value("speed", 50u);
             skill.fSpeed = ePacket::toFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
-            skill.fAngleAdjust = jdata.value("angleAdjust", true);
+            skill.fAngleAdjust = jdata.value("angleAdjust", false);
 
             if(typeStr == "attack") {
                 skill.fType = eSkillType::attack;

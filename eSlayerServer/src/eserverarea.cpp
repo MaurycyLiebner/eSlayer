@@ -1168,6 +1168,9 @@ void eServerArea::spawnMissile(const ePointF& to,
     const auto spawnMissiles = [&](const int missileId,
                                    const float range) {
         float maxAngle = skill.fMaxAngle;
+        if(nMissiles > 1 && maxAngle == 0.f) {
+            maxAngle = 30.f*(nMissiles - 1);
+        }
         if(skill.fAngleAdjust) {
             if(range > 0.f) {
                 const float len = baseDir.length();

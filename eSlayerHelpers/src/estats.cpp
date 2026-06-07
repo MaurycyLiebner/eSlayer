@@ -366,6 +366,14 @@ struct eSkillStatsHelper {
         case eModifierType::manaBurn: {
             fSkillStats.fManaBurn += 0.01f*mod.fValue1;
         } break;
+        case eModifierType::multiShot: {
+            if(fSkillStats.fCountLW > 0) {
+                fSkillStats.fCountLW += mod.fValue1;
+            }
+            if(fSkillStats.fCountRW > 0) {
+                fSkillStats.fCountRW += mod.fValue1;
+            }
+        } break;
         default:
             break;
         }
@@ -714,6 +722,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::skillLevel:
 
         case eModifierType::manaBurn:
+        case eModifierType::multiShot:
             break;
         }
     };
@@ -1001,6 +1010,7 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::iceExplode:
 
         case eModifierType::manaBurn:
+        case eModifierType::multiShot:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -1132,17 +1142,6 @@ void eStats::calculateSkill(eSkillStats& stats,
         }
     }
 
-    for(const auto& it : fBoosts) {
-        const auto& boost = it.second;
-        handleSkillMod(boost, eModifierSource::boost,
-                       helper, true, true);
-    }
-
-    for(const auto& it : fAuraBoosts) {
-        const auto& aura = it.second;
-        handleSkillMod(aura, eModifierSource::aura,
-                       helper, true, true);
-    }
 
     auto skillMods = skillLevel.fTotalModifiers;
 
@@ -1157,7 +1156,6 @@ void eStats::calculateSkill(eSkillStats& stats,
     }
 
     skillMods.collapse();
-
 
     if(skill.fType == eSkillType::missile ||
         skill.fType == eSkillType::shoot ||
@@ -1175,8 +1173,8 @@ void eStats::calculateSkill(eSkillStats& stats,
     }
 
     if(skill.fType == eSkillType::attack ||
-       skill.fType == eSkillType::shoot ||
-       skill.fType == eSkillType::throw_) {
+        skill.fType == eSkillType::shoot ||
+        skill.fType == eSkillType::throw_) {
         stats.fMissileRange = fWeaponRangedRange;
     } else {
         stats.fMissileRange = skill.fRange;
@@ -1193,6 +1191,18 @@ void eStats::calculateSkill(eSkillStats& stats,
     stats.fManaCost = skillMods.fManaCost;
     stats.fRadius = skillMods.fRadius;
     stats.fCooldown = skillMods.fCooldown;
+
+    for(const auto& it : fBoosts) {
+        const auto& boost = it.second;
+        handleSkillMod(boost, eModifierSource::boost,
+                       helper, true, true);
+    }
+
+    for(const auto& it : fAuraBoosts) {
+        const auto& aura = it.second;
+        handleSkillMod(aura, eModifierSource::aura,
+                       helper, true, true);
+    }
 
     switch(skill.fType) {
     case eSkillType::boostCurse: {

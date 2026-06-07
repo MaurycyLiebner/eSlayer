@@ -92,6 +92,7 @@ bool addPlus(const float value,
     case eModifierType::skillLevel:
 
     case eModifierType::manaBurn:
+    case eModifierType::multiShot:
         return true;
 
     case eModifierType::none:
