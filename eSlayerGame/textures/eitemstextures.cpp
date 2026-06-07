@@ -26,6 +26,12 @@ void eItemsTextures::load() {
     return sInstance.loadImpl();
 }
 
+void eItemsTextures::loadTextures(
+    SDL_Renderer* const r,
+    const eResolution& res) {
+    return sInstance.loadTexturesImpl(r, res);
+}
+
 void eItemsTextures::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
@@ -102,6 +108,17 @@ void eItemsTextures::loadImpl(const std::string& name,
 
     const int id = mTexs.add(name, itemTex);
     mItemDataIdToTexId[itemDataId] = id;
+}
+
+void eItemsTextures::loadTexturesImpl(
+    SDL_Renderer* const r,
+    const eResolution& res) {
+    if(mTexturesLoaded) return;
+    mTexturesLoaded = true;
+    for(const auto& it : mTexs) {
+        auto& item = it.fValue;
+        item.request(r, res);
+    }
 }
 
 eItemTexture& eItemsTextures::getImpl(const std::string &name) {

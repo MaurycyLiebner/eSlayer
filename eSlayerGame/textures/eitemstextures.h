@@ -27,12 +27,16 @@ public:
     static eItemTexture& get(const int id);
     static eItemTexture& getByItemDataId(const int itemDataId);
     static void load();
+    static void loadTextures(SDL_Renderer* const r,
+                             const eResolution& res);
 private:
     void loadImpl();
     void loadImpl(const std::string& name,
                   const std::string& path,
                   const int width,
                   const int height);
+    void loadTexturesImpl(SDL_Renderer* const r,
+                          const eResolution& res);
     eItemTexture& getImpl(const std::string& name);
     eItemTexture& getImpl(const int id);
     eItemTexture& getByItemDataIdImpl(const int itemDataId);
@@ -42,6 +46,7 @@ private:
     bool mLoaded = false;
     eStringIdMapVector<eItemTexture> mTexs;
     std::map<int, int> mItemDataIdToTexId;
+    bool mTexturesLoaded = false;
 };
 
 #endif // EITEMSTEXTURES_H

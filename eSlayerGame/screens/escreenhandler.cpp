@@ -20,6 +20,7 @@
 #include "../textures/euitextures.h"
 #include "../textures/echarstextures.h"
 #include "../textures/emaptextures.h"
+#include "../textures/eitemstextures.h"
 
 #include "../names/eitemnames.h"
 #include "../names/emonsternames.h"
@@ -280,6 +281,9 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([&res, r]() {
         eUITextures::sLoad(r, res);
+    });
+    loading.emplace_back([&res, r]() {
+        eItemsTextures::loadTextures(r, res);
     });
     loading.emplace_back([&res, width, height,
                           server, clientId,
