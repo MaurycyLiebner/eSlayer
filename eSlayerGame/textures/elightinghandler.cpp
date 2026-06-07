@@ -134,15 +134,15 @@ void eLightingHandler::calculateLighting() {
                         switch(bref.fType) {
                         case eBlockerBaseType::object: {
                             const auto& oref = static_cast<const eObjectLightBlocker&>(bref);
-                            const float s = oref.fSize;
-                            const ePointF oc{bref.fTX + 0.5f*s, bref.fTY + 0.5f*s};
-                            const ePointF o1 = oc + perp*0.5f*s;
-                            const ePointF o2 = oc - perp*0.5f*s;
+                            const float s = 0.5f*oref.fSize;
+                            const ePointF oc{bref.fTX + s, bref.fTY + s};
+                            const ePointF o1 = oc + perp*s;
+                            const ePointF o2 = oc - perp*s;
                             ePointF inters;
                             const bool r = lineIntersection(tp, lp, o1, o2, &inters);
                             if(r) {
                                 const float dist = ePointF::distance(oc, inters);
-                                mult = std::min(mult, 1.f - std::clamp((0.5f*s - dist)/mFeatherLen, 0.f, 1.f));
+                                mult = std::min(mult, 1.f - std::clamp((s - dist)/mFeatherLen, 0.f, 1.f));
                             }
                         } break;
                         case eBlockerBaseType::wall: {
