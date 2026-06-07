@@ -374,6 +374,16 @@ struct eSkillStatsHelper {
                 fSkillStats.fCountRW += mod.fValue1;
             }
         } break;
+        case eModifierType::spectralHit: {
+            if(lw) {
+                fSkillStats.fSpectralHitMinLW += 0.01f*mod.fValue1;
+                fSkillStats.fSpectralHitMaxLW += 0.01f*mod.fValue2;
+            }
+            if(rw) {
+                fSkillStats.fSpectralHitMinRW += 0.01f*mod.fValue1;
+                fSkillStats.fSpectralHitMaxRW += 0.01f*mod.fValue2;
+            }
+        } break;
         default:
             break;
         }
@@ -723,6 +733,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         case eModifierType::manaBurn:
         case eModifierType::multiShot:
+        case eModifierType::spectralHit:
             break;
         }
     };
@@ -1011,6 +1022,7 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::manaBurn:
         case eModifierType::multiShot:
+        case eModifierType::spectralHit:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

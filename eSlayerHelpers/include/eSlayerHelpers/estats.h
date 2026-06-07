@@ -73,6 +73,11 @@ struct eSkillStats {
     eDamage fDamageMinRW;
     eDamage fDamageMaxRW;
 
+    float fSpectralHitMinLW;
+    float fSpectralHitMaxLW;
+    float fSpectralHitMinRW;
+    float fSpectralHitMaxRW;
+
     float fPierceLW = 0.f;
     float fPierceRW = 0.f;
 

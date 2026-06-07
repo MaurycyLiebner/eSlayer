@@ -101,6 +101,7 @@ enum class eModifierType : uint8_t {
 
     manaBurn,
     multiShot,
+    spectralHit,
 
     count
 };

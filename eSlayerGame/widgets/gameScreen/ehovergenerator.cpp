@@ -93,6 +93,7 @@ bool addPlus(const float value,
 
     case eModifierType::manaBurn:
     case eModifierType::multiShot:
+    case eModifierType::spectralHit:
         return true;
 
     case eModifierType::none:

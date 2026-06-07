@@ -54,6 +54,37 @@ bool eServerUnit::hitData(
 
     data.fManaBurn = manaBurn(skill, wchoice);
 
+    const float spectral = spectralHit(skill, wchoice);
+    if(spectral > 0.f) {
+        float& physical = data.fDamage.fPhysical;
+        const float conv = physical*spectral;
+        physical = std::max(0.f, physical - conv);
+        enum eType {
+            fire, cold, lightning, poison, count
+        };
+        const int itype = eRand::rand(0, eType::count - 1);
+        const eType type = static_cast<eType>(itype);
+        switch(type) {
+        case eType::fire:
+            data.fDamage.fFire += conv;
+            break;
+        case eType::cold:
+            data.fDamage.fCold += conv;
+            data.fColdLength = std::max(data.fColdLength, 50.f);
+            break;
+        case eType::lightning:
+            data.fDamage.fLightning += conv;
+            break;
+        case eType::poison:
+        default:
+            const float framesLength = 1.6f*25.f;
+            const float bitRate = 256.f*conv/framesLength;
+            data.fDamage.fPoisonPerFrame += bitRate/256.f;
+            data.fDamage.fPoisonFrameLength += 1.6f*25.f;
+            break;
+        }
+    }
+
     return true;
 }
 
@@ -489,6 +520,32 @@ float eServerUnit::manaBurn(
     const eSkillStats& stats,
     const eWeaponChoice wchoice) {
     return stats.fManaBurn;
+}
+
+float eServerUnit::spectralHit(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return spectralHit(skill, wchoice);
+}
+
+float eServerUnit::spectralHit(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    float min = 0.f;
+    float max = 0.f;
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        min = stats.fSpectralHitMinLW;
+        max = stats.fSpectralHitMaxLW;
+        break;
+    case eWeaponChoice::right:
+        min = stats.fSpectralHitMinRW;
+        max = stats.fSpectralHitMaxRW;
+        break;
+    }
+    min = std::min(min, max);
+    return eRand::randF(min, max);
 }
 
 std::vector<eModifier>

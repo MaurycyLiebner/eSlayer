@@ -91,7 +91,8 @@ gModifierTypeToString = {
     { eModifierType::dealsPhysicalDamage, "dealsPhysicalDamage" },
 
     { eModifierType::manaBurn, "manaBurn" },
-    { eModifierType::multiShot, "multiShot" }
+    { eModifierType::multiShot, "multiShot" },
+    { eModifierType::spectralHit, "spectralHit" }
 };
 
 std::map<std::string, eModifierType>
@@ -121,6 +122,8 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::dealsLightningDamage:
     case eModifierType::dealsPoisonDamage:
     case eModifierType::dealsPhysicalDamage:
+
+    case eModifierType::spectralHit:
         return eModValuesUsage::value1 |
                eModValuesUsage::value2;
 
@@ -241,6 +244,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::dealsLightningDamage:
     case eModifierType::dealsPoisonDamage:
     case eModifierType::dealsPhysicalDamage:
+
+    case eModifierType::spectralHit:
         return "min";
     case eModifierType::damagePoison:
         return "damage";
@@ -332,6 +337,8 @@ std::string eModifier::value2Name() const {
     case eModifierType::dealsLightningDamage:
     case eModifierType::dealsPoisonDamage:
     case eModifierType::dealsPhysicalDamage:
+
+    case eModifierType::spectralHit:
         return "max";
     case eModifierType::damagePoison:
         return "duration";
@@ -532,6 +539,7 @@ bool eModifierHelpers::isPercent(
     case eModifierType::poisonSkillDamage:
 
     case eModifierType::manaBurn:
+    case eModifierType::spectralHit:
         return true;
 
     case eModifierType::none:

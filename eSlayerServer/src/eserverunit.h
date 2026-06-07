@@ -194,6 +194,11 @@ public:
     static float manaBurn(const eSkillStats& stats,
                           const eWeaponChoice wchoice);
 
+    float spectralHit(const int schoice,
+                      const eWeaponChoice wchoice) const;
+    static float spectralHit(const eSkillStats& stats,
+                             const eWeaponChoice wchoice);
+
     std::vector<eModifier> skillModifiers(
         const int schoice,
         const eWeaponChoice wchoice) const;
