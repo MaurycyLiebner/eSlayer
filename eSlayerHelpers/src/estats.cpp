@@ -737,6 +737,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     std::vector<const eItem*> remItems;
     remItems.reserve(items.size());
     for(const auto& item : items) {
+        if(item.fType == eItemType::none) continue;
         remItems.emplace_back(&item);
     }
     while(!remItems.empty() && statsChanged) {
@@ -767,10 +768,6 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             }
         }
     }
-
-    for(int schoice = 0; schoice < fSkills.size(); schoice++) {
-        calculateSkill(schoice, eq);
-    };
 
     fWeaponMeeleRange = 0.f;
     int meeleRangeDiv = 0;
@@ -814,6 +811,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     if(meeleRangeDiv > 0) {
         fWeaponMeeleRange /= meeleRangeDiv;
     }
+
+    for(int schoice = 0; schoice < fSkills.size(); schoice++) {
+        calculateSkill(schoice, eq);
+    }
+
 
     baseLife += 3.f*fVitality;
     baseMana += 1.5f*fEnergy;
@@ -1155,8 +1157,8 @@ void eStats::calculateSkill(eSkillStats& stats,
     }
 
     if(skill.fType == eSkillType::attack ||
-        skill.fType == eSkillType::shoot ||
-        skill.fType == eSkillType::throw_) {
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_) {
         stats.fMissileRange = fWeaponRangedRange;
     } else {
         stats.fMissileRange = skill.fRange;
