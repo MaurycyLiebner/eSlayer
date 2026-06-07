@@ -771,6 +771,12 @@ bool eServerArea::addClient(
     const auto cu = unit(clientId);
     if(cu) return false;
 
+    const auto pos = mMap->spawnPos(entranceMap);
+    findPlaceForUnit(pos, spawnPos);
+    iniSetupUnit(u, spawnPos);
+    const auto a = std::make_shared<eClientAction>(*u, *this);
+    u->setAction(a);
+
     auto& clientData = mClientData[clientId];
     clientData.fLatestMissile = 0;
     clientData.fLatestNova = 0;
@@ -779,11 +785,6 @@ bool eServerArea::addClient(
     const auto area = unitArea(*u);
     clientData.fArea = area;
 
-    const auto pos = mMap->spawnPos(entranceMap);
-    findPlaceForUnit(pos, spawnPos);
-    iniSetupUnit(u, spawnPos);
-    const auto a = std::make_shared<eClientAction>(*u, *this);
-    u->setAction(a);
     return true;
 }
 
