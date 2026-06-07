@@ -2,6 +2,7 @@
 #define ELIGHT_H
 
 #include <eSlayerHelpers/ewalldirection.h>
+#include <eSlayerHelpers/epoint.h>
 
 struct eLight {
     eLight(const float tx,
@@ -48,17 +49,35 @@ struct eWallLightBlocker : public eBlockerBase {
                       const bool minFeatherForce,
                       const bool maxFeatherForce) :
         eBlockerBase(eBlockerBaseType::wall, tx, ty),
-        fDir(dir),
-        fWallMin(wallMin),
-        fWallMax(wallMax),
-        fMinFeatherForce(minFeatherForce),
-        fMaxFeatherForce(maxFeatherForce) {}
+        fDir(dir) {
+        fITX = std::round(tx);
+        fITY = std::round(ty);
+        fMinFeather = minFeatherForce || wallMin != 0.f;
+        fMaxFeather = maxFeatherForce || wallMax != 1.f;
+        switch(dir) {
+        case eWallType::topLeft:
+            fP1.fX = fTX;
+            fP1.fY = fTY + wallMin;
+            fP2.fX = fTX;
+            fP2.fY = fTY + wallMax;
+            break;
+        case eWallType::topRight:
+            fP1.fX = fTX + wallMin;
+            fP1.fY = fTY;
+            fP2.fX = fTX + wallMax;
+            fP2.fY = fTY;
+            break;
+        }
+    }
 
     eWallType fDir;
-    float fWallMin;
-    float fWallMax;
-    bool fMinFeatherForce;
-    bool fMaxFeatherForce;
+
+    int fITX;
+    int fITY;
+    bool fMinFeather;
+    bool fMaxFeather;
+    ePointF fP1;
+    ePointF fP2;
 };
 
 #endif // ELIGHT_H

@@ -69,6 +69,12 @@ void eTilesIterator::iterate(const eVisibleTileFunc& func) {
     }
 }
 
+void eTilesIterator::iterateOverCells(const eCellFunc& func) {
+    for(auto& c : mCells) {
+        func(c);
+    }
+}
+
 eTileInfo* eTilesIterator::getTile(
     const int x, const int y) {
     if(y < 0 || y >= mMapHeight) return nullptr;
@@ -90,7 +96,8 @@ void eTilesIterator::addLight(
         for(int cellY = minCellY; cellY <= maxCellY; cellY++) {
             const auto c = requestCell(cellX, cellY);
             if(!c) continue;
-            c->fLights.emplace_back(light);
+            auto& lights = c->fLights;
+            lights.emplace_back(light, minCellX, minCellY, maxCellX, maxCellY);
         }
     }
 }

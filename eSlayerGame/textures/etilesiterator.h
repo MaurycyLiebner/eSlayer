@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_set>
 
 class eGameWidget;
 
@@ -35,18 +36,40 @@ struct eTileInfo {
     std::vector<float> fLighting;
 };
 
+struct eExtendedLight : public eLight {
+    eExtendedLight(const eLight& light,
+                   const int minCellX,
+                   const int minCellY,
+                   const int maxCellX,
+                   const int maxCellY) :
+        eLight{light},
+        fMinCellX(minCellX),
+        fMinCellY(minCellY),
+        fMaxCellX(maxCellX),
+        fMaxCellY(maxCellY) {}
+
+    int fMinCellX;
+    int fMinCellY;
+    int fMaxCellX;
+    int fMaxCellY;
+
+    std::unordered_set<const eBlockerBase*> fBlockers;
+};
+
 struct eCell {
-    std::vector<eLight> fLights;
+    std::vector<eExtendedLight> fLights;
     std::vector<std::unique_ptr<eBlockerBase>> fBlockers;
 };
 
 using eVisibleTileFunc = std::function<void(eTileInfo& tile)>;
+using eCellFunc = std::function<void(eCell& tile)>;
 
 class eTilesIterator {
 public:
     void initialize(eGameWidget* const game);
     void nextIteration(eGameWidget* const game);
     void iterate(const eVisibleTileFunc& func);
+    void iterateOverCells(const eCellFunc& func);
 
     eTileInfo* getTile(const int x, const int y);
     eTileInfo& getTile(const int id) { return mTiles[id]; }

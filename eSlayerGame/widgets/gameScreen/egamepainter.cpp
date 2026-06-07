@@ -104,6 +104,7 @@ void eGamePainter::addWallShadow(
     const float wallMax,
     const bool minFeatherForce,
     const bool maxFeatherForce) {
+    if(wallMin == wallMax) return;
     auto o = std::make_unique<eWallLightBlocker>(
         tx, ty, dir, wallMin, wallMax,
         minFeatherForce, maxFeatherForce);
