@@ -64,18 +64,35 @@ void eMapsSettings::load() {
                         result.fGroupSize = values.value("groupSize", 1);
                         result.fElite = values.value("elite", false);
                         result.fMinArea = values.value("minArea", 0);
-                        const auto type = eCharDataInfo::id(mname);
-                        result.fType = type;
-                        if(type == -1) {
-                            eRuntimeThrow("Invalid monster type \"" + name +
+                        result.fBaseType = eCharDataInfo::id(mname);
+                        if(result.fBaseType < 0) {
+                            eRuntimeThrow("Invalid monster type \"" + mname +
                                           "\" in " + dir + "/" + name + ".json");
+                        }
+                        const auto typeNames = values.value("types", std::vector<std::string>({mname}));
+                        for(const auto& typeName : typeNames) {
+                            const auto type = eCharDataInfo::id(typeName);
+                            if(type < 0) {
+                                eRuntimeThrow("Invalid monster type \"" + typeName +
+                                              "\" in " + dir + "/" + name + ".json");
+                            }
+                            result.fTypes.emplace_back(type);
+                        }
+                        const auto bossTypeNames = values.value("bossTypes", typeNames);
+                        for(const auto& typeName : bossTypeNames) {
+                            const auto type = eCharDataInfo::id(typeName);
+                            if(type < 0) {
+                                eRuntimeThrow("Invalid monster type \"" + typeName +
+                                              "\" in " + dir + "/" + name + ".json");
+                            }
+                            result.fBossTypes.emplace_back(type);
                         }
                         mtypes.emplace_back(result);
                     }
                 }
 
                 const auto parseObjects = [&](const ordered_json& items,
-                                              std::vector<eTypeCount>& vec) {
+                                              std::vector<eObjectCount>& vec) {
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {
                         const auto oname = cit.key();
                         const int type = eObjectsInfo::sObjects.id(oname);

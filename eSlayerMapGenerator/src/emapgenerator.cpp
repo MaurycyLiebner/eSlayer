@@ -5,6 +5,8 @@
 #include "eSlayerMapGenerator/emapsettings.h"
 #include "eSlayerMapGenerator/emap.h"
 
+#include <eSlayerHelpers/eunitsinfo.h>
+
 class eMapGenerator {
 public:
     eMapGenerator() {}
@@ -379,7 +381,14 @@ eMapGenerator::generate(const std::string& name) const {
     const auto& ms = settings.fMonsters;
     const auto& types = ms.fTypes;
     for(const auto& type : types) {
-        result->mUnitTypes.emplace(type.fType);
+        for(const auto mtype : type.fTypes) {
+            const auto& minfo = eUnitsInfo::sUnits.get(mtype);
+            result->mUnitTypes.emplace(minfo.fCharData);
+        }
+        for(const auto mtype : type.fBossTypes) {
+            const auto& minfo = eUnitsInfo::sUnits.get(mtype);
+            result->mUnitTypes.emplace(minfo.fCharData);
+        }
     }
 
     return result;

@@ -20,6 +20,11 @@ public:
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
 
+    template <typename T>
+    static T& randomElement(std::vector<T>& vec);
+    template <typename T>
+    static const T& randomElement(const std::vector<T>& vec);
+
     static float randF_seeded(const uint32_t seed,
                               const float min,
                               const float max);
@@ -29,6 +34,16 @@ private:
     static std::mt19937 sRng;
     static std::uniform_int_distribution<int> sDist;
 };
+
+template <typename T>
+inline T& eRand::randomElement(std::vector<T>& vec) {
+    return vec[rand(0, vec.size() - 1)];
+}
+
+template <typename T>
+inline const T& eRand::randomElement(const std::vector<T>& vec) {
+    return vec[rand(0, vec.size() - 1)];
+}
 
 template<typename T>
 inline void eRand::randomShuffle(std::vector<T> &vec) {

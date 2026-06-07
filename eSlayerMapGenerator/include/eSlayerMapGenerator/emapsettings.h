@@ -17,11 +17,11 @@ enum class eAreaType {
     open, dungeon
 };
 
-struct eTypeCount {
-    eTypeCount() {}
-    eTypeCount(const uint16_t type,
-               const int count,
-               const int minArea) :
+struct eObjectCount {
+    eObjectCount() {}
+    eObjectCount(const uint16_t type,
+                const int count,
+                 const int minArea) :
         fType(type),
         fCount(count),
         fMinArea(minArea) {}
@@ -31,7 +31,12 @@ struct eTypeCount {
     int fMinArea;
 };
 
-struct eMonsterCount : public eTypeCount {
+struct eMonsterCount {
+    uint16_t fBaseType;
+    std::vector<uint16_t> fTypes;
+    std::vector<uint16_t> fBossTypes;
+    int fCount;
+    int fMinArea;
     int fGroupSize;
     bool fElite;
 };
@@ -54,8 +59,8 @@ struct eAreaSettings {
     eAreaType fType;
     uint8_t fTerrainType;
     eMapMonsterSettings fMonsters;
-    std::vector<eTypeCount> fObjects;
-    std::vector<eTypeCount> fOutsideObjects;
+    std::vector<eObjectCount> fObjects;
+    std::vector<eObjectCount> fOutsideObjects;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;

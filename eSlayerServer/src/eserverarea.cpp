@@ -324,24 +324,30 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                 calcMaxArea(c, maxA, xMax, yMax);
                 if(maxA == 0) return false;
-                const auto& udata = eUnitsInfo::sUnits.get(us.fType);
+                const auto& uBaseData = eUnitsInfo::sUnits.get(us.fBaseType);
                 const bool elite = us.fElite;
                 bool boss = elite;
                 eEliteModifiers mods;
                 if(elite) {
-                    mods.initialize(1, udata.fLevel);
+                    mods.initialize(1, uBaseData.fLevel);
                 }
-
-                const auto& data = eCharDataInfo::get(udata.fCharData);
 
                 const auto addUnit = [&]() {
                     ePointF pos;
                     const bool r = findPlaceForUnit({xMax, yMax}, pos);
                     if(!r) return false;
+                    auto type = us.fBaseType;
+                    if(boss) {
+                        type = eRand::randomElement(us.fBossTypes);
+                    } else {
+                        type = eRand::randomElement(us.fTypes);
+                    }
+                    const auto& udata = eUnitsInfo::sUnits.get(type);
+                    const auto& data = eCharDataInfo::get(udata.fCharData);
                     const auto modelParts = data.randomModelParts();
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
-                        false, data, us.fType, *this, map);
+                        false, data, type, *this, map);
                     const int charId = eServerUnit::sNextCharId++;
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, udata, data, modelParts);

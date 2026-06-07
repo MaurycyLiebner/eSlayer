@@ -196,7 +196,7 @@ void eDungeon::generate() const {
 
     const auto tryAddObject = [&](ePlacementHelper& helper,
                                   const std::vector<eChamber>& cs,
-                                  const eTypeCount& os) {
+                                  const eObjectCount& os) {
         if(cs.empty()) return false;
         int area;
         const int id = helper.get(area);
