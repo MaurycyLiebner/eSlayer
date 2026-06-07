@@ -260,11 +260,11 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eUnitsInfo::load();
+            eItemsData::load();
         });
 
         loadings.emplace_back([&]() {
-            eItemsData::load();
+            eUnitsInfo::load();
         });
 
         loadings.emplace_back([&]() {

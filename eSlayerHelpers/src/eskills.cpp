@@ -157,7 +157,7 @@ void eSkills::load() {
                 eModsCollection totalMods;
                 const auto& synergies = jdata["synergies"];
                 skill.fSynergies.reserve(synergies.size());
-                for(auto& [name, levels] : synergies.items()) {
+                for(const auto& [name, levels] : synergies.items()) {
                     auto& synergy = skill.fSynergies.emplace_back();
                     synergy.fSkillStr = name;
                     eModsCollectionLevel::parseLevels(

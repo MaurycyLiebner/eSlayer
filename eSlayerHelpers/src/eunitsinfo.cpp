@@ -1,8 +1,10 @@
 #include "eSlayerHelpers/eunitsinfo.h"
 
-#include "eSlayerHelpers/efileloaderbase.h"
-#include "eSlayerHelpers/eexceptions.h"
 #include "eSlayerHelpers/echardatainfo.h"
+#include "eSlayerHelpers/eexceptions.h"
+#include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/eitem.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 bool eUnitsInfo::sLoaded = false;
 eStringIdMapVector<eUnitInfo>
@@ -41,16 +43,29 @@ void eUnitsInfo::load() {
             u.fCharData = eCharDataInfo::id(textures);
             if(jdata.contains("modifiers")) {
                 const auto& mods = jdata["modifiers"];
-                for(auto& [name, modData] : mods.items()) {
+                for(const auto& [name, modData] : mods.items()) {
                     auto& mod = u.fModifiers.emplace_back();
                     mod.read(name, json(modData));
                 }
             }
             if(jdata.contains("skills")) {
                 const auto& skills = jdata["skills"];
-                for(auto& [name, skillLevel] : skills.items()) {
+                for(const auto& [name, skillLevel] : skills.items()) {
                     const int skillId = eSkills::sSkills.id(name);
+                    if(skillId < 0) {
+                        eRuntimeThrow("Unrecognized skill type \"" + name + "\".");
+                    }
                     u.fSkills[skillId] = skillLevel;
+                }
+            }
+            if(jdata.contains("items")) {
+                const auto& items = jdata.value("items", std::vector<std::string>());
+                for(const auto& itemName : items) {
+                    const auto id = eItemsData::id(itemName);
+                    if(id < 0) {
+                        eRuntimeThrow("Unrecognized item type \"" + itemName + "\".");
+                    }
+                    u.fItems.emplace_back(id);
                 }
             }
             u.fColor = eColor{1.f, 1.f, 1.f, 1.f};

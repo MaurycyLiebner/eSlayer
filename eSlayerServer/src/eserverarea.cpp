@@ -348,6 +348,16 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                     u->setBoosts(udata.fModifiers, false);
 
+                    auto& eq = u->equipment();
+                    for(const auto itemId : udata.fItems) {
+                        eItem item;
+                        const auto& data = eItemsData::get(itemId);
+                        item.fType = data.fType;
+                        item.fSubType = data.fSubtype;
+                        item.fDataId = itemId;
+                        eq.add(item, true);
+                    }
+
                     if(elite) {
                         mods.apply(*u, boss);
                         if(boss) {

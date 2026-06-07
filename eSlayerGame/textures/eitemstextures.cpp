@@ -38,7 +38,7 @@ void eItemsTextures::loadImpl() {
             const auto& key = it.key();
             const auto& value = it.value();
             if(key == "shields") {
-                for(auto& [name, data] : value.items()) {
+                for(const auto& [name, data] : value.items()) {
                     const auto path = key + "/" + name;
                     const int w = data.value("width", 2);
                     const int h = data.value("height", 2);
@@ -46,7 +46,7 @@ void eItemsTextures::loadImpl() {
                 }
             } else if(key == "weapons") {
                 for(auto& [type, items] : value.items()) {
-                    for(auto& [name, data] : items.items()) {
+                    for(const auto& [name, data] : items.items()) {
                         const auto path = key + "/" + type + "/" + name;
                         const int w = data.value("width", 2);
                         const int h = data.value("height", 3);

@@ -8,7 +8,7 @@ eCharData::eCharData() {}
 void eCharData::load(const ordered_json& jdata) {
     mDirs = jdata["directions"];
     const auto& anims = jdata["animations"];
-    for(auto& [name, animData] : anims.items()) {
+    for(const auto& [name, animData] : anims.items()) {
         const auto overwrite = animData.value("overwrite", "");
         if(overwrite.empty()) {
             eAnimation anim;
