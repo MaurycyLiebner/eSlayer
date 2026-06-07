@@ -64,15 +64,18 @@ bool eLocalServer::requestMap(
         return;
     };
     if(mapIt == mMaps.end()) {
+        const auto it = mMapReadyActions.find(name);
+        if(it == mMapReadyActions.end()) {
+            std::thread t([this, name]() {
+                const auto map = eSlayerMapGenerator::generate(name);
+                const auto area = std::make_shared<eServerArea>();
+                area->initialize(map);
+                const eMapAndArea result{name, map, area};
+                mReady.push_back(result);
+            });
+            t.detach();
+        }
         mMapReadyActions[name].emplace_back(ofunc);
-        std::thread t([this, name]() {
-            const auto map = eSlayerMapGenerator::generate(name);
-            const auto area = std::make_shared<eServerArea>();
-            area->initialize(map);
-            const eMapAndArea result{name, map, area};
-            mReady.push_back(result);
-        });
-        t.detach();
     } else {
         const auto& ma = mapIt->second;
         ofunc(ma);
