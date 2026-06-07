@@ -879,20 +879,29 @@ void eStats::calculateAuras(const eEquipment& eq) {
         }
     };
 
+    const auto handleAuraMod = [&](const eModifier& mod) {
+        if(mod.fType != eModifierType::aura) return;
+        const auto id = mod.fSkillId;
+        const auto& skill = eSkills::sSkills.get(id);
+        if(skill.fType == eSkillType::aura) {
+            const auto level = mod.fValue2;
+            if(level >= 0) {
+                const auto& levelStats = skill.skillLevel(level);
+                const auto& mods = levelStats.fTotalModifiers;
+                addAura(skill, mods);
+            }
+        }
+    };
+
+    for(const auto& b : fBoosts) {
+        const auto& mod = b.second;
+        handleAuraMod(mod);
+    }
+
     for(const auto& item : items) {
         const auto& mods = item.fModifiers;
         for(const auto& mod : mods) {
-            if(mod.fType != eModifierType::aura) continue;
-            const auto id = mod.fSkillId;
-            const auto& skill = eSkills::sSkills.get(id);
-            if(skill.fType == eSkillType::aura) {
-                const auto level = mod.fValue2;
-                if(level >= 0) {
-                    const auto& levelStats = skill.skillLevel(level);
-                    const auto& mods = levelStats.fTotalModifiers;
-                    addAura(skill, mods);
-                }
-            }
+            handleAuraMod(mod);
         }
     }
 
