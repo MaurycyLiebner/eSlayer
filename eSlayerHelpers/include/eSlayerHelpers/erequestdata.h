@@ -15,7 +15,6 @@ struct ESLAYERHELPERS_API eRequestData {
     uint32_t fRequestId;
     std::vector<eUnitData> fNewUnits;
     std::vector<eUnitDynamicData> fUpdatedUnits;
-    std::vector<eDeadUnitDynamicData> fUpdatedDeadUnits;
     std::vector<eMissile> fMissiles;
     std::vector<eNova> fNovas;
     std::vector<eSkillArea> fSkillAreas;

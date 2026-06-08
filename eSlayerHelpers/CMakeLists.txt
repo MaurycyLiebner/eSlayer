@@ -51,8 +51,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/epathfindermap.h
     src/epathfindermap.cpp
     src/epathfinderpath.cpp
-    include/eSlayerHelpers/emovementhandler.h
-    src/emovementhandler.cpp
+    include/eSlayerHelpers/emovementhandlerbase.h
+    src/emovementhandlerbase.cpp
     include/eSlayerHelpers/emovementgoal.h
     src/emovementgoal.cpp
     include/eSlayerHelpers/eexceptions.h src/eexceptions.cpp
@@ -172,6 +172,8 @@ add_library(eSlayerHelpers SHARED
     src/eplacementhelper.cpp
     include/eSlayerHelpers/ebody.h
     include/eSlayerHelpers/eanimid.h
+
+
 )
 
 target_include_directories(eSlayerHelpers

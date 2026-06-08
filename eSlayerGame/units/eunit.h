@@ -4,7 +4,7 @@
 #include "../textures/echarunitmodel.h"
 
 #include <eSlayerHelpers/eunitdata.h>
-#include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/epoint.h>
 
 class eUnit : public eUnitData {

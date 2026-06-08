@@ -1,7 +1,6 @@
 #include "ewaitaction.h"
 
 #include "../eserverunit.h"
-#include "eexplodeaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -11,7 +10,7 @@ eWaitAction::sCreateStand(eServerUnit& unit, eServerArea& area,
                           const float time) {
     const bool a = unit.aggressive();
     const auto& data = unit.data();
-    const int anim = eMovementHandler::sChooseAnim(
+    const int anim = eMovementHandlerBase::sChooseAnim(
         standId, standReadyId, a);
     const auto result = sCreate(unit, area, anim, false);
     if(result) result->setDuration(time);
@@ -48,6 +47,8 @@ eWaitAction::sCreateExplode(
         break;
     case eExplodeType::ice:
         anim = sIceExplAnim;
+        break;
+    case eExplodeType::none:
         break;
     }
     return sCreate(unit, area, anim, true);

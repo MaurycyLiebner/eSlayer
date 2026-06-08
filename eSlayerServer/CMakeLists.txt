@@ -48,6 +48,7 @@ add_library(eSlayerServer SHARED
     src/actions/eexplodeaction.h src/actions/eexplodeaction.cpp
     src/eserverskillarea.h src/eserverskillarea.cpp
     src/ethreadsafevector.h
+    src/eservermovementhandler.h src/eservermovementhandler.cpp
 
 
 )

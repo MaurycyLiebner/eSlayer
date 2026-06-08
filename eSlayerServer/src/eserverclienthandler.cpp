@@ -16,9 +16,7 @@ bool eServerClientHandler::receiveData(eRequestData& data,
                                        float& resultTime) {
     if(!mArea) return false;
     resultTime = mArea->time();
-    mArea->unitsData(mClientId, data.fNewUnits,
-                     data.fUpdatedUnits,
-                     data.fUpdatedDeadUnits);
+    mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);
@@ -50,18 +48,24 @@ bool eServerClientHandler::changeState(
     if(!mArea) return false;
     const auto unit = mArea->unit(mClientId);
     if(!unit) return false;
-    if(ePointF::distance(unit->fPos, u.fPos) > 0.0001f) {
-        unit->fPos = u.fPos;
-        unit->setMoving(true);
-    } else {
-        unit->setMoving(false);
+    if(u.getUpdate(eUnitData::eShift::position)) {
+        if(ePointF::distance(unit->fPos, u.fPos) > 0.0001f) {
+            unit->setPosition(u.fPos);
+            unit->setMoving(true);
+        } else {
+            unit->setMoving(false);
+        }
     }
-    unit->fAngle = u.fAngle;
+    if(u.getUpdate(eUnitData::eShift::angle)) {
+        unit->setAngle(u.fAngle);
+    }
 
-    if(unit->fBlockingActionTime <= 0.f) {
-        unit->fAnim = u.fAnim;
-        unit->fAnimId = u.fAnimId;
-        unit->fAnimSpeed = u.fAnimSpeed;
+    if(u.getUpdate(eUnitData::eShift::anim)) {
+        if(unit->fBlockingActionTime <= 0.f) {
+            unit->setAnim(u.fAnim);
+            unit->setAnimId(u.fAnimId);
+            unit->setAnimSpeed(u.fAnimSpeed);
+        }
     }
     return true;
 }

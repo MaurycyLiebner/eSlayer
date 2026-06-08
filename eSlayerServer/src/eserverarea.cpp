@@ -143,18 +143,17 @@ void eServerArea::iniSetupUnit(
         return mMap->walkable(from, to);
     };
     const auto iter = [this, charId](
-                          const ePointF& pos,
-                          const float dist,
-                          const eOtherHandler& handler) {
+        const ePointF& pos,
+        const float dist,
+        const eOtherHandler& handler) {
         iterateOverUnits(pos, dist, [handler, charId](
-                                        const std::shared_ptr<eServerUnit>& u) {
+            const std::shared_ptr<eServerUnit>& u) {
             if(charId == u->fCharId) return false;
             handler(*u);
             return false;
         });
     };
     m.intialize(wPos, wPath, iter, charId, teamId);
-    m.setRadius(u->fRadius);
 
     mUnits.add(charId, u);
     const auto area = unitArea(*u);
@@ -491,6 +490,7 @@ void eServerArea::increment(const float by) {
                         u->recalculateStats();
                     }
                 }
+                u->applyBoostsTmp();
             }
             const auto oldArea = unitArea(*u);
             u->increment(by);
@@ -526,8 +526,7 @@ void eServerArea::increment(const float by) {
 void eServerArea::unitsData(
     const int clientId,
     std::vector<eUnitData>& newUnits,
-    std::vector<eUnitDynamicData>& updatedUnits,
-    std::vector<eDeadUnitDynamicData>& updatedDeadUnits) {
+    std::vector<eUnitDynamicData>& updatedUnits) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return;
     auto& clientData = it->second;
@@ -553,14 +552,13 @@ void eServerArea::unitsData(
                 if(!u) continue;
                 visible.emplace(charId);
                 if(known.find(charId) == known.end()) {
-                    newUnits.emplace_back(u->toUnitData());
+                    const auto d = u->toUnitData();
+                    newUnits.emplace_back(d);
                     known.emplace(charId);
                 } else {
-                    if(charId != clientId && u->fHealth <= 0) {
-                        updatedDeadUnits.emplace_back(u->toDynamicDeadData());
-                    } else {
-                        updatedUnits.emplace_back(u->toDynamicData());
-                    }
+                    const auto update = u->requestUpdate(clientId);
+                    const auto d = u->toDynamicData(update);
+                    updatedUnits.emplace_back(d);
                 }
             }
         }
@@ -870,7 +868,7 @@ bool eServerArea::respawn(const int clientId,
     const auto pos = mMap->spawnPos();
     auto spawnPos = pos;
     findPlaceForUnit(pos, spawnPos);
-    client->fPos = spawnPos;
+    client->setPosition(spawnPos);
     return true;
 }
 

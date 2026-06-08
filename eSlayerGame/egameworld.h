@@ -112,6 +112,8 @@ private:
     std::set<eArea> mUsedUnitAreas;
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;
+
+    eProcessResult mResult;
 };
 
 #endif // EGAMEWORLD_H

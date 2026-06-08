@@ -120,32 +120,31 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const eResolution& res,
     SDL_Renderer* const r,
     const std::vector<eBody>& bodies) {
-    eProcessResult result;
-
     eRequestData data;
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
-    if(!b) return result;
+    mResult.fReceived = b;
+    mResult.fHasMainCharData = false;
+    if(!b) return mResult;
+    mResult.fAggressive = false;
     for(const auto& mp : data.fMapPortions) {
         mMap->loadPortion(mp);
     }
 
-    result.fMana = data.fMana;
-    result.fLevel = data.fLevel;
-    result.fExperience = data.fExperience;
-    result.fUpdateBoostsAuras = data.fUpdateBoostsAuras;
-    if(result.fUpdateBoostsAuras) {
-        result.fBoosts = data.fBoosts;
-        result.fAuras = data.fAuras;
+    mResult.fMana = data.fMana;
+    mResult.fLevel = data.fLevel;
+    mResult.fExperience = data.fExperience;
+    mResult.fUpdateBoostsAuras = data.fUpdateBoostsAuras;
+    if(mResult.fUpdateBoostsAuras) {
+        mResult.fBoosts = data.fBoosts;
+        mResult.fAuras = data.fAuras;
     }
-    result.fReceived = true;
     for(const auto& a : mUsedUnitAreas) {
         mUnitAreas.clear(a);
     }
     mUsedUnitAreas.clear();
     const auto& newUnits = data.fNewUnits;
     const auto& updatedUnits = data.fUpdatedUnits;
-    const auto& updatedDeadUnits = data.fUpdatedDeadUnits;
     const auto& missiles = data.fMissiles;
     const auto& novas = data.fNovas;
     const auto& skillAreas = data.fSkillAreas;
@@ -153,14 +152,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& removedItemIds = data.fRemovedItemIds;
     std::set<int> uPresent;
 
-    // Process new units — full initialization with textures/models
     for(const auto& u : newUnits) {
         const int charId = u.fCharId;
         addUnit(u.fPos, charId);
         uPresent.emplace(charId);
         if(charId == clientId) {
-            result.fHasMainCharData = true;
-            result.fMainCharData = u;
+            mResult.fHasMainCharData = true;
+            mResult.fMainCharData = u;
             continue;
         }
         const auto& texs = eCharsTextures::get(u.fCharDataId);
@@ -181,45 +179,30 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         model.setAngle(u.fAngle);
         unit->setModel(model);
         mUnits.add(charId, unit);
-        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, u.fTeamId) && u.fHealth > 0) {
-            const float dist = ePointF::distance(mainChar.fPos, u.fPos);
-            if(dist < 5.f) result.fAggressive = true;
-        }
     }
 
-    // Process updated units — lightweight dynamic data only
     for(const auto& u : updatedUnits) {
         const int charId = u.fCharId;
-        addUnit(u.fPos, charId);
         uPresent.emplace(charId);
         if(charId == clientId) {
-            result.fHasMainCharData = true;
-            auto& d = result.fMainCharData;
-            static_cast<eUnitDynamicData&>(d) = u;
+            mResult.fHasMainCharData = true;
+            auto& d = mResult.fMainCharData;
+            u.apply(d);
+            addUnit(d.fPos, charId);
             continue;
         }
         const auto unit = mUnits.get(charId);
         if(!unit) continue;
-        static_cast<eUnitDynamicData&>(*unit) = u;
-        auto& model = unit->model();
-        model.setAngle(u.fAngle);
-        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
-        if(!result.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unit->fTeamId)) {
+        auto& unitRef = *unit;
+        u.apply(unitRef);
+        addUnit(unitRef.fPos, charId);
+        auto& model = unitRef.model();
+        model.setAngle(unitRef.fAngle);
+        model.setAnimation(unitRef.fAnim, unitRef.fAnimId, unitRef.fAnimSpeed);
+        if(!mResult.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unitRef.fTeamId) && unitRef.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
-            if(dist < 5.f) result.fAggressive = true;
+            if(dist < 5.f) mResult.fAggressive = true;
         }
-    }
-
-    for(const auto& u : updatedDeadUnits) {
-        const int charId = u.fCharId;
-        const auto unit = mUnits.get(charId);
-        if(!unit) continue;
-        addUnit(unit->fPos, charId);
-        uPresent.emplace(charId);
-        unit->fHealth = 0;
-        static_cast<eUnitDynamicDataBase&>(*unit) = u;
-        auto& model = unit->model();
-        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
     }
 
     for(const auto& u : mUnits) {
@@ -259,7 +242,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mSkillAreas.add(a.fId, aa);
     }
 
-    return result;
+    return mResult;
 }
 
 void eGameWorld::simulateMissiles(const float by) {

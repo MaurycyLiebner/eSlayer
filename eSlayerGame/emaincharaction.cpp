@@ -52,7 +52,6 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     const auto& data = eCharDataInfo::get(udata.fCharData);
     mMainCharTexs = &eCharsTextures::get(typeId);
     const float radius = udata.fRadius;
-    mMovementHandler.setRadius(radius);
     const auto modelParts = mMainCharTexs->mapToModelParts(partsMap);
 
     mRunAnimId = data.animId("run");
@@ -335,11 +334,8 @@ void eMainCharAction::increment(const bool mousePressed,
         return;
     }
 
-    if(doors.fOpen) {
-        return;
-    }
     const auto& tiles = doors.fTiles;
-    if(tiles.empty()) {
+    if(tiles.empty() || doors.fOpen) {
         return;
     }
     if(mMovementHandler.pushTime() > 3.f) {
@@ -480,19 +476,21 @@ void eMainCharAction::updateMovementAnimation(
             animId = mRunAnimId;
         } else {
             incStamina(by * 0.1f);
-            animId = eMovementHandler::sChooseAnim(mWalkAnimId, mWalkReadyAnimId, aggressive);
+            animId = eMovementHandler::sChooseAnim(
+                mWalkAnimId, mWalkReadyAnimId, aggressive);
         }
     } else {
         incStamina(by * 0.1f);
-        animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+        animId = eMovementHandler::sChooseAnim(
+            mStandAnimId, mStandReadyAnimId, aggressive);
     }
 
     if(mMainChar->fAnim != animId) {
-        mMainChar->fAnimId.increment(1);
+        mMainChar->incAnimId(1);
     }
 
-    mMainChar->fAnim = animId;
-    mMainChar->fAnimSpeed = speed;
+    mMainChar->setAnim(animId);
+    mMainChar->setAnimSpeed(speed);
     model.setAnimation(animId, speed);
 }
 
@@ -565,11 +563,12 @@ void eMainCharAction::stand() {
     auto& model = mMainChar->model();
 
     const bool aggressive = model.aggressive();
-    const int animId = eMovementHandler::sChooseAnim(mStandAnimId, mStandReadyAnimId, aggressive);
+    const int animId = eMovementHandler::sChooseAnim(
+        mStandAnimId, mStandReadyAnimId, aggressive);
 
-    mMainChar->fAnim = animId;
-    mMainChar->fAnimId.increment(1);
-    mMainChar->fAnimSpeed = 1.f;
+    mMainChar->setAnim(animId);
+    mMainChar->incAnimId(1);
+    mMainChar->setAnimSpeed(1.f);
     model.setAnimation(animId, 1.f);
 }
 

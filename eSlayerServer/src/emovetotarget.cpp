@@ -29,8 +29,8 @@ void eMoveToTarget::increment(const float by) {
         const float dist = ePointF::distance(targetPos, mUnit.fPos);
         if(dist < mArriveDist + 0.5f*(mUnit.fRadius + target->fRadius)) {
             handler.stopMoving();
-            finishAction();
             mTargets.clear();
+            finishAction();
             break;
         } else {
             const float targetChange = ePointF::distance(targetPos, t.fPos);
@@ -77,12 +77,14 @@ bool eMoveToTarget::setTarget(const std::vector<eUnitTarget>& targets,
     mTargets = targets;
     mFoundOnly = foundOnly;
     const bool a = mUnit.aggressive();
+    int anim;
     if(mRunAnimId != -1) {
-        mUnit.fAnim = mRunAnimId;
+        anim = mRunAnimId;
     } else {
-        mUnit.fAnim = eMovementHandler::sChooseAnim(
+        anim = eMovementHandlerBase::sChooseAnim(
             mWalkAnimId, mWalkReadyAnimId, a);
     }
-    mUnit.fAnimId.increment(1);
+    mUnit.setAnim(anim);
+    mUnit.incAnimId(1);
     return true;
 }

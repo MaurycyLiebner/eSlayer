@@ -5,7 +5,7 @@
 #include "actions/eexplodeaction.h"
 #include "eserverarea.h"
 
-#include <eSlayerHelpers/emovementhandler.h>
+#include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/echardatainfo.h>
 
@@ -632,13 +632,13 @@ float eServerUnit::takeDamage(const eDamage& dmg) {
         mPoison.emplace_back(ePoisonDamage{ppf, pfl});
     }
     mStats.fHealthF = std::max(0.f, mStats.fHealthF - totalDmg);
-    fHealth = std::ceil(mStats.fHealthF);
+    setHealth(std::ceil(mStats.fHealthF));
     return totalDmg;
 }
 
 void eServerUnit::restoreHealth(const float by) {
     mStats.fHealthF = std::min(mStats.fMaxHealth, mStats.fHealthF + by);
-    fHealth = std::ceil(mStats.fHealthF);
+    setHealth(std::ceil(mStats.fHealthF));
 }
 
 void eServerUnit::restoreMana(const float by) {
@@ -676,16 +676,18 @@ void eServerUnit::increment(const float by) {
             recalc = true;
             for(const auto& b : mBoosts) {
                 removeBoost(b.fType, false);
-                removeBoostData(b.fMissileId);
+                removeBoostDataTmp(b.fMissileId);
             }
             mBoosts.clear();
+            applyBoostsTmp();
         } else {
             for(int i = 0; i < mBoosts.size(); i++) {
                 auto& b = mBoosts[i];
                 b.fRemTime -= by;
                 if(b.fRemTime <= 0.f) {
                     removeBoost(b.fType, false);
-                    removeBoostData(b.fMissileId);
+                    removeBoostDataTmp(b.fMissileId);
+                    applyBoostsTmp();
                     mBoosts.erase(mBoosts.begin() + i);
                     i--;
                     recalc = true;
@@ -748,8 +750,8 @@ void eServerUnit::increment(const float by) {
         if(r) {
             const auto newPos = mHandler.pos();
             const auto dir = ePointF::vector(newPos, oldPos);
-            fAngle = dir.angle();
-            fPos = newPos;
+            setAngle(dir.angle());
+            setPosition(newPos);
         } else {
             mHandler.stopMoving();
         }
@@ -825,7 +827,7 @@ void eServerUnit::increment(const float by) {
         const float manaChange = manaReg;
         mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
                                    0.f, mStats.fMaxMana);
-        fHealth = std::ceil(mStats.fHealthF);
+        setHealth(std::ceil(mStats.fHealthF));
         if(fHealth <= 0) dieAndCast(fPos);
     } else {
         mPoison.clear();
@@ -954,7 +956,7 @@ void eServerUnit::addAura(
         aura.fSelfMissileId : aura.fMissileId;
     if(missileId > 0) {
         mAuras.emplace(missileId);
-        addBoostData(missileId);
+        addBoostDataTmp(missileId);
     }
     auto& a = mStats.fAuraBoosts;
     const auto type = aura.fType;
@@ -972,7 +974,7 @@ void eServerUnit::addAura(
 void eServerUnit::removeAllAuras(
     const bool recalc) {
     for(const auto a : mAuras) {
-        removeBoostData(a);
+        removeBoostDataTmp(a);
     }
     mAuras.clear();
     mAuraIds.clear();
@@ -1011,7 +1013,7 @@ bool eServerUnit::addAurasTo(eServerUnit& target) const {
                     const auto selfMissileId = a.fSelfMissileId;
                     if(selfMissileId > 0) {
                         target.mAuras.emplace(selfMissileId);
-                        target.addBoostData(selfMissileId);
+                        target.addBoostDataTmp(selfMissileId);
                     }
                 }
                 continue;
@@ -1037,13 +1039,13 @@ void eServerUnit::addTimedBoost(
     for(int i = 0; i < mBoosts.size(); i++) {
         const auto& b = mBoosts[i];
         if(b.fType == type) {
-            removeBoostData(b.fMissileId);
+            removeBoostDataTmp(b.fMissileId);
             mBoosts.erase(mBoosts.begin() + i);
             i--;
         }
     }
     mBoosts.emplace_back(type, missileId, time);
-    addBoostData(missileId);
+    addBoostDataTmp(missileId);
 }
 
 void eServerUnit::setAction(const std::shared_ptr<eComplexAction>& a) {
@@ -1067,7 +1069,7 @@ void eServerUnit::killed(const eServerUnit& killed) {
     if(nextLevel && mAttributes.fExp > nextLevel) {
         mAttributes.fExp = 0.f;
         mAttributes.fLevel++;
-        fHealth = fMaxHealth;
+        setHealth(fMaxHealth);
         mStats.fHealthF = mStats.fMaxHealth;
         mStats.fManaF = mStats.fMaxMana;
     }
@@ -1091,7 +1093,7 @@ void eServerUnit::die(eExplodeType type) {
     }
 
     mDead = true;
-    fHealth = 0;
+    setHealth(0);
     mStats.fHealthF = 0.f;
 
     for(const auto fId : mFollowers) {
@@ -1114,11 +1116,12 @@ void eServerUnit::die(eExplodeType type) {
 }
 
 void eServerUnit::respawn() {
-    fHealth = fMaxHealth;
+    setHealth(fMaxHealth);
     mStats.fHealthF = mStats.fMaxHealth;
     mStats.fManaF = mStats.fMaxMana;
     mAction->setChild(nullptr);
-    fBlockingActionTime = 0.f;
+    setBlockingActionTime(0.f);
+    updateAll();
 }
 
 eWeaponChoice eServerUnit::useWeapon(const int schoice) {
@@ -1139,8 +1142,8 @@ eWeaponChoice eServerUnit::useWeapon(const int schoice) {
 
 void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
-    fMaxHealth = std::ceil(mStats.fMaxHealth);
-    fHealth = std::ceil(mStats.fHealthF);
+    setMaxHealth(std::ceil(mStats.fMaxHealth));
+    setHealth(std::ceil(mStats.fHealthF));
 }
 
 void eServerUnit::recalculateAuras() {
@@ -1194,4 +1197,124 @@ void eServerUnit::coldFor(const float frameLen) {
 void eServerUnit::freezeFor(const float frameLen) {
     mFreezeLength = std::max(mFreezeLength, frameLen);
     if(mFreezeLength > 0.f) setCold(true);
+}
+
+uint8_t eServerUnit::requestUpdate(const int clientId) {
+    const auto it = mUpdateMap.find(clientId);
+    uint8_t result;
+    if(it == mUpdateMap.end()) {
+        result = std::numeric_limits<decltype(result)>::max();
+    } else {
+        result = it->second;
+    }
+    mUpdateMap[clientId] = 0;
+    return result;
+}
+
+void eServerUnit::update(const eShift shift) {
+    for(auto& it : mUpdateMap) {
+        eUnitDynamicData::setUpdate(it.second, shift, true);
+    }
+}
+
+void eServerUnit::updateAll() {
+    for(auto& it : mUpdateMap) {
+        it.second = std::numeric_limits<decltype(it.second)>::max();
+    }
+}
+
+void eServerUnit::setPosition(const ePointF& pos) {
+    if(eUnitDynamicData::setPosition(pos)) {
+        update(eUnitDynamicData::eShift::position);
+    }
+}
+
+void eServerUnit::setAnim(const uint8_t anim) {
+    if(eUnitDynamicData::setAnim(anim)) {
+        update(eUnitDynamicData::eShift::anim);
+    }
+}
+
+void eServerUnit::setAnimId(const eAnimId& animId) {
+    if(eUnitDynamicData::setAnimId(animId)) {
+        update(eUnitDynamicData::eShift::anim);
+    }
+}
+
+void eServerUnit::incAnimId(const int by) {
+    if(eUnitDynamicData::incAnimId(by)) {
+        update(eUnitDynamicData::eShift::anim);
+    }
+}
+
+void eServerUnit::setAnimSpeed(const float animSpeed) {
+    if(eUnitDynamicData::setAnimSpeed(animSpeed)) {
+        update(eUnitDynamicData::eShift::anim);
+    }
+}
+
+void eServerUnit::setBlockingActionTime(const float time) {
+    if(eUnitDynamicData::setBlockingActionTime(time)) {
+        update(eUnitDynamicData::eShift::blockingActionTime);
+    }
+}
+
+void eServerUnit::setAngle(const float angle) {
+    if(eUnitDynamicData::setAngle(angle)) {
+        update(eUnitDynamicData::eShift::angle);
+    }
+}
+
+void eServerUnit::setHealth(const uint16_t health) {
+    if(eUnitDynamicData::setHealth(health)) {
+        update(eUnitDynamicData::eShift::health);
+    }
+}
+
+void eServerUnit::setMaxHealth(const uint16_t maxHealth) {
+    if(eUnitDynamicData::setMaxHealth(maxHealth)) {
+        update(eUnitDynamicData::eShift::maxHealth);
+    }
+}
+
+void eServerUnit::setState(const uint8_t state) {
+    if(eUnitDynamicData::setState(state)) {
+        update(eUnitDynamicData::eShift::state);
+    }
+}
+
+void eServerUnit::setBoosts(const std::set<uint8_t>& boosts) {
+    if(eUnitDynamicData::setBoosts(boosts)) {
+        update(eUnitDynamicData::eShift::boosts);
+    }
+}
+
+void eServerUnit::setCold(const bool c) {
+    if(eUnitDynamicData::setCold(c)) {
+        update(eUnitDynamicData::eShift::state);
+    }
+}
+
+void eServerUnit::setFrozen(const bool f) {
+    if(eUnitDynamicData::setFrozen(f)) {
+        update(eUnitDynamicData::eShift::state);
+    }
+}
+
+void eServerUnit::setPoisoned(const bool p) {
+    if(eUnitDynamicData::setPoisoned(p)) {
+        update(eUnitDynamicData::eShift::state);
+    }
+}
+
+void eServerUnit::applyBoostsTmp() {
+    setBoosts(fBoostsTmp);
+}
+
+void eServerUnit::removeBoostDataTmp(const uint8_t id) {
+    fBoostsTmp.erase(id);
+}
+
+void eServerUnit::addBoostDataTmp(const uint8_t id) {
+    fBoostsTmp.emplace(id);
 }

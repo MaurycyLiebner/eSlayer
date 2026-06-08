@@ -1,4 +1,4 @@
-#include "eSlayerHelpers/emovementhandler.h"
+#include "eSlayerHelpers/emovementhandlerbase.h"
 
 #include "eSlayerHelpers/epathfinder.h"
 #include "eSlayerHelpers/eunitdata.h"
@@ -6,18 +6,20 @@
 
 #include <cstdio>
 
-eMovementHandler::eMovementHandler(
-    eUnitData& u, ePathFinderMap& map) :
-    mUnit(u),
+eMovementHandlerBase::eMovementHandlerBase(
+    const eUnitData& u,
+    ePathFinderMap& map) :
     mPos(u.fPos),
     mAngle(u.fAngle),
+    mRadius(u.fRadius),
     mMap(map) {}
 
-void eMovementHandler::intialize(const eWalkablePos& wPos,
-                                 const eWalkablePath& wPath,
-                                 const eOtherIterator& iter,
-                                 const int charId,
-                                 const eTeamId teamId) {
+void eMovementHandlerBase::intialize(
+    const eWalkablePos& wPos,
+    const eWalkablePath& wPath,
+    const eOtherIterator& iter,
+    const int charId,
+    const eTeamId teamId) {
     mCharId = charId;
     mTeamId = teamId;
     mWalkablePos = wPos;
@@ -25,12 +27,9 @@ void eMovementHandler::intialize(const eWalkablePos& wPos,
     mOtherIterator = iter;
 }
 
-void eMovementHandler::setRadius(const float r) {
-    mRadius = r;
-}
-
-bool eMovementHandler::moveTo(const std::vector<ePointF>& pos,
-                              const bool foundOnly) {
+bool eMovementHandlerBase::moveTo(
+    const std::vector<ePointF>& pos,
+    const bool foundOnly) {
     bool found;
     const int maxDist = 20*ePathFinderMap::sSubdivide;
     auto path = ePathFinder::findPath(mMap, mPos, pos, maxDist, found);
@@ -63,19 +62,22 @@ bool eMovementHandler::moveTo(const std::vector<ePointF>& pos,
     return found;
 }
 
-void eMovementHandler::moveInDirection(const ePointF& pos) {
+void eMovementHandlerBase::moveInDirection(
+    const ePointF& pos) {
     mGoal.moveInDir(pos);
 }
 
-bool eMovementHandler::moveInDirectionIfClearPath(const ePointF& pos) {
+bool eMovementHandlerBase::moveInDirectionIfClearPath(
+    const ePointF& pos) {
     const bool r = mWalkablePath(mPos, pos);
     if(r) moveInDirection(pos);
     return r;
 }
 
-int eMovementHandler::sChooseAnim(const int normal,
-                                  const int aggressive,
-                                  const bool isAggressive) {
+int eMovementHandlerBase::sChooseAnim(
+    const int normal,
+    const int aggressive,
+    const bool isAggressive) {
     if(isAggressive) {
         return (aggressive != -1) ? aggressive : normal;
     } else {
@@ -83,7 +85,8 @@ int eMovementHandler::sChooseAnim(const int normal,
     }
 }
 
-bool eMovementHandler::walkable(const ePointF& pos) const {
+bool eMovementHandlerBase::walkable(
+    const ePointF& pos) const {
     bool walkable = true;
     mOtherIterator(pos, 1.f, [&](const eUnitData& other) {
         if(!walkable) return;
@@ -100,36 +103,41 @@ bool eMovementHandler::walkable(const ePointF& pos) const {
     return mWalkablePos(pos);
 }
 
-bool eMovementHandler::increment(const float by) {
+bool eMovementHandlerBase::increment(
+    const float by,
+    float& angle,
+    ePointF& pos) {
+    angle = mAngle;
+    pos = mPos;
     ePointF to;
     const bool r = mGoal.goal(to);
     if(!r) return false;
     switch(mGoal.type()) {
     case eMovementGoalType::dir: {
-        if(ePointF::distance(mPos, to) < 0.05f) {
+        if(ePointF::distance(pos, to) < 0.05f) {
             mGoal.stopMoving();
             return false;
         }
     } break;
     case eMovementGoalType::path: {
-        if(ePointF::distance(mPos, to) < mWaypointReachDist) {
+        if(ePointF::distance(pos, to) < mWaypointReachDist) {
             mGoal.nextWaypoint();
         }
     } break;
     default:
         return false;
     }
-    auto desiredDir = ePointF::vector(to, mPos);
+    auto desiredDir = ePointF::vector(to, pos);
     desiredDir.normalize();
 
     eVec2f separation{0.f, 0.f};
     eVec2f avoid{0.f, 0.f};
 
-    mOtherIterator(mPos, 2.f, [&](const eUnitData& other) {
+    mOtherIterator(pos, 2.f, [&](const eUnitData& other) {
         if(other.fCharId == mCharId) return;
         if(other.fTeamId != mTeamId) return;
         if(other.fHealth <= 0) return;
-        eVec2f diff = ePointF::vector(mPos, other.fPos);
+        eVec2f diff = ePointF::vector(pos, other.fPos);
         const float dist = diff.length();
         if(dist > mNearbyUnits) return;
         diff.normalize();
@@ -159,7 +167,7 @@ bool eMovementHandler::increment(const float by) {
         moveDir.normalize();
     }
 
-    const float distToGoal = ePointF::distance(mPos, to);
+    const float distToGoal = ePointF::distance(pos, to);
     const float slowRadius = 0.5f;
 
     float speed = mSpeed;
@@ -180,27 +188,27 @@ bool eMovementHandler::increment(const float by) {
 
     if(mVel.length() > 0.001f) {
         const float targetAngle = mVel.angle();
-        float angleDiff = targetAngle - mAngle;
+        float angleDiff = targetAngle - angle;
         while(angleDiff > 180.f) angleDiff -= 360.f;
         while(angleDiff < -180.f) angleDiff += 360.f;
         const float angleBlend = 0.3f;
-        mAngle += angleDiff * angleBlend;
-        while(mAngle < 0.f) mAngle += 360.f;
-        while(mAngle >= 360.f) mAngle -= 360.f;
+        angle += angleDiff * angleBlend;
+        while(angle < 0.f) angle += 360.f;
+        while(angle >= 360.f) angle -= 360.f;
     }
 
-    const auto newPos = mPos + mVel*by;
+    const auto newPos = pos + mVel*by;
     if(walkable(newPos)) {
-        mPos = newPos;
+        pos = newPos;
         mPushTimer = 0.f;
     } else {
         mPushTimer += by;
-        const auto tryX = ePointF{newPos.fX, mPos.fY};
-        const auto tryY = ePointF{mPos.fX, newPos.fY};
+        const auto tryX = ePointF{newPos.fX, pos.fY};
+        const auto tryY = ePointF{pos.fX, newPos.fY};
         if(walkable(tryX)) {
-            mPos.fX = tryX.fX;
+            pos = tryX;
         } else if(walkable(tryY)) {
-            mPos.fY = tryY.fY;
+            pos = tryY;
         } else {
             stopMoving();
         }
@@ -209,7 +217,7 @@ bool eMovementHandler::increment(const float by) {
     return true;
 }
 
-void eMovementHandler::stopMoving() {
+void eMovementHandlerBase::stopMoving() {
     mStuckTimer = 0.f;
     mGoal.stopMoving();
 }

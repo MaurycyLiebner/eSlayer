@@ -130,7 +130,7 @@ bool eComplexAction::meeleAttack(
         schoice, mUnit.fRadius, u.fRadius);
     if(dist > attackRange) return false;
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
-    mUnit.fAngle = dir.angle();
+    mUnit.setAngle(dir.angle());
     const int targetId = u.fCharId;
     eHitData data;
     hitData(schoice, wchoice, data);
@@ -274,7 +274,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
                                   const eWeaponChoice wchoice) {
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
-    mUnit.fAngle = dir.angle();
+    mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int nMissiles = mUnit.skillCount(schoice, wchoice);
@@ -322,7 +322,7 @@ bool eComplexAction::spawnArea(const ePointF& to,
                                const eWeaponChoice wchoice) {
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
-    mUnit.fAngle = dir.angle();
+    mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int missileId = mUnit.missileId(schoice, wchoice);
@@ -350,7 +350,7 @@ bool eComplexAction::spawnNova(
     const eWeaponChoice wchoice) {
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
-    mUnit.fAngle = dir.angle();
+    mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const float radius = mUnit.radius(schoice, wchoice);
@@ -379,7 +379,7 @@ bool eComplexAction::summon(
     const ePointF& to, const int schoice) {
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
-    mUnit.fAngle = dir.angle();
+    mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int maxCount = mUnit.skillCount(

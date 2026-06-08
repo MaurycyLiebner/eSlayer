@@ -14,7 +14,7 @@ eYieldWaitAction::sCreateStand(
     auto& h = unit.movementHandler();
     h.stopMoving();
     const bool a = unit.aggressive();
-    const int anim = eMovementHandler::sChooseAnim(
+    const int anim = eMovementHandlerBase::sChooseAnim(
         standId, standReadyId, a);
     if(anim == -1) return nullptr;
     const auto result = std::make_shared<eYieldWaitAction>(unit, area);
@@ -72,11 +72,11 @@ void eYieldWaitAction::increment(const float by) {
         if(!mYielding) {
             mYielding = true;
             const bool a = mUnit.aggressive();
-            const int walkAnim = eMovementHandler::sChooseAnim(
+            const int walkAnim = eMovementHandlerBase::sChooseAnim(
                 mWalkAnimId, mWalkReadyAnimId, a);
             if(walkAnim != -1) {
-                mUnit.fAnim = walkAnim;
-                mUnit.fAnimId.increment(5);
+                mUnit.setAnim(walkAnim);
+                mUnit.incAnimId(5);
             }
         }
         if(yieldDir.length() > 0.001f) {
@@ -90,11 +90,11 @@ void eYieldWaitAction::increment(const float by) {
             mYielding = false;
             h.stopMoving();
             const bool a = mUnit.aggressive();
-            const int standAnim = eMovementHandler::sChooseAnim(
+            const int standAnim = eMovementHandlerBase::sChooseAnim(
                 mStandAnimId, mStandReadyAnimId, a);
             if(standAnim != -1) {
-                mUnit.fAnim = standAnim;
-                mUnit.fAnimId.increment(5);
+                mUnit.setAnim(standAnim);
+                mUnit.incAnimId(5);
             }
         }
     }

@@ -3,10 +3,11 @@
 
 #include "actions/ecomplexaction.h"
 
+#include "eservermovementhandler.h"
+
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/edamage.h>
 #include <eSlayerHelpers/eequipment.h>
-#include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eskillchoice.h>
@@ -267,9 +268,9 @@ public:
     const std::shared_ptr<eComplexAction>&
     action() const { return mAction; }
 
-    eMovementHandler& movementHandler()
+    eServerMovementHandler& movementHandler()
     { return mHandler; }
-    const eMovementHandler& movementHandler() const
+    const eServerMovementHandler& movementHandler() const
     { return mHandler; }
 
     const eCharData& data() const { return mData; }
@@ -306,7 +307,41 @@ public:
 
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);
+
+    uint8_t requestUpdate(const int clientId);
+    void update(const eUnitDynamicData::eShift shift);
+    void updateAll();
+
+    void setPosition(const ePointF& pos);
+
+    void setAnim(const uint8_t anim);
+    void setAnimId(const eAnimId& animId);
+    void incAnimId(const int by);
+    void setAnimSpeed(const float animSpeed);
+    void setBlockingActionTime(const float time);
+
+    void setAngle(const float angle);
+
+    void setHealth(const uint16_t health);
+    void setMaxHealth(const uint16_t maxHealth);
+
+    void setState(const uint8_t state);
+    void setBoosts(const std::set<uint8_t>& boosts);
+
+    void setCold(const bool c);
+    void setFrozen(const bool f);
+    void setPoisoned(const bool p);
+
+    void applyBoostsTmp();
 private:
+    using eUnitDynamicData::setUpdate;
+    using eUnitDynamicData::fUpdate;
+
+    void removeBoostDataTmp(const uint8_t id);
+    void addBoostDataTmp(const uint8_t id);
+
+    std::set<uint8_t> fBoostsTmp;
+
     const eCharData& mData;
     eServerArea& mArea;
     const bool mSlayer;
@@ -317,7 +352,7 @@ private:
     bool mMoving = false;
     bool mAggressive = false;
     std::shared_ptr<eComplexAction> mAction;
-    eMovementHandler mHandler;
+    eServerMovementHandler mHandler;
 
     eStats mStats;
     eAttributes mAttributes;
@@ -341,6 +376,8 @@ private:
     std::vector<int> mFollowers;
 
     eUnitType mType = eUnitType::normal;
+
+    std::map<int, uint8_t> mUpdateMap;
 };
 
 #endif // ESERVERUNIT_H

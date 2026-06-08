@@ -11,7 +11,7 @@ eWalkAroundAction::sCreate(
     const float time) {
     const auto result = std::make_shared<eWalkAroundAction>(unit, area);
     const bool a = unit.aggressive();
-    const int anim = eMovementHandler::sChooseAnim(
+    const int anim = eMovementHandlerBase::sChooseAnim(
         walkId, walkReadyId, a);
     result->mCurrentAnim = anim;
     result->mWalkId = walkId;
@@ -23,12 +23,12 @@ eWalkAroundAction::sCreate(
 
 void eWalkAroundAction::increment(const float by) {
     const bool a = mUnit.aggressive();
-    const int anim = eMovementHandler::sChooseAnim(
+    const int anim = eMovementHandlerBase::sChooseAnim(
         mWalkId, mWalkReadyId, a);
     if(anim != mCurrentAnim) {
         mCurrentAnim = anim;
-        mUnit.fAnim = anim;
-        mUnit.fAnimId.increment(5);
+        mUnit.setAnim(anim);
+        mUnit.incAnimId(5);
     }
 
     auto& h = mUnit.movementHandler();

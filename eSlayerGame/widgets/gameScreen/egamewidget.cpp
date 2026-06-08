@@ -358,14 +358,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(worldResult.fHasMainCharData) {
             const auto& u = worldResult.fMainCharData;
             if(mMainChar->fHealth <= 0 && u.fHealth > 0) {
-                mMainAction->setPos(u.fPos);
+                mMainChar->fPos = u.fPos;
                 mMainAction->stop();
                 setPressedUnit(nullptr);
                 setHighlightedUnit(nullptr);
                 setHighlightedObject(nullptr);
                 if(mRespawnHandler) mRespawnHandler();
-            }
-            if(u.fBlockingActionTime > 0) {
+            } else if(u.fBlockingActionTime > 0) {
                 mMainChar->fPos = u.fPos;
             }
             mMainChar->fHealth = u.fHealth;
@@ -413,7 +412,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         model.setAggressive(worldResult.fAggressive);
     }
 
-    const auto upos = mMainChar->fPos;
+    const auto& upos = mMainChar->fPos;
     const auto uipos = upos.floor();
     const int areaId = mMap->areaAt(uipos);
     if(mLastArea != areaId && areaId >= 0) {
@@ -431,6 +430,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     }
 
     mServer->changeState(mClientId, *mMainChar);
+    mMainChar->fUpdate = 0;
 
     mWorld.simulateMissiles(by);
     mWorld.simulateNovas(by);

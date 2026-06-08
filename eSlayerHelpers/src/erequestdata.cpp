@@ -21,14 +21,6 @@ void eRequestData::read(ePacket& p) {
         u.read(p);
     }
 
-    uint16_t nUpdatedDeadUnits;
-    p >> nUpdatedDeadUnits;
-    fUpdatedDeadUnits.reserve(fUpdatedDeadUnits.size() + nUpdatedDeadUnits);
-    for(int i = 0; i < nUpdatedDeadUnits; i++) {
-        auto& u = fUpdatedDeadUnits.emplace_back();
-        u.read(p);
-    }
-
     uint16_t nMissiles;
     p >> nMissiles;
     fMissiles.reserve(fMissiles.size() + nMissiles);
@@ -119,12 +111,6 @@ void eRequestData::write(ePacket& p) const {
     const uint16_t nUpdatedUnits = fUpdatedUnits.size();
     p << nUpdatedUnits;
     for(const auto& u : fUpdatedUnits) {
-        u.write(p);
-    }
-
-    const uint16_t nUpdatedDeadUnits = fUpdatedDeadUnits.size();
-    p << nUpdatedDeadUnits;
-    for(const auto& u : fUpdatedDeadUnits) {
         u.write(p);
     }
 

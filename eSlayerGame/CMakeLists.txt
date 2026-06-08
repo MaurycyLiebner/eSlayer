@@ -293,6 +293,8 @@ add_executable(eSlayerGame
     widgets/mainMenu/emainmenubutton.h
     elanguage.h elanguage.cpp
     names/elanguagenames.h names/elanguagenames.cpp
+    emovementhandler.h emovementhandler.cpp
+
 )
 
 include(GNUInstallDirs)

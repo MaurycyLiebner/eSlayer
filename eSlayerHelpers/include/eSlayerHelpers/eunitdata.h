@@ -24,24 +24,11 @@ struct ESLAYERHELPERS_API eUnitData :
 
     eModelParts fModelParts;
 
-    void removeBoostData(const uint8_t id);
-    void addBoostData(const uint8_t id);
-
     eUnitData toUnitData() const;
-    eUnitDynamicData toDynamicData() const;
-    eDeadUnitDynamicData toDynamicDeadData() const;
+    eUnitDynamicData toDynamicData(const uint8_t update) const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
-
-    bool cold() const;
-    void setCold(const bool c);
-
-    bool frozen() const;
-    void setFrozen(const bool f);
-
-    bool poisoned() const;
-    void setPoisoned(const bool p);
 
     static float sColdSpeed;
 };

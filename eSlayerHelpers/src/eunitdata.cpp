@@ -45,59 +45,14 @@ void eUnitData::write(ePacket& p) const {
     fModelParts.write(p);
 }
 
-bool eUnitData::cold() const {
-    return fState & 1u;
-}
-
-void eUnitData::setCold(const bool c) {
-    if(c) {
-        fState |= 1u;
-    } else {
-        fState &= ~1u;
-    }
-}
-
-bool eUnitData::frozen() const {
-    return fState & 2u;
-}
-
-void eUnitData::setFrozen(const bool f) {
-    if(f) {
-        fState |= 2u;
-    } else {
-        fState &= ~2u;
-    }
-}
-
-bool eUnitData::poisoned() const {
-    return fState & 4u;
-}
-
-void eUnitData::setPoisoned(const bool p) {
-    if(p) {
-        fState |= 4u;
-    } else {
-        fState &= ~4u;
-    }
-}
-
-void eUnitData::removeBoostData(const uint8_t id) {
-    fBoosts.erase(id);
-}
-
-void eUnitData::addBoostData(const uint8_t id) {
-    fBoosts.emplace(id);
-}
-
 eUnitData eUnitData::toUnitData() const {
-    return *this;
+    eUnitData result = *this;
+    result.fUpdate = std::numeric_limits<decltype(result.fUpdate)>::max();
+    return result;
 }
 
-eUnitDynamicData eUnitData::toDynamicData() const {
-    return static_cast<const eUnitDynamicData&>(*this);
-}
-
-eDeadUnitDynamicData eUnitData::toDynamicDeadData() const {
-    const auto& u = static_cast<const eUnitDynamicDataBase&>(*this);
-    return reinterpret_cast<const eDeadUnitDynamicData&>(u);
+eUnitDynamicData eUnitData::toDynamicData(const uint8_t update) const {
+    eUnitDynamicData result = *this;
+    result.fUpdate = update;
+    return result;
 }

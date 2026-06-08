@@ -1,5 +1,5 @@
-#ifndef EMOVEMENTHANDLER_H
-#define EMOVEMENTHANDLER_H
+#ifndef EMOVEMENTHANDLERBASE_H
+#define EMOVEMENTHANDLERBASE_H
 
 #include "eslayerhelpersexport.h"
 
@@ -18,9 +18,10 @@ using eOtherIterator = std::function<void(
     const ePointF& pos, const float dist,
     const eOtherHandler& iter)>;
 
-class ESLAYERHELPERS_API eMovementHandler {
+class ESLAYERHELPERS_API eMovementHandlerBase {
 public:
-    eMovementHandler(eUnitData& u, ePathFinderMap& map);
+    eMovementHandlerBase(const eUnitData& u,
+                         ePathFinderMap& map);
 
     void intialize(const eWalkablePos& wPos,
                    const eWalkablePath& wPath,
@@ -31,16 +32,12 @@ public:
     int charId() const { return mCharId; }
 
     const ePointF& pos() const { return mPos; }
-    void setPos(const ePointF& pos) { mPos = pos; }
     float angle() const { return mAngle; }
     float speed() const { return mSpeed; }
     void setSpeed(const float s) { mSpeed = s; }
-    void setRadius(const float r);
     void setMoveRandom(const float r) { mMoveRandom = r; }
     float stuckTime() const { return mStuckTimer; }
     float pushTime() const { return mPushTimer; }
-
-    bool increment(const float by);
 
     bool moving() const { return mGoal.moving(); }
     eMovementGoalType goalType() const { return mGoal.type(); }
@@ -53,12 +50,16 @@ public:
     static int sChooseAnim(const int normal,
                            const int aggressive,
                            const bool isAggressive);
+protected:
+    bool increment(const float by,
+                   float& angle,
+                   ePointF& pos);
 private:
     bool walkable(const ePointF& pos) const;
 
-    const eUnitData& mUnit;
-    ePointF& mPos;
-    float& mAngle;
+    const ePointF& mPos;
+    const float& mAngle;
+    const float& mRadius;
     ePathFinderMap& mMap;
 
     int mCharId = 0;
@@ -71,7 +72,6 @@ private:
 
     eVec2f mVel{0.f, 0.f};
 
-    float mRadius = 0.4f;
     float mSpeed = 0.1f;
     float mStuckTimer = 0.f;
 
@@ -86,4 +86,4 @@ private:
     float mRandomTimer = 0.f;
 };
 
-#endif // EMOVEMENTHANDLER_H
+#endif // EMOVEMENTHANDLERBASE_H

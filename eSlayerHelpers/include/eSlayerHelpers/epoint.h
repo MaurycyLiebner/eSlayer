@@ -81,6 +81,10 @@ struct ESLAYERHELPERS_API ePointF {
         fY /= mult;
         return *this;
     }
+
+    bool operator==(const ePointF& other) const {
+        return fX == other.fX && fY == other.fY;
+    }
 };
 
 #endif // EPOINT_H

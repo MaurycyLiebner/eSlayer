@@ -5,12 +5,8 @@
 #include <eSlayerHelpers/echardata.h>
 
 void eUnitActionBase::increment(const float by) {
-    mRemTime -= by;
-    if(mBlockingAction) {
-        mUnit.fBlockingActionTime = mRemTime;
-    } else {
-        mUnit.fBlockingActionTime = 0.f;
-    }
+    setDuration(mRemTime - by);
+
     mActionTime -= by;
     if(mAction && mActionTime <= 0) {
         mAction();
@@ -22,9 +18,9 @@ void eUnitActionBase::increment(const float by) {
 void eUnitActionBase::setDuration(const float d) {
     mRemTime = d;
     if(mBlockingAction) {
-        mUnit.fBlockingActionTime = d;
+        mUnit.setBlockingActionTime(d);
     } else {
-        mUnit.fBlockingActionTime = 0.f;
+        mUnit.setBlockingActionTime(0.f);
     }
 }
 
@@ -34,8 +30,8 @@ void eUnitActionBase::setup(const int anim,
                             const eAction& a) {
     mBlockingAction = blocking;
     const auto& data = mUnit.data();
-    mUnit.fAnim = anim;
-    mUnit.fAnimId.increment(5);
+    mUnit.setAnim(anim);
+    mUnit.incAnimId(5);
 
     float speed;
     if(anim == sFleshExplAnim ||
@@ -46,7 +42,7 @@ void eUnitActionBase::setup(const int anim,
         const int baseFrames = data.animFrames(anim);
         if(frames == -1) frames = baseFrames;
         speed = frames == 0 ? 1.f : float(baseFrames)/frames;
-        mUnit.fAnimSpeed = speed;
+        mUnit.setAnimSpeed(speed);
         setDuration(frames);
     }
 

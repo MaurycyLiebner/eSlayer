@@ -59,7 +59,6 @@ void eTcpIpJoin::increment(const float by) {
         p >> type;
         switch(type) {
         case ePacketType::data: {
-            mData.fUpdatedUnits.clear();
             mData.read(p);
             mNewData = true;
         } break;

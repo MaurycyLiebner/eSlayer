@@ -1,11 +1,10 @@
 #ifndef EMAINCHARACTION_H
 #define EMAINCHARACTION_H
 
-class eMap;
+#include "emovementhandler.h"
 
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eattackdata.h>
-#include <eSlayerHelpers/emovementhandler.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/estats.h>
@@ -14,6 +13,7 @@ class eMap;
 
 #include <memory>
 
+class eMap;
 class eUnit;
 class SDL_Renderer;
 class eCharTextures;
@@ -52,7 +52,6 @@ public:
     void stand();
 
     const ePointF& pos() const { return mMovementHandler.pos(); }
-    void setPos(const ePointF& pos) { mMovementHandler.setPos(pos); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
 
     float stamina() const { return mStamina; }
