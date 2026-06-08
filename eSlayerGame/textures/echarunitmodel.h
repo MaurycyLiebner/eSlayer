@@ -5,7 +5,6 @@
 
 #include <eSlayerHelpers/eanimid.h>
 
-class eGamePainter;
 class ePainter;
 class eResolution;
 

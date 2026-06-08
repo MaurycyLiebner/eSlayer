@@ -9,6 +9,10 @@
 #include <eSlayerHelpers/eterrstexturesdata.h>
 
 #include <memory>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <condition_variable>
 
 class eResolution;
 class SDL_Renderer;
@@ -55,6 +59,8 @@ struct eRenderCall : public ePaintCall {
 class eLightingHandler {
 public:
     eLightingHandler(eTilesIterator& tileIterator);
+    ~eLightingHandler();
+
     void initialize(SDL_Renderer* const r,
                     const int w, const int h,
                     const int tileW, const int tileH);
@@ -72,6 +78,9 @@ public:
     void render(SDL_Renderer* const r,
                 const eRenderCall& c) const;
 private:
+    void workerLoop(const int shift);
+    void calculate(const int shift, const int division);
+
     eTilesIterator& mIterator;
     float mLightness = 0.f;
 
@@ -81,6 +90,20 @@ private:
     float mFeatherLen;
     int mBaseTileW;
     int mBaseTileH;
+
+    // multithreading
+    std::vector<std::thread> mThreads;
+
+    std::mutex mMutex;
+    std::condition_variable mWakeup;
+    std::condition_variable mFinished;
+
+    std::atomic<int> mRemaining{0};
+
+    int mWorkerCount;
+    int mDivision;
+    int mGeneration = 0;
+    bool mStop = false;
 };
 
 #endif // ELIGHTINGHANDLER_H

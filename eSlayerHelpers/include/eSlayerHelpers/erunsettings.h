@@ -6,6 +6,7 @@
 struct ESLAYERHELPERS_API eRunSettings {
     static bool sUseZip;
     static float sFPS;
+    static int sNThreads;
 };
 
 #endif // ERUNSETTINGS_H

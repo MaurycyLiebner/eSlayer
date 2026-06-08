@@ -2,3 +2,4 @@
 
 bool eRunSettings::sUseZip = false;
 float eRunSettings::sFPS = 25.f;
+int eRunSettings::sNThreads = -1;

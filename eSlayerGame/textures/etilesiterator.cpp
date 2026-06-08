@@ -69,6 +69,16 @@ void eTilesIterator::iterate(const eVisibleTileFunc& func) {
     }
 }
 
+void eTilesIterator::iterate(
+    const int shift, const int division,
+    const eVisibleTileFunc& func) {
+    const int iMax = mTiles.size();
+    for(int i = shift; i < iMax; i += division) {
+        auto& t = mTiles[i];
+        func(t);
+    }
+}
+
 void eTilesIterator::iterateOverCells(const eCellFunc& func) {
     for(auto& c : mCells) {
         func(c);

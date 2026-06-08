@@ -69,6 +69,8 @@ public:
     void initialize(eGameWidget* const game);
     void nextIteration(eGameWidget* const game);
     void iterate(const eVisibleTileFunc& func);
+    void iterate(const int shift, const int division,
+                 const eVisibleTileFunc& func);
     void iterateOverCells(const eCellFunc& func);
 
     eTileInfo* getTile(const int x, const int y);
