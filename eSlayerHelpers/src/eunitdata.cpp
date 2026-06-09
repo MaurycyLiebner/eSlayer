@@ -13,7 +13,7 @@ void eUnitData::read(ePacket& p) {
     eUnitDynamicData::read(p);
     p >> fTeamId;
 
-    p >> fCharDataId;
+    p >> fUnitInfoId;
 
     fRadius = p.readFloatU8(radiusMax);
 
@@ -32,7 +32,7 @@ void eUnitData::write(ePacket& p) const {
     eUnitDynamicData::write(p);
     p << fTeamId;
 
-    p << fCharDataId;
+    p << fUnitInfoId;
 
     p.writeFloatU8(fRadius, radiusMax);
 

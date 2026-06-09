@@ -76,7 +76,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 
     mMainChar->setModel(umodel);
     mMainChar->fRadius = radius;
-    mMainChar->fCharDataId = typeId;
+    mMainChar->fUnitInfoId = typeId;
     mMainChar->fModelParts = modelParts;
     mMainChar->fTeamId = teamId;
 

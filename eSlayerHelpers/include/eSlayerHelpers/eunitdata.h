@@ -16,7 +16,7 @@ struct ESLAYERHELPERS_API eUnitData :
     public eUnitDynamicData {
     eTeamId fTeamId;
 
-    uint8_t fCharDataId;
+    uint8_t fUnitInfoId;
 
     float fRadius;
 

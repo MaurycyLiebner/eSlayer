@@ -9,6 +9,7 @@ struct eUnitInfo {
     float fRadius;
     float fWalkSpeed;
     float fRunSpeed;
+    float fLighting;
     int fLevel;
     eColor fColor;
 

@@ -107,13 +107,14 @@ void eServerArea::iniSetupUnit(
         const int charId,
         const eTeamId teamId,
         const ePointF& pos,
+        const uint8_t unitInfoId,
         const eUnitInfo& uinfo,
         const eCharData& data,
         const eModelParts& modelParts) {
     u->fCharId = charId;
     u->fTeamId = teamId;
     u->fState = 0;
-    u->fCharDataId = uinfo.fCharData;
+    u->fUnitInfoId = unitInfoId;
     u->fRadius = uinfo.fRadius;
     u->fAnim = data.animId("stand");
     u->fAnimId = eAnimId{0};
@@ -349,7 +350,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                         false, data, type, *this, map);
                     const int charId = eServerUnit::sNextCharId++;
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
-                                 pos, udata, data, modelParts);
+                                 pos, type, udata, data, modelParts);
 
                     u->setBoosts(udata.fModifiers, false);
 
@@ -742,7 +743,8 @@ bool eServerArea::addClient(const int clientId,
     const auto pos = mMap->spawnPos();
     findPlaceForUnit(pos, spawnPos);
     teamId = sNextTeamId;
-    iniSetupUnit(u, clientId, teamId, spawnPos, udata, data, modelParts);
+    iniSetupUnit(u, clientId, teamId, spawnPos,
+                 typeId, udata, data, modelParts);
     sNextTeamId = static_cast<eTeamId>(static_cast<int>(sNextTeamId) + 1);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
@@ -860,7 +862,8 @@ bool eServerArea::spawnBody(const int clientId,
     const auto& modelParts = client->fModelParts;
     const auto teamId = client->fTeamId;
     const auto& pos = client->fPos;
-    iniSetupUnit(u, charId, teamId, pos, udata, data, modelParts);
+    iniSetupUnit(u, charId, teamId, pos,
+                 typeId, udata, data, modelParts);
     u->fHealth = 0;
     u->fAnim = data.animId("body");
     bodyId = charId;
@@ -1381,7 +1384,8 @@ void eServerArea::summon(eServerUnit& by,
         false, data, unitId, *this, map);
     const int charId = eServerUnit::sNextCharId++;
     followers.emplace_back(charId);
-    iniSetupUnit(u, charId, by.fTeamId, to, udata, data, modelParts);
+    iniSetupUnit(u, charId, by.fTeamId, to,
+                 unitId, udata, data, modelParts);
     u->setBoosts(mods, false);
     {
         const int schoice = u->addSkill();

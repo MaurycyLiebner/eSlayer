@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/evectorhelpers.h>
 #include <eSlayerHelpers/ebody.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     mMap(map),
@@ -161,7 +162,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             mResult.fMainCharData = u;
             continue;
         }
-        const auto& texs = eCharsTextures::get(u.fCharDataId);
+        const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
+        const auto& texs = eCharsTextures::get(uinfo.fCharData);
         const auto unitModel = texs.requestModel(
             u.fModelParts, res, r);
 

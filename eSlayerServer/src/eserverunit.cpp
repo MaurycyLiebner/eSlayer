@@ -1164,22 +1164,22 @@ std::vector<int> eServerUnit::readySkills() const {
     return result;
 }
 
-std::vector<int> eServerUnit::followers(const int charDataId) const {
+std::vector<int> eServerUnit::followers(const int unitInfoId) const {
     std::vector<int> result;
     for(const int charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
-        if(u->fCharDataId == charDataId) result.emplace_back(charId);
+        if(u->fUnitInfoId == unitInfoId) result.emplace_back(charId);
     }
     return result;
 }
 
-int eServerUnit::countFollowers(const int charDataId) const {
+int eServerUnit::countFollowers(const int unitInfoId) const {
     int result = 0;
     for(const int charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
-        if(u->fCharDataId == charDataId) result++;
+        if(u->fUnitInfoId == unitInfoId) result++;
     }
     return result;
 }

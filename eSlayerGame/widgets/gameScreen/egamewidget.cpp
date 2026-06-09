@@ -747,6 +747,15 @@ void eGameWidget::paintEvent(ePainter& p) {
             } else {
                 const int bodyId = u->bodyAnimId();
                 const bool floor = animId == bodyId;
+                if(!floor) {
+                    const auto uinfoId = u->fUnitInfoId;
+                    const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
+                    const float l = uinfo.fLighting;
+                    if(l > 0.01f) {
+                        const auto& pos = u->fPos;
+                        mGamePainter.addLight(pos.fX, pos.fY, 3.f);
+                    }
+                }
                 renderElements.emplace_back(eRenderElement{floor,
                                                            eRenderElementType::unit,
                                                            std::static_pointer_cast<ePositioned>(u)});
@@ -754,7 +763,12 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         {
             const auto& pos = mMainChar->fPos;
-            mGamePainter.addLight(pos.fX, pos.fY, 3.f);
+            const auto uinfoId = mMainChar->fUnitInfoId;
+            const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
+            const float l = uinfo.fLighting;
+            if(l > 0.01f) {
+                mGamePainter.addLight(pos.fX, pos.fY, 3.f);
+            }
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(tile) {
@@ -1077,7 +1091,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
                 }
                 {
-                    const auto infoId = u->fCharDataId;
+                    const auto infoId = u->fUnitInfoId;
                     const auto& info = eUnitsInfo::sUnits.get(infoId);
                     const auto& color = info.fColor;
                     colorMod.r *= color.fR;

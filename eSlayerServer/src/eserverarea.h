@@ -202,6 +202,7 @@ private:
                       const int charId,
                       const eTeamId teamId,
                       const ePointF& pos,
+                      const uint8_t unitInfoId,
                       const eUnitInfo& uinfo,
                       const eCharData& data,
                       const eModelParts& modelParts);

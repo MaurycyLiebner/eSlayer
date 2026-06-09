@@ -3,7 +3,6 @@
 #include "eSlayerHelpers/echardatainfo.h"
 #include "eSlayerHelpers/eexceptions.h"
 #include "eSlayerHelpers/efileloaderbase.h"
-#include "eSlayerHelpers/eitem.h"
 #include "eSlayerHelpers/eitemsdata.h"
 
 bool eUnitsInfo::sLoaded = false;
@@ -39,6 +38,7 @@ void eUnitsInfo::load() {
             u.fLevel = jdata.value("level", 1);
             u.fWalkSpeed = jdata.value("walkSpeed", 0.1f);
             u.fRunSpeed = jdata.value("runSpeed", u.fWalkSpeed);
+            u.fLighting = jdata.value("lighting", 0.f);
             const auto textures = jdata.value("textures", "none");
             u.fCharData = eCharDataInfo::id(textures);
             if(jdata.contains("modifiers")) {

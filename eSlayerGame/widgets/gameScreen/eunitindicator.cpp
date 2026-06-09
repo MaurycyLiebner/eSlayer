@@ -31,7 +31,7 @@ void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
         } else {
             const auto it = names.find(u->fCharId);
             if(it == names.end()) {
-                const int typeId = u->fCharDataId;
+                const int typeId = u->fUnitInfoId;
                 const auto name = eMonsterNames::name(typeId);
                 setText(name);
             } else {

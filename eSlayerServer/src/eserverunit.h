@@ -296,8 +296,8 @@ public:
     { return mFollowers; }
     std::vector<int>& followers()
     { return mFollowers; }
-    std::vector<int> followers(const int charDataId) const;
-    int countFollowers(const int charDataId) const;
+    std::vector<int> followers(const int unitInfoId) const;
+    int countFollowers(const int unitInfoId) const;
 
     void setMoving(const bool m) { mMoving = m; }
     bool moving() const;
