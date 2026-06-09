@@ -185,6 +185,7 @@ bool eComplexAction::getHit(const eHitData& data,
                 for(const auto& b : bs) {
                     mUnit.addTimedBoost(b.fMods, b.fType, b.fMissileId, b.fTime, false);
                 }
+                mUnit.applyBoostsTmp();
                 mUnit.recalculateStats();
                 mUnit.recalculateAuras();
             }
