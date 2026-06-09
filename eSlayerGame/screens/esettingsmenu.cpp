@@ -5,6 +5,8 @@
 #include "../names/elanguagenames.h"
 #include "../etext.h"
 
+#include <eSlayerHelpers/estringhelpers.h>
+
 #include <queue>
 
 eSettingsMenu::eSettingsMenu(const eWindowSettings& iniSettings,
@@ -144,6 +146,65 @@ private:
     eLanguage mLanguage = eLanguage::sLanguage;
 };
 
+class eThreadsMenu : public eSubMenu {
+public:
+    using eSubMenu::eSubMenu;
+
+    void initialize(eWindowSettings& settings,
+                    const eAction& updateButton) {
+        mThreads = settings.fThreads;
+
+        const auto exitA = [&]() {
+            deleteLater();
+        };
+        const auto okA = [&, updateButton]() {
+            settings.fThreads = mThreads;
+            updateButton();
+            deleteLater();
+        };
+        eThreeColsMenu::initialize(exitA, okA);
+
+        std::vector<int> ts;
+        for(int i = -1; i <= 16; i++) {
+            ts.emplace_back(i);
+        }
+
+        const auto threadsName = [](const int t) {
+            if(t < 0) return eText::text(4, 5);
+            return std::to_string(t);
+        };
+
+        const auto currentButton = std::make_shared<eCheckButton*>(nullptr);
+        const int iMax = ts.size();
+        for(int i = 0; i < iMax; i++) {
+            const auto t = ts[i];
+            const auto b = new eCheckButton(window());
+            b->setSmallPadding();
+            const auto name = threadsName(t);
+            b->setText(name);
+            b->fitContent();
+            if(t == mThreads) {
+                *currentButton = b;
+                b->setChecked(true);
+            }
+            addWidgetToCol(b);
+            b->setCheckAction([this, currentButton, b, t](const bool c) {
+                if(!c) {
+                    b->setChecked(true);
+                    return;
+                }
+                if(*currentButton) {
+                    (*currentButton)->setChecked(false);
+                }
+                *currentButton = b;
+                mThreads = t;
+            });
+        }
+    }
+private:
+    int mThreads;
+};
+
 void eSettingsMenu::initialize(const eAction& exitA,
                                const eApplyAction& settingsA) {
     setExit(exitA);
@@ -221,9 +282,42 @@ void eSettingsMenu::initialize(const eAction& exitA,
             addWidget(w);
         });
     }
+    {
+        const auto getText = [](const int threads) {
+            std::string threadsText;
+            if(threads < 0) {
+                threadsText = eText::text(4, 5);
+            } else {
+                threadsText = std::to_string(threads);
+            }
+            const auto textBase = eText::text(4, 4);
+            const auto text = eStringHelpers::replaceAll(textBase, "%1", threadsText);
+            return text;
+        };
+        const auto text = getText(mSettings.fThreads);
+        const auto ls = new eMainMenuButton(text, window());
+        ls->fitContent();
+        buttonW->addWidget(ls);
+        ls->align(eAlignment::hcenter);
+
+        ls->setPressAction([this, ls, getText]() {
+            const auto w = new eThreadsMenu(window());
+            const int width = eWidget::width();
+            const int height = eWidget::height();
+            w->resize(width, height);
+            const auto updataButton = [this, ls, getText]() {
+                const auto text = getText(mSettings.fThreads);
+                ls->setText(text);
+                ls->fitContent();
+                ls->align(eAlignment::hcenter);
+            };
+            w->initialize(mSettings, updataButton);
+            addWidget(w);
+        });
+    }
 
     inner->addWidget(buttonW);
-    buttonW->layoutVertically();
+    buttonW->stackVertically();
 
     {
         const auto e = new eMainMenuButton(

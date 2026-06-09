@@ -1,10 +1,12 @@
 #include "ewindowsettings.h"
 
-#include "eloadtexthelper.h"
 #include "elanguage.h"
+#include "eloadtexthelper.h"
 
 #include <eSlayerHelpers/egamedir.h>
+#include <eSlayerHelpers/ethreads.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -19,7 +21,8 @@ void eWindowSettings::write() const {
     file << "width" << " " << "\"" << wStr << "\"" << "\n";
     const auto hStr = std::to_string(fRes.height());
     file << "height" << " " << "\"" << hStr << "\"" << "\n";
-    file << "language" << " " << "\"" << fLanguage.fName << "\"";
+    file << "language" << " " << "\"" << fLanguage.fName << "\"" << "\n";
+    file << "threads" << " " << "\"" << fThreads << "\"";
     file.close();
 }
 
@@ -39,7 +42,14 @@ bool eWindowSettings::read() {
         fRes = eResolution(width, height);
     }
     const auto languageStr = settings["language"];
-    eLanguage::setLanguage(languageStr);
-    fLanguage = eLanguage::sLanguage;
+    if(!languageStr.empty()) {
+        eLanguage::setLanguage(languageStr);
+        fLanguage = eLanguage::sLanguage;
+    }
+    const auto threadsStr = settings["threads"];
+    if(!threadsStr.empty()) {
+        fThreads = std::clamp(std::stoi(threadsStr), -1, 16);
+        eThreads::sThreads = fThreads;
+    }
     return true;
 }

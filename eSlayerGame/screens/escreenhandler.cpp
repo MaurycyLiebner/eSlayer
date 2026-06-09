@@ -36,6 +36,7 @@
 
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+#include <eSlayerHelpers/ethreads.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -360,6 +361,9 @@ void eScreenHandler::showSettings() {
         if(languageChanged) {
             eLanguage::sLanguage = sett.fLanguage;
         }
+
+        eThreads::sThreads = sett.fThreads;
+
         sett.write();
         if(languageChanged) {
             std::vector<eAction> loadings;

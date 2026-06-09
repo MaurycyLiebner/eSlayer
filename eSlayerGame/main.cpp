@@ -124,8 +124,6 @@ int main(int argc, char* argv[]) {
             eRunSettings::sUseZip = value == "true";
         } else if(arg == "--fps") {
             eRunSettings::sFPS = std::clamp(std::stof(value), 1.f, 10000.f);
-        } else if(arg == "--threads") {
-            eRunSettings::sNThreads = std::clamp(std::stoi(value), -1, 100);
         }
     }
 

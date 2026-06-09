@@ -2,7 +2,7 @@
 
 #include "../erendersettings.h"
 
-#include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/ethreads.h>
 #include <eSlayerHelpers/evec2.h>
 #include <eSlayerHelpers/epoint.h>
 
@@ -14,10 +14,10 @@
 eLightingHandler::eLightingHandler(
     eTilesIterator& tileIterator) :
     mIterator(tileIterator) {
-    if(eRunSettings::sNThreads < 0) {
-        mWorkerCount = std::thread::hardware_concurrency();
+    if(eThreads::sThreads < 0) {
+        mWorkerCount = std::min(16u, std::thread::hardware_concurrency());
     } else {
-        mWorkerCount = eRunSettings::sNThreads;
+        mWorkerCount = eThreads::sThreads;
     }
     mDivision = mWorkerCount + 1;
     for(int i = 0; i < mWorkerCount; i++) {
@@ -28,16 +28,18 @@ eLightingHandler::eLightingHandler(
 }
 
 eLightingHandler::~eLightingHandler() {
-    {
-        std::lock_guard lock(mMutex);
-        mStop = true;
-        mGeneration++;
-    }
+    if(mWorkerCount > 0) {
+        {
+            std::lock_guard lock(mMutex);
+            mStop = true;
+            mGeneration++;
+        }
 
-    mWakeup.notify_all();
+        mWakeup.notify_all();
 
-    for(auto& t : mThreads) {
-        t.join();
+        for(auto& t : mThreads) {
+            t.join();
+        }
     }
 }
 

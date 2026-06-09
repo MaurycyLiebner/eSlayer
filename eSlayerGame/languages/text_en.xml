@@ -28,6 +28,8 @@
         <string id="1">Exit</string>
         <string id="2">Windowed</string>
         <string id="3">Fullscreen</string>
+        <string id="4">Threads: %1</string>
+        <string id="5">Default</string>
     </group>
     <group id="5">
         <string id="0">Options</string>
