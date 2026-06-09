@@ -2,7 +2,7 @@
 #define ETCPIPJOIN_H
 
 #include "eSlayerServer/eserver.h"
-#include "ethreadsafevector.h"
+#include "ethreadsafe.h"
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -91,7 +91,7 @@ private:
 
     std::thread mPacketsThread;
     bool mRunning = false;
-    eThreadSafeVector<ePacket> mPackets;
+    eThreadSafe<std::vector<ePacket>> mPackets;
 
     eTCPNetwork mNet;
     bool mInitialized = false;

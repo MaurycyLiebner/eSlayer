@@ -5,7 +5,7 @@
 
 #include "eserverclienthandler.h"
 #include "eserverarea.h"
-#include "ethreadsafevector.h"
+#include "ethreadsafe.h"
 
 #include <map>
 
@@ -96,7 +96,7 @@ private:
     using eOMapReadyAction = std::function<void(const eMapAndArea& ma)>;
     std::map<uint8_t, std::vector<eOMapReadyAction>> mMapReadyActions;
 
-    eThreadSafeVector<eMapAndArea> mReady;
+    eThreadSafe<std::vector<eMapAndArea>> mReady;
 };
 
 #endif // ELOCALSERVER_H

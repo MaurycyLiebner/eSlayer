@@ -71,7 +71,9 @@ bool eLocalServer::requestMap(
                 const auto area = std::make_shared<eServerArea>();
                 area->initialize(map);
                 const eMapAndArea result{mapId, map, area};
-                mReady.push_back(result);
+                mReady.with_lock([&](std::vector<eMapAndArea>& v) {
+                    v.emplace_back(result);
+                });
             });
             t.detach();
         }
