@@ -529,13 +529,20 @@ void eServerArea::unitsData(
     std::vector<eUnitDynamicData>& updatedUnits) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return;
+    const auto clientU = unit(clientId);
+    if(!clientU) return;
+    const auto& clientPos = clientU->fPos;
     auto& clientData = it->second;
     auto& known = clientData.fKnownUnits;
     std::set<int> visible;
     const auto& clientArea = clientData.fArea;
     const auto& screenDims = clientData.fScreen;
-    const int halfHeight = std::ceil(0.5f*screenDims.fHeight/mUnitAreaDim);
-    const int halfWidth = std::ceil(0.5f*screenDims.fWidth/mUnitAreaDim);
+    const int width = screenDims.fWidth;
+    const int height = screenDims.fHeight;
+    const float halfHeightF = 0.5f*height;
+    const float halfWidthF = 0.5f*width;
+    const int halfHeight = std::ceil(halfHeightF/mUnitAreaDim);
+    const int halfWidth = std::ceil(halfWidthF/mUnitAreaDim);
     const int dyMin = -halfHeight - 2;
     const int dyMax = halfHeight + 2;
     const int dxMin = -halfWidth - 2;
@@ -552,6 +559,16 @@ void eServerArea::unitsData(
                 if(!u) continue;
                 visible.emplace(charId);
                 if(known.find(charId) == known.end()) {
+                    const auto& pos = u->fPos;
+                    const float y = halfHeightF +
+                        0.5f*(pos.fY - clientPos.fY + pos.fX - clientPos.fX);
+                    const float x = halfWidthF +
+                        0.5f*(clientPos.fY - pos.fY + pos.fX - clientPos.fX);
+                    const float margin = 4.f;
+                    if(y < -margin) continue;
+                    if(x < -margin) continue;
+                    if(y > height + margin) continue;
+                    if(x > width + margin) continue;
                     const auto d = u->toUnitData();
                     newUnits.emplace_back(d);
                     known.emplace(charId);
