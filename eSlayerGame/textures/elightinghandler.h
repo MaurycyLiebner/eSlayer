@@ -91,6 +91,9 @@ private:
     int mBaseTileW;
     int mBaseTileH;
 
+    std::vector<SDL_Vertex> mVerts;
+    std::vector<int> mIndices;
+
     // multithreading
     std::vector<std::thread> mThreads;
 
