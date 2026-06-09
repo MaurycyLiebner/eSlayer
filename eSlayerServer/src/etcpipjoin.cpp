@@ -9,11 +9,11 @@
 #include <eSlayerHelpers/edoors.h>
 
 eTcpIpJoin::~eTcpIpJoin() {
-    if(mInitialized) mNet.shutdown();
     if(mRunning) {
         mRunning = false;
         mPacketsThread.join();
     }
+    if(mInitialized) mNet.shutdown();
 }
 
 bool eTcpIpJoin::initialize() {

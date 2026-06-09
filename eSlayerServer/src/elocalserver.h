@@ -80,17 +80,13 @@ public:
                        const uint32_t itemId) override;
     bool pickupBody(const int clientId, const uint32_t bodyId) override;
 
-    void mapReady(const eMapAndArea& ma);
     void checkMapsReady() override;
-    void respawnAndGetBody(const int clientId,
-                           eBodyEquipment& beq,
-                           int& bodyId);
 protected:
     int clientMapId(const int clientId);
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 private:
-    float mTime = 0.f;
+    void mapReady(const eMapAndArea& ma);
 
     std::map<uint8_t, eMapAndArea> mMaps;
     using eOMapReadyAction = std::function<void(const eMapAndArea& ma)>;

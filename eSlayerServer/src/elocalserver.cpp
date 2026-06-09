@@ -30,8 +30,6 @@ bool eLocalServer::disconnect(const int clientId) {
 }
 
 void eLocalServer::increment(const float by) {
-    mTime += by;
-    checkMapsReady();
     for(const auto& it : mMaps) {
         const auto& ma = it.second;
         const auto& area = ma.fArea;

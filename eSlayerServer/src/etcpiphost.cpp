@@ -4,11 +4,16 @@
 
 #include <eSlayerMapGenerator/emap.h>
 
+#include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
 
 eTcpIpHost::~eTcpIpHost() {
+    if(mRunning) {
+        mRunning = false;
+        mThread.join();
+    }
     if(mInitialized) {
         ePacket p;
         p << ePacketType::disconnect;
@@ -54,378 +59,180 @@ bool eTcpIpHost::initialize() {
     }
     const bool r = mNet.startServer(4000);
     if(!r) failed("Disconnected", "Failed to create the host server.");
+
+    mRunning = true;
+    const float fpsClamp = eRunSettings::sFPS;
+    const float by = 25.f/fpsClamp;
+    mThread = std::thread([this, fpsClamp, by]() {
+        threadWork(fpsClamp, by);
+    });
+
     return r;
 }
 
 void eTcpIpHost::increment(const float by) {
-    eLocalServer::increment(by);
-    mNet.update();
-    eNetPacket pkt;
-
-    if(eTeams::version() > mTeamsVersion) {
-        ePacket p;
-        p << ePacketType::teams;
-        eTeams::write(p);
-        mNet.broadcast(p);
-    }
-
-    while(mNet.pollPacket(pkt)) {
-        const int tcpClientId = pkt.fClientID;
-        auto& p = pkt.fPacket;
-        ePacketType type;
-        p >> type;
-        switch(type) {
-        case ePacketType::connect: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            int32_t clientId;
-            if(it == mClientIdMap.end()) {
-                clientId = connect();
-                mClientIdMap[tcpClientId] = clientId;
-            } else {
-                clientId = it->second;
-            }
-            ePacket p;
-            p << ePacketType::connect;
-            p << clientId;
-            mNet.sendToClient(pkt.fClientID, p);
-        } break;
-        case ePacketType::map: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                uint8_t mapId;
-                p >> mapId;
-                const int charId = it->second;
-                const auto func = [this, tcpClientId](const eMapData& data) {
-                    const auto it = mClientIdMap.find(tcpClientId);
-                    if(it == mClientIdMap.end()) return;
-                    ePacket p;
-                    p << ePacketType::map;
-                    data.write(p);
-                    mNet.sendToClient(tcpClientId, p);
-                };
-                requestMap(charId, mapId, func);
-            }
-        } break;
-        case ePacketType::spawn: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eCharacter c;
-                c.read(p);
-                eScreenDimensions screenDims;
-                screenDims.read(p);
-                eTeamId teamId;
-                const bool r = spawn(charId, c, teamId, screenDims);
-
-                if(r) {
-                    {
-                        ePacket p;
-                        p << ePacketType::spawn;
-
-                        const uint8_t nClients = mClientHandlers.size();
-                        p << nClients;
-                        for(const auto& it : mClientHandlers) {
-                            const int clientId = it.first;
-                            p << clientId;
-                            const auto h = it.second;
-                            const auto name = h ? h->name() : "";
-                            p << name;
-                        }
-
-                        const auto& eq = c.equipment();
-                        eq.write(p);
-
-                        for(auto& b : c.bodies()) {
-                            p << b.fBodyId;
-                        }
-
-                        eTeams::write(p);
-                        p << teamId;
-                        mNet.sendToClient(pkt.fClientID, p);
-                    }
-
-                    {
-                        ePacket p;
-                        p << ePacketType::userEntered;
-                        p << charId;
-                        const auto name = c.name();
-                        p << name;
-                        mNet.broadcast(p);
-
-                        mNewUsers.emplace_back(charId, name, true);
-                    }
-                }
-            }
-        } break;
-        case ePacketType::state: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eUnitData u;
-                u.read(p);
-                changeState(charId, u);
-            }
-        } break;
-        case ePacketType::data: {
-
-        } break;
-        case ePacketType::userEntered: {
-
-        } break;
-        case ePacketType::userLeft: {
-
-        } break;
-        case ePacketType::unblockEquipment: {
-
-        } break;
-        case ePacketType::equipment: {
-
-        } break;
-        case ePacketType::body: {
-
-        } break;
-        case ePacketType::bodyPickedUp: {
-
-        } break;
-        case ePacketType::teams: {
-
-        } break;
-        case ePacketType::objectStateChanged: {
-
-        } break;
-        case ePacketType::doorsStateChanged: {
-
-        } break;
-        case ePacketType::message: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                std::string msg;
-                p >> msg;
-                sendMessageToAll(charId, msg);
-            }
-        } break;
-        case ePacketType::request: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eRequestData data;
-                p >> data.fRequestId;
-                float time;
-                const bool r = requestData(charId, data, time);
-                if(!r) continue;
-                {
-                    ePacket p;
-                    p << ePacketType::data;
-                    data.write(p);
-                    mNet.sendToClient(tcpClientId, p);
-                }
-            }
-        } break;
-        case ePacketType::attack: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                eAttackData data;
-                data.read(p);
-                const int charId = it->second;
-                attack(charId, data);
-            }
-        } break;
-        case ePacketType::stopAttack: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                stopAttack(charId);
-            }
-        } break;
-        case ePacketType::respawn: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eBodyEquipment beq;
-                int bodyId;
-                const bool r = respawn(charId, beq, bodyId);
-                if(r) {
-                    ePacket p;
-                    p << ePacketType::body;
-                    p << bodyId;
-                    beq.bodyWrite(p);
-                    mNet.sendToClient(tcpClientId, p);
-                }
-            }
-        } break;
-        case ePacketType::setSkillId: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eSkillChoice schoice;
-                p >> schoice;
-                int skillId;
-                p >> skillId;
-                setSkillId(charId, schoice, skillId);
-            }
-        } break;
-        case ePacketType::disconnect: {
-            handleClientDisconnect(tcpClientId);
-        } break;
-        case ePacketType::triggerObject: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                int objectId;
-                p >> objectId;
-                int tx;
-                p >> tx;
-                int ty;
-                p >> ty;
-                const auto obj = triggerObject(charId, objectId, tx, ty);
-
-                const int mapId = clientMapId(charId);
-                if(obj && mapId >= 0) {
-                    ePacket p;
-                    p << ePacketType::objectStateChanged;
-                    const uint8_t umapId = mapId;
-                    p << umapId;
-                    p << *obj;
-                    mNet.broadcast(p);
-                }
-            }
-        } break;
-        case ePacketType::triggerDoors: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eDoors doors;
-                doors.read(p);
-                const bool r = triggerDoors(charId, doors);
-
-                if(r) {
-                    const int mapId = clientMapId(charId);
-                    if(mapId >= 0) {
-                        ePacket p;
-                        p << ePacketType::doorsStateChanged;
-                        const uint8_t umapId = mapId;
-                        p << umapId;
-                        doors.write(p);
-                        mNet.broadcast(p);
-                    }
-                }
-            }
-        } break;
-        case ePacketType::dropItem: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                dropItem(charId);
-            }
-        } break;
-        case ePacketType::pickupItem: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                int itemId;
-                p >> itemId;
-                bool drag;
-                p >> drag;
-                const bool r = pickupItem(charId, itemId, drag);
-                if(r) {
-                    eEquipment data;
-                    const bool r = receiveEquipment(charId, data);
-                    if(!r) continue;
-                    ePacket p;
-                    p << ePacketType::equipment;
-                    data.write(p);
-                    mNet.sendToClient(tcpClientId, p);
-                } else {
-                    ePacket p;
-                    p << ePacketType::unblockEquipment;
-                    mNet.sendToClient(tcpClientId, p);
-                }
-            }
-        } break;
-        case ePacketType::pickupBody: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                uint32_t bodyId;
-                p >> bodyId;
-                const bool r = pickupBody(charId, bodyId);
-                if(r) {
-                    {
-                        eEquipment data;
-                        const bool r = receiveEquipment(charId, data);
-                        if(!r) continue;
-                        ePacket p;
-                        p << ePacketType::equipment;
-                        data.write(p);
-                        mNet.sendToClient(tcpClientId, p);
-                    }
-                    {
-                        ePacket p;
-                        p << ePacketType::bodyPickedUp;
-                        p << bodyId;
-                        mNet.sendToClient(tcpClientId, p);
-                    }
-                } else {
-                    ePacket p;
-                    p << ePacketType::unblockEquipment;
-                    mNet.sendToClient(tcpClientId, p);
-                }
-            }
-        } break;
-        case ePacketType::rearrangeItems: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eEquipment eq;
-                eq.read(p);
-                rearrangeItems(charId, eq);
-            }
-        } break;
-        case ePacketType::consumePotion: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                uint32_t itemId;
-                p >> itemId;
-                consumePotion(charId, itemId);
-            }
-        } break;
-        case ePacketType::attributes: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eAttributes attrs;
-                attrs.read(p);
-                changeAttributes(charId, attrs);
-            }
-        } break;
-        case ePacketType::skills: {
-            const auto it = mClientIdMap.find(tcpClientId);
-            if(it != mClientIdMap.end()) {
-                const int charId = it->second;
-                eSkillLevels skillLevels;
-                skillLevels.read(p);
-                changeSkillLevels(charId, skillLevels);
-            }
-        } break;
-        }
-    }
-    const auto tcpIds = mNet.removeDisconnectedClients();
-    for(const int tcpClientId : tcpIds) {
-        handleClientDisconnect(tcpClientId);
-    }
+    checkMapsReady();
 }
 
 bool eTcpIpHost::sendMessage(const int clientId,
                              const std::string& text) {
+    std::unique_lock lock(mMutex);
     sendMessageToAll(clientId, text);
     return true;
 }
 
-bool eTcpIpHost::triggerDoors(const int clientId,
-                              const eDoors& doors) {
-    return eLocalServer::triggerDoors(clientId, doors);
+bool eTcpIpHost::spawn(
+    const int clientId,
+    eCharacter& c,
+    eTeamId& teamId,
+    const eScreenDimensions& screenDims) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::spawn(
+        clientId, c, teamId, screenDims);
+}
+
+bool eTcpIpHost::requestData(
+    const int clientId,
+    eRequestData& data,
+    float& resultTime) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::requestData(
+        clientId, data, resultTime);
+}
+
+bool eTcpIpHost::requestEquipment(
+    const int clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::requestEquipment(
+        clientId);
+}
+
+bool eTcpIpHost::receiveEquipment(
+    const int clientId, eEquipment& data) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveEquipment(
+        clientId, data);
+}
+
+bool eTcpIpHost::unblockEquipment(
+    const int clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::unblockEquipment(
+        clientId);
+}
+
+bool eTcpIpHost::changeState(
+    const int clientId, const eUnitData& u) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::changeState(
+        clientId, u);
+}
+
+bool eTcpIpHost::attack(
+    const int clientId, const eAttackData& target) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::attack(
+        clientId, target);
+}
+
+bool eTcpIpHost::stopAttack(
+    const int clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::stopAttack(clientId);
+}
+
+bool eTcpIpHost::respawn(
+    const int clientId,
+    eBodyEquipment& beq,
+    int& bodyId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::respawn(
+        clientId, beq, bodyId);
+}
+
+bool eTcpIpHost::setSkillId(
+    const int clientId,
+    const eSkillChoice schoice,
+    const int skillId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::setSkillId(
+        clientId, schoice, skillId);
+}
+
+bool eTcpIpHost::triggerDoors(
+    const int clientId,
+    const eDoors& doors) {
+    std::unique_lock lock(mMutex);
+    return triggerDoorsAndSend(
+        clientId, doors);
+}
+
+bool eTcpIpHost::pickupItem(
+    const int clientId,
+    const int itemId,
+    const bool drag) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::pickupItem(
+        clientId, itemId, drag);
+}
+
+bool eTcpIpHost::dropItem(
+    const int clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::dropItem(
+        clientId);
+}
+
+bool eTcpIpHost::rearrangeItems(
+    const int clientId,
+    const eEquipment& eq) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::rearrangeItems(
+        clientId, eq);
+}
+
+bool eTcpIpHost::changeAttributes(
+    const int clientId,
+    const eAttributes& attrs) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::changeAttributes(
+        clientId, attrs);
+}
+
+bool eTcpIpHost::changeSkillLevels(
+    const int clientId,
+    const eSkillLevels& skillLevels) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::changeSkillLevels(
+        clientId, skillLevels);
+}
+
+bool eTcpIpHost::consumePotion(
+    const int clientId,
+    const uint32_t itemId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::consumePotion(
+        clientId, itemId);
+}
+
+bool eTcpIpHost::pickupBody(
+    const int clientId,
+    const uint32_t bodyId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::pickupBody(
+        clientId, bodyId);
+}
+
+void eTcpIpHost::checkMapsReady() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::checkMapsReady();
+}
+
+std::shared_ptr<eObject> eTcpIpHost::triggerObject(
+    const int clientId, const int objectId,
+    const int tx, const int ty) {
+    std::unique_lock lock(mMutex);
+    return triggerObjectAndSend(clientId, objectId, tx, ty);
 }
 
 void eTcpIpHost::sendMessageToAll(
@@ -454,4 +261,408 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
         mLeftUsers.emplace_back(charId);
     }
     return true;
+}
+
+void eTcpIpHost::threadWork(const float fpsClamp, const float by) {
+    using namespace std::chrono;
+    using namespace std::chrono_literals;
+
+    while(mRunning) {
+        const auto fpsStart = high_resolution_clock::now();
+
+        {
+            std::unique_lock lock(mMutex);
+            eLocalServer::increment(by);
+            mNet.update();
+            eNetPacket pkt;
+            while(mNet.pollPacket(pkt)) {
+                processPacket(pkt);
+            }
+
+            if(eTeams::version() > mTeamsVersion) {
+                ePacket p;
+                p << ePacketType::teams;
+                eTeams::write(p);
+                mNet.broadcast(p);
+                mTeamsVersion = eTeams::version();
+            }
+
+            const auto tcpIds = mNet.removeDisconnectedClients();
+            for(const int tcpClientId : tcpIds) {
+                handleClientDisconnect(tcpClientId);
+            }
+        }
+
+        const auto fpsEnd = high_resolution_clock::now();
+        const duration<double, std::milli> fpsElapsed = fpsEnd - fpsStart;
+        const duration<double, std::milli> fpsDuration(1000./fpsClamp);
+        const duration<double, std::milli> fpsSleep(fpsDuration - fpsElapsed);
+        std::this_thread::sleep_for(fpsSleep);
+    }
+}
+
+void eTcpIpHost::processPacket(eNetPacket& pkt) {
+    const int tcpClientId = pkt.fClientID;
+    auto& p = pkt.fPacket;
+    ePacketType type;
+    p >> type;
+    switch(type) {
+    case ePacketType::connect: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        int32_t clientId;
+        if(it == mClientIdMap.end()) {
+            clientId = connect();
+            mClientIdMap[tcpClientId] = clientId;
+        } else {
+            clientId = it->second;
+        }
+        ePacket p;
+        p << ePacketType::connect;
+        p << clientId;
+        mNet.sendToClient(tcpClientId, p);
+    } break;
+    case ePacketType::map: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            uint8_t mapId;
+            p >> mapId;
+            const int charId = it->second;
+            const auto func = [this, tcpClientId](const eMapData& data) {
+                const auto it = mClientIdMap.find(tcpClientId);
+                if(it == mClientIdMap.end()) return;
+                ePacket p;
+                p << ePacketType::map;
+                data.write(p);
+                mNet.sendToClient(tcpClientId, p);
+            };
+            eLocalServer::requestMap(charId, mapId, func);
+        }
+    } break;
+    case ePacketType::spawn: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eCharacter c;
+            c.read(p);
+            eScreenDimensions screenDims;
+            screenDims.read(p);
+            eTeamId teamId;
+            const bool r = eLocalServer::spawn(
+                charId, c, teamId, screenDims);
+
+            if(r) {
+                {
+                    ePacket p;
+                    p << ePacketType::spawn;
+
+                    const uint8_t nClients = mClientHandlers.size();
+                    p << nClients;
+                    for(const auto& it : mClientHandlers) {
+                        const int clientId = it.first;
+                        p << clientId;
+                        const auto h = it.second;
+                        const auto name = h ? h->name() : "";
+                        p << name;
+                    }
+
+                    const auto& eq = c.equipment();
+                    eq.write(p);
+
+                    for(auto& b : c.bodies()) {
+                        p << b.fBodyId;
+                    }
+
+                    eTeams::write(p);
+                    p << teamId;
+                    mNet.sendToClient(tcpClientId, p);
+                }
+
+                {
+                    ePacket p;
+                    p << ePacketType::userEntered;
+                    p << charId;
+                    const auto name = c.name();
+                    p << name;
+                    mNet.broadcast(p);
+
+                    mNewUsers.emplace_back(charId, name, true);
+                }
+            }
+        }
+    } break;
+    case ePacketType::state: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eUnitData u;
+            u.read(p);
+            eLocalServer::changeState(charId, u);
+        }
+    } break;
+    case ePacketType::data: {
+
+    } break;
+    case ePacketType::userEntered: {
+
+    } break;
+    case ePacketType::userLeft: {
+
+    } break;
+    case ePacketType::unblockEquipment: {
+
+    } break;
+    case ePacketType::equipment: {
+
+    } break;
+    case ePacketType::body: {
+
+    } break;
+    case ePacketType::bodyPickedUp: {
+
+    } break;
+    case ePacketType::teams: {
+
+    } break;
+    case ePacketType::objectStateChanged: {
+
+    } break;
+    case ePacketType::doorsStateChanged: {
+
+    } break;
+    case ePacketType::message: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            std::string msg;
+            p >> msg;
+            sendMessageToAll(charId, msg);
+        }
+    } break;
+    case ePacketType::request: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eRequestData data;
+            p >> data.fRequestId;
+            float time;
+            const bool r = eLocalServer::requestData(charId, data, time);
+            if(!r) return;
+            {
+                ePacket p;
+                p << ePacketType::data;
+                data.write(p);
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
+    case ePacketType::attack: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            eAttackData data;
+            data.read(p);
+            const int charId = it->second;
+            eLocalServer::attack(charId, data);
+        }
+    } break;
+    case ePacketType::stopAttack: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eLocalServer::stopAttack(charId);
+        }
+    } break;
+    case ePacketType::respawn: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eBodyEquipment beq;
+            int bodyId;
+            const bool r = eLocalServer::respawn(
+                charId, beq, bodyId);
+            if(r) {
+                ePacket p;
+                p << ePacketType::body;
+                p << bodyId;
+                beq.bodyWrite(p);
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
+    case ePacketType::setSkillId: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eSkillChoice schoice;
+            p >> schoice;
+            int skillId;
+            p >> skillId;
+            eLocalServer::setSkillId(
+                charId, schoice, skillId);
+        }
+    } break;
+    case ePacketType::disconnect: {
+        handleClientDisconnect(tcpClientId);
+    } break;
+    case ePacketType::triggerObject: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            int objectId;
+            p >> objectId;
+            int tx;
+            p >> tx;
+            int ty;
+            p >> ty;
+            triggerObjectAndSend(charId, objectId, tx, ty);
+        }
+    } break;
+    case ePacketType::triggerDoors: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eDoors doors;
+            doors.read(p);
+            triggerDoorsAndSend(charId, doors);
+        }
+    } break;
+    case ePacketType::dropItem: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eLocalServer::dropItem(charId);
+        }
+    } break;
+    case ePacketType::pickupItem: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            int itemId;
+            p >> itemId;
+            bool drag;
+            p >> drag;
+            const bool r = eLocalServer::pickupItem(
+                charId, itemId, drag);
+            if(r) {
+                eEquipment data;
+                const bool r = eLocalServer::receiveEquipment(
+                    charId, data);
+                if(!r) return;
+                ePacket p;
+                p << ePacketType::equipment;
+                data.write(p);
+                mNet.sendToClient(tcpClientId, p);
+            } else {
+                ePacket p;
+                p << ePacketType::unblockEquipment;
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
+    case ePacketType::pickupBody: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            uint32_t bodyId;
+            p >> bodyId;
+            const bool r = eLocalServer::pickupBody(
+                charId, bodyId);
+            if(r) {
+                {
+                    eEquipment data;
+                    const bool r = eLocalServer::receiveEquipment(
+                        charId, data);
+                    if(!r) return;
+                    ePacket p;
+                    p << ePacketType::equipment;
+                    data.write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
+                {
+                    ePacket p;
+                    p << ePacketType::bodyPickedUp;
+                    p << bodyId;
+                    mNet.sendToClient(tcpClientId, p);
+                }
+            } else {
+                ePacket p;
+                p << ePacketType::unblockEquipment;
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
+    case ePacketType::rearrangeItems: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eEquipment eq;
+            eq.read(p);
+            eLocalServer::rearrangeItems(
+                charId, eq);
+        }
+    } break;
+    case ePacketType::consumePotion: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            uint32_t itemId;
+            p >> itemId;
+            eLocalServer::consumePotion(
+                charId, itemId);
+        }
+    } break;
+    case ePacketType::attributes: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eAttributes attrs;
+            attrs.read(p);
+            eLocalServer::changeAttributes(
+                charId, attrs);
+        }
+    } break;
+    case ePacketType::skills: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const int charId = it->second;
+            eSkillLevels skillLevels;
+            skillLevels.read(p);
+            eLocalServer::changeSkillLevels(
+                charId, skillLevels);
+        }
+    } break;
+    }
+}
+
+bool eTcpIpHost::triggerDoorsAndSend(const int charId, const eDoors& doors) {
+    const bool r = eLocalServer::triggerDoors(charId, doors);
+    if(!r) return false;
+    const int mapId = clientMapId(charId);
+    if(mapId >= 0) {
+        ePacket p;
+        p << ePacketType::doorsStateChanged;
+        const uint8_t umapId = mapId;
+        p << umapId;
+        doors.write(p);
+        mNet.broadcast(p);
+    }
+    return true;
+}
+
+std::shared_ptr<eObject>
+eTcpIpHost::triggerObjectAndSend(
+    const int charId, const int objectId,
+    const int tx, const int ty) {
+    const auto obj = eLocalServer::triggerObject(charId, objectId, tx, ty);
+
+    const int mapId = clientMapId(charId);
+    if(obj && mapId >= 0) {
+        ePacket p;
+        p << ePacketType::objectStateChanged;
+        const uint8_t umapId = mapId;
+        p << umapId;
+        p << *obj;
+        mNet.broadcast(p);
+        return obj;
+    }
+    return obj;
 }
