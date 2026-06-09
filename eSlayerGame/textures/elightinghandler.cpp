@@ -189,7 +189,7 @@ void render(SDL_Renderer* const r,
     const float oy = tex.offsetY()*scale;
 
     std::vector<SDL_Vertex> verts;
-    const int nVerts = 4*nStrips;
+    const int nVerts = 2*(nStrips + 1);
     verts.reserve(nVerts);
 
     std::vector<int> indices;
@@ -197,53 +197,51 @@ void render(SDL_Renderer* const r,
     indices.reserve(nIndices);
 
     const auto sprite = tex.sprite();
+    const float alpha = colorMod.a*opacity;
+    for(int i = 0; i <= nStrips; ++i) {
+        if(i != nStrips) {
+            const int tl = 2 * i;
+            const int bl = tl + 1;
+            const int tr = tl + 2;
+            const int br = tl + 3;
 
-    for(int s = 0; s < nStrips; s++) {
-        {
-            indices.emplace_back(verts.size());
-            auto& tl = verts.emplace_back();
-            const float l = lightness[s];
-            tl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
-            tl.position.x = x + s*vPosW + ox;
-            tl.position.y = y + oy;
-            tl.tex_coord.x = s*vTexCoordW;
-            tl.tex_coord.y = 0.f;
-            sprite.mapCoords(tl.tex_coord);
+            indices.emplace_back(tl);
+            indices.emplace_back(tr);
+            indices.emplace_back(br);
+
+            indices.emplace_back(tl);
+            indices.emplace_back(br);
+            indices.emplace_back(bl);
         }
+
+        const float l = lightness[i];
+
+        const SDL_FColor color{
+            l * colorMod.r,
+            l * colorMod.g,
+            l * colorMod.b,
+            alpha
+        };
+
+        const float px = x + i * vPosW + ox;
+        const float tx = i * vTexCoordW;
+
+        // top
         {
-            indices.emplace_back(verts.size());
-            auto& tr = verts.emplace_back();
-            const float l = lightness[s + 1];
-            tr.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
-            tr.position.x = x + (s + 1)*vPosW + ox;
-            tr.position.y = y + oy;
-            tr.tex_coord.x = (s + 1)*vTexCoordW;
-            tr.tex_coord.y = 0.f;
-            sprite.mapCoords(tr.tex_coord);
+            auto& v = verts.emplace_back();
+            v.color = color;
+            v.position = {px, y + oy};
+            v.tex_coord = {tx, 0.f};
+            sprite.mapCoords(v.tex_coord);
         }
+
+        // bottom
         {
-            indices.emplace_back(verts.size());
-            auto& br = verts.emplace_back();
-            const float l = lightness[s + 1];
-            br.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
-            br.position.x = x + (s + 1)*vPosW + ox;
-            br.position.y = y + th + oy;
-            br.tex_coord.x = (s + 1)*vTexCoordW;
-            br.tex_coord.y = 1.f;
-            sprite.mapCoords(br.tex_coord);
-        }
-        {
-            indices.emplace_back(verts.size());
-            indices.emplace_back(verts.size() - 1);
-            indices.emplace_back(verts.size() - 3);
-            auto& bl = verts.emplace_back();
-            const float l = lightness[s];
-            bl.color = SDL_FColor{l*colorMod.r, l*colorMod.g, l*colorMod.b, colorMod.a*opacity};
-            bl.position.x = x + s*vPosW + ox;
-            bl.position.y = y + th + oy;
-            bl.tex_coord.x = s*vTexCoordW;
-            bl.tex_coord.y = 1.f;
-            sprite.mapCoords(bl.tex_coord);
+            auto& v = verts.emplace_back();
+            v.color = color;
+            v.position = {px, y + th + oy};
+            v.tex_coord = {tx, 1.f};
+            sprite.mapCoords(v.tex_coord);
         }
     }
 
