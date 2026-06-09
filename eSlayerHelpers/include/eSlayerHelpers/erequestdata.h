@@ -13,6 +13,7 @@ class ePacket;
 
 struct ESLAYERHELPERS_API eRequestData {
     uint32_t fRequestId;
+    uint8_t fMapId;
     std::vector<eUnitData> fNewUnits;
     std::vector<eUnitDynamicData> fUpdatedUnits;
     std::vector<eMissile> fMissiles;
@@ -28,7 +29,7 @@ struct ESLAYERHELPERS_API eRequestData {
     uint16_t fLevel;
     uint16_t fExperience;
 
-    void read(ePacket& p);
+    bool read(ePacket& p, const uint8_t currentMapId);
     void write(ePacket& p) const;
 };
 

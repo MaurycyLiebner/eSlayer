@@ -278,8 +278,8 @@ void eGameWidget::sSendAttributesChanged() {
     sInstance->mMainAction->recalculateStats();
 }
 
-void eGameWidget::sMoveToMap(const std::string& mapName) {
-    sInstance->mMoveAction(mapName);
+void eGameWidget::sMoveToMap(const uint8_t mapId) {
+    sInstance->mMoveAction(mapId);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {

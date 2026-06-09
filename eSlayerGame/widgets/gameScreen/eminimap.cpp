@@ -58,7 +58,8 @@ void eMiniMap::initialize(const eGameSettings& settings) {
 
 void eMiniMap::setMap(const std::shared_ptr<eMap>& map) {
     mMap = map;
-    mMapName = map->name();
+    const auto mapId = map->id();
+    mMapName = eMapsSettings::sMaps.name(mapId);
 
     const auto it = sAreasMap.find(mMapName);
     if(it == sAreasMap.end()) {

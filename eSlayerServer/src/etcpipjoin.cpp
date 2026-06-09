@@ -10,6 +10,10 @@
 
 eTcpIpJoin::~eTcpIpJoin() {
     if(mInitialized) mNet.shutdown();
+    if(mRunning) {
+        mRunning = false;
+        mPacketsThread.join();
+    }
 }
 
 bool eTcpIpJoin::initialize() {
@@ -35,12 +39,21 @@ int eTcpIpJoin::connect() {
     int32_t clientId = -1;
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::connect) {
+            ePacketType type;
+            p >> type;
             p >> clientId;
             return true;
         }
         return false;
     };
+
+    mRunning = true;
+    mPacketsThread = std::thread([this]() {
+        threadWork();
+    });
+
     waitFor(10000, "Connection timed out.", handler);
+
     return clientId;
 }
 
@@ -51,78 +64,25 @@ bool eTcpIpJoin::disconnect(const int clientId) {
 }
 
 void eTcpIpJoin::increment(const float by) {
-    mNet.update();
-    eNetPacket pkt;
-    while(mNet.pollPacket(pkt)) {
-        auto& p = pkt.fPacket;
-        ePacketType type;
-        p >> type;
-        switch(type) {
-        case ePacketType::data: {
-            mData.read(p);
-            mNewData = true;
-        } break;
-        case ePacketType::equipment: {
-            mEquipment = eEquipment();
-            mEquipment.read(p);
-            mNewEquipment = true;
-        } break;
-        case ePacketType::unblockEquipment: {
-            mUnblockEquipment = true;
-        } break;
-        case ePacketType::userEntered: {
-            int clientId;
-            p >> clientId;
-            std::string name;
-            p >> name;
-            mNewUsers.emplace_back(clientId, name, true);
-        } break;
-        case ePacketType::userLeft: {
-            int clientId;
-            p >> clientId;
-            mLeftUsers.emplace_back(clientId);
-        } break;
-        case ePacketType::message: {
-            int clientId;
-            p >> clientId;
-            std::string msg;
-            p >> msg;
-            mMessages.emplace_back(clientId, msg);
-        } break;
-        case ePacketType::teams: {
-            eTeams::read(p);
-        } break;
-        case ePacketType::objectStateChanged: {
-            eObject obj;
-            p >> obj;
-            mObjectStateChanges.emplace_back(obj);
-        } break;
-        case ePacketType::doorsStateChanged: {
-            eDoors doors;
-            doors.read(p);
-            mDoorsStateChanged.emplace_back(doors);
-        } break;
-        case ePacketType::bodyPickedUp: {
-            uint32_t bodyId;
-            p >> bodyId;
-            mBodiesPickedUp.emplace_back(bodyId);
-        } break;
-        case ePacketType::disconnect: {
-            failed("Disconnected", "Host closed the connection.");
-        } break;
-        default:
-            break;
-        }
+    std::vector<ePacket> packets;
+    mPackets.with_lock([&](std::vector<ePacket>& ps) {
+        std::swap(ps, packets);
+    });
+    for(auto& p : packets) {
+        handlePacket(p);
     }
 }
 
 bool eTcpIpJoin::requestMap(
     const int clientId,
-    const std::string& name,
+    const uint8_t mapId,
     const eMapReadyAction& func) {
+    mData = eRequestData();
+    mNewData = false;
+
     ePacket p;
     p << ePacketType::map;
-    p << name;
+    p << mapId;
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send map request to the host.");
@@ -130,6 +90,8 @@ bool eTcpIpJoin::requestMap(
     }
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::map) {
+            ePacketType type;
+            p >> type;
             eMapData data;
             data.read(p);
             func(data);
@@ -156,6 +118,8 @@ bool eTcpIpJoin::spawn(
     }
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::spawn) {
+            ePacketType type;
+            p >> type;
             uint8_t nClients;
             p >> nClients;
             for(uint8_t i = 0; i < nClients; i++) {
@@ -258,6 +222,8 @@ bool eTcpIpJoin::respawn(const int clientId,
     if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::body) {
+            ePacketType type;
+            p >> type;
             p >> bodyId;
             beq.bodyRead(p);
             return true;
@@ -387,20 +353,27 @@ bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,
     const ePacketHandler& handler) {
+    if(!mRunning) {
+        failed("Disconnected", error);
+        return false;
+    }
     uint32_t time = 0;
-    while(true) {
-        mNet.update();
-
-        eNetPacket pkt;
-
-        while(mNet.pollPacket(pkt)) {
-            auto& p = pkt.fPacket;
-            ePacketType type;
-            p >> type;
-
-            const bool r = handler(p, type);
-            if(r) return true;
-        }
+    bool found = false;
+    while(!found) {
+        mPackets.with_lock([&](std::vector<ePacket>& ps) {
+            const int iMax = ps.size();
+            for(int i = 0; i < iMax; i++) {
+                auto& p = ps[i];
+                ePacketType type;
+                p.peek(type);
+                found = handler(p, type);
+                if(found) {
+                    ps.erase(ps.begin() + i);
+                    return;
+                }
+            }
+        });
+        if(found) return true;
 
         SDL_Delay(16);
         time += 16;
@@ -410,4 +383,87 @@ bool eTcpIpJoin::waitFor(
         }
     }
     return true;
+}
+
+void eTcpIpJoin::threadWork() {
+    while(mRunning) {
+        mNet.update();
+        eNetPacket pkt;
+        while(mNet.pollPacket(pkt)) {
+            const auto& p = pkt.fPacket;
+            mPackets.with_lock([&](std::vector<ePacket>& v) {
+                v.emplace_back(p);
+            });
+        }
+    }
+}
+
+void eTcpIpJoin::handlePacket(ePacket& p) {
+    const auto mapId = eServer::mapId();
+    ePacketType type;
+    p >> type;
+    switch(type) {
+    case ePacketType::data: {
+        const bool r = mData.read(p, mapId);
+        mNewData = mNewData || r;
+    } break;
+    case ePacketType::equipment: {
+        mEquipment = eEquipment();
+        mEquipment.read(p);
+        mNewEquipment = true;
+    } break;
+    case ePacketType::unblockEquipment: {
+        mUnblockEquipment = true;
+    } break;
+    case ePacketType::userEntered: {
+        int clientId;
+        p >> clientId;
+        std::string name;
+        p >> name;
+        mNewUsers.emplace_back(clientId, name, true);
+    } break;
+    case ePacketType::userLeft: {
+        int clientId;
+        p >> clientId;
+        mLeftUsers.emplace_back(clientId);
+    } break;
+    case ePacketType::message: {
+        int clientId;
+        p >> clientId;
+        std::string msg;
+        p >> msg;
+        mMessages.emplace_back(clientId, msg);
+    } break;
+    case ePacketType::teams: {
+        eTeams::read(p);
+    } break;
+    case ePacketType::objectStateChanged: {
+        uint8_t omapId;
+        p >> omapId;
+        if(mapId == omapId) {
+            eObject obj;
+            p >> obj;
+            mObjectStateChanges.emplace_back(obj);
+        }
+    } break;
+    case ePacketType::doorsStateChanged: {
+        uint8_t dmapId;
+        p >> dmapId;
+        if(mapId == dmapId) {
+            eDoors doors;
+            doors.read(p);
+            mDoorsStateChanged.emplace_back(doors);
+        }
+    } break;
+    case ePacketType::bodyPickedUp: {
+        uint32_t bodyId;
+        p >> bodyId;
+        mBodiesPickedUp.emplace_back(bodyId);
+    } break;
+    case ePacketType::disconnect: {
+        failed("Disconnected", "Host closed the connection.");
+    } break;
+    default:
+        break;
+    }
 }

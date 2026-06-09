@@ -41,11 +41,11 @@ void eLocalServer::increment(const float by) {
 
 bool eLocalServer::requestMap(
     const int clientId,
-    const std::string& name,
+    const uint8_t mapId,
     const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const auto mapIt = mMaps.find(name);
+    const auto mapIt = mMaps.find(mapId);
     std::shared_ptr<eMap> map;
     std::shared_ptr<eServerArea> area;
     const auto ofunc = [this, func, clientId](const eMapAndArea& ma) {
@@ -64,18 +64,18 @@ bool eLocalServer::requestMap(
         return;
     };
     if(mapIt == mMaps.end()) {
-        const auto it = mMapReadyActions.find(name);
+        const auto it = mMapReadyActions.find(mapId);
         if(it == mMapReadyActions.end()) {
-            std::thread t([this, name]() {
-                const auto map = eSlayerMapGenerator::generate(name);
+            std::thread t([this, mapId]() {
+                const auto map = eSlayerMapGenerator::generate(mapId);
                 const auto area = std::make_shared<eServerArea>();
                 area->initialize(map);
-                const eMapAndArea result{name, map, area};
+                const eMapAndArea result{mapId, map, area};
                 mReady.push_back(result);
             });
             t.detach();
         }
-        mMapReadyActions[name].emplace_back(ofunc);
+        mMapReadyActions[mapId].emplace_back(ofunc);
     } else {
         const auto& ma = mapIt->second;
         ofunc(ma);
@@ -226,13 +226,13 @@ bool eLocalServer::pickupBody(
 }
 
 void eLocalServer::mapReady(const eMapAndArea& ma) {
-    const auto& name = ma.fName;
-    mMaps[name] = ma;
-    const auto& as = mMapReadyActions[name];
+    const auto id = ma.fId;
+    mMaps[id] = ma;
+    const auto& as = mMapReadyActions[id];
     for(const auto& a : as) {
         a(ma);
     }
-    mMapReadyActions.erase(name);
+    mMapReadyActions.erase(id);
 }
 
 void eLocalServer::checkMapsReady() {
@@ -242,6 +242,15 @@ void eLocalServer::checkMapsReady() {
         }
         v.clear();
     });
+}
+
+int eLocalServer::clientMapId(const int clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return -1;
+    const auto& a = h->area();
+    if(!a) return -1;
+    const auto& map = a->map();
+    return map->id();
 }
 
 eServerClientHandler*

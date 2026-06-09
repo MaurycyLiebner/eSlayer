@@ -26,7 +26,7 @@ class eGameScreen : public eScreenBase {
 public:
     eGameScreen(eMainWindow* const window);
 
-    using eMoveToMapAction = std::function<void(const std::string& mapName)>;
+    using eMoveToMapAction = std::function<void(const uint8_t mapId)>;
     void setExitAction(const eAction& a);
     void initialize(const int clientId,
                     const std::shared_ptr<eServer>& server,

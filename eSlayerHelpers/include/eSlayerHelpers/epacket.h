@@ -21,6 +21,15 @@ public:
     }
 
     template<typename T>
+    void peek(T& v) const {
+        if(readPos + sizeof(T) > buffer.size()) {
+            eRuntimeThrow("ePacket overflow");
+        }
+
+        memcpy(&v, buffer.data() + readPos, sizeof(T));
+    }
+
+    template<typename T>
     ePacket& operator<<(const T& v) {
         write(v);
         return *this;
@@ -78,11 +87,7 @@ private:
 
     template<typename T>
     void read(T& v) {
-        if(readPos + sizeof(T) > buffer.size()) {
-            eRuntimeThrow("ePacket overflow");
-        }
-
-        memcpy(&v, buffer.data() + readPos, sizeof(T));
+        peek(v);
         readPos += sizeof(T);
     }
 

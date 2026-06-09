@@ -11,14 +11,13 @@ class eMapGenerator {
 public:
     eMapGenerator() {}
 
-    std::shared_ptr<eMap>
-    generate(const std::string& name) const;
+    std::shared_ptr<eMap> generate(const uint8_t mapId) const;
 };
 
 std::shared_ptr<eMap>
-eSlayerMapGenerator::generate(const std::string& name) {
+eSlayerMapGenerator::generate(const uint8_t mapId) {
     eMapGenerator g;
-    return g.generate(name);
+    return g.generate(mapId);
 }
 
 struct eEdge {
@@ -239,16 +238,13 @@ private:
 };
 
 std::shared_ptr<eMap>
-eMapGenerator::generate(const std::string& name) const {
-    const auto mapId = eMapsSettings::sMaps.id(name);
-    if(mapId < 0) {
-        eRuntimeThrow("No map \"" + name + "\" settings found.");
-    }
+eMapGenerator::generate(const uint8_t mapId) const {
+    const auto& name = eMapsSettings::sMaps.name(mapId);
     const auto& mapSettings = eMapsSettings::sMaps.get(mapId);
     if(mapSettings.fAreas.size() == 0) {
         eRuntimeThrow("No areas to generate for \"" + name + "\"");
     }
-    const auto result = std::make_shared<eMap>(name);
+    const auto result = std::make_shared<eMap>(mapId);
     result->mAllPresent = true;
 
     const int areaDim = mapSettings.fMaxSize;

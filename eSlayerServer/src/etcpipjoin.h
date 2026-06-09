@@ -2,10 +2,14 @@
 #define ETCPIPJOIN_H
 
 #include "eSlayerServer/eserver.h"
+#include "ethreadsafevector.h"
 
 #include <eSlayerNet/etcpnetwork.h>
+
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eequipment.h>
+
+#include <thread>
 
 enum class ePacketType : uint8_t;
 
@@ -22,7 +26,7 @@ public:
     void increment(const float by) override;
 
     bool requestMap(const int clientId,
-                    const std::string& name,
+                    const uint8_t mapId,
                     const eMapReadyAction& func) override;
     bool spawn(const int clientId,
                eCharacter& c,
@@ -82,6 +86,12 @@ private:
     bool waitFor(const uint32_t wait,
                  const std::string& error,
                  const ePacketHandler& handler);
+    void threadWork();
+    void handlePacket(ePacket& p);
+
+    std::thread mPacketsThread;
+    bool mRunning = false;
+    eThreadSafeVector<ePacket> mPackets;
 
     eTCPNetwork mNet;
     bool mInitialized = false;

@@ -67,10 +67,15 @@ public:
     virtual void increment(const float by) = 0;
     virtual void checkMapsReady() {}
 
+    bool requestMapCall(const int clientId,
+                        const uint8_t id,
+                        const eMapReadyAction& func);
+protected:
     virtual bool
     requestMap(const int clientId,
-               const std::string& name,
+               const uint8_t id,
                const eMapReadyAction& func) = 0;
+public:
     virtual bool
     spawn(const int clientId,
           eCharacter& c,
@@ -144,6 +149,8 @@ public:
     pickupBody(const int clientId,
                const uint32_t bodyId) = 0;
 
+    uint8_t mapId() const { return mMapId; }
+
     const std::string& ip() const { return mData.fIp; }
     const std::string& name() const { return mData.fName; }
     const std::string& password() const { return mData.fPassword; }
@@ -166,6 +173,7 @@ protected:
     std::vector<uint32_t> mBodiesPickedUp;
 private:
     const eServerData mData;
+    uint8_t mMapId;
 
     eServerFailureHandler mFailure;
 };

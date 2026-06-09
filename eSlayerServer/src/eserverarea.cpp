@@ -781,7 +781,7 @@ bool eServerArea::addClient(
     const int clientId,
     const std::shared_ptr<eServerUnit>& u,
     const eScreenDimensions& screenDims,
-    const std::string& entranceMap,
+    const uint8_t entranceMap,
     ePointF& spawnPos) {
     const auto cu = unit(clientId);
     if(cu) return false;
@@ -833,10 +833,10 @@ bool eServerArea::moveClient(
     if(!u) return false;
     const auto& clientData = from.mClientData[clientId];
     const auto fromMap = from.mMap;
-    const auto& fromName = fromMap->name();
+    const auto fromMapId = fromMap->id();
     const bool r = to.addClient(
         clientId, u, clientData.fScreen,
-        fromName, spawnPos);
+        fromMapId, spawnPos);
     if(!r) return false;
     from.clientMoved(clientId);
     return true;

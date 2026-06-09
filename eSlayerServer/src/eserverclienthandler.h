@@ -58,7 +58,6 @@ private:
     const int mClientId;
     std::string mName;
     std::shared_ptr<eServerArea> mArea;
-    std::vector<eDataRequest> mDataRequests;
 };
 
 #endif // ESERVERCLIENTHANDLER_H

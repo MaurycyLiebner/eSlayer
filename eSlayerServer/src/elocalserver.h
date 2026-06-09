@@ -12,7 +12,7 @@
 struct eAttackData;
 
 struct eMapAndArea {
-    std::string fName;
+    uint8_t fId;
     std::shared_ptr<eMap> fMap;
     std::shared_ptr<eServerArea> fArea;
 };
@@ -28,7 +28,7 @@ public:
     void increment(const float by) override;
 
     bool requestMap(const int clientId,
-                    const std::string& name,
+                    const uint8_t mapId,
                     const eMapReadyAction& func) override;
     bool spawn(const int clientId,
                eCharacter& c,
@@ -86,14 +86,15 @@ public:
                            eBodyEquipment& beq,
                            int& bodyId);
 protected:
+    int clientMapId(const int clientId);
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 private:
     float mTime = 0.f;
 
-    std::map<std::string, eMapAndArea> mMaps;
+    std::map<uint8_t, eMapAndArea> mMaps;
     using eOMapReadyAction = std::function<void(const eMapAndArea& ma)>;
-    std::map<std::string, std::vector<eOMapReadyAction>> mMapReadyActions;
+    std::map<uint8_t, std::vector<eOMapReadyAction>> mMapReadyActions;
 
     eThreadSafeVector<eMapAndArea> mReady;
 };

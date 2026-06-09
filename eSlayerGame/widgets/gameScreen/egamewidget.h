@@ -36,7 +36,7 @@ struct eScreenMessage {
     int fFramesRemaining;
 };
 
-using eMoveToMapAction = std::function<void(const std::string& mapName)>;
+using eMoveToMapAction = std::function<void(const uint8_t mapId)>;
 
 class eGameWidget : public eLabel {
 public:
@@ -112,7 +112,7 @@ public:
     static void sSendInventoryRearranged();
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
-    static void sMoveToMap(const std::string& mapName);
+    static void sMoveToMap(const uint8_t mapId);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

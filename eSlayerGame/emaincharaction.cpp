@@ -268,8 +268,7 @@ void eMainCharAction::increment(const bool mousePressed,
                 mServer->triggerDoors(mClientId, *mPressedDoors);
             } else if(mPressedStairs) {
                 const auto mapId = mPressedStairs->fMapId;
-                const auto mapName = eMapsSettings::sMaps.name(mapId);
-                eGameWidget::sMoveToMap(mapName);
+                eGameWidget::sMoveToMap(mapId);
             }
             mClickAction = mousePressed;
             stop();

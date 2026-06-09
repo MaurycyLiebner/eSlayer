@@ -11,8 +11,8 @@
 
 std::atomic<uint32_t> sNextObjectId = 1;
 
-eMap::eMap(const std::string& name) :
-    mName(name) {}
+eMap::eMap(const uint8_t id) :
+    mId(id) {}
 
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
@@ -49,11 +49,10 @@ const std::shared_ptr<eObject>& eMap::object(
     return mObjects[id];
 }
 
-ePointF eMap::spawnPos(const std::string& entranceMap) const {
-    const int mapId = eMapsSettings::sMaps.id(entranceMap);
+ePointF eMap::spawnPos(const uint8_t entranceMap) const {
     for(const auto& s : mStairs) {
         const auto sMapId = s.fMapId;
-        if(sMapId != mapId) continue;
+        if(sMapId != entranceMap) continue;
         return {s.fX, s.fY};
     }
     return spawnPos();

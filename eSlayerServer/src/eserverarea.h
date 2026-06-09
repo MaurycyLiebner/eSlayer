@@ -47,6 +47,7 @@ public:
     eServerArea();
 
     void initialize(const std::shared_ptr<eMap>& map);
+    const std::shared_ptr<eMap>& map() const { return mMap; }
 
     void increment(const float by = 1.f);
 
@@ -189,7 +190,7 @@ private:
     bool addClient(const int clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,
-                   const std::string& entranceMap,
+                   const uint8_t entranceMap,
                    ePointF& spawnPos);
     bool findPlaceForUnit(
         const ePointF& pos, ePointF& result) const;

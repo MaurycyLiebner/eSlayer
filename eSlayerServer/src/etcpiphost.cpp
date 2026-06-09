@@ -2,6 +2,8 @@
 
 #include "epacketdata.h"
 
+#include <eSlayerMapGenerator/emap.h>
+
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
@@ -90,8 +92,8 @@ void eTcpIpHost::increment(const float by) {
         case ePacketType::map: {
             const auto it = mClientIdMap.find(tcpClientId);
             if(it != mClientIdMap.end()) {
-                std::string mapName;
-                p >> mapName;
+                uint8_t mapId;
+                p >> mapId;
                 const int charId = it->second;
                 const auto func = [this, tcpClientId](const eMapData& data) {
                     const auto it = mClientIdMap.find(tcpClientId);
@@ -101,7 +103,7 @@ void eTcpIpHost::increment(const float by) {
                     data.write(p);
                     mNet.sendToClient(tcpClientId, p);
                 };
-                requestMap(charId, mapName, func);
+                requestMap(charId, mapId, func);
             }
         } break;
         case ePacketType::spawn: {
@@ -278,9 +280,12 @@ void eTcpIpHost::increment(const float by) {
                 p >> ty;
                 const auto obj = triggerObject(charId, objectId, tx, ty);
 
-                if(obj) {
+                const int mapId = clientMapId(charId);
+                if(obj && mapId >= 0) {
                     ePacket p;
                     p << ePacketType::objectStateChanged;
+                    const uint8_t umapId = mapId;
+                    p << umapId;
                     p << *obj;
                     mNet.broadcast(p);
                 }
@@ -295,10 +300,15 @@ void eTcpIpHost::increment(const float by) {
                 const bool r = triggerDoors(charId, doors);
 
                 if(r) {
-                    ePacket p;
-                    p << ePacketType::doorsStateChanged;
-                    doors.write(p);
-                    mNet.broadcast(p);
+                    const int mapId = clientMapId(charId);
+                    if(mapId >= 0) {
+                        ePacket p;
+                        p << ePacketType::doorsStateChanged;
+                        const uint8_t umapId = mapId;
+                        p << umapId;
+                        doors.write(p);
+                        mNet.broadcast(p);
+                    }
                 }
             }
         } break;

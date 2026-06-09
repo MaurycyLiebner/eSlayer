@@ -27,6 +27,14 @@ void eServer::setFailureHandler(const eServerFailureHandler& h) {
     mFailure = h;
 }
 
+bool eServer::requestMapCall(
+    const int clientId,
+    const uint8_t id,
+    const eMapReadyAction& func) {
+    mMapId = id;
+    return requestMap(clientId, id, func);
+}
+
 std::vector<eOtherUsers> eServer::receiveNewUsers() {
     std::vector<eOtherUsers> result;
     std::swap(mNewUsers, result);

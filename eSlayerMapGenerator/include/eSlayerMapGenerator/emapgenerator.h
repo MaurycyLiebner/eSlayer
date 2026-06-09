@@ -4,13 +4,12 @@
 #include "eslayermapgeneratorexport.h"
 
 #include <memory>
-#include <string>
 
 class eMap;
 
 namespace eSlayerMapGenerator {
     ESLAYERMAPGENERATOR_API std::shared_ptr<eMap>
-    generate(const std::string& name);
+    generate(const uint8_t mapId);
 }
 
 #endif // EMAPGENERATOR_H
