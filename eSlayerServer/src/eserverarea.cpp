@@ -838,8 +838,7 @@ bool eServerArea::moveClient(
         clientId, u, clientData.fScreen,
         fromName, spawnPos);
     if(!r) return false;
-    from.mClientData.erase(clientId);
-    from.removeClient(clientId);
+    from.clientMoved(clientId);
     return true;
 }
 
@@ -896,6 +895,12 @@ bool eServerArea::removeClient(const int clientId) {
         planRemoveUnit(bodyId);
     }
     mBodies.erase(clientId);
+    const int r = mClientData.erase(clientId);
+    return r > 0;
+}
+
+bool eServerArea::clientMoved(const int clientId) {
+    planRemoveUnit(clientId);
     const int r = mClientData.erase(clientId);
     return r > 0;
 }

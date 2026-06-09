@@ -101,6 +101,7 @@ public:
                  eBodyEquipment& beq,
                  int& bodyId);
     bool removeClient(const int clientId);
+    bool clientMoved(const int clientId);
     bool planRemoveUnit(const int charId);
     bool pickupBody(const int clientId, const int charId);
 
