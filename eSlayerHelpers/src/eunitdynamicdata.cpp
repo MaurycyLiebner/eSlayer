@@ -210,13 +210,7 @@ void eUnitDynamicData::read(ePacket& p) {
     }
 
     if(getUpdate(eShift::boosts)) {
-        uint8_t nBoosts;
-        p >> nBoosts;
-        for(int i = 0; i < nBoosts; i++) {
-            uint8_t b;
-            p >> b;
-            fBoosts.emplace(b);
-        }
+        p.read8(fBoosts);
     }
 }
 
@@ -256,11 +250,7 @@ void eUnitDynamicData::write(ePacket& p) const {
     }
 
     if(getUpdate(eShift::boosts)) {
-        const uint8_t nBoosts = fBoosts.size();
-        p << nBoosts;
-        for(const uint8_t b : fBoosts) {
-            p << b;
-        }
+        p.write8(fBoosts);
     }
 }
 

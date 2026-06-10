@@ -43,21 +43,13 @@ ePointF eDoorsStairsBase::pos() const {
 void eDoorsStairsBase::read(ePacket& p) {
     p >> fType;
 
-    uint8_t nTiles;
-    p >> nTiles;
-    for(int i = 0; i < nTiles; i++) {
-        p >> fTiles.emplace_back();
-    }
+    p.read8(fTiles);
 }
 
 void eDoorsStairsBase::write(ePacket& p) const {
     p << fType;
 
-    const uint8_t nTiles = fTiles.size();
-    p << nTiles;
-    for(const auto& t : fTiles) {
-        p << t;
-    }
+    p.write8(fTiles);
 }
 
 eStairs::eStairs() {}

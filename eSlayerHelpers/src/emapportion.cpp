@@ -41,23 +41,9 @@ void eMapData::write(ePacket& p) const {
     p << fTotalWidth;
     p << fTotalHeight;
 
-    const uint16_t nTerrTypes = fTerrainTypes.size();
-    p << nTerrTypes;
-    for(const auto type : fTerrainTypes) {
-        p << type;
-    }
-
-    const uint16_t nObjTypes = fObjectTypes.size();
-    p << nObjTypes;
-    for(const auto type : fObjectTypes) {
-        p << type;
-    }
-
-    const uint16_t nUnitTypes = fUnitTypes.size();
-    p << nUnitTypes;
-    for(const auto& unitType : fUnitTypes) {
-        p << unitType;
-    }
+    p.write16(fTerrainTypes);
+    p.write16(fObjectTypes);
+    p.write16(fUnitTypes);
 
     p << fLight;
     p << fContrast;
@@ -71,40 +57,16 @@ void eMapData::write(ePacket& p) const {
         p << it.fValue;
     }
 
-    const uint8_t nStairs = fStairs.size();
-    p << nStairs;
-    for(const auto& s : fStairs) {
-        p << s;
-    }
+    p.write8(fStairs);
 }
 
 void eMapData::read(ePacket& p) {
     p >> fTotalWidth;
     p >> fTotalHeight;
 
-    uint16_t nTerrTypes;
-    p >> nTerrTypes;
-    for(uint16_t i = 0; i < nTerrTypes; i++) {
-        uint16_t t;
-        p >> t;
-        fTerrainTypes.emplace(t);
-    }
-
-    uint16_t nObjTypes;
-    p >> nObjTypes;
-    for(uint16_t i = 0; i < nObjTypes; i++) {
-        uint16_t t;
-        p >> t;
-        fObjectTypes.emplace(t);
-    }
-
-    uint16_t nUnitTypes;
-    p >> nUnitTypes;
-    for(uint16_t i = 0; i < nUnitTypes; i++) {
-        uint16_t unitType;
-        p >> unitType;
-        fUnitTypes.emplace(unitType);
-    }
+    p.read16(fTerrainTypes);
+    p.read16(fObjectTypes);
+    p.read16(fUnitTypes);
 
     p >> fLight;
     p >> fContrast;
@@ -121,9 +83,5 @@ void eMapData::read(ePacket& p) {
         fAreas.add(name, area);
     }
 
-    uint8_t nStairs;
-    p >> nStairs;
-    for(int i = 0; i < nStairs; i++) {
-        p >> fStairs.emplace_back();
-    }
+    p.read8(fStairs);
 }

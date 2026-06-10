@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <set>
 
 class ESLAYERHELPERS_API ePacket {
 public:
@@ -77,7 +78,88 @@ public:
 
     float readFloatU16(const float max);
     void writeFloatU16(const float v, const float max);
+
+    template <typename T>
+    void write8(const std::vector<T>& v) {
+        write<T, uint8_t>(v);
+    }
+
+    template <typename T>
+    void write16(const std::vector<T>& v) {
+        write<T, uint16_t>(v);
+    }
+
+    template <typename T>
+    void read8(std::vector<T>& v) {
+        read<T, uint8_t>(v);
+    }
+
+    template <typename T>
+    void read16(std::vector<T>& v) {
+        read<T, uint16_t>(v);
+    }
+
+    template <typename T>
+    void write8(const std::set<T>& v) {
+        write<T, uint8_t>(v);
+    }
+
+    template <typename T>
+    void write16(const std::set<T>& v) {
+        write<T, uint16_t>(v);
+    }
+
+    template <typename T>
+    void read8(std::set<T>& v) {
+        read<T, uint8_t>(v);
+    }
+
+    template <typename T>
+    void read16(std::set<T>& v) {
+        read<T, uint16_t>(v);
+    }
 private:
+    template <typename T, typename U>
+    void write(const std::vector<T>& v) {
+        const U size = v.size();
+        *this << size;
+        for(U i = 0; i < size; i++) {
+            *this << v[i];
+        }
+    }
+
+    template <typename T, typename U>
+    void read(std::vector<T>& v) {
+        U size;
+        *this >> size;
+        v.reserve(v.size() + size);
+        for(U i = 0; i < size; i++) {
+            *this >> v.emplace_back();
+        }
+    }
+
+    template <typename T, typename U>
+    void write(const std::set<T>& v) {
+        const U size = v.size();
+        *this << size;
+        U i = 0;
+        for(const auto& t : v) {
+            *this << t;
+            if(++i >= size) break;
+        }
+    }
+
+    template <typename T, typename U>
+    void read(std::set<T>& v) {
+        U size;
+        *this >> size;
+        for(U i = 0; i < size; i++) {
+            T t;
+            *this >> t;
+            v.emplace(t);
+        }
+    }
+
     template<typename T>
     void write(const T& v) {
         const size_t pos = buffer.size();

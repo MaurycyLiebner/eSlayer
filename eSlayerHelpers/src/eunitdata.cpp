@@ -17,13 +17,7 @@ void eUnitData::read(ePacket& p) {
 
     fRadius = p.readFloatU8(radiusMax);
 
-    uint8_t nMods;
-    p >> nMods;
-    for(uint8_t i = 0; i < nMods; i++) {
-        uint8_t m;
-        p >> m;
-        fMods.emplace(m);
-    }
+    p.read8(fMods);
 
     fModelParts.read(p);
 }
@@ -36,11 +30,7 @@ void eUnitData::write(ePacket& p) const {
 
     p.writeFloatU8(fRadius, radiusMax);
 
-    const uint8_t nMods = fMods.size();
-    p << nMods;
-    for(const auto m : fMods) {
-        p << m;
-    }
+    p.write8(fMods);
 
     fModelParts.write(p);
 }

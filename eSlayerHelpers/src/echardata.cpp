@@ -139,20 +139,9 @@ void eCharData::setAnimId(const std::string& name, const int id) {
 }
 
 void eModelParts::read(ePacket& p) {
-    uint8_t nVals;
-    p >> nVals;
-    fValues.reserve(nVals);
-    for(uint8_t i = 0; i < nVals; i++) {
-        uint8_t val;
-        p >> val;
-        fValues.emplace_back(val);
-    }
+    p.read8(fValues);
 }
 
 void eModelParts::write(ePacket& p) const {
-    const uint8_t nVals = fValues.size();
-    p << nVals;
-    for(const uint8_t val : fValues) {
-        p << val;
-    }
+    p.write8(fValues);
 }
