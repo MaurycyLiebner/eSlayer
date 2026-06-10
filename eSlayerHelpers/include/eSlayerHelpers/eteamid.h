@@ -9,6 +9,7 @@ enum class eTeamActionType : uint8_t {
     makeEnemies,
     makeFriends,
     invite,
+    cancelInvite,
     acceptInvitation,
     leaveTeam
 };
@@ -52,6 +53,10 @@ public:
 
     static bool invite(
         const uint32_t invited, const uint32_t clientId);
+    static bool isInvited(
+        const uint32_t invited, const uint32_t clientId);
+    static bool cancelInvite(
+        const uint32_t invited, const uint32_t clientId);
 
     static bool acceptInvitation(
         const eTeamId teamId, const uint32_t clientId);
@@ -79,6 +84,10 @@ private:
         const eTeamId teamId, const uint32_t clientId);
 
     static bool invite(
+        const eTeamId teamId, const uint32_t clientId);
+    static bool isInvited(
+        const eTeamId teamId, const uint32_t clientId);
+    static bool cancelInvite(
         const eTeamId teamId, const uint32_t clientId);
 
     static bool makeEnemies(

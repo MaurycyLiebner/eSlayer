@@ -21,6 +21,7 @@ class eStatsWidget;
 class eCharacter;
 class eLineEdit;
 class eBgWidget;
+class ePartyWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -44,6 +45,9 @@ private:
     void hotkeyPressed(const int fkey);
     void consumePotion(const int x);
 
+    void hideLeftMenu();
+    void hideRightMenu();
+
     void showDeadMenu();
 
     void showESCMenu();
@@ -51,6 +55,9 @@ private:
 
     void showInventoryMenu();
     void hideInventoryMenu();
+
+    void showPartyMenu();
+    void hidePartyMenu();
 
     void showStatsMenu();
     void hideStatsMenu();
@@ -77,6 +84,7 @@ private:
     eWidget* mDeadMenu = nullptr;
     eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
+    ePartyWidget* mPartyMenu = nullptr;
     eInventoryBagpackWidget* mBelt = nullptr;
     bool mBeltExtTmp = false;
     eInventoryBagpackWidget* mBeltExt = nullptr;

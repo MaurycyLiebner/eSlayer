@@ -346,6 +346,16 @@ bool eTcpIpJoin::pickupBody(
     return true;
 }
 
+bool eTcpIpJoin::teamAction(
+    const int clientId, const eTeamAction& action) {
+    ePacket p;
+    p << ePacketType::teamsAction;
+    p << action;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send a teams action to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,

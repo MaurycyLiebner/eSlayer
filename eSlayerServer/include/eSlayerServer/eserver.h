@@ -148,6 +148,10 @@ public:
     pickupBody(const int clientId,
                const uint32_t bodyId) = 0;
 
+    virtual bool
+    teamAction(const int clientId,
+               const eTeamAction& action) = 0;
+
     uint8_t mapId() const { return mMapId; }
 
     const std::string& ip() const { return mData.fIp; }

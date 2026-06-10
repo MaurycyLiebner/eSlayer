@@ -79,6 +79,9 @@ public:
     bool pickupBody(const int clientId, const uint32_t bodyId) override;
 
     void checkMapsReady() override;
+
+    bool teamAction(const int clientId,
+                    const eTeamAction& action) override;
 protected:
     bool changeTeam(const int clientId,
                     const eTeamId newTeam);

@@ -81,7 +81,7 @@ public:
     std::vector<eEquipment>& bodyEquipments() { return mMainAction->bodyEquipments(); }
     eAttributes& attributes() { return mMainAction->attributes(); }
     eStats& stats() { return mMainAction->stats(); }
-    eTeamId team() const { return mTeamId; }
+    eTeamId team() const { return mMainChar->fTeamId; }
     void dropItem();
     void sendInventoryRearranged();
     void sendAttributesChanged();
@@ -114,6 +114,7 @@ public:
     static void sSendAttributesChanged();
     static void sMoveToMap(const uint8_t mapId);
     static void sClearAll();
+    static std::map<int, std::string> sUserNames;
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -134,8 +135,6 @@ private:
     std::string mCName;
     bool mHardcore;
 
-    eTeamId mTeamId;
-
     eGameWorld mWorld;
     eGameInput mInput;
     eGamePainter mGamePainter;
@@ -146,7 +145,6 @@ private:
     std::shared_ptr<eMainCharAction> mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    static std::map<int, std::string> sUserNames;
     std::vector<eScreenMessage> mMessages;
 
     std::weak_ptr<eUnit> mHighlightUnit;

@@ -243,6 +243,28 @@ void eLocalServer::checkMapsReady() {
     });
 }
 
+bool eLocalServer::teamAction(
+    const int clientId, const eTeamAction& action) {
+    switch(action.fType) {
+    case eTeamActionType::makeEnemies:
+        return eTeams::makeEnemies(action.fTeamId, clientId);
+    case eTeamActionType::makeFriends:
+        return eTeams::makeFriends(action.fTeamId, clientId);
+    case eTeamActionType::invite:
+        return eTeams::invite(action.fInvitedId, clientId);
+    case eTeamActionType::cancelInvite:
+        return eTeams::cancelInvite(action.fInvitedId, clientId);
+    case eTeamActionType::acceptInvitation: {
+        const bool r = eTeams::acceptInvitation(action.fTeamId, clientId);
+        if(!r) return false;
+        return eLocalServer::changeTeam(clientId, action.fTeamId);
+    } break;
+    case eTeamActionType::leaveTeam:
+        const auto newTeamId = eTeams::leaveTeam(clientId);
+        return eLocalServer::changeTeam(clientId, newTeamId);
+    }
+}
+
 bool eLocalServer::changeTeam(
     const int clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);

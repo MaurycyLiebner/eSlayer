@@ -443,30 +443,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const int charId = it->second;
             eTeamAction action;
             p >> action;
-            bool changeTeam = false;
-            eTeamId newTeamId;
-            switch(action.fType) {
-            case eTeamActionType::makeEnemies:
-                eTeams::makeEnemies(action.fTeamId, charId);
-                break;
-            case eTeamActionType::makeFriends:
-                eTeams::makeFriends(action.fTeamId, charId);
-                break;
-            case eTeamActionType::invite:
-                eTeams::invite(action.fInvitedId, charId);
-                break;
-            case eTeamActionType::acceptInvitation:
-                newTeamId = action.fTeamId;
-                changeTeam = eTeams::acceptInvitation(action.fTeamId, charId);
-                break;
-            case eTeamActionType::leaveTeam:
-                newTeamId = eTeams::leaveTeam(charId);
-                changeTeam = true;
-                break;
-            }
-            if(changeTeam) {
-                eLocalServer::changeTeam(charId, newTeamId);
-            }
+            eLocalServer::teamAction(charId, action);
         }
     } break;
     case ePacketType::request: {

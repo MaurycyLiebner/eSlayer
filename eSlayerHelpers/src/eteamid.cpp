@@ -80,6 +80,18 @@ bool eTeams::invite(
     return invite(toTeam, invited);
 }
 
+bool eTeams::isInvited(
+    const uint32_t invited, const uint32_t clientId) {
+    const auto toTeam = playerTeam(clientId);
+    return isInvited(toTeam, invited);
+}
+
+bool eTeams::cancelInvite(
+    const uint32_t invited, const uint32_t clientId) {
+    const auto toTeam = playerTeam(clientId);
+    return cancelInvite(toTeam, invited);
+}
+
 bool eTeams::invite(
     const eTeamId teamId, const uint32_t invited) {
 
@@ -97,13 +109,32 @@ bool eTeams::invite(
     return true;
 }
 
-bool eTeams::acceptInvitation(
+bool eTeams::isInvited(
     const eTeamId teamId, const uint32_t clientId) {
     const auto it = sTeams.find(teamId);
     if(it == sTeams.end()) return false;
     auto& team = it->second;
     auto& invs = team.fInvitations;
     if(invs.find(clientId) == invs.end()) return false;
+    return true;
+}
+
+bool eTeams::cancelInvite(
+    const eTeamId teamId, const uint32_t clientId) {
+    const auto it = sTeams.find(teamId);
+    if(it == sTeams.end()) return false;
+    auto& team = it->second;
+    auto& invs = team.fInvitations;
+    if(invs.find(clientId) == invs.end()) return false;
+    invs.erase(clientId);
+    sVersion++;
+    return true;
+}
+
+bool eTeams::acceptInvitation(
+    const eTeamId teamId, const uint32_t clientId) {
+    const bool r = isInvited(teamId, clientId);
+    if(!r) return false;
     const auto cteam = playerTeam(clientId);
     removeMember(cteam, clientId);
     clearInvitationsFor(clientId);
@@ -124,6 +155,7 @@ eTeamId eTeams::addTeam(const uint32_t clientId) {
         const int inext = static_cast<int>(result) + 1;
         result = static_cast<eTeamId>(inext);
     }
+    sTeams.emplace(result, eTeam());
     addMember(result, clientId);
     clearInvitationsFor(clientId);
     sVersion++;

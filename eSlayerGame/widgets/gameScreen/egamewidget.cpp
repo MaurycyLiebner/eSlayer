@@ -63,7 +63,6 @@ void eGameWidget::initialize(const int clientId,
     sUserNames[clientId] = mCName;
     mHardcore = c.hardcore();
     mBodies = c.bodies();
-    mTeamId = teamId;
 
     mClientId = clientId;
     mServer = server;

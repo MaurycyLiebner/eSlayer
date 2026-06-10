@@ -222,8 +222,6 @@ private:
 
     std::shared_ptr<eMap> mMap;
 
-    static eTeamId sNextTeamId;
-
     eIdMapVector<eServerMissile> mMissiles;
     eIdMapVector<eServerSkillArea> mSkillAreas;
     eIdMapVector<eServerNova> mNovas;

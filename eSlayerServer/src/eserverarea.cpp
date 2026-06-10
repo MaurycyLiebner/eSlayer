@@ -24,8 +24,6 @@
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eplacementhelper.h>
 
-eTeamId eServerArea::sNextTeamId = eTeamId::playerTeam0;
-
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
     mNIncrementer(mUnitAreas) {
@@ -741,10 +739,9 @@ bool eServerArea::addClient(const int clientId,
     u->addSkill();
     auto spawnPos = mMap->spawnPos();
     findPlaceForUnit(spawnPos, spawnPos);
-    teamId = sNextTeamId;
+    teamId = eTeams::addTeam(clientId);
     iniSetupUnit(u, clientId, teamId, spawnPos,
                  typeId, udata, data, modelParts);
-    sNextTeamId = static_cast<eTeamId>(static_cast<int>(sNextTeamId) + 1);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     auto& eq = c.equipment();

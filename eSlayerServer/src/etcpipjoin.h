@@ -79,6 +79,8 @@ public:
                        const uint32_t itemId) override;
     bool pickupBody(const int clientId,
                     const uint32_t bodyId) override;
+    bool teamAction(const int clientId,
+                    const eTeamAction& action) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;

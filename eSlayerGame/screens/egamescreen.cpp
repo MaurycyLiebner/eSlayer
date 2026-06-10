@@ -21,6 +21,7 @@
 #include "../widgets/gameScreen/eskilltreeswidget.h"
 #include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
+#include "../widgets/gameScreen/epartywidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -240,6 +241,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideInventoryMenu();
         } else if(mSkillTreesMenu) {
             hideSkillTreesMenu();
+        } else if(mPartyMenu) {
+            hidePartyMenu();
         } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
@@ -259,9 +262,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         if(mInventoryMenu) {
             hideInventoryMenu();
         } else {
-            if(mSkillTreesMenu) {
-                hideSkillTreesMenu();
-            }
+            hideRightMenu();
             showInventoryMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_W) {
@@ -283,15 +284,21 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         if(mStatsMenu) {
             hideStatsMenu();
         } else {
+            hideLeftMenu();
             showStatsMenu();
+        }
+    } else if(!mMessage && key == SDL_SCANCODE_P) {
+        if(mPartyMenu) {
+            hidePartyMenu();
+        } else {
+            hideLeftMenu();
+            showPartyMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_T) {
         if(mSkillTreesMenu) {
             hideSkillTreesMenu();
         } else {
-            if(mInventoryMenu) {
-                hideInventoryMenu();
-            }
+            hideRightMenu();
             showSkillTreesMenu();
         }
     } else if(key == SDL_SCANCODE_RETURN) {
@@ -421,6 +428,24 @@ void eGameScreen::consumePotion(const int x) {
     return mGameWidget->consumePotion(x);
 }
 
+void eGameScreen::hideLeftMenu() {
+    if(mPartyMenu) {
+        hidePartyMenu();
+    }
+    if(mStatsMenu) {
+        hideStatsMenu();
+    }
+}
+
+void eGameScreen::hideRightMenu() {
+    if(mSkillTreesMenu) {
+        hideSkillTreesMenu();
+    }
+    if(mInventoryMenu) {
+        hideInventoryMenu();
+    }
+}
+
 void eGameScreen::showDeadMenu() {
     mDeadMenu = new eWidget(window());
 
@@ -501,6 +526,27 @@ void eGameScreen::hideInventoryMenu() {
     mInventoryMenu = nullptr;
     updateCharPos();
     mDragWidget->setHoverItem(eItem());
+}
+
+void eGameScreen::showPartyMenu() {
+    if(mPartyMenu) return;
+    mPartyMenu = new ePartyWidget(window());
+    const int w = width();
+    const int h = height();
+    mPartyMenu->resize(w/2, h - mBottomWid->height());
+    const auto& cname = mGameWidget->cname();
+    mPartyMenu->initialize(cname);
+    addWidget(mPartyMenu);
+    mPartyMenu->align(eAlignment::left | eAlignment::top);
+    updateCharPos();
+    mDragWidget->bringToFront();
+}
+
+void eGameScreen::hidePartyMenu() {
+    if(!mPartyMenu) return;
+    mPartyMenu->deleteLater();
+    mPartyMenu = nullptr;
+    updateCharPos();
 }
 
 void eGameScreen::showStatsMenu() {
@@ -669,7 +715,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
 void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
-    const bool left = mStatsMenu;
+    const bool left = mStatsMenu || mPartyMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {
