@@ -159,8 +159,6 @@ public:
     std::vector<int> summoned(const eServerUnit& by,
                               const int unitId);
 
-    ePointF emptyPlaceNear(const ePointF& pos) const;
-
     std::shared_ptr<eServerUnit>
     unit(const int charId) const;
     std::shared_ptr<eGroundItem>
@@ -183,6 +181,8 @@ public:
                            eServerArea& from,
                            eServerArea& to,
                            ePointF& spawnPos);
+    bool findPlaceForUnit(const ePointF& pos,
+                          ePointF& result) const;
 private:
     bool spawnBody(const int clientId,
                    const eBodyEquipment& beq,
@@ -192,8 +192,6 @@ private:
                    const eScreenDimensions& screenDims,
                    const uint8_t entranceMap,
                    ePointF& spawnPos);
-    bool findPlaceForUnit(
-        const ePointF& pos, ePointF& result) const;
     void iniMissileInc();
     void iniNovaInc();
 

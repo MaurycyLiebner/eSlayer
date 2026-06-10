@@ -739,9 +739,8 @@ bool eServerArea::addClient(const int clientId,
         true, data, typeId, *this, map);
     u->addSkill();
     u->addSkill();
-    ePointF spawnPos;
-    const auto pos = mMap->spawnPos();
-    findPlaceForUnit(pos, spawnPos);
+    auto spawnPos = mMap->spawnPos();
+    findPlaceForUnit(spawnPos, spawnPos);
     teamId = sNextTeamId;
     iniSetupUnit(u, clientId, teamId, spawnPos,
                  typeId, udata, data, modelParts);
@@ -788,8 +787,8 @@ bool eServerArea::addClient(
     const auto cu = unit(clientId);
     if(cu) return false;
 
-    const auto pos = mMap->spawnPos(entranceMap);
-    findPlaceForUnit(pos, spawnPos);
+    spawnPos = mMap->spawnPos(entranceMap);
+    findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
@@ -807,15 +806,17 @@ bool eServerArea::addClient(
 
 bool eServerArea::findPlaceForUnit(
     const ePointF& pos, ePointF& result) const {
-    const int x = pos.fX;
-    const int y = pos.fY;
+    const float x = pos.fX;
+    const float y = pos.fY;
     for(int dist = 0; dist < 5; dist++) {
         const int maxTries = dist == 0 ? 1 : 10;
         for(int i = 0; i <= maxTries; i++) {
             const float dx = eRand::randF(-dist, dist);
             const float dy = eRand::randF(-dist, dist);
-            const ePointF tryPos{float(x + dx), float(y + dy)};
-            const auto u = unit(tryPos);
+            const ePointF tryPos{x + dx, y + dy};
+            const auto u = unit(tryPos, [](const eServerUnit& u) {
+                return u.fHealth > 0;
+            });
             if(u) continue;
             const bool w = walkable(tryPos);
             if(!w) continue;
@@ -884,9 +885,8 @@ bool eServerArea::respawn(const int clientId,
         if(!r) return false;
     }
     client->respawn();
-    const auto pos = mMap->spawnPos();
-    auto spawnPos = pos;
-    findPlaceForUnit(pos, spawnPos);
+    auto spawnPos = mMap->spawnPos();
+    findPlaceForUnit(spawnPos, spawnPos);
     client->setPosition(spawnPos);
     return true;
 }
@@ -1369,6 +1369,8 @@ void eServerArea::summon(eServerUnit& by,
                          const int unitId,
                          const int maxCount,
                          const std::vector<eModifier>& mods) {
+    const bool r = findPlaceForUnit(to, to);
+    if(!r) return;
     auto& followers = by.followers();
     const auto summoned = eServerArea::summoned(by, unitId);
     if(maxCount > 0 && summoned.size() >= maxCount) {
@@ -1376,7 +1378,6 @@ void eServerArea::summon(eServerUnit& by,
         planRemoveUnit(removeCharId);
         eVectorHelpers::remove(followers, removeCharId);
     }
-    to = emptyPlaceNear(to);
     const auto& udata = eUnitsInfo::sUnits.get(unitId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const auto name = data.name();
@@ -1488,25 +1489,6 @@ std::vector<int> eServerArea::summoned(
         }
     }
     return result;
-}
-
-ePointF eServerArea::emptyPlaceNear(const ePointF& pos) const {
-    for(int dist = 0; dist < 100; dist++) {
-        for(int x = -dist; x <= dist; x++) {
-            for(int y = -dist; y <= dist; y++) {
-                if(std::abs(x) != dist && std::abs(y) != dist) continue;
-                const ePointF p{pos.fX + x*0.5f, pos.fY + y*0.5f};
-                const bool r = mMap->walkable(p);
-                if(!r) continue;
-                const auto u = unit(p, [](const eServerUnit& u) {
-                    return u.fHealth > 0;
-                });
-                if(u) continue;
-                return p;
-            }
-        }
-    }
-    return pos;
 }
 
 std::shared_ptr<eServerUnit>

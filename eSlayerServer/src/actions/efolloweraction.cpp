@@ -41,7 +41,9 @@ void eFollowerAction::decide() {
 }
 
 void eFollowerAction::teleportTo(eServerUnit& follow) {
-    const auto pos = mArea.emptyPlaceNear(follow.fPos);
+    ePointF pos;
+    const bool r = mArea.findPlaceForUnit(follow.fPos, pos);
+    if(!r) return;
     mUnit.setPosition(pos);
     setChild(nullptr);
 }
