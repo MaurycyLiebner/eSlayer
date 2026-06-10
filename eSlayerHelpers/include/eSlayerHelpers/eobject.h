@@ -13,4 +13,13 @@ struct eObject : public ePositioned {
     float fSize;
 };
 
+struct eServerObject : public eObject {
+    eServerObject() {}
+    eServerObject(const uint8_t mapId,
+                  const eObject& obj) :
+        eObject(obj), fMapId(mapId) {}
+
+    uint8_t fMapId;
+};
+
 #endif // EOBJECT_H

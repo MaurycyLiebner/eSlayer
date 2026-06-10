@@ -138,15 +138,14 @@ bool eServerClientHandler::setSkillId(
     return true;
 }
 
-std::shared_ptr<eObject> eServerClientHandler::triggerObject(
-    const int objectId,
-    const int tx, const int ty) {
-    if(!mArea) return nullptr;
-    return mArea->triggerObject(mClientId, objectId, tx, ty);
+bool eServerClientHandler::triggerObject(
+    eServerObject& obj) {
+    if(!mArea) return false;
+    return mArea->triggerObject(mClientId, obj);
 }
 
 bool eServerClientHandler::triggerDoors(
-    const eDoors& doors) {
+    const eServerDoors& doors) {
     if(!mArea) return false;
     return mArea->triggerDoors(mClientId, doors);
 }

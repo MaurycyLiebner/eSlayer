@@ -53,14 +53,14 @@ std::vector<eMessage> eServer::receiveMessages() {
     return result;
 }
 
-std::vector<eObject> eServer::receiveObjectStateChanges() {
-    std::vector<eObject> result;
+std::vector<eServerObject> eServer::receiveObjectStateChanges() {
+    std::vector<eServerObject> result;
     std::swap(mObjectStateChanges, result);
     return result;
 }
 
-std::vector<eDoors> eServer::receiveDoorsStateChanges() {
-    std::vector<eDoors> result;
+std::vector<eServerDoors> eServer::receiveDoorsStateChanges() {
+    std::vector<eServerDoors> result;
     std::swap(mDoorsStateChanged, result);
     return result;
 }

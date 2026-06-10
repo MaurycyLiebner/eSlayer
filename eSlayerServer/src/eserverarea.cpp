@@ -939,11 +939,15 @@ bool eServerArea::pickupBody(
     return true;
 }
 
-std::shared_ptr<eObject> eServerArea::triggerObject(
-    const int clientId, const int objectId,
-    const int tx, const int ty) {
+bool eServerArea::triggerObject(
+    const int clientId, eServerObject& obj) {
+    if(obj.fMapId != mMap->id()) return false;
+    const auto& pos = obj.fPos;
+    const int tx = pos.fX;
+    const int ty = pos.fY;
+    if(!mMap->inside(tx, ty)) return false;
     const int areaMId = mMap->areaAt({tx, ty});
-    if(areaMId < 0) return nullptr;
+    if(areaMId < 0) return false;
     const auto& area = mMap->area(areaMId);
     const auto mapId = area.fMapId;
     const auto areaId = area.fAreaId;
@@ -952,16 +956,16 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
     const auto level = areaSett.fLevel;
     const auto& objIds = mMap->objects(tx, ty);
     for(const auto id : objIds) {
-        const auto& obj = mMap->object(id);
-        const auto objId = obj->fObjectId;
-        if(objId != objectId) continue;
-        const auto type = obj->fObjectType;
+        const auto& sobj = mMap->object(id);
+        const auto objId = sobj->fObjectId;
+        if(objId != sobj->fObjectId) continue;
+        const auto type = sobj->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
         switch(info.fType) {
         case eObjectType::treasure: {
-            auto& state = obj->fState;
-            if(state != 0) return nullptr;
-            const float fx = tx + obj->fSize + 0.5f;
+            auto& state = sobj->fState;
+            if(state != 0) return false;
+            const float fx = tx + sobj->fSize + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, level, 7.5f);
             state = 1;
@@ -969,13 +973,15 @@ std::shared_ptr<eObject> eServerArea::triggerObject(
         case eObjectType::none:
             break;
         }
-        return obj;
+        static_cast<eObject&>(obj) = *sobj;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
 bool eServerArea::triggerDoors(
-    const int clientId, const eDoors& doors) {
+    const int clientId, const eServerDoors& doors) {
+    if(doors.fMapId != mMap->id()) return false;
     mMap->triggerDoors(doors);
     return true;
 }

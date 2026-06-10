@@ -245,21 +245,18 @@ bool eTcpIpJoin::setSkillId(const int clientId,
     return true;
 }
 
-std::shared_ptr<eObject> eTcpIpJoin::triggerObject(
-    const int clientId, const int objectId,
-    const int tx, const int ty) {
+bool eTcpIpJoin::triggerObject(
+    const int clientId, eServerObject& obj) {
     ePacket p;
     p << ePacketType::triggerObject;
-    p << objectId;
-    p << tx;
-    p << ty;
+    p << obj;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send object trigger to the host.");
-    return nullptr;
+    return true;
 }
 
-bool eTcpIpJoin::triggerDoors(const int clientId,
-                              const eDoors& doors) {
+bool eTcpIpJoin::triggerDoors(
+    const int clientId, const eServerDoors& doors) {
     ePacket p;
     p << ePacketType::triggerDoors;
     doors.write(p);
@@ -438,20 +435,16 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         eTeams::read(p);
     } break;
     case ePacketType::objectStateChanged: {
-        uint8_t omapId;
-        p >> omapId;
-        if(mapId == omapId) {
-            eObject obj;
-            p >> obj;
+        eServerObject obj;
+        p >> obj;
+        if(obj.fMapId == mapId) {
             mObjectStateChanges.emplace_back(obj);
         }
     } break;
     case ePacketType::doorsStateChanged: {
-        uint8_t dmapId;
-        p >> dmapId;
-        if(mapId == dmapId) {
-            eDoors doors;
-            doors.read(p);
+        eServerDoors doors;
+        doors.read(p);
+        if(doors.fMapId == mapId) {
             mDoorsStateChanged.emplace_back(doors);
         }
     } break;

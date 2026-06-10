@@ -47,13 +47,11 @@ public:
                     const eSkillChoice schoice,
                     const int skillId) override;
 
-    std::shared_ptr<eObject>
-    triggerObject(const int clientId,
-                  const int objectId,
-                  const int tx, const int ty) override;
+    bool triggerObject(const int clientId,
+                       eServerObject& obj) override;
 
     bool triggerDoors(const int clientId,
-                      const eDoors& doors) override;
+                      const eServerDoors& doors) override;
 
     bool pickupItem(const int clientId,
                     const int itemId,
@@ -76,10 +74,12 @@ private:
     void threadWork(const float fpsClamp, const float by);
     void processPacket(eNetPacket& pkt);
 
-    bool triggerDoorsAndSend(const int charId, const eDoors& doors);
-    std::shared_ptr<eObject>
-    triggerObjectAndSend(const int charId, const int objectId,
-                         const int tx, const int ty);
+    bool triggerDoorsAndSend(
+        const int clientId, const eServerDoors& doors);
+    bool triggerObjectAndSend(
+        const int clientId, eServerObject& obj);
+
+    void sendToMapClients(const uint8_t mapId, const ePacket& p);
 
     std::thread mThread;
     bool mRunning = false;

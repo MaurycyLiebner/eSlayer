@@ -161,7 +161,7 @@ bool eTcpIpHost::setSkillId(
 
 bool eTcpIpHost::triggerDoors(
     const int clientId,
-    const eDoors& doors) {
+    const eServerDoors& doors) {
     std::unique_lock lock(mMutex);
     return triggerDoorsAndSend(
         clientId, doors);
@@ -228,11 +228,10 @@ void eTcpIpHost::checkMapsReady() {
     return eLocalServer::checkMapsReady();
 }
 
-std::shared_ptr<eObject> eTcpIpHost::triggerObject(
-    const int clientId, const int objectId,
-    const int tx, const int ty) {
+bool eTcpIpHost::triggerObject(
+    const int clientId, eServerObject& obj) {
     std::unique_lock lock(mMutex);
-    return triggerObjectAndSend(clientId, objectId, tx, ty);
+    return triggerObjectAndSend(clientId, obj);
 }
 
 void eTcpIpHost::sendMessageToAll(
@@ -507,20 +506,16 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
             const int charId = it->second;
-            int objectId;
-            p >> objectId;
-            int tx;
-            p >> tx;
-            int ty;
-            p >> ty;
-            triggerObjectAndSend(charId, objectId, tx, ty);
+            eServerObject obj;
+            p >> obj;
+            triggerObjectAndSend(charId, obj);
         }
     } break;
     case ePacketType::triggerDoors: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
             const int charId = it->second;
-            eDoors doors;
+            eServerDoors doors;
             doors.read(p);
             triggerDoorsAndSend(charId, doors);
         }
@@ -633,36 +628,41 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     }
 }
 
-bool eTcpIpHost::triggerDoorsAndSend(const int charId, const eDoors& doors) {
-    const bool r = eLocalServer::triggerDoors(charId, doors);
+bool eTcpIpHost::triggerDoorsAndSend(
+    const int clientId, const eServerDoors& doors) {
+    const int mapId = clientMapId(clientId);
+    if(mapId < 0) return false;
+    if(mapId != doors.fMapId) return false;
+    const bool r = eLocalServer::triggerDoors(clientId, doors);
     if(!r) return false;
-    const int mapId = clientMapId(charId);
-    if(mapId >= 0) {
-        ePacket p;
-        p << ePacketType::doorsStateChanged;
-        const uint8_t umapId = mapId;
-        p << umapId;
-        doors.write(p);
-        mNet.broadcast(p);
-    }
+    ePacket p;
+    p << ePacketType::doorsStateChanged;
+    doors.write(p);
+    sendToMapClients(mapId, p);
     return true;
 }
 
-std::shared_ptr<eObject>
-eTcpIpHost::triggerObjectAndSend(
-    const int charId, const int objectId,
-    const int tx, const int ty) {
-    const auto obj = eLocalServer::triggerObject(charId, objectId, tx, ty);
+bool eTcpIpHost::triggerObjectAndSend(
+    const int clientId, eServerObject& obj) {
+    const int mapId = clientMapId(clientId);
+    if(mapId < 0) return false;
+    if(mapId != obj.fMapId) return false;
+    const bool r = eLocalServer::triggerObject(clientId, obj);
+    if(!r) return false;
+    ePacket p;
+    p << ePacketType::objectStateChanged;
+    p << obj;
+    sendToMapClients(mapId, p);
+    return true;
+}
 
-    const int mapId = clientMapId(charId);
-    if(obj && mapId >= 0) {
-        ePacket p;
-        p << ePacketType::objectStateChanged;
-        const uint8_t umapId = mapId;
-        p << umapId;
-        p << *obj;
-        mNet.broadcast(p);
-        return obj;
+void eTcpIpHost::sendToMapClients(
+    const uint8_t mapId, const ePacket& p) {
+    for(const auto& it : mClientIdMap) {
+        const int clientId = it.second;
+        const int cMapId = clientMapId(clientId);
+        if(cMapId != mapId) continue;
+        const int tcpClientId = it.first;
+        mNet.sendToClient(tcpClientId, p);
     }
-    return obj;
 }

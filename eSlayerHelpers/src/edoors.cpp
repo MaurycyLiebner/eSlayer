@@ -65,19 +65,9 @@ eStairs::eStairs() {}
 eStairs::eStairs(const eWallType wallType,
                  const int type, const int nTypes,
                  const int x0, const int y0,
-                 const uint8_t mapId) :
+                 const uint8_t targetMapId) :
     eDoorsStairsBase(wallType, type, nTypes, x0, y0),
-    fMapId(mapId) {}
-
-void eStairs::read(ePacket& p) {
-    eDoorsStairsBase::read(p);
-    p >> fMapId;
-}
-
-void eStairs::write(ePacket& p) const {
-    eDoorsStairsBase::write(p);
-    p << fMapId;
-}
+    fTargetMapId(targetMapId) {}
 
 eDoors::eDoors() {}
 
@@ -88,12 +78,40 @@ eDoors::eDoors(const eWallType wallType,
     eDoorsStairsBase(wallType, type, nTypes, x0, y0),
     fOpen(open) {}
 
-void eDoors::read(ePacket& p) {
+eServerStairs::eServerStairs() {}
+
+eServerStairs::eServerStairs(
+    const uint8_t mapId, const eStairs& stairs) :
+    eStairs(stairs),
+    eWithMapId(mapId) {}
+
+void eServerStairs::read(ePacket& p) {
+    p >> fMapId;
+    eDoorsStairsBase::read(p);
+    p >> fTargetMapId;
+}
+
+void eServerStairs::write(ePacket& p) const {
+    p << fMapId;
+    eDoorsStairsBase::write(p);
+    p << fTargetMapId;
+}
+
+eServerDoors::eServerDoors() {}
+
+eServerDoors::eServerDoors(const uint8_t mapId,
+                           const eDoors& doors) :
+    eDoors(doors),
+    eWithMapId(mapId) {}
+
+void eServerDoors::read(ePacket& p) {
+    p >> fMapId;
     eDoorsStairsBase::read(p);
     p >> fOpen;
 }
 
-void eDoors::write(ePacket& p) const {
+void eServerDoors::write(ePacket& p) const {
+    p << fMapId;
     eDoorsStairsBase::write(p);
     p << fOpen;
 }

@@ -19,7 +19,7 @@ struct ESLAYERHELPERS_API eDoorsStairsBase {
     std::vector<ePoint> fTiles;
 
     ePointF pos() const;
-
+protected:
     virtual void read(ePacket& p);
     virtual void write(ePacket& p) const;
 };
@@ -30,12 +30,9 @@ struct ESLAYERHELPERS_API eStairs :
     eStairs(const eWallType wallType,
             const int type, const int nTypes,
             const int x0, const int y0,
-            const uint8_t mapId);
+            const uint8_t targetMapId);
 
-    uint8_t fMapId;
-
-    void read(ePacket& p) override;
-    void write(ePacket& p) const override;
+    uint8_t fTargetMapId;
 };
 
 struct ESLAYERHELPERS_API eDoors :
@@ -47,6 +44,33 @@ struct ESLAYERHELPERS_API eDoors :
            const bool open);
 
     bool fOpen;
+};
+
+struct ESLAYERHELPERS_API eWithMapId {
+    eWithMapId() {}
+    eWithMapId(const uint8_t mapId) :
+        fMapId(mapId) {}
+
+    uint8_t fMapId;
+};
+
+struct ESLAYERHELPERS_API eServerStairs :
+    public eStairs,
+    public eWithMapId {
+    eServerStairs();
+    eServerStairs(const uint8_t mapId,
+                  const eStairs& stairs);
+
+    void read(ePacket& p) override;
+    void write(ePacket& p) const override;
+};
+
+struct ESLAYERHELPERS_API eServerDoors :
+    public eDoors,
+    public eWithMapId {
+    eServerDoors();
+    eServerDoors(const uint8_t mapId,
+                 const eDoors& doors);
 
     void read(ePacket& p) override;
     void write(ePacket& p) const override;

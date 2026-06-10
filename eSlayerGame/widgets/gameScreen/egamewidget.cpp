@@ -1469,7 +1469,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                             const auto mapId = mMap->stairsMapId(
                                 tile.fX, tile.fY, wall.fType);
                             if(mapId) {
-                                stairs.fMapId = *mapId;
+                                stairs.fTargetMapId = *mapId;
                                 if(highlight && !mHighlightStairs) {
                                     setHighlightedStairs(stairs);
                                     mHighlightObject.reset();
@@ -1679,7 +1679,7 @@ void eGameWidget::setHighlightedStairs(
         const float mult = res.multiplier();
         const int h = 100*mult;
         const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
-        const auto mapId = stairs->fMapId;
+        const auto mapId = stairs->fTargetMapId;
         const auto areaNameBase = eMapsSettings::sMaps.name(mapId);
         const auto areaName = eAreaNames::name(areaNameBase);
         eHoverWidget::sSetGameTooltip(areaName, rect);

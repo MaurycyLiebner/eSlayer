@@ -154,18 +154,17 @@ bool eLocalServer::setSkillId(const int clientId,
     return h->setSkillId(schoice, skillId);
 }
 
-std::shared_ptr<eObject> eLocalServer::triggerObject(
-    const int clientId, const int objectId,
-    const int tx, const int ty) {
+bool eLocalServer::triggerObject(
+    const int clientId, eServerObject& obj) {
     const auto h = clientHandler(clientId);
-    if(!h) return nullptr;
-    const auto obj = h->triggerObject(objectId, tx, ty);
-    if(obj) mObjectStateChanges.emplace_back(*obj);
-    return obj;
+    if(!h) return false;
+    const bool r = h->triggerObject(obj);
+    if(r) mObjectStateChanges.emplace_back(obj);
+    return true;
 }
 
 bool eLocalServer::triggerDoors(
-    const int clientId, const eDoors& doors) {
+    const int clientId, const eServerDoors& doors) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const bool r = h->triggerDoors(doors);

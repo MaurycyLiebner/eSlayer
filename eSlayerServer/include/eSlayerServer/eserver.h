@@ -19,7 +19,7 @@ struct eEquipment;
 struct eAttributes;
 struct eSkillLevels;
 struct eScreenDimensions;
-struct eDoors;
+struct eServerDoors;
 
 struct eServerData {
     std::string fName;
@@ -113,14 +113,13 @@ public:
                const eSkillChoice schoice,
                const int skillId) = 0;
 
-    virtual std::shared_ptr<eObject>
+    virtual bool
     triggerObject(const int clientId,
-                  const int objectId,
-                  const int tx, const int ty) = 0;
+                  eServerObject& obj) = 0;
 
     virtual bool
     triggerDoors(const int clientId,
-                 const eDoors& d) = 0;
+                 const eServerDoors& d) = 0;
 
     virtual bool
     pickupItem(const int clientId,
@@ -158,8 +157,8 @@ public:
     std::vector<eOtherUsers> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
-    std::vector<eObject> receiveObjectStateChanges();
-    std::vector<eDoors> receiveDoorsStateChanges();
+    std::vector<eServerObject> receiveObjectStateChanges();
+    std::vector<eServerDoors> receiveDoorsStateChanges();
     std::vector<uint32_t> receiveBodiesPickedUp();
 protected:
     void failed(const std::string& msg,
@@ -168,8 +167,8 @@ protected:
     std::vector<eOtherUsers> mNewUsers;
     std::vector<int> mLeftUsers;
     std::vector<eMessage> mMessages;
-    std::vector<eObject> mObjectStateChanges;
-    std::vector<eDoors> mDoorsStateChanged;
+    std::vector<eServerObject> mObjectStateChanges;
+    std::vector<eServerDoors> mDoorsStateChanged;
     std::vector<uint32_t> mBodiesPickedUp;
 private:
     const eServerData mData;

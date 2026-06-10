@@ -247,9 +247,9 @@ void eMainCharAction::increment(const bool mousePressed,
         handlePos(l);
         handlePos(tl);
         if(minDist < 0.5f) {
-            const int tx = opos.fX;
-            const int ty = opos.fY;
-            mServer->triggerObject(mClientId, objectId, tx, ty);
+            const auto mapId = mMap->id();
+            eServerObject sobject(mapId, *object);
+            mServer->triggerObject(mClientId, sobject);
             mClickAction = mousePressed;
             stop();
             return;
@@ -265,9 +265,11 @@ void eMainCharAction::increment(const bool mousePressed,
         const float dist = ePointF::distance(pos, charPos);
         if(dist < 0.5f) {
             if(mPressedDoors) {
-                mServer->triggerDoors(mClientId, *mPressedDoors);
+                const auto mapId = mMap->id();
+                const eServerDoors sdoors(mapId, *mPressedDoors);
+                mServer->triggerDoors(mClientId, sdoors);
             } else if(mPressedStairs) {
-                const auto mapId = mPressedStairs->fMapId;
+                const auto mapId = mPressedStairs->fTargetMapId;
                 eGameWidget::sMoveToMap(mapId);
             }
             mClickAction = mousePressed;
@@ -338,7 +340,9 @@ void eMainCharAction::increment(const bool mousePressed,
         return;
     }
     if(mMovementHandler.pushTime() > 3.f) {
-        mServer->triggerDoors(mClientId, doors);
+        const auto mapId = mMap->id();
+        const eServerDoors sdoors(mapId, doors);
+        mServer->triggerDoors(mClientId, sdoors);
     }
 }
 
