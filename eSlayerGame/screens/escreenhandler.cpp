@@ -231,6 +231,10 @@ void loadUnitTypes(const eResolution& res,
 
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
+    eMiniMap::clearAll();
+    eGameWidget::sClearAll();
+    eTeams::clear();
+
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
     const auto mapName = "basement_1"/*"act1_1"*/;
@@ -245,8 +249,6 @@ void eScreenHandler::showGame(eServerData serverData,
     const int height = mWindow->height();
 
     const auto finish = [this, map, server, clientId, serverC, teamId]() {
-        eMiniMap::clearAll();
-        eGameWidget::sClearAll();
         finishGameShow(map, *server, *clientId, *serverC, *teamId);
     };
 

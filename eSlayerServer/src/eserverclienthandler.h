@@ -48,6 +48,7 @@ public:
     bool changeSkillLevels(const eSkillLevels& skillLevels);
     bool consumePotion(const uint32_t itemId);
     bool pickupBody(const uint32_t bodyId);
+    bool changeTeam(const eTeamId newTeam);
 
     const std::string& name() const { return mName; }
     void setName(const std::string& name) { mName = name; }

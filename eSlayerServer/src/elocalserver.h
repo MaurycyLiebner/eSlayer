@@ -80,6 +80,8 @@ public:
 
     void checkMapsReady() override;
 protected:
+    bool changeTeam(const int clientId,
+                    const eTeamId newTeam);
     int clientMapId(const int clientId);
     eServerClientHandler* clientHandler(const int clientId);
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;

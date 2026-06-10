@@ -202,3 +202,9 @@ bool eServerClientHandler::pickupBody(
     mArea->pickupBody(mClientId, bodyId);
     return true;
 }
+
+bool eServerClientHandler::changeTeam(
+    const eTeamId newTeam) {
+    if(!mArea) return false;
+    return mArea->changeTeam(mClientId, newTeam);
+}

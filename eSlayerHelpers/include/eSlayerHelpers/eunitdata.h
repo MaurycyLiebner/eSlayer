@@ -86,6 +86,8 @@ struct ESLAYERHELPERS_API eUnitData :
     bool setState(const uint8_t state);
     bool setBoosts(const std::set<uint8_t>& boosts);
 
+    bool setTeamId(const eTeamId teamId);
+
     bool setCold(const bool c);
     bool setFrozen(const bool f);
     bool setPoisoned(const bool p);

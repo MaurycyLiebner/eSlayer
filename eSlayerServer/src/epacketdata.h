@@ -18,6 +18,7 @@ enum class ePacketType : uint8_t {
     skills, teams,
     equipment, unblockEquipment,
     body, bodyPickedUp,
+    teamsAction,
     disconnect
 };
 

@@ -97,6 +97,13 @@ bool eUnitData::setBoosts(
     return true;
 }
 
+bool eUnitData::setTeamId(const eTeamId teamId) {
+    if(fTeamId == teamId) return false;
+    fTeamId = teamId;
+    setUpdate(eShift::teamId, true);
+    return true;
+}
+
 bool eUnitData::setCold(
     const bool c) {
     if(getState(eState::cold_) == c) return false;

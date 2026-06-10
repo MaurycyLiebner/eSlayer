@@ -104,6 +104,7 @@ public:
     bool clientMoved(const int clientId);
     bool planRemoveUnit(const int charId);
     bool pickupBody(const int clientId, const int charId);
+    bool changeTeam(const int clientId, const eTeamId newTeam);
 
     bool triggerObject(
         const int clientId, eServerObject& obj);

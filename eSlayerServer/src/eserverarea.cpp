@@ -939,6 +939,14 @@ bool eServerArea::pickupBody(
     return true;
 }
 
+bool eServerArea::changeTeam(
+    const int clientId, const eTeamId newTeam) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    u->setTeamId(newTeam);
+    return true;
+}
+
 bool eServerArea::triggerObject(
     const int clientId, eServerObject& obj) {
     if(obj.fMapId != mMap->id()) return false;

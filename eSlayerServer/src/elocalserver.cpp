@@ -243,6 +243,13 @@ void eLocalServer::checkMapsReady() {
     });
 }
 
+bool eLocalServer::changeTeam(
+    const int clientId, const eTeamId newTeam) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->changeTeam(newTeam);
+}
+
 int eLocalServer::clientMapId(const int clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return -1;
