@@ -527,7 +527,7 @@ void eServerArea::increment(const float by) {
 void eServerArea::unitsData(
     const int clientId,
     std::vector<eUnitData>& newUnits,
-    std::vector<eUnitDynamicData>& updatedUnits) {
+    std::vector<eUnitData>& updatedUnits) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return;
     const auto clientU = unit(clientId);
@@ -559,6 +559,7 @@ void eServerArea::unitsData(
                 const auto u = unit(charId);
                 if(!u) continue;
                 visible.emplace(charId);
+                const auto update = u->requestUpdate(clientId);
                 if(known.find(charId) == known.end()) {
                     const auto& pos = u->fPos;
                     const float y = halfHeightF +
@@ -574,8 +575,7 @@ void eServerArea::unitsData(
                     newUnits.emplace_back(d);
                     known.emplace(charId);
                 } else {
-                    const auto update = u->requestUpdate(clientId);
-                    const auto d = u->toDynamicData(update);
+                    const auto d = u->toUnitData(update);
                     updatedUnits.emplace_back(d);
                 }
             }

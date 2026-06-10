@@ -58,8 +58,6 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eexceptions.h src/eexceptions.cpp
     include/eSlayerHelpers/eunitdata.h
     src/eunitdata.cpp
-    include/eSlayerHelpers/eunitdynamicdata.h
-    src/eunitdynamicdata.cpp
     include/eSlayerHelpers/echardata.h
     src/echardata.cpp
     include/eSlayerHelpers/efileloaderbase.h
@@ -174,9 +172,6 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eanimid.h
     include/eSlayerHelpers/ethreads.h
     src/ethreads.cpp
-
-
-
 )
 
 target_include_directories(eSlayerHelpers

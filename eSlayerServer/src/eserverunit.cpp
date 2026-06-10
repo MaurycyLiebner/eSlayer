@@ -1199,9 +1199,9 @@ void eServerUnit::freezeFor(const float frameLen) {
     if(mFreezeLength > 0.f) setCold(true);
 }
 
-uint8_t eServerUnit::requestUpdate(const int clientId) {
+uint16_t eServerUnit::requestUpdate(const int clientId) {
     const auto it = mUpdateMap.find(clientId);
-    uint8_t result;
+    uint16_t result;
     if(it == mUpdateMap.end()) {
         result = std::numeric_limits<decltype(result)>::max();
     } else {
@@ -1213,7 +1213,7 @@ uint8_t eServerUnit::requestUpdate(const int clientId) {
 
 void eServerUnit::update(const eShift shift) {
     for(auto& it : mUpdateMap) {
-        eUnitDynamicData::setUpdate(it.second, shift, true);
+        eUnitData::setUpdate(it.second, shift, true);
     }
 }
 
@@ -1224,86 +1224,86 @@ void eServerUnit::updateAll() {
 }
 
 void eServerUnit::setPosition(const ePointF& pos) {
-    if(eUnitDynamicData::setPosition(pos)) {
-        update(eUnitDynamicData::eShift::position);
+    if(eUnitData::setPosition(pos)) {
+        update(eUnitData::eShift::position);
     }
 }
 
 void eServerUnit::setAnim(const uint8_t anim) {
-    if(eUnitDynamicData::setAnim(anim)) {
-        update(eUnitDynamicData::eShift::anim);
+    if(eUnitData::setAnim(anim)) {
+        update(eUnitData::eShift::anim);
     }
 }
 
 void eServerUnit::setAnimId(const eAnimId& animId) {
-    if(eUnitDynamicData::setAnimId(animId)) {
-        update(eUnitDynamicData::eShift::anim);
+    if(eUnitData::setAnimId(animId)) {
+        update(eUnitData::eShift::animId);
     }
 }
 
 void eServerUnit::incAnimId(const int by) {
-    if(eUnitDynamicData::incAnimId(by)) {
-        update(eUnitDynamicData::eShift::anim);
+    if(eUnitData::incAnimId(by)) {
+        update(eUnitData::eShift::animId);
     }
 }
 
 void eServerUnit::setAnimSpeed(const float animSpeed) {
-    if(eUnitDynamicData::setAnimSpeed(animSpeed)) {
-        update(eUnitDynamicData::eShift::anim);
+    if(eUnitData::setAnimSpeed(animSpeed)) {
+        update(eUnitData::eShift::animSpeed);
     }
 }
 
 void eServerUnit::setBlockingActionTime(const float time) {
-    if(eUnitDynamicData::setBlockingActionTime(time)) {
-        update(eUnitDynamicData::eShift::blockingActionTime);
+    if(eUnitData::setBlockingActionTime(time)) {
+        update(eUnitData::eShift::blockingActionTime);
     }
 }
 
 void eServerUnit::setAngle(const float angle) {
-    if(eUnitDynamicData::setAngle(angle)) {
-        update(eUnitDynamicData::eShift::angle);
+    if(eUnitData::setAngle(angle)) {
+        update(eUnitData::eShift::angle);
     }
 }
 
 void eServerUnit::setHealth(const uint16_t health) {
-    if(eUnitDynamicData::setHealth(health)) {
-        update(eUnitDynamicData::eShift::health);
+    if(eUnitData::setHealth(health)) {
+        update(eUnitData::eShift::health);
     }
 }
 
 void eServerUnit::setMaxHealth(const uint16_t maxHealth) {
-    if(eUnitDynamicData::setMaxHealth(maxHealth)) {
-        update(eUnitDynamicData::eShift::maxHealth);
+    if(eUnitData::setMaxHealth(maxHealth)) {
+        update(eUnitData::eShift::maxHealth);
     }
 }
 
 void eServerUnit::setState(const uint8_t state) {
-    if(eUnitDynamicData::setState(state)) {
-        update(eUnitDynamicData::eShift::state);
+    if(eUnitData::setState(state)) {
+        update(eUnitData::eShift::state);
     }
 }
 
 void eServerUnit::setBoosts(const std::set<uint8_t>& boosts) {
-    if(eUnitDynamicData::setBoosts(boosts)) {
-        update(eUnitDynamicData::eShift::boosts);
+    if(eUnitData::setBoosts(boosts)) {
+        update(eUnitData::eShift::boosts);
     }
 }
 
 void eServerUnit::setCold(const bool c) {
-    if(eUnitDynamicData::setCold(c)) {
-        update(eUnitDynamicData::eShift::state);
+    if(eUnitData::setCold(c)) {
+        update(eUnitData::eShift::state);
     }
 }
 
 void eServerUnit::setFrozen(const bool f) {
-    if(eUnitDynamicData::setFrozen(f)) {
-        update(eUnitDynamicData::eShift::state);
+    if(eUnitData::setFrozen(f)) {
+        update(eUnitData::eShift::state);
     }
 }
 
 void eServerUnit::setPoisoned(const bool p) {
-    if(eUnitDynamicData::setPoisoned(p)) {
-        update(eUnitDynamicData::eShift::state);
+    if(eUnitData::setPoisoned(p)) {
+        update(eUnitData::eShift::state);
     }
 }
 

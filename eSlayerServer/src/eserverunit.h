@@ -308,8 +308,8 @@ public:
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);
 
-    uint8_t requestUpdate(const int clientId);
-    void update(const eUnitDynamicData::eShift shift);
+    uint16_t requestUpdate(const int clientId);
+    void update(const eUnitData::eShift shift);
     void updateAll();
 
     void setPosition(const ePointF& pos);
@@ -334,8 +334,8 @@ public:
 
     void applyBoostsTmp();
 private:
-    using eUnitDynamicData::setUpdate;
-    using eUnitDynamicData::fUpdate;
+    using eUnitData::setUpdate;
+    using eUnitData::fUpdate;
 
     void removeBoostDataTmp(const uint8_t id);
     void addBoostDataTmp(const uint8_t id);
@@ -377,7 +377,7 @@ private:
 
     eUnitType mType = eUnitType::normal;
 
-    std::map<int, uint8_t> mUpdateMap;
+    std::map<int, uint16_t> mUpdateMap;
 };
 
 #endif // ESERVERUNIT_H

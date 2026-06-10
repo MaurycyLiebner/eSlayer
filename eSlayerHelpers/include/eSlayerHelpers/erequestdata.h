@@ -2,7 +2,6 @@
 #define EREQUESTDATA_H
 
 #include "eunitdata.h"
-#include "eunitdynamicdata.h"
 #include "emissile.h"
 #include "enova.h"
 #include "eskillarea.h"
@@ -15,7 +14,7 @@ struct ESLAYERHELPERS_API eRequestData {
     uint32_t fRequestId;
     uint8_t fMapId;
     std::vector<eUnitData> fNewUnits;
-    std::vector<eUnitDynamicData> fUpdatedUnits;
+    std::vector<eUnitData> fUpdatedUnits;
     std::vector<eMissile> fMissiles;
     std::vector<eNova> fNovas;
     std::vector<eSkillArea> fSkillAreas;

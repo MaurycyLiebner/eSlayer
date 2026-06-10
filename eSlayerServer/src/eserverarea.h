@@ -9,7 +9,6 @@
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/enovaincrementer.h>
 
-#include <eSlayerHelpers/eunitdynamicdata.h>
 #include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/eidmapvector.h>
 #include <eSlayerHelpers/earea.h>
@@ -58,7 +57,7 @@ public:
 
     void unitsData(const int clientId,
                    std::vector<eUnitData>& newUnits,
-                   std::vector<eUnitDynamicData>& updatedUnits);
+                   std::vector<eUnitData>& updatedUnits);
     void itemsData(const int clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);

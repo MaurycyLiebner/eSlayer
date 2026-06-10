@@ -64,10 +64,16 @@ bool eServerClientHandler::changeState(
         unit->setAngle(u.fAngle);
     }
 
-    if(u.getUpdate(eUnitData::eShift::anim)) {
-        if(unit->fBlockingActionTime <= 0.f) {
+    if(unit->fBlockingActionTime <= 0.f) {
+        if(u.getUpdate(eUnitData::eShift::anim)) {
             unit->setAnim(u.fAnim);
+        }
+
+        if(u.getUpdate(eUnitData::eShift::animId)) {
             unit->setAnimId(u.fAnimId);
+        }
+
+        if(u.getUpdate(eUnitData::eShift::animSpeed)) {
             unit->setAnimSpeed(u.fAnimSpeed);
         }
     }
