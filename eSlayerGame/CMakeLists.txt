@@ -51,7 +51,7 @@ FetchContent_MakeAvailable(SDL3_image)
 FetchContent_Declare(
     SDL3_mixer
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-    GIT_TAG prerelease-3.1.2
+    GIT_TAG release-3.2.4
     GIT_SHALLOW TRUE
 )
 
