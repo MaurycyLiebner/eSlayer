@@ -526,11 +526,12 @@ bool eCharacter::write(const std::string& path) const {
     gWriteInventory(mEquipment.fBeltHiddenPotions, "beltPotionsHidden", eqE);
     gWriteInventory(mEquipment.fStash, "stash", eqE);
 
-    if(!mBodies.empty()) {
-        const auto& body = mBodies[0];
+    for(const auto& body : mBodies) {
         const auto& bodyEq = body.fEq;
+        if(bodyEq.bodyEmpty()) continue;
         const auto eqE = rootE->InsertNewChildElement("bodyEquipment");
         writeEq(bodyEq, eqE);
+        break;
     }
 
     const auto e = doc.SaveFile(path.c_str());
