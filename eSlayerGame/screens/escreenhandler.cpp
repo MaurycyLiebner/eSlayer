@@ -246,6 +246,7 @@ void eScreenHandler::showGame(eServerData serverData,
 
     const auto finish = [this, map, server, clientId, serverC, teamId]() {
         eMiniMap::clearAll();
+        eGameWidget::sClearAll();
         finishGameShow(map, *server, *clientId, *serverC, *teamId);
     };
 

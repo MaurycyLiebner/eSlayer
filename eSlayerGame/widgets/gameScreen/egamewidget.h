@@ -113,6 +113,7 @@ public:
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
     static void sMoveToMap(const uint8_t mapId);
+    static void sClearAll();
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -145,7 +146,7 @@ private:
     std::shared_ptr<eMainCharAction> mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    std::map<int, std::string> mUserNames;
+    static std::map<int, std::string> sUserNames;
     std::vector<eScreenMessage> mMessages;
 
     std::weak_ptr<eUnit> mHighlightUnit;
