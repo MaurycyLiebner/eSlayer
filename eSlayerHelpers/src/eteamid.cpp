@@ -6,8 +6,7 @@ uint16_t eTeams::sVersion = 0;
 std::map<eTeamId, eTeam>
 eTeams::sTeams;
 
-bool eTeams::areEnemies(
-    const eTeamId teamId1, const eTeamId teamId2) {
+bool eTeams::areEnemies(const eTeamId teamId1, const eTeamId teamId2) {
     if(teamId1 == teamId2) return false;
     if(teamId1 == eTeamId::neutral ||
        teamId2 == eTeamId::neutral) return false;
@@ -20,6 +19,11 @@ bool eTeams::areEnemies(
     const auto& team = it->second;
     const auto& set = team.fEnemies;
     return set.find(teamId2) != set.end();
+}
+
+bool eTeams::disconnect(const uint32_t clientId) {
+    const auto team = playerTeam(clientId);
+    return removeMember(team, clientId);
 }
 
 bool eTeams::makeEnemies(
@@ -74,6 +78,21 @@ bool eTeams::makeFriends(
     return true;
 }
 
+bool eTeams::removeTeam(const eTeamId teamId) {
+    const auto it = sTeams.find(teamId);
+    if(it == sTeams.end()) return false;
+    const auto& team = it->second;
+    const auto& ms = team.fMembers;
+    if(ms.size() > 0) return false;
+    sTeams.erase(it);
+    for(auto& it : sTeams) {
+        auto& team = it.second;
+        auto& es = team.fEnemies;
+        es.erase(teamId);
+    }
+    return true;
+}
+
 bool eTeams::invite(
     const uint32_t invited, const uint32_t clientId) {
     const auto toTeam = playerTeam(clientId);
@@ -106,6 +125,7 @@ bool eTeams::invite(
     if(it == sTeams.end()) return false;
     auto& team = it->second;
     team.fInvitations.emplace(invited);
+    sVersion++;
     return true;
 }
 
@@ -181,7 +201,7 @@ bool eTeams::removeMember(
     auto& members = team.fMembers;
     members.erase(clientId);
     if(members.empty()) {
-        sTeams.erase(it);
+        removeTeam(teamId);
     }
     clearInvitationsFor(clientId);
     sVersion++;
@@ -200,6 +220,7 @@ eTeamId eTeams::playerTeam(const uint32_t clientId) {
 }
 
 void eTeams::read(ePacket& p) {
+    sTeams.clear();
     uint8_t nTeams;
     p >> nTeams;
     for(int i = 0; i < nTeams; i++) {

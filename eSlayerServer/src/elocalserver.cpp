@@ -17,6 +17,7 @@ int eLocalServer::connect() {
 }
 
 bool eLocalServer::disconnect(const int clientId) {
+    eTeams::disconnect(clientId);
     const auto h = clientHandler(clientId);
     if(!h) return false;
     for(const auto& it : mMaps) {

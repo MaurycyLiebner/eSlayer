@@ -207,6 +207,26 @@ void eUnitData::apply(eUnitData& to) const {
     if(getUpdate(eShift::boosts)) {
         to.fBoosts = fBoosts;
     }
+
+    if(getUpdate(eShift::teamId)) {
+        to.fTeamId = fTeamId;
+    }
+
+    if(getUpdate(eShift::unitInfoId)) {
+        to.fUnitInfoId = fUnitInfoId;
+    }
+
+    if(getUpdate(eShift::radius)) {
+        to.fRadius = fRadius;
+    }
+
+    if(getUpdate(eShift::mods)) {
+        to.fMods = fMods;
+    }
+
+    if(getUpdate(eShift::modelParts)) {
+        to.fModelParts = fModelParts;
+    }
 }
 
 bool eUnitData::cold() const {

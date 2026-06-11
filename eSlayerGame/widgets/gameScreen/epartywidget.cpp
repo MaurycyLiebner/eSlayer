@@ -22,46 +22,66 @@ public:
                     const eRelationship rel) {
         switch(rel) {
         case eRelationship::party:
-            mColor = SDL_Color{0, 255, 0, 255};
+            mBorderColor = SDL_Color{0, 255, 0, 255};
+            mBgColor = SDL_Color{0, 255, 0, 128};
             break;
         case eRelationship::hostile:
-            mColor = SDL_Color{255, 0, 0, 255};
+            mBorderColor = SDL_Color{255, 0, 0, 255};
+            mBgColor = SDL_Color{255, 0, 0, 128};
             break;
         case eRelationship::neutral:
-            mColor = SDL_Color{255, 255, 255, 255};
+            mBorderColor = SDL_Color{255, 255, 255, 255};
+            mBgColor = SDL_Color{0, 0, 0, 0};
             break;
         }
 
+        const auto innerW = new eWidget(window());
+        innerW->setNoPadding();
+        const auto& res = resolution();
+        const int p = res.smallPadding();
+        const int w = width();
+        const int h = height();
+        innerW->resize(w - 2*p, h - 2*p);
+        addWidget(innerW);
+        innerW->align(eAlignment::center);
+
         const auto nameLabel = new eLabel(window());
         nameLabel->setText(name);
+        nameLabel->setSmallFontSize();
         nameLabel->setNoPadding();
         nameLabel->fitContent();
-        addWidget(nameLabel);
+        innerW->addWidget(nameLabel);
+        nameLabel->align(eAlignment::vcenter);
 
         if(button1Action) {
             const auto button = new eMainMenuButton(button1Text, window());
+            button->setSmallFontSize();
             button->setPressAction(button1Action);
-            addWidget(button);
+            innerW->addWidget(button);
+            button->align(eAlignment::vcenter);
         }
 
         if(button2Action) {
             const auto button = new eMainMenuButton(button2Text, window());
+            button->setSmallFontSize();
             button->setPressAction(button2Action);
-            addWidget(button);
+            innerW->addWidget(button);
+            button->align(eAlignment::vcenter);
         }
 
-        stackHorizontally();
-
-        nameLabel->align(eAlignment::vcenter);
+        innerW->stackHorizontally(p);
     }
 protected:
     void paintEvent(ePainter& p) {
         const auto& res = resolution();
         const int lineWidth = res.lineWidth();
-        p.drawRect(rect(), mColor, lineWidth);
+        const auto rect = eWidget::rect();
+        p.fillRect(rect, mBgColor);
+        p.drawRect(rect, mBorderColor, lineWidth);
     }
 private:
-    SDL_Color mColor;
+    SDL_Color mBgColor;
+    SDL_Color mBorderColor;
 };
 
 void ePartyWidget::initialize(const std::string& name) {
@@ -75,8 +95,8 @@ void ePartyWidget::initialize(const std::string& name) {
 
     const auto& res = resolution();
     const auto mult = res.multiplier();
-    mPlayerWidgetWidth = 500*mult;
-    mPlayerWidgetHeight = 60*mult;
+    mPlayerWidgetWidth = 400*mult;
+    mPlayerWidgetHeight = 50*mult;
 
     mCenterWidget = new eWidget(window());
     mCenterWidget->setNoPadding();
@@ -97,7 +117,12 @@ bool ePartyWidget::mousePressEvent(const eMouseEvent& e) {
 }
 
 void ePartyWidget::paintEvent(ePainter& p) {
-    if(eTeams::version() > mTeamsVersion) {
+    const auto gw = eGameWidget::sInstance;
+    const auto clientTeam = gw->team();
+    if(eTeams::version() > mTeamsVersion ||
+       mClientTeam != clientTeam) {
+        mClientTeam = clientTeam;
+        mTeamsVersion = eTeams::version();
         updatePartyWidgets();
     }
     eBgWidget::paintEvent(p);

@@ -42,9 +42,9 @@ void eUnitActionBase::setup(const int anim,
         const int baseFrames = data.animFrames(anim);
         if(frames == -1) frames = baseFrames;
         speed = frames == 0 ? 1.f : float(baseFrames)/frames;
-        mUnit.setAnimSpeed(speed);
         setDuration(frames);
     }
+    mUnit.setAnimSpeed(speed);
 
     if(a) {
         const int baseFrame = data.animActionFrame(anim);

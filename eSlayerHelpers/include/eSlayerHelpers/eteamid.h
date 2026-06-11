@@ -46,6 +46,8 @@ public:
     static bool areEnemies(
         const eTeamId teamId1, const eTeamId teamId2);
 
+    static bool disconnect(const uint32_t clientId);
+
     static bool makeEnemies(
         const eTeamId teamId, const uint32_t clientId);
     static bool makeFriends(
@@ -94,6 +96,9 @@ private:
         const eTeamId teamId1, const eTeamId teamId2);
     static bool makeFriends(
         const eTeamId teamId1, const eTeamId teamId2);
+
+    static bool removeTeam(
+        const eTeamId teamId);
 
     static uint16_t sVersion;
     static std::map<eTeamId, eTeam> sTeams;

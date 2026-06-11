@@ -371,6 +371,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             } else if(u.fBlockingActionTime > 0) {
                 mMainChar->fPos = u.fPos;
             }
+            mMainChar->fTeamId = u.fTeamId;
             mMainChar->fHealth = u.fHealth;
             mMainChar->fState = u.fState;
             mMainChar->fBoosts = u.fBoosts;

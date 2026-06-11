@@ -3,6 +3,8 @@
 
 #include "ebgwidget.h"
 
+#include <eSlayerHelpers/eteamid.h>
+
 class ePartyWidget : public eBgWidget {
 public:
     using eBgWidget::eBgWidget;
@@ -15,6 +17,7 @@ private:
     void updatePartyWidgets();
 
     uint16_t mTeamsVersion = 0;
+    eTeamId mClientTeam = eTeamId::playerTeam0;
     int mPlayerWidgetWidth = 0;
     int mPlayerWidgetHeight = 0;
     eWidget* mCenterWidget = nullptr;
