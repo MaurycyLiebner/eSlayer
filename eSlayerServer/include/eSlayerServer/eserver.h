@@ -80,6 +80,7 @@ public:
     spawn(const int clientId,
           eCharacter& c,
           eTeamId& teamId,
+          ePointF& spawnPos,
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool

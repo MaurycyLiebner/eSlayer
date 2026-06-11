@@ -87,11 +87,12 @@ bool eLocalServer::requestMap(
 bool eLocalServer::spawn(const int clientId,
                          eCharacter& c,
                          eTeamId& teamId,
+                         ePointF& spawnPos,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     h->setName(c.name());
-    return h->spawn(c, teamId, screenDims);
+    return h->spawn(c, teamId, spawnPos, screenDims);
 }
 
 bool eLocalServer::requestData(const int clientId,
@@ -264,6 +265,7 @@ bool eLocalServer::teamAction(
         const auto newTeamId = eTeams::leaveTeam(clientId);
         return eLocalServer::changeTeam(clientId, newTeamId);
     }
+    return false;
 }
 
 bool eLocalServer::changeTeam(

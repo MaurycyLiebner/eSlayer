@@ -30,9 +30,11 @@ public:
     bool changeState(const eUnitData& u);
     bool attack(const eAttackData& target);
     bool stopAttack();
-    bool respawn(eBodyEquipment& beq, int& bodyId);
+    bool respawn(eBodyEquipment& beq,
+                 int& bodyId);
     bool spawn(eCharacter& c,
                eTeamId& teamId,
+               ePointF& spawnPos,
                const eScreenDimensions& screenDims);
     bool disconnect();
     bool setSkillId(const eSkillChoice schoice,

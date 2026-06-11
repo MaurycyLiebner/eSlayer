@@ -726,6 +726,7 @@ bool eServerArea::obstacle(
 bool eServerArea::addClient(const int clientId,
                             eCharacter& c,
                             eTeamId& teamId,
+                            ePointF& spawnPos,
                             const eScreenDimensions& screenDims) {
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -737,7 +738,7 @@ bool eServerArea::addClient(const int clientId,
         true, data, typeId, *this, map);
     u->addSkill();
     u->addSkill();
-    auto spawnPos = mMap->spawnPos();
+    spawnPos = mMap->spawnPos();
     findPlaceForUnit(spawnPos, spawnPos);
     teamId = eTeams::addTeam(clientId);
     iniSetupUnit(u, clientId, teamId, spawnPos,

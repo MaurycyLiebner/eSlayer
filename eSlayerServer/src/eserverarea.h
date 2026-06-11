@@ -96,6 +96,7 @@ public:
     bool addClient(const int clientId,
                    eCharacter& c,
                    eTeamId& teamId,
+                   ePointF& spawnPos,
                    const eScreenDimensions& screenDims);
     bool respawn(const int clientId,
                  eBodyEquipment& beq,

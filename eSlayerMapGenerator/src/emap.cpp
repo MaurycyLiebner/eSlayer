@@ -188,6 +188,10 @@ void eMap::loadData(const eMapData& data) {
     mStairs = data.fStairs;
 }
 
+void eMap::setSpawnPos(const ePointF& pos) {
+    mSpawnPos = pos;
+}
+
 bool eMap::hasPortion(const int x, const int y) {
     if(x < 0) return false;
     if(y < 0) return false;

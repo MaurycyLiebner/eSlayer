@@ -292,12 +292,15 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([&res, width, height,
                           server, clientId,
-                          serverC, teamId]() {
+                          serverC, teamId,
+                          map]() {
         const int tileW = res.tileWidth();
         const int tileH = res.tileHeight();
         const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
                                            int(std::ceil(2.f*height/tileH))};
-        (*server)->spawn(*clientId, *serverC, *teamId, screenDims);
+        ePointF spawnPos;
+        (*server)->spawn(*clientId, *serverC, *teamId, spawnPos, screenDims);
+        map->setSpawnPos(spawnPos);
     });
     loading.emplace_back([&res, r]() {
         eMapTextures::load(res, r);

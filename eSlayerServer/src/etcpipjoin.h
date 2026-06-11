@@ -31,6 +31,7 @@ public:
     bool spawn(const int clientId,
                eCharacter& c,
                eTeamId& teamId,
+               ePointF& spawnPos,
                const eScreenDimensions& screenDims) override;
 
     bool requestData(const int clientId,

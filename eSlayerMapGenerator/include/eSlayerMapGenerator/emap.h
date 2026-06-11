@@ -65,6 +65,7 @@ public:
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
     void mapData(eMapData& data) const;
     void loadData(const eMapData& data);
+    void setSpawnPos(const ePointF& pos);
     bool hasPortion(const int x, const int y);
 
     int areaAt(const ePoint& pos) const;

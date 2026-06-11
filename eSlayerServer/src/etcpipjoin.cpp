@@ -106,6 +106,7 @@ bool eTcpIpJoin::spawn(
     const int clientId,
     eCharacter& c,
     eTeamId& teamId,
+    ePointF& spawnPos,
     const eScreenDimensions& screenDims) {
     ePacket p;
     p << ePacketType::spawn;
@@ -139,6 +140,7 @@ bool eTcpIpJoin::spawn(
 
             eTeams::read(p);
             p >> teamId;
+            p >> spawnPos;
             return true;
         }
         return false;

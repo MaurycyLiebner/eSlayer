@@ -113,19 +113,22 @@ bool eServerClientHandler::stopAttack() {
     return true;
 }
 
-bool eServerClientHandler::respawn(eBodyEquipment& beq,
-                                   int& bodyId) {
+bool eServerClientHandler::respawn(
+    eBodyEquipment& beq,
+    int& bodyId) {
     if(!mArea) return false;
     return mArea->respawn(mClientId, beq, bodyId);
 }
 
-bool eServerClientHandler::spawn(eCharacter& c,
-                                 eTeamId& teamId,
-                                 const eScreenDimensions& screenDims) {
+bool eServerClientHandler::spawn(
+    eCharacter& c,
+    eTeamId& teamId,
+    ePointF& spawnPos,
+    const eScreenDimensions& screenDims) {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, c, teamId, screenDims);
+    mArea->addClient(mClientId, c, teamId, spawnPos, screenDims);
     return true;
 }
 

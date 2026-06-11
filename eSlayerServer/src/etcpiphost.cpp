@@ -85,10 +85,11 @@ bool eTcpIpHost::spawn(
     const int clientId,
     eCharacter& c,
     eTeamId& teamId,
+    ePointF& spawnPos,
     const eScreenDimensions& screenDims) {
     std::unique_lock lock(mMutex);
     return eLocalServer::spawn(
-        clientId, c, teamId, screenDims);
+        clientId, c, teamId, spawnPos, screenDims);
 }
 
 bool eTcpIpHost::requestData(
@@ -346,8 +347,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eScreenDimensions screenDims;
             screenDims.read(p);
             eTeamId teamId;
+            ePointF spawnPos;
             const bool r = eLocalServer::spawn(
-                charId, c, teamId, screenDims);
+                charId, c, teamId, spawnPos, screenDims);
 
             if(r) {
                 {
@@ -373,6 +375,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
 
                     eTeams::write(p);
                     p << teamId;
+                    p << spawnPos;
                     mNet.sendToClient(tcpClientId, p);
                 }
 
