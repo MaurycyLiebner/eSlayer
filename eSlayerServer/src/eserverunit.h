@@ -328,6 +328,8 @@ public:
     void setState(const uint8_t state);
     void setBoosts(const std::set<uint8_t>& boosts);
 
+    void setTeamId(const eTeamId teamId);
+
     void setCold(const bool c);
     void setFrozen(const bool f);
     void setPoisoned(const bool p);
@@ -336,6 +338,28 @@ public:
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
+
+    using eUnitData::setPosition;
+
+    using eUnitData::setAnim;
+    using eUnitData::setAnimId;
+    using eUnitData::incAnimId;
+    using eUnitData::setAnimSpeed;
+    using eUnitData::setBlockingActionTime;
+
+    using eUnitData::setAngle;
+
+    using eUnitData::setHealth;
+    using eUnitData::setMaxHealth;
+
+    using eUnitData::setState;
+    using eUnitData::setBoosts;
+
+    using eUnitData::setTeamId;
+
+    using eUnitData::setCold;
+    using eUnitData::setFrozen;
+    using eUnitData::setPoisoned;
 
     void removeBoostDataTmp(const uint8_t id);
     void addBoostDataTmp(const uint8_t id);

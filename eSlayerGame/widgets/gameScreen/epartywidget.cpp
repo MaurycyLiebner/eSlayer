@@ -3,6 +3,7 @@
 #include "egamewidget.h"
 #include "../elabel.h"
 #include "../mainMenu/emainmenubutton.h"
+#include "../../etext.h"
 
 #include <eSlayerHelpers/eteamid.h>
 
@@ -10,28 +11,31 @@ enum class eRelationship {
     party, hostile, neutral
 };
 
-class ePlayerWidget : public eWidget {
+class eTeamWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const std::string& name,
+    void initialize(const std::vector<std::string>& members,
                     const std::string& button1Text,
                     const eAction& button1Action,
                     const std::string& button2Text,
                     const eAction& button2Action,
-                    const eRelationship rel) {
+                    const eRelationship rel,
+                    const bool darker) {
+        const uint8_t alpha = darker ? 86 : 128;
+
         switch(rel) {
         case eRelationship::party:
             mBorderColor = SDL_Color{0, 255, 0, 255};
-            mBgColor = SDL_Color{0, 255, 0, 128};
+            mBgColor = SDL_Color{0, 255, 0, alpha};
             break;
         case eRelationship::hostile:
             mBorderColor = SDL_Color{255, 0, 0, 255};
-            mBgColor = SDL_Color{255, 0, 0, 128};
+            mBgColor = SDL_Color{255, 0, 0, alpha};
             break;
         case eRelationship::neutral:
-            mBorderColor = SDL_Color{255, 255, 255, 255};
-            mBgColor = SDL_Color{0, 0, 0, 0};
+            mBorderColor = SDL_Color{0, 0, 255, 255};
+            mBgColor = SDL_Color{0, 0, 255, alpha};
             break;
         }
 
@@ -41,23 +45,38 @@ public:
         const int p = res.smallPadding();
         const int w = width();
         const int h = height();
-        innerW->resize(w - 2*p, h - 2*p);
+        const int iw = w - 2*p;
+        const int ih = h - 2*p;
+        innerW->resize(iw, ih);
         addWidget(innerW);
         innerW->align(eAlignment::center);
 
-        const auto nameLabel = new eLabel(window());
-        nameLabel->setText(name);
-        nameLabel->setSmallFontSize();
-        nameLabel->setNoPadding();
-        nameLabel->fitContent();
-        innerW->addWidget(nameLabel);
-        nameLabel->align(eAlignment::vcenter);
+        const auto namesW = new eWidget(window());
+        namesW->setNoPadding();
+
+        for(const auto& m : members) {
+            const auto nameLabel = new eLabel(window());
+            nameLabel->setText(m);
+            nameLabel->setSmallFontSize();
+            nameLabel->setNoPadding();
+            nameLabel->fitContent();
+            namesW->addWidget(nameLabel);
+        }
+
+        innerW->addWidget(namesW);
+        namesW->setHeight(ih);
+        namesW->fitWidth();
+        namesW->layoutVertically();
+
+        const auto buttonsW = new eWidget(window());
+        buttonsW->setNoPadding();
+        buttonsW->setHeight(ih);
 
         if(button1Action) {
             const auto button = new eMainMenuButton(button1Text, window());
             button->setSmallFontSize();
             button->setPressAction(button1Action);
-            innerW->addWidget(button);
+            buttonsW->addWidget(button);
             button->align(eAlignment::vcenter);
         }
 
@@ -65,11 +84,14 @@ public:
             const auto button = new eMainMenuButton(button2Text, window());
             button->setSmallFontSize();
             button->setPressAction(button2Action);
-            innerW->addWidget(button);
+            buttonsW->addWidget(button);
             button->align(eAlignment::vcenter);
         }
 
-        innerW->stackHorizontally(p);
+        buttonsW->stackHorizontally(p);
+        buttonsW->fitWidth();
+        innerW->addWidget(buttonsW);
+        buttonsW->align(eAlignment::right);
     }
 protected:
     void paintEvent(ePainter& p) {
@@ -135,93 +157,99 @@ void ePartyWidget::updatePartyWidgets() {
     const auto clientTeam = gw->team();
     const auto& server = gw->server();
     const int clientId = gw->clientId();
+    bool darker = true;
     for(const auto& it : teams) {
+        darker = !darker;
         const auto teamId = it.first;
         const auto& team = it.second;
-        for(const auto m : team.fMembers) {
+        std::vector<std::string> members;
+        const auto& ms = team.fMembers;
+        for(const auto m : ms) {
             const auto& name = eGameWidget::sUserNames[m];
-            const auto playerW = new ePlayerWidget(window());
-            playerW->resize(mPlayerWidgetWidth, mPlayerWidgetHeight);
-            if(m == clientId) {
-                playerW->initialize(name, "", nullptr, "", nullptr,
-                                    eRelationship::neutral);
+            members.emplace_back(name);
+        }
+        const auto teamW = new eTeamWidget(window());
+        const int h = members.size()*mPlayerWidgetHeight;
+        teamW->resize(mPlayerWidgetWidth, h);
+        std::string button1Text;
+        eAction button1Action;
+        std::string button2Text;
+        eAction button2Action;
+        eRelationship rel;
+        const bool enemies = eTeams::areEnemies(clientTeam, teamId);
+        if(clientTeam == teamId) {
+            rel = eRelationship::party;
+        } else if(enemies) {
+            rel = eRelationship::hostile;
+        } else {
+            rel = eRelationship::neutral;
+        }
+        switch(rel) {
+        case eRelationship::neutral: {
+            const bool thisInvited = eTeams::isInvited(teamId, clientId);
+            if(thisInvited) {
+                button1Text = eText::text(16, 0); // accept
+                button1Action = [clientId, server, teamId]() {
+                    eTeamAction action;
+                    action.fType = eTeamActionType::acceptInvitation;
+                    action.fTeamId = teamId;
+                    server->teamAction(clientId, action);
+                };
             } else {
-                std::string button1Text;
-                eAction button1Action;
-                std::string button2Text;
-                eAction button2Action;
-                eRelationship rel;
-                const bool enemies = eTeams::areEnemies(clientTeam, teamId);
-                if(clientTeam == teamId) {
-                    rel = eRelationship::party;
-                } else if(enemies) {
-                    rel = eRelationship::hostile;
-                } else {
-                    rel = eRelationship::neutral;
-                }
-                switch(rel) {
-                case eRelationship::neutral: {
-                    const bool thisInvited = eTeams::isInvited(clientId, m);
-                    if(thisInvited) {
-                        button1Text = "Accept";
-                        button1Action = [clientId, m, server, teamId]() {
+                if(ms.size() == 1) {
+                    const auto m = *ms.begin();
+                    const bool mInvited = eTeams::isInvited(m, clientId);
+                    if(mInvited) {
+                        button1Text = eText::text(16, 1); // cancel
+                        button1Action = [clientId, m, server]() {
                             eTeamAction action;
-                            action.fType = eTeamActionType::acceptInvitation;
-                            action.fTeamId = teamId;
+                            action.fType = eTeamActionType::cancelInvite;
+                            action.fInvitedId = m;
                             server->teamAction(clientId, action);
                         };
                     } else {
-                        const bool mInvited = eTeams::isInvited(m, clientId);
-                        if(mInvited) {
-                            button1Text = "Cancel Invite";
-                            button1Action = [clientId, m, server]() {
-                                eTeamAction action;
-                                action.fType = eTeamActionType::cancelInvite;
-                                action.fInvitedId = m;
-                                server->teamAction(clientId, action);
-                            };
-                        } else {
-                            button1Text = "Invite";
-                            button1Action = [clientId, m, server]() {
-                                eTeamAction action;
-                                action.fType = eTeamActionType::invite;
-                                action.fInvitedId = m;
-                                server->teamAction(clientId, action);
-                            };
-                        }
+                        button1Text = eText::text(16, 2); // invite
+                        button1Action = [clientId, m, server]() {
+                            eTeamAction action;
+                            action.fType = eTeamActionType::invite;
+                            action.fInvitedId = m;
+                            server->teamAction(clientId, action);
+                        };
                     }
-
-                    button2Text = "Declare";
-                    button2Action = [clientId, teamId, server]() {
-                        eTeamAction action;
-                        action.fType = eTeamActionType::makeEnemies;
-                        action.fTeamId = teamId;
-                        server->teamAction(clientId, action);
-                    };
-                } break;
-                case eRelationship::party: {
-                    button1Text = "Leave";
-                    button1Action = [clientId, server]() {
-                        eTeamAction action;
-                        action.fType = eTeamActionType::leaveTeam;
-                        server->teamAction(clientId, action);
-                    };
-                } break;
-                case eRelationship::hostile: {
-                    button1Text = "Reconcile";
-                    button1Action = [clientId, teamId, server]() {
-                        eTeamAction action;
-                        action.fType = eTeamActionType::makeFriends;
-                        action.fTeamId = teamId;
-                        server->teamAction(clientId, action);
-                    };
-                } break;
                 }
-                playerW->initialize(name, button1Text, button1Action,
-                                    button2Text, button2Action, rel);
             }
-            mCenterWidget->addWidget(playerW);
+
+            button2Text = eText::text(16, 3); // declare
+            button2Action = [clientId, teamId, server]() {
+                eTeamAction action;
+                action.fType = eTeamActionType::makeEnemies;
+                action.fTeamId = teamId;
+                server->teamAction(clientId, action);
+            };
+        } break;
+        case eRelationship::party: {
+            if(ms.size() > 1) {
+                button1Text = eText::text(16, 4); // leave
+                button1Action = [clientId, server]() {
+                    eTeamAction action;
+                    action.fType = eTeamActionType::leaveTeam;
+                    server->teamAction(clientId, action);
+                };
+            }
+        } break;
+        case eRelationship::hostile: {
+            button1Text = eText::text(16, 5); // reconcile
+            button1Action = [clientId, teamId, server]() {
+                eTeamAction action;
+                action.fType = eTeamActionType::makeFriends;
+                action.fTeamId = teamId;
+                server->teamAction(clientId, action);
+            };
+        } break;
         }
+        teamW->initialize(members, button1Text, button1Action,
+                          button2Text, button2Action, rel, darker);
+        mCenterWidget->addWidget(teamW);
     }
     mCenterWidget->stackVertically();
 }

@@ -1289,6 +1289,12 @@ void eServerUnit::setBoosts(const std::set<uint8_t>& boosts) {
     }
 }
 
+void eServerUnit::setTeamId(const eTeamId teamId) {
+    if(eUnitData::setTeamId(teamId)) {
+        update(eUnitData::eShift::teamId);
+    }
+}
+
 void eServerUnit::setCold(const bool c) {
     if(eUnitData::setCold(c)) {
         update(eUnitData::eShift::state);

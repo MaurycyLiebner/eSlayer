@@ -192,4 +192,12 @@
         <string id="0">Closed Door</string>
         <string id="1">Open Door</string>
     </group>
+    <group id="16">
+        <string id="0">Accept</string>
+        <string id="1">Cancel</string>
+        <string id="2">Invite</string>
+        <string id="3">Declare</string>
+        <string id="4">Leave</string>
+        <string id="5">Reconcile</string>
+    </group>
 </strings>
