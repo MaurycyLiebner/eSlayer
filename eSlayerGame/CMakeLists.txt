@@ -271,6 +271,8 @@ add_executable(eSlayerGame
     widgets/gameScreen/eitemplacewidget.h
     widgets/gameScreen/eminimap.cpp
     widgets/gameScreen/eminimap.h
+    widgets/gameScreen/eminimaparea.cpp
+    widgets/gameScreen/eminimaparea.h
     widgets/gameScreen/eplayerhealthindicator.cpp
     widgets/gameScreen/eplayerhealthindicator.h
     widgets/gameScreen/eskillbutton.cpp
@@ -289,6 +291,8 @@ add_executable(eSlayerGame
     widgets/gameScreen/eweaponswitch.h
     widgets/gameScreen/estatuswidget.cpp
     widgets/gameScreen/estatuswidget.h
+    widgets/gameScreen/epartywidget.cpp
+    widgets/gameScreen/epartywidget.h
 
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp
@@ -297,7 +301,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    widgets/gameScreen/epartywidget.h widgets/gameScreen/epartywidget.cpp
 )
 
 include(GNUInstallDirs)
