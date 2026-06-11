@@ -4,6 +4,8 @@
 #include "estatuswidget.h"
 
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/eslayers.h>
+#include <eSlayerHelpers/eteamid.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -14,6 +16,10 @@ bool eMiniMap::sShowMap = false;
 eMiniMap::eMiniMap(eMainWindow* const window) :
     eWidget(window) {
     sInstance = this;
+
+    const auto& tex = eMapTextures::sWalls.getTexture(0);
+    fTileW = tex->width();
+    fTileH = tex->height();
 }
 
 eMiniMap::~eMiniMap() {
@@ -124,6 +130,34 @@ void eMiniMap::paintEvent(ePainter& p) {
                 if(mShowMap) p.drawTexture(xx, yy, tex);
             }
         }
+
+        if(mShowMap) {
+            const auto mapId = mMap->id();
+            for(const auto& s : eSlayers::sSlayers) {
+                const auto clientId = s.first;
+                const auto& slayer = s.second;
+                if(slayer.fMapId != mapId) continue;
+                const auto t1 = eTeams::playerTeam(clientId);
+                const auto t2 = eTeams::playerTeam(eSlayers::sThisSlayer);
+                if(t1 != t2) continue;
+                const auto& name = slayer.fName;
+                const float dx = slayer.fPos.fX - mPos.fX;
+                const float dy = slayer.fPos.fY - mPos.fY;
+                const int xx = mHPos*width() + (dx - dy) * (fTileW / 2.f);
+                const int yy = 0.5f*height() + (dx + dy) * (fTileH / 2.f) - 4*fTileH;
+                const int dim = fTileH/2;
+                const int thick = std::max(1, dim/2);
+                p.fillRect(SDL_Rect{xx - dim, yy - thick, 2*dim, 2*thick},
+                           SDL_Color{0, 255, 0, 255});
+                p.fillRect(SDL_Rect{xx - thick, yy - dim, 2*thick, 2*dim},
+                           SDL_Color{0, 255, 0, 255});
+                if(clientId != eSlayers::sThisSlayer) {
+                    const auto tex = requestNameTex(clientId);
+                    p.drawTexture(xx, yy - 2*dim, tex,
+                                  eAlignment::top | eAlignment::hcenter);
+                }
+            }
+        }
     }
 
     if(mAreaStrCounter-- > 0 && mAreaStr) {
@@ -146,6 +180,30 @@ void eMiniMap::showAreaName(const std::string& name) {
 
     mStatusWidget->setAreaName(name);
 }
+
+std::shared_ptr<eTexture>
+eMiniMap::requestNameTex(
+    const uint32_t clientId) {
+    {
+        const auto it = mNameTexs.find(clientId);
+        if(it != mNameTexs.end()) {
+            return it->second;
+        }
+    }
+    const auto it = eSlayers::sSlayers.find(clientId);
+    if(it == eSlayers::sSlayers.end()) return nullptr;
+    const auto& slayer = it->second;
+    const auto& name = slayer.fName;
+    const auto r = renderer();
+    const auto& res = resolution();
+    const int fs = res.smallFontSize();
+    const auto font = eFonts::defaultFont(fs);
+    const eTextGenerator gen(r, eFontColor::green, font);
+    const auto tex = gen.generate(name);
+    mNameTexs[clientId] = tex;
+    return tex;
+}
+
 void eMiniMap::setShowMap(const bool s) {
     mShowMap = s;
     sShowMap = s;

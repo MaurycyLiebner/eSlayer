@@ -72,6 +72,7 @@ void eGameWidget::initialize(const int clientId,
     mHardcore = c.hardcore();
     mBodies = c.bodies();
 
+    eSlayers::sThisSlayer = clientId;
     mClientId = clientId;
     mServer = server;
     mMap = map;
