@@ -57,6 +57,8 @@ bool eLocalServer::requestMap(
         map->mapData(data);
         if(carea) {
             eServerArea::moveClient(clientId, *carea, *area, data.fSpawnPos);
+            const auto mapId = map->id();
+            eSlayers::setLocation(clientId, mapId, data.fSpawnPos);
         }
         h->setArea(area);
         func(data);
@@ -91,8 +93,17 @@ bool eLocalServer::spawn(const int clientId,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    h->setName(c.name());
-    return h->spawn(c, teamId, spawnPos, screenDims);
+    const bool r = h->spawn(c, teamId, spawnPos, screenDims);
+    if(!r) return false;
+    const auto& name = c.name();
+    eSlayer slayer;
+    slayer.fClientId = clientId;
+    const auto map = h->map();
+    slayer.fMapId = map->id();
+    slayer.fPos = spawnPos;
+    slayer.fName = name;
+    eSlayers::sSlayers[clientId] = slayer;
+    return true;
 }
 
 bool eLocalServer::requestData(const int clientId,
@@ -124,6 +135,9 @@ bool eLocalServer::changeState(
     const int clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
+    if(u.getUpdate(eUnitData::eShift::position)) {
+        eSlayers::setPoisition(clientId, u.fPos);
+    }
     return h->changeState(u);
 }
 

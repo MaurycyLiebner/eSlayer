@@ -27,6 +27,8 @@ public:
     const std::shared_ptr<eServerArea>& area() const { return mArea; }
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }
 
+    std::shared_ptr<eMap> map() const;
+
     bool changeState(const eUnitData& u);
     bool attack(const eAttackData& target);
     bool stopAttack();
@@ -51,12 +53,8 @@ public:
     bool consumePotion(const uint32_t itemId);
     bool pickupBody(const uint32_t bodyId);
     bool changeTeam(const eTeamId newTeam);
-
-    const std::string& name() const { return mName; }
-    void setName(const std::string& name) { mName = name; }
 private:
     const int mClientId;
-    std::string mName;
     std::shared_ptr<eServerArea> mArea;
 };
 

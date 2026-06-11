@@ -172,6 +172,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eanimid.h
     include/eSlayerHelpers/ethreads.h
     src/ethreads.cpp
+    include/eSlayerHelpers/eslayers.h
+    src/eslayers.cpp
 )
 
 target_include_directories(eSlayerHelpers

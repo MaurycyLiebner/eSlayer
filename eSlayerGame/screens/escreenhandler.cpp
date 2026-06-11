@@ -232,7 +232,7 @@ void loadUnitTypes(const eResolution& res,
 void eScreenHandler::showGame(eServerData serverData,
                               const eCharacter& c) {
     eMiniMap::clearAll();
-    eGameWidget::sClearAll();
+    eSlayers::clear();
     eTeams::clear();
 
     mGameStarted = true;

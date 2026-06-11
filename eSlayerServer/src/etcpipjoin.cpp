@@ -121,15 +121,7 @@ bool eTcpIpJoin::spawn(
         if(type == ePacketType::spawn) {
             ePacketType type;
             p >> type;
-            uint8_t nClients;
-            p >> nClients;
-            for(uint8_t i = 0; i < nClients; i++) {
-                int clientId;
-                p >> clientId;
-                std::string name;
-                p >> name;
-                mNewUsers.emplace_back(clientId, name, false);
-            }
+            eSlayers::read(p);
             auto& eq = c.equipment();
             eq = eEquipment();
             eq.read(p);
@@ -415,6 +407,7 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::data: {
         const bool r = mData.read(p, mapId);
         mNewData = mNewData || r;
+        eSlayers::readLocations(p);
     } break;
     case ePacketType::equipment: {
         mEquipment = eEquipment();
@@ -425,11 +418,10 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         mUnblockEquipment = true;
     } break;
     case ePacketType::userEntered: {
-        int clientId;
-        p >> clientId;
-        std::string name;
-        p >> name;
-        mNewUsers.emplace_back(clientId, name, true);
+        eSlayer slayer;
+        slayer.read(p);
+        eSlayers::sSlayers[slayer.fClientId] = slayer;
+        mNewUsers.emplace_back(slayer);
     } break;
     case ePacketType::userLeft: {
         int clientId;

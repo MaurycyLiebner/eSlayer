@@ -13,6 +13,7 @@
 
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
+#include "../../names/emonsternames.h"
 
 #include "../../etext.h"
 
@@ -35,9 +36,9 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/eslayers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
-std::map<int, std::string> eGameWidget::sUserNames;
 
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
@@ -60,7 +61,14 @@ void eGameWidget::initialize(const int clientId,
                              const eTeamId teamId,
                              const eMoveToMapAction& move) {
     mCName = c.name();
-    sUserNames[clientId] = mCName;
+    {
+        eSlayer slayer;
+        slayer.fClientId = clientId;
+        slayer.fMapId = map->id();
+        slayer.fPos = map->spawnPos();
+        slayer.fName = mCName;
+        eSlayers::sSlayers.emplace(clientId, slayer);
+    }
     mHardcore = c.hardcore();
     mBodies = c.bodies();
 
@@ -74,7 +82,6 @@ void eGameWidget::initialize(const int clientId,
 
     const auto r = renderer();
     const auto& res = resolution();
-
 
     const auto iter = [this](const ePointF& pos,
                              const float dist,
@@ -141,12 +148,6 @@ void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
 void eGameWidget::stop() {
     mMainAction->stop();
     mMainAction->stand();
-}
-
-std::string eGameWidget::userName(const int clientId) const {
-    const auto it = sUserNames.find(clientId);
-    if(it == sUserNames.end()) return "";
-    return it->second;
 }
 
 void eGameWidget::dropItem() {
@@ -282,10 +283,6 @@ void eGameWidget::sMoveToMap(const uint8_t mapId) {
     sInstance->mMoveAction(mapId);
 }
 
-void eGameWidget::sClearAll() {
-    sUserNames.clear();
-}
-
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
@@ -298,16 +295,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {
             const auto& name = u.fName;
-            sUserNames[u.fClientId] = name;
-            if(u.fJustJoined) {
-                auto text = eText::text(12, 0);
-                text = eStringHelpers::replaceAll(text, "%1", name);
-                addMessage(r, text);
-            }
+            auto text = eText::text(12, 0);
+            text = eStringHelpers::replaceAll(text, "%1", name);
+            addMessage(r, text);
         }
         const auto leftUsers = mServer->receiveLeftUsers();
         for(const int clientId : leftUsers) {
-            const auto& name = sUserNames[clientId];
+            const auto name = eSlayers::name(clientId);
             auto text = eText::text(12, 1);
             text = eStringHelpers::replaceAll(text, "%1", name);
             addMessage(r, text);
@@ -315,7 +309,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto messages = mServer->receiveMessages();
         for(const auto& msg : messages) {
             const int clientId = msg.fClientId;
-            const auto& name = sUserNames[clientId];
+            const auto name = eSlayers::name(clientId);
             const auto text = name + ": " + msg.fMsg;
             addMessage(r, text);
         }
@@ -1620,6 +1614,28 @@ bool eGameWidget::mouseMoveEvent(const eMouseEvent& e) {
     return true;
 }
 
+void eGameWidget::setIndicatorUnit(
+    const std::shared_ptr<eUnit>& u) {
+    std::string name;
+    if(u) {
+        if(u->isSlayerBody()) {
+            name = mCName;
+        } else {
+            const auto charId = u->fCharId;
+            const auto& s = eSlayers::sSlayers;
+            const auto it = s.find(charId);
+            if(it == s.end()) {
+                const int typeId = u->fUnitInfoId;
+                name = eMonsterNames::name(typeId);
+            } else {
+                const auto& slayer = it->second;
+                name = slayer.fName;
+            }
+        }
+    }
+    mUnitIndicator->setUnit(u, name);
+}
+
 void eGameWidget::initializeTextures() {
     const int w = width();
     const int h = height();
@@ -1632,7 +1648,7 @@ void eGameWidget::initializeTextures() {
 void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
     if(mUnitIndicator && !mPressedUnit.lock()) {
-        mUnitIndicator->setUnit(u, sUserNames, mCName);
+        setIndicatorUnit(u);
     }
 }
 
@@ -1709,9 +1725,9 @@ void eGameWidget::setPressedUnit(
     mPressedUnit = u;
     if(mUnitIndicator) {
         if(u) {
-            mUnitIndicator->setUnit(u, sUserNames, mCName);
+            setIndicatorUnit(u);
         } else {
-            mUnitIndicator->setUnit(mHighlightUnit.lock(), sUserNames, mCName);
+            setIndicatorUnit(mHighlightUnit.lock());
         }
     }
 

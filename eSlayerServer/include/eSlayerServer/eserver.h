@@ -7,6 +7,7 @@
 #include <eSlayerMapGenerator/emapgenerator.h>
 #include <eSlayerHelpers/eskillchoice.h>
 #include <eSlayerHelpers/emapportion.h>
+#include <eSlayerHelpers/eslayers.h>
 
 #include <memory>
 
@@ -25,18 +26,6 @@ struct eServerData {
     std::string fName;
     std::string fIp;
     std::string fPassword;
-};
-
-struct eOtherUsers {
-    int fClientId;
-    std::string fName;
-    bool fJustJoined;
-
-    eOtherUsers(const int id,
-                const std::string& name,
-                const bool joined) :
-        fClientId(id), fName(name),
-        fJustJoined(joined) {}
 };
 
 struct eMessage {
@@ -159,7 +148,7 @@ public:
     const std::string& name() const { return mData.fName; }
     const std::string& password() const { return mData.fPassword; }
 
-    std::vector<eOtherUsers> receiveNewUsers();
+    std::vector<eSlayer> receiveNewUsers();
     std::vector<int> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
     std::vector<eServerObject> receiveObjectStateChanges();
@@ -169,7 +158,7 @@ protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
 
-    std::vector<eOtherUsers> mNewUsers;
+    std::vector<eSlayer> mNewUsers;
     std::vector<int> mLeftUsers;
     std::vector<eMessage> mMessages;
     std::vector<eServerObject> mObjectStateChanges;

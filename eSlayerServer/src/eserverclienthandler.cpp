@@ -47,6 +47,11 @@ bool eServerClientHandler::receiveEquipment(eEquipment& data) {
     return true;
 }
 
+std::shared_ptr<eMap> eServerClientHandler::map() const {
+    if(!mArea) return nullptr;
+    return mArea->map();
+}
+
 bool eServerClientHandler::changeState(
     const eUnitData& u) {
     if(!mArea) return false;

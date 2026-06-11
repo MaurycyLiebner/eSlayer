@@ -252,6 +252,7 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const int charId = it->second;
     mClientIdMap.erase(tcpClientId);
     disconnect(charId);
+    eSlayers::sSlayers.erase(charId);
     {
         ePacket p;
         p << ePacketType::userLeft;
@@ -356,15 +357,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     ePacket p;
                     p << ePacketType::spawn;
 
-                    const uint8_t nClients = mClientHandlers.size();
-                    p << nClients;
-                    for(const auto& it : mClientHandlers) {
-                        const int clientId = it.first;
-                        p << clientId;
-                        const auto h = it.second;
-                        const auto name = h ? h->name() : "";
-                        p << name;
-                    }
+                    eSlayers::write(p);
 
                     const auto& eq = c.equipment();
                     eq.write(p);
@@ -382,12 +375,14 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 {
                     ePacket p;
                     p << ePacketType::userEntered;
-                    p << charId;
-                    const auto name = c.name();
-                    p << name;
-                    mNet.broadcast(p);
+                    const auto it = eSlayers::sSlayers.find(charId);
+                    if(it != eSlayers::sSlayers.end()) {
+                        const auto& slayer = it->second;
+                        slayer.write(p);
+                        mNet.broadcast(p);
 
-                    mNewUsers.emplace_back(charId, name, true);
+                        mNewUsers.emplace_back(slayer);
+                    }
                 }
             }
         }
@@ -462,6 +457,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 ePacket p;
                 p << ePacketType::data;
                 data.write(p);
+                eSlayers::writeLocations(p);
                 mNet.sendToClient(tcpClientId, p);
             }
         }

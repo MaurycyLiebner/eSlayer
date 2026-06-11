@@ -2,7 +2,6 @@
 
 #include "../../units/eunit.h"
 #include "../ecolors.h"
-#include "../../names/emonsternames.h"
 #include "../../names/eelitemodifiersnames.h"
 
 void eUnitIndicator::initialize() {
@@ -21,31 +20,17 @@ void eUnitIndicator::initialize() {
 }
 
 void eUnitIndicator::setUnit(const std::shared_ptr<eUnit>& u,
-                             const std::map<int, std::string>& names,
-                             const std::string& slayerName) {
+                             const std::string& name) {
     mUnit = u;
     std::string modsStr;
     if(u) {
-        if(u->isSlayerBody()) {
-            setText(slayerName);
-        } else {
-            const auto it = names.find(u->fCharId);
-            if(it == names.end()) {
-                const int typeId = u->fUnitInfoId;
-                const auto name = eMonsterNames::name(typeId);
-                setText(name);
-            } else {
-                setText(it->second);
-            }
-            const auto& mods = u->fMods;
-            for(const auto m : mods) {
-                if(!modsStr.empty()) modsStr += ", ";
-                modsStr += eEliteModifiersNames::name(m);
-            }
+        const auto& mods = u->fMods;
+        for(const auto m : mods) {
+            if(!modsStr.empty()) modsStr += ", ";
+            modsStr += eEliteModifiersNames::name(m);
         }
-    } else {
-        setText("");
     }
+    setText(name);
     mModsLabel->setText(modsStr);
     mModsLabel->fitContent();
     mModsLabel->align(eAlignment::hcenter);

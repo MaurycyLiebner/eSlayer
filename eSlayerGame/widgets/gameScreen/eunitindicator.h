@@ -12,8 +12,7 @@ public:
     void initialize();
 
     void setUnit(const std::shared_ptr<eUnit>& u,
-                 const std::map<int, std::string>& names,
-                 const std::string& slayerName);
+                 const std::string& name);
 protected:
     void paintEvent(ePainter& p) override;
 private:

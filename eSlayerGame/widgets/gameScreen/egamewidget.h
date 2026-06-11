@@ -76,7 +76,6 @@ public:
     const eGameInput& input() const { return mInput; }
 
     const std::string& cname() const { return mCName; }
-    std::string userName(const int clientId) const;
     eEquipment& equipment() { return mMainAction->equipment(); }
     std::vector<eEquipment>& bodyEquipments() { return mMainAction->bodyEquipments(); }
     eAttributes& attributes() { return mMainAction->attributes(); }
@@ -113,8 +112,6 @@ public:
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
     static void sMoveToMap(const uint8_t mapId);
-    static void sClearAll();
-    static std::map<int, std::string> sUserNames;
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -123,6 +120,7 @@ protected:
 private:
     void initializeTextures();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
+    void setIndicatorUnit(const std::shared_ptr<eUnit>& u);
     void setHighlightedObject(const std::shared_ptr<eObject>& obj);
     void setHighlightedDoors(const std::optional<eDoors>& doors);
     void setHighlightedStairs(const std::optional<eStairs>& stairs);

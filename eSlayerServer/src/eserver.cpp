@@ -35,8 +35,8 @@ bool eServer::requestMapCall(
     return requestMap(clientId, id, func);
 }
 
-std::vector<eOtherUsers> eServer::receiveNewUsers() {
-    std::vector<eOtherUsers> result;
+std::vector<eSlayer> eServer::receiveNewUsers() {
+    std::vector<eSlayer> result;
     std::swap(mNewUsers, result);
     return result;
 }

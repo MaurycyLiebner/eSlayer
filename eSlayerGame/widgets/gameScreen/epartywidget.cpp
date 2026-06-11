@@ -165,7 +165,7 @@ void ePartyWidget::updatePartyWidgets() {
         std::vector<std::string> members;
         const auto& ms = team.fMembers;
         for(const auto m : ms) {
-            const auto& name = eGameWidget::sUserNames[m];
+            const auto& name = eSlayers::name(m);
             members.emplace_back(name);
         }
         const auto teamW = new eTeamWidget(window());
