@@ -727,6 +727,7 @@ bool eServerArea::addClient(const int clientId,
                             eCharacter& c,
                             eTeamId& teamId,
                             ePointF& spawnPos,
+                            std::vector<eBody>& bodies,
                             const eScreenDimensions& screenDims) {
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
@@ -765,12 +766,13 @@ bool eServerArea::addClient(const int clientId,
     const auto area = unitArea(*u);
     clientData.fArea = area;
 
-    for(auto& body : c.bodies()) {
-        auto& bodyEq = body.fEq;
-        bodyEq.iterateOverBody([](eItem& item) {
+    for(auto& eq : c.bodies()) {
+        eq.iterateOverBody([](eItem& item) {
             eItemGenerator::applyItemId(item);
         });
-        spawnBody(clientId, body.fEq, body.fBodyId);
+        auto& body = bodies.emplace_back();
+        body.fEq = eq;
+        spawnBody(clientId, eq, body.fBodyId, body.fPos);
     }
 
     return true;
@@ -845,7 +847,8 @@ bool eServerArea::moveClient(
 
 bool eServerArea::spawnBody(const int clientId,
                             const eBodyEquipment& beq,
-                            int& bodyId) {
+                            uint32_t& bodyId,
+                            ePointF& spawnPos) {
     const auto client = unit(clientId);
     if(!client) return false;
     const auto& data = client->data();
@@ -860,8 +863,8 @@ bool eServerArea::spawnBody(const int clientId,
     const int charId = eServerUnit::sNextCharId++;
     const auto& modelParts = client->fModelParts;
     const auto teamId = client->fTeamId;
-    const auto& pos = client->fPos;
-    iniSetupUnit(u, charId, teamId, pos,
+    spawnPos = client->fPos;
+    iniSetupUnit(u, charId, teamId, spawnPos,
                  typeId, udata, data, modelParts);
     u->fHealth = 0;
     u->fAnim = data.animId("body");
@@ -871,15 +874,15 @@ bool eServerArea::spawnBody(const int clientId,
 }
 
 bool eServerArea::respawn(const int clientId,
-                          eBodyEquipment& beq,
-                          int& bodyId) {
+                          uint32_t& bodyId,
+                          ePointF& bodyPos) {
     const auto client = unit(clientId);
     if(!client) return false;
     const bool createBody = true;
     if(createBody) {
         auto& eq = client->equipment();
-        beq = eq.takeBody();
-        const bool r = spawnBody(clientId, beq, bodyId);
+        const auto beq = eq.takeBody();
+        const bool r = spawnBody(clientId, beq, bodyId, bodyPos);
         if(!r) return false;
     }
     client->respawn();

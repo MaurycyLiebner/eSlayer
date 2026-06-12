@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/ebody.h>
 
 eTcpIpJoin::~eTcpIpJoin() {
     if(mRunning) {
@@ -107,6 +108,7 @@ bool eTcpIpJoin::spawn(
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
+    std::vector<eBody>& bodies,
     const eScreenDimensions& screenDims) {
     ePacket p;
     p << ePacketType::spawn;
@@ -126,9 +128,7 @@ bool eTcpIpJoin::spawn(
             eq = eEquipment();
             eq.read(p);
 
-            for(auto& b : c.bodies()) {
-                p >> b.fBodyId;
-            }
+            eBodies::read(bodies, p);
 
             eTeams::read(p);
             p >> teamId;
@@ -208,8 +208,8 @@ bool eTcpIpJoin::stopAttack(const int clientId) {
 }
 
 bool eTcpIpJoin::respawn(const int clientId,
-                         eBodyEquipment& beq,
-                         int& bodyId) {
+                         uint32_t& bodyId,
+                         ePointF& bodyPos) {
     ePacket p;
     p << ePacketType::respawn;
     const bool r = mNet.sendToServer(p);
@@ -219,7 +219,7 @@ bool eTcpIpJoin::respawn(const int clientId,
             ePacketType type;
             p >> type;
             p >> bodyId;
-            beq.bodyRead(p);
+            p >> bodyPos;
             return true;
         }
         return false;

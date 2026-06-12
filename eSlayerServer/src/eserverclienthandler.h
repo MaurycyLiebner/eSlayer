@@ -32,11 +32,11 @@ public:
     bool changeState(const eUnitData& u);
     bool attack(const eAttackData& target);
     bool stopAttack();
-    bool respawn(eBodyEquipment& beq,
-                 int& bodyId);
+    bool respawn(uint32_t& bodyId, ePointF& bodyPos);
     bool spawn(eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,
+               std::vector<eBody>& bodies,
                const eScreenDimensions& screenDims);
     bool disconnect();
     bool setSkillId(const eSkillChoice schoice,

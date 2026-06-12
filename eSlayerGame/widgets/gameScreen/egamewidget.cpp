@@ -71,7 +71,6 @@ void eGameWidget::initialize(const int clientId,
         eSlayers::sSlayers.emplace(clientId, slayer);
     }
     mHardcore = c.hardcore();
-    mBodies = c.bodies();
 
     eSlayers::sThisSlayer = clientId;
     mClientId = clientId;
@@ -200,12 +199,11 @@ void eGameWidget::setOtherRightSkill(const int s) {
 }
 
 void eGameWidget::respawn() {
-    eBodyEquipment beq;
-    int bodyId;
-    mServer->respawn(mClientId, beq, bodyId);
-    mBodies.emplace_back(eBody{bodyId, beq});
     auto& eq = equipment();
-    eq.takeBody();
+    eBody body;
+    body.fEq = eq.takeBody();
+    mServer->respawn(mClientId, body.fBodyId, body.fPos);
+    eBodies::add(body);
     mMainAction->recalculateStats();
 }
 
@@ -247,7 +245,9 @@ eCharacter eGameWidget::character() {
     c.otherRightSkill() = mOtherRightSkill;
     c.leftHotkeys() = eSkillButton::sLeftMap;
     c.rightHotkeys() = eSkillButton::sRightMap;
-    c.bodies() = mBodies;
+    for(const auto& b : eBodies::sBodies) {
+        c.bodies().emplace_back(b.fEq);
+    }
     return c;
 }
 
@@ -327,18 +327,13 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto bodies = mServer->receiveBodiesPickedUp();
         for(const auto bodyId : bodies) {
-            for(int i = 0; i < mBodies.size(); i++) {
-                const auto& b = mBodies[i];
-                if(b.fBodyId != bodyId) continue;
-                mBodies.erase(mBodies.begin() + i);
-                break;
-            }
+            eBodies::remove(bodyId);
         }
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar,
-        *mMainAction, res, r, mBodies);
+        *mMainAction, res, r);
     if(eInventoryWidget::sBlocked) {
         auto& eq = mMainAction->equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);

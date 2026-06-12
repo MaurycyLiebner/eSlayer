@@ -90,10 +90,11 @@ bool eLocalServer::spawn(const int clientId,
                          eCharacter& c,
                          eTeamId& teamId,
                          ePointF& spawnPos,
+                         std::vector<eBody>& bodies,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const bool r = h->spawn(c, teamId, spawnPos, screenDims);
+    const bool r = h->spawn(c, teamId, spawnPos, bodies, screenDims);
     if(!r) return false;
     const auto& name = c.name();
     eSlayer slayer;
@@ -155,11 +156,11 @@ bool eLocalServer::stopAttack(const int clientId) {
 }
 
 bool eLocalServer::respawn(const int clientId,
-                           eBodyEquipment& beq,
-                           int& bodyId) {
+                           uint32_t& bodyId,
+                           ePointF& bodyPos) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->respawn(beq, bodyId);
+    return h->respawn(bodyId, bodyPos);
 }
 
 bool eLocalServer::setSkillId(const int clientId,

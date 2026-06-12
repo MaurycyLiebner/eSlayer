@@ -119,8 +119,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const eUnit& mainChar,
     eMainCharAction& mainAct,
     const eResolution& res,
-    SDL_Renderer* const r,
-    const std::vector<eBody>& bodies) {
+    SDL_Renderer* const r) {
     eRequestData data;
     float resultTime;
     const bool b = server.requestData(clientId, data, resultTime);
@@ -168,7 +167,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             u.fModelParts, res, r);
 
         const auto unit = std::make_shared<eUnit>();
-        for(const auto& b : bodies) {
+        for(const auto& b : eBodies::sBodies) {
             if(b.fBodyId == charId) {
                 unit->setSlayerBody(true);
                 break;

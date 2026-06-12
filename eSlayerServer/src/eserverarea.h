@@ -16,6 +16,7 @@
 #include <eSlayerHelpers/esetareas.h>
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/efixedsizesetareas.h>
+#include <eSlayerHelpers/ebody.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -97,10 +98,11 @@ public:
                    eCharacter& c,
                    eTeamId& teamId,
                    ePointF& spawnPos,
+                   std::vector<eBody>& bodies,
                    const eScreenDimensions& screenDims);
     bool respawn(const int clientId,
-                 eBodyEquipment& beq,
-                 int& bodyId);
+                 uint32_t& bodyId,
+                 ePointF& bodyPos);
     bool removeClient(const int clientId);
     bool clientMoved(const int clientId);
     bool planRemoveUnit(const int charId);
@@ -187,7 +189,8 @@ public:
 private:
     bool spawnBody(const int clientId,
                    const eBodyEquipment& beq,
-                   int& bodyId);
+                   uint32_t& bodyId,
+                   ePointF& spawnPos);
     bool addClient(const int clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,

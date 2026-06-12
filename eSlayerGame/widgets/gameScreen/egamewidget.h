@@ -77,7 +77,6 @@ public:
 
     const std::string& cname() const { return mCName; }
     eEquipment& equipment() { return mMainAction->equipment(); }
-    std::vector<eEquipment>& bodyEquipments() { return mMainAction->bodyEquipments(); }
     eAttributes& attributes() { return mMainAction->attributes(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
@@ -178,8 +177,6 @@ private:
     int mLastArea = -1;
 
     eMoveToMapAction mMoveAction;
-
-    std::vector<eBody> mBodies;
 };
 
 #endif // EGAMEWIDGET_H

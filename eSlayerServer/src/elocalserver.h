@@ -34,6 +34,7 @@ public:
                eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,
+               std::vector<eBody>& bodies,
                const eScreenDimensions& screenDims) override;
 
     bool requestData(const int clientId,
@@ -52,8 +53,8 @@ public:
     bool stopAttack(const int clientId) override;
 
     bool respawn(const int clientId,
-                 eBodyEquipment& beq,
-                 int& bodyId) override;
+                 uint32_t& bodyId,
+                 ePointF& bodyPos) override;
 
     bool setSkillId(const int clientId,
                     const eSkillChoice schoice,

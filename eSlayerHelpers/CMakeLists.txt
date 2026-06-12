@@ -178,6 +178,7 @@ add_library(eSlayerHelpers SHARED
     src/emissilesinfo.cpp
     include/eSlayerHelpers/especialanim.h
     src/especialanim.cpp
+    src/ebody.cpp
 )
 
 target_include_directories(eSlayerHelpers

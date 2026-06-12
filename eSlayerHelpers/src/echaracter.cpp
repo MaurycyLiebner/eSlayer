@@ -303,9 +303,7 @@ bool eCharacter::load(const std::string& path,
 
     if(const auto eqE = rootE->FirstChildElement("bodyEquipment")) {
         auto& body = c.mBodies.emplace_back();
-        body.fBodyId = 0;
-        auto& eq = body.fEq;
-        readEq(eq, eqE);
+        readEq(body, eqE);
     }
 
     return true;
@@ -527,10 +525,9 @@ bool eCharacter::write(const std::string& path) const {
     gWriteInventory(mEquipment.fStash, "stash", eqE);
 
     for(const auto& body : mBodies) {
-        const auto& bodyEq = body.fEq;
-        if(bodyEq.bodyEmpty()) continue;
+        if(body.bodyEmpty()) continue;
         const auto eqE = rootE->InsertNewChildElement("bodyEquipment");
-        writeEq(bodyEq, eqE);
+        writeEq(body, eqE);
         break;
     }
 
@@ -554,8 +551,7 @@ void eCharacter::read(ePacket& p) {
     p >> nBodies;
     for(int i = 0; i < nBodies; i++) {
         auto& b = mBodies.emplace_back();
-        p >> b.fBodyId;
-        b.fEq.bodyRead(p);
+        b.bodyRead(p);
     }
 }
 
@@ -569,7 +565,6 @@ void eCharacter::write(ePacket& p) const {
     const uint8_t nBodies = mBodies.size();
     p << nBodies;
     for(const auto& b : mBodies) {
-        p << b.fBodyId;
-        b.fEq.bodyWrite(p);
+        b.bodyWrite(p);
     }
 }

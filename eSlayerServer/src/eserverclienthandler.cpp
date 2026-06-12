@@ -119,21 +119,22 @@ bool eServerClientHandler::stopAttack() {
 }
 
 bool eServerClientHandler::respawn(
-    eBodyEquipment& beq,
-    int& bodyId) {
+    uint32_t& bodyId, ePointF& bodyPos) {
     if(!mArea) return false;
-    return mArea->respawn(mClientId, beq, bodyId);
+    return mArea->respawn(mClientId, bodyId, bodyPos);
 }
 
 bool eServerClientHandler::spawn(
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
+    std::vector<eBody>& bodies,
     const eScreenDimensions& screenDims) {
     if(!mArea) return false;
     const auto client = mArea->unit(mClientId);
     if(client) return false;
-    mArea->addClient(mClientId, c, teamId, spawnPos, screenDims);
+    mArea->addClient(mClientId, c, teamId,
+                     spawnPos, bodies, screenDims);
     return true;
 }
 

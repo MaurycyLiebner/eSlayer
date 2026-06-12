@@ -6,7 +6,6 @@
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eattributes.h"
 #include "eSlayerHelpers/estats.h"
-#include "eSlayerHelpers/ebody.h"
 
 #include <string>
 
@@ -50,8 +49,8 @@ public:
     const int& otherRightSkill() const { return mOtherRightSkill; }
     int& otherRightSkill() { return mOtherRightSkill; }
 
-    const std::vector<eBody>& bodies() const { return mBodies; }
-    std::vector<eBody>& bodies() { return mBodies;}
+    const std::vector<eBodyEquipment>& bodies() const { return mBodies; }
+    std::vector<eBodyEquipment>& bodies() { return mBodies;}
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -61,7 +60,7 @@ private:
     eEquipment mEquipment;
     eAttributes mAttributes;
     eSkillLevels mSkillLevels;
-    std::vector<eBody> mBodies;
+    std::vector<eBodyEquipment> mBodies;
     int mLeftSkill = 0;
     int mRightSkill = 0;
     int mOtherLeftSkill = 0;

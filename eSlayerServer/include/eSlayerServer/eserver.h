@@ -8,6 +8,7 @@
 #include <eSlayerHelpers/eskillchoice.h>
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/eslayers.h>
+#include <eSlayerHelpers/ebody.h>
 
 #include <memory>
 
@@ -70,6 +71,7 @@ public:
           eCharacter& c,
           eTeamId& teamId,
           ePointF& spawnPos,
+          std::vector<eBody>& bodies,
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool
@@ -95,8 +97,8 @@ public:
 
     virtual bool
     respawn(const int clientId,
-            eBodyEquipment& beq,
-            int& bodyId) = 0;
+            uint32_t& bodyId,
+            ePointF& bodyPos) = 0;
 
     virtual bool
     setSkillId(const int clientId,

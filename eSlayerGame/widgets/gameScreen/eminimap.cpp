@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/eteamid.h>
+#include <eSlayerHelpers/ebody.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -132,6 +133,26 @@ void eMiniMap::paintEvent(ePainter& p) {
         }
 
         if(mShowMap) {
+            const auto drawCross = [&](const ePointF& pos,
+                                       const SDL_Color& color,
+                                       const uint32_t clientId) {
+                const float dx = pos.fX - mPos.fX;
+                const float dy = pos.fY - mPos.fY;
+                const int xx = mHPos*width() + (dx - dy) * (fTileW / 2.f);
+                const int yy = 0.5f*height() + (dx + dy) * (fTileH / 2.f) - 4*fTileH;
+                const int dim = fTileH/2;
+                const int thick = std::max(1, dim/2);
+                p.fillRect(SDL_Rect{xx - dim, yy - thick, 2*dim, 2*thick},
+                           color);
+                p.fillRect(SDL_Rect{xx - thick, yy - dim, 2*thick, 2*dim},
+                           color);
+                if(clientId != eSlayers::sThisSlayer) {
+                    const auto tex = requestNameTex(clientId);
+                    p.drawTexture(xx, yy - 2*dim, tex,
+                                  eAlignment::top | eAlignment::hcenter);
+                }
+            };
+
             const auto mapId = mMap->id();
             for(const auto& s : eSlayers::sSlayers) {
                 const auto clientId = s.first;
@@ -140,29 +161,14 @@ void eMiniMap::paintEvent(ePainter& p) {
                 const auto t1 = eTeams::playerTeam(clientId);
                 const auto t2 = eTeams::playerTeam(eSlayers::sThisSlayer);
                 if(t1 != t2) continue;
-                const auto& name = slayer.fName;
-                float dx;
-                float dy;
-                if(clientId == eSlayers::sThisSlayer) {
-                    dx = 0.f;
-                    dy = 0.f;
-                } else {
-                    dx = slayer.fPos.fX - mPos.fX;
-                    dy = slayer.fPos.fY - mPos.fY;
-                }
-                const int xx = mHPos*width() + (dx - dy) * (fTileW / 2.f);
-                const int yy = 0.5f*height() + (dx + dy) * (fTileH / 2.f) - 4*fTileH;
-                const int dim = fTileH/2;
-                const int thick = std::max(1, dim/2);
-                p.fillRect(SDL_Rect{xx - dim, yy - thick, 2*dim, 2*thick},
-                           SDL_Color{0, 255, 0, 255});
-                p.fillRect(SDL_Rect{xx - thick, yy - dim, 2*thick, 2*dim},
-                           SDL_Color{0, 255, 0, 255});
-                if(clientId != eSlayers::sThisSlayer) {
-                    const auto tex = requestNameTex(clientId);
-                    p.drawTexture(xx, yy - 2*dim, tex,
-                                  eAlignment::top | eAlignment::hcenter);
-                }
+                const auto& pos = clientId == eSlayers::sThisSlayer ?
+                    mPos : slayer.fPos;
+                drawCross(pos, SDL_Color{0, 255, 0, 255},
+                          clientId);
+            }
+            for(const auto& b : eBodies::sBodies) {
+                drawCross(b.fPos, SDL_Color{255, 0, 0, 255},
+                          eSlayers::sThisSlayer);
             }
         }
     }

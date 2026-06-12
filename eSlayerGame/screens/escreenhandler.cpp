@@ -234,6 +234,7 @@ void eScreenHandler::showGame(eServerData serverData,
     eMiniMap::clearAll();
     eSlayers::clear();
     eTeams::clear();
+    eBodies::clear();
 
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
@@ -299,7 +300,8 @@ void eScreenHandler::showGame(eServerData serverData,
         const eScreenDimensions screenDims{int(std::ceil(1.f*width/tileW)),
                                            int(std::ceil(2.f*height/tileH))};
         ePointF spawnPos;
-        (*server)->spawn(*clientId, *serverC, *teamId, spawnPos, screenDims);
+        (*server)->spawn(*clientId, *serverC, *teamId, spawnPos,
+                         eBodies::sBodies, screenDims);
         map->setSpawnPos(spawnPos);
     });
     loading.emplace_back([&res, r]() {

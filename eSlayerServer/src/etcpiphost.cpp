@@ -86,10 +86,11 @@ bool eTcpIpHost::spawn(
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
+    std::vector<eBody>& bodies,
     const eScreenDimensions& screenDims) {
     std::unique_lock lock(mMutex);
     return eLocalServer::spawn(
-        clientId, c, teamId, spawnPos, screenDims);
+        clientId, c, teamId, spawnPos, bodies, screenDims);
 }
 
 bool eTcpIpHost::requestData(
@@ -144,11 +145,11 @@ bool eTcpIpHost::stopAttack(
 
 bool eTcpIpHost::respawn(
     const int clientId,
-    eBodyEquipment& beq,
-    int& bodyId) {
+    uint32_t& bodyId,
+    ePointF& bodyPos) {
     std::unique_lock lock(mMutex);
     return eLocalServer::respawn(
-        clientId, beq, bodyId);
+        clientId, bodyId, bodyPos);
 }
 
 bool eTcpIpHost::setSkillId(
@@ -349,8 +350,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             screenDims.read(p);
             eTeamId teamId;
             ePointF spawnPos;
+            std::vector<eBody> bodies;
             const bool r = eLocalServer::spawn(
-                charId, c, teamId, spawnPos, screenDims);
+                charId, c, teamId, spawnPos, bodies, screenDims);
 
             if(r) {
                 {
@@ -362,9 +364,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     const auto& eq = c.equipment();
                     eq.write(p);
 
-                    for(auto& b : c.bodies()) {
-                        p << b.fBodyId;
-                    }
+                    eBodies::write(bodies, p);
 
                     eTeams::write(p);
                     p << teamId;
@@ -482,15 +482,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
             const int charId = it->second;
-            eBodyEquipment beq;
-            int bodyId;
+            uint32_t bodyId;
+            ePointF bodyPos;
             const bool r = eLocalServer::respawn(
-                charId, beq, bodyId);
+                charId, bodyId, bodyPos);
             if(r) {
                 ePacket p;
                 p << ePacketType::body;
                 p << bodyId;
-                beq.bodyWrite(p);
+                p << bodyPos;
                 mNet.sendToClient(tcpClientId, p);
             }
         }
