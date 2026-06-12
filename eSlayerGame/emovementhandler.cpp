@@ -16,6 +16,5 @@ bool eMovementHandler::increment(const float by) {
         by, angle, pos);
     mUnit.setAngle(angle);
     mUnit.setPosition(pos);
-    eSlayers::setPoisition(eSlayers::sThisSlayer, pos);
     return r;
 }

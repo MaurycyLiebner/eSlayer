@@ -141,8 +141,15 @@ void eMiniMap::paintEvent(ePainter& p) {
                 const auto t2 = eTeams::playerTeam(eSlayers::sThisSlayer);
                 if(t1 != t2) continue;
                 const auto& name = slayer.fName;
-                const float dx = slayer.fPos.fX - mPos.fX;
-                const float dy = slayer.fPos.fY - mPos.fY;
+                float dx;
+                float dy;
+                if(clientId == eSlayers::sThisSlayer) {
+                    dx = 0.f;
+                    dy = 0.f;
+                } else {
+                    dx = slayer.fPos.fX - mPos.fX;
+                    dy = slayer.fPos.fY - mPos.fY;
+                }
                 const int xx = mHPos*width() + (dx - dy) * (fTileW / 2.f);
                 const int yy = 0.5f*height() + (dx + dy) * (fTileH / 2.f) - 4*fTileH;
                 const int dim = fTileH/2;
