@@ -103,8 +103,8 @@ void eCharUnitModel::generatePreview(
 
 void eCharUnitModel::setAnimation(
     const int a, const eAnimId& id,
-    const float speed) {
-    if(!eAnimId::isAfter(id, mAnimId)) return;
+    const float speed, const bool force) {
+    if(!force && !eAnimId::isAfter(id, mAnimId)) return;
     mAnimId = id;
     setAnimation(a, speed);
 }

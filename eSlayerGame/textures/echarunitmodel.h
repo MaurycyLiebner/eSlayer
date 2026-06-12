@@ -32,7 +32,8 @@ public:
 
     void setAnimation(const int a,
                       const eAnimId& id,
-                      const float speed);
+                      const float speed,
+                      const bool force);
     void setAnimation(const int a,
                       const float speed);
 
@@ -42,7 +43,7 @@ public:
     void generatePreview(const eResolution& res,
                          SDL_Renderer* const r);
 private:
-    int mAnim = 0;
+    int mAnim = -1;
     eAnimId mAnimId;
     float mAnimSpeed = 1.f;
     float mFrame = 0.f;

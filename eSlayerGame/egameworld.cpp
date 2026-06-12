@@ -177,7 +177,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         static_cast<eUnitData&>(*unit) = u;
         eCharUnitModel model;
         model.setCharModel(unitModel);
-        model.setAnimation(u.fAnim, u.fAnimId, u.fAnimSpeed);
+        model.setAnimation(u.fAnim, u.fAnimId,
+                           u.fAnimSpeed, true);
         model.setAngle(u.fAngle);
         unit->setModel(model);
         mUnits.add(charId, unit);
@@ -200,7 +201,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         addUnit(unitRef.fPos, charId);
         auto& model = unitRef.model();
         model.setAngle(unitRef.fAngle);
-        model.setAnimation(unitRef.fAnim, unitRef.fAnimId, unitRef.fAnimSpeed);
+        model.setAnimation(unitRef.fAnim, unitRef.fAnimId,
+                           unitRef.fAnimSpeed, false);
         if(!mResult.fAggressive && eTeams::areEnemies(mainChar.fTeamId, unitRef.fTeamId) && unitRef.fHealth > 0) {
             const float dist = ePointF::distance(mainChar.fPos, u.fPos);
             if(dist < 5.f) mResult.fAggressive = true;
