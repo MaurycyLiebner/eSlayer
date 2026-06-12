@@ -19,6 +19,13 @@ void eExplodeAction::decide() {
         else decide();
     } break;
     case eExplodeStage::explode: {
+        mStage = eExplodeStage::body;
+        const auto body = eWaitAction::sCreateExplodeBody(
+            mType, mUnit, mArea);
+        if(body) setChild(body);
+        else decide();
+    } break;
+    case eExplodeStage::body: {
         finishAction();
     } break;
     }

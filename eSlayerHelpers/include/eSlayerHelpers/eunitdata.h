@@ -11,9 +11,6 @@
 
 class ePacket;
 
-const uint8_t sFleshExplAnim = 255;
-const uint8_t sIceExplAnim = 254;
-
 struct ESLAYERHELPERS_API eUnitData :
     public ePositioned {
     uint32_t fCharId;

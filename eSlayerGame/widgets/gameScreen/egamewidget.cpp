@@ -36,6 +36,7 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/especialanim.h>
 #include <eSlayerHelpers/eslayers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
@@ -721,17 +722,25 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(!tile) continue;
             const int animId = u->fAnim;
-            if(animId == sFleshExplAnim ||
-               animId == sIceExplAnim) {
+            const bool fleshExpl = animId == sFleshExplAnim ||
+                                   animId == sFleshExplBody;
+            const bool iceExpl = animId == sIceExplAnim ||
+                                 animId == sIceExplBody;
+            if(fleshExpl || iceExpl) {
                 auto& model = u->model();
                 model.incFrame(by);
-                const auto missileType = animId == sFleshExplAnim ?
-                    eMissilesTextures::sFleshId :
-                    eMissilesTextures::sIceId;
+                const auto missileType = fleshExpl ?
+                    eMissilesInfo::sFleshId :
+                    eMissilesInfo::sIceId;
+                const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
                 auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-                const int baseId = missileTex.baseAnimId();
-                const int nFrames = missileTex.nFrames(baseId);
-                bool floor = false;
+                const bool body = animId == sFleshExplBody ||
+                                  animId == sIceExplBody;
+                const int baseId = body ?
+                    missileInfo.stayAnimId() :
+                    missileInfo.baseAnimId();
+                const int nFrames = missileInfo.nFrames(baseId);
+                bool floor = body;
                 int frame = model.frame();
                 if(frame >= nFrames) {
                     floor = true;
@@ -787,10 +796,10 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(!tile) continue;
             const auto missileType = m->fType;
-            auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-            const int appearId = missileTex.appearAnimId();
-            const int baseId = missileTex.baseAnimId();
-            const int hitId = missileTex.hitAnimId();
+            const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
+            const int appearId = missileInfo.appearAnimId();
+            const int baseId = missileInfo.baseAnimId();
+            const int hitId = missileInfo.hitAnimId();
             int& frame = m->fFrame;
             int& animId = m->fAnimId;
             if(outside) {
@@ -799,12 +808,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
                 continue;
             }
-            int nFrames = missileTex.nFrames(animId);
+            int nFrames = missileInfo.nFrames(animId);
             if(frame >= nFrames) {
                 if(animId == appearId) {
                     animId = baseId;
                     frame = 0;
-                    nFrames = missileTex.nFrames(animId);
+                    nFrames = missileInfo.nFrames(animId);
                 }
 
                 if(animId == hitId || animId < 0) {
@@ -816,13 +825,14 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(animId == hitId) {
                 lmult = 1.5f * (1.f - static_cast<float>(frame)/nFrames);
             }
-            const int dirs = missileTex.nDirs(animId);
+            const int dirs = missileInfo.nDirs(animId);
             const float ainc = 360.f/dirs;
             int dir = std::round(m->fAngle/ainc) + 2*dirs/16;
             dir = (dirs + dir) % dirs;
             const int texFrame = frame++ % nFrames;
+            auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
             const auto& ftex = missileTex.get(animId, dir, texFrame);
-            const float lradius = missileTex.lighting();
+            const float lradius = missileInfo.lighting();
             const bool lighting = lradius > 0.01f;
             if(lighting) {
                 mGamePainter.addLight(pos.fX, pos.fY, lmult*lradius);
@@ -844,17 +854,18 @@ void eGameWidget::paintEvent(ePainter& p) {
             const float mangle = 180.f;
             const float dangle = 360.f/nMissiles;
             const auto& intervals = n->fIntervals;
+            const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
             auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-            const auto type = missileTex.type();
-            const int appearId = missileTex.appearAnimId();
-            const int baseId = missileTex.baseAnimId();
-            const int hitId = missileTex.hitAnimId();
-            const int hitNFrames = hitId < 0 ? 0 : missileTex.nFrames(hitId);
+            const auto type = missileInfo.type();
+            const int appearId = missileInfo.appearAnimId();
+            const int baseId = missileInfo.baseAnimId();
+            const int hitId = missileInfo.hitAnimId();
+            const int hitNFrames = hitId < 0 ? 0 : missileInfo.nFrames(hitId);
 
             int novaFrame = n->fFrame;
             int novaAnimId = appearId;
             const int nAppearFrames = appearId < 0 ? 0 :
-                missileTex.nFrames(appearId);
+                missileInfo.nFrames(appearId);
             if(novaFrame >= nAppearFrames) {
                 novaAnimId = baseId;
                 novaFrame -= nAppearFrames;
@@ -870,7 +881,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     novaFrame = hitNFrames - 1 - (r - maxR)/speed;
                 }
             }
-            const float light = missileTex.lighting();
+            const float light = missileInfo.lighting();
             const bool lighting = light > 0.01f;
             if(lighting) {
                 mGamePainter.addLight(c.fX, c.fY, lmult*(r + light));
@@ -921,13 +932,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
                     if(tile) {
                         const int animId = m->fAnimId;
-                        const int dirs = missileTex.nDirs(animId);
+                        const int dirs = missileInfo.nDirs(animId);
                         const float ainc = 360.f/dirs;
                         const float angle = m->fAngle;
                         int dir = std::round(angle/ainc) + 2*dirs/16;
                         dir = (dirs + dir) % dirs;
                         const int frame = m->fFrame;
-                        const int nFrames = missileTex.nFrames(animId);
+                        const int nFrames = missileInfo.nFrames(animId);
                         const int texFrame = frame % nFrames;
                         const auto& ftex = missileTex.get(animId, dir, texFrame);
                         renderElements.emplace_back(eRenderElement{false,
@@ -938,7 +949,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
             } break;
             case eMissileType::explosion: {
-                const int nFrames = missileTex.nFrames(novaAnimId);
+                const int nFrames = missileInfo.nFrames(novaAnimId);
                 const int frame = std::min(novaFrame, nFrames - 1);
                 const auto m = std::make_shared<eExtendedMissile>();
                 m->fPos = n->fCenter;
@@ -963,13 +974,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& a : areas) {
             const auto missileType = a->fMissileId;
             if(missileType == 0) continue;
+            const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
             auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
-            const int appearAnimId = missileTex.appearAnimId();
-            const int baseAnimId = missileTex.baseAnimId();
+            const int appearAnimId = missileInfo.appearAnimId();
+            const int baseAnimId = missileInfo.baseAnimId();
             int animId = appearAnimId;
             int appearFrames = 0;
             if(appearAnimId >= 0) {
-                appearFrames = missileTex.nFrames(appearAnimId);
+                appearFrames = missileInfo.nFrames(appearAnimId);
             }
             int frame = a->fFrame++;
             if(frame >= appearFrames) {
@@ -981,7 +993,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     continue;
                 }
             }
-            const float l = missileTex.lighting();
+            const float l = missileInfo.lighting();
             const bool lighting = l > 0.01f;
             if(lighting) {
                 const auto& c = a->fPos;
@@ -1117,8 +1129,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     int nCurses = 0;
                     int nAuras = 0;
                     for(const uint8_t boost : u->fBoosts) {
-                        const auto& missileTex = eMissilesTextures::sMissiles.get(boost);
-                        const auto type = missileTex.type();
+                        const auto& missileInfo = eMissilesInfo::sMissiles.get(boost);
+                        const auto type = missileInfo.type();
                         switch(type) {
                         case eMissileType::curse:
                             nCurses++;
@@ -1137,10 +1149,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                     int auraId = nAuras <= 0 ? -1 :
                         (frame / displayFrames) % nAuras;
                     for(const uint8_t boost : u->fBoosts) {
+                        const auto& missileInfo = eMissilesInfo::sMissiles.get(boost);
                         auto& missileTex = eMissilesTextures::sMissiles.get(boost);
                         const int drawX = ipixel.fX;
                         int drawY;
-                        const auto type = missileTex.type();
+                        const auto type = missileInfo.type();
                         switch(type) {
                         case eMissileType::curse: {
                             if(curseId-- != 0) {
@@ -1158,8 +1171,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                             continue;
                         }
 
-                        const int baseId = missileTex.baseAnimId();
-                        const int nFrames = missileTex.nFrames(baseId);
+                        const int baseId = missileInfo.baseAnimId();
+                        const int nFrames = missileInfo.nFrames(baseId);
                         if(nFrames <= 0) continue;
                         const uint16_t frame = (mFrame + 16*u->fCharId) % nFrames;
                         const auto& ftex = missileTex.get(baseId, 0, frame);
@@ -1185,9 +1198,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto a = std::static_pointer_cast<eExtendedSkillArea>(ePtr);
                 const auto missileType = a->fMissileId;
                 if(missileType == 0) continue;
-                auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+                const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
                 const float aR = a->fRadius;
-                const float texR = missileTex.radius();
+                const float texR = missileInfo.radius();
                 const float scale = aR/texR;
                 const auto& ftex = e.fTex;
                 const eRenderCall c(eRenderCallType::area, pos.fX, pos.fY,

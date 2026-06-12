@@ -6,7 +6,8 @@
 class eExplodeAction : public eComplexAction {
     enum class eExplodeStage {
         none,
-        explode
+        explode,
+        body
     };
 
 public:

@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eMissilesTextures::loadData();
+            eMissilesInfo::load();
             eMissileIncrement::initialize();
         });
 

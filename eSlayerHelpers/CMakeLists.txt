@@ -174,6 +174,10 @@ add_library(eSlayerHelpers SHARED
     src/ethreads.cpp
     include/eSlayerHelpers/eslayers.h
     src/eslayers.cpp
+    include/eSlayerHelpers/emissilesinfo.h
+    src/emissilesinfo.cpp
+    include/eSlayerHelpers/especialanim.h
+    src/especialanim.cpp
 )
 
 target_include_directories(eSlayerHelpers

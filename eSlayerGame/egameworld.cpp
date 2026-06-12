@@ -32,7 +32,7 @@ void eGameWorld::iniMissileInc() {
     const auto removeMissile = [this](eMissile& m) {
         auto& em = static_cast<eExtendedMissile&>(m);
         const auto missileType = em.fType;
-        const auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+        const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
         const int hitId = missileTex.hitAnimId();
         if(hitId < 0) {
             eGameWorld::removeMissile(m);
@@ -226,7 +226,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     for(const auto& m : missiles) {
         const auto mm = std::make_shared<eExtendedMissile>();
         const auto missileType = m.fType;
-        auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
+        auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
         const int apearId = missileTex.appearAnimId();
         const int baseId = missileTex.baseAnimId();
         mm->fAnimId = apearId >= 0 ? apearId : baseId;

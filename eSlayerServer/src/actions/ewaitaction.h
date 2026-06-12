@@ -22,9 +22,12 @@ public:
     static std::shared_ptr<eWaitAction>
     sCreateExplode(const eExplodeType type,
                    eServerUnit& unit, eServerArea& area);
-    static std::shared_ptr<eWaitAction> sCreate(
-        eServerUnit& unit, eServerArea& area,
-        const int anim, const bool blocking);
+    static std::shared_ptr<eWaitAction>
+    sCreateExplodeBody(const eExplodeType type,
+                       eServerUnit& unit, eServerArea& area);
+    static std::shared_ptr<eWaitAction>
+    sCreate(eServerUnit& unit, eServerArea& area,
+            const int anim, const bool blocking);
 };
 
 #endif // EWAITACTION_H

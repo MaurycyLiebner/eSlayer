@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eexceptions.h>
+#include <eSlayerHelpers/especialanim.h>
 
 #include <cmath>
 #include <filesystem>
@@ -30,7 +31,12 @@ SDL_Rect eCharUnitModel::requestBoundingRect() const {
 void eCharUnitModel::incFrame(const float by) {
     mFrame += by*mAnimSpeed;
     if(mClampId != -1) {
-        const int fMax = mModel->nFrames(mAnim);
+        int fMax;
+        if(eSpecialAnim::isSpecial(mAnim)) {
+            fMax = eSpecialAnim::nFrames(mAnim);
+        } else {
+            fMax = mModel->nFrames(mAnim);
+        }
         if(frame() >= fMax) {
             setAnimation(mClampId, 1.f);
         }
@@ -111,11 +117,15 @@ void eCharUnitModel::setAnimation(
 
 void eCharUnitModel::setAnimation(
     const int a, const float speed) {
-    if(a == sFleshExplAnim ||
-       a == sIceExplAnim) {
+    const bool fleshExpl = a == sFleshExplAnim ||
+                           a == sFleshExplBody;
+    const bool iceExpl = a == sIceExplAnim ||
+                         a == sIceExplBody;
+    if(fleshExpl || iceExpl) {
         mAnim = a;
         mFrame = 0.f;
-        mClampId = -1;
+        mClampId = fleshExpl ? sFleshExplBody :
+                               sIceExplBody;
         mAnimSpeed = speed;
         return;
     }

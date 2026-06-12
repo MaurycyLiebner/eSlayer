@@ -3,6 +3,8 @@
 #include "../eserverunit.h"
 
 #include <eSlayerHelpers/echardata.h>
+#include <eSlayerHelpers/emissilesinfo.h>
+#include <eSlayerHelpers/especialanim.h>
 
 void eUnitActionBase::increment(const float by) {
     setDuration(mRemTime - by);
@@ -33,17 +35,15 @@ void eUnitActionBase::setup(const int anim,
     mUnit.setAnim(anim);
     mUnit.incAnimId(5);
 
-    float speed;
-    if(anim == sFleshExplAnim ||
-       anim == sIceExplAnim) {
-        speed = 1.f;
-        setDuration(std::numeric_limits<float>::max());
+    int baseFrames;
+    if(eSpecialAnim::isSpecial(anim)) {
+        baseFrames = eSpecialAnim::nFrames(anim);
     } else {
-        const int baseFrames = data.animFrames(anim);
-        if(frames == -1) frames = baseFrames;
-        speed = frames == 0 ? 1.f : float(baseFrames)/frames;
-        setDuration(frames);
+        baseFrames = data.animFrames(anim);
     }
+    if(frames == -1) frames = baseFrames;
+    const float speed = frames == 0 ? 1.f : float(baseFrames)/frames;
+    setDuration(frames);
     mUnit.setAnimSpeed(speed);
 
     if(a) {

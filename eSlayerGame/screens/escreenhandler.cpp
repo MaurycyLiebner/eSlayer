@@ -273,7 +273,7 @@ void eScreenHandler::showGame(eServerData serverData,
         if(r) map->loadData(data);
     });
     loading.emplace_back([&res, r]() {
-        eMissilesTextures::loadTextures(res, r);
+        eMissilesTextures::load(res, r);
     });
     loading.emplace_back([&res, r, map]() {
         loadTerrainTypes(res, r, map);
