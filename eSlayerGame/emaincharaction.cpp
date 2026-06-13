@@ -248,7 +248,7 @@ void eMainCharAction::increment(const bool mousePressed,
         handlePos(tl);
         if(minDist < 0.5f) {
             const auto mapId = mMap->id();
-            eServerObject sobject(mapId, *object);
+            const eServerObject sobject(mapId, *object);
             mServer->triggerObject(mClientId, sobject);
             mClickAction = mousePressed;
             stop();

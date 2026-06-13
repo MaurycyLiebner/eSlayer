@@ -50,7 +50,7 @@ public:
                     const int skillId) override;
 
     bool triggerObject(const int clientId,
-                       eServerObject& obj) override;
+                       const eServerObject& obj) override;
 
     bool triggerDoors(const int clientId,
                       const eServerDoors& doors) override;
@@ -78,8 +78,8 @@ private:
 
     bool triggerDoorsAndSend(
         const int clientId, const eServerDoors& doors);
-    bool triggerObjectAndSend(
-        const int clientId, eServerObject& obj);
+    bool triggerObjectAndSend(const int clientId,
+                              const eServerObject& obj);
 
     void sendToMapClients(const uint8_t mapId, const ePacket& p);
 

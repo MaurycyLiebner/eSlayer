@@ -231,7 +231,7 @@ void eTcpIpHost::checkMapsReady() {
 }
 
 bool eTcpIpHost::triggerObject(
-    const int clientId, eServerObject& obj) {
+    const int clientId, const eServerObject& obj) {
     std::unique_lock lock(mMutex);
     return triggerObjectAndSend(clientId, obj);
 }
@@ -658,15 +658,16 @@ bool eTcpIpHost::triggerDoorsAndSend(
 }
 
 bool eTcpIpHost::triggerObjectAndSend(
-    const int clientId, eServerObject& obj) {
+    const int clientId, const eServerObject& obj) {
     const int mapId = clientMapId(clientId);
     if(mapId < 0) return false;
     if(mapId != obj.fMapId) return false;
-    const bool r = eLocalServer::triggerObject(clientId, obj);
+    eServerObject cobj = obj;
+    const bool r = eLocalServer::triggerObjectImpl(clientId, cobj);
     if(!r) return false;
     ePacket p;
     p << ePacketType::objectStateChanged;
-    p << obj;
+    p << cobj;
     sendToMapClients(mapId, p);
     return true;
 }

@@ -61,7 +61,9 @@ public:
                     const int skillId) override;
 
     bool triggerObject(const int clientId,
-                       eServerObject& obj) override;
+                       const eServerObject& obj) override;
+    bool triggerObjectImpl(const int clientId,
+                           eServerObject& obj);
 
     bool triggerDoors(const int clientId,
                       const eServerDoors& doors) override;

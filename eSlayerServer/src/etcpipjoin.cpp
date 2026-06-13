@@ -240,7 +240,7 @@ bool eTcpIpJoin::setSkillId(const int clientId,
 }
 
 bool eTcpIpJoin::triggerObject(
-    const int clientId, eServerObject& obj) {
+    const int clientId, const eServerObject& obj) {
     ePacket p;
     p << ePacketType::triggerObject;
     p << obj;

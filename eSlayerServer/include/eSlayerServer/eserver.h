@@ -107,7 +107,7 @@ public:
 
     virtual bool
     triggerObject(const int clientId,
-                  eServerObject& obj) = 0;
+                  const eServerObject& obj) = 0;
 
     virtual bool
     triggerDoors(const int clientId,

@@ -172,6 +172,12 @@ bool eLocalServer::setSkillId(const int clientId,
 }
 
 bool eLocalServer::triggerObject(
+    const int clientId, const eServerObject& obj) {
+    eServerObject changed = obj;
+    return triggerObjectImpl(clientId, changed);
+}
+
+bool eLocalServer::triggerObjectImpl(
     const int clientId, eServerObject& obj) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
