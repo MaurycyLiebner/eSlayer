@@ -56,35 +56,35 @@ public:
     const eIdMapVector<eServerUnit>&
     units() const { return mUnits; }
 
-    void unitsData(const int clientId,
+    void unitsData(const uint32_t clientId,
                    std::vector<eUnitData>& newUnits,
                    std::vector<eUnitData>& updatedUnits);
-    void itemsData(const int clientId,
+    void itemsData(const uint32_t clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);
     std::vector<eMissile>
-    missileData(const int clientId);
+    missileData(const uint32_t clientId);
     std::vector<eNova>
-    novaData(const int clientId);
+    novaData(const uint32_t clientId);
     std::vector<eSkillArea>
-    skillAreaData(const int clientId);
-    bool boostsAurasChanged(const int clientId);
-    bool updateBoostsAuras(const int clientId);
+    skillAreaData(const uint32_t clientId);
+    bool boostsAurasChanged(const uint32_t clientId);
+    bool updateBoostsAuras(const uint32_t clientId);
     std::multimap<eBoostCurseType, eModifier>
-    boosts(const int clientId);
+    boosts(const uint32_t clientId);
     std::multimap<eAuraType, eModifier>
-    auras(const int clientId);
+    auras(const uint32_t clientId);
 
-    eArea unitArea(const int charId) const;
+    eArea unitArea(const uint32_t charId) const;
     eArea unitArea(const eServerUnit& u) const;
 
-    eArea itemArea(const int itemId) const;
+    eArea itemArea(const uint32_t itemId) const;
     eArea itemArea(const eGroundItem& i) const;
 
-    eArea itemTile(const int itemId) const;
+    eArea itemTile(const uint32_t itemId) const;
     eArea itemTile(const eGroundItem& i) const;
 
-    bool mapPortions(const int clientId,
+    bool mapPortions(const uint32_t clientId,
                      std::vector<eMapPortion>& result);
 
     bool walkable(const ePointF& pos) const;
@@ -94,35 +94,36 @@ public:
     bool obstacle(const ePointF& from,
                   const ePointF& to) const;
 
-    bool addClient(const int clientId,
+    bool addClient(const uint32_t clientId,
                    eCharacter& c,
                    eTeamId& teamId,
                    ePointF& spawnPos,
                    std::vector<eBody>& bodies,
                    const eScreenDimensions& screenDims);
-    bool respawn(const int clientId,
+    bool respawn(const uint32_t clientId,
                  uint32_t& bodyId,
                  ePointF& bodyPos);
-    bool removeClient(const int clientId);
-    bool clientMoved(const int clientId);
-    bool planRemoveUnit(const int charId);
-    bool pickupBody(const int clientId, const uint32_t bodyId,
+    bool removeClient(const uint32_t clientId);
+    bool clientMoved(const uint32_t clientId);
+    bool planRemoveUnit(const uint32_t charId);
+    bool pickupBody(const uint32_t clientId, const uint32_t bodyId,
                     bool& bodyRemoved, eBody& body);
-    bool changeTeam(const int clientId, const eTeamId newTeam);
+    bool changeTeam(const uint32_t clientId, const eTeamId newTeam);
 
     bool triggerObject(
-        const int clientId, eServerObject& obj);
+        const uint32_t clientId, eServerObject& obj);
 
-    bool triggerDoors(const int clientId,
+    bool triggerDoors(const uint32_t clientId,
                       const eServerDoors& doors);
 
-    bool pickupItem(const int clientId, const int itemId,
+    bool pickupItem(const uint32_t clientId,
+                    const uint32_t itemId,
                     const bool drag);
-    bool dropItem(const int clientId);
-    void rearrangeItems(const int clientId, const eEquipment& eq);
-    void changeAttributes(const int clientId, const eAttributes& attrs);
-    void changeSkillLevels(const int clientId, const eSkillLevels& skillLevels);
-    void consumePotion(const int clientId, const uint32_t itemId);
+    bool dropItem(const uint32_t clientId);
+    void rearrangeItems(const uint32_t clientId, const eEquipment& eq);
+    void changeAttributes(const uint32_t clientId, const eAttributes& attrs);
+    void changeSkillLevels(const uint32_t clientId, const eSkillLevels& skillLevels);
+    void consumePotion(const uint32_t clientId, const uint32_t itemId);
 
     void addSkillArea(const std::shared_ptr<eServerSkillArea>& a);
     void addMissile(const std::shared_ptr<eServerMissile>& m);
@@ -160,13 +161,13 @@ public:
               const eSkillStats& skill,
               const eWeaponChoice wchoice,
               const ePointF& to);
-    std::vector<int> summoned(const eServerUnit& by,
-                              const int unitId);
+    std::vector<uint32_t> summoned(const eServerUnit& by,
+                                   const int unitId);
 
     std::shared_ptr<eServerUnit>
-    unit(const int charId) const;
-    std::shared_ptr<eGroundItem>
-    groundItem(const int itemId) const;
+    unit(const uint32_t charId) const;
+    std::shared_ptr<eGroundItem> groundItem(
+        const uint32_t itemId) const;
     using eValidator = std::function<bool(const eServerUnit&)>;
     std::shared_ptr<eServerUnit> unit(
         const ePointF& pos,
@@ -181,18 +182,18 @@ public:
 
     void unitKilled(const eServerUnit& killed);
 
-    static bool moveClient(const int clientId,
+    static bool moveClient(const uint32_t clientId,
                            eServerArea& from,
                            eServerArea& to,
                            ePointF& spawnPos);
     bool findPlaceForUnit(const ePointF& pos,
                           ePointF& result) const;
 private:
-    bool spawnBody(const int clientId,
+    bool spawnBody(const uint32_t clientId,
                    const eBodyEquipment& beq,
                    uint32_t& bodyId,
                    ePointF& spawnPos);
-    bool addClient(const int clientId,
+    bool addClient(const uint32_t clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,
                    const uint8_t entranceMap,
@@ -202,7 +203,7 @@ private:
 
     void removePlannedUnits();
     void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
-                      const int charId,
+                      const uint32_t charId,
                       const eTeamId teamId,
                       const ePointF& pos,
                       const uint8_t unitInfoId,

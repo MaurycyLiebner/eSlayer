@@ -18,7 +18,7 @@ void eMovementHandlerBase::intialize(
     const eWalkablePos& wPos,
     const eWalkablePath& wPath,
     const eOtherIterator& iter,
-    const int charId,
+    const uint32_t charId,
     const eTeamId teamId) {
     mCharId = charId;
     mTeamId = teamId;

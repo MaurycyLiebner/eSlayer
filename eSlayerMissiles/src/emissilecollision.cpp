@@ -7,7 +7,7 @@ void eMissileCollision::test(const ePointF& oldPos,
                              const ePointF& newPos,
                              const ePointF& unitPos,
                              const float collR,
-                             const int charId,
+                             const uint32_t charId,
                              eResult& result) {
     const float dx = newPos.fX - oldPos.fX;
     const float dy = newPos.fY - oldPos.fY;

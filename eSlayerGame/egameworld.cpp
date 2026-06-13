@@ -43,7 +43,7 @@ void eGameWorld::iniMissileInc() {
         }
     };
 
-    const auto getUnit = [this](const int charId) {
+    const auto getUnit = [this](const uint32_t charId) {
         if(charId == mClientId) {
             return static_cast<eUnitData*>(mMainChar.get());
         }
@@ -80,7 +80,7 @@ void eGameWorld::iniNovaInc() {
         mNovas.remove(m.fId);
     };
 
-    const auto getUnit = [this](const int charId) {
+    const auto getUnit = [this](const uint32_t charId) {
         if(charId == mClientId) {
             return static_cast<eUnitData*>(mMainChar.get());
         }
@@ -97,13 +97,13 @@ void eGameWorld::iniNovaInc() {
                              nullptr);
 }
 
-void eGameWorld::addUnit(const ePointF& pos, const int charId) {
+void eGameWorld::addUnit(const ePointF& pos, const uint32_t charId) {
     const auto area = mUnitAreas.posArea(pos);
     mUnitAreas.emplace(area, charId);
     mUsedUnitAreas.emplace(area);
 }
 
-void eGameWorld::initialize(const int clientId,
+void eGameWorld::initialize(const uint32_t clientId,
                             const std::shared_ptr<eUnit>& mainChar) {
     const int w = mMap->width();
     const int h = mMap->height();
@@ -114,7 +114,7 @@ void eGameWorld::initialize(const int clientId,
 }
 
 eGameWorld::eProcessResult eGameWorld::processServerData(
-    const int clientId,
+    const uint32_t clientId,
     eServer& server,
     const eUnit& mainChar,
     eMainCharAction& mainAct,
@@ -153,7 +153,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     std::set<int> uPresent;
 
     for(const auto& u : newUnits) {
-        const int charId = u.fCharId;
+        const uint32_t charId = u.fCharId;
         addUnit(u.fPos, charId);
         uPresent.emplace(charId);
         if(charId == clientId) {
@@ -184,7 +184,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     }
 
     for(const auto& u : updatedUnits) {
-        const int charId = u.fCharId;
+        const uint32_t charId = u.fCharId;
         uPresent.emplace(charId);
         if(charId == clientId) {
             mResult.fHasMainCharData = true;
@@ -209,7 +209,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     }
 
     for(const auto& u : mUnits) {
-        const int charId = u->fCharId;
+        const uint32_t charId = u->fCharId;
         const auto it = uPresent.find(charId);
         if(it != uPresent.end()) continue;
         mUnits.remove(charId);

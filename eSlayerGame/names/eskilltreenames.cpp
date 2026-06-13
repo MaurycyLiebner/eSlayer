@@ -6,8 +6,8 @@
 
 eSkillTreeNames eSkillTreeNames::sInstance;
 
-std::string eSkillTreeNames::name(const int itemDataId) {
-    return sInstance.mNames[itemDataId];
+std::string eSkillTreeNames::name(const int skillTreeId) {
+    return sInstance.mNames[skillTreeId];
 }
 
 bool eSkillTreeNames::load() {

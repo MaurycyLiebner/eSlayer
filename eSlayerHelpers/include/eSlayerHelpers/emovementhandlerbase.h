@@ -26,10 +26,10 @@ public:
     void intialize(const eWalkablePos& wPos,
                    const eWalkablePath& wPath,
                    const eOtherIterator& iter,
-                   const int charId,
+                   const uint32_t charId,
                    const eTeamId teamId);
 
-    int charId() const { return mCharId; }
+    uint32_t charId() const { return mCharId; }
 
     const ePointF& pos() const { return mPos; }
     float angle() const { return mAngle; }
@@ -62,7 +62,7 @@ private:
     const float& mRadius;
     ePathFinderMap& mMap;
 
-    int mCharId = 0;
+    uint32_t mCharId = 0;
     eTeamId mTeamId = eTeamId::neutralHostile;
     eWalkablePos mWalkablePos;
     eWalkablePath mWalkablePath;

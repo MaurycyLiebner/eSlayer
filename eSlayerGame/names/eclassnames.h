@@ -6,7 +6,7 @@
 
 class eClassNames {
 public:
-    static std::string name(const int charId);
+    static std::string name(const int classId);
     static bool load();
     static bool reload();
 private:

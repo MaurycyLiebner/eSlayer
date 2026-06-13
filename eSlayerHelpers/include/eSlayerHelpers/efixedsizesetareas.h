@@ -19,14 +19,14 @@ public:
     void clear();
     void clear(const eArea& area);
     bool hasArea(const eArea& area) const;
-    void erase(const eArea& area, const int id);
-    void emplace(const eArea& area, const int id);
-    const std::set<int>& at(const eArea& area) const;
+    void erase(const eArea& area, const uint32_t id);
+    void emplace(const eArea& area, const uint32_t id);
+    const std::set<uint32_t>& at(const eArea& area) const;
 private:
     int mWidth;
     int mHeight;
     int mAreaDim;
-    std::vector<std::vector<std::set<int>>> mAreas;
+    std::vector<std::vector<std::set<uint32_t>>> mAreas;
 };
 
 #endif // EFIXEDSIZESETAREAS_H

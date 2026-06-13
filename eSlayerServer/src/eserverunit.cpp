@@ -1164,9 +1164,9 @@ std::vector<int> eServerUnit::readySkills() const {
     return result;
 }
 
-std::vector<int> eServerUnit::followers(const int unitInfoId) const {
-    std::vector<int> result;
-    for(const int charId : mFollowers) {
+std::vector<uint32_t> eServerUnit::followers(const int unitInfoId) const {
+    std::vector<uint32_t> result;
+    for(const uint32_t charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
         if(u->fUnitInfoId == unitInfoId) result.emplace_back(charId);
@@ -1176,7 +1176,7 @@ std::vector<int> eServerUnit::followers(const int unitInfoId) const {
 
 int eServerUnit::countFollowers(const int unitInfoId) const {
     int result = 0;
-    for(const int charId : mFollowers) {
+    for(const uint32_t charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
         if(u->fUnitInfoId == unitInfoId) result++;
@@ -1199,7 +1199,7 @@ void eServerUnit::freezeFor(const float frameLen) {
     if(mFreezeLength > 0.f) setCold(true);
 }
 
-uint16_t eServerUnit::requestUpdate(const int clientId) {
+uint16_t eServerUnit::requestUpdate(const uint32_t clientId) {
     const auto it = mUpdateMap.find(clientId);
     uint16_t result;
     if(it == mUpdateMap.end()) {

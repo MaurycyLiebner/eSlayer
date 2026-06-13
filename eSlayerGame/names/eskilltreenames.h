@@ -6,7 +6,7 @@
 
 class eSkillTreeNames {
 public:
-    static std::string name(const int charId);
+    static std::string name(const int skillTreeId);
     static bool load();
     static bool reload();
 private:

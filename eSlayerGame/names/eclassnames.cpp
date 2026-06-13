@@ -6,8 +6,8 @@
 
 eClassNames eClassNames::sInstance;
 
-std::string eClassNames::name(const int itemDataId) {
-    return sInstance.mNames[itemDataId];
+std::string eClassNames::name(const int classId) {
+    return sInstance.mNames[classId];
 }
 
 bool eClassNames::load() {

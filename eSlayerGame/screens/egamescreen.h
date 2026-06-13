@@ -29,7 +29,7 @@ public:
 
     using eMoveToMapAction = std::function<void(const uint8_t mapId)>;
     void setExitAction(const eAction& a);
-    void initialize(const int clientId,
+    void initialize(const uint32_t clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
                     const eCharacter& c,

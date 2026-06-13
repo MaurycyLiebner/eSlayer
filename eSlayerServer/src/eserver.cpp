@@ -28,7 +28,7 @@ void eServer::setFailureHandler(const eServerFailureHandler& h) {
 }
 
 bool eServer::requestMapCall(
-    const int clientId,
+    const uint32_t clientId,
     const uint8_t id,
     const eMapReadyAction& func) {
     mMapId = id;

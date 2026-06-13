@@ -6,8 +6,8 @@
 
 eMonsterNames eMonsterNames::sInstance;
 
-std::string eMonsterNames::name(const int itemDataId) {
-    return sInstance.mNames[itemDataId];
+std::string eMonsterNames::name(const int monsterId) {
+    return sInstance.mNames[monsterId];
 }
 
 bool eMonsterNames::load() {

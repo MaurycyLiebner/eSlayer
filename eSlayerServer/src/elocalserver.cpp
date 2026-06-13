@@ -10,13 +10,13 @@ bool eLocalServer::initialize() {
     return true;
 }
 
-int eLocalServer::connect() {
-    const int clientId = eServerUnit::sNextCharId++;
+uint32_t eLocalServer::connect() {
+    const uint32_t clientId = eServerUnit::sNextCharId++;
     mClientHandlers[clientId] = std::make_shared<eServerClientHandler>(clientId);
     return clientId;
 }
 
-bool eLocalServer::disconnect(const int clientId) {
+bool eLocalServer::disconnect(const uint32_t clientId) {
     eTeams::disconnect(clientId);
     const auto h = clientHandler(clientId);
     if(!h) return false;
@@ -39,7 +39,7 @@ void eLocalServer::increment(const float by) {
 }
 
 bool eLocalServer::requestMap(
-    const int clientId,
+    const uint32_t clientId,
     const uint8_t mapId,
     const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
@@ -86,7 +86,7 @@ bool eLocalServer::requestMap(
     return true;
 }
 
-bool eLocalServer::spawn(const int clientId,
+bool eLocalServer::spawn(const uint32_t clientId,
                          eCharacter& c,
                          eTeamId& teamId,
                          ePointF& spawnPos,
@@ -107,7 +107,7 @@ bool eLocalServer::spawn(const int clientId,
     return true;
 }
 
-bool eLocalServer::requestData(const int clientId,
+bool eLocalServer::requestData(const uint32_t clientId,
                                eRequestData& data,
                                float& resultTime) {
     const auto h = clientHandler(clientId);
@@ -115,25 +115,25 @@ bool eLocalServer::requestData(const int clientId,
     return h->receiveData(data, resultTime);
 }
 
-bool eLocalServer::requestEquipment(const int clientId) {
+bool eLocalServer::requestEquipment(const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->requestEquipment();
 }
 
-bool eLocalServer::receiveEquipment(const int clientId,
+bool eLocalServer::receiveEquipment(const uint32_t clientId,
                                     eEquipment& data) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->receiveEquipment(data);
 }
 
-bool eLocalServer::unblockEquipment(const int clientId) {
+bool eLocalServer::unblockEquipment(const uint32_t clientId) {
     return true;
 }
 
 bool eLocalServer::changeState(
-    const int clientId, const eUnitData& u) {
+    const uint32_t clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     if(u.getUpdate(eUnitData::eShift::position)) {
@@ -142,20 +142,20 @@ bool eLocalServer::changeState(
     return h->changeState(u);
 }
 
-bool eLocalServer::attack(const int clientId,
+bool eLocalServer::attack(const uint32_t clientId,
                           const eAttackData& target) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->attack(target);
 }
 
-bool eLocalServer::stopAttack(const int clientId) {
+bool eLocalServer::stopAttack(const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->stopAttack();
 }
 
-bool eLocalServer::respawn(const int clientId,
+bool eLocalServer::respawn(const uint32_t clientId,
                            uint32_t& bodyId,
                            ePointF& bodyPos) {
     const auto h = clientHandler(clientId);
@@ -163,7 +163,7 @@ bool eLocalServer::respawn(const int clientId,
     return h->respawn(bodyId, bodyPos);
 }
 
-bool eLocalServer::setSkillId(const int clientId,
+bool eLocalServer::setSkillId(const uint32_t clientId,
                               const eSkillChoice schoice,
                               const int skillId) {
     const auto h = clientHandler(clientId);
@@ -172,13 +172,13 @@ bool eLocalServer::setSkillId(const int clientId,
 }
 
 bool eLocalServer::triggerObject(
-    const int clientId, const eServerObject& obj) {
+    const uint32_t clientId, const eServerObject& obj) {
     eServerObject changed = obj;
     return triggerObjectImpl(clientId, changed);
 }
 
 bool eLocalServer::triggerObjectImpl(
-    const int clientId, eServerObject& obj) {
+    const uint32_t clientId, eServerObject& obj) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const bool r = h->triggerObject(obj);
@@ -187,7 +187,7 @@ bool eLocalServer::triggerObjectImpl(
 }
 
 bool eLocalServer::triggerDoors(
-    const int clientId, const eServerDoors& doors) {
+    const uint32_t clientId, const eServerDoors& doors) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const bool r = h->triggerDoors(doors);
@@ -196,7 +196,8 @@ bool eLocalServer::triggerDoors(
 }
 
 bool eLocalServer::pickupItem(
-    const int clientId, const int itemId,
+    const uint32_t clientId,
+    const uint32_t itemId,
     const bool drag) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
@@ -204,42 +205,42 @@ bool eLocalServer::pickupItem(
 }
 
 bool eLocalServer::dropItem(
-    const int clientId) {
+    const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->dropItem();
 }
 
 bool eLocalServer::rearrangeItems(
-    const int clientId, const eEquipment& eq) {
+    const uint32_t clientId, const eEquipment& eq) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->rearrangeItems(eq);
 }
 
 bool eLocalServer::changeAttributes(
-    const int clientId, const eAttributes& attrs) {
+    const uint32_t clientId, const eAttributes& attrs) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->changeAttributes(attrs);
 }
 
 bool eLocalServer::changeSkillLevels(
-    const int clientId, const eSkillLevels& skillLevels) {
+    const uint32_t clientId, const eSkillLevels& skillLevels) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->changeSkillLevels(skillLevels);
 }
 
 bool eLocalServer::consumePotion(
-    const int clientId, const uint32_t itemId) {
+    const uint32_t clientId, const uint32_t itemId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->consumePotion(itemId);
 }
 
 bool eLocalServer::pickupBody(
-    const int clientId,
+    const uint32_t clientId,
     const uint32_t bodyId) {
     bool bodyRemoved;
     eBody body;
@@ -256,7 +257,7 @@ bool eLocalServer::pickupBody(
 }
 
 bool eLocalServer::pickupBody(
-    const int clientId,
+    const uint32_t clientId,
     const uint32_t bodyId,
     bool& bodyRemoved,
     eBody& body) {
@@ -285,7 +286,7 @@ void eLocalServer::checkMapsReady() {
 }
 
 bool eLocalServer::teamAction(
-    const int clientId, const eTeamAction& action) {
+    const uint32_t clientId, const eTeamAction& action) {
     switch(action.fType) {
     case eTeamActionType::makeEnemies:
         return eTeams::makeEnemies(action.fTeamId, clientId);
@@ -308,13 +309,13 @@ bool eLocalServer::teamAction(
 }
 
 bool eLocalServer::changeTeam(
-    const int clientId, const eTeamId newTeam) {
+    const uint32_t clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->changeTeam(newTeam);
 }
 
-int eLocalServer::clientMapId(const int clientId) {
+int eLocalServer::clientMapId(const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return -1;
     const auto& a = h->area();
@@ -324,7 +325,7 @@ int eLocalServer::clientMapId(const int clientId) {
 }
 
 eServerClientHandler*
-eLocalServer::clientHandler(const int clientId) {
+eLocalServer::clientHandler(const uint32_t clientId) {
     const auto it = mClientHandlers.find(clientId);
     if(it == mClientHandlers.end()) return nullptr;
     return it->second.get();

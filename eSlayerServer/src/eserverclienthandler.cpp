@@ -7,15 +7,16 @@
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/eattackdata.h>
 
-eServerClientHandler::eServerClientHandler(const int clientId) :
+eServerClientHandler::eServerClientHandler(
+    const uint32_t clientId) :
     mClientId(clientId) {}
 
 bool eServerClientHandler::requestEquipment() {
     return true;
 }
 
-bool eServerClientHandler::receiveData(eRequestData& data,
-                                       float& resultTime) {
+bool eServerClientHandler::receiveData(
+    eRequestData& data, float& resultTime) {
     if(!mArea) return false;
     const auto& map = mArea->map();
     data.fMapId = map->id();
@@ -166,7 +167,7 @@ bool eServerClientHandler::triggerDoors(
 }
 
 bool eServerClientHandler::pickupItem(
-    const int itemId, const bool drag) {
+    const uint32_t itemId, const bool drag) {
     if(!mArea) return false;
     return mArea->pickupItem(mClientId, itemId, drag);
 }

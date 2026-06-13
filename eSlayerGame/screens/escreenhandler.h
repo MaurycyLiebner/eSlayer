@@ -26,7 +26,7 @@ public:
     void showTcpIpJoinMenu();
     void showGame(eServerData serverData,
                   const eCharacter& c);
-    void moveToMap(const int clientId,
+    void moveToMap(const uint32_t clientId,
                    const eTeamId teamId,
                    const eCharacter& c,
                    const std::shared_ptr<eServer>& server,
@@ -39,10 +39,10 @@ public:
 private:
     void finishGameShow(const std::shared_ptr<eMap>& map,
                         const std::shared_ptr<eServer>& server,
-                        const int clientId, const eCharacter& c,
+                        const uint32_t clientId, const eCharacter& c,
                         const eTeamId teamId);
     bool requestMap(eServer& server,
-                    const int clientId,
+                    const uint32_t clientId,
                     const uint8_t mapId,
                     eMapData& data);
     void loadCharacters();

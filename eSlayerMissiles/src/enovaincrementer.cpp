@@ -116,7 +116,7 @@ bool eNovaIncrementer::increment(
             const auto area = mUnitAreas.posArea(ePoint{x, y});
             if(mUnitAreas.hasArea(area)) {
                 const auto& units = mUnitAreas.at(area);
-                for(const int charId : units) {
+                for(const uint32_t charId : units) {
                     const auto u = mGetUnit(charId);
                     if(!u) continue;
                     if(u->fHealth <= 0) continue;

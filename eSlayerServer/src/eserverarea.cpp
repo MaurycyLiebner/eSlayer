@@ -40,7 +40,7 @@ void eServerArea::iniMissileInc() {
         mMissiles.remove(m.fId);
     };
 
-    const auto getUnit = [this](const int charId) {
+    const auto getUnit = [this](const uint32_t charId) {
         const auto u = mUnits.get(charId);
         return static_cast<eUnitData*>(u.get());
     };
@@ -80,7 +80,7 @@ void eServerArea::iniNovaInc() {
         mNovas.remove(m.fId);
     };
 
-    const auto getUnit = [this](const int charId) {
+    const auto getUnit = [this](const uint32_t charId) {
         const auto u = mUnits.get(charId);
         return static_cast<eUnitData*>(u.get());
     };
@@ -102,7 +102,7 @@ void eServerArea::iniNovaInc() {
 
 void eServerArea::iniSetupUnit(
         const std::shared_ptr<eServerUnit>& u,
-        const int charId,
+        const uint32_t charId,
         const eTeamId teamId,
         const ePointF& pos,
         const uint8_t unitInfoId,
@@ -346,7 +346,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
                         false, data, type, *this, map);
-                    const int charId = eServerUnit::sNextCharId++;
+                    const uint32_t charId = eServerUnit::sNextCharId++;
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, type, udata, data, modelParts);
 
@@ -446,7 +446,7 @@ void eServerArea::increment(const float by) {
 
         auto& followers = u->followers();
         for(int i = 0; i < followers.size(); i++) {
-            const int charId = followers[i];
+            const uint32_t charId = followers[i];
             const auto u = unit(charId);
             if(!u || u->fMaxHealth <= 0) {
                 followers.erase(followers.begin() + i);
@@ -463,7 +463,7 @@ void eServerArea::increment(const float by) {
     for(const auto& area : unitAreas) {
         if(!mUnitAreas.hasArea(area)) continue;
         const auto units = mUnitAreas.at(area);
-        for(const int charId : units) {
+        for(const uint32_t charId : units) {
             const auto u = mUnits.get(charId);
             if(!u) continue;
             if(recalcAura) {
@@ -523,7 +523,7 @@ void eServerArea::increment(const float by) {
 }
 
 void eServerArea::unitsData(
-    const int clientId,
+    const uint32_t clientId,
     std::vector<eUnitData>& newUnits,
     std::vector<eUnitData>& updatedUnits) {
     const auto it = mClientData.find(clientId);
@@ -553,7 +553,7 @@ void eServerArea::unitsData(
             const eArea area{x, y};
             if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
-            for(const int charId : units) {
+            for(const uint32_t charId : units) {
                 const auto u = unit(charId);
                 if(!u) continue;
                 visible.emplace(charId);
@@ -590,7 +590,7 @@ void eServerArea::unitsData(
 }
 
 void eServerArea::itemsData(
-    const int clientId,
+    const uint32_t clientId,
     std::vector<eGroundItem>& newItems,
     std::vector<uint32_t>& removedItemIds) {
     const auto client = unit(clientId);
@@ -614,7 +614,7 @@ void eServerArea::itemsData(
             const eArea area{x, y};
             if(!mItemAreas.hasArea(area)) continue;
             const auto& items = mItemAreas.at(area);
-            for(const int itemId : items) {
+            for(const uint32_t itemId : items) {
                 const auto i = groundItem(itemId);
                 if(!i) continue;
                 visible.emplace(itemId);
@@ -635,7 +635,7 @@ void eServerArea::itemsData(
     }
 }
 
-eArea eServerArea::unitArea(const int charId) const {
+eArea eServerArea::unitArea(const uint32_t charId) const {
     const auto u = unit(charId);
     if(!u) return {0, 0};
     return unitArea(*u);
@@ -646,7 +646,7 @@ eArea eServerArea::unitArea(const eServerUnit& u) const {
     return mUnitAreas.posArea(pos);
 }
 
-eArea eServerArea::itemArea(const int itemId) const {
+eArea eServerArea::itemArea(const uint32_t itemId) const {
     const auto i = groundItem(itemId);
     if(!i) return {0, 0};
     return itemArea(*i);
@@ -657,7 +657,7 @@ eArea eServerArea::itemArea(const eGroundItem& i) const {
     return mItemAreas.posArea(pos);
 }
 
-eArea eServerArea::itemTile(const int itemId) const {
+eArea eServerArea::itemTile(const uint32_t itemId) const {
     const auto i = groundItem(itemId);
     if(!i) return {0, 0};
     return itemTile(*i);
@@ -669,7 +669,7 @@ eArea eServerArea::itemTile(const eGroundItem& i) const {
 }
 
 bool eServerArea::mapPortions(
-    const int clientId,
+    const uint32_t clientId,
     std::vector<eMapPortion>& result) {
     const auto u = unit(clientId);
     if(!u) return false;
@@ -723,7 +723,7 @@ bool eServerArea::obstacle(
     return mMap->obstacle(from, to);
 }
 
-bool eServerArea::addClient(const int clientId,
+bool eServerArea::addClient(const uint32_t clientId,
                             eCharacter& c,
                             eTeamId& teamId,
                             ePointF& spawnPos,
@@ -780,7 +780,7 @@ bool eServerArea::addClient(const int clientId,
 }
 
 bool eServerArea::addClient(
-    const int clientId,
+    const uint32_t clientId,
     const std::shared_ptr<eServerUnit>& u,
     const eScreenDimensions& screenDims,
     const uint8_t entranceMap,
@@ -829,7 +829,7 @@ bool eServerArea::findPlaceForUnit(
 }
 
 bool eServerArea::moveClient(
-    const int clientId,
+    const uint32_t clientId,
     eServerArea& from,
     eServerArea& to,
     ePointF& spawnPos) {
@@ -846,7 +846,7 @@ bool eServerArea::moveClient(
     return true;
 }
 
-bool eServerArea::spawnBody(const int clientId,
+bool eServerArea::spawnBody(const uint32_t clientId,
                             const eBodyEquipment& beq,
                             uint32_t& bodyId,
                             ePointF& spawnPos) {
@@ -861,7 +861,7 @@ bool eServerArea::spawnBody(const int clientId,
     static_cast<eBodyEquipment&>(bodyEq) = beq;
     u->setEquipment(bodyEq, false);
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
-    const int charId = eServerUnit::sNextCharId++;
+    const uint32_t charId = eServerUnit::sNextCharId++;
     const auto& modelParts = client->fModelParts;
     const auto teamId = client->fTeamId;
     spawnPos = client->fPos;
@@ -874,7 +874,7 @@ bool eServerArea::spawnBody(const int clientId,
     return true;
 }
 
-bool eServerArea::respawn(const int clientId,
+bool eServerArea::respawn(const uint32_t clientId,
                           uint32_t& bodyId,
                           ePointF& bodyPos) {
     const auto client = unit(clientId);
@@ -893,7 +893,7 @@ bool eServerArea::respawn(const int clientId,
     return true;
 }
 
-bool eServerArea::removeClient(const int clientId) {
+bool eServerArea::removeClient(const uint32_t clientId) {
     planRemoveUnit(clientId);
     const auto& bodies = mBodies[clientId];
     for(const auto bodyId : bodies) {
@@ -904,19 +904,19 @@ bool eServerArea::removeClient(const int clientId) {
     return r > 0;
 }
 
-bool eServerArea::clientMoved(const int clientId) {
+bool eServerArea::clientMoved(const uint32_t clientId) {
     planRemoveUnit(clientId);
     const int r = mClientData.erase(clientId);
     return r > 0;
 }
 
-bool eServerArea::planRemoveUnit(const int charId) {
+bool eServerArea::planRemoveUnit(const uint32_t charId) {
     mUnitsToRemove.emplace_back(charId);
     return true;
 }
 
 bool eServerArea::pickupBody(
-    const int clientId, const uint32_t bodyId,
+    const uint32_t clientId, const uint32_t bodyId,
     bool& bodyRemoved, eBody& body) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
@@ -949,7 +949,7 @@ bool eServerArea::pickupBody(
 }
 
 bool eServerArea::changeTeam(
-    const int clientId, const eTeamId newTeam) {
+    const uint32_t clientId, const eTeamId newTeam) {
     const auto u = unit(clientId);
     if(!u) return false;
     u->setTeamId(newTeam);
@@ -957,7 +957,7 @@ bool eServerArea::changeTeam(
 }
 
 bool eServerArea::triggerObject(
-    const int clientId, eServerObject& obj) {
+    const uint32_t clientId, eServerObject& obj) {
     if(obj.fMapId != mMap->id()) return false;
     const auto& pos = obj.fPos;
     const int tx = pos.fX;
@@ -997,14 +997,15 @@ bool eServerArea::triggerObject(
 }
 
 bool eServerArea::triggerDoors(
-    const int clientId, const eServerDoors& doors) {
+    const uint32_t clientId, const eServerDoors& doors) {
     if(doors.fMapId != mMap->id()) return false;
     mMap->triggerDoors(doors);
     return true;
 }
 
 bool eServerArea::pickupItem(
-    const int clientId, const int itemId,
+    const uint32_t clientId,
+    const uint32_t itemId,
     const bool drag) {
     const auto u = unit(clientId);
     if(!u) return false;
@@ -1032,7 +1033,7 @@ bool eServerArea::pickupItem(
     return true;
 }
 
-bool eServerArea::dropItem(const int clientId) {
+bool eServerArea::dropItem(const uint32_t clientId) {
     const auto u = unit(clientId);
     if(!u) return false;
     auto& eq = u->equipment();
@@ -1045,35 +1046,35 @@ bool eServerArea::dropItem(const int clientId) {
 }
 
 void eServerArea::rearrangeItems(
-    const int clientId, const eEquipment& eq) {
+    const uint32_t clientId, const eEquipment& eq) {
     const auto u = unit(clientId);
     if(!u) return;
     u->setEquipment(eq);
 }
 
 void eServerArea::changeAttributes(
-    const int clientId, const eAttributes& attrs) {
+    const uint32_t clientId, const eAttributes& attrs) {
     const auto u = unit(clientId);
     if(!u) return;
     u->setAttributes(attrs);
 }
 
 void eServerArea::changeSkillLevels(
-    const int clientId, const eSkillLevels& skillLevels) {
+    const uint32_t clientId, const eSkillLevels& skillLevels) {
     const auto u = unit(clientId);
     if(!u) return;
     u->setSkillLevels(skillLevels);
 }
 
 void eServerArea::consumePotion(
-    const int clientId, const uint32_t itemId) {
+    const uint32_t clientId, const uint32_t itemId) {
     const auto u = unit(clientId);
     if(!u) return;
     u->consumePotion(itemId);
 }
 
 std::vector<eMissile>
-eServerArea::missileData(const int clientId) {
+eServerArea::missileData(const uint32_t clientId) {
     std::vector<eMissile> result;
     const auto u = unit(clientId);
     if(!u) return result;
@@ -1095,7 +1096,7 @@ eServerArea::missileData(const int clientId) {
 }
 
 std::vector<eNova>
-eServerArea::novaData(const int clientId) {
+eServerArea::novaData(const uint32_t clientId) {
     std::vector<eNova> result;
     const auto u = unit(clientId);
     if(!u) return result;
@@ -1117,7 +1118,7 @@ eServerArea::novaData(const int clientId) {
 }
 
 std::vector<eSkillArea>
-eServerArea::skillAreaData(const int clientId) {
+eServerArea::skillAreaData(const uint32_t clientId) {
     std::vector<eSkillArea> result;
     const auto u = unit(clientId);
     if(!u) return result;
@@ -1138,7 +1139,7 @@ eServerArea::skillAreaData(const int clientId) {
     return result;
 }
 
-bool eServerArea::boostsAurasChanged(const int clientId) {
+bool eServerArea::boostsAurasChanged(const uint32_t clientId) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
@@ -1146,7 +1147,7 @@ bool eServerArea::boostsAurasChanged(const int clientId) {
     return true;
 }
 
-bool eServerArea::updateBoostsAuras(const int clientId) {
+bool eServerArea::updateBoostsAuras(const uint32_t clientId) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
@@ -1156,7 +1157,7 @@ bool eServerArea::updateBoostsAuras(const int clientId) {
 }
 
 std::multimap<eBoostCurseType, eModifier>
-eServerArea::boosts(const int clientId) {
+eServerArea::boosts(const uint32_t clientId) {
     const auto u = unit(clientId);
     if(!u) return {};
     const auto& stats = u->stats();
@@ -1164,7 +1165,7 @@ eServerArea::boosts(const int clientId) {
 }
 
 std::multimap<eAuraType, eModifier>
-eServerArea::auras(const int clientId) {
+eServerArea::auras(const uint32_t clientId) {
     const auto u = unit(clientId);
     if(!u) return {};
     const auto& stats = u->stats();
@@ -1326,7 +1327,7 @@ void eServerArea::spawnArea(const ePointF& to,
             const bool r = mUnitAreas.hasArea(area);
             if(!r) continue;
             const auto& set = mUnitAreas.at(area);
-            for(const int charId : set) {
+            for(const uint32_t charId : set) {
                 const auto& u = unit(charId);
                 if(u->fHealth <= 0) continue;
                 const auto uteam = u->fTeamId;
@@ -1391,7 +1392,7 @@ void eServerArea::summon(eServerUnit& by,
     auto& followers = by.followers();
     const auto summoned = eServerArea::summoned(by, unitId);
     if(maxCount > 0 && summoned.size() >= maxCount) {
-        const int removeCharId = summoned[0];
+        const uint32_t removeCharId = summoned[0];
         planRemoveUnit(removeCharId);
         eVectorHelpers::remove(followers, removeCharId);
     }
@@ -1406,7 +1407,7 @@ void eServerArea::summon(eServerUnit& by,
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         false, data, unitId, *this, map);
-    const int charId = eServerUnit::sNextCharId++;
+    const uint32_t charId = eServerUnit::sNextCharId++;
     followers.emplace_back(charId);
     iniSetupUnit(u, charId, by.fTeamId, to,
                  unitId, udata, data, modelParts);
@@ -1494,9 +1495,9 @@ void eServerArea::cast(eServerUnit& by,
     }
 }
 
-std::vector<int> eServerArea::summoned(
+std::vector<uint32_t> eServerArea::summoned(
     const eServerUnit& by, const int unitId) {
-    std::vector<int> result;
+    std::vector<uint32_t> result;
     const auto& followers = by.followers();
     for(const auto charId : followers) {
         const auto u = unit(charId);
@@ -1509,12 +1510,12 @@ std::vector<int> eServerArea::summoned(
 }
 
 std::shared_ptr<eServerUnit>
-eServerArea::unit(const int charId) const {
+eServerArea::unit(const uint32_t charId) const {
     return mUnits.get(charId);
 }
 
 std::shared_ptr<eGroundItem>
-eServerArea::groundItem(const int itemId) const {
+eServerArea::groundItem(const uint32_t itemId) const {
     return mGroundItems.get(itemId);
 }
 
@@ -1549,7 +1550,7 @@ bool eServerArea::iterateOverUnits(const eArea& areaMin,
             const eArea area{ax, ay};
             if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
-            for(const int charId : units) {
+            for(const uint32_t charId : units) {
                 const auto u = unit(charId);
                 if(!u) continue;
                 const bool r = iter(u);
@@ -1597,7 +1598,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
 
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
     for(const auto& c : mClientData) {
-        const int clientId = c.first;
+        const uint32_t clientId = c.first;
         const auto u = unit(clientId);
         if(!u) continue;
         if(u->fHealth <= 0) continue;
@@ -1611,7 +1612,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
 }
 
 void eServerArea::removePlannedUnits() {
-    for(const int charId : mUnitsToRemove) {
+    for(const uint32_t charId : mUnitsToRemove) {
         const auto area = unitArea(charId);
         mUnitAreas.erase(area, charId);
         mUnits.remove(charId);

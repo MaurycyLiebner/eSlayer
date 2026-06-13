@@ -29,15 +29,15 @@ bool eTcpIpJoin::initialize() {
     return r;
 }
 
-int eTcpIpJoin::connect() {
+uint32_t eTcpIpJoin::connect() {
     ePacket p;
     p << ePacketType::connect;
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send connection request.");
-        return -1;
+        return 0;
     }
-    int32_t clientId = -1;
+    int32_t clientId = 0;
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::connect) {
             ePacketType type;
@@ -58,7 +58,7 @@ int eTcpIpJoin::connect() {
     return clientId;
 }
 
-bool eTcpIpJoin::disconnect(const int clientId) {
+bool eTcpIpJoin::disconnect(const uint32_t clientId) {
     ePacket p;
     p << ePacketType::disconnect;
     return mNet.sendToServer(p);
@@ -75,7 +75,7 @@ void eTcpIpJoin::increment(const float by) {
 }
 
 bool eTcpIpJoin::requestMap(
-    const int clientId,
+    const uint32_t clientId,
     const uint8_t mapId,
     const eMapReadyAction& func) {
     mData = eRequestData();
@@ -104,7 +104,7 @@ bool eTcpIpJoin::requestMap(
 }
 
 bool eTcpIpJoin::spawn(
-    const int clientId,
+    const uint32_t clientId,
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
@@ -140,7 +140,7 @@ bool eTcpIpJoin::spawn(
     return waitFor(10000, "Character request timed out.", handler);
 }
 
-bool eTcpIpJoin::requestData(const int clientId,
+bool eTcpIpJoin::requestData(const uint32_t clientId,
                              eRequestData& data,
                              float& resultTime) {
     {
@@ -157,7 +157,7 @@ bool eTcpIpJoin::requestData(const int clientId,
     return true;
 }
 
-bool eTcpIpJoin::requestEquipment(const int clientId) {
+bool eTcpIpJoin::requestEquipment(const uint32_t clientId) {
     ePacket p;
     p << ePacketType::equipment;
     const bool r = mNet.sendToServer(p);
@@ -166,21 +166,21 @@ bool eTcpIpJoin::requestEquipment(const int clientId) {
 }
 
 bool eTcpIpJoin::receiveEquipment(
-    const int clientId, eEquipment& data) {
+    const uint32_t clientId, eEquipment& data) {
     if(!mNewEquipment) return false;
     data = mEquipment;
     mNewEquipment = false;
     return true;
 }
 
-bool eTcpIpJoin::unblockEquipment(const int clientId) {
+bool eTcpIpJoin::unblockEquipment(const uint32_t clientId) {
     const bool unblock = mUnblockEquipment;
     mUnblockEquipment = false;
     return unblock;
 }
 
 bool eTcpIpJoin::changeState(
-    const int clientId, const eUnitData& u) {
+    const uint32_t clientId, const eUnitData& u) {
     ePacket p;
     p << ePacketType::state;
     u.write(p);
@@ -189,7 +189,7 @@ bool eTcpIpJoin::changeState(
     return r;
 }
 
-bool eTcpIpJoin::attack(const int clientId,
+bool eTcpIpJoin::attack(const uint32_t clientId,
                         const eAttackData& target) {
     ePacket p;
     p << ePacketType::attack;
@@ -199,7 +199,7 @@ bool eTcpIpJoin::attack(const int clientId,
     return true;
 }
 
-bool eTcpIpJoin::stopAttack(const int clientId) {
+bool eTcpIpJoin::stopAttack(const uint32_t clientId) {
     ePacket p;
     p << ePacketType::stopAttack;
     const bool r = mNet.sendToServer(p);
@@ -207,7 +207,7 @@ bool eTcpIpJoin::stopAttack(const int clientId) {
     return true;
 }
 
-bool eTcpIpJoin::respawn(const int clientId,
+bool eTcpIpJoin::respawn(const uint32_t clientId,
                          uint32_t& bodyId,
                          ePointF& bodyPos) {
     ePacket p;
@@ -227,7 +227,7 @@ bool eTcpIpJoin::respawn(const int clientId,
     return waitFor(10000, "Body request timed out.", handler);
 }
 
-bool eTcpIpJoin::setSkillId(const int clientId,
+bool eTcpIpJoin::setSkillId(const uint32_t clientId,
                             const eSkillChoice schoice,
                             const int skillId) {
     ePacket p;
@@ -240,7 +240,7 @@ bool eTcpIpJoin::setSkillId(const int clientId,
 }
 
 bool eTcpIpJoin::triggerObject(
-    const int clientId, const eServerObject& obj) {
+    const uint32_t clientId, const eServerObject& obj) {
     ePacket p;
     p << ePacketType::triggerObject;
     p << obj;
@@ -250,7 +250,7 @@ bool eTcpIpJoin::triggerObject(
 }
 
 bool eTcpIpJoin::triggerDoors(
-    const int clientId, const eServerDoors& doors) {
+    const uint32_t clientId, const eServerDoors& doors) {
     ePacket p;
     p << ePacketType::triggerDoors;
     doors.write(p);
@@ -259,8 +259,8 @@ bool eTcpIpJoin::triggerDoors(
     return true;
 }
 
-bool eTcpIpJoin::pickupItem(const int clientId,
-                            const int itemId,
+bool eTcpIpJoin::pickupItem(const uint32_t clientId,
+                            const uint32_t itemId,
                             const bool drag) {
     ePacket p;
     p << ePacketType::pickupItem;
@@ -272,7 +272,7 @@ bool eTcpIpJoin::pickupItem(const int clientId,
 }
 
 bool eTcpIpJoin::dropItem(
-    const int clientId) {
+    const uint32_t clientId) {
     ePacket p;
     p << ePacketType::dropItem;
     const bool r = mNet.sendToServer(p);
@@ -281,7 +281,7 @@ bool eTcpIpJoin::dropItem(
 }
 
 bool eTcpIpJoin::rearrangeItems(
-    const int clientId, const eEquipment& eq) {
+    const uint32_t clientId, const eEquipment& eq) {
     ePacket p;
     p << ePacketType::rearrangeItems;
     eq.write(p);
@@ -291,7 +291,7 @@ bool eTcpIpJoin::rearrangeItems(
 }
 
 bool eTcpIpJoin::changeAttributes(
-    const int clientId, const eAttributes& attrs) {
+    const uint32_t clientId, const eAttributes& attrs) {
     ePacket p;
     p << ePacketType::attributes;
     attrs.write(p);
@@ -301,7 +301,7 @@ bool eTcpIpJoin::changeAttributes(
 }
 
 bool eTcpIpJoin::changeSkillLevels(
-    const int clientId, const eSkillLevels& skillLevels) {
+    const uint32_t clientId, const eSkillLevels& skillLevels) {
     ePacket p;
     p << ePacketType::skills;
     skillLevels.write(p);
@@ -311,7 +311,7 @@ bool eTcpIpJoin::changeSkillLevels(
 }
 
 bool eTcpIpJoin::sendMessage(
-    const int clientId, const std::string& text) {
+    const uint32_t clientId, const std::string& text) {
     ePacket p;
     p << ePacketType::message;
     p << text;
@@ -321,7 +321,7 @@ bool eTcpIpJoin::sendMessage(
 }
 
 bool eTcpIpJoin::consumePotion(
-    const int clientId, const uint32_t itemId) {
+    const uint32_t clientId, const uint32_t itemId) {
     ePacket p;
     p << ePacketType::consumePotion;
     p << itemId;
@@ -331,7 +331,7 @@ bool eTcpIpJoin::consumePotion(
 }
 
 bool eTcpIpJoin::pickupBody(
-    const int clientId, const uint32_t bodyId) {
+    const uint32_t clientId, const uint32_t bodyId) {
     ePacket p;
     p << ePacketType::pickupBody;
     p << bodyId;
@@ -341,7 +341,7 @@ bool eTcpIpJoin::pickupBody(
 }
 
 bool eTcpIpJoin::teamAction(
-    const int clientId, const eTeamAction& action) {
+    const uint32_t clientId, const eTeamAction& action) {
     ePacket p;
     p << ePacketType::teamsAction;
     p << action;
@@ -424,12 +424,12 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         mNewUsers.emplace_back(slayer);
     } break;
     case ePacketType::userLeft: {
-        int clientId;
+        uint32_t clientId;
         p >> clientId;
         mLeftUsers.emplace_back(clientId);
     } break;
     case ePacketType::message: {
-        int clientId;
+        uint32_t clientId;
         p >> clientId;
         std::string msg;
         p >> msg;

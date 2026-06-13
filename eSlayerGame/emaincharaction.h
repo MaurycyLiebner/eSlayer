@@ -31,7 +31,7 @@ public:
                     SDL_Renderer* const r,
                     const std::shared_ptr<eMap>& map,
                     const eOtherIterator& iter,
-                    const int clientId,
+                    const uint32_t clientId,
                     const eTeamId teamId);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
@@ -99,7 +99,7 @@ private:
 
     void stopAttack();
 
-    int mClientId;
+    uint32_t mClientId;
     std::shared_ptr<eServer> mServer;
     std::shared_ptr<eMap> mMap;
 

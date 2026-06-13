@@ -41,7 +41,7 @@ class eGameWorld {
 public:
     eGameWorld(const std::shared_ptr<eMap>& map);
 
-    void initialize(const int clientId,
+    void initialize(const uint32_t clientId,
                     const std::shared_ptr<eUnit>& mainChar);
 
     struct eProcessResult {
@@ -58,7 +58,7 @@ public:
     };
 
     eProcessResult processServerData(
-        const int clientId,
+        const uint32_t clientId,
         eServer& server,
         const eUnit& mainChar,
         eMainCharAction& mainAct,
@@ -97,10 +97,10 @@ private:
     void iniMissileInc();
     void iniNovaInc();
 
-    void addUnit(const ePointF& pos, const int charId);
+    void addUnit(const ePointF& pos, const uint32_t charId);
 
     const std::shared_ptr<eMap>& mMap;
-    int mClientId;
+    uint32_t mClientId;
     std::shared_ptr<eUnit> mMainChar;
     eIdMapVector<eUnit> mUnits;
     eIdMapVector<eExtendedMissile> mMissiles;

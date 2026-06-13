@@ -241,7 +241,7 @@ void eScreenHandler::showGame(eServerData serverData,
     const auto mapName = "basement_1"/*"act1_1"*/;
     const uint8_t mapId = eMapsSettings::sMaps.id(mapName);
     const auto map = std::make_shared<eMap>(mapId);
-    const auto clientId = std::make_shared<int>();
+    const auto clientId = std::make_shared<uint32_t>();
     const auto teamId = std::make_shared<eTeamId>();
     const auto serverC = std::make_shared<eCharacter>(c);
 
@@ -314,7 +314,7 @@ void eScreenHandler::showGame(eServerData serverData,
 }
 
 void eScreenHandler::moveToMap(
-    const int clientId,
+    const uint32_t clientId,
     const eTeamId teamId,
     const eCharacter& c,
     const std::shared_ptr<eServer>& server,
@@ -462,7 +462,7 @@ void eScreenHandler::showErrorMsg(const std::string& msg,
 void eScreenHandler::finishGameShow(
     const std::shared_ptr<eMap>& map,
     const std::shared_ptr<eServer>& server,
-    const int clientId,
+    const uint32_t clientId,
     const eCharacter& c, const eTeamId teamId) {
     const int width = mWindow->width();
     const int height = mWindow->height();
@@ -473,7 +473,7 @@ void eScreenHandler::finishGameShow(
     });
     const auto moveToMap = [this, server](const uint8_t mapId) {
         const auto gw = eGameWidget::sInstance;
-        const int clientId = gw->clientId();
+        const uint32_t clientId = gw->clientId();
         const auto teamId = gw->team();
         const auto c = gw->character();
         eScreenHandler::moveToMap(clientId, teamId, c, server, mapId);
@@ -484,7 +484,7 @@ void eScreenHandler::finishGameShow(
 
 bool eScreenHandler::requestMap(
     eServer& server,
-    const int clientId,
+    const uint32_t clientId,
     const uint8_t mapId,
     eMapData& data) {
     bool ready = false;

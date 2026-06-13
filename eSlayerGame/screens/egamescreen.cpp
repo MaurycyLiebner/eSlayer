@@ -37,7 +37,7 @@ void eGameScreen::setExitAction(const eAction& a) {
     mExitAction = a;
 }
 
-void eGameScreen::initialize(const int clientId,
+void eGameScreen::initialize(const uint32_t clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
                              const eCharacter& c,

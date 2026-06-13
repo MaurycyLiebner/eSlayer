@@ -292,11 +292,11 @@ public:
 
     std::vector<int> readySkills() const;
 
-    const std::vector<int>& followers() const
+    const std::vector<uint32_t>& followers() const
     { return mFollowers; }
-    std::vector<int>& followers()
+    std::vector<uint32_t>& followers()
     { return mFollowers; }
-    std::vector<int> followers(const int unitInfoId) const;
+    std::vector<uint32_t> followers(const int unitInfoId) const;
     int countFollowers(const int unitInfoId) const;
 
     void setMoving(const bool m) { mMoving = m; }
@@ -308,7 +308,7 @@ public:
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);
 
-    uint16_t requestUpdate(const int clientId);
+    uint16_t requestUpdate(const uint32_t clientId);
     void update(const eUnitData::eShift shift);
     void updateAll();
 
@@ -397,7 +397,7 @@ private:
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;
     std::map<ePotionType, ePotionHealing> mPotions;
-    std::vector<int> mFollowers;
+    std::vector<uint32_t> mFollowers;
 
     eUnitType mType = eUnitType::normal;
 

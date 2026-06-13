@@ -55,7 +55,7 @@ eGameWidget::~eGameWidget() {
     sInstance = nullptr;
 }
 
-void eGameWidget::initialize(const int clientId,
+void eGameWidget::initialize(const uint32_t clientId,
                              const std::shared_ptr<eServer>& server,
                              const std::shared_ptr<eMap>& map,
                              const eCharacter& c,
@@ -295,7 +295,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             addMessage(r, text);
         }
         const auto leftUsers = mServer->receiveLeftUsers();
-        for(const int clientId : leftUsers) {
+        for(const uint32_t clientId : leftUsers) {
             const auto name = eSlayers::name(clientId);
             auto text = eText::text(12, 1);
             text = eStringHelpers::replaceAll(text, "%1", name);
@@ -303,7 +303,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto messages = mServer->receiveMessages();
         for(const auto& msg : messages) {
-            const int clientId = msg.fClientId;
+            const uint32_t clientId = msg.fClientId;
             const auto name = eSlayers::name(clientId);
             const auto text = name + ": " + msg.fMsg;
             addMessage(r, text);

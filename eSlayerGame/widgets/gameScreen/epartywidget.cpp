@@ -156,7 +156,7 @@ void ePartyWidget::updatePartyWidgets() {
     const auto gw = eGameWidget::sInstance;
     const auto clientTeam = gw->team();
     const auto& server = gw->server();
-    const int clientId = gw->clientId();
+    const uint32_t clientId = gw->clientId();
     bool darker = true;
     for(const auto& it : teams) {
         darker = !darker;

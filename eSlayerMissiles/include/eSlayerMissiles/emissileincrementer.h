@@ -3,6 +3,7 @@
 
 #include "eslayermissilesexport.h"
 
+#include <cstdint>
 #include <functional>
 
 struct eMissile;
@@ -16,7 +17,7 @@ public:
 
     using eObstacle = std::function<bool(const ePointF& pos)>;
     using eRemoveMissile = std::function<void(eMissile& m)>;
-    using eGetUnit = std::function<eUnitData*(const int charId)>;
+    using eGetUnit = std::function<eUnitData*(const uint32_t charId)>;
     using eHitAction = std::function<void(const eMissile& m, eUnitData& u)>;
     void initialize(const eObstacle& obstacle,
                     const eRemoveMissile& removeMissile,

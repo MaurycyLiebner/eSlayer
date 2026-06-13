@@ -6,7 +6,7 @@
 
 class eMonsterNames {
 public:
-    static std::string name(const int charId);
+    static std::string name(const int monsterId);
     static bool load();
     static bool reload();
 private:

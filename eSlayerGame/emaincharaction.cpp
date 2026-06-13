@@ -29,7 +29,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  SDL_Renderer* const r,
                                  const std::shared_ptr<eMap>& map,
                                  const eOtherIterator& iter,
-                                 const int clientId,
+                                 const uint32_t clientId,
                                  const eTeamId teamId) {
     mClientId = clientId;
     mServer = s;

@@ -11,7 +11,7 @@ void eFixedSizeSetAreas::initialize(
         mWidth = -mAreaDim*width;
         mHeight = -mAreaDim*height;
     }
-    mAreas.resize(mHeight, std::vector<std::set<int>>(mWidth));
+    mAreas.resize(mHeight, std::vector<std::set<uint32_t>>(mWidth));
 }
 
 eArea eFixedSizeSetAreas::posArea(const ePointF& pos) const {
@@ -52,14 +52,14 @@ bool eFixedSizeSetAreas::hasArea(const eArea& area) const {
     return true;
 }
 
-void eFixedSizeSetAreas::erase(const eArea& area, const int id) {
+void eFixedSizeSetAreas::erase(const eArea& area, const uint32_t id) {
     mAreas[area.fY][area.fX].erase(id);
 }
 
-void eFixedSizeSetAreas::emplace(const eArea& area, const int id) {
+void eFixedSizeSetAreas::emplace(const eArea& area, const uint32_t id) {
     mAreas[area.fY][area.fX].emplace(id);
 }
 
-const std::set<int>& eFixedSizeSetAreas::at(const eArea& area) const {
+const std::set<uint32_t>& eFixedSizeSetAreas::at(const eArea& area) const {
     return mAreas[area.fY][area.fX];
 }

@@ -385,7 +385,7 @@ bool eComplexAction::summon(
     const auto& skill = eSkills::sSkills.get(skillId);
     const int maxCount = mUnit.skillCount(
         schoice, eWeaponChoice::left);
-    const int charId = mUnit.fCharId;
+    const uint32_t charId = mUnit.fCharId;
     auto& area = mArea;
     const auto mods = mUnit.skillModifiers(
         schoice, eWeaponChoice::left);

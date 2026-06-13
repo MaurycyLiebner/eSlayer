@@ -20,68 +20,68 @@ public:
 
     bool initialize() override;
 
-    int connect() override;
-    bool disconnect(const int clientId) override;
+    uint32_t connect() override;
+    bool disconnect(const uint32_t clientId) override;
 
     void increment(const float by) override;
 
-    bool requestMap(const int clientId,
+    bool requestMap(const uint32_t clientId,
                     const uint8_t mapId,
                     const eMapReadyAction& func) override;
-    bool spawn(const int clientId,
+    bool spawn(const uint32_t clientId,
                eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,
                std::vector<eBody>& bodies,
                const eScreenDimensions& screenDims) override;
 
-    bool requestData(const int clientId,
+    bool requestData(const uint32_t clientId,
                      eRequestData& data,
                      float& resultTime) override;
-    bool requestEquipment(const int clientId) override;
-    bool receiveEquipment(const int clientId,
+    bool requestEquipment(const uint32_t clientId) override;
+    bool receiveEquipment(const uint32_t clientId,
                           eEquipment& data) override;
-    bool unblockEquipment(const int clientId) override;
+    bool unblockEquipment(const uint32_t clientId) override;
 
-    bool changeState(const int clientId,
+    bool changeState(const uint32_t clientId,
                      const eUnitData& u) override;
 
-    bool attack(const int clientId,
+    bool attack(const uint32_t clientId,
                 const eAttackData& target) override;
-    bool stopAttack(const int clientId) override;
+    bool stopAttack(const uint32_t clientId) override;
 
-    bool respawn(const int clientId,
+    bool respawn(const uint32_t clientId,
                  uint32_t& bodyId,
                  ePointF& bodyPos) override;
 
-    bool setSkillId(const int clientId,
+    bool setSkillId(const uint32_t clientId,
                     const eSkillChoice schoice,
                     const int skillId) override;
 
-    bool triggerObject(const int clientId,
+    bool triggerObject(const uint32_t clientId,
                        const eServerObject& obj) override;
 
-    bool triggerDoors(const int clientId,
+    bool triggerDoors(const uint32_t clientId,
                       const eServerDoors& doors) override;
 
-    bool pickupItem(const int clientId,
-                    const int itemId,
+    bool pickupItem(const uint32_t clientId,
+                    const uint32_t itemId,
                     const bool drag) override;
-    bool dropItem(const int clientId) override;
-    bool rearrangeItems(const int clientId,
+    bool dropItem(const uint32_t clientId) override;
+    bool rearrangeItems(const uint32_t clientId,
                         const eEquipment& eq) override;
-    bool changeAttributes(const int clientId,
+    bool changeAttributes(const uint32_t clientId,
                           const eAttributes& attrs) override;
     bool changeSkillLevels(
-        const int clientId,
+        const uint32_t clientId,
         const eSkillLevels& skillLevels) override;
-    bool sendMessage(const int clientId,
+    bool sendMessage(const uint32_t clientId,
                      const std::string& text) override;
-    bool consumePotion(const int clientId,
+    bool consumePotion(const uint32_t clientId,
                        const uint32_t itemId) override;
-    bool pickupBody(const int clientId,
+    bool pickupBody(const uint32_t clientId,
                     const uint32_t bodyId) override;
-    bool teamAction(const int clientId,
+    bool teamAction(const uint32_t clientId,
                     const eTeamAction& action) override;
 private:
     using ePacketHandler = std::function<bool(

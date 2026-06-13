@@ -17,7 +17,7 @@ struct eDataRequest {
 
 class eServerClientHandler {
 public:
-    eServerClientHandler(const int clientId);
+    eServerClientHandler(const uint32_t clientId);
 
     bool requestEquipment();
     bool receiveData(eRequestData& data,
@@ -45,7 +45,7 @@ public:
     bool triggerObject(eServerObject& obj);
     bool triggerDoors(const eServerDoors& doors);
 
-    bool pickupItem(const int itemId, const bool drag);
+    bool pickupItem(const uint32_t itemId, const bool drag);
     bool dropItem();
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
@@ -56,7 +56,7 @@ public:
                     eBody& body);
     bool changeTeam(const eTeamId newTeam);
 private:
-    const int mClientId;
+    const uint32_t mClientId;
     std::shared_ptr<eServerArea> mArea;
 };
 

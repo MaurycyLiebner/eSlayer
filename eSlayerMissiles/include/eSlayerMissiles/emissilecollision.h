@@ -14,14 +14,14 @@ struct ESLAYERMISSILES_API eMissileCollision {
     struct eResult {
         bool fHit = false;
         float fT = 2.f;
-        int fCharId = -1;
+        uint32_t fCharId = 0;
     };
 
     static void test(const ePointF& oldPos,
                      const ePointF& newPos,
                      const ePointF& unitPos,
                      const float collR,
-                     const int charId,
+                     const uint32_t charId,
                      eResult& result);
 
     static void test(const ePointF& oldPos,

@@ -43,7 +43,7 @@ public:
     eGameWidget(eMainWindow* const window);
     ~eGameWidget();
 
-    void initialize(const int clientId,
+    void initialize(const uint32_t clientId,
                     const std::shared_ptr<eServer>& server,
                     const std::shared_ptr<eMap>& map,
                     const eCharacter& c,
@@ -92,7 +92,7 @@ public:
     void setOtherRightSkill(const int s);
 
     const std::shared_ptr<eServer>& server() const { return mServer; }
-    int clientId() const { return mClientId; }
+    uint32_t clientId() const { return mClientId; }
 
     void setDeathHandler(const eDeathHandler& h) { mDeathHandler = h; }
     void setRespawnHandler(const eRespawnHandler& h) { mRespawnHandler = h; }
@@ -136,7 +136,7 @@ private:
     eGameInput mInput;
     eGamePainter mGamePainter;
 
-    int mClientId = -1;
+    uint32_t mClientId = 0;
     std::shared_ptr<eServer> mServer;
 
     std::shared_ptr<eMainCharAction> mMainAction;

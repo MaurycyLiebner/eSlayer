@@ -51,23 +51,23 @@ public:
 
     virtual bool initialize() = 0;
 
-    virtual int connect() = 0;
-    virtual bool disconnect(const int clientId) = 0;
+    virtual uint32_t connect() = 0;
+    virtual bool disconnect(const uint32_t clientId) = 0;
 
     virtual void increment(const float by) = 0;
     virtual void checkMapsReady() {}
 
-    bool requestMapCall(const int clientId,
+    bool requestMapCall(const uint32_t clientId,
                         const uint8_t id,
                         const eMapReadyAction& func);
 protected:
     virtual bool
-    requestMap(const int clientId,
+    requestMap(const uint32_t clientId,
                const uint8_t id,
                const eMapReadyAction& func) = 0;
 public:
     virtual bool
-    spawn(const int clientId,
+    spawn(const uint32_t clientId,
           eCharacter& c,
           eTeamId& teamId,
           ePointF& spawnPos,
@@ -75,73 +75,73 @@ public:
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool
-    requestData(const int clientId,
+    requestData(const uint32_t clientId,
                 eRequestData& data,
                 float& resultTime) = 0;
     virtual bool
-    requestEquipment(const int clientId) = 0;
+    requestEquipment(const uint32_t clientId) = 0;
     virtual bool
-    receiveEquipment(const int clientId,
+    receiveEquipment(const uint32_t clientId,
                      eEquipment& data) = 0;
     virtual bool
-    unblockEquipment(const int clientId) = 0;
+    unblockEquipment(const uint32_t clientId) = 0;
 
     virtual bool
-    changeState(const int clientId,
+    changeState(const uint32_t clientId,
                 const eUnitData& u) = 0;
     virtual bool
-    attack(const int clientId,
+    attack(const uint32_t clientId,
            const eAttackData& target) = 0;
     virtual bool
-    stopAttack(const int clientId) = 0;
+    stopAttack(const uint32_t clientId) = 0;
 
     virtual bool
-    respawn(const int clientId,
+    respawn(const uint32_t clientId,
             uint32_t& bodyId,
             ePointF& bodyPos) = 0;
 
     virtual bool
-    setSkillId(const int clientId,
+    setSkillId(const uint32_t clientId,
                const eSkillChoice schoice,
                const int skillId) = 0;
 
     virtual bool
-    triggerObject(const int clientId,
+    triggerObject(const uint32_t clientId,
                   const eServerObject& obj) = 0;
 
     virtual bool
-    triggerDoors(const int clientId,
+    triggerDoors(const uint32_t clientId,
                  const eServerDoors& d) = 0;
 
     virtual bool
-    pickupItem(const int clientId,
-               const int itemId,
+    pickupItem(const uint32_t clientId,
+               const uint32_t itemId,
                const bool drag) = 0;
     virtual bool
-    dropItem(const int clientId) = 0;
+    dropItem(const uint32_t clientId) = 0;
     virtual bool
-    rearrangeItems(const int clientId,
+    rearrangeItems(const uint32_t clientId,
                    const eEquipment& eq) = 0;
     virtual bool
-    changeAttributes(const int clientId,
+    changeAttributes(const uint32_t clientId,
                      const eAttributes& attrs) = 0;
     virtual bool
     changeSkillLevels(
-        const int clientId,
+        const uint32_t clientId,
         const eSkillLevels& skillLevels) = 0;
     virtual bool
-    sendMessage(const int clientId,
+    sendMessage(const uint32_t clientId,
                 const std::string& text) = 0;
 
     virtual bool
-    consumePotion(const int clientId,
+    consumePotion(const uint32_t clientId,
                   const uint32_t itemId) = 0;
     virtual bool
-    pickupBody(const int clientId,
+    pickupBody(const uint32_t clientId,
                const uint32_t bodyId) = 0;
 
     virtual bool
-    teamAction(const int clientId,
+    teamAction(const uint32_t clientId,
                const eTeamAction& action) = 0;
 
     uint8_t mapId() const { return mMapId; }

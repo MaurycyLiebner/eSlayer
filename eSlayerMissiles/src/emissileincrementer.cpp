@@ -42,7 +42,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
                 const eArea area{ax, ay};
                 if(!mUnitAreas.hasArea(area)) continue;
                 const auto& units = mUnitAreas.at(area);
-                for(const int charId : units) {
+                for(const uint32_t charId : units) {
                     const auto u = mGetUnit(charId);
                     if(!u) continue;
                     if(u->fHealth <= 0) continue;
@@ -90,7 +90,7 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
             const eArea area{ax, ay};
             if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
-            for(const int charId : units) {
+            for(const uint32_t charId : units) {
                 const auto u = mGetUnit(charId);
                 if(!u) continue;
                 eMissileCollision::test(oldPos, newPos,

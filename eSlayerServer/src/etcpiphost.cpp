@@ -74,7 +74,7 @@ void eTcpIpHost::increment(const float by) {
     checkMapsReady();
 }
 
-bool eTcpIpHost::sendMessage(const int clientId,
+bool eTcpIpHost::sendMessage(const uint32_t clientId,
                              const std::string& text) {
     std::unique_lock lock(mMutex);
     sendMessageToAll(clientId, text);
@@ -82,7 +82,7 @@ bool eTcpIpHost::sendMessage(const int clientId,
 }
 
 bool eTcpIpHost::spawn(
-    const int clientId,
+    const uint32_t clientId,
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
@@ -94,7 +94,7 @@ bool eTcpIpHost::spawn(
 }
 
 bool eTcpIpHost::requestData(
-    const int clientId,
+    const uint32_t clientId,
     eRequestData& data,
     float& resultTime) {
     std::unique_lock lock(mMutex);
@@ -103,48 +103,48 @@ bool eTcpIpHost::requestData(
 }
 
 bool eTcpIpHost::requestEquipment(
-    const int clientId) {
+    const uint32_t clientId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::requestEquipment(
         clientId);
 }
 
 bool eTcpIpHost::receiveEquipment(
-    const int clientId, eEquipment& data) {
+    const uint32_t clientId, eEquipment& data) {
     std::unique_lock lock(mMutex);
     return eLocalServer::receiveEquipment(
         clientId, data);
 }
 
 bool eTcpIpHost::unblockEquipment(
-    const int clientId) {
+    const uint32_t clientId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::unblockEquipment(
         clientId);
 }
 
 bool eTcpIpHost::changeState(
-    const int clientId, const eUnitData& u) {
+    const uint32_t clientId, const eUnitData& u) {
     std::unique_lock lock(mMutex);
     return eLocalServer::changeState(
         clientId, u);
 }
 
 bool eTcpIpHost::attack(
-    const int clientId, const eAttackData& target) {
+    const uint32_t clientId, const eAttackData& target) {
     std::unique_lock lock(mMutex);
     return eLocalServer::attack(
         clientId, target);
 }
 
 bool eTcpIpHost::stopAttack(
-    const int clientId) {
+    const uint32_t clientId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::stopAttack(clientId);
 }
 
 bool eTcpIpHost::respawn(
-    const int clientId,
+    const uint32_t clientId,
     uint32_t& bodyId,
     ePointF& bodyPos) {
     std::unique_lock lock(mMutex);
@@ -153,7 +153,7 @@ bool eTcpIpHost::respawn(
 }
 
 bool eTcpIpHost::setSkillId(
-    const int clientId,
+    const uint32_t clientId,
     const eSkillChoice schoice,
     const int skillId) {
     std::unique_lock lock(mMutex);
@@ -162,7 +162,7 @@ bool eTcpIpHost::setSkillId(
 }
 
 bool eTcpIpHost::triggerDoors(
-    const int clientId,
+    const uint32_t clientId,
     const eServerDoors& doors) {
     std::unique_lock lock(mMutex);
     return triggerDoorsAndSend(
@@ -170,8 +170,8 @@ bool eTcpIpHost::triggerDoors(
 }
 
 bool eTcpIpHost::pickupItem(
-    const int clientId,
-    const int itemId,
+    const uint32_t clientId,
+    const uint32_t itemId,
     const bool drag) {
     std::unique_lock lock(mMutex);
     return eLocalServer::pickupItem(
@@ -179,14 +179,14 @@ bool eTcpIpHost::pickupItem(
 }
 
 bool eTcpIpHost::dropItem(
-    const int clientId) {
+    const uint32_t clientId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::dropItem(
         clientId);
 }
 
 bool eTcpIpHost::rearrangeItems(
-    const int clientId,
+    const uint32_t clientId,
     const eEquipment& eq) {
     std::unique_lock lock(mMutex);
     return eLocalServer::rearrangeItems(
@@ -194,7 +194,7 @@ bool eTcpIpHost::rearrangeItems(
 }
 
 bool eTcpIpHost::changeAttributes(
-    const int clientId,
+    const uint32_t clientId,
     const eAttributes& attrs) {
     std::unique_lock lock(mMutex);
     return eLocalServer::changeAttributes(
@@ -202,7 +202,7 @@ bool eTcpIpHost::changeAttributes(
 }
 
 bool eTcpIpHost::changeSkillLevels(
-    const int clientId,
+    const uint32_t clientId,
     const eSkillLevels& skillLevels) {
     std::unique_lock lock(mMutex);
     return eLocalServer::changeSkillLevels(
@@ -210,7 +210,7 @@ bool eTcpIpHost::changeSkillLevels(
 }
 
 bool eTcpIpHost::consumePotion(
-    const int clientId,
+    const uint32_t clientId,
     const uint32_t itemId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::consumePotion(
@@ -218,7 +218,7 @@ bool eTcpIpHost::consumePotion(
 }
 
 bool eTcpIpHost::pickupBody(
-    const int clientId,
+    const uint32_t clientId,
     const uint32_t bodyId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::pickupBody(
@@ -231,13 +231,13 @@ void eTcpIpHost::checkMapsReady() {
 }
 
 bool eTcpIpHost::triggerObject(
-    const int clientId, const eServerObject& obj) {
+    const uint32_t clientId, const eServerObject& obj) {
     std::unique_lock lock(mMutex);
     return triggerObjectAndSend(clientId, obj);
 }
 
 void eTcpIpHost::sendMessageToAll(
-    const int clientId, const std::string& text) {
+    const uint32_t clientId, const std::string& text) {
     ePacket p;
     p << ePacketType::message;
     p << clientId;
@@ -250,7 +250,7 @@ void eTcpIpHost::sendMessageToAll(
 bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const auto it = mClientIdMap.find(tcpClientId);
     if(it == mClientIdMap.end()) return false;
-    const int charId = it->second;
+    const uint32_t charId = it->second;
     mClientIdMap.erase(tcpClientId);
     disconnect(charId);
     eSlayers::sSlayers.erase(charId);
@@ -328,7 +328,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         if(it != mClientIdMap.end()) {
             uint8_t mapId;
             p >> mapId;
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             const auto func = [this, tcpClientId](const eMapData& data) {
                 const auto it = mClientIdMap.find(tcpClientId);
                 if(it == mClientIdMap.end()) return;
@@ -343,7 +343,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::spawn: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eCharacter c;
             c.read(p);
             eScreenDimensions screenDims;
@@ -390,7 +390,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::state: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eUnitData u;
             u.read(p);
             eLocalServer::changeState(charId, u);
@@ -429,7 +429,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::message: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             std::string msg;
             p >> msg;
             sendMessageToAll(charId, msg);
@@ -438,7 +438,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::teamsAction: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eTeamAction action;
             p >> action;
             eLocalServer::teamAction(charId, action);
@@ -447,7 +447,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::request: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eRequestData data;
             p >> data.fRequestId;
             float time;
@@ -467,21 +467,21 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         if(it != mClientIdMap.end()) {
             eAttackData data;
             data.read(p);
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eLocalServer::attack(charId, data);
         }
     } break;
     case ePacketType::stopAttack: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eLocalServer::stopAttack(charId);
         }
     } break;
     case ePacketType::respawn: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             uint32_t bodyId;
             ePointF bodyPos;
             const bool r = eLocalServer::respawn(
@@ -498,7 +498,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::setSkillId: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eSkillChoice schoice;
             p >> schoice;
             int skillId;
@@ -513,7 +513,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::triggerObject: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eServerObject obj;
             p >> obj;
             triggerObjectAndSend(charId, obj);
@@ -522,7 +522,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::triggerDoors: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eServerDoors doors;
             doors.read(p);
             triggerDoorsAndSend(charId, doors);
@@ -531,15 +531,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::dropItem: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eLocalServer::dropItem(charId);
         }
     } break;
     case ePacketType::pickupItem: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
-            int itemId;
+            const uint32_t charId = it->second;
+            uint32_t itemId;
             p >> itemId;
             bool drag;
             p >> drag;
@@ -564,7 +564,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::pickupBody: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             uint32_t bodyId;
             p >> bodyId;
             bool bodyRemoved;
@@ -603,7 +603,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::rearrangeItems: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eEquipment eq;
             eq.read(p);
             eLocalServer::rearrangeItems(
@@ -613,7 +613,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::consumePotion: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             uint32_t itemId;
             p >> itemId;
             eLocalServer::consumePotion(
@@ -623,7 +623,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::attributes: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eAttributes attrs;
             attrs.read(p);
             eLocalServer::changeAttributes(
@@ -633,7 +633,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::skills: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            const int charId = it->second;
+            const uint32_t charId = it->second;
             eSkillLevels skillLevels;
             skillLevels.read(p);
             eLocalServer::changeSkillLevels(
@@ -644,7 +644,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
 }
 
 bool eTcpIpHost::triggerDoorsAndSend(
-    const int clientId, const eServerDoors& doors) {
+    const uint32_t clientId, const eServerDoors& doors) {
     const int mapId = clientMapId(clientId);
     if(mapId < 0) return false;
     if(mapId != doors.fMapId) return false;
@@ -658,7 +658,7 @@ bool eTcpIpHost::triggerDoorsAndSend(
 }
 
 bool eTcpIpHost::triggerObjectAndSend(
-    const int clientId, const eServerObject& obj) {
+    const uint32_t clientId, const eServerObject& obj) {
     const int mapId = clientMapId(clientId);
     if(mapId < 0) return false;
     if(mapId != obj.fMapId) return false;
@@ -675,7 +675,7 @@ bool eTcpIpHost::triggerObjectAndSend(
 void eTcpIpHost::sendToMapClients(
     const uint8_t mapId, const ePacket& p) {
     for(const auto& it : mClientIdMap) {
-        const int clientId = it.second;
+        const uint32_t clientId = it.second;
         const int cMapId = clientMapId(clientId);
         if(cMapId != mapId) continue;
         const int tcpClientId = it.first;

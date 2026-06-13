@@ -27,7 +27,7 @@ public:
     using eGetTile = std::function<const eTile&(
         const int x, const int y)>;
     using eRemoveNova = std::function<void(const eNova& n)>;
-    using eGetUnit = std::function<eUnitData*(const int charId)>;
+    using eGetUnit = std::function<eUnitData*(const uint32_t charId)>;
     using eHitAction = std::function<void(
         eNova& n, eUnitData& u)>;
     void initialize(const eTileInside& tileInside,

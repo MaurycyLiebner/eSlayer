@@ -7,7 +7,7 @@ class eSinglePlayerServer : public eLocalServer {
 public:
     using eLocalServer::eLocalServer;
 
-    bool sendMessage(const int clientId,
+    bool sendMessage(const uint32_t clientId,
                      const std::string& text) override;
 };
 

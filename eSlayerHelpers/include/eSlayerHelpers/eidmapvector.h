@@ -14,7 +14,7 @@ public:
     template <typename ContType>
     class eIterator {
     public:
-        eIterator(const int id, ContType& cont) :
+        eIterator(const uint32_t id, ContType& cont) :
             mId(id), mCont(cont) {
             skipEmpty();
         }
@@ -39,7 +39,7 @@ public:
             }
         }
 
-        int mId;
+        uint32_t mId;
         ContType& mCont;
     };
 
@@ -49,8 +49,8 @@ public:
     eIterator<const eCont> begin() const { return eIterator(0, mValues); }
     eIterator<const eCont> end() const { return eIterator(mValues.size(), mValues); }
 
-    void add(const int id, const std::shared_ptr<T>& v) {
-        int vid;
+    void add(const uint32_t id, const std::shared_ptr<T>& v) {
+        uint32_t vid;
         if(mSlots.empty()) {
             vid = mValues.size();
             mValues.emplace_back(v);
@@ -62,17 +62,17 @@ public:
         mIdMap[id] = vid;
     }
 
-    bool remove(const int id) {
+    bool remove(const uint32_t id) {
         const auto it = mIdMap.find(id);
         if(it == mIdMap.end()) return false;
-        const int vid = it->second;
+        const uint32_t vid = it->second;
         mValues[vid] = nullptr;
         mSlots.emplace(vid);
         mIdMap.erase(id);
         return true;
     }
 
-    std::shared_ptr<T> get(const int id) const {
+    std::shared_ptr<T> get(const uint32_t id) const {
         const auto it = mIdMap.find(id);
         if(it == mIdMap.end()) return nullptr;
         const int vid = it->second;
@@ -83,8 +83,8 @@ public:
         return mValues;
     }
 
-    int size() const { return mValues.size(); }
-    int actualSize() const { return mValues.size() - mSlots.size(); }
+    uint32_t size() const { return mValues.size(); }
+    uint32_t actualSize() const { return mValues.size() - mSlots.size(); }
 
     void clear() {
         mValues.clear();
@@ -93,8 +93,8 @@ public:
     }
 private:
     eCont mValues;
-    std::map<int, int> mIdMap;
-    std::set<int> mSlots;
+    std::map<uint32_t, uint32_t> mIdMap;
+    std::set<uint32_t> mSlots;
 };
 
 #endif // EIDMAPVECTOR_H
