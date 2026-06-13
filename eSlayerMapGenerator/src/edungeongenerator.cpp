@@ -99,8 +99,8 @@ void eDungeonGenerator::generate(
         }
     };
 
-    const int firstRelX = rect.fW/roomRectDim/2;
-    const int firstRelY = rect.fH/roomRectDim/2;
+    const int firstRelX = xNRooms/2;
+    const int firstRelY = yNRooms/2;
 
     rooms[firstRelY][firstRelX].fEnabled = true;
 
