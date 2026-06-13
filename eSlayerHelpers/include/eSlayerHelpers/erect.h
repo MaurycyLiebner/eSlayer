@@ -19,6 +19,11 @@ struct ESLAYERHELPERS_API eRect {
     int centerX() const { return fX + fW / 2; }
     int centerY() const { return fY + fH / 2; }
 
+    ePoint center() const {
+        return {fX + fW / 2,
+                fY + fH / 2};
+    }
+
     bool contains(const ePoint& p) const;
 
     static bool intersects(const eRect& a, const eRect& b);

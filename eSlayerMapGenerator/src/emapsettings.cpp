@@ -29,6 +29,14 @@ void eMapsSettings::load() {
             eMapSettings map;
 
             map.fMaxSize = jdata.value("maxSize", 80);
+            const auto respawnMapName = jdata.value("respawnMap", name);
+            const int respawnMapId = respawnMapName == name ?
+                sMaps.size() : sMaps.id(respawnMapName);
+            if(respawnMapId < 0) {
+                eRuntimeThrow("Not recognized \"respawnMap\" \"" +
+                              respawnMapName + "\".");
+            }
+            map.fRespawnMap = respawnMapId;
 
             const auto& jAreas = jdata.at("areas");
 
@@ -42,6 +50,8 @@ void eMapsSettings::load() {
                     area.fType = eAreaType::dungeon;
                 } else if(areaTypeStr == "open") {
                     area.fType = eAreaType::open;
+                } else if(areaTypeStr == "camp") {
+                    area.fType = eAreaType::camp;
                 } else {
                     eRuntimeThrow("Invalid area type \"" + areaTypeStr + "\".");
                 }

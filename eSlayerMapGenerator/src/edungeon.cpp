@@ -4,9 +4,9 @@
 #include "eopengenerator.h"
 #include "ewallfinisher.h"
 
+#include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
-#include <eSlayerHelpers/eobjectsinfo.h>
 
 eDungeon::eDungeon() {}
 
@@ -46,17 +46,15 @@ void eDungeon::setExtendedRect(const eRect& rect) {
     mExtendedRect = rect;
 }
 
-void eDungeon::generate() const {
+void eDungeon::generate(ePointF& spawnPos) const {
     const auto rect = eDungeon::rect();
     std::vector<eChamber> chambers;
     std::vector<eRect> doors;
     for(const auto& c : mConnections) {
         const eRect connRect{c.fX, c.fY, c.fW, c.fH};
         eRect connIn;
-        eRect::intersection(rect, connRect, connIn);
-        if(connIn.fW <= 0 || connIn.fH <= 0) {
-            continue;
-        }
+        const bool r = eRect::intersection(rect, connRect, connIn);
+        if(!r) continue;
         chambers.emplace_back(connIn);
     }
 
@@ -73,6 +71,38 @@ void eDungeon::generate() const {
         rectWalls = false;
         fillEmptySapces = true;
         eOpenGenerator::generate(rect, chambers, doors, mMargin);
+    } break;
+    case eAreaType::camp: {
+        rectWalls = false;
+        fillEmptySapces = true;
+        if(mConnections.size() != 1) {
+            eRuntimeThrow("Camp should have exactly one connection.");
+        }
+        const auto& c = mConnections[0];
+        eRect connIn;
+        const eRect connRect{c.fX, c.fY, c.fW, c.fH};
+        eRect::intersection(rect, connRect, connIn);
+        const int size = mSettings.fSize;
+        eRect crect;
+        if(connIn.fX == rect.fX) { // top left
+            crect = eRect{connIn.fX + connIn.fW,
+                          connIn.fY + connIn.fH/2 - size/2,
+                          size, size};
+        } else if(connIn.fX + connIn.fW == rect.fX + rect.fW) { // bottom right
+            crect = eRect{connIn.fX - size,
+                          connIn.fY + connIn.fH/2 - size/2,
+                          size, size};
+        } else if(connIn.fY == rect.fY) { // top right
+            crect = eRect{connIn.fX + connIn.fW/2 - size/2,
+                          connIn.fY + connIn.fH,
+                          size, size};
+        } else { // bottom left
+            crect = eRect{connIn.fX + connIn.fW/2 - size/2,
+                          connIn.fY - size,
+                          size, size};
+        }
+        spawnPos = crect.center();
+        chambers.emplace_back(crect);
     } break;
     }
 
@@ -97,8 +127,11 @@ void eDungeon::generate() const {
         return false;
     };
 
-    const auto shouldWall = [&](const int x, const int y, const eChamber& sc, bool& wallTL,
-                                bool& wallTR) {
+    const auto shouldWall = [&](
+        const int x, const int y,
+        const eChamber& sc,
+        bool& wallTL,
+        bool& wallTR) {
         wallTL = true;
         wallTR = true;
         const ePoint p{x, y};
@@ -139,7 +172,6 @@ void eDungeon::generate() const {
         } break;
         }
     };
-
 
     const auto calcArea = [&](const int x, const int y,
                               const eChamber& c) {

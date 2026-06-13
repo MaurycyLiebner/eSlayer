@@ -238,7 +238,7 @@ void eScreenHandler::showGame(eServerData serverData,
 
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const auto mapName = "basement_1"/*"act1_1"*/;
+    const auto mapName = /*"basement_1"*/"act1_1";
     const uint8_t mapId = eMapsSettings::sMaps.id(mapName);
     const auto map = std::make_shared<eMap>(mapId);
     const auto clientId = std::make_shared<uint32_t>();

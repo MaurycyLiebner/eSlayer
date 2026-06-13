@@ -334,40 +334,20 @@ eMapGenerator::generate(const uint8_t mapId) const {
 
     result->generateTiles(rect.fW + 2*extMargin + 1,
                           rect.fH + 2*extMargin + 1);
-    bool first = true;
+    const auto& sareas = mapSettings.fAreas;
     for(const auto& it : areas) {
         const auto& area = it.second;
         const auto& name = area.name();
-        const int id = mapSettings.fAreas.id(name);
+        const int id = sareas.id(name);
         if(id < 0) continue;
+        const auto& settings = sareas.get(id);
         eMapArea mapArea;
         mapArea.fMapId = mapId;
         mapArea.fAreaId = id;
         const auto rect = area.rect();
         mapArea.fRect = rect;
         result->mAreas.add(name, mapArea);
-        area.generate();
-        if(first) {
-            first = false;
-            bool found = false;
-            for(int dist = 0; dist < 100; dist++) {
-                for(int x = dist; x >= -dist; x--) {
-                    for(int y = dist; y >= -dist; y--) {
-                        if(std::abs(x) != dist && std::abs(y) != dist) continue;
-                        const ePoint pos{rect.fX + rect.fW/2 + x,
-                                         rect.fY + rect.fH/2 + y};
-                        const bool w = result->walkable(pos);
-                        if(w) {
-                            result->mSpawnPos = pos;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(found) break;
-                }
-                if(found) break;
-            }
-        }
+        area.generate(result->mSpawnPos);
     }
     for(const auto& it : areas) {
         const auto& area = it.second;

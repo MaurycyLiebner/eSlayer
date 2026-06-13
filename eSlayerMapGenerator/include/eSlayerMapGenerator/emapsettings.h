@@ -14,7 +14,7 @@ enum class eConnectionType {
 };
 
 enum class eAreaType {
-    open, dungeon
+    camp, open, dungeon
 };
 
 struct eObjectCount {
@@ -70,6 +70,7 @@ struct eAreaSettings {
 
 struct eMapSettings {
     eStringIdMapVector<eAreaSettings> fAreas;
+    uint8_t fRespawnMap;
     int fMaxSize = 80;
 };
 

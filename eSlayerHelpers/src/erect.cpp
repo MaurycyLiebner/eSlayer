@@ -33,7 +33,7 @@ bool eRect::intersection(
     const int right = std::min(a.fX + a.fW, b.fX + b.fW);
     const int bottom = std::min(a.fY + a.fH, b.fY + b.fH);
 
-    if (left < right && top < bottom) {
+    if(left < right && top < bottom) {
         out.fX = left;
         out.fY = top;
         out.fW = right - left;

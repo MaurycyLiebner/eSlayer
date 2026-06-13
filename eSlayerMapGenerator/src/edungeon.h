@@ -36,7 +36,7 @@ public:
 
     void setExtendedRect(const eRect& rect);
 
-    void generate() const;
+    void generate(ePointF& spawnPos) const;
 
     void generateWalls() const;
 
