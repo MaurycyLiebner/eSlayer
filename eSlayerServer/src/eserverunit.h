@@ -401,7 +401,7 @@ private:
 
     eUnitType mType = eUnitType::normal;
 
-    std::map<int, uint16_t> mUpdateMap;
+    std::map<uint32_t, uint16_t> mUpdateMap;
 };
 
 #endif // ESERVERUNIT_H
