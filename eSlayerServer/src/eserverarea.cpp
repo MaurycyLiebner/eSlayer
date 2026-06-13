@@ -771,6 +771,7 @@ bool eServerArea::addClient(const int clientId,
             eItemGenerator::applyItemId(item);
         });
         auto& body = bodies.emplace_back();
+        body.fMapId = mMap->id();
         body.fEq = eq;
         spawnBody(clientId, eq, body.fBodyId, body.fPos);
     }

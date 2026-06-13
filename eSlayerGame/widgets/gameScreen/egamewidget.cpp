@@ -201,6 +201,7 @@ void eGameWidget::setOtherRightSkill(const int s) {
 void eGameWidget::respawn() {
     auto& eq = equipment();
     eBody body;
+    body.fMapId = mMap->id();
     body.fEq = eq.takeBody();
     mServer->respawn(mClientId, body.fBodyId, body.fPos);
     eBodies::add(body);

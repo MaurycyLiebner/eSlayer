@@ -167,6 +167,7 @@ void eMiniMap::paintEvent(ePainter& p) {
                           clientId);
             }
             for(const auto& b : eBodies::sBodies) {
+                if(b.fMapId != mapId) continue;
                 drawCross(b.fPos, SDL_Color{255, 0, 0, 255},
                           eSlayers::sThisSlayer);
             }

@@ -4,16 +4,11 @@
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/epositioned.h"
 
-struct ESLAYERHELPERS_API eBodyBase {
+struct ESLAYERHELPERS_API eBody :
+    public ePositioned {
+    uint8_t fMapId;
     uint32_t fBodyId;
     eBodyEquipment fEq;
-
-    void readBase(ePacket& p);
-    void writeBase(ePacket& p) const;
-};
-
-struct ESLAYERHELPERS_API eBody :
-    public eBodyBase, public ePositioned {
 
     void read(ePacket& p);
     void write(ePacket& p) const;

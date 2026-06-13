@@ -4,24 +4,18 @@
 
 std::vector<eBody> eBodies::sBodies;
 
-void eBodyBase::readBase(ePacket& p) {
+void eBody::read(ePacket& p) {
+    p >> fPos;
+    p >> fMapId;
     p >> fBodyId;
     fEq.bodyRead(p);
 }
 
-void eBodyBase::writeBase(ePacket& p) const {
+void eBody::write(ePacket& p) const {
+    p << fPos;
+    p << fMapId;
     p << fBodyId;
     fEq.bodyWrite(p);
-}
-
-void eBody::read(ePacket& p) {
-    eBodyBase::readBase(p);
-    p >> fPos;
-}
-
-void eBody::write(ePacket& p) const {
-    eBodyBase::writeBase(p);
-    p << fPos;
 }
 
 void eBodies::read(ePacket& p) {
