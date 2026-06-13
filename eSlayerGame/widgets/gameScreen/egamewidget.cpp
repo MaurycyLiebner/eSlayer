@@ -318,9 +318,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& d : doors) {
             mMap->triggerDoors(d);
         }
-        const auto bodies = mServer->receiveBodiesPickedUp();
-        for(const auto bodyId : bodies) {
+        const auto bodiesToRemove = mServer->receiveBodiesPickedUp();
+        for(const auto bodyId : bodiesToRemove) {
             eBodies::remove(bodyId);
+        }
+        const auto bodiesChanged = mServer->receiveBodiesChanged();
+        for(const auto& body : bodiesChanged) {
+            eBodies::remove(body.fBodyId);
+            eBodies::add(body);
         }
     }
     const auto& res = resolution();

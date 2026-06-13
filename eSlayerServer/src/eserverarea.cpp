@@ -916,25 +916,32 @@ bool eServerArea::planRemoveUnit(const int charId) {
 }
 
 bool eServerArea::pickupBody(
-    const int clientId, const int charId) {
+    const int clientId, const uint32_t bodyId,
+    bool& bodyRemoved, eBody& body) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& client = it->second;
     auto& bodies = mBodies[clientId];
-    const auto bit = std::find(bodies.begin(), bodies.end(), charId);
+    const auto bit = std::find(bodies.begin(), bodies.end(), bodyId);
     if(bit == bodies.end()) return false;
-    const auto body = unit(charId);
-    if(!body) return false;
+    const auto ubody = unit(bodyId);
+    if(!ubody) return false;
     const auto u = unit(clientId);
     if(!u || u->fHealth <= 0) return false;
-    const float dist = ePointF::distance(body->fPos, u->fPos);
+    const float dist = ePointF::distance(ubody->fPos, u->fPos);
     if(dist > 1.f) return false;
     auto& dst = u->equipment();
-    auto& src = body->equipment();
-    dst.moveFrom(src);
-    if(src.empty()) {
+    auto& src = ubody->equipment();
+    dst.moveFromBody(src);
+    bodyRemoved = src.bodyEmpty();
+    if(bodyRemoved) {
         bodies.erase(bit);
-        planRemoveUnit(charId);
+        planRemoveUnit(bodyId);
+    } else {
+        body.fBodyId = bodyId;
+        body.fMapId = mMap->id();
+        body.fPos = ubody->fPos;
+        body.fEq = src;
     }
     u->recalculateStats();
     u->recalculateAuras();

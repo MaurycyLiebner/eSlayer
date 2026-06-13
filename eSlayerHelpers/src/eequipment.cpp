@@ -279,7 +279,7 @@ int eEquipment::beltX(const uint32_t itemId) const {
     return -1;
 }
 
-void eEquipment::moveFrom(eBodyEquipment& srcEq) {
+void eEquipment::moveFromBody(eBodyEquipment& srcEq) {
     const auto tryMove = [&](eItem eBodyEquipment::* ptr) {
         auto& src = srcEq.*ptr;
         if(src.fType == eItemType::none) return true;
@@ -315,7 +315,7 @@ void eEquipment::moveFrom(eBodyEquipment& srcEq) {
 void eEquipment::moveFrom(eEquipment& srcEq) {
     fInventory.moveFrom(srcEq.fInventory);
 
-    moveFrom(static_cast<eBodyEquipment&>(srcEq));
+    moveFromBody(static_cast<eBodyEquipment&>(srcEq));
 
     fBeltPotions.moveFrom(srcEq.fBeltPotions);
     fBeltHiddenPotions.moveFrom(srcEq.fBeltHiddenPotions);

@@ -78,7 +78,13 @@ public:
                            const eSkillLevels& skillLevels) override;
     bool consumePotion(const int clientId,
                        const uint32_t itemId) override;
-    bool pickupBody(const int clientId, const uint32_t bodyId) override;
+    bool pickupBody(const int clientId,
+                    const uint32_t bodyId) override;
+
+    bool pickupBody(const int clientId,
+                    const uint32_t bodyId,
+                    bool& bodyRemoved,
+                    eBody& body);
 
     void checkMapsReady() override;
 

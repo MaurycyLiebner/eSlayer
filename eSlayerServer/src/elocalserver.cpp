@@ -233,12 +233,30 @@ bool eLocalServer::consumePotion(
 }
 
 bool eLocalServer::pickupBody(
-    const int clientId, const uint32_t bodyId) {
+    const int clientId,
+    const uint32_t bodyId) {
+    bool bodyRemoved;
+    eBody body;
+    const bool r = pickupBody(
+        clientId, bodyId, bodyRemoved, body);
+    if(r) {
+        if(bodyRemoved) {
+            mBodiesPickedUp.emplace_back(bodyId);
+        } else {
+            mBodiesChanged.emplace_back(body);
+        }
+    }
+    return r;
+}
+
+bool eLocalServer::pickupBody(
+    const int clientId,
+    const uint32_t bodyId,
+    bool& bodyRemoved,
+    eBody& body) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const bool r = h->pickupBody(bodyId);
-    if(r) mBodiesPickedUp.emplace_back(bodyId);
-    return r;
+    return h->pickupBody(bodyId, bodyRemoved, body);
 }
 
 void eLocalServer::mapReady(const eMapAndArea& ma) {

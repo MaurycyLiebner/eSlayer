@@ -51,7 +51,9 @@ public:
     bool changeAttributes(const eAttributes& attrs);
     bool changeSkillLevels(const eSkillLevels& skillLevels);
     bool consumePotion(const uint32_t itemId);
-    bool pickupBody(const uint32_t bodyId);
+    bool pickupBody(const uint32_t bodyId,
+                    bool& bodyRemoved,
+                    eBody& body);
     bool changeTeam(const eTeamId newTeam);
 private:
     const int mClientId;

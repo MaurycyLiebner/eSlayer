@@ -453,9 +453,17 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         }
     } break;
     case ePacketType::bodyPickedUp: {
-        uint32_t bodyId;
-        p >> bodyId;
-        mBodiesPickedUp.emplace_back(bodyId);
+        bool removed;
+        p >> removed;
+        if(removed) {
+            uint32_t bodyId;
+            p >> bodyId;
+            mBodiesPickedUp.emplace_back(bodyId);
+        } else {
+            eBody body;
+            body.read(p);
+            mBodiesChanged.emplace_back(body);
+        }
     } break;
     case ePacketType::disconnect: {
         failed("Disconnected", "Host closed the connection.");

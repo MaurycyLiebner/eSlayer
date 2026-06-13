@@ -99,7 +99,7 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     eItem takePotion(const int x);
     int beltX(const uint32_t itemId) const;
 
-    void moveFrom(eBodyEquipment& srcEq);
+    void moveFromBody(eBodyEquipment& srcEq);
     void moveFrom(eEquipment& srcEq);
     bool empty() const;
 

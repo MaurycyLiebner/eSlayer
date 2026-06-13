@@ -106,7 +106,8 @@ public:
     bool removeClient(const int clientId);
     bool clientMoved(const int clientId);
     bool planRemoveUnit(const int charId);
-    bool pickupBody(const int clientId, const int charId);
+    bool pickupBody(const int clientId, const uint32_t bodyId,
+                    bool& bodyRemoved, eBody& body);
     bool changeTeam(const int clientId, const eTeamId newTeam);
 
     bool triggerObject(

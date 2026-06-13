@@ -156,6 +156,7 @@ public:
     std::vector<eServerObject> receiveObjectStateChanges();
     std::vector<eServerDoors> receiveDoorsStateChanges();
     std::vector<uint32_t> receiveBodiesPickedUp();
+    std::vector<eBody> receiveBodiesChanged();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -166,6 +167,7 @@ protected:
     std::vector<eServerObject> mObjectStateChanges;
     std::vector<eServerDoors> mDoorsStateChanged;
     std::vector<uint32_t> mBodiesPickedUp;
+    std::vector<eBody> mBodiesChanged;
 private:
     const eServerData mData;
     uint8_t mMapId;

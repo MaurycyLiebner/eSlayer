@@ -567,8 +567,10 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const int charId = it->second;
             uint32_t bodyId;
             p >> bodyId;
+            bool bodyRemoved;
+            eBody body;
             const bool r = eLocalServer::pickupBody(
-                charId, bodyId);
+                charId, bodyId, bodyRemoved, body);
             if(r) {
                 {
                     eEquipment data;
@@ -583,7 +585,12 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 {
                     ePacket p;
                     p << ePacketType::bodyPickedUp;
-                    p << bodyId;
+                    p << bodyRemoved;
+                    if(bodyRemoved) {
+                        p << bodyId;
+                    } else {
+                        body.write(p);
+                    }
                     mNet.sendToClient(tcpClientId, p);
                 }
             } else {

@@ -71,6 +71,12 @@ std::vector<uint32_t> eServer::receiveBodiesPickedUp() {
     return result;
 }
 
+std::vector<eBody> eServer::receiveBodiesChanged() {
+    std::vector<eBody> result;
+    std::swap(mBodiesChanged, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);
