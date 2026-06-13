@@ -62,14 +62,6 @@ void eGameWidget::initialize(const int clientId,
                              const eTeamId teamId,
                              const eMoveToMapAction& move) {
     mCName = c.name();
-    {
-        eSlayer slayer;
-        slayer.fClientId = clientId;
-        slayer.fMapId = map->id();
-        slayer.fPos = map->spawnPos();
-        slayer.fName = mCName;
-        eSlayers::sSlayers.emplace(clientId, slayer);
-    }
     mHardcore = c.hardcore();
 
     eSlayers::sThisSlayer = clientId;
