@@ -33,7 +33,19 @@ void eHoverWidget::initialize(
 }
 
 void eHoverWidget::setGameTooltip(
-    const std::string& text, const SDL_Rect& rect) {
+    const std::string& text,
+    const SDL_Rect& rect) {
+    if(text.empty()) {
+        mGameTooltip.clear();
+    } else {
+        mGameTooltip = {text};
+    }
+    mGameHoverRect = rect;
+}
+
+void eHoverWidget::setGameTooltip(
+    const std::vector<std::string>& text,
+    const SDL_Rect& rect) {
     mGameTooltip = text;
     mGameHoverRect = rect;
 }
@@ -346,6 +358,13 @@ void eHoverWidget::sSetGameTooltip(
     sInstance->setGameTooltip(text, rect);
 }
 
+void eHoverWidget::sSetGameTooltip(
+    const std::vector<std::string>& text,
+    const SDL_Rect& rect) {
+    if(!sInstance) return;
+    sInstance->setGameTooltip(text, rect);
+}
+
 void eHoverWidget::paintEvent(ePainter& p) {
     const auto& res = resolution();
     const float mult = res.multiplier();
@@ -379,12 +398,15 @@ void eHoverWidget::paintEvent(ePainter& p) {
         calcPos(mHoverRect, false);
         eHoverGenerator::sPaint(w, h, mx, my, res, mHover, p, align);
     } else {
-        std::string tooltip;
+        std::vector<std::string> tooltip;
         SDL_Rect hoverRect;
 
         if(const auto um = eWidget::sUnderMouse()) {
-            tooltip = um->tooltip();
-            hoverRect = um->globalRect();
+            const auto& t = um->tooltip();
+            if(!t.empty()) {
+                tooltip = {t};
+                hoverRect = um->globalRect();
+            }
         }
 
         bool alwaysTop = false;
@@ -398,7 +420,9 @@ void eHoverWidget::paintEvent(ePainter& p) {
             if(tooltip != mTooltip) {
                 const auto r = renderer();
                 eHoverGenerator gen(res);
-                gen.addText(r, tooltip, eFontColor::white);
+                for(const auto& t : tooltip) {
+                    gen.addText(r, t, eFontColor::white);
+                }
                 mTooltipTex = gen.generate(res, r);
                 mTooltip = tooltip;
             }

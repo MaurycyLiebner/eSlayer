@@ -26,6 +26,9 @@ public:
 
     void setGameTooltip(const std::string& text,
                         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    void setGameTooltip(
+        const std::vector<std::string>& text,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
     void setItem(const eItem& item);
 
@@ -44,6 +47,9 @@ public:
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     static void sSetGameTooltip(
         const std::string& text,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    static void sSetGameTooltip(
+        const std::vector<std::string>& text,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 protected:
     void paintEvent(ePainter& p) override;
@@ -66,10 +72,10 @@ private:
     SDL_Rect mHoverRect{0, 0, 0, 0};
     std::shared_ptr<eTexture> mHover;
 
-    std::string mGameTooltip;
+    std::vector<std::string> mGameTooltip;
     SDL_Rect mGameHoverRect{0, 0, 0, 0};
 
-    std::string mTooltip;
+    std::vector<std::string> mTooltip;
     std::shared_ptr<eTexture> mTooltipTex;
 };
 

@@ -1751,13 +1751,24 @@ void eGameWidget::setHighlightedObject(
     if(obj) {
         const auto type = obj->fObjectType;
         const auto name = eObjectNames::name(type);
+        std::vector<std::string> lines;
         const auto& pos = obj->fPos;
+
+        const auto objType = obj->fObjectType;
+        const auto& object = eObjectsInfo::sObjects.get(objType);
+        if(object.fType == eObjectType::waypoint) {
+            const auto area = mMap->areaAt(pos);
+            const auto aname = mMap->areaName(area);
+            lines.emplace_back(aname);
+        }
+        lines.emplace_back(name);
+
         const float size = obj->fSize;
         const eVec2f d{size, size};
         const auto pixel = tilePosToPixel(pos - d);
         const auto ipixel = pixel.floor();
         const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
-        eHoverWidget::sSetGameTooltip(name, rect);
+        eHoverWidget::sSetGameTooltip(lines, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");
     }
