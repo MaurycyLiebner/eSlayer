@@ -193,10 +193,7 @@ void eMap::setSpawnPos(const ePointF& pos) {
 }
 
 bool eMap::hasPortion(const int x, const int y) {
-    if(x < 0) return false;
-    if(y < 0) return false;
-    if(x >= mWidth) return false;
-    if(y >= mHeight) return false;
+    if(!inside(x, y)) return false;
     if(mAllPresent) return true;
     const int px = x/eMapPortion::sBaseDim;
     const int py = y/eMapPortion::sBaseDim;
