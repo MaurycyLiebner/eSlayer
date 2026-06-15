@@ -108,6 +108,7 @@ public:
 
     void waypointTeleport(const uint8_t mapId,
                           const uint8_t areaId);
+    void spawnPortal();
 
     static eGameWidget* sInstance;
     static void sSendInventoryRearranged();

@@ -218,3 +218,13 @@ bool eServerClientHandler::changeTeam(
     if(!mArea) return false;
     return mArea->changeTeam(mClientId, newTeam);
 }
+
+bool eServerClientHandler::spawnPortal(
+    uint32_t& portalId,
+    uint8_t& mapId,
+    uint8_t& areaId) {
+    if(!mArea) return false;
+    return mArea->spawnPortal(
+        mClientId, portalId,
+        mapId, areaId);
+}

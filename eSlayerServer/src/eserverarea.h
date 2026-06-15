@@ -112,6 +112,15 @@ public:
                     bool& bodyRemoved, eBody& body);
     bool changeTeam(const uint32_t clientId, const eTeamId newTeam);
 
+    bool spawnPortal(const uint32_t clientId,
+                     uint32_t& portalId,
+                     uint8_t& mapId,
+                     uint8_t& areaId);
+    bool spawnCampPortal(const uint32_t clientId,
+                         uint32_t& portalId,
+                         uint8_t& mapId,
+                         uint8_t& areaId);
+
     bool triggerObject(
         const uint32_t clientId, eServerObject& obj);
 
@@ -192,6 +201,10 @@ public:
     bool findPlaceForUnit(const ePointF& pos,
                           ePointF& result) const;
 private:
+    bool spawnPortal(const ePointF& pos,
+                     uint32_t& portalId,
+                     uint8_t& mapId,
+                     uint8_t& areaId);
     bool spawnBody(const uint32_t clientId,
                    const eBodyEquipment& beq,
                    uint32_t& bodyId,

@@ -83,6 +83,8 @@ public:
                     const uint32_t bodyId) override;
     bool teamAction(const uint32_t clientId,
                     const eTeamAction& action) override;
+
+    bool spawnPortal(const uint32_t clientId) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;

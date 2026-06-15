@@ -11,6 +11,7 @@ eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
 std::shared_ptr<eTexture> eUITextures::sRunIcon;
+std::shared_ptr<eTexture> eUITextures::sPortalIcon;
 
 std::shared_ptr<eTexture> eUITextures::sLifeBar1;
 std::shared_ptr<eTexture> eUITextures::sLifeBar2;
@@ -86,6 +87,8 @@ void eUITextures::sLoad(SDL_Renderer* const r,
 
     sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk" + suffix + ".png");
     sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix + ".png");
+
+    sPortalIcon = eFileLoader::readTexture(r, dir, "ui/portal" + suffix + ".png");
 
     sAmuletSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotAmulet" + suffix + ".png");
     sArmorSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotArmor" + suffix + ".png");

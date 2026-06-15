@@ -73,8 +73,14 @@ public:
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
 
+    bool hasPosPortion(const ePointF& pos);
+    bool addObjectIfHasPortion(
+        const std::shared_ptr<eObject>& o);
+    bool objectPosition(const uint32_t objectId,
+                        ePointF& pos) const;
     void addObject(const std::shared_ptr<eObject>& o);
     void removeObject(const uint32_t objectId);
+    std::shared_ptr<eObject> addObject(const ePointF& pos);
 
     void loadPortion(const eMapPortion& portion);
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
@@ -113,7 +119,6 @@ public:
         const uint8_t areaId, ePointF& pos) const;
 private:
     void generateTiles(const int w, const int h);
-    std::shared_ptr<eObject> addObject(const ePointF& pos);
 
     const uint8_t mId;
 

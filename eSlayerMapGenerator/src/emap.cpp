@@ -91,6 +91,35 @@ bool eMap::inside(const int x, const int y) const {
            y >= 0 && y < mHeight;
 }
 
+bool eMap::hasPosPortion(const ePointF& pos) {
+    const auto ipos = pos.floor();
+    if(!inside(ipos.fX, ipos.fY)) return false;
+    if(mAllPresent) return true;
+    const int px = ipos.fX/eMapPortion::sBaseDim;
+    const int py = ipos.fY/eMapPortion::sBaseDim;
+    return mPresent[py][px];
+}
+
+bool eMap::addObjectIfHasPortion(
+    const std::shared_ptr<eObject>& o) {
+    const auto& pos = o->fPos;
+    const bool r = hasPosPortion(pos);
+    if(!r) return false;
+    addObject(o);
+    return true;
+}
+
+bool eMap::objectPosition(const uint32_t objectId,
+                          ePointF& pos) const {
+    for(int i = 0; i < mObjects.size(); i++) {
+        const auto& o = mObjects[i];
+        if(o->fObjectId != objectId) continue;
+        pos = o->fPos;
+        return true;
+    }
+    return false;
+}
+
 void eMap::addObject(const std::shared_ptr<eObject>& o) {
     const int i = mObjects.size();
     mObjects.emplace_back(o);

@@ -92,6 +92,8 @@ public:
 
     bool teamAction(const uint32_t clientId,
                     const eTeamAction& action) override;
+
+    bool spawnPortal(const uint32_t clientId) override;
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);
@@ -100,6 +102,9 @@ protected:
     std::map<int, std::shared_ptr<eServerClientHandler>> mClientHandlers;
 private:
     void mapReady(const eMapAndArea& ma);
+    using eMapReadyBaseAction = std::function<void(const eMapAndArea& ma)>;
+    bool requestMap(const uint8_t mapId,
+                    const eMapReadyBaseAction& func);
 
     std::map<uint8_t, eMapAndArea> mMaps;
     using eOMapReadyAction = std::function<void(const eMapAndArea& ma)>;

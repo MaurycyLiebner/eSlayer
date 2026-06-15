@@ -145,6 +145,9 @@ public:
     teamAction(const uint32_t clientId,
                const eTeamAction& action) = 0;
 
+    virtual bool
+    spawnPortal(const uint32_t clientId) = 0;
+
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }
 

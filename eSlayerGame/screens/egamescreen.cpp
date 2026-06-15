@@ -170,6 +170,14 @@ void eGameScreen::initialize(const uint32_t clientId,
     staminaBelt->addWidget(staminaWid);
     staminaBelt->addWidget(mBelt);
 
+    const auto portalButton = new eTextureCheckButton(window());
+    portalButton->setCheckAction([this](const bool) {
+        mGameWidget->spawnPortal();
+    });
+    portalButton->initialize(eUITextures::sPortalIcon,
+                             eUITextures::sPortalIcon);
+    staminaBelt->addWidget(portalButton);
+
     const int p = res.tinyPadding();
     staminaBelt->stackHorizontally(p);
     staminaBelt->fitContent();

@@ -23,6 +23,8 @@ public:
     static std::shared_ptr<eTexture>
     sRunIcon;
     static std::shared_ptr<eTexture>
+    sPortalIcon;
+    static std::shared_ptr<eTexture>
     sLifeBar1;
     static std::shared_ptr<eTexture>
     sLifeBar2;

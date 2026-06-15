@@ -3,6 +3,7 @@
 #include <eSlayerMapGenerator/emap.h>
 
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/eportals.h>
 
 #include <thread>
 
@@ -45,7 +46,6 @@ bool eLocalServer::requestMap(
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const auto mapId = moveData.fMapId;
-    const auto mapIt = mMaps.find(mapId);
     std::shared_ptr<eMap> map;
     std::shared_ptr<eServerArea> area;
     const auto ofunc = [this, func, clientId, moveData](const eMapAndArea& ma) {
@@ -65,25 +65,7 @@ bool eLocalServer::requestMap(
         func(data);
         return;
     };
-    if(mapIt == mMaps.end()) {
-        const auto it = mMapReadyActions.find(mapId);
-        if(it == mMapReadyActions.end()) {
-            std::thread t([this, mapId]() {
-                const auto map = eSlayerMapGenerator::generate(mapId);
-                const auto area = std::make_shared<eServerArea>();
-                area->initialize(map);
-                const eMapAndArea result{mapId, map, area};
-                mReady.with_lock([&](std::vector<eMapAndArea>& v) {
-                    v.emplace_back(result);
-                });
-            });
-            t.detach();
-        }
-        mMapReadyActions[mapId].emplace_back(ofunc);
-    } else {
-        const auto& ma = mapIt->second;
-        ofunc(ma);
-    }
+    requestMap(mapId, ofunc);
     return true;
 }
 
@@ -277,6 +259,32 @@ void eLocalServer::mapReady(const eMapAndArea& ma) {
     mMapReadyActions.erase(id);
 }
 
+bool eLocalServer::requestMap(
+    const uint8_t mapId,
+    const eMapReadyBaseAction& func) {
+    const auto mapIt = mMaps.find(mapId);
+    if(mapIt == mMaps.end()) {
+        const auto it = mMapReadyActions.find(mapId);
+        if(it == mMapReadyActions.end()) {
+            std::thread t([this, mapId]() {
+                const auto map = eSlayerMapGenerator::generate(mapId);
+                const auto area = std::make_shared<eServerArea>();
+                area->initialize(map);
+                const eMapAndArea result{mapId, map, area};
+                mReady.with_lock([&](std::vector<eMapAndArea>& v) {
+                    v.emplace_back(result);
+                });
+            });
+            t.detach();
+        }
+        mMapReadyActions[mapId].emplace_back(func);
+    } else {
+        const auto& ma = mapIt->second;
+        func(ma);
+    }
+    return true;
+}
+
 void eLocalServer::checkMapsReady() {
     mReady.with_lock([this](std::vector<eMapAndArea>& v) {
         for(const auto& ma : v) {
@@ -307,6 +315,32 @@ bool eLocalServer::teamAction(
         return eLocalServer::changeTeam(clientId, newTeamId);
     }
     return false;
+}
+
+bool eLocalServer::spawnPortal(const uint32_t clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    ePortal p;
+    const bool r = h->spawnPortal(
+        p.fOutdoorPortalId,
+        p.fOutdoorMapId,
+        p.fOutdoorAreaId);
+    if(!r) return false;
+    const auto map = h->map();
+    if(!map) return false;
+    const auto mapId = map->id();
+    const auto& info = eMapsSettings::sMaps.get(mapId);
+    const auto rmap = info.fRespawnMap;
+    return requestMap(rmap, [clientId, p](const eMapAndArea& ma) {
+        ePortal p2(p);
+        const auto& a = ma.fArea;
+        const bool r = a->spawnCampPortal(
+            clientId,
+            p2.fCampPortalId,
+            p2.fCampMapId,
+            p2.fCampAreaId);
+        if(r) ePortal::addPortal(p2);
+    });
 }
 
 bool eLocalServer::changeTeam(

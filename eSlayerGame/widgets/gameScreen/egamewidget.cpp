@@ -269,6 +269,10 @@ void eGameWidget::waypointTeleport(
     sMoveToMap(moveData);
 }
 
+void eGameWidget::spawnPortal() {
+    mServer->spawnPortal(mClientId);
+}
+
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
     sInstance->mMainAction->recalculateStats();

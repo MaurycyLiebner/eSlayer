@@ -966,6 +966,42 @@ bool eServerArea::changeTeam(
     return true;
 }
 
+bool eServerArea::spawnPortal(const uint32_t clientId,
+                              uint32_t& portalId,
+                              uint8_t& mapId,
+                              uint8_t& areaId) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    const auto& pos = u->fPos;
+    return spawnPortal(pos, portalId, mapId, areaId);
+}
+
+bool eServerArea::spawnCampPortal(
+    const uint32_t clientId,
+    uint32_t& portalId,
+    uint8_t& mapId,
+    uint8_t& areaId) {
+    const auto& pos = mMap->spawnPos();
+    return spawnPortal(pos, portalId, mapId, areaId);
+}
+
+bool eServerArea::spawnPortal(
+    const ePointF& pos,
+    uint32_t& portalId,
+    uint8_t& mapId,
+    uint8_t& areaId) {
+    const auto o = mMap->addObject(pos);
+    const auto typeId = eObjectsInfo::sObjects.id("portal");
+    const auto& info = eObjectsInfo::sObjects.get(typeId);
+    o->fObjectType = typeId;
+    o->fSize = info.fSize;
+    o->fSubtype = 0;
+    portalId = o->fObjectId;
+    mapId = mMap->id();
+    areaId = mMap->areaAt(pos);
+    return true;
+}
+
 bool eServerArea::triggerObject(
     const uint32_t clientId, eServerObject& obj) {
     if(obj.fMapId != mMap->id()) return false;
