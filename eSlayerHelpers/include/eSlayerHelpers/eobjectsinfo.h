@@ -7,7 +7,8 @@
 
 enum class eObjectType {
     none,
-    treasure
+    treasure,
+    waypoint
 };
 
 struct eObjectInfo {
@@ -16,6 +17,7 @@ struct eObjectInfo {
     std::string fTexStr;
     int fTexId;
     bool fObstacle;
+    bool fWalkable;
 };
 
 class ESLAYERHELPERS_API eObjectsInfo {

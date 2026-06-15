@@ -201,12 +201,22 @@ void loadObjectTypes(const eResolution& res,
                      SDL_Renderer* const r,
                      const std::shared_ptr<eMap>& map) {
     const auto& objTypes = map->objectTypes();
-    for(const auto& objType : objTypes) {
+    const auto loadById = [&](const uint16_t objType) {
         const auto& objInfo = eObjectsInfo::sObjects.get(objType);
         const auto objTexId = objInfo.fTexId;
         auto& texs = eObjsTextures::get(objTexId);
         texs.load(res, r);
+    };
+    for(const auto objType : objTypes) {
+        loadById(objType);
     }
+
+    const auto loadByName = [&](const std::string& name) {
+        const auto id = eObjectsInfo::sObjects.id(name);
+        loadById(id);
+    };
+    loadByName("waypoint");
+    loadByName("portal");
 }
 
 void loadTerrainTypes(const eResolution& res,

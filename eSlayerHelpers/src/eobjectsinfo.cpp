@@ -19,10 +19,13 @@ void eObjectsInfo::load() {
             const auto& value = it.value();
             eObjectInfo info;
             info.fSize = value.value("size", 1.f);
-            info.fObstacle = jdata.value("obstacle", true);
+            info.fObstacle = value.value("obstacle", true);
+            info.fWalkable = value.value("walkable", false);
             const auto typeStr = value.value("type", "");
             if(typeStr == "treasure") {
                 info.fType = eObjectType::treasure;
+            } else if(typeStr == "waypoint") {
+                info.fType = eObjectType::waypoint;
             } else {
                 info.fType = eObjectType::none;
             }

@@ -57,6 +57,7 @@ void eMapsSettings::load() {
                 }
                 const auto terrTypeStr = jArea.value("terrain", "grass");
                 area.fTerrainType = eTerrsTexturesData::id(terrTypeStr);
+                area.fWaypoint = jArea.value("waypoint", false);
                 area.fLightness = jArea.value("lightness", 180);
                 area.fContrast = jArea.value("contrast", 140);
                 area.fLevel = jArea.value("level", 0);

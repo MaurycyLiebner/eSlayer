@@ -20,7 +20,7 @@ enum class eAreaType {
 struct eObjectCount {
     eObjectCount() {}
     eObjectCount(const uint16_t type,
-                const int count,
+                 const int count,
                  const int minArea) :
         fType(type),
         fCount(count),
@@ -57,6 +57,7 @@ struct eConnectionSettings {
 
 struct eAreaSettings {
     eAreaType fType;
+    bool fWaypoint;
     uint8_t fTerrainType;
     eMapMonsterSettings fMonsters;
     std::vector<eObjectCount> fObjects;

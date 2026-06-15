@@ -648,9 +648,12 @@ void eMap::generateTiles(const int w, const int h) {
                 if(tileWalkable) {
                     const auto& objIds = eMap::objects(x, y);
                     for(const int id : objIds) {
-                        const auto& o = eMap::object(id);
-                        const auto& pos = o->fPos;
-                        const float size = o->fSize;
+                        const auto& o = *eMap::object(id);
+                        const auto type = o.fObjectType;
+                        const auto& info = eObjectsInfo::sObjects.get(type);
+                        if(info.fWalkable) continue;
+                        const auto& pos = o.fPos;
+                        const float size = o.fSize;
                         walkObstacles.emplace_back(
                             pos.fX, pos.fY, size, size);
                     }

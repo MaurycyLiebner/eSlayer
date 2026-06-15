@@ -477,6 +477,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         int wallMaxTX = uipos.fX + 1000;
         int wallMinTY = uipos.fY - 1000;
         int wallMaxTY = uipos.fY + 1000;
+        std::vector<std::shared_ptr<eObject>> waypoints;
         const auto handleTile = [&](const eTileInfo& info) {
             const int x = info.fTX;
             const int y = info.fTY;
@@ -486,6 +487,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& objRef = *obj;
                 const auto objType = objRef.fObjectType;
                 const auto& object = eObjectsInfo::sObjects.get(objType);
+                if(object.fType == eObjectType::waypoint) {
+                    waypoints.emplace_back(obj);
+                    continue;
+                }
                 const auto texObjectId = object.fTexId;
                 const auto& objectTex = eObjsTextures::get(texObjectId);
                 if(objectTex.fBlocksLight) {
@@ -1038,7 +1043,81 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
         }
 
+        for(const auto& w : waypoints) {
+            const auto& obj = *w;
+            const auto objType = obj.fObjectType;
+            const auto& object = eObjectsInfo::sObjects.get(objType);
+            const auto texObjectId = object.fTexId;
+            const auto& objectTex = eObjsTextures::get(texObjectId);
+            const auto& types = objectTex.fTypes;
+            auto pos = w->fPos;
+            const float size = object.fSize;
+            pos.fX += size*0.5f;
+            pos.fY += size*0.5f;
+            const auto iPos = pos.floor();
+            auto pixel = tilePosToPixel(iPos);
+            pixel = pixel.round();
+            const float dx = pos.fX - iPos.fX;
+            const float dy = pos.fY - iPos.fY;
+            pixel.fX += (dx - dy)*(tileW/2);
+            pixel.fY += (dx + dy)*((tileH + 1)/2);
+            const auto ipixel = pixel.round();
+            const auto& type = types[0];
+            const auto& state = type[0];
+            const auto& tex = state.fTexs.getTexture(0);
+            mGamePainter.drawTexture(ipixel.fX, ipixel.fY,
+                                     tex, eAlignment::center);
+        }
+
         mGamePainter.calculateAndRenderLighting();
+
+        for(const auto& w : waypoints) {
+            w->fState = 1;
+            const auto& obj = *w;
+            const auto objType = obj.fObjectType;
+            const auto& object = eObjectsInfo::sObjects.get(objType);
+            const auto texObjectId = object.fTexId;
+            const auto& objectTex = eObjsTextures::get(texObjectId);
+            const auto& types = objectTex.fTypes;
+            auto pos = w->fPos;
+            const float size = object.fSize;
+            pos.fX += size*0.5f;
+            pos.fY += size*0.5f;
+            const auto iPos = pos.floor();
+            auto pixel = tilePosToPixel(iPos);
+            pixel = pixel.round();
+            const float dx = pos.fX - iPos.fX;
+            const float dy = pos.fY - iPos.fY;
+            pixel.fX += (dx - dy)*(tileW/2);
+            pixel.fY += (dx + dy)*((tileH + 1)/2);
+            const auto ipixel = pixel.round();
+            const auto& type = types[0];
+            const auto stateId = w->fState;
+            const auto& state = type[stateId];
+            const auto& tex = state.fTexs.getTexture(0);
+            int drawX = ipixel.fX;
+            int drawY = ipixel.fY;
+            const int texW = tex->width();
+            const int texH = tex->height();
+            ePainter::drawCoordinates(drawX, drawY, texW, texH,
+                                      eAlignment::center);
+
+            bool highlight = false;
+            const SDL_Point p{int(mpos.fX), int(mpos.fY)};
+            const SDL_Rect rect{drawX, drawY, texW, texH};
+            const bool r = SDL_PointInRect(&p, &rect);
+            if(r) {
+                setHighlightedObject(w);
+                mHighlightItem.reset();
+                highlight = true;
+            }
+            const eRenderCall c(eRenderCallType::object,
+                                pos.fX + obj.fSize,
+                                pos.fY + obj.fSize,
+                                drawX, drawY, tex,
+                                highlight, false);
+            mGamePainter.render(c);
+        }
 
         for(const auto& e : renderElements) {
             const auto& ePtr = e.fPtr;
@@ -1250,27 +1329,28 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const int texH = tex->height();
                 int drawX = x;
                 int drawY = y;
-                ePainter::drawCoordinates(drawX, drawY, texW, texH,
-                                          eAlignment::top | eAlignment::hcenter);
-                if(!mHighlightUnit.lock() && !mHighlightObject.lock()) {
+                const auto otype = obj.fObjectType;
+                const auto& info = eObjectsInfo::sObjects.get(otype);
+                eAlignment align = eAlignment::top | eAlignment::hcenter;
+                bool highlightable = false;
+                switch(info.fType) {
+                case eObjectType::none:
+                    break;
+                case eObjectType::treasure: {
+                    highlightable = obj.fState == 0;
+                } break;
+                case eObjectType::waypoint:
+                    break;
+                };
+                ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
+                if(highlightable && !mHighlightUnit.lock() && !mHighlightObject.lock()) {
                     const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                     const SDL_Rect rect{drawX, drawY, texW, texH};
                     const bool r = SDL_PointInRect(&p, &rect);
                     if(r) {
-                        const auto type = obj.fObjectType;
-                        const auto& info = eObjectsInfo::sObjects.get(type);
-                        switch(info.fType) {
-                        case eObjectType::none:
-                            break;
-                        case eObjectType::treasure: {
-                            if(obj.fState == 0) {
-                                setHighlightedObject(objPtr);
-                                mHighlightItem.reset();
-                                highlight = true;
-                            }
-                        } break;
-                        };
-
+                        setHighlightedObject(objPtr);
+                        mHighlightItem.reset();
+                        highlight = true;
                     }
                 }
                 const eRenderCall c(eRenderCallType::object,
