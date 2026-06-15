@@ -9,6 +9,8 @@
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/ebody.h>
 
+#include <eSlayerMapGenerator/emap.h>
+
 eTcpIpJoin::~eTcpIpJoin() {
     if(mRunning) {
         mRunning = false;
@@ -76,14 +78,14 @@ void eTcpIpJoin::increment(const float by) {
 
 bool eTcpIpJoin::requestMap(
     const uint32_t clientId,
-    const uint8_t mapId,
+    const eMoveToMapData& moveData,
     const eMapReadyAction& func) {
     mData = eRequestData();
     mNewData = false;
 
     ePacket p;
     p << ePacketType::map;
-    p << mapId;
+    p << moveData;
     const bool r = mNet.sendToServer(p);
     if(!r) {
         failed("Disconnected", "Failed to send map request to the host.");

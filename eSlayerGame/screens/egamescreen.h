@@ -22,12 +22,14 @@ class eCharacter;
 class eLineEdit;
 class eBgWidget;
 class ePartyWidget;
+class eWaypointWidget;
+struct eMoveToMapData;
 
 class eGameScreen : public eScreenBase {
 public:
     eGameScreen(eMainWindow* const window);
 
-    using eMoveToMapAction = std::function<void(const uint8_t mapId)>;
+    using eMoveToMapAction = std::function<void(const eMoveToMapData& moveData)>;
     void setExitAction(const eAction& a);
     void initialize(const uint32_t clientId,
                     const std::shared_ptr<eServer>& server,
@@ -35,6 +37,12 @@ public:
                     const eCharacter& c,
                     const eTeamId teamId,
                     const eMoveToMapAction& move);
+
+    static eGameScreen* sInstance;
+    static void sOpenWaypointMenu(
+        const uint8_t actId,
+        const uint8_t mapId,
+        const uint8_t areaId);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
@@ -71,6 +79,11 @@ private:
     void hideBeltExt();
     void showBeltExt();
 
+    void showWaypointMenu(const uint8_t cActId,
+                          const uint8_t cMapId,
+                          const uint8_t cAreaId);
+    void hideWaypointMenu();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar,
@@ -85,6 +98,7 @@ private:
     eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     ePartyWidget* mPartyMenu = nullptr;
+    eWaypointWidget* mWaypointMenu = nullptr;
     eInventoryBagpackWidget* mBelt = nullptr;
     bool mBeltExtTmp = false;
     eInventoryBagpackWidget* mBeltExt = nullptr;

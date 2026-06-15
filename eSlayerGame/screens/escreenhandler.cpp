@@ -280,7 +280,12 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([this, server, mapId, map, clientId]() {
         eMapData data;
-        const bool r = requestMap(**server, *clientId, mapId, data);
+
+        eMoveToMapData moveData;
+        moveData.fType = eMoveToMapType::respawn;
+        moveData.fMapId = mapId;
+
+        const bool r = requestMap(**server, *clientId, moveData, data);
         if(r) map->loadData(data);
     });
     loading.emplace_back([&res, r]() {
@@ -328,7 +333,8 @@ void eScreenHandler::moveToMap(
     const eTeamId teamId,
     const eCharacter& c,
     const std::shared_ptr<eServer>& server,
-    const uint8_t mapId) {
+    const eMoveToMapData& moveData) {
+    const auto mapId = moveData.fMapId;
     const auto map = std::make_shared<eMap>(mapId);
 
     const auto& res = mWindow->resolution();
@@ -339,9 +345,9 @@ void eScreenHandler::moveToMap(
 
     std::vector<eAction> loading;
     const auto r = mWindow->renderer();
-    loading.emplace_back([this, server, map, mapId, clientId]() {
+    loading.emplace_back([this, server, map, moveData, clientId]() {
         eMapData data;
-        const bool r = requestMap(*server, clientId, mapId, data);
+        const bool r = requestMap(*server, clientId, moveData, data);
         if(r) map->loadData(data);
     });
     loading.emplace_back([&res, r, map]() {
@@ -481,12 +487,12 @@ void eScreenHandler::finishGameShow(
     w->setExitAction([this]() {
         showMainMenu();
     });
-    const auto moveToMap = [this, server](const uint8_t mapId) {
+    const auto moveToMap = [this, server](const eMoveToMapData& moveData) {
         const auto gw = eGameWidget::sInstance;
         const uint32_t clientId = gw->clientId();
         const auto teamId = gw->team();
         const auto c = gw->character();
-        eScreenHandler::moveToMap(clientId, teamId, c, server, mapId);
+        eScreenHandler::moveToMap(clientId, teamId, c, server, moveData);
     };
     w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);
@@ -495,7 +501,7 @@ void eScreenHandler::finishGameShow(
 bool eScreenHandler::requestMap(
     eServer& server,
     const uint32_t clientId,
-    const uint8_t mapId,
+    const eMoveToMapData& moveData,
     eMapData& data) {
     bool ready = false;
     const auto readyFunc = [&ready, &data](
@@ -503,7 +509,7 @@ bool eScreenHandler::requestMap(
         data = dataT;
         ready = true;
     };
-    const bool r = server.requestMapCall(clientId, mapId, readyFunc);
+    const bool r = server.requestMapCall(clientId, moveData, readyFunc);
     if(!r) showErrorMsg("Disconnected", "Failed to retrieve the map.");
     uint32_t time = 0;
     while(!ready) {

@@ -26,6 +26,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::treasure;
             } else if(typeStr == "waypoint") {
                 info.fType = eObjectType::waypoint;
+            } else if(typeStr == "portal") {
+                info.fType = eObjectType::portal;
             } else {
                 info.fType = eObjectType::none;
             }

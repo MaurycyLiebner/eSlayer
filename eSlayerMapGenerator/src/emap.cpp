@@ -14,6 +14,11 @@ std::atomic<uint32_t> sNextObjectId = 1;
 eMap::eMap(const uint8_t id) :
     mId(id) {}
 
+uint8_t eMap::actId() const {
+    const auto& info = eMapsSettings::sMaps.get(mId);
+    return info.fActId;
+}
+
 const eTile& eMap::tile(const int x, const int y) const {
     return mTiles[y][x];
 }
@@ -308,6 +313,21 @@ void eMap::addStairs(
     stairs.fWallType = wallType;
     stairs.fStairsDir = dir;
     stairs.fMapId = mapId;
+}
+
+bool eMap::waypointPosition(
+    const uint8_t areaId, ePointF& pos) const {
+    for(const auto& o : mObjects) {
+        const auto type = o->fObjectType;
+        const auto& info = eObjectsInfo::sObjects.get(type);
+        if(info.fType != eObjectType::waypoint) continue;
+        const auto& opos = o->fPos;
+        const auto cAreaId = areaAt(opos);
+        if(cAreaId != areaId) continue;
+        pos = opos;
+        return true;
+    }
+    return false;
 }
 
 class eWallTL {

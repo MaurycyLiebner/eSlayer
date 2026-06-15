@@ -301,6 +301,7 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
+    widgets/gameScreen/ewaypointwidget.h widgets/gameScreen/ewaypointwidget.cpp
 )
 
 include(GNUInstallDirs)

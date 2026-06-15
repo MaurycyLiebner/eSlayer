@@ -73,6 +73,7 @@ struct eMapSettings {
     eStringIdMapVector<eAreaSettings> fAreas;
     uint8_t fRespawnMap;
     int fMaxSize = 80;
+    uint8_t fActId;
 };
 
 struct ESLAYERMAPGENERATOR_API eMapsSettings {

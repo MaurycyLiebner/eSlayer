@@ -26,7 +26,7 @@ public:
     void increment(const float by) override;
 
     bool requestMap(const uint32_t clientId,
-                    const uint8_t mapId,
+                    const eMoveToMapData& moveData,
                     const eMapReadyAction& func) override;
     bool spawn(const uint32_t clientId,
                eCharacter& c,

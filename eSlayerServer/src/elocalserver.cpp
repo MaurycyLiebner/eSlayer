@@ -40,14 +40,15 @@ void eLocalServer::increment(const float by) {
 
 bool eLocalServer::requestMap(
     const uint32_t clientId,
-    const uint8_t mapId,
+    const eMoveToMapData& moveData,
     const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
+    const auto mapId = moveData.fMapId;
     const auto mapIt = mMaps.find(mapId);
     std::shared_ptr<eMap> map;
     std::shared_ptr<eServerArea> area;
-    const auto ofunc = [this, func, clientId](const eMapAndArea& ma) {
+    const auto ofunc = [this, func, clientId, moveData](const eMapAndArea& ma) {
         const auto h = clientHandler(clientId);
         if(!h) return;
         const auto& area = ma.fArea;
@@ -56,7 +57,7 @@ bool eLocalServer::requestMap(
         const auto& map = ma.fMap;
         map->mapData(data);
         if(carea) {
-            eServerArea::moveClient(clientId, *carea, *area, data.fSpawnPos);
+            eServerArea::moveClient(clientId, *carea, *area, moveData, data.fSpawnPos);
             const auto mapId = map->id();
             eSlayers::setLocation(clientId, mapId, data.fSpawnPos);
         }

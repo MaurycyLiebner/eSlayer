@@ -10,6 +10,7 @@
 class eMainWindow;
 
 using eAction = std::function<void()>;
+struct eMoveToMapData;
 
 class eScreenHandler {
 public:
@@ -30,7 +31,7 @@ public:
                    const eTeamId teamId,
                    const eCharacter& c,
                    const std::shared_ptr<eServer>& server,
-                   const uint8_t mapId);
+                   const eMoveToMapData& moveData);
     void showSettings();
     void showLoadingScreen(const std::vector<eAction>& loading,
                            const eAction& finish);
@@ -43,7 +44,7 @@ private:
                         const eTeamId teamId);
     bool requestMap(eServer& server,
                     const uint32_t clientId,
-                    const uint8_t mapId,
+                    const eMoveToMapData& moveData,
                     eMapData& data);
     void loadCharacters();
     void showDialog(const std::string& text,

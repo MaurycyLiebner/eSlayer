@@ -200,4 +200,7 @@
         <string id="4">Leave</string>
         <string id="5">Reconcile</string>
     </group>
+    <group id="17">
+        <string id="0">Choose Your Destination</string>
+    </group>
 </strings>

@@ -38,6 +38,7 @@ void eMapsSettings::load() {
                               respawnMapName + "\".");
             }
             map.fRespawnMap = respawnMapId;
+            map.fActId = jdata.value("act", 0);
 
             const auto& jAreas = jdata.at("areas");
 
@@ -169,6 +170,7 @@ void eMapsSettings::load() {
 
                 if(area.fWaypoint) {
                     auto& w = eWaypoint::sWaypoints.emplace_back();
+                    w.fActId = map.fActId;
                     w.fMapId = sMaps.nextId();
                     w.fAreaId = areaId;
                     w.fKnown = false;

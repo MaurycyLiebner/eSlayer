@@ -8,6 +8,8 @@
 
 #include <eSlayerNet/etcpnetwork.h>
 
+#include <eSlayerMapGenerator/emap.h>
+
 std::shared_ptr<eServer> eSlayerServer::generate(
     const eServerData& data) {
     if(data.fName == "single_player") {
@@ -29,10 +31,10 @@ void eServer::setFailureHandler(const eServerFailureHandler& h) {
 
 bool eServer::requestMapCall(
     const uint32_t clientId,
-    const uint8_t id,
+    const eMoveToMapData& moveData,
     const eMapReadyAction& func) {
-    mMapId = id;
-    return requestMap(clientId, id, func);
+    mMapId = moveData.fMapId;
+    return requestMap(clientId, moveData, func);
 }
 
 std::vector<eSlayer> eServer::receiveNewUsers() {

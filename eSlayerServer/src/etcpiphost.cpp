@@ -326,8 +326,8 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::map: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
-            uint8_t mapId;
-            p >> mapId;
+            eMoveToMapData moveData;
+            p >> moveData;
             const uint32_t charId = it->second;
             const auto func = [this, tcpClientId](const eMapData& data) {
                 const auto it = mClientIdMap.find(tcpClientId);
@@ -337,7 +337,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 data.write(p);
                 mNet.sendToClient(tcpClientId, p);
             };
-            eLocalServer::requestMap(charId, mapId, func);
+            eLocalServer::requestMap(charId, moveData, func);
         }
     } break;
     case ePacketType::spawn: {

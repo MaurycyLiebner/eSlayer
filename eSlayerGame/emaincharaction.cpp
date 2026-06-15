@@ -7,6 +7,7 @@
 #include "widgets/gameScreen/einventorywidget.h"
 #include "widgets/gameScreen/ehoverwidget.h"
 #include "widgets/gameScreen/egamewidget.h"
+#include "screens/egamescreen.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -218,7 +219,6 @@ void eMainCharAction::increment(const bool mousePressed,
             targetPos = ipos;
         }
     } else if(const auto object = mPressedObject.lock()) {
-        const auto objectId = object->fObjectId;
         const auto type = object->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
         const auto& opos = object->fPos;
@@ -252,6 +252,8 @@ void eMainCharAction::increment(const bool mousePressed,
             if(info.fType == eObjectType::waypoint) {
                 const auto areaId = mMap->areaAt(opos);
                 eWaypoint::setKnown(mapId, areaId);
+                const auto actId = mMap->actId();
+                eGameScreen::sOpenWaypointMenu(actId, mapId, areaId);
             } else {
                 const eServerObject sobject(mapId, *object);
                 mServer->triggerObject(mClientId, sobject);
@@ -270,13 +272,17 @@ void eMainCharAction::increment(const bool mousePressed,
 
         const float dist = ePointF::distance(pos, charPos);
         if(dist < 0.5f) {
+            const auto mapId = mMap->id();
             if(mPressedDoors) {
-                const auto mapId = mMap->id();
                 const eServerDoors sdoors(mapId, *mPressedDoors);
                 mServer->triggerDoors(mClientId, sdoors);
             } else if(mPressedStairs) {
-                const auto mapId = mPressedStairs->fTargetMapId;
-                eGameWidget::sMoveToMap(mapId);
+                const auto toMapId = mPressedStairs->fTargetMapId;
+                eMoveToMapData moveData;
+                moveData.fType = eMoveToMapType::entrance;
+                moveData.fFromMapId = mapId;
+                moveData.fMapId = toMapId;
+                eGameWidget::sMoveToMap(moveData);
             }
             mClickAction = mousePressed;
             stop();

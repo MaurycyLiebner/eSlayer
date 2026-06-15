@@ -20,6 +20,17 @@
 
 class ePacket;
 
+enum class eMoveToMapType {
+    respawn, entrance, waypoint
+};
+
+struct eMoveToMapData {
+    eMoveToMapType fType;
+    uint8_t fFromMapId;
+    uint8_t fMapId;
+    uint8_t fAreaId;
+};
+
 class ESLAYERMAPGENERATOR_API eMap {
     friend class eMapGenerator;
     friend class eWallFinisher;
@@ -32,6 +43,7 @@ public:
     int height() const { return mHeight; }
 
     uint8_t id() const { return mId; }
+    uint8_t actId() const;
 
     const eTile& tile(const int x, const int y) const;
     eTile& tile(const int x, const int y);
@@ -93,6 +105,9 @@ public:
                    const eConnectionDir dir,
                    const uint8_t type,
                    const int mapId);
+
+    bool waypointPosition(
+        const uint8_t areaId, ePointF& pos) const;
 private:
     void generateTiles(const int w, const int h);
     std::shared_ptr<eObject> addObject(const ePointF& pos);

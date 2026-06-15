@@ -22,6 +22,7 @@ struct eAttributes;
 struct eSkillLevels;
 struct eScreenDimensions;
 struct eServerDoors;
+struct eMoveToMapData;
 
 struct eServerData {
     std::string fName;
@@ -58,12 +59,12 @@ public:
     virtual void checkMapsReady() {}
 
     bool requestMapCall(const uint32_t clientId,
-                        const uint8_t id,
+                        const eMoveToMapData& moveData,
                         const eMapReadyAction& func);
 protected:
     virtual bool
     requestMap(const uint32_t clientId,
-               const uint8_t id,
+               const eMoveToMapData& moveData,
                const eMapReadyAction& func) = 0;
 public:
     virtual bool

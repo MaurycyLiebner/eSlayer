@@ -783,17 +783,18 @@ bool eServerArea::addClient(
     const uint32_t clientId,
     const std::shared_ptr<eServerUnit>& u,
     const eScreenDimensions& screenDims,
-    const uint8_t entranceMap,
+    const eMoveToMapData& moveData,
     ePointF& spawnPos) {
-    const auto cu = unit(clientId);
-    if(cu) return false;
-
-    spawnPos = mMap->spawnPos(entranceMap);
+    spawnPos = mMap->spawnPos(moveData.fFromMapId);
+    if(moveData.fType == eMoveToMapType::waypoint) {
+        mMap->waypointPosition(moveData.fAreaId, spawnPos);
+    }
     findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
 
+    mClientData.erase(clientId);
     auto& clientData = mClientData[clientId];
     clientData.fLatestMissile = 0;
     clientData.fLatestNova = 0;
@@ -832,17 +833,16 @@ bool eServerArea::moveClient(
     const uint32_t clientId,
     eServerArea& from,
     eServerArea& to,
+    const eMoveToMapData& moveData,
     ePointF& spawnPos) {
     const auto u = from.unit(clientId);
     if(!u) return false;
     const auto& clientData = from.mClientData[clientId];
-    const auto fromMap = from.mMap;
-    const auto fromMapId = fromMap->id();
+    if(&from != &to) from.clientMoved(clientId);
     const bool r = to.addClient(
         clientId, u, clientData.fScreen,
-        fromMapId, spawnPos);
+        moveData, spawnPos);
     if(!r) return false;
-    from.clientMoved(clientId);
     return true;
 }
 
@@ -905,13 +905,20 @@ bool eServerArea::removeClient(const uint32_t clientId) {
 }
 
 bool eServerArea::clientMoved(const uint32_t clientId) {
-    planRemoveUnit(clientId);
+    removeUnit(clientId);
     const int r = mClientData.erase(clientId);
     return r > 0;
 }
 
 bool eServerArea::planRemoveUnit(const uint32_t charId) {
     mUnitsToRemove.emplace_back(charId);
+    return true;
+}
+
+bool eServerArea::removeUnit(const uint32_t charId) {
+    const auto area = unitArea(charId);
+    mUnitAreas.erase(area, charId);
+    mUnits.remove(charId);
     return true;
 }
 
@@ -988,6 +995,7 @@ bool eServerArea::triggerObject(
             state = 1;
         } break;
         case eObjectType::waypoint:
+        case eObjectType::portal:
         case eObjectType::none:
             break;
         }
@@ -1614,9 +1622,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
 
 void eServerArea::removePlannedUnits() {
     for(const uint32_t charId : mUnitsToRemove) {
-        const auto area = unitArea(charId);
-        mUnitAreas.erase(area, charId);
-        mUnits.remove(charId);
+        removeUnit(charId);
     }
     mUnitsToRemove.clear();
 }

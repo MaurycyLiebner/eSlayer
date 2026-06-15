@@ -27,6 +27,7 @@
 class eCharacter;
 struct eUnitInfo;
 struct eServerDoors;
+struct eMoveToMapData;
 
 struct eClientData {
     eClientData();
@@ -106,6 +107,7 @@ public:
     bool removeClient(const uint32_t clientId);
     bool clientMoved(const uint32_t clientId);
     bool planRemoveUnit(const uint32_t charId);
+    bool removeUnit(const uint32_t charId);
     bool pickupBody(const uint32_t clientId, const uint32_t bodyId,
                     bool& bodyRemoved, eBody& body);
     bool changeTeam(const uint32_t clientId, const eTeamId newTeam);
@@ -185,6 +187,7 @@ public:
     static bool moveClient(const uint32_t clientId,
                            eServerArea& from,
                            eServerArea& to,
+                           const eMoveToMapData& moveData,
                            ePointF& spawnPos);
     bool findPlaceForUnit(const ePointF& pos,
                           ePointF& result) const;
@@ -196,7 +199,7 @@ private:
     bool addClient(const uint32_t clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,
-                   const uint8_t entranceMap,
+                   const eMoveToMapData& moveData,
                    ePointF& spawnPos);
     void iniMissileInc();
     void iniNovaInc();

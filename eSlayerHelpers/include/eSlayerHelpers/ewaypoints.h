@@ -5,6 +5,7 @@
 #include <vector>
 
 struct eWaypoint {
+    uint8_t fActId;
     uint8_t fMapId;
     uint8_t fAreaId;
     bool fKnown;

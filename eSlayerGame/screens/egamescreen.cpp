@@ -22,6 +22,7 @@
 #include "../widgets/gameScreen/estatswidget.h"
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/gameScreen/epartywidget.h"
+#include "../widgets/gameScreen/ewaypointwidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -30,8 +31,12 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eitemsdata.h>
 
+eGameScreen* eGameScreen::sInstance = nullptr;
+
 eGameScreen::eGameScreen(eMainWindow* const window) :
-    eScreenBase(window) {}
+    eScreenBase(window) {
+    sInstance = this;
+}
 
 void eGameScreen::setExitAction(const eAction& a) {
     mExitAction = a;
@@ -229,6 +234,13 @@ void eGameScreen::initialize(const uint32_t clientId,
     mGameWidget->setOtherRightSkill(mOtherRightSkill);
 }
 
+void eGameScreen::sOpenWaypointMenu(
+    const uint8_t actId,
+    const uint8_t mapId,
+    const uint8_t areaId) {
+    sInstance->showWaypointMenu(actId, mapId, areaId);
+}
+
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     const auto key = e.key();
     if(key == SDL_SCANCODE_ESCAPE) {
@@ -243,6 +255,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideSkillTreesMenu();
         } else if(mPartyMenu) {
             hidePartyMenu();
+        } else if(mWaypointMenu) {
+            hideWaypointMenu();
         } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
@@ -434,6 +448,9 @@ void eGameScreen::hideLeftMenu() {
     }
     if(mStatsMenu) {
         hideStatsMenu();
+    }
+    if(mWaypointMenu) {
+        hideWaypointMenu();
     }
 }
 
@@ -673,6 +690,34 @@ void eGameScreen::showBeltExt() {
     mDragWidget->bringToFront();
 }
 
+void eGameScreen::showWaypointMenu(
+    const uint8_t cActId,
+    const uint8_t cMapId,
+    const uint8_t cAreaId) {
+    if(mWaypointMenu) return;
+    mWaypointMenu = new eWaypointWidget(window());
+    const int w = width();
+    const int h = height();
+    mWaypointMenu->resize(w/2, h - mBottomWid->height());
+    const auto action = [this](
+        const uint8_t mapId,
+        const uint8_t areaId) {
+        mGameWidget->waypointTeleport(mapId, areaId);
+    };
+    mWaypointMenu->initialize(
+        cActId, cMapId, cAreaId, action);
+    addWidget(mWaypointMenu);
+    mWaypointMenu->align(eAlignment::left | eAlignment::top);
+    updateCharPos();
+    mDragWidget->bringToFront();
+}
+
+void eGameScreen::hideWaypointMenu() {
+    if(!mWaypointMenu) return;
+    mWaypointMenu->deleteLater();
+    mWaypointMenu = nullptr;
+}
+
 void eGameScreen::openSkillMenu(const eAlignment align,
                                 eSkillButton* const targetButton,
                                 int& targetSkillVar,
@@ -715,7 +760,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 
 void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
-    const bool left = mStatsMenu || mPartyMenu;
+    const bool left = mStatsMenu || mPartyMenu || mWaypointMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {

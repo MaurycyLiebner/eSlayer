@@ -260,6 +260,15 @@ void eGameWidget::consumePotion(const eItem& p) {
     mServer->consumePotion(mClientId, p.fItemId);
 }
 
+void eGameWidget::waypointTeleport(
+    const uint8_t mapId, const uint8_t areaId) {
+    eMoveToMapData moveData;
+    moveData.fType = eMoveToMapType::waypoint;
+    moveData.fMapId = mapId;
+    moveData.fAreaId = areaId;
+    sMoveToMap(moveData);
+}
+
 void eGameWidget::sSendInventoryRearranged() {
     sInstance->sendInventoryRearranged();
     sInstance->mMainAction->recalculateStats();
@@ -275,8 +284,8 @@ void eGameWidget::sSendAttributesChanged() {
     sInstance->mMainAction->recalculateStats();
 }
 
-void eGameWidget::sMoveToMap(const uint8_t mapId) {
-    sInstance->mMoveAction(mapId);
+void eGameWidget::sMoveToMap(const eMoveToMapData& moveData) {
+    sInstance->mMoveAction(moveData);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
@@ -1118,8 +1127,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 highlight = true;
             }
             const eRenderCall c(eRenderCallType::object,
-                                pos.fX + obj.fSize,
-                                pos.fY + obj.fSize,
+                                pos.fX, pos.fY,
                                 drawX, drawY, tex,
                                 highlight, false);
             mGamePainter.render(c);
