@@ -352,6 +352,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             break;
         }
     }
+    result->fillPathFinderMap();
     for(const auto& it : areas) {
         const auto& area = it.second;
         area.generateWalls();

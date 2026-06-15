@@ -150,8 +150,7 @@ bool eObstaclesMap::check(
         auto& walk = t->fWalk;
         auto& missile = t->fMissile;
         if(!ini) {
-            ini = true;
-            mFiller(walk, missile, x , y);
+            ini = mFiller(walk, missile, x , y);
         }
 
         for(const auto& o : (choice ? walk : missile)) {

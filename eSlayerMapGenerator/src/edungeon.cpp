@@ -361,8 +361,6 @@ void eDungeon::generate(ePointF& spawnPos) const {
             }
         }
     }
-
-    mMap->fillPathFinderMap();
 }
 
 void eDungeon::generateWalls() const {
