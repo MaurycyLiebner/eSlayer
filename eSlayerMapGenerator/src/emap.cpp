@@ -4,6 +4,7 @@
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 #include <optional>
 #include <unordered_set>
@@ -90,6 +91,26 @@ bool eMap::inside(const int x, const int y) const {
            y >= 0 && y < mHeight;
 }
 
+void eMap::addObject(const std::shared_ptr<eObject>& o) {
+    const int i = mObjects.size();
+    mObjects.emplace_back(o);
+    const auto& pos = o->fPos;
+    const auto iPos = pos.floor();
+    mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
+}
+
+void eMap::removeObject(const uint32_t objectId) {
+    for(int i = 0; i < mObjects.size(); i++) {
+        const auto& o = mObjects[i];
+        if(o->fObjectId != objectId) continue;
+        const auto& pos = o->fPos;
+        const auto iPos = pos.floor();
+        auto& vec = mObjectsMap[iPos.fY][iPos.fX];
+        eVectorHelpers::remove(vec, i);
+        break;
+    }
+}
+
 void eMap::loadPortion(const eMapPortion& portion) {
     const auto& area = portion.fArea;
 
@@ -108,11 +129,7 @@ void eMap::loadPortion(const eMapPortion& portion) {
     }
 
     for(const auto& o : portion.fObjects) {
-        const int i = mObjects.size();
-        mObjects.emplace_back(o);
-        const auto& pos = o->fPos;
-        const auto iPos = pos.floor();
-        mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
+        addObject(o);
     }
 }
 
@@ -768,10 +785,7 @@ std::shared_ptr<eObject> eMap::addObject(
     const ePointF& pos) {
     const auto obj = std::make_shared<eObject>();
     obj->fPos = pos;
-    const auto ipos = pos.floor();
-    const int id = mObjects.size();
-    mObjectsMap[ipos.fY][ipos.fX].emplace_back(id);
-    mObjects.emplace_back(obj);
     obj->fObjectId = sNextObjectId++;
+    addObject(obj);
     return obj;
 }

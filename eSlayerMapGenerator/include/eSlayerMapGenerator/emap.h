@@ -73,6 +73,9 @@ public:
     bool hasObjects(const int x, const int y) const;
     bool inside(const int x, const int y) const;;
 
+    void addObject(const std::shared_ptr<eObject>& o);
+    void removeObject(const uint32_t objectId);
+
     void loadPortion(const eMapPortion& portion);
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;
     void mapData(eMapData& data) const;
