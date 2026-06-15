@@ -793,6 +793,8 @@ bool eServerArea::addClient(
     iniSetupUnit(u, spawnPos);
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
+    u->setBlockingActionTime(0.f);
+    u->updateAll();
 
     mClientData.erase(clientId);
     auto& clientData = mClientData[clientId];
@@ -838,9 +840,10 @@ bool eServerArea::moveClient(
     const auto u = from.unit(clientId);
     if(!u) return false;
     const auto& clientData = from.mClientData[clientId];
+    const auto screen = clientData.fScreen;
     if(&from != &to) from.clientMoved(clientId);
     const bool r = to.addClient(
-        clientId, u, clientData.fScreen,
+        clientId, u, screen,
         moveData, spawnPos);
     if(!r) return false;
     return true;

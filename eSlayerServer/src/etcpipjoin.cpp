@@ -149,6 +149,7 @@ bool eTcpIpJoin::requestData(const uint32_t clientId,
         ePacket p;
         p << ePacketType::request;
         p << mRequestId++;
+        p << serverState();
         const bool r = mNet.sendToServer(p);
         if(!r) failed("Disconnected", "Failed to send a request to the host.");
     }
@@ -402,12 +403,12 @@ void eTcpIpJoin::threadWork() {
 }
 
 void eTcpIpJoin::handlePacket(ePacket& p) {
-    const auto mapId = eServer::mapId();
     ePacketType type;
     p >> type;
     switch(type) {
     case ePacketType::data: {
-        const bool r = mData.read(p, mapId);
+        const auto state = eServer::serverState();
+        const bool r = mData.read(p, state);
         mNewData = mNewData || r;
         eSlayers::readLocations(p);
     } break;
@@ -443,16 +444,12 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::objectStateChanged: {
         eServerObject obj;
         p >> obj;
-        if(obj.fMapId == mapId) {
-            mObjectStateChanges.emplace_back(obj);
-        }
+        mObjectStateChanges.emplace_back(obj);
     } break;
     case ePacketType::doorsStateChanged: {
         eServerDoors doors;
         doors.read(p);
-        if(doors.fMapId == mapId) {
-            mDoorsStateChanged.emplace_back(doors);
-        }
+        mDoorsStateChanged.emplace_back(doors);
     } break;
     case ePacketType::bodyPickedUp: {
         bool removed;

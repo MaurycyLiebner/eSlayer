@@ -145,7 +145,8 @@ public:
     teamAction(const uint32_t clientId,
                const eTeamAction& action) = 0;
 
-    uint8_t mapId() const { return mMapId; }
+    static uint32_t serverState() { return sServerState; }
+    static void incServerState() { sServerState++; }
 
     const std::string& ip() const { return mData.fIp; }
     const std::string& name() const { return mData.fName; }
@@ -171,7 +172,7 @@ protected:
     std::vector<eBody> mBodiesChanged;
 private:
     const eServerData mData;
-    uint8_t mMapId;
+    static uint32_t sServerState;
 
     eServerFailureHandler mFailure;
 };

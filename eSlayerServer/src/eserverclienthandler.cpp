@@ -18,8 +18,6 @@ bool eServerClientHandler::requestEquipment() {
 bool eServerClientHandler::receiveData(
     eRequestData& data, float& resultTime) {
     if(!mArea) return false;
-    const auto& map = mArea->map();
-    data.fMapId = map->id();
     resultTime = mArea->time();
     mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
     data.fMissiles = mArea->missileData(mClientId);

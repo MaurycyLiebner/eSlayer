@@ -450,6 +450,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             eRequestData data;
             p >> data.fRequestId;
+            p >> data.fServerState;
             float time;
             const bool r = eLocalServer::requestData(charId, data, time);
             if(!r) return;

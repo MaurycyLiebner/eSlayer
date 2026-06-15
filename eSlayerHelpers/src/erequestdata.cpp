@@ -2,16 +2,16 @@
 
 #include "eSlayerHelpers/epacket.h"
 
-bool eRequestData::read(ePacket& p, const uint8_t currentMapId) {
+bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
     uint32_t requestId;
     p >> requestId;
 
-    uint8_t mapId;
-    p >> mapId;
-    if(mapId != currentMapId) return false;
+    uint32_t serverState;
+    p >> serverState;
+    if(serverState != currentServerState) return false;
 
     fRequestId = requestId;
-    fMapId = mapId;
+    fServerState = serverState;
 
     uint16_t nNewUnits;
     p >> nNewUnits;
@@ -112,7 +112,7 @@ bool eRequestData::read(ePacket& p, const uint8_t currentMapId) {
 void eRequestData::write(ePacket& p) const {
     p << fRequestId;
 
-    p << fMapId;
+    p << fServerState;
 
     const uint16_t nNewUnits = fNewUnits.size();
     p << nNewUnits;

@@ -10,6 +10,8 @@
 
 #include <eSlayerMapGenerator/emap.h>
 
+uint32_t eServer::sServerState = 0;
+
 std::shared_ptr<eServer> eSlayerServer::generate(
     const eServerData& data) {
     if(data.fName == "single_player") {
@@ -33,7 +35,7 @@ bool eServer::requestMapCall(
     const uint32_t clientId,
     const eMoveToMapData& moveData,
     const eMapReadyAction& func) {
-    mMapId = moveData.fMapId;
+    incServerState();
     return requestMap(clientId, moveData, func);
 }
 
