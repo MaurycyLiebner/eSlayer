@@ -68,6 +68,7 @@ public:
     void setSpawnPos(const ePointF& pos);
     bool hasPortion(const int x, const int y);
 
+    int areaAt(const ePointF& pos) const;
     int areaAt(const ePoint& pos) const;
     std::string areaName(const int id);
     eMapArea& area(const int id);

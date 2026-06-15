@@ -335,19 +335,22 @@ eMapGenerator::generate(const uint8_t mapId) const {
     result->generateTiles(rect.fW + 2*extMargin + 1,
                           rect.fH + 2*extMargin + 1);
     const auto& sareas = mapSettings.fAreas;
-    for(const auto& it : areas) {
-        const auto& area = it.second;
-        const auto& name = area.name();
-        const int id = sareas.id(name);
-        if(id < 0) continue;
-        const auto& settings = sareas.get(id);
-        eMapArea mapArea;
-        mapArea.fMapId = mapId;
-        mapArea.fAreaId = id;
-        const auto rect = area.rect();
-        mapArea.fRect = rect;
-        result->mAreas.add(name, mapArea);
-        area.generate(result->mSpawnPos);
+    for(int i = 0; i < sareas.size(); i++) {
+        for(const auto& it : areas) {
+            const auto& area = it.second;
+            const auto& name = area.name();
+            const int id = sareas.id(name);
+            if(id != i) continue;
+            const auto& settings = sareas.get(id);
+            eMapArea mapArea;
+            mapArea.fMapId = mapId;
+            mapArea.fAreaId = id;
+            const auto rect = area.rect();
+            mapArea.fRect = rect;
+            result->mAreas.add(name, mapArea);
+            area.generate(result->mSpawnPos);
+            break;
+        }
     }
     for(const auto& it : areas) {
         const auto& area = it.second;

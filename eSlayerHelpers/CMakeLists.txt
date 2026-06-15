@@ -179,6 +179,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/especialanim.h
     src/especialanim.cpp
     src/ebody.cpp
+    include/eSlayerHelpers/ewaypoints.h
+    src/ewaypoints.cpp
 )
 
 target_include_directories(eSlayerHelpers

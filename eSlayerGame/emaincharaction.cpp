@@ -18,6 +18,7 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+#include <eSlayerHelpers/ewaypoints.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -248,8 +249,13 @@ void eMainCharAction::increment(const bool mousePressed,
         handlePos(tl);
         if(minDist < 0.5f) {
             const auto mapId = mMap->id();
-            const eServerObject sobject(mapId, *object);
-            mServer->triggerObject(mClientId, sobject);
+            if(info.fType == eObjectType::waypoint) {
+                const auto areaId = mMap->areaAt(opos);
+                eWaypoint::setKnown(mapId, areaId);
+            } else {
+                const eServerObject sobject(mapId, *object);
+                mServer->triggerObject(mClientId, sobject);
+            }
             mClickAction = mousePressed;
             stop();
             return;

@@ -963,7 +963,7 @@ bool eServerArea::triggerObject(
     const int tx = pos.fX;
     const int ty = pos.fY;
     if(!mMap->inside(tx, ty)) return false;
-    const int areaMId = mMap->areaAt({tx, ty});
+    const int areaMId = mMap->areaAt(pos);
     if(areaMId < 0) return false;
     const auto& area = mMap->area(areaMId);
     const auto mapId = area.fMapId;
@@ -987,6 +987,7 @@ bool eServerArea::triggerObject(
             generateItems(pos, level, 7.5f);
             state = 1;
         } break;
+        case eObjectType::waypoint:
         case eObjectType::none:
             break;
         }

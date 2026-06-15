@@ -203,6 +203,10 @@ bool eMap::hasPortion(const int x, const int y) {
     return mPresent[py][px];
 }
 
+int eMap::areaAt(const ePointF& pos) const {
+    return areaAt(pos.floor());
+}
+
 int eMap::areaAt(const ePoint& pos) const {
     for(const auto& it : mAreas) {
         const auto& a = it.fValue;

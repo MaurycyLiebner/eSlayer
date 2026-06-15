@@ -38,6 +38,7 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/especialanim.h>
 #include <eSlayerHelpers/eslayers.h>
+#include <eSlayerHelpers/ewaypoints.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -1071,8 +1072,8 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         mGamePainter.calculateAndRenderLighting();
 
+        const uint8_t mapId = mMap->id();
         for(const auto& w : waypoints) {
-            w->fState = 1;
             const auto& obj = *w;
             const auto objType = obj.fObjectType;
             const auto& object = eObjectsInfo::sObjects.get(objType);
@@ -1084,6 +1085,12 @@ void eGameWidget::paintEvent(ePainter& p) {
             pos.fX += size*0.5f;
             pos.fY += size*0.5f;
             const auto iPos = pos.floor();
+
+            const int areaId = mMap->areaAt(iPos);
+            const bool known = eWaypoint::known(mapId, areaId);
+            auto& stateId = w->fState;
+            stateId = known ? 1 : 2;
+
             auto pixel = tilePosToPixel(iPos);
             pixel = pixel.round();
             const float dx = pos.fX - iPos.fX;
@@ -1092,7 +1099,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             pixel.fY += (dx + dy)*((tileH + 1)/2);
             const auto ipixel = pixel.round();
             const auto& type = types[0];
-            const auto stateId = w->fState;
             const auto& state = type[stateId];
             const auto& tex = state.fTexs.getTexture(0);
             int drawX = ipixel.fX;

@@ -4,6 +4,7 @@
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/efileloaderbase.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
+#include <eSlayerHelpers/ewaypoints.h>
 
 eStringIdMapVector<eMapSettings>
 eMapsSettings::sMaps;
@@ -164,7 +165,14 @@ void eMapsSettings::load() {
                         conn.fMap = jConn.value("map", "");
                     }
                 }
-                map.fAreas.add(areaName, area);
+                const auto areaId = map.fAreas.add(areaName, area);
+
+                if(area.fWaypoint) {
+                    auto& w = eWaypoint::sWaypoints.emplace_back();
+                    w.fMapId = sMaps.nextId();
+                    w.fAreaId = areaId;
+                    w.fKnown = false;
+                }
             }
 
             sMaps.add(name, map);
