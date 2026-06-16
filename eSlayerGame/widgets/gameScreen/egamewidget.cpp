@@ -39,6 +39,7 @@
 #include <eSlayerHelpers/especialanim.h>
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/ewaypoints.h>
+#include <eSlayerHelpers/eportals.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -359,6 +360,52 @@ void eGameWidget::paintEvent(ePainter& p) {
                 eInventoryWidget::sBlocked = false;
             }
         }
+    }
+
+    if(mPortalsVersion < ePortal::version()) {
+        mPortalsVersion = ePortal::version();
+        const auto mapId = mMap->id();
+        std::set<uint32_t> newPortals;
+        const auto addPortal = [&](
+            const uint32_t objId,
+            const uint8_t pmapId,
+            const uint8_t areaId,
+            const ePointF& pos) {
+            if(pmapId != mapId) return;
+            const int n = mPortals.count(objId);
+            if(n > 0) return;
+            const auto old = mMap->object(pos, objId);
+            if(old) return;
+            newPortals.emplace(objId);
+            const auto new_ = std::make_shared<eObject>();
+            new_->fObjectId = objId;
+            new_->fPos = pos;
+            const auto typeId = eObjectsInfo::sObjects.id("portal");
+            const auto& info = eObjectsInfo::sObjects.get(typeId);
+            new_->fObjectType = typeId;
+            new_->fSize = info.fSize;
+            new_->fSubtype = 0;
+            mMap->addObjectIfHasPortion(new_);
+        };
+
+        for(const auto& p : ePortal::sPortals) {
+            addPortal(p.fCampPortalId,
+                      p.fCampMapId,
+                      p.fCampAreaId,
+                      p.fCampPos);
+            addPortal(p.fOutdoorPortalId,
+                      p.fOutdoorMapId,
+                      p.fOutdoorAreaId,
+                      p.fOutdoorPos);
+        }
+
+        for(const auto pid : mPortals) {
+            const int n = newPortals.count(pid);
+            if(n > 0) continue;
+            mMap->removeObject(pid);
+        }
+
+        std::swap(mPortals, newPortals);
     }
 
     if(worldResult.fReceived) {
@@ -1358,6 +1405,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     highlightable = obj.fState == 0;
                 } break;
                 case eObjectType::waypoint:
+                case eObjectType::portal:
                     break;
                 };
                 ePainter::drawCoordinates(drawX, drawY, texW, texH, align);

@@ -8,6 +8,7 @@
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/eportals.h>
 
 eTcpIpHost::~eTcpIpHost() {
     if(mRunning) {
@@ -289,6 +290,14 @@ void eTcpIpHost::threadWork(const float fpsClamp, const float by) {
                 mTeamsVersion = eTeams::version();
             }
 
+            if(ePortal::version() > mPortalsVersion) {
+                ePacket p;
+                p << ePacketType::portals;
+                ePortal::write(p);
+                mNet.broadcast(p);
+                mPortalsVersion = ePortal::version();
+            }
+
             const auto tcpIds = mNet.removeDisconnectedClients();
             for(const int tcpClientId : tcpIds) {
                 handleClientDisconnect(tcpClientId);
@@ -367,6 +376,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     eBodies::write(bodies, p);
 
                     eTeams::write(p);
+                    ePortal::write(p);
                     p << teamId;
                     p << spawnPos;
                     mNet.sendToClient(tcpClientId, p);

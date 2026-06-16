@@ -115,11 +115,13 @@ public:
     bool spawnPortal(const uint32_t clientId,
                      uint32_t& portalId,
                      uint8_t& mapId,
-                     uint8_t& areaId);
+                     uint8_t& areaId,
+                     ePointF& pos);
     bool spawnCampPortal(const uint32_t clientId,
                          uint32_t& portalId,
                          uint8_t& mapId,
-                         uint8_t& areaId);
+                         uint8_t& areaId,
+                         ePointF& pos);
 
     bool triggerObject(
         const uint32_t clientId, eServerObject& obj);

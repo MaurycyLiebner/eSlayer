@@ -8,6 +8,7 @@
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/ebody.h>
+#include <eSlayerHelpers/eportals.h>
 
 #include <eSlayerMapGenerator/emap.h>
 
@@ -133,6 +134,7 @@ bool eTcpIpJoin::spawn(
             eBodies::read(bodies, p);
 
             eTeams::read(p);
+            ePortal::read(p);
             p >> teamId;
             p >> spawnPos;
             return true;
@@ -353,7 +355,7 @@ bool eTcpIpJoin::teamAction(
     return true;
 }
 
-bool eTcpIpJoin::spawnPortal() {
+bool eTcpIpJoin::spawnPortal(const uint32_t clientId) {
     ePacket p;
     p << ePacketType::spawnPortal;
     const bool r = mNet.sendToServer(p);
@@ -448,6 +450,9 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     } break;
     case ePacketType::teams: {
         eTeams::read(p);
+    } break;
+    case ePacketType::portals: {
+        ePortal::read(p);
     } break;
     case ePacketType::objectStateChanged: {
         eServerObject obj;

@@ -15,7 +15,7 @@ enum class ePacketType : uint8_t {
     triggerDoors, doorsStateChanged,
     pickupBody,
     rearrangeItems, attributes,
-    skills, teams,
+    skills, teams, portals,
     equipment, unblockEquipment,
     body, bodyPickedUp,
     teamsAction, spawnPortal,

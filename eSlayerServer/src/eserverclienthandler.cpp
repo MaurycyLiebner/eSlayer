@@ -222,9 +222,10 @@ bool eServerClientHandler::changeTeam(
 bool eServerClientHandler::spawnPortal(
     uint32_t& portalId,
     uint8_t& mapId,
-    uint8_t& areaId) {
+    uint8_t& areaId,
+    ePointF& pos) {
     if(!mArea) return false;
     return mArea->spawnPortal(
         mClientId, portalId,
-        mapId, areaId);
+        mapId, areaId, pos);
 }

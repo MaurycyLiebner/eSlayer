@@ -171,6 +171,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     staminaBelt->addWidget(mBelt);
 
     const auto portalButton = new eTextureCheckButton(window());
+    portalButton->setTooltip(eText::text(18, 0));
     portalButton->setCheckAction([this](const bool) {
         mGameWidget->spawnPortal();
     });

@@ -92,6 +92,7 @@ private:
     // maps eTCPNetwork client id to charId
     std::map<int, uint32_t> mClientIdMap;
     uint16_t mTeamsVersion = 0;
+    uint16_t mPortalsVersion = 0;
 };
 
 #endif // ETCPIPHOST_H

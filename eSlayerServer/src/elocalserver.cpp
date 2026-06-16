@@ -324,7 +324,8 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
     const bool r = h->spawnPortal(
         p.fOutdoorPortalId,
         p.fOutdoorMapId,
-        p.fOutdoorAreaId);
+        p.fOutdoorAreaId,
+        p.fOutdoorPos);
     if(!r) return false;
     const auto map = h->map();
     if(!map) return false;
@@ -338,7 +339,8 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
             clientId,
             p2.fCampPortalId,
             p2.fCampMapId,
-            p2.fCampAreaId);
+            p2.fCampAreaId,
+            p2.fCampPos);
         if(r) ePortal::addPortal(p2);
     });
 }

@@ -57,7 +57,8 @@ public:
     bool changeTeam(const eTeamId newTeam);
     bool spawnPortal(uint32_t& portalId,
                      uint8_t& mapId,
-                     uint8_t& areaId);
+                     uint8_t& areaId,
+                     ePointF& pos);
 private:
     const uint32_t mClientId;
     std::shared_ptr<eServerArea> mArea;

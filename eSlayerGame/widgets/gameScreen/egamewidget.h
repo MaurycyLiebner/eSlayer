@@ -181,6 +181,9 @@ private:
     int mLastArea = -1;
 
     eMoveToMapAction mMoveAction;
+
+    std::set<uint32_t> mPortals;
+    uint16_t mPortalsVersion = 0;
 };
 
 #endif // EGAMEWIDGET_H

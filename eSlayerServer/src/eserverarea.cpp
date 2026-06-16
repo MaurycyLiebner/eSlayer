@@ -969,10 +969,11 @@ bool eServerArea::changeTeam(
 bool eServerArea::spawnPortal(const uint32_t clientId,
                               uint32_t& portalId,
                               uint8_t& mapId,
-                              uint8_t& areaId) {
+                              uint8_t& areaId,
+                              ePointF& pos) {
     const auto u = unit(clientId);
     if(!u) return false;
-    const auto& pos = u->fPos;
+    pos = u->fPos;
     return spawnPortal(pos, portalId, mapId, areaId);
 }
 
@@ -980,8 +981,9 @@ bool eServerArea::spawnCampPortal(
     const uint32_t clientId,
     uint32_t& portalId,
     uint8_t& mapId,
-    uint8_t& areaId) {
-    const auto& pos = mMap->spawnPos();
+    uint8_t& areaId,
+    ePointF& pos) {
+    pos = mMap->spawnPos();
     return spawnPortal(pos, portalId, mapId, areaId);
 }
 
