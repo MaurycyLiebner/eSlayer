@@ -332,6 +332,8 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
     if(!map) return false;
     const auto mapId = map->id();
     const auto& info = eMapsSettings::sMaps.get(mapId);
+    const auto actId = info.fActId;
+    ePortal::removeCreatorActPortal(clientId, actId);
     const auto rmap = info.fRespawnMap;
     return requestMap(rmap, [clientId, p](const eMapAndArea& ma) {
         ePortal p2(p);

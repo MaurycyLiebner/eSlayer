@@ -1,10 +1,10 @@
-#include "eSlayerMapGenerator/emapsettings.h"
+#include "eSlayerHelpers/emapsettings.h"
 
-#include <eSlayerHelpers/eterrstexturesdata.h>
-#include <eSlayerHelpers/echardatainfo.h>
-#include <eSlayerHelpers/efileloaderbase.h>
-#include <eSlayerHelpers/eobjectsinfo.h>
-#include <eSlayerHelpers/ewaypoints.h>
+#include "eSlayerHelpers/eterrstexturesdata.h"
+#include "eSlayerHelpers/echardatainfo.h"
+#include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/eobjectsinfo.h"
+#include "eSlayerHelpers/ewaypoints.h"
 
 eStringIdMapVector<eMapSettings>
 eMapsSettings::sMaps;

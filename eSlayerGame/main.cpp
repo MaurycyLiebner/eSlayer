@@ -44,8 +44,7 @@
 #include <eSlayerHelpers/eboostcursetypes.h>
 #include <eSlayerHelpers/eauratypes.h>
 #include <eSlayerHelpers/eitemaffixes.h>
-
-#include <eSlayerMapGenerator/emapsettings.h>
+#include <eSlayerHelpers/emapsettings.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>

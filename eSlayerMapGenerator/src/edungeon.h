@@ -1,8 +1,7 @@
 #ifndef EDUNGEON_H
 #define EDUNGEON_H
 
-#include "eSlayerMapGenerator/emapsettings.h"
-
+#include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/erect.h>
 
 #include <memory>

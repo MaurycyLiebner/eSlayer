@@ -3,9 +3,9 @@
 
 #include "eslayermapgeneratorexport.h"
 
-#include "emapsettings.h"
 #include "echamber.h"
 
+#include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/epathfindermap.h>
 #include <eSlayerHelpers/eobstaclesmap.h>

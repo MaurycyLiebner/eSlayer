@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eportals.h"
 
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/emapsettings.h"
 
 std::vector<ePortal> ePortal::sPortals;
 uint16_t ePortal::sPortalsVersion = 0;
@@ -36,10 +37,25 @@ void ePortal::removePortal(const uint32_t portalId) {
         if(p.fCampPortalId == portalId ||
            p.fOutdoorPortalId == portalId) {
             sPortals.erase(sPortals.begin() + i);
+            sPortalsVersion++;
             break;
         }
     }
-    sPortalsVersion++;
+}
+
+void ePortal::removeCreatorActPortal(
+    const uint32_t creator, const uint8_t actId) {
+    for(int i = 0; i < sPortals.size(); i++) {
+        const auto& p = sPortals[i];
+        const auto mapId = p.fOutdoorMapId;
+        const auto& info = eMapsSettings::sMaps.get(mapId);
+        const auto pactId = info.fActId;
+        if(pactId == actId) {
+            sPortals.erase(sPortals.begin() + i);
+            sPortalsVersion++;
+            break;
+        }
+    }
 }
 
 void ePortal::read(ePacket& p) {

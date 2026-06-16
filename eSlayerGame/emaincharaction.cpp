@@ -11,9 +11,9 @@
 
 #include <eSlayerServer/eserver.h>
 
-#include <eSlayerMapGenerator/emapsettings.h>
 #include <eSlayerMapGenerator/emap.h>
 
+#include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eunitsinfo.h>

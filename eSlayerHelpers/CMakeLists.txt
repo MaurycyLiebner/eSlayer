@@ -183,6 +183,8 @@ add_library(eSlayerHelpers SHARED
     src/ewaypoints.cpp
     include/eSlayerHelpers/eportals.h
     src/eportals.cpp
+    include/eSlayerHelpers/emapsettings.h
+    src/emapsettings.cpp
 )
 
 target_include_directories(eSlayerHelpers

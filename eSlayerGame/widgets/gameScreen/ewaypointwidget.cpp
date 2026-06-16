@@ -7,7 +7,7 @@
 #include "../mainMenu/emainmenubutton.h"
 
 #include <eSlayerHelpers/ewaypoints.h>
-#include <eSlayerMapGenerator/emapsettings.h>
+#include <eSlayerHelpers/emapsettings.h>
 
 class eWaypointLine : public eButtonBase {
 public:

@@ -70,6 +70,11 @@ public:
     bool pickupBody(const uint32_t clientId, const uint32_t bodyId) override;
 
     void checkMapsReady() override;
+
+    bool teamAction(const uint32_t clientId,
+                    const eTeamAction& action) override;
+
+    bool spawnPortal(const uint32_t clientId) override;
 private:
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);

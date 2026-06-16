@@ -2,9 +2,9 @@
 
 #include "edungeon.h"
 
-#include "eSlayerMapGenerator/emapsettings.h"
 #include "eSlayerMapGenerator/emap.h"
 
+#include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 
 class eMapGenerator {

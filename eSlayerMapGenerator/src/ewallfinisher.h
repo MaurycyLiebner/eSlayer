@@ -1,9 +1,9 @@
 #ifndef EWALLFINISHER_H
 #define EWALLFINISHER_H
 
-#include "eSlayerMapGenerator/emapsettings.h"
 #include "eSlayerMapGenerator/emap.h"
 
+#include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/erect.h>
 
 class eWallFinisher {

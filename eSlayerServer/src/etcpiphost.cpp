@@ -231,6 +231,19 @@ void eTcpIpHost::checkMapsReady() {
     return eLocalServer::checkMapsReady();
 }
 
+bool eTcpIpHost::teamAction(
+    const uint32_t clientId,
+    const eTeamAction& action) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::teamAction(clientId, action);
+}
+
+bool eTcpIpHost::spawnPortal(
+    const uint32_t clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::spawnPortal(clientId);
+}
+
 bool eTcpIpHost::triggerObject(
     const uint32_t clientId, const eServerObject& obj) {
     std::unique_lock lock(mMutex);
@@ -428,6 +441,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
 
     } break;
     case ePacketType::teams: {
+
+    } break;
+    case ePacketType::portals: {
 
     } break;
     case ePacketType::objectStateChanged: {

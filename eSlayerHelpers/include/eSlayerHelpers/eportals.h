@@ -28,6 +28,10 @@ struct ePortal {
     static void addPortal(const ePortal& p);
     static void removePortal(const uint32_t portalId);
 
+    static void removeCreatorActPortal(
+        const uint32_t creator,
+        const uint8_t actId);
+
     static uint16_t version() { return sPortalsVersion; }
     static std::vector<ePortal> sPortals;
 
