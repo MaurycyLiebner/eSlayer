@@ -202,8 +202,10 @@ public:
                            ePointF& spawnPos);
     bool findPlaceForUnit(const ePointF& pos,
                           ePointF& result) const;
+    bool findPlaceForPortal(const ePointF& pos,
+                            ePointF& result) const;
 private:
-    bool spawnPortal(const ePointF& pos,
+    bool spawnPortal(ePointF& pos,
                      uint32_t& portalId,
                      uint8_t& mapId,
                      uint8_t& areaId);

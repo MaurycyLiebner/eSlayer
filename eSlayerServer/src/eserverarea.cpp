@@ -873,6 +873,49 @@ bool eServerArea::findPlaceForUnit(
     return false;
 }
 
+bool eServerArea::findPlaceForPortal(
+    const ePointF& pos, ePointF& result) const {
+    const float x = pos.fX;
+    const float y = pos.fY;
+
+    const auto portalType = eObjectsInfo::sObjects.id("portal");
+
+    const auto valid = [&](const ePointF& pos) {
+        for(int dx = -1; dx <= 1; dx++) {
+            for(int dy = -1; dy <= 1; dy++) {
+                const int x = pos.fX + dx;
+                const int y = pos.fY + dy;
+                const bool r = mMap->inside(x, y);
+                if(!r) continue;
+                const auto& oIds = mMap->objects(x, y);
+                for(const auto oId : oIds) {
+                    const auto& o = mMap->object(oId);
+                    if(portalType != o->fObjectType) continue;
+                    const float dist = ePointF::distance(o->fPos, pos);
+                    if(dist < o->fSize) return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    for(int dist = 0; dist < 5; dist++) {
+        const int maxTries = dist == 0 ? 1 : 10;
+        for(int i = 0; i <= maxTries; i++) {
+            const float dx = eRand::randF(-dist, dist);
+            const float dy = eRand::randF(-dist, dist);
+            const ePointF tryPos{x + dx, y + dy};
+            const bool w = walkable(tryPos);
+            if(!w) continue;
+            const bool r = valid(tryPos);
+            if(!r) continue;
+            result = tryPos;
+            return true;
+        }
+    }
+    return false;
+}
+
 bool goThroughPortal(
     const uint32_t clientId,
     const uint32_t portalId) {
@@ -1044,10 +1087,12 @@ bool eServerArea::spawnCampPortal(
 }
 
 bool eServerArea::spawnPortal(
-    const ePointF& pos,
+    ePointF& pos,
     uint32_t& portalId,
     uint8_t& mapId,
     uint8_t& areaId) {
+    const bool r = findPlaceForPortal(pos, pos);
+    if(!r) return false;
     const auto o = mMap->addObject(pos);
     const auto typeId = eObjectsInfo::sObjects.id("portal");
     const auto& info = eObjectsInfo::sObjects.get(typeId);
