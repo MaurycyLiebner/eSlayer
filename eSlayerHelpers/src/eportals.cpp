@@ -5,6 +5,26 @@
 std::vector<ePortal> ePortal::sPortals;
 uint16_t ePortal::sPortalsVersion = 0;
 
+std::optional<ePortal> ePortal::portal(const uint32_t portalId) {
+    for(const auto& p : sPortals) {
+        if(p.fCampPortalId == portalId ||
+           p.fOutdoorPortalId == portalId) {
+            return p;
+        }
+    }
+    return std::nullopt;
+}
+
+uint32_t ePortal::creator(const uint32_t portalId) {
+    for(const auto& p : sPortals) {
+        if(p.fCampPortalId == portalId ||
+           p.fOutdoorPortalId == portalId) {
+            return p.fCreator;
+        }
+    }
+    return 0;
+}
+
 void ePortal::addPortal(const ePortal& p) {
     sPortals.emplace_back(p);
     sPortalsVersion++;

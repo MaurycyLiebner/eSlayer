@@ -321,6 +321,7 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     ePortal p;
+    p.fCreator = clientId;
     const bool r = h->spawnPortal(
         p.fOutdoorPortalId,
         p.fOutdoorMapId,

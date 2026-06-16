@@ -1405,8 +1405,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                     highlightable = obj.fState == 0;
                 } break;
                 case eObjectType::waypoint:
-                case eObjectType::portal:
                     break;
+                case eObjectType::portal: {
+                    const auto creator = ePortal::creator(obj.fObjectId);
+                    const auto t1 = eTeams::playerTeam(creator);
+                    const auto t2 = eTeams::playerTeam(mClientId);
+                    highlightable = t1 == t2;
+                } break;
                 };
                 ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
                 if(highlightable && !mHighlightUnit.lock() && !mHighlightObject.lock()) {
@@ -1820,6 +1825,23 @@ void eGameWidget::setHighlightedObject(
             const auto area = mMap->areaAt(pos);
             const auto aname = mMap->areaName(area);
             lines.emplace_back(aname);
+        } else if(object.fType == eObjectType::portal) {
+            const auto p = ePortal::portal(obj->fObjectId);
+            if(p) {
+                uint8_t mapId;
+                uint8_t areaId;
+                if(obj->fObjectId == p->fCampPortalId) {
+                    mapId = p->fOutdoorMapId;
+                    areaId = p->fOutdoorAreaId;
+                } else {
+                    mapId = p->fCampMapId;
+                    areaId = p->fCampAreaId;
+                }
+                const auto& map = eMapsSettings::sMaps.get(mapId);
+                const auto areaBaseName = map.fAreas.name(areaId);
+                const auto areaName = eAreaNames::name(areaBaseName);
+                lines.emplace_back(areaName);
+            }
         }
         lines.emplace_back(name);
 
