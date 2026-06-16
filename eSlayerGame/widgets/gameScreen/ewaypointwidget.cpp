@@ -146,7 +146,7 @@ void eWaypointWidget::initialize(
             const bool current = way.fMapId == cMapId &&
                                  way.fAreaId == cAreaId;
             eAction action;
-            if(!current/* && way.fKnown*/) {
+            if(!current && way.fKnown) {
                 action = [way, waction]() {
                     waction(way.fMapId, way.fAreaId);
                 };
