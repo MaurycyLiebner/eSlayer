@@ -235,13 +235,15 @@ bool eTcpIpHost::teamAction(
     const uint32_t clientId,
     const eTeamAction& action) {
     std::unique_lock lock(mMutex);
-    return eLocalServer::teamAction(clientId, action);
+    return eLocalServer::teamAction(
+        clientId, action);
 }
 
 bool eTcpIpHost::spawnPortal(
     const uint32_t clientId) {
     std::unique_lock lock(mMutex);
-    return eLocalServer::spawnPortal(clientId);
+    return eLocalServer::spawnPortal(
+        clientId);
 }
 
 bool eTcpIpHost::triggerObject(

@@ -270,6 +270,9 @@ private:
 
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;
+
+    std::set<uint32_t> mPortals;
+    uint16_t mPortalsVersion = 0;
 };
 
 #endif // ESERVERAREA_H

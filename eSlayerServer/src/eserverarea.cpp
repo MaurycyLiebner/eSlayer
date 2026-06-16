@@ -23,6 +23,7 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eplacementhelper.h>
+#include <eSlayerHelpers/eportals.h>
 
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
@@ -414,6 +415,40 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 }
 
 void eServerArea::increment(const float by) {
+    if(mPortalsVersion < ePortal::version()) {
+        mPortalsVersion = ePortal::version();
+        const auto mapId = mMap->id();
+        std::set<uint32_t> newPortals;
+        const auto addPortal = [&](const uint32_t objId,
+                                   const uint8_t pmapId,
+                                   const uint8_t areaId,
+                                   const ePointF& pos) {
+            if(pmapId != mapId) return;
+            const int n = mPortals.count(objId);
+            if(n > 0) return;
+            newPortals.emplace(objId);
+        };
+
+        for(const auto& p : ePortal::sPortals) {
+            addPortal(p.fCampPortalId,
+                      p.fCampMapId,
+                      p.fCampAreaId,
+                      p.fCampPos);
+            addPortal(p.fOutdoorPortalId,
+                      p.fOutdoorMapId,
+                      p.fOutdoorAreaId,
+                      p.fOutdoorPos);
+        }
+
+        for(const auto pid : mPortals) {
+            const int n = newPortals.count(pid);
+            if(n > 0) continue;
+            mMap->removeObject(pid);
+        }
+
+        std::swap(mPortals, newPortals);
+    }
+
     std::set<eArea> unitAreas;
     for(auto& it : mClientData) {
         const int i = it.first;
@@ -788,6 +823,13 @@ bool eServerArea::addClient(
     spawnPos = mMap->spawnPos(moveData.fFromMapId);
     if(moveData.fType == eMoveToMapType::waypoint) {
         mMap->waypointPosition(moveData.fAreaId, spawnPos);
+    } else if(moveData.fType == eMoveToMapType::portal) {
+        const auto pid = moveData.fPortalId;
+        const auto p = ePortal::portal(pid);
+        if(p) {
+            const bool camp = p->fCampPortalId == pid;
+            spawnPos = camp ? p->fOutdoorPos : p->fCampPos;
+        }
     }
     findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
@@ -831,6 +873,17 @@ bool eServerArea::findPlaceForUnit(
     return false;
 }
 
+bool goThroughPortal(
+    const uint32_t clientId,
+    const uint32_t portalId) {
+    const auto p = ePortal::portal(portalId);
+    if(!p) return false;
+    if(p->fCreator != clientId) return false;
+    if(p->fCampPortalId != portalId) return false;
+    ePortal::removePortal(portalId);
+    return true;
+}
+
 bool eServerArea::moveClient(
     const uint32_t clientId,
     eServerArea& from,
@@ -846,6 +899,9 @@ bool eServerArea::moveClient(
         clientId, u, screen,
         moveData, spawnPos);
     if(!r) return false;
+    if(moveData.fType == eMoveToMapType::portal) {
+        goThroughPortal(clientId, moveData.fPortalId);
+    }
     return true;
 }
 

@@ -21,7 +21,8 @@
 class ePacket;
 
 enum class eMoveToMapType {
-    respawn, entrance, waypoint
+    respawn, entrance,
+    waypoint, portal
 };
 
 struct eMoveToMapData {
@@ -29,6 +30,7 @@ struct eMoveToMapData {
     uint8_t fFromMapId;
     uint8_t fMapId;
     uint8_t fAreaId;
+    uint32_t fPortalId;
 };
 
 class ESLAYERMAPGENERATOR_API eMap {

@@ -20,6 +20,7 @@
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/ewaypoints.h>
+#include <eSlayerHelpers/eportals.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -254,6 +255,20 @@ void eMainCharAction::increment(const bool mousePressed,
                 eWaypoint::setKnown(mapId, areaId);
                 const auto actId = mMap->actId();
                 eGameScreen::sOpenWaypointMenu(actId, mapId, areaId);
+            } else if(info.fType == eObjectType::portal) {
+                const auto portalId = object->fObjectId;
+                const auto p = ePortal::portal(portalId);
+                if(p) {
+                    const bool camp = p->fCampPortalId == portalId;
+                    eMoveToMapData moveData;
+                    moveData.fType = eMoveToMapType::portal;
+                    moveData.fMapId = camp ? p->fOutdoorMapId :
+                        p->fCampMapId;
+                    moveData.fAreaId = camp ? p->fOutdoorAreaId:
+                        p->fCampAreaId;
+                    moveData.fPortalId = portalId;
+                    eGameWidget::sMoveToMap(moveData);
+                }
             } else {
                 const eServerObject sobject(mapId, *object);
                 mServer->triggerObject(mClientId, sobject);

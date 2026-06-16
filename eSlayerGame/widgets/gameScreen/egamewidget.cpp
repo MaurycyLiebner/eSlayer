@@ -1384,16 +1384,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& type = types[typeId];
                 const auto& tex = type[obj.fState].fTexs.getTexture(0);
                 const int h = object.fSize*tileH;
-                const int dx = ((pos.fX - iPos.fX) - (pos.fY - iPos.fY))*(tileW/2);
-                const int dy = ((pos.fX - iPos.fX) + (pos.fY - iPos.fY))*((tileH + 1)/2);
-                const int x = ipixel.fX + dx;
-                const int y = ipixel.fY + dy + h;
 
                 bool highlight = false;
                 const int texW = tex->width();
                 const int texH = tex->height();
-                int drawX = x;
-                int drawY = y;
+                int drawX = ipixel.fX;
+                int drawY = ipixel.fY + h;
                 const auto otype = obj.fObjectType;
                 const auto& info = eObjectsInfo::sObjects.get(otype);
                 eAlignment align = eAlignment::top | eAlignment::hcenter;
@@ -1841,6 +1837,9 @@ void eGameWidget::setHighlightedObject(
                 const auto areaBaseName = map.fAreas.name(areaId);
                 const auto areaName = eAreaNames::name(areaBaseName);
                 lines.emplace_back(areaName);
+                const auto clientId = p->fCreator;
+                const auto slayerName = eSlayers::name(clientId);
+                lines.emplace_back(slayerName);
             }
         }
         lines.emplace_back(name);
