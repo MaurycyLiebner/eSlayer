@@ -136,6 +136,19 @@ ePointF eGameWidget::tilePosToPixel(const ePointF& pos) const {
     return mInput.tilePosToPixel(pos, charPos, width(), height());
 }
 
+ePoint eGameWidget::tilePosToIPixel(const ePointF& pos) const {
+    const auto iPos = pos.floor();
+    auto pixel = tilePosToPixel(iPos);
+    pixel = pixel.round();
+    const float dx = pos.fX - iPos.fX;
+    const float dy = pos.fY - iPos.fY;
+    const int tileW = tileWidth();
+    const int tileH = tileHeight();
+    pixel.fX += (dx - dy)*(tileW/2);
+    pixel.fY += (dx + dy)*((tileH + 1)/2);
+    return pixel.round();
+}
+
 void eGameWidget::setUnitIndicator(eUnitIndicator* const indicator) {
     mUnitIndicator = indicator;
 }
@@ -1115,14 +1128,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const float size = object.fSize;
             pos.fX += size*0.5f;
             pos.fY += size*0.5f;
-            const auto iPos = pos.floor();
-            auto pixel = tilePosToPixel(iPos);
-            pixel = pixel.round();
-            const float dx = pos.fX - iPos.fX;
-            const float dy = pos.fY - iPos.fY;
-            pixel.fX += (dx - dy)*(tileW/2);
-            pixel.fY += (dx + dy)*((tileH + 1)/2);
-            const auto ipixel = pixel.round();
+            const auto ipixel = tilePosToIPixel(pos);
             const auto& type = types[0];
             const auto& state = type[0];
             const auto& tex = state.fTexs.getTexture(0);
@@ -1151,13 +1157,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             auto& stateId = w->fState;
             stateId = known ? 1 : 2;
 
-            auto pixel = tilePosToPixel(iPos);
-            pixel = pixel.round();
-            const float dx = pos.fX - iPos.fX;
-            const float dy = pos.fY - iPos.fY;
-            pixel.fX += (dx - dy)*(tileW/2);
-            pixel.fY += (dx + dy)*((tileH + 1)/2);
-            const auto ipixel = pixel.round();
+            const auto ipixel = tilePosToIPixel(pos);
             const auto& type = types[0];
             const auto& state = type[stateId];
             const auto& tex = state.fTexs.getTexture(0);
@@ -1189,13 +1189,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(!ePtr) continue;
             const auto& pos = ePtr->fPos;
             const auto iPos = pos.floor();
-            auto pixel = tilePosToPixel(iPos);
-            pixel = pixel.round();
-            const float dx = pos.fX - iPos.fX;
-            const float dy = pos.fY - iPos.fY;
-            pixel.fX += (dx - dy)*(tileW/2);
-            pixel.fY += (dx + dy)*((tileH + 1)/2);
-            const auto ipixel = pixel.round();
+            const auto ipixel = tilePosToIPixel(pos);
             if(e.fType == eRenderElementType::unit) {
                 const auto u = std::static_pointer_cast<eUnit>(ePtr);
                 auto& model = u->model();

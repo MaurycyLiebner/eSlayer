@@ -62,6 +62,7 @@ public:
                            const ePointF& pixel) const;
     ePointF pixelToTilePos(const ePointF& pixel) const;
     ePointF tilePosToPixel(const ePointF& pos) const;
+    ePoint tilePosToIPixel(const ePointF& pos) const;
 
     void setUnitIndicator(eUnitIndicator* const indicator);
 
