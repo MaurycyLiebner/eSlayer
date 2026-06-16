@@ -43,6 +43,7 @@ public:
         const uint8_t actId,
         const uint8_t mapId,
         const uint8_t areaId);
+    static void sCloseWaypointMenu();
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;

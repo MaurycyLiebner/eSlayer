@@ -250,6 +250,10 @@ void eGameScreen::sOpenWaypointMenu(
     sInstance->showWaypointMenu(actId, mapId, areaId);
 }
 
+void eGameScreen::sCloseWaypointMenu() {
+    sInstance->hideWaypointMenu();
+}
+
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     const auto key = e.key();
     if(key == SDL_SCANCODE_ESCAPE) {

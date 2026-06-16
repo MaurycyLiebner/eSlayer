@@ -482,6 +482,10 @@ void eMainCharAction::handleMovement(
         moved = mMovementHandler.increment(by);
     }
 
+    if(moved) {
+        eGameScreen::sCloseWaypointMenu();
+    }
+
     updateMovementAnimation(moved, run, by, model);
 }
 
