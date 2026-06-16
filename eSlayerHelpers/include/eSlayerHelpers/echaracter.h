@@ -6,6 +6,7 @@
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eattributes.h"
 #include "eSlayerHelpers/estats.h"
+#include "eSlayerHelpers/ewaypoints.h"
 
 #include <string>
 
@@ -52,6 +53,9 @@ public:
     const std::vector<eBodyEquipment>& bodies() const { return mBodies; }
     std::vector<eBodyEquipment>& bodies() { return mBodies;}
 
+    const std::vector<eWaypoint>& waypoints() const { return mWaypoints; }
+    std::vector<eWaypoint>& waypoints() { return mWaypoints;}
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
@@ -67,6 +71,7 @@ private:
     int mOtherRightSkill = 0;
     std::map<int, int> mLeftHotkeys;
     std::map<int, int> mRightHotkeys;
+    std::vector<eWaypoint> mWaypoints;
 };
 
 #endif // ECHARACTER_H

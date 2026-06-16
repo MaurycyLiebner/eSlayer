@@ -4,6 +4,8 @@
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/eitemaffixes.h"
+#include "eSlayerHelpers/estringhelpers.h"
+#include "eSlayerHelpers/emapsettings.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -306,6 +308,40 @@ bool eCharacter::load(const std::string& path,
         readEq(body, eqE);
     }
 
+    const auto getWaypointIds = [](const std::string& name,
+                                   eWaypoint& w) {
+        for(const auto& mit : eMapsSettings::sMaps) {
+            const auto& m = mit.fValue;
+            for(const auto& a : m.fAreas) {
+                if(name == a.fName) {
+                    w.fActId = m.fActId;
+                    w.fMapId = mit.fId;
+                    w.fAreaId = a.fId;
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    if(const auto wE = rootE->FirstChildElement("waypoints")) {
+        auto aE = wE->FirstChildElement();
+        while(aE) {
+            auto wwE = aE->FirstChildElement();
+            while(wwE) {
+                const auto name = wwE->Name();
+                eWaypoint w;
+                wwE->QueryBoolAttribute("known", &w.fKnown);
+                const bool r = getWaypointIds(name, w);
+                if(r) {
+                    c.mWaypoints.emplace_back(w);
+                }
+                wwE = wwE->NextSiblingElement();
+            }
+            aE = aE->NextSiblingElement();
+        }
+    }
+
     return true;
 }
 
@@ -529,6 +565,23 @@ bool eCharacter::write(const std::string& path) const {
         const auto eqE = rootE->InsertNewChildElement("bodyEquipment");
         writeEq(body, eqE);
         break;
+    }
+
+    const auto wE = rootE->InsertNewChildElement("waypoints");
+    std::map<uint8_t, std::vector<eWaypoint>> acts;
+    for(const auto& w : mWaypoints) {
+        acts[w.fActId].emplace_back(w);
+    }
+    for(const auto& it : acts) {
+        const auto actId = it.first;
+        const auto ar = eStringHelpers::toRoman(actId);
+        const auto aE = wE->InsertNewChildElement(ar.c_str());
+        for(const auto& w : it.second) {
+            const auto& minfo = eMapsSettings::sMaps.get(w.fMapId);
+            const auto name = minfo.fAreas.name(w.fAreaId);
+            const auto wE = aE->InsertNewChildElement(name.c_str());
+            wE->SetAttribute("known", w.fKnown);
+        }
     }
 
     const auto e = doc.SaveFile(path.c_str());

@@ -3,6 +3,7 @@
 
 #include "eslayerhelpersexport.h"
 
+#include <cstdint>
 #include <string>
 
 namespace eStringHelpers {
@@ -15,6 +16,10 @@ namespace eStringHelpers {
     std::string floatToString(const float value);
     ESLAYERHELPERS_API
     std::string floatToStringWithSign(const float value);
+    ESLAYERHELPERS_API
+    std::string toRoman(const uint8_t n);
+    ESLAYERHELPERS_API
+    uint8_t fromRoman(const std::string& r);
 }
 
 #endif // ESTRINGHELPERS_H

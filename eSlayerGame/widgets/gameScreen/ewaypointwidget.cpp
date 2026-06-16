@@ -8,6 +8,7 @@
 
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/emapsettings.h>
+#include <eSlayerHelpers/estringhelpers.h>
 
 class eWaypointLine : public eButtonBase {
 public:
@@ -74,19 +75,6 @@ void eWaypointWidget::initialize(
 
     wW->resize(singleW, 8*singleH);
 
-    const auto toRoman = [](const uint8_t n) {
-        if(n == 0) return "I";
-        if(n == 1) return "II";
-        if(n == 2) return "III";
-        if(n == 3) return "IV";
-        if(n == 4) return "V";
-        if(n == 5) return "VI";
-        if(n == 6) return "VII";
-        if(n == 7) return "VIII";
-        if(n == 8) return "IX";
-        return "X";
-    };
-
     struct eAct {
         uint8_t fActId;
         eMainMenuButton* fButton = nullptr;
@@ -115,7 +103,7 @@ void eWaypointWidget::initialize(
 
     eAct currentAct;
     for(uint8_t actId = 0; actId <= maxAct; actId++) {
-        const auto r = toRoman(actId);
+        const auto r = eStringHelpers::toRoman(actId);
         const auto b = new eMainMenuButton(r, window());
         b->resize(singleW, singleH);
         actsW->addWidget(b);

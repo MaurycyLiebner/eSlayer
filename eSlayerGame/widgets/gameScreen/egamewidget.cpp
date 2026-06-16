@@ -256,6 +256,7 @@ eCharacter eGameWidget::character() {
     for(const auto& b : eBodies::sBodies) {
         c.bodies().emplace_back(b.fEq);
     }
+    c.waypoints() = eWaypoint::sWaypoints;
     return c;
 }
 

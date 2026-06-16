@@ -494,6 +494,14 @@ void eScreenHandler::finishGameShow(
         const auto c = gw->character();
         eScreenHandler::moveToMap(clientId, teamId, c, server, moveData);
     };
+    for(const auto& cw : c.waypoints()) {
+        for(auto& w : eWaypoint::sWaypoints) {
+            if(cw.fActId != w.fActId) continue;
+            if(cw.fMapId != w.fMapId) continue;
+            if(cw.fAreaId != w.fAreaId) continue;
+            w.fKnown = cw.fKnown;
+        }
+    }
     w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);
 }
