@@ -12,6 +12,10 @@ eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
 std::shared_ptr<eTexture> eUITextures::sRunIcon;
 std::shared_ptr<eTexture> eUITextures::sPortalIcon;
+std::shared_ptr<eTexture> eUITextures::sInventoryIcon;
+std::shared_ptr<eTexture> eUITextures::sPartyIcon;
+std::shared_ptr<eTexture> eUITextures::sAttributesIcon;
+std::shared_ptr<eTexture> eUITextures::sSkillsIcon;
 
 std::shared_ptr<eTexture> eUITextures::sLifeBar1;
 std::shared_ptr<eTexture> eUITextures::sLifeBar2;
@@ -89,6 +93,11 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix + ".png");
 
     sPortalIcon = eFileLoader::readTexture(r, dir, "ui/portal" + suffix + ".png");
+
+    sInventoryIcon = eFileLoader::readTexture(r, dir, "ui/inventory" + suffix + ".png");
+    sPartyIcon = eFileLoader::readTexture(r, dir, "ui/party" + suffix + ".png");
+    sAttributesIcon = eFileLoader::readTexture(r, dir, "ui/attributes" + suffix + ".png");
+    sSkillsIcon = eFileLoader::readTexture(r, dir, "ui/skills" + suffix + ".png");
 
     sAmuletSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotAmulet" + suffix + ".png");
     sArmorSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotArmor" + suffix + ".png");

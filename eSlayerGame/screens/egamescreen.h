@@ -24,6 +24,7 @@ class eBgWidget;
 class ePartyWidget;
 class eWaypointWidget;
 struct eMoveToMapData;
+class eBottomWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -77,9 +78,6 @@ private:
     void showMessageBox();
     void hideMessageBox();
 
-    void hideBeltExt();
-    void showBeltExt();
-
     void showWaypointMenu(const uint8_t cActId,
                           const uint8_t cMapId,
                           const uint8_t cAreaId);
@@ -96,34 +94,25 @@ private:
     eAction mExitAction;
     eESCMenu* mESCMenu = nullptr;
     eWidget* mDeadMenu = nullptr;
-    eBgWidget* mBottomWid = nullptr;
     eInventoryWidget* mInventoryMenu = nullptr;
     ePartyWidget* mPartyMenu = nullptr;
     eWaypointWidget* mWaypointMenu = nullptr;
-    eInventoryBagpackWidget* mBelt = nullptr;
-    bool mBeltExtTmp = false;
-    eInventoryBagpackWidget* mBeltExt = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eHoverWidget* mDragWidget = nullptr;
     eMiniMap* mMiniMap = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
-    ePlayerHealthIndicator* mHealthIndicator = nullptr;
-    ePlayerHealthIndicator* mManaIndicator = nullptr;
-    ePlayerHealthIndicator* mStaminaIndicator = nullptr;
-    ePlayerHealthIndicator* mExperienceIndicator = nullptr;
 
-    eSkillButton* mLeftSkillButton = nullptr;
-    eSkillButton* mRightSkillButton = nullptr;
     eWidget* mSkillMenu = nullptr;
+
+    eBottomWidget* mBottomWidget = nullptr;
+    eWidget* mMenusWidget = nullptr;
 
     int mLeftSkill = 0;
     int mRightSkill = 0;
 
     int mOtherLeftSkill = 0;
     int mOtherRightSkill = 0;
-
-    eTextureCheckButton* mRunButton = nullptr;
 
     eLineEdit* mMessage = nullptr;
 };

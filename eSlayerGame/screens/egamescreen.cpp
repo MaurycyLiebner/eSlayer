@@ -2,12 +2,8 @@
 
 #include "../etext.h"
 #include "../emainwindow.h"
-#include "../textures/euitextures.h"
-#include "../widgets/ecolors.h"
 #include "../widgets/elineedit.h"
-#include "../widgets/etexturecheckbutton.h"
 
-#include "../widgets/gameScreen/ebgwidget.h"
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/einventorybagpackwidget.h"
@@ -15,7 +11,6 @@
 #include "../widgets/gameScreen/ehoverwidget.h"
 #include "../widgets/gameScreen/eminimap.h"
 #include "../widgets/gameScreen/estatuswidget.h"
-#include "../widgets/gameScreen/eplayerhealthindicator.h"
 #include "../widgets/gameScreen/eskillbutton.h"
 #include "../widgets/gameScreen/eskillselectwidget.h"
 #include "../widgets/gameScreen/eskilltreeswidget.h"
@@ -23,6 +18,7 @@
 #include "../widgets/gameScreen/eunitindicator.h"
 #include "../widgets/gameScreen/epartywidget.h"
 #include "../widgets/gameScreen/ewaypointwidget.h"
+#include "../widgets/gameScreen/ebottomwidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -79,6 +75,76 @@ void eGameScreen::initialize(const uint32_t clientId,
 
     mGameWidget->setUnitIndicator(mUnitIndicator);
 
+    const auto& stats = mGameWidget->stats();
+    auto& eq = mGameWidget->equipment();
+
+    const auto leftSkillA = [this]() {
+        const auto button = mBottomWidget->leftSkillButton();
+        openSkillMenu(eAlignment::left, button,
+                      mLeftSkill, eSkillChoice::left);
+    };
+    const auto rightSkillA = [this]() {
+        const auto button = mBottomWidget->rightSkillButton();
+        openSkillMenu(eAlignment::right, button,
+                      mRightSkill, eSkillChoice::right);
+    };
+
+    const auto runA = [this](const bool check) {
+        auto& action = mGameWidget->mainAction();
+        action.setRunning(check);
+    };
+    const auto portalA = [this](const bool) {
+        mGameWidget->spawnPortal();
+    };
+
+    const auto invA = [this](const bool) {
+        if(mInventoryMenu) {
+            hideInventoryMenu();
+        } else {
+            showInventoryMenu();
+        }
+    };
+
+    const auto attrsA = [this](const bool) {
+        if(mStatsMenu) {
+            hideStatsMenu();
+        } else {
+            showStatsMenu();
+        }
+    };
+
+    const auto skillA = [this](const bool) {
+        if(mSkillTreesMenu) {
+            hideSkillTreesMenu();
+        } else {
+            showSkillTreesMenu();
+        }
+    };
+
+    const auto partyA = [this](const bool) {
+        if(mPartyMenu) {
+            hidePartyMenu();
+        } else {
+            showPartyMenu();
+        }
+    };
+
+    mBottomWidget = new eBottomWidget(
+        stats, eq, window());
+    mBottomWidget->initialize(
+        leftSkillA, c.leftSkill(),
+        rightSkillA, c.rightSkill(),
+        runA, portalA, invA, attrsA,
+        skillA, partyA);
+    addWidget(mBottomWidget);
+    mBottomWidget->align(eAlignment::bottom | eAlignment::hcenter);
+
+    const int w = width();
+    const int h = height();
+    mMenusWidget = new eWidget(window());
+    mMenusWidget->resize(w, h);
+    addWidget(mMenusWidget);
+
     mMiniMap = new eMiniMap(window());
     mMiniMap->resize(width(), height());
     eGameSettings settings;
@@ -89,148 +155,21 @@ void eGameScreen::initialize(const uint32_t clientId,
     mMiniMap->setMap(map);
     addWidget(mMiniMap);
 
-    mBottomWid = new eBgWidget(window());
-    mBottomWid->setHugePadding();
-
-    const auto bottomInnerWidget = new eWidget(window());
-    bottomInnerWidget->setNoPadding();
-
-    mLeftSkillButton = new eSkillButton(window());
-    mLeftSkillButton->initialize(static_cast<int>(eSkillChoice::left));
-    mLeftSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::left, mLeftSkillButton,
-                      mLeftSkill, eSkillChoice::left);
-    });
-    bottomInnerWidget->addWidget(mLeftSkillButton);
-    mLeftSkillButton->setSkillId(c.leftSkill());
-
-    const auto centerWid = new eWidget(window());
-    centerWid->setNoPadding();
-
-    mExperienceIndicator = new ePlayerHealthIndicator(window());
-    mExperienceIndicator->setColor(eColors::sExperience);
-    mExperienceIndicator->setName(eText::text(7, 3));
-    mExperienceIndicator->initialize(eUITextures::sExpBar2,
-                                     eUITextures::sExpBar1, 6);
-    centerWid->addWidget(mExperienceIndicator);
-
-    const auto healthMana = new eWidget(window());
-    healthMana->setNoPadding();
-
-    mHealthIndicator = new ePlayerHealthIndicator(window());
-    mHealthIndicator->setColor(eColors::sHealth);
-    mHealthIndicator->setName(eText::text(7, 0));
-    mHealthIndicator->initialize(eUITextures::sLifeBar2,
-                                 eUITextures::sLifeBar1, 1);
-    healthMana->addWidget(mHealthIndicator);
-
-    mManaIndicator = new ePlayerHealthIndicator(window());
-    mManaIndicator->setColor(eColors::sMana);
-    mManaIndicator->setName(eText::text(7, 1));
-    mManaIndicator->initialize(eUITextures::sLifeBar2,
-                               eUITextures::sLifeBar1, 1);
-    healthMana->addWidget(mManaIndicator);
-
-    healthMana->stackHorizontally(0);
-    healthMana->fitContent();
-    centerWid->addWidget(healthMana);
-
-    const auto staminaBelt = new eWidget(window());
-    staminaBelt->setNoPadding();
-
-    const auto staminaWid = new eWidget(window());
-    staminaWid->setNoPadding();
-
-    mRunButton = new eTextureCheckButton(window());
-    mRunButton->setCheckAction([this](const bool check) {
-        auto& action = mGameWidget->mainAction();
-        action.setRunning(check);
-    });
-    mRunButton->initialize(eUITextures::sRunIcon,
-                           eUITextures::sWalkIcon);
-    staminaWid->addWidget(mRunButton);
-
-    mStaminaIndicator = new ePlayerHealthIndicator(window());
-    mStaminaIndicator->setColor(eColors::sStamina);
-    mStaminaIndicator->setName(eText::text(7, 2));
-    mStaminaIndicator->initialize(eUITextures::sStaminaBar2,
-                                  eUITextures::sStaminaBar1, 1);
-    staminaWid->addWidget(mStaminaIndicator);
-
-    staminaWid->stackHorizontally();
-    staminaWid->fitContent();
-
-    const auto& stats = mGameWidget->stats();
-    auto& eq = mGameWidget->equipment();
-    mBelt = new eInventoryBagpackWidget(window());
-    mBelt->initialize(eEquipment::fBeltHPotionSlots,
-                      1, eq.fBeltPotions,
-                      eq, stats, eBagpackType::belt);
-
-    staminaBelt->addWidget(staminaWid);
-    staminaBelt->addWidget(mBelt);
-
-    const auto portalButton = new eTextureCheckButton(window());
-    portalButton->setTooltip(eText::text(18, 0));
-    portalButton->setCheckAction([this](const bool) {
-        mGameWidget->spawnPortal();
-    });
-    portalButton->initialize(eUITextures::sPortalIcon,
-                             eUITextures::sPortalIcon);
-    staminaBelt->addWidget(portalButton);
-
-    const int p = res.tinyPadding();
-    staminaBelt->stackHorizontally(p);
-    staminaBelt->fitContent();
-    centerWid->addWidget(staminaBelt);
-
-    centerWid->stackVertically(p);
-    centerWid->fitContent();
-    mExperienceIndicator->align(eAlignment::hcenter);
-    centerWid->align(eAlignment::bottom | eAlignment::hcenter);
-    bottomInnerWidget->addWidget(centerWid);
-
-    mRightSkillButton = new eSkillButton(window());
-    mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
-    mRightSkillButton->setPressAction([this]() {
-        openSkillMenu(eAlignment::right, mRightSkillButton,
-                      mRightSkill, eSkillChoice::right);
-    });
-    bottomInnerWidget->addWidget(mRightSkillButton);
-    mRightSkillButton->setSkillId(c.rightSkill());
-
-    bottomInnerWidget->stackHorizontally();
-    bottomInnerWidget->fitContent();
-    mBottomWid->addWidget(bottomInnerWidget);
-    mBottomWid->fitContent();
-    bottomInnerWidget->align(eAlignment::center);
-    addWidget(mBottomWid);
-    mBottomWid->align(eAlignment::bottom | eAlignment::hcenter);
-    mLeftSkillButton->align(eAlignment::bottom);
-    mRightSkillButton->align(eAlignment::bottom);
-
-    const int w = width();
-    const int h = height();
-
     const auto& attrs = mGameWidget->attributes();
 
     mDragWidget = new eHoverWidget(attrs, stats, window());
     mDragWidget->resize(w, h);
     mDragWidget->initialize([this]() {
-        const bool r = mBelt->dropItem();
+        const bool r = mBottomWidget->dropItem();
         if(r) {
-        } else {
-            const bool r = mBeltExt && mBeltExt->dropItem();
-            if(r) {
-            } else if(mInventoryMenu) {
-                const bool r = mInventoryMenu->dropItem();
-                if(!r) {
-                    const bool h = mInventoryMenu->hovered();
-                    if(!h) mGameWidget->dropItem();
-                }
-            } else {
-                mGameWidget->dropItem();
+        } else if(mInventoryMenu) {
+            const bool r = mInventoryMenu->dropItem();
+            if(!r) {
+                const bool h = mInventoryMenu->hovered();
+                if(!h) mGameWidget->dropItem();
             }
+        } else {
+            mGameWidget->dropItem();
         }
     });
     addWidget(mDragWidget);
@@ -284,7 +223,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         }
     } else if(!mMessage && key == SDL_SCANCODE_R) {
         const bool run = mGameWidget->switchRunning();
-        mRunButton->setChecked(run);
+        mBottomWidget->setRunning(run);
     } else if(!mMessage && key == SDL_SCANCODE_I) {
         if(mInventoryMenu) {
             hideInventoryMenu();
@@ -349,17 +288,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             showMessageBox();
         }
     } else if(key == SDL_SCANCODE_GRAVE) {
-        if(mBeltExt) {
-            if(mBeltExtTmp) {
-                mBeltExtTmp = false;
-            } else {
-                hideBeltExt();
-                mBeltExtTmp = true;
-            }
-        } else {
-            showBeltExt();
-            mBeltExtTmp = false;
-        }
+        mBottomWidget->switchBeltVisible();
     } else if(key == SDL_SCANCODE_TAB) {
         mMiniMap->switchShowMap();
     } else if(key == SDL_SCANCODE_F1) {
@@ -400,40 +329,28 @@ void eGameScreen::paintEvent(ePainter&) {
     const auto& stats = mGameWidget->stats();
     const auto& attrs = mGameWidget->attributes();
 
-    mHealthIndicator->setRange(0, stats.fMaxHealth);
-    mHealthIndicator->setValue(stats.fHealthF);
-
-    mManaIndicator->setRange(0, stats.fMaxMana);
-    mManaIndicator->setValue(stats.fManaF);
-
     const auto& action = mGameWidget->mainAction();
+
+    mBottomWidget->setIndicators(
+        stats.fHealthF, stats.fMaxHealth,
+        stats.fManaF, stats.fMaxMana,
+        action.stamina(), action.maxStamina(),
+        attrs.fExp, attrs.nextLevelExp());
+
     const auto& pos = action.pos();
     mMiniMap->setPos(pos);
-    mStaminaIndicator->setRange(0, action.maxStamina());
-    mStaminaIndicator->setValue(action.stamina());
-
-    mExperienceIndicator->setRange(0, attrs.nextLevelExp());
-    mExperienceIndicator->setValue(attrs.fExp);
-
-    if(!mBeltExt && mBelt->hovered()) {
-        showBeltExt();
-        mBeltExtTmp = true;
-    } else if(mBeltExt && mBeltExtTmp &&
-              !mBelt->hovered() && !mBeltExt->hovered()) {
-        hideBeltExt();
-    }
 }
 
 void eGameScreen::setLeftSkill(const int skillId) {
     mLeftSkill = skillId;
     mGameWidget->setLeftSkill(skillId);
-    mLeftSkillButton->setSkillId(skillId);
+    mBottomWidget->setLeftSkill(skillId);
 }
 
 void eGameScreen::setRightSkill(const int skillId) {
     mRightSkill = skillId;
     mGameWidget->setRightSkill(skillId);
-    mRightSkillButton->setSkillId(skillId);
+    mBottomWidget->setRightSkill(skillId);
 }
 
 void eGameScreen::hotkeyPressed(const int fkey) {
@@ -537,17 +454,16 @@ void eGameScreen::showInventoryMenu() {
     mInventoryMenu = new eInventoryWidget(window());
     const int w = width();
     const int h = height();
-    mInventoryMenu->resize(w/2, h - mBottomWid->height());
+    mInventoryMenu->resize(w/2, h - mBottomWidget->height());
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
-    addWidget(mInventoryMenu);
+    mMenusWidget->addWidget(mInventoryMenu);
     mInventoryMenu->initialize(eq, stats);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     mInventoryMenu->updateWeapons();
     eHoverWidget::sUpdateDragItem(eq);
 
     updateCharPos();
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideInventoryMenu() {
@@ -563,13 +479,12 @@ void eGameScreen::showPartyMenu() {
     mPartyMenu = new ePartyWidget(window());
     const int w = width();
     const int h = height();
-    mPartyMenu->resize(w/2, h - mBottomWid->height());
+    mPartyMenu->resize(w/2, h - mBottomWidget->height());
     const auto& cname = mGameWidget->cname();
     mPartyMenu->initialize(cname);
-    addWidget(mPartyMenu);
+    mMenusWidget->addWidget(mPartyMenu);
     mPartyMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hidePartyMenu() {
@@ -584,16 +499,15 @@ void eGameScreen::showStatsMenu() {
     mStatsMenu = new eStatsWidget(window());
     const int w = width();
     const int h = height();
-    mStatsMenu->resize(w/2, h - mBottomWid->height());
+    mStatsMenu->resize(w/2, h - mBottomWidget->height());
     const auto& cname = mGameWidget->cname();
     auto& stats = mGameWidget->stats();
     const auto& eq = mGameWidget->equipment();
     auto& attrs = mGameWidget->attributes();
     mStatsMenu->initialize(cname, stats, eq, attrs);
-    addWidget(mStatsMenu);
+    mMenusWidget->addWidget(mStatsMenu);
     mStatsMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideStatsMenu() {
@@ -608,16 +522,15 @@ void eGameScreen::showSkillTreesMenu() {
     mSkillTreesMenu = new eSkillTreesWidget(window());
     const int w = width();
     const int h = height();
-    mSkillTreesMenu->resize(w/2, h - mBottomWid->height());
+    mSkillTreesMenu->resize(w/2, h - mBottomWidget->height());
     const auto& cname = mGameWidget->cname();
     auto& stats = mGameWidget->stats();
     const auto& eq = mGameWidget->equipment();
     const auto& attrs = mGameWidget->attributes();
     mSkillTreesMenu->initialize(stats, attrs, eq);
-    addWidget(mSkillTreesMenu);
+    mMenusWidget->addWidget(mSkillTreesMenu);
     mSkillTreesMenu->align(eAlignment::right | eAlignment::top);
     updateCharPos();
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideSkillTreesMenu() {
@@ -669,7 +582,7 @@ void eGameScreen::showMessageBox() {
     mMessage->setTextAlignment(eAlignment::left | eAlignment::top);
     mMessage->grabKeyboard();
     addWidget(mMessage);
-    mMessage->move(w/2, mBottomWid->y() - mMessage->height() - p);
+    mMessage->move(w/2, mBottomWidget->y() - mMessage->height() - p);
 }
 
 void eGameScreen::hideMessageBox() {
@@ -680,29 +593,6 @@ void eGameScreen::hideMessageBox() {
     mMessage = nullptr;
 }
 
-void eGameScreen::hideBeltExt() {
-    if(!mBeltExt) return;
-    mBeltExt->deleteLater();
-    mBeltExt = nullptr;
-}
-
-void eGameScreen::showBeltExt() {
-    if(mBeltExt) return;
-    const auto& stats = mGameWidget->stats();
-    auto& eq = mGameWidget->equipment();
-    mBeltExt = new eInventoryBagpackWidget(window());
-    mBeltExt->initialize(eEquipment::fBeltHPotionSlots,
-                         eEquipment::fBeltVPotionSlots - 1,
-                         eq.fBeltHiddenPotions,
-                         eq, stats, eBagpackType::beltExtension);
-    int x = 0;
-    int y = 0;
-    mBelt->mapTo(this, x, y);
-    addWidget(mBeltExt);
-    mBeltExt->move(x, y - mBeltExt->height());
-    mDragWidget->bringToFront();
-}
-
 void eGameScreen::showWaypointMenu(
     const uint8_t cActId,
     const uint8_t cMapId,
@@ -711,7 +601,7 @@ void eGameScreen::showWaypointMenu(
     mWaypointMenu = new eWaypointWidget(window());
     const int w = width();
     const int h = height();
-    mWaypointMenu->resize(w/2, h - mBottomWid->height());
+    mWaypointMenu->resize(w/2, h - mBottomWidget->height());
     const auto action = [this](
         const uint8_t mapId,
         const uint8_t areaId) {
@@ -719,10 +609,9 @@ void eGameScreen::showWaypointMenu(
     };
     mWaypointMenu->initialize(
         cActId, cMapId, cAreaId, action);
-    addWidget(mWaypointMenu);
+    mMenusWidget->addWidget(mWaypointMenu);
     mWaypointMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::hideWaypointMenu() {
@@ -759,7 +648,7 @@ void eGameScreen::openSkillMenu(const eAlignment align,
     };
     w->initialize(skillIds, align, action, schoice);
 
-    addWidget(w);
+    mMenusWidget->addWidget(w);
 
     const auto& res = resolution();
     const float mult = res.multiplier();
@@ -768,7 +657,6 @@ void eGameScreen::openSkillMenu(const eAlignment align,
             height() - w->height() - margin);
 
     mSkillMenu = w;
-    mDragWidget->bringToFront();
 }
 
 void eGameScreen::updateCharPos() {

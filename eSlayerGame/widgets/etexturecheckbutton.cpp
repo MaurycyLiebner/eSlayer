@@ -11,9 +11,15 @@ void eTextureCheckButton::initialize(
 }
 
 void eTextureCheckButton::paintEvent(ePainter& p) {
-    if(checked()) {
-        p.drawTexture(0, 0, mChecked);
-    } else {
-        p.drawTexture(0, 0, mUnchecked);
+    const bool c = checked();
+    const bool h = hovered();
+    const auto& tex = c ? mChecked : mUnchecked;
+    p.drawTexture(0, 0, tex);
+    if(h) {
+        tex->setBlendMode(SDL_BLENDMODE_ADD);
+        tex->setAlpha(128);
+        p.drawTexture(0, 0, tex);
+        tex->setBlendMode(SDL_BLENDMODE_BLEND);
+        tex->clearAlphaMod();
     }
 }

@@ -25,6 +25,14 @@ public:
     static std::shared_ptr<eTexture>
     sPortalIcon;
     static std::shared_ptr<eTexture>
+    sInventoryIcon;
+    static std::shared_ptr<eTexture>
+    sPartyIcon;
+    static std::shared_ptr<eTexture>
+    sAttributesIcon;
+    static std::shared_ptr<eTexture>
+    sSkillsIcon;
+    static std::shared_ptr<eTexture>
     sLifeBar1;
     static std::shared_ptr<eTexture>
     sLifeBar2;
