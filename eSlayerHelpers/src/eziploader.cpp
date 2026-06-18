@@ -10,6 +10,11 @@ eZipLoader::~eZipLoader() {
     close();
 }
 
+bool eZipLoader::exists(const std::string& path) const {
+    const auto index = zip_name_locate(mArchive, path.c_str(), 0);
+    return index >= 0;
+}
+
 void eZipLoader::open(const std::string& path) {
     int err = 0;
     mArchive = zip_open(path.c_str(), ZIP_RDONLY, &err);

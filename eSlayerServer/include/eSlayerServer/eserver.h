@@ -121,6 +121,9 @@ public:
     virtual bool
     dropItem(const uint32_t clientId) = 0;
     virtual bool
+    dropGold(const uint32_t clientId,
+             const uint32_t count) = 0;
+    virtual bool
     rearrangeItems(const uint32_t clientId,
                    const eEquipment& eq) = 0;
     virtual bool

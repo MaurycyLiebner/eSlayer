@@ -571,6 +571,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eLocalServer::dropItem(charId);
         }
     } break;
+    case ePacketType::dropGold: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            uint32_t count;
+            p >> count;
+            eLocalServer::dropGold(charId, count);
+        }
+    } break;
     case ePacketType::pickupItem: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {

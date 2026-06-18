@@ -6,6 +6,9 @@
 #include "ehoverwidget.h"
 #include "eweaponswitch.h"
 #include "ecoinswidget.h"
+#include "estashwidget.h"
+#include "ecoinsquestionwidget.h"
+#include "egamewidget.h"
 
 #include <eSlayerHelpers/eequipment.h>
 
@@ -32,55 +35,55 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     helmet->intialize(eUITextures::sHelmetSlot, eq, stats,
                       &eEquipment::fHelmet,
                       {eItemType::helmet});
-    mItemPalces.emplace_back(helmet);
+    mItemPlaces.emplace_back(helmet);
 
     const auto armor = new eItemPlaceWidget(window());
     armor->intialize(eUITextures::sArmorSlot, eq, stats,
                      &eEquipment::fArmor,
                      {eItemType::armor});
-    mItemPalces.emplace_back(armor);
+    mItemPlaces.emplace_back(armor);
 
     const auto belt = new eItemPlaceWidget(window());
     belt->intialize(eUITextures::sBeltSlot, eq, stats,
                     &eEquipment::fBelt,
                     {eItemType::belt});
-    mItemPalces.emplace_back(belt);
+    mItemPlaces.emplace_back(belt);
 
     const auto boots = new eItemPlaceWidget(window());
     boots->intialize(eUITextures::sBootsSlot, eq, stats,
                      &eEquipment::fBoots,
                      {eItemType::boots});
-    mItemPalces.emplace_back(boots);
+    mItemPlaces.emplace_back(boots);
 
     const auto gloves = new eItemPlaceWidget(window());
     gloves->intialize(eUITextures::sGlovesSlot, eq, stats,
                       &eEquipment::fGloves,
                       {eItemType::gloves});
-    mItemPalces.emplace_back(gloves);
+    mItemPlaces.emplace_back(gloves);
 
     const auto ringL = new eItemPlaceWidget(window());
     ringL->intialize(eUITextures::sRingSlot, eq, stats,
                      &eEquipment::fRingL,
                      {eItemType::ring});
-    mItemPalces.emplace_back(ringL);
+    mItemPlaces.emplace_back(ringL);
 
     const auto ringR = new eItemPlaceWidget(window());
     ringR->intialize(eUITextures::sRingSlot, eq, stats,
                      &eEquipment::fRingR,
                      {eItemType::ring});
-    mItemPalces.emplace_back(ringR);
+    mItemPlaces.emplace_back(ringR);
 
     const auto amulet = new eItemPlaceWidget(window());
     amulet->intialize(eUITextures::sAmuletSlot, eq, stats,
                       &eEquipment::fAmulet,
                       {eItemType::amulet});
-    mItemPalces.emplace_back(amulet);
+    mItemPlaces.emplace_back(amulet);
 
     mWeapon1L = new eItemPlaceWidget(window());
     mWeapon1L->intialize(eUITextures::sWeaponSlot, eq, stats,
                          &eEquipment::fWeapon1L,
                          {eItemType::weapon});
-    mItemPalces.emplace_back(mWeapon1L);
+    mItemPlaces.emplace_back(mWeapon1L);
 
     mWeapon1R = new eItemPlaceWidget(window());
     mWeapon1R->intialize(eUITextures::sWeaponSlot, eq, stats,
@@ -88,13 +91,13 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
                          {eItemType::weapon,
                           eItemType::shield,
                           eItemType::arrows});
-    mItemPalces.emplace_back(mWeapon1R);
+    mItemPlaces.emplace_back(mWeapon1R);
 
     mWeapon2L = new eItemPlaceWidget(window());
     mWeapon2L->intialize(eUITextures::sWeaponSlot, eq, stats,
                          &eEquipment::fWeapon2L,
                          {eItemType::weapon});
-    mItemPalces.emplace_back(mWeapon2L);
+    mItemPlaces.emplace_back(mWeapon2L);
 
     mWeapon2R = new eItemPlaceWidget(window());
     mWeapon2R->intialize(eUITextures::sWeaponSlot, eq, stats,
@@ -102,7 +105,7 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
                          {eItemType::weapon,
                           eItemType::shield,
                           eItemType::arrows});
-    mItemPalces.emplace_back(mWeapon2R);
+    mItemPlaces.emplace_back(mWeapon2R);
 
     const int p = res.largePadding();
 
@@ -182,7 +185,25 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     inner->addWidget(mBagpack);
 
     mCoins = new eCoinsWidget(window());
-    mCoins->initialize(eq.fInventoryGold);
+    const bool stash = eStashWidget::sInstance;
+    const auto action = [this, stash, &eq]() {
+        const auto q = new eCoinsQuestionWidget(window());
+        const int s = stash ? 10 : 9;
+        const auto goldA = [stash, &eq](const int count) {
+            eq.fInventoryGold -= count;
+            if(stash) {
+                eq.fStashGold += count;
+            } else {
+                eGameWidget::sDropGold(count);
+            }
+            eGameWidget::sSendInventoryRearranged();
+        };
+        q->initialize(goldA, s, eq.fInventoryGold);
+        addWidget(q);
+        q->align(eAlignment::center);
+    };
+    mCoins->initialize(eq.fInventoryGold,
+                       action, stash ? 7 : 6);
     inner->addWidget(mCoins);
 
     inner->stackVertically(p);
@@ -204,7 +225,7 @@ bool eInventoryWidget::dropItem() {
     if(sBlocked) return false;
     const bool b = mBagpack->dropItem();
     if(b) return true;
-    for(const auto w : mItemPalces) {
+    for(const auto w : mItemPlaces) {
         if(!w->visible()) continue;
         if(!w->hovered()) continue;
         const bool r = w->dropItem();
@@ -233,4 +254,9 @@ void eInventoryWidget::updateWeapons() {
             mWeapon2R->setHoverItem();
         }
     }
+}
+
+void eInventoryWidget::paintEvent(ePainter& p) {
+    eBgWidget::paintEvent(p);
+    mCoins->setCount(mEq->fInventoryGold);
 }

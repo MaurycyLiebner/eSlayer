@@ -14,6 +14,8 @@ public:
 
     void allow(const char c);
     void disallow(const char c);
+
+    void setAllowed(const std::string& a);
 protected:
     bool mouseMoveEvent(const eMouseEvent& e) override;
     bool mouseEnterEvent(const eMouseEvent& e) override;

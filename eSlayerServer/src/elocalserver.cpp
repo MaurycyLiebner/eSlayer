@@ -194,6 +194,14 @@ bool eLocalServer::dropItem(
     return h->dropItem();
 }
 
+bool eLocalServer::dropGold(
+    const uint32_t clientId,
+    const uint32_t count) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->dropGold(count);
+}
+
 bool eLocalServer::rearrangeItems(
     const uint32_t clientId, const eEquipment& eq) {
     const auto h = clientHandler(clientId);

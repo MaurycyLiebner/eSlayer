@@ -57,6 +57,8 @@ private:
     eWidget* mWidget = nullptr;
     SDL_Window* mSdlWindow = nullptr;
     SDL_Renderer* mSdlRenderer = nullptr;
+
+    int mTextInputCounter = 0;
 };
 
 #endif // EMAINWINDOW_H

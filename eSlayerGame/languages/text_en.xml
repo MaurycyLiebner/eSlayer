@@ -210,5 +210,11 @@
         <string id="3">Skills [T]</string>
         <string id="4">Party Screen [P]</string>
         <string id="5">Run [R]</string>
+        <string id="6">Drop Gold</string>
+        <string id="7">Deposit</string>
+        <string id="8">Withdraw</string>
+        <string id="9">How Much Gold Would You Like to Drop?</string>
+        <string id="10">How Much Gold Would You Like to Deposit?</string>
+        <string id="11">How Much Gold Would You Like to Withdraw?</string>
     </group>
 </strings>

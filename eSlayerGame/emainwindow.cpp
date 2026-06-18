@@ -258,9 +258,15 @@ void eMainWindow::addSlot(const eSlot &slot) {
 }
 
 void eMainWindow::startTextInput() {
-    SDL_StartTextInput(mSdlWindow);
+    if(mTextInputCounter <= 0) {
+        SDL_StartTextInput(mSdlWindow);
+    }
+    mTextInputCounter++;
 }
 
 void eMainWindow::stopTextInput() {
-    SDL_StopTextInput(mSdlWindow);
+    mTextInputCounter--;
+    if(mTextInputCounter <= 0) {
+        SDL_StopTextInput(mSdlWindow);
+    }
 }

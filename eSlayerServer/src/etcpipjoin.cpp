@@ -285,6 +285,17 @@ bool eTcpIpJoin::dropItem(
     return true;
 }
 
+bool eTcpIpJoin::dropGold(
+    const uint32_t clientId,
+    const uint32_t count) {
+    ePacket p;
+    p << ePacketType::dropGold;
+    p << count;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send gold drop to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::rearrangeItems(
     const uint32_t clientId, const eEquipment& eq) {
     ePacket p;

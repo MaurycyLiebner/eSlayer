@@ -11,6 +11,7 @@ public:
     eZipLoader();
     ~eZipLoader();
 
+    bool exists(const std::string& path) const;
     bool opened() const { return mArchive; }
     void open(const std::string& path);
     bool close();

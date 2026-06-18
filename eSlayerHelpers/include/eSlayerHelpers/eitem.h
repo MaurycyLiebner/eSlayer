@@ -20,6 +20,8 @@ struct ESLAYERHELPERS_API eItemBase {
 
     eItemRarity fRarity = eItemRarity::normal;
     uint8_t fSockets = 0;
+
+    uint32_t fCount = 0;
 };
 
 struct ESLAYERHELPERS_API eItem : public eItemBase {

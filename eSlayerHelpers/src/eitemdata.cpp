@@ -16,7 +16,8 @@ gItemTypeToString = {
     {eItemType::shield, "shield"},
     {eItemType::arrows, "arrows"},
     {eItemType::bolts, "bolts"},
-    {eItemType::potion, "potion"}
+    {eItemType::potion, "potion"},
+    {eItemType::gold, "gold"}
 };
 
 std::map<std::string, eItemType>

@@ -77,13 +77,13 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     static const int fInventoryHeight = 4;
     eInventoryItems fInventory{fInventoryWidth,
                                fInventoryHeight};
-    int fInventoryGold = 0;
+    uint32_t fInventoryGold = 0;
 
     static const int fStashWidth = 10;
     static const int fStashHeight = 8;
     eInventoryItems fStash{fStashWidth,
                            fStashHeight};
-    int fStashGold = 0;
+    uint32_t fStashGold = 0;
 
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);

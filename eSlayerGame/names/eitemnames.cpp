@@ -24,6 +24,11 @@ std::string eItemNames::name(const eItemBase& item) {
         result += " [" + std::to_string(item.fSockets) + "]";
     }
 
+    if(item.fType == eItemType::gold) {
+        const auto countStr = std::to_string(item.fCount);
+        result = eStringHelpers::replaceAll(result, "%1", countStr);
+    }
+
     return result;
 }
 

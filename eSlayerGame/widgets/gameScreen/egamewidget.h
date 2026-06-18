@@ -82,6 +82,7 @@ public:
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
     void dropItem();
+    void dropGold(const int count);
     void sendInventoryRearranged();
     void sendAttributesChanged();
     void sendSkillLevelsChanged();
@@ -116,6 +117,7 @@ public:
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
     static void sMoveToMap(const eMoveToMapData& moveData);
+    static void sDropGold(const int gold);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

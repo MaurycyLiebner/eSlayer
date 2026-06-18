@@ -25,6 +25,7 @@ class ePartyWidget;
 class eWaypointWidget;
 struct eMoveToMapData;
 class eBottomWidget;
+class eStashWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -44,7 +45,8 @@ public:
         const uint8_t actId,
         const uint8_t mapId,
         const uint8_t areaId);
-    static void sCloseWaypointMenu();
+    static void sOpenStash();
+    static void sCloseObjectMenu();
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
@@ -83,6 +85,9 @@ private:
                           const uint8_t cAreaId);
     void hideWaypointMenu();
 
+    void showStashMenu();
+    void hideStashAndInventoryMenu();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar,
@@ -101,6 +106,7 @@ private:
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eHoverWidget* mDragWidget = nullptr;
     eMiniMap* mMiniMap = nullptr;
+    eStashWidget* mStashMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
 
     eWidget* mSkillMenu = nullptr;

@@ -1138,6 +1138,7 @@ bool eServerArea::triggerObject(
         } break;
         case eObjectType::waypoint:
         case eObjectType::portal:
+        case eObjectType::stash:
         case eObjectType::none:
             break;
         }
@@ -1166,16 +1167,20 @@ bool eServerArea::pickupItem(
     const auto area = itemArea(itemId);
     const auto tile = itemTile(itemId);
     auto& eq = u->equipment();
-    if(drag) {
-        if(eq.fDragged.fType != eItemType::none) return false;
-        eq.fDragged = *item;
+    if(gitem->fType == eItemType::gold) {
+        eq.fInventoryGold += item->fCount;
     } else {
-        const auto& stats = u->stats();
-        const bool met = stats.itemReqsMet(*item);
-        const bool r = eq.add(*item, met);
-        if(!r) return false;
-        u->recalculateStats();
-        u->recalculateAuras();
+        if(drag) {
+            if(eq.fDragged.fType != eItemType::none) return false;
+            eq.fDragged = *item;
+        } else {
+            const auto& stats = u->stats();
+            const bool met = stats.itemReqsMet(*item);
+            const bool r = eq.add(*item, met);
+            if(!r) return false;
+            u->recalculateStats();
+            u->recalculateAuras();
+        }
     }
     mGroundItems.remove(itemId);
     mItemsOnGround.remove(itemId);
@@ -1193,6 +1198,26 @@ bool eServerArea::dropItem(const uint32_t clientId) {
     if(item.fType == eItemType::none) return false;
     addGroundItem(pos, item);
     item = eItem();
+    return true;
+}
+
+bool eServerArea::dropGold(const uint32_t clientId,
+                           uint32_t count) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    const uint32_t ngold = eItemsData::sGoldIds.size();
+    if(ngold == 0) return false;
+    auto& eq = u->equipment();
+    const auto pos = u->fPos;
+    count = std::min(eq.fInventoryGold, count);
+    eq.fInventoryGold -= count;
+    eItem item;
+    eItemGenerator::applyItemId(item);
+    item.fType = eItemType::gold;
+    item.fCount = count;
+    const uint32_t id = std::min(count/500, ngold - 1);
+    item.fDataId = eItemsData::sGoldIds[id];
+    addGroundItem(pos, item);
     return true;
 }
 

@@ -255,6 +255,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 eWaypoint::setKnown(mapId, areaId);
                 const auto actId = mMap->actId();
                 eGameScreen::sOpenWaypointMenu(actId, mapId, areaId);
+            } else if(info.fType == eObjectType::stash) {
+                eGameScreen::sOpenStash();
             } else if(info.fType == eObjectType::portal) {
                 const auto portalId = object->fObjectId;
                 const auto p = ePortal::portal(portalId);
@@ -483,7 +485,7 @@ void eMainCharAction::handleMovement(
     }
 
     if(moved) {
-        eGameScreen::sCloseWaypointMenu();
+        eGameScreen::sCloseObjectMenu();
     }
 
     updateMovementAnimation(moved, run, by, model);

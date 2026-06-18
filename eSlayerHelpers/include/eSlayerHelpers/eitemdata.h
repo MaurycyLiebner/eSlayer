@@ -20,7 +20,8 @@ enum class eItemType : uint8_t {
     shield,
     arrows,
     bolts,
-    potion
+    potion,
+    gold
 };
 
 namespace eItemTypeHelpers {

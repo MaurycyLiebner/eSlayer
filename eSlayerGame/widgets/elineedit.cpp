@@ -36,6 +36,10 @@ void eLineEdit::disallow(const char c) {
     std::swap(mAllowed, allowed);
 }
 
+void eLineEdit::setAllowed(const std::string& a) {
+    mAllowed = a;
+}
+
 bool eLineEdit::mouseMoveEvent(const eMouseEvent& e) {
     (void)e;
     return true;

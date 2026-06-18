@@ -2,22 +2,28 @@
 
 #include "../elabel.h"
 #include "../ebuttonbase.h"
+#include "../../etext.h"
 #include "../../textures/euitextures.h"
 
-void eCoinsWidget::initialize(const int count) {
+#include "einventorywidget.h"
+#include "estashwidget.h"
+
+void eCoinsWidget::initialize(
+    const int count,
+    const eAction& action,
+    const int tooltipS) {
     setNoPadding();
 
     const auto coinsButton = new eButtonBase(window());
     coinsButton->setTexture(eUITextures::sCoins);
     coinsButton->setNoPadding();
     coinsButton->fitContent();
-    coinsButton->setTooltip("Drop Gold");
+    coinsButton->setTooltip(eText::text(18, tooltipS));
     addWidget(coinsButton);
+    coinsButton->setPressAction(action);
 
     mLabel = new eLabel(window());
     mLabel->setSmallFontSize();
-    mLabel->setText(std::to_string(count));
-    mLabel->fitWidth();
     const int h = coinsButton->height();
     mLabel->setHeight(h);
     setCount(count);

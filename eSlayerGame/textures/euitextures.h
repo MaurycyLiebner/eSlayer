@@ -16,6 +16,11 @@ public:
     static void sLoad(SDL_Renderer* const r,
                       const eResolution& res);
 
+    static std::shared_ptr<eTexture>
+    sOkIcon;
+    static std::shared_ptr<eTexture>
+    sCancelIcon;
+
     static eStringIdMapVector<std::shared_ptr<eTexture>>
     sSkillIcons;
     static std::shared_ptr<eTexture>

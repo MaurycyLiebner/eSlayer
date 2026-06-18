@@ -12,6 +12,7 @@ public:
     static std::string name(const int id);
     static void load();
 
+    static std::vector<int> sGoldIds;
     static eStringIdMapVector<eItemData> sItems;
 private:
     static void load(const std::string& name,

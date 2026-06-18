@@ -65,7 +65,10 @@ void eItemsTextures::loadImpl() {
                     const auto path = key + "/" + name.get<std::string>();
                     int w;
                     int h;
-                    if(key == "amulets" || key == "rings" || key == "potions") {
+                    if(key == "gold") {
+                        w = 0;
+                        h = 0;
+                    } else if(key == "amulets" || key == "rings" || key == "potions") {
                         w = 1;
                         h = 1;
                     } else if(key == "armor") {
@@ -141,12 +144,25 @@ eItemTexture& eItemsTextures::getByItemDataIdImpl(
 
 void eItemTexture::request(SDL_Renderer* const r,
                            const eResolution& res) {
-    if(fTex) return;
     const auto dir = "Textures";
     const auto suffix = res.textureSuffix();
-    const auto path = "ui/items/" + fTexPath + suffix + ".png";
-    fTex = eFileLoader::readTexture(r, dir, path);
-    const int w = std::round(0.25f*fTex->width());
-    const int h = std::round(0.25f*fTex->height());
-    fTinyTex = fTex->scaled(r, w, h);
+    if(!fTex) {
+        const auto path = "ui/items/" + fTexPath + suffix + ".png";
+        const bool e = eFileLoaderBase::fileExists(dir, path);
+        if(e) {
+            fTex = eFileLoader::readTexture(r, dir, path);
+        }
+    }
+    if(!fTinyTex) {
+        const auto groundPath = "items/" + fTexPath + suffix + ".png";
+        const bool e = eFileLoaderBase::fileExists(dir, groundPath);
+        if(e) {
+            fTinyTex = eFileLoader::readTexture(r, dir, groundPath);
+        }
+        if(!fTinyTex || fTinyTex->isNull() && fTex) {
+            const int w = std::round(0.25f*fTex->width());
+            const int h = std::round(0.25f*fTex->height());
+            fTinyTex = fTex->scaled(r, w, h);
+        }
+    }
 }

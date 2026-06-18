@@ -119,12 +119,16 @@ bool gReadItemSlot(eItem& item,
 }
 
 bool gReadInventory(std::vector<eInventoryItem>& items,
+                    uint32_t* const gold,
                     const std::string& name,
                     const XMLElement* parentE) {
     if(!parentE) return false;
-
     const auto invE = parentE->FirstChildElement(name.c_str());
     if(!invE) return false;
+    if(gold) {
+        *gold = 0;
+        invE->QueryUnsignedAttribute("gold", gold);
+    }
     auto placeE = invE->FirstChildElement("place");
     while(placeE) {
         eInventoryItem inv{};
@@ -297,10 +301,14 @@ bool eCharacter::load(const std::string& path,
         const int active = eqE->IntAttribute("activeWeapons", 1);
         eq.fWeapons1 = active == 1;
         readEq(eq, eqE);
-        gReadInventory(eq.fInventory, "inventory", eqE);
-        gReadInventory(eq.fBeltPotions, "beltPotions", eqE);
-        gReadInventory(eq.fBeltHiddenPotions, "beltPotionsHidden", eqE);
-        gReadInventory(eq.fStash, "stash", eqE);
+        gReadInventory(eq.fInventory, &eq.fInventoryGold,
+                       "inventory", eqE);
+        gReadInventory(eq.fBeltPotions, nullptr,
+                       "beltPotions", eqE);
+        gReadInventory(eq.fBeltHiddenPotions, nullptr,
+                       "beltPotionsHidden", eqE);
+        gReadInventory(eq.fStash, &eq.fStashGold,
+                       "stash", eqE);
     }
 
     if(const auto eqE = rootE->FirstChildElement("bodyEquipment")) {
@@ -443,9 +451,13 @@ void gWriteItemSlot(const eItem& item,
 }
 
 void gWriteInventory(const std::vector<eInventoryItem>& items,
+                     const std::optional<uint32_t>& gold,
                      const std::string& name,
                      XMLElement* const e) {
     const auto invE = e->InsertNewChildElement(name.c_str());
+    if(gold) {
+        invE->SetAttribute("gold", *gold);
+    }
     for(const auto& i : items) {
         const auto placeE = invE->InsertNewChildElement("place");
         placeE->SetAttribute("x", i.fX);
@@ -555,10 +567,18 @@ bool eCharacter::write(const std::string& path) const {
     const auto eqE = rootE->InsertNewChildElement("equipment");
     eqE->SetAttribute("activeWeapons", mEquipment.fWeapons1 ? 1 : 2);
     writeEq(mEquipment, eqE);
-    gWriteInventory(mEquipment.fInventory, "inventory", eqE);
-    gWriteInventory(mEquipment.fBeltPotions, "beltPotions", eqE);
-    gWriteInventory(mEquipment.fBeltHiddenPotions, "beltPotionsHidden", eqE);
-    gWriteInventory(mEquipment.fStash, "stash", eqE);
+    gWriteInventory(mEquipment.fInventory,
+                    mEquipment.fInventoryGold,
+                    "inventory", eqE);
+    gWriteInventory(mEquipment.fBeltPotions,
+                    std::nullopt,
+                    "beltPotions", eqE);
+    gWriteInventory(mEquipment.fBeltHiddenPotions,
+                    std::nullopt,
+                    "beltPotionsHidden", eqE);
+    gWriteInventory(mEquipment.fStash,
+                    mEquipment.fStashGold,
+                    "stash", eqE);
 
     for(const auto& body : mBodies) {
         if(body.bodyEmpty()) continue;

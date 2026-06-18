@@ -72,6 +72,8 @@ public:
                     const uint32_t itemId,
                     const bool drag) override;
     bool dropItem(const uint32_t clientId) override;
+    bool dropGold(const uint32_t clientId,
+                  const uint32_t count) override;
     bool rearrangeItems(const uint32_t clientId,
                         const eEquipment& eq) override;
     bool changeAttributes(const uint32_t clientId,

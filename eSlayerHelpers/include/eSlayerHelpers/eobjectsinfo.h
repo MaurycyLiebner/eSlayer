@@ -9,7 +9,8 @@ enum class eObjectType {
     none,
     treasure,
     waypoint,
-    portal
+    portal,
+    stash
 };
 
 struct eObjectInfo {

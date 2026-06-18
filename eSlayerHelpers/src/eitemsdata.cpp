@@ -7,6 +7,7 @@
 
 // #include <fstream>
 
+std::vector<int> eItemsData::sGoldIds;
 bool eItemsData::sLoaded = false;
 eStringIdMapVector<eItemData>
 eItemsData::sItems;
@@ -94,6 +95,9 @@ void eItemsData::load(const std::string& name,
     } else if(type == eItemType::potion) {
         const auto potionType = ePotionTypeHelpers::type(name);
         itemData.fSubtype = static_cast<uint8_t>(potionType);
+    } else if(type == eItemType::gold) {
+        const int id = sItems.nextId();
+        sGoldIds.emplace_back(id);
     }
     itemData.fRange = jdata.value("range", 0.f);
     itemData.fWSM = jdata.value("WSM", 0.f);

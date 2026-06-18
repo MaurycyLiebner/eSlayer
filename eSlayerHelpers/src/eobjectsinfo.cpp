@@ -28,8 +28,12 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::waypoint;
             } else if(typeStr == "portal") {
                 info.fType = eObjectType::portal;
-            } else {
+            } else if(typeStr == "stash") {
+                info.fType = eObjectType::stash;
+            } else if(typeStr == ""){
                 info.fType = eObjectType::none;
+            } else {
+                eRuntimeThrow("Unrecognized object type \"" + typeStr + "\"");
             }
             info.fTexStr = value.value("texture", "");
             sObjects.add(key, info);

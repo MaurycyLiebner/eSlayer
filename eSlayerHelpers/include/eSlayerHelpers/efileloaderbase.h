@@ -12,6 +12,9 @@ using namespace nlohmann;
 
 class ESLAYERHELPERS_API eFileLoaderBase {
 public:
+    static bool fileExists(const std::string& dir,
+                           const std::string& path);
+
     static ordered_json parse(const std::string& dir,
                               const std::string& path);
 

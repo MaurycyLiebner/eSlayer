@@ -9,7 +9,9 @@ class eCoinsWidget : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const int count);
+    void initialize(const int count,
+                    const eAction& action,
+                    const int tooltipS);
 
     void setCount(const int count);
 private:

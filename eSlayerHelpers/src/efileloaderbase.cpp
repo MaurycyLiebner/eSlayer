@@ -16,8 +16,22 @@ std::string eFileLoaderBase::sFilePath(const std::string& dir,
     return eGameDir::path(dir + "/" + path);
 }
 
-ordered_json eFileLoaderBase::parse(const std::string& dir,
-                                    const std::string& path) {
+bool eFileLoaderBase::fileExists(
+    const std::string& dir, const std::string& path) {
+    if(eRunSettings::sUseZip) {
+        auto& zip = sZipLoaders[dir];
+        if(!zip.opened()) {
+            zip.open(eGameDir::path(dir + ".zip"));
+        }
+        return zip.exists(path);
+    } else {
+        const auto filePath = sFilePath(dir, path);
+        return std::filesystem::exists(filePath);
+    }
+}
+
+ordered_json eFileLoaderBase::parse(
+    const std::string& dir, const std::string& path) {
     try {
         if(eRunSettings::sUseZip) {
             const auto data = sInstance.load(dir, path);

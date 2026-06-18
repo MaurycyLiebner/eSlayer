@@ -47,6 +47,7 @@ public:
 
     bool pickupItem(const uint32_t itemId, const bool drag);
     bool dropItem();
+    bool dropGold(const uint32_t count);
     bool rearrangeItems(const eEquipment& eq);
     bool changeAttributes(const eAttributes& attrs);
     bool changeSkillLevels(const eSkillLevels& skillLevels);

@@ -167,6 +167,10 @@ void eGameWidget::dropItem() {
     eHoverWidget::sUpdateDragItem(eq);
 }
 
+void eGameWidget::dropGold(const int count) {
+    mServer->dropGold(mClientId, count);
+}
+
 void eGameWidget::sendInventoryRearranged() {
     const auto& eq = mMainAction->equipment();
     mServer->rearrangeItems(mClientId, eq);
@@ -305,6 +309,10 @@ void eGameWidget::sSendAttributesChanged() {
 
 void eGameWidget::sMoveToMap(const eMoveToMapData& moveData) {
     sInstance->mMoveAction(moveData);
+}
+
+void eGameWidget::sDropGold(const int gold) {
+    sInstance->dropGold(gold);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
@@ -1403,6 +1411,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto t2 = eTeams::playerTeam(mClientId);
                     highlightable = t1 == t2;
                 } break;
+                case eObjectType::stash:
+                    highlightable = true;
+                    break;
                 };
                 ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
                 if(highlightable && !mHighlightUnit.lock() && !mHighlightObject.lock()) {

@@ -7,6 +7,8 @@
 #include <eSlayerHelpers/eskills.h>
 
 std::string eUITextures::sLoaded;
+std::shared_ptr<eTexture> eUITextures::sOkIcon;
+std::shared_ptr<eTexture> eUITextures::sCancelIcon;
 eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
 std::shared_ptr<eTexture> eUITextures::sWalkIcon;
@@ -88,6 +90,9 @@ void eUITextures::sLoad(SDL_Renderer* const r,
             sExpBar2 = loader.load(1);
         }
     }
+
+    sOkIcon = eFileLoader::readTexture(r, dir, "ui/ok" + suffix + ".png");
+    sCancelIcon = eFileLoader::readTexture(r, dir, "ui/cancel" + suffix + ".png");
 
     sWalkIcon = eFileLoader::readTexture(r, dir, "ui/walk" + suffix + ".png");
     sRunIcon = eFileLoader::readTexture(r, dir, "ui/run" + suffix + ".png");

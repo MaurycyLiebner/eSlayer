@@ -176,6 +176,13 @@ bool eServerClientHandler::dropItem() {
     return true;
 }
 
+bool eServerClientHandler::dropGold(
+    const uint32_t count) {
+    if(!mArea) return false;
+    mArea->dropGold(mClientId, count);
+    return true;
+}
+
 bool eServerClientHandler::rearrangeItems(
     const eEquipment& eq) {
     if(!mArea) return false;
