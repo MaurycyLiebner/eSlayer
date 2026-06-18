@@ -101,6 +101,7 @@ void eGameScreen::initialize(const uint32_t clientId,
         if(mInventoryMenu) {
             hideInventoryMenu();
         } else {
+            hideRightMenu();
             showInventoryMenu();
         }
     };
@@ -109,6 +110,7 @@ void eGameScreen::initialize(const uint32_t clientId,
         if(mStatsMenu) {
             hideStatsMenu();
         } else {
+            hideLeftMenu();
             showStatsMenu();
         }
     };
@@ -117,6 +119,7 @@ void eGameScreen::initialize(const uint32_t clientId,
         if(mSkillTreesMenu) {
             hideSkillTreesMenu();
         } else {
+            hideRightMenu();
             showSkillTreesMenu();
         }
     };
@@ -125,6 +128,7 @@ void eGameScreen::initialize(const uint32_t clientId,
         if(mPartyMenu) {
             hidePartyMenu();
         } else {
+            hideLeftMenu();
             showPartyMenu();
         }
     };
