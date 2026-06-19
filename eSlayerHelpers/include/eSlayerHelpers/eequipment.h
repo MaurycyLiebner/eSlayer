@@ -59,8 +59,13 @@ struct ESLAYERHELPERS_API eBodyEquipment {
     void bodyRead(ePacket& p);
     void bodyWrite(ePacket& p) const;
 
+    void readBodyIds(ePacket& p);
+    void writeBodyIds(ePacket& p) const;
+
     using eIter = std::function<void(eItem& item)>;
     void iterateOverBody(const eIter& iter);
+    using eCIter = std::function<void(const eItem& item)>;
+    void iterateOverBody(const eCIter& iter) const;
 private:
     using eItemAction = std::function<void(eItem eBodyEquipment::*it)>;
     static void iterateOverBody(const eItemAction& a);

@@ -388,7 +388,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     const auto& eq = c.equipment();
                     eq.writeIds(p);
 
-                    eBodies::write(bodies, p);
+                    eBodies::writeIds(bodies, p);
 
                     eTeams::write(p);
                     ePortal::write(p);

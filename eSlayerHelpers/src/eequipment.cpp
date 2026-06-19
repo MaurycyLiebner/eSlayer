@@ -394,6 +394,12 @@ void eBodyEquipment::iterateOverBody(const eIter& iter) {
     });
 }
 
+void eBodyEquipment::iterateOverBody(const eCIter& iter) const {
+    iterateOverBody([this, iter](eItem eBodyEquipment::*it) {
+        iter(this->*it);
+    });
+}
+
 void eBodyEquipment::iterateOverBody(const eItemAction& a) {
     for(const auto it : {&eEquipment::fBoots,
                          &eEquipment::fGloves,
@@ -410,6 +416,19 @@ void eBodyEquipment::iterateOverBody(const eItemAction& a) {
                          &eEquipment::fDragged}) {
         a(it);
     }
+}
+
+
+void eBodyEquipment::readBodyIds(ePacket& p) {
+    iterateOverBody([&](eItem& item) {
+        p >> item.fItemId;
+    });
+}
+
+void eBodyEquipment::writeBodyIds(ePacket& p) const {
+    iterateOverBody([&](const eItem& item) {
+        p << item.fItemId;
+    });
 }
 
 void eEquipment::read(ePacket& p) {

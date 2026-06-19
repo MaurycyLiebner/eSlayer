@@ -130,7 +130,7 @@ bool eTcpIpJoin::spawn(
             auto& eq = c.equipment();
             eq.readIds(p);
 
-            eBodies::read(bodies, p);
+            eBodies::readIds(c.bodies(), bodies, p);
 
             eTeams::read(p);
             ePortal::read(p);

@@ -18,6 +18,20 @@ void eBody::write(ePacket& p) const {
     fEq.bodyWrite(p);
 }
 
+void eBody::readIds(ePacket& p) {
+    p >> fPos;
+    p >> fMapId;
+    p >> fBodyId;
+    fEq.readBodyIds(p);
+}
+
+void eBody::writeIds(ePacket& p) const {
+    p << fPos;
+    p << fMapId;
+    p << fBodyId;
+    fEq.writeBodyIds(p);
+}
+
 void eBodies::read(ePacket& p) {
     read(sBodies, p);
 }
@@ -32,6 +46,21 @@ void eBodies::read(std::vector<eBody>& bodies, ePacket& p) {
     }
 }
 
+void eBodies::readIds(std::vector<eBodyEquipment>& eqs,
+                      std::vector<eBody>& bodies,
+                      ePacket& p) {
+    bodies.clear();
+    uint8_t nBodies;
+    p >> nBodies;
+    for(int i = 0; i < nBodies; i++) {
+        auto& body = bodies.emplace_back();
+        auto& eq = eqs[i];
+        body.fEq = eq;
+        body.readIds(p);
+        eq = body.fEq;
+    }
+}
+
 void eBodies::write(ePacket& p) {
     write(sBodies, p);
 }
@@ -43,6 +72,16 @@ void eBodies::write(const std::vector<eBody>& bodies,
     for(int i = 0; i < nBodies; i++) {
         const auto& body = bodies[i];
         body.write(p);
+    }
+}
+
+void eBodies::writeIds(const std::vector<eBody>& bodies,
+                       ePacket& p) {
+    const uint8_t nBodies = std::min(255lu, bodies.size());
+    p << nBodies;
+    for(int i = 0; i < nBodies; i++) {
+        const auto& body = bodies[i];
+        body.writeIds(p);
     }
 }
 
