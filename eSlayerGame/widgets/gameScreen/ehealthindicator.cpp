@@ -34,7 +34,4 @@ void eHealthIndicator::setText(const std::string& text) {
     mText->setText(text);
     mText->fitContent();
     mText->align(eAlignment::center);
-    if(mText->height() > height()) {
-        mText->setY(-1.2f*mText->height());
-    }
 }
