@@ -41,7 +41,11 @@ void eStashWidget::initialize(eEquipment& eq, const eStats& stats) {
         const auto goldA = [&eq](const int count) {
             eq.fInventoryGold += count;
             eq.fStashGold -= count;
-            eGameWidget::sSendInventoryRearranged();
+            eEquipmentAction a;
+            a.fType = eEquipmentActionType::gold;
+            a.fStashGold = eq.fStashGold;
+            a.fInvGold = eq.fInventoryGold;
+            eGameWidget::sSendEqAction(a);
         };
         q->initialize(goldA, 11, eq.fStashGold);
         addWidget(q);

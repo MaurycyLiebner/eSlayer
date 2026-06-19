@@ -138,6 +138,7 @@ public:
     bool dropGold(const uint32_t clientId,
                   uint32_t count);
     void rearrangeItems(const uint32_t clientId, const eEquipment& eq);
+    bool equipmentAction(const uint32_t clientId, const eEquipmentAction& a);
     void changeAttributes(const uint32_t clientId, const eAttributes& attrs);
     void changeSkillLevels(const uint32_t clientId, const eSkillLevels& skillLevels);
     void consumePotion(const uint32_t clientId, const uint32_t itemId);

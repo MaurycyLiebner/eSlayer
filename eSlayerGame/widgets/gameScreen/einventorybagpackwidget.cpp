@@ -50,6 +50,24 @@ bool eInventoryBagpackWidget::dropItem() {
     if(!r) return false;
     const auto ids = itemIdsAt(dropRect);
     if(ids.size() > 1) return true;
+    eEquipmentAction a;
+    auto& place = a.fPlace;
+    switch(mType) {
+    case eBagpackType::belt:
+        place.fType = ePlaceType::beltPotions;
+        break;
+    case eBagpackType::beltExtension:
+        place.fType = ePlaceType::beltHiddenPotions;
+        break;
+    case eBagpackType::stash:
+        place.fType = ePlaceType::stash;
+        break;
+    case eBagpackType::inventory:
+        place.fType = ePlaceType::inventory;
+        break;
+    }
+    place.fX = dropRect.x;
+    place.fY = dropRect.y;
     if(ids.size() == 1) {
         auto& invItem = (*mItems)[ids[0]];
         std::swap(dragged, invItem.fItem);
@@ -57,6 +75,9 @@ bool eInventoryBagpackWidget::dropItem() {
         invItem.fY = dropRect.y;
         invItem.fW = dropRect.w;
         invItem.fH = dropRect.h;
+
+        a.fItemId1 = dragged.fItemId;
+        a.fType = eEquipmentActionType::switchDrag;
     } else {
         eInventoryItem invItem;
         invItem.fItem = dragged;
@@ -67,9 +88,11 @@ bool eInventoryBagpackWidget::dropItem() {
         mItems->push_back(invItem);
         setHoverItem(invItem);
         dragged = eItem();
+
+        a.fType = eEquipmentActionType::drop;
     }
     eHoverWidget::sUpdateDragItem(*mEq);
-    eGameWidget::sSendInventoryRearranged();
+    eGameWidget::sSendEqAction(a);
     return true;
 }
 
@@ -200,18 +223,28 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
         }
     } else {
         if(e.shiftPressed() && item.fType == eItemType::potion) {
-            const bool r = mEq->addToBelt(item, nullptr);
+            eEquipmentPlace place;
+            const bool r = mEq->addToBelt(item, &place);
             if(r) {
                 inv.erase(inv.begin() + itemId);
                 eHoverWidget::sSetHoverItem(eItem());
-                eGameWidget::sSendInventoryRearranged();
+
+                eEquipmentAction a;
+                a.fType = eEquipmentActionType::dragAndDrop;
+                a.fItemId1 = item.fItemId;
+                a.fPlace = place;
+                eGameWidget::sSendEqAction(a);
             }
         } else {
             inv.erase(inv.begin() + itemId);
             mEq->fDragged = item;
             eHoverWidget::sUpdateDragItem(*mEq);
             eHoverWidget::sSetHoverItem(eItem());
-            eGameWidget::sSendInventoryRearranged();
+
+            eEquipmentAction a;
+            a.fType = eEquipmentActionType::drag;
+            a.fItemId1 = item.fItemId;
+            eGameWidget::sSendEqAction(a);
         }
     }
     return true;

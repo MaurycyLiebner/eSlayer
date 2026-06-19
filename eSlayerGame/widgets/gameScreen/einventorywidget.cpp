@@ -34,55 +34,64 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     const auto helmet = new eItemPlaceWidget(window());
     helmet->intialize(eUITextures::sHelmetSlot, eq, stats,
                       &eEquipment::fHelmet,
-                      {eItemType::helmet});
+                      {eItemType::helmet},
+                      ePlaceType::helmet);
     mItemPlaces.emplace_back(helmet);
 
     const auto armor = new eItemPlaceWidget(window());
     armor->intialize(eUITextures::sArmorSlot, eq, stats,
                      &eEquipment::fArmor,
-                     {eItemType::armor});
+                     {eItemType::armor},
+                     ePlaceType::armor);
     mItemPlaces.emplace_back(armor);
 
     const auto belt = new eItemPlaceWidget(window());
     belt->intialize(eUITextures::sBeltSlot, eq, stats,
                     &eEquipment::fBelt,
-                    {eItemType::belt});
+                    {eItemType::belt},
+                    ePlaceType::belt);
     mItemPlaces.emplace_back(belt);
 
     const auto boots = new eItemPlaceWidget(window());
     boots->intialize(eUITextures::sBootsSlot, eq, stats,
                      &eEquipment::fBoots,
-                     {eItemType::boots});
+                     {eItemType::boots},
+                     ePlaceType::boots);
     mItemPlaces.emplace_back(boots);
 
     const auto gloves = new eItemPlaceWidget(window());
     gloves->intialize(eUITextures::sGlovesSlot, eq, stats,
                       &eEquipment::fGloves,
-                      {eItemType::gloves});
+                      {eItemType::gloves},
+                      ePlaceType::gloves);
     mItemPlaces.emplace_back(gloves);
 
     const auto ringL = new eItemPlaceWidget(window());
     ringL->intialize(eUITextures::sRingSlot, eq, stats,
                      &eEquipment::fRingL,
-                     {eItemType::ring});
+                     {eItemType::ring},
+                     ePlaceType::ringL);
     mItemPlaces.emplace_back(ringL);
 
     const auto ringR = new eItemPlaceWidget(window());
     ringR->intialize(eUITextures::sRingSlot, eq, stats,
                      &eEquipment::fRingR,
-                     {eItemType::ring});
+                     {eItemType::ring},
+                     ePlaceType::ringR);
     mItemPlaces.emplace_back(ringR);
 
     const auto amulet = new eItemPlaceWidget(window());
     amulet->intialize(eUITextures::sAmuletSlot, eq, stats,
                       &eEquipment::fAmulet,
-                      {eItemType::amulet});
+                      {eItemType::amulet},
+                      ePlaceType::amulet);
     mItemPlaces.emplace_back(amulet);
 
     mWeapon1L = new eItemPlaceWidget(window());
     mWeapon1L->intialize(eUITextures::sWeaponSlot, eq, stats,
                          &eEquipment::fWeapon1L,
-                         {eItemType::weapon});
+                         {eItemType::weapon},
+                         ePlaceType::weapon1L);
     mItemPlaces.emplace_back(mWeapon1L);
 
     mWeapon1R = new eItemPlaceWidget(window());
@@ -90,13 +99,15 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
                          &eEquipment::fWeapon1R,
                          {eItemType::weapon,
                           eItemType::shield,
-                          eItemType::arrows});
+                          eItemType::arrows},
+                         ePlaceType::weapon1R);
     mItemPlaces.emplace_back(mWeapon1R);
 
     mWeapon2L = new eItemPlaceWidget(window());
     mWeapon2L->intialize(eUITextures::sWeaponSlot, eq, stats,
                          &eEquipment::fWeapon2L,
-                         {eItemType::weapon});
+                         {eItemType::weapon},
+                         ePlaceType::weapon2L);
     mItemPlaces.emplace_back(mWeapon2L);
 
     mWeapon2R = new eItemPlaceWidget(window());
@@ -104,7 +115,8 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
                          &eEquipment::fWeapon2R,
                          {eItemType::weapon,
                           eItemType::shield,
-                          eItemType::arrows});
+                          eItemType::arrows},
+                         ePlaceType::weapon2R);
     mItemPlaces.emplace_back(mWeapon2R);
 
     const int p = res.largePadding();
@@ -196,7 +208,11 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
             } else {
                 eGameWidget::sDropGold(count);
             }
-            eGameWidget::sSendInventoryRearranged();
+            eEquipmentAction a;
+            a.fType = eEquipmentActionType::gold;
+            a.fStashGold = eq.fStashGold;
+            a.fInvGold = eq.fInventoryGold;
+            eGameWidget::sSendEqAction(a);
         };
         q->initialize(goldA, s, eq.fInventoryGold);
         addWidget(q);

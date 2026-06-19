@@ -100,6 +100,9 @@ public:
                     const eTeamAction& action) override;
 
     bool spawnPortal(const uint32_t clientId) override;
+
+    bool equipmentAction(const uint32_t clientId,
+                         const eEquipmentAction& a) override;
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);

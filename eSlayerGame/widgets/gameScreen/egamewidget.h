@@ -83,7 +83,7 @@ public:
     eTeamId team() const { return mMainChar->fTeamId; }
     void dropItem();
     void dropGold(const int count);
-    void sendInventoryRearranged();
+    void sendEqAction(const eEquipmentAction& a);
     void sendAttributesChanged();
     void sendSkillLevelsChanged();
 
@@ -113,7 +113,7 @@ public:
     void spawnPortal();
 
     static eGameWidget* sInstance;
-    static void sSendInventoryRearranged();
+    static void sSendEqAction(const eEquipmentAction& a);
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
     static void sMoveToMap(const eMoveToMapData& moveData);

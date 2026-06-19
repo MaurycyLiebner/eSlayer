@@ -171,9 +171,9 @@ void eGameWidget::dropGold(const int count) {
     mServer->dropGold(mClientId, count);
 }
 
-void eGameWidget::sendInventoryRearranged() {
-    const auto& eq = mMainAction->equipment();
-    mServer->rearrangeItems(mClientId, eq);
+void eGameWidget::sendEqAction(const eEquipmentAction& a) {
+    mServer->equipmentAction(mClientId, a);
+    mMainAction->recalculateStats();
 }
 
 void eGameWidget::sendAttributesChanged() {
@@ -228,7 +228,12 @@ bool eGameWidget::switchRunning() {
 bool eGameWidget::switchWeapons() {
     auto& eq = mMainAction->equipment();
     eq.fWeapons1 = !eq.fWeapons1;
-    sSendInventoryRearranged();
+
+    eEquipmentAction a;
+    a.fType = eEquipmentActionType::switchWeapons;
+    a.fWeapons1 = eq.fWeapons1;
+    eGameWidget::sSendEqAction(a);
+
     return eq.fWeapons1;
 }
 
@@ -292,9 +297,8 @@ void eGameWidget::spawnPortal() {
     mServer->spawnPortal(mClientId);
 }
 
-void eGameWidget::sSendInventoryRearranged() {
-    sInstance->sendInventoryRearranged();
-    sInstance->mMainAction->recalculateStats();
+void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
+    sInstance->sendEqAction(a);
 }
 
 void eGameWidget::sSendSkillLevelsChanged() {

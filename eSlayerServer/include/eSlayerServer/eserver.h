@@ -152,6 +152,10 @@ public:
     virtual bool
     spawnPortal(const uint32_t clientId) = 0;
 
+    virtual bool
+    equipmentAction(const uint32_t clientId,
+                    const eEquipmentAction& a) = 0;
+
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }
 

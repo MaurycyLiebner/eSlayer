@@ -7,13 +7,25 @@
 struct eEquipment;
 
 enum class eEquipmentActionType {
-    none, add
+    none, add,
+    drag, switchDrag, drop,
+    gold, switchWeapons,
+    dragAndDrop
 };
 
 struct eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
     eEquipmentPlace fPlace;
-    eItem fItem;
+
+    eItem fAddItem;
+
+    uint32_t fItemId1;
+    uint32_t fItemId2;
+
+    uint32_t fInvGold;
+    uint32_t fStashGold;
+
+    bool fWeapons1;
 
     bool apply(eEquipment& eq) const;
 
@@ -21,6 +33,15 @@ struct eEquipmentAction {
     void write(ePacket& p) const;
 private:
     bool add(eEquipment& eq) const;
+    static bool add(eEquipment& eq,
+                    const eItem& item,
+                    const eEquipmentPlace place);
+    bool drag(eEquipment& eq) const;
+    bool switchDrag(eEquipment& eq) const;
+    bool drop(eEquipment& eq) const;
+    bool dragAndDrop(eEquipment& eq) const;
+    bool gold(eEquipment& eq) const;
+    bool switchWeapons(eEquipment& eq) const;
 };
 
 #endif // EEQUIPMENTACTION_H

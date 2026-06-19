@@ -246,6 +246,14 @@ bool eTcpIpHost::spawnPortal(
         clientId);
 }
 
+bool eTcpIpHost::equipmentAction(
+    const uint32_t clientId,
+    const eEquipmentAction& a) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::equipmentAction(
+        clientId, a);
+}
+
 bool eTcpIpHost::triggerObject(
     const uint32_t clientId, const eServerObject& obj) {
     std::unique_lock lock(mMutex);
@@ -437,7 +445,23 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
 
     } break;
     case ePacketType::equipmentAction: {
-
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            eEquipmentAction a;
+            a.read(p);
+            const bool r = eLocalServer::equipmentAction(charId, a);
+            if(!r) {
+                eEquipment data;
+                const bool r = eLocalServer::receiveEquipment(
+                    charId, data);
+                if(!r) return;
+                ePacket p;
+                p << ePacketType::equipment;
+                data.write(p);
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
     } break;
     case ePacketType::body: {
 

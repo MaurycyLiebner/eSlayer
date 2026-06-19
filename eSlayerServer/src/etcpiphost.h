@@ -75,6 +75,9 @@ public:
                     const eTeamAction& action) override;
 
     bool spawnPortal(const uint32_t clientId) override;
+
+    bool equipmentAction(const uint32_t clientId,
+                         const eEquipmentAction& a) override;
 private:
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);

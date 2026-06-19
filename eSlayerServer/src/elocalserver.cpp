@@ -371,6 +371,14 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
     });
 }
 
+bool eLocalServer::equipmentAction(
+    const uint32_t clientId,
+    const eEquipmentAction& a) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->equipmentAction(a);
+}
+
 bool eLocalServer::changeTeam(
     const uint32_t clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);

@@ -62,6 +62,7 @@ public:
                      uint8_t& mapId,
                      uint8_t& areaId,
                      ePointF& pos);
+    bool equipmentAction(const eEquipmentAction& a);
 private:
     const uint32_t mClientId;
     std::shared_ptr<eServerArea> mArea;

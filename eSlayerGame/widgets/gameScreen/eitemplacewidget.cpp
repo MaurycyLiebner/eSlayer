@@ -16,12 +16,14 @@ void eItemPlaceWidget::intialize(
     eEquipment& eq,
     const eStats& stats,
     eItem eEquipment::* const item,
-    const std::vector<eItemType>& allowedTypes) {
+    const std::vector<eItemType>& allowedTypes,
+    const ePlaceType place) {
     setNoPadding();
     mEq = &eq;
     mStats = &stats;
     mDst = item;
     mAllowedTypes = allowedTypes;
+    mPlace.fType = place;
 
     setTexture(tex);
     mTex = tex;
@@ -36,7 +38,17 @@ bool eItemPlaceWidget::dropItem() {
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
     eHoverWidget::sUpdateDragItem(*mEq);
-    eGameWidget::sSendInventoryRearranged();
+
+    eEquipmentAction a;
+    if(dragged.fType == eItemType::none) {
+        a.fType = eEquipmentActionType::drop;
+    } else {
+        a.fType = eEquipmentActionType::switchDrag;
+        a.fItemId1 = dragged.fItemId;
+    }
+    a.fPlace = mPlace;
+    eGameWidget::sSendEqAction(a);
+
     return true;
 }
 
@@ -53,7 +65,12 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
     eHoverWidget::sUpdateDragItem(*mEq);
-    eGameWidget::sSendInventoryRearranged();
+
+    eEquipmentAction a;
+    a.fType = eEquipmentActionType::drag;
+    a.fItemId1 = dragged.fItemId;
+    eGameWidget::sSendEqAction(a);
+
     return true;
 }
 

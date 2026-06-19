@@ -237,3 +237,9 @@ bool eServerClientHandler::spawnPortal(
         mClientId, portalId,
         mapId, areaId, pos);
 }
+
+bool eServerClientHandler::equipmentAction(
+    const eEquipmentAction& a) {
+    if(!mArea) return false;
+    return mArea->equipmentAction(mClientId, a);
+}

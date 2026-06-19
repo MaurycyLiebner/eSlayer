@@ -373,6 +373,17 @@ bool eTcpIpJoin::spawnPortal(const uint32_t clientId) {
     return true;
 }
 
+bool eTcpIpJoin::equipmentAction(
+    const uint32_t clientId,
+    const eEquipmentAction& a) {
+    ePacket p;
+    p << ePacketType::equipmentAction;
+    a.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send equipment action to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,

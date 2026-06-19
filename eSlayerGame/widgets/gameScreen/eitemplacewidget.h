@@ -3,6 +3,8 @@
 
 #include "../elabel.h"
 
+#include <eSlayerHelpers/eequipmentplace.h>
+
 struct eEquipment;
 struct eItem;
 struct eStats;
@@ -16,7 +18,8 @@ public:
                    eEquipment& eq,
                    const eStats& stats,
                    eItem eEquipment::* const item,
-                   const std::vector<eItemType>& allowedTypes);
+                   const std::vector<eItemType>& allowedTypes,
+                   const ePlaceType place);
 
     bool dropItem();
     void setHoverItem();
@@ -29,6 +32,7 @@ protected:
 private:
     bool draggedCompatible();
 
+    eEquipmentPlace mPlace;
     std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
     const eStats* mStats = nullptr;

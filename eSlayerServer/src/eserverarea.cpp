@@ -1166,17 +1166,21 @@ bool eServerArea::pickupItem(
     if(!u) return false;
     const auto itemPtr = mItemsOnGround.get(itemId);
     if(!itemPtr) return false;
-    action.fType = eEquipmentActionType::add;
-    auto& item = action.fItem;
+    auto& item = action.fAddItem;
     item = *itemPtr;
-    auto& aplace = action.fPlace;
     const auto gitem = mGroundItems.get(itemId);
     const auto area = itemArea(itemId);
     const auto tile = itemTile(itemId);
     auto& eq = u->equipment();
     if(gitem->fType == eItemType::gold) {
         eq.fInventoryGold += item.fCount;
+
+        action.fType = eEquipmentActionType::gold;
+        action.fInvGold = eq.fInventoryGold;
+        action.fStashGold = eq.fStashGold;
     } else {
+        action.fType = eEquipmentActionType::add;
+        auto& aplace = action.fPlace;
         if(drag) {
             if(eq.fDragged.fType != eItemType::none) return false;
             aplace.fType = ePlaceType::dragged;
@@ -1234,6 +1238,15 @@ void eServerArea::rearrangeItems(
     const auto u = unit(clientId);
     if(!u) return;
     u->setEquipment(eq);
+}
+
+bool eServerArea::equipmentAction(
+    const uint32_t clientId,
+    const eEquipmentAction& a) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    auto& eq = u->equipment();
+    return a.apply(eq);
 }
 
 void eServerArea::changeAttributes(
