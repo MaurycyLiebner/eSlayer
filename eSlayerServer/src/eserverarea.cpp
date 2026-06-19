@@ -360,7 +360,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                         item.fType = data.fType;
                         item.fSubType = data.fSubtype;
                         item.fDataId = itemId;
-                        eq.add(item, true);
+                        eq.add(item, true, nullptr);
                     }
 
                     if(elite) {
@@ -1160,25 +1160,31 @@ bool eServerArea::triggerDoors(
 bool eServerArea::pickupItem(
     const uint32_t clientId,
     const uint32_t itemId,
-    const bool drag) {
+    const bool drag,
+    eEquipmentAction& action) {
     const auto u = unit(clientId);
     if(!u) return false;
-    const auto item = mItemsOnGround.get(itemId);
-    if(!item) return false;
+    const auto itemPtr = mItemsOnGround.get(itemId);
+    if(!itemPtr) return false;
+    action.fType = eEquipmentActionType::add;
+    auto& item = action.fItem;
+    item = *itemPtr;
+    auto& aplace = action.fPlace;
     const auto gitem = mGroundItems.get(itemId);
     const auto area = itemArea(itemId);
     const auto tile = itemTile(itemId);
     auto& eq = u->equipment();
     if(gitem->fType == eItemType::gold) {
-        eq.fInventoryGold += item->fCount;
+        eq.fInventoryGold += item.fCount;
     } else {
         if(drag) {
             if(eq.fDragged.fType != eItemType::none) return false;
-            eq.fDragged = *item;
+            aplace.fType = ePlaceType::dragged;
+            eq.fDragged = item;
         } else {
             const auto& stats = u->stats();
-            const bool met = stats.itemReqsMet(*item);
-            const bool r = eq.add(*item, met);
+            const bool met = stats.itemReqsMet(item);
+            const bool r = eq.add(item, met, &aplace);
             if(!r) return false;
             u->recalculateStats();
             u->recalculateAuras();

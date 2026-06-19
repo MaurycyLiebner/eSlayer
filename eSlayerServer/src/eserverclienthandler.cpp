@@ -165,9 +165,10 @@ bool eServerClientHandler::triggerDoors(
 }
 
 bool eServerClientHandler::pickupItem(
-    const uint32_t itemId, const bool drag) {
+    const uint32_t itemId, const bool drag,
+    eEquipmentAction& action) {
     if(!mArea) return false;
-    return mArea->pickupItem(mClientId, itemId, drag);
+    return mArea->pickupItem(mClientId, itemId, drag, action);
 }
 
 bool eServerClientHandler::dropItem() {

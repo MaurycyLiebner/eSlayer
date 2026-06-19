@@ -200,7 +200,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
         }
     } else {
         if(e.shiftPressed() && item.fType == eItemType::potion) {
-            const bool r = mEq->addToBelt(item);
+            const bool r = mEq->addToBelt(item, nullptr);
             if(r) {
                 inv.erase(inv.begin() + itemId);
                 eHoverWidget::sSetHoverItem(eItem());

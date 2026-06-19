@@ -185,6 +185,10 @@ add_library(eSlayerHelpers SHARED
     src/eportals.cpp
     include/eSlayerHelpers/emapsettings.h
     src/emapsettings.cpp
+    include/eSlayerHelpers/eequipmentplace.h
+    include/eSlayerHelpers/eequipmentaction.h
+    src/eequipmentaction.cpp
+
 )
 
 target_include_directories(eSlayerHelpers

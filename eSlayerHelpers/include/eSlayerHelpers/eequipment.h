@@ -4,6 +4,7 @@
 #include "eslayerhelpersexport.h"
 
 #include "eitem.h"
+#include "eequipmentplace.h"
 
 struct ESLAYERHELPERS_API eInventoryItem {
     eItem fItem;
@@ -27,7 +28,12 @@ struct ESLAYERHELPERS_API eInventoryItems :
         const int w, const int h);
     eItem takeAt(const int x, const int y);
     void moveFrom(eInventoryItems& src);
-    bool tryAdd(const eItem& item);
+    bool tryAdd(const eItem& item,
+                uint8_t* const xPtr = nullptr,
+                uint8_t* const yPtr = nullptr);
+    bool tryAdd(const eItem& item,
+                const uint8_t x,
+                const uint8_t y);
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -92,8 +98,9 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
 
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);
-    bool add(const eItem& item, const bool reqsMet);
-    bool addToBelt(const eItem& item);
+    bool add(const eItem& item, const bool reqsMet,
+             eEquipmentPlace* const pPtr);
+    bool addToBelt(const eItem& item, eEquipmentPlace* const pPtr);
     bool canPlace(const eItem& item, const eItem& dst);
 
     using eIter = std::function<void(eItem& item)>;

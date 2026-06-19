@@ -436,6 +436,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::equipment: {
 
     } break;
+    case ePacketType::equipmentAction: {
+
+    } break;
     case ePacketType::body: {
 
     } break;
@@ -588,22 +591,17 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             p >> itemId;
             bool drag;
             p >> drag;
-            const bool r = eLocalServer::pickupItem(
-                charId, itemId, drag);
+            eEquipmentAction action;
+            const bool r = eLocalServer::pickupItemImpl(
+                charId, itemId, drag, action);
+            ePacket p;
             if(r) {
-                eEquipment data;
-                const bool r = eLocalServer::receiveEquipment(
-                    charId, data);
-                if(!r) return;
-                ePacket p;
-                p << ePacketType::equipment;
-                data.write(p);
-                mNet.sendToClient(tcpClientId, p);
+                p << ePacketType::equipmentAction;
+                action.write(p);
             } else {
-                ePacket p;
                 p << ePacketType::unblockEquipment;
-                mNet.sendToClient(tcpClientId, p);
             }
+            mNet.sendToClient(tcpClientId, p);
         }
     } break;
     case ePacketType::pickupBody: {

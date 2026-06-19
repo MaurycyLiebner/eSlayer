@@ -86,56 +86,64 @@ eItem eEquipment::take(const uint32_t itemId) {
     return eItem();
 }
 
-bool eEquipment::add(const eItem& item, const bool reqsMet) {
+bool eEquipment::add(const eItem& item,
+                     const bool reqsMet,
+                     eEquipmentPlace* const pPtr) {
     if(item.fType == eItemType::potion) {
-        const bool r = addToBelt(item);
+        const bool r = addToBelt(item, pPtr);
         if(r) return true;
     } else if(reqsMet) {
-        const auto tryAdd = [&](eItem& dst) {
+        const auto tryAdd = [&](
+            eItem& dst, const ePlaceType type) {
             if(dst.fType != eItemType::none) return false;
             const bool r = canPlace(item, dst);
             if(!r) return false;
             dst = item;
+            if(pPtr) {
+                pPtr->fType = type;
+            }
             return true;
         };
 
-        bool r = tryAdd(fBoots);
+        bool r = tryAdd(fBoots, ePlaceType::boots);
         if(r) return true;
-        r = tryAdd(fGloves);
+        r = tryAdd(fGloves, ePlaceType::gloves);
         if(r) return true;
-        r = tryAdd(fHelmet);
+        r = tryAdd(fHelmet, ePlaceType::helmet);
         if(r) return true;
-        r = tryAdd(fArmor);
+        r = tryAdd(fArmor, ePlaceType::armor);
         if(r) return true;
-        r = tryAdd(fBelt);
+        r = tryAdd(fBelt, ePlaceType::belt);
         if(r) return true;
-        r = tryAdd(fRingL);
+        r = tryAdd(fRingL, ePlaceType::ringL);
         if(r) return true;
-        r = tryAdd(fRingR);
+        r = tryAdd(fRingR, ePlaceType::ringR);
         if(r) return true;
-        r = tryAdd(fAmulet);
+        r = tryAdd(fAmulet, ePlaceType::amulet);
         if(r) return true;
-        r = tryAdd(fWeapon1L);
+        r = tryAdd(fWeapon1L, ePlaceType::weapon1L);
         if(r) return true;
-        r = tryAdd(fWeapon1R);
+        r = tryAdd(fWeapon1R, ePlaceType::weapon1R);
         if(r) return true;
-        r = tryAdd(fWeapon2L);
+        r = tryAdd(fWeapon2L, ePlaceType::weapon2L);
         if(r) return true;
-        r = tryAdd(fWeapon2R);
-        if(r) return true;
-        r = tryAdd(fWeapon1R);
-        if(r) return true;
-        r = tryAdd(fWeapon2R);
-        if(r) return true;
-        r = tryAdd(fWeapon1R);
-        if(r) return true;
-        r = tryAdd(fWeapon2R);
+        r = tryAdd(fWeapon2R, ePlaceType::weapon2R);
         if(r) return true;
     }
-    return fInventory.tryAdd(item);
+    uint8_t* const x = pPtr ? &pPtr->fX : nullptr;
+    uint8_t* const y = pPtr ? &pPtr->fY : nullptr;
+    const bool r = fInventory.tryAdd(item, x, y);
+    if(r) {
+        if(pPtr) {
+            pPtr->fType = ePlaceType::inventory;
+        }
+        return true;
+    }
+    return false;
 }
 
-bool eEquipment::addToBelt(const eItem& item) {
+bool eEquipment::addToBelt(const eItem& item,
+                           eEquipmentPlace* const pPtr) {
     if(item.fType != eItemType::potion) return false;
     const auto typeAt = [&](const int x, const int y) {
         eInventoryItem* at = nullptr;
@@ -163,9 +171,19 @@ bool eEquipment::addToBelt(const eItem& item) {
                     if(y == fBeltVPotionSlots - 1) {
                         iitem = &fBeltPotions.emplace_back();
                         iitem->fY = 0;
+                        if(pPtr) {
+                            pPtr->fType = ePlaceType::beltPotions;
+                            pPtr->fX = x;
+                            pPtr->fY = 0;
+                        }
                     } else {
                         iitem = &fBeltHiddenPotions.emplace_back();
                         iitem->fY = y;
+                        if(pPtr) {
+                            pPtr->fType = ePlaceType::beltHiddenPotions;
+                            pPtr->fX = x;
+                            pPtr->fY = y;
+                        }
                     }
                     iitem->fItem = item;
                     iitem->fX = x;
@@ -523,7 +541,10 @@ void eInventoryItems::moveFrom(eInventoryItems& src) {
     }
 }
 
-bool eInventoryItems::tryAdd(const eItem& item) {
+bool eInventoryItems::tryAdd(
+    const eItem& item,
+    uint8_t* const xPtr,
+    uint8_t* const yPtr) {
     if(item.fType == eItemType::none) return true;
     const auto& itemData = eItemsData::get(item.fDataId);
     const int w = itemData.fWidth;
@@ -534,6 +555,8 @@ bool eInventoryItems::tryAdd(const eItem& item) {
             const bool overlap = !v.empty();
             if(!overlap) {
                 auto& iitem = emplace_back();
+                if(xPtr) *xPtr = x;
+                if(yPtr) *yPtr = y;
                 iitem.fItem = item;
                 iitem.fX = x;
                 iitem.fY = y;
@@ -544,6 +567,27 @@ bool eInventoryItems::tryAdd(const eItem& item) {
         }
     }
     return false;
+}
+
+bool eInventoryItems::tryAdd(
+    const eItem& item,
+    const uint8_t x,
+    const uint8_t y) {
+    if(item.fType == eItemType::none) return true;
+    const auto& itemData = eItemsData::get(item.fDataId);
+    const int w = itemData.fWidth;
+    const int h = itemData.fHeight;
+    if(w <= 0 || h <= 0) return false;
+    const auto v = at(x, y, w, h);
+    const bool overlap = !v.empty();
+    if(overlap) return false;
+    auto& iitem = emplace_back();
+    iitem.fItem = item;
+    iitem.fX = x;
+    iitem.fY = y;
+    iitem.fW = w;
+    iitem.fH = h;
+    return true;
 }
 
 void eInventoryItems::read(ePacket& p) {

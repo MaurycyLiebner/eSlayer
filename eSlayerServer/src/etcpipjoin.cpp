@@ -437,6 +437,11 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         mEquipment.read(p);
         mNewEquipment = true;
     } break;
+    case ePacketType::equipmentAction: {
+        auto& action = mEqActions.emplace_back();
+        action.read(p);
+        mUnblockEquipment = true;
+    } break;
     case ePacketType::unblockEquipment: {
         mUnblockEquipment = true;
     } break;

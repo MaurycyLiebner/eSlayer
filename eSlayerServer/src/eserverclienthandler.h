@@ -4,6 +4,7 @@
 #include "eserverarea.h"
 
 #include <eSlayerHelpers/erequestdata.h>
+#include <eSlayerHelpers/eequipmentaction.h>
 
 #include <memory>
 
@@ -45,7 +46,8 @@ public:
     bool triggerObject(eServerObject& obj);
     bool triggerDoors(const eServerDoors& doors);
 
-    bool pickupItem(const uint32_t itemId, const bool drag);
+    bool pickupItem(const uint32_t itemId, const bool drag,
+                    eEquipmentAction& action);
     bool dropItem();
     bool dropGold(const uint32_t count);
     bool rearrangeItems(const eEquipment& eq);

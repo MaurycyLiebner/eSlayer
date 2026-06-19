@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/emapportion.h>
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/ebody.h>
+#include <eSlayerHelpers/eequipmentaction.h>
 
 #include <memory>
 
@@ -165,6 +166,7 @@ public:
     std::vector<eServerDoors> receiveDoorsStateChanges();
     std::vector<uint32_t> receiveBodiesPickedUp();
     std::vector<eBody> receiveBodiesChanged();
+    std::vector<eEquipmentAction> receiveEqActions();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -176,6 +178,7 @@ protected:
     std::vector<eServerDoors> mDoorsStateChanged;
     std::vector<uint32_t> mBodiesPickedUp;
     std::vector<eBody> mBodiesChanged;
+    std::vector<eEquipmentAction> mEqActions;
 private:
     const eServerData mData;
     static uint32_t sServerState;

@@ -323,6 +323,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     const auto r = renderer();
 
+    auto& eq = eGameWidget::equipment();
     {
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {
@@ -364,13 +365,21 @@ void eGameWidget::paintEvent(ePainter& p) {
             eBodies::remove(body.fBodyId);
             eBodies::add(body);
         }
+        const auto eqActions = mServer->receiveEqActions();
+        for(const auto& a : eqActions) {
+            a.apply(eq);
+        }
+        if(!eqActions.empty()) {
+            mMainAction->recalculateStats();
+            eHoverWidget::sUpdateDragItem(eq);
+            eInventoryWidget::sBlocked = false;
+        }
     }
     const auto& res = resolution();
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar,
         *mMainAction, res, r);
     if(eInventoryWidget::sBlocked) {
-        auto& eq = mMainAction->equipment();
         const bool r = mServer->receiveEquipment(mClientId, eq);
         if(r) {
             mMainAction->recalculateStats();

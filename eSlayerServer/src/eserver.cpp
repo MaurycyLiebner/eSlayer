@@ -81,6 +81,12 @@ std::vector<eBody> eServer::receiveBodiesChanged() {
     return result;
 }
 
+std::vector<eEquipmentAction> eServer::receiveEqActions() {
+    std::vector<eEquipmentAction> result;
+    std::swap(mEqActions, result);
+    return result;
+}
+
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

@@ -17,6 +17,7 @@
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerHelpers/ebody.h>
+#include <eSlayerHelpers/eequipmentaction.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -131,7 +132,8 @@ public:
 
     bool pickupItem(const uint32_t clientId,
                     const uint32_t itemId,
-                    const bool drag);
+                    const bool drag,
+                    eEquipmentAction& action);
     bool dropItem(const uint32_t clientId);
     bool dropGold(const uint32_t clientId,
                   uint32_t count);

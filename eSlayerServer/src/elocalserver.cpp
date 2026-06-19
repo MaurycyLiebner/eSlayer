@@ -182,9 +182,24 @@ bool eLocalServer::pickupItem(
     const uint32_t clientId,
     const uint32_t itemId,
     const bool drag) {
+    eEquipmentAction action;
+    const bool r = pickupItemImpl(
+        clientId, itemId, drag, action);
+    if(!r) return false;
+    mEqActions.emplace_back(action);
+    return true;
+}
+
+bool eLocalServer::pickupItemImpl(
+    const uint32_t clientId,
+    const uint32_t itemId,
+    const bool drag,
+    eEquipmentAction& action) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->pickupItem(itemId, drag);
+    const bool r = h->pickupItem(
+        itemId, drag, action);
+    return r;
 }
 
 bool eLocalServer::dropItem(

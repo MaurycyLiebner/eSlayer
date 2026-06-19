@@ -71,6 +71,10 @@ public:
     bool pickupItem(const uint32_t clientId,
                     const uint32_t itemId,
                     const bool drag) override;
+    bool pickupItemImpl(const uint32_t clientId,
+                        const uint32_t itemId,
+                        const bool drag,
+                        eEquipmentAction& action);
     bool dropItem(const uint32_t clientId) override;
     bool dropGold(const uint32_t clientId,
                   const uint32_t count) override;
