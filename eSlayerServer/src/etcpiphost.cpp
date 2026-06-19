@@ -386,7 +386,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     eSlayers::write(p);
 
                     const auto& eq = c.equipment();
-                    eq.write(p);
+                    eq.writeIds(p);
 
                     eBodies::write(bodies, p);
 

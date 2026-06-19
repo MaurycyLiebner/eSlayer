@@ -783,6 +783,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     u->setAction(a);
     auto& eq = c.equipment();
     eq.iterateOverAll([](eItem& item) {
+        if(item.fType == eItemType::none) return;
         eItemGenerator::applyItemId(item);
     });
     u->setEquipment(eq, false);
@@ -803,6 +804,7 @@ bool eServerArea::addClient(const uint32_t clientId,
 
     for(auto& eq : c.bodies()) {
         eq.iterateOverBody([](eItem& item) {
+            if(item.fType == eItemType::none) return;
             eItemGenerator::applyItemId(item);
         });
         auto& body = bodies.emplace_back();

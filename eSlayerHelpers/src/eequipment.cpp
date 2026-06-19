@@ -434,6 +434,18 @@ void eEquipment::write(ePacket& p) const {
     p << fStashGold;
 }
 
+void eEquipment::readIds(ePacket& p) {
+    iterateOverAll([&](eItem& item) {
+        p >> item.fItemId;
+    });
+}
+
+void eEquipment::writeIds(ePacket& p) const {
+    iterateOverAll([&](const eItem& item) {
+        p << item.fItemId;
+    });
+}
+
 eInventoryItem* eInventoryItems::at(const int x, const int y) {
     const auto v = at(x, y, 1, 1);
     if(v.empty()) return nullptr;

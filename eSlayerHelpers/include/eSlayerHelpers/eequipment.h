@@ -106,6 +106,9 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     void read(ePacket& p);
     void write(ePacket& p) const;
 
+    void readIds(ePacket& p);
+    void writeIds(ePacket& p) const;
+
     template <typename Self, typename Iter>
     static void sIterateOverAllImpl(Self& self, Iter&& iter) {
         iter(self.fBoots);

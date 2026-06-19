@@ -128,8 +128,7 @@ bool eTcpIpJoin::spawn(
             p >> type;
             eSlayers::read(p);
             auto& eq = c.equipment();
-            eq = eEquipment();
-            eq.read(p);
+            eq.readIds(p);
 
             eBodies::read(bodies, p);
 
