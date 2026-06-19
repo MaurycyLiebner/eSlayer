@@ -465,7 +465,13 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::userLeft: {
         uint32_t clientId;
         p >> clientId;
-        mLeftUsers.emplace_back(clientId);
+        auto& ss = eSlayers::sSlayers;
+        const auto sit = ss.find(clientId);
+        if(sit != ss.end()) {
+            const auto& s = sit->second;
+            mLeftUsers.emplace_back(s);
+            ss.erase(sit);
+        }
     } break;
     case ePacketType::message: {
         uint32_t clientId;

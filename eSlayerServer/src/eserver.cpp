@@ -45,8 +45,8 @@ std::vector<eSlayer> eServer::receiveNewUsers() {
     return result;
 }
 
-std::vector<int> eServer::receiveLeftUsers() {
-    std::vector<int> result;
+std::vector<eSlayer> eServer::receiveLeftUsers() {
+    std::vector<eSlayer> result;
     std::swap(mLeftUsers, result);
     return result;
 }

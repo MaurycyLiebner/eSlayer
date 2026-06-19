@@ -337,8 +337,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             addMessage(r, text);
         }
         const auto leftUsers = mServer->receiveLeftUsers();
-        for(const uint32_t clientId : leftUsers) {
-            const auto name = eSlayers::name(clientId);
+        for(const auto& u : leftUsers) {
+            const auto name = u.fName;
             auto text = eText::text(12, 1);
             text = eStringHelpers::replaceAll(text, "%1", name);
             addMessage(r, text);

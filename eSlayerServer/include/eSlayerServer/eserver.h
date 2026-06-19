@@ -164,7 +164,7 @@ public:
     const std::string& password() const { return mData.fPassword; }
 
     std::vector<eSlayer> receiveNewUsers();
-    std::vector<int> receiveLeftUsers();
+    std::vector<eSlayer> receiveLeftUsers();
     std::vector<eMessage> receiveMessages();
     std::vector<eServerObject> receiveObjectStateChanges();
     std::vector<eServerDoors> receiveDoorsStateChanges();
@@ -176,7 +176,7 @@ protected:
                 const std::string& subMsg);
 
     std::vector<eSlayer> mNewUsers;
-    std::vector<int> mLeftUsers;
+    std::vector<eSlayer> mLeftUsers;
     std::vector<eMessage> mMessages;
     std::vector<eServerObject> mObjectStateChanges;
     std::vector<eServerDoors> mDoorsStateChanged;

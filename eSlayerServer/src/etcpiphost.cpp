@@ -277,14 +277,18 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const uint32_t charId = it->second;
     mClientIdMap.erase(tcpClientId);
     disconnect(charId);
-    eSlayers::sSlayers.erase(charId);
     {
         ePacket p;
         p << ePacketType::userLeft;
         p << charId;
         mNet.broadcast(p);
-
-        mLeftUsers.emplace_back(charId);
+    }
+    auto& ss = eSlayers::sSlayers;
+    const auto sit = ss.find(charId);
+    if(sit != ss.end()) {
+        const auto& s = sit->second;
+        mLeftUsers.emplace_back(s);
+        ss.erase(sit);
     }
     return true;
 }
