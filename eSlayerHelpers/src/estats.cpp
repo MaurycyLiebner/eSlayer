@@ -738,6 +738,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::manaBurn:
         case eModifierType::multiShot:
         case eModifierType::spectralHit:
+
+        case eModifierType::curesPoison:
+        case eModifierType::curesCold:
             break;
         }
     };
@@ -1085,6 +1088,9 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::dealsLightningDamage:
         case eModifierType::dealsPoisonDamage:
         case eModifierType::dealsPhysicalDamage:
+
+        case eModifierType::curesPoison:
+        case eModifierType::curesCold:
             break;
         }
     };

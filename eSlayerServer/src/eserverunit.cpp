@@ -230,6 +230,19 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
 
     const auto& mods = info.fPotionMods;
     if(!mods.empty()) {
+        for(const auto& m : mods) {
+            switch(m.fType) {
+            case eModifierType::curesPoison: {
+                mPoison.clear();
+            } break;
+            case eModifierType::curesCold: {
+                mColdLength = 0.f;
+                mFreezeLength = 0.f;
+            } break;
+            default:
+                break;
+            }
+        }
         addTimedBoost(mods, info.fPotionBoostType,
                       0, it.fFrameLength);
     }

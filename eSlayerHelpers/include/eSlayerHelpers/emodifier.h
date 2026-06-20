@@ -103,6 +103,9 @@ enum class eModifierType : uint8_t {
     multiShot,
     spectralHit,
 
+    curesPoison,
+    curesCold,
+
     count
 };
 

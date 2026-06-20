@@ -130,6 +130,9 @@ bool addPlus(const float value,
     case eModifierType::dealsLightningDamage:
     case eModifierType::dealsPoisonDamage:
     case eModifierType::dealsPhysicalDamage:
+
+    case eModifierType::curesPoison:
+    case eModifierType::curesCold:
         return false;
     }
     return false;

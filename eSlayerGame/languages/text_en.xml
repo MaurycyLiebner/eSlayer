@@ -143,6 +143,9 @@
         <string id="62">Deals %1 to %2 Physical Damage</string>
         <string id="63">Burns Mana %1%</string>
         <string id="64">Adds Missiles %1</string>
+        <string id="65">Spectral Hit</string>
+        <string id="66">Cures Poison</string>
+        <string id="67">Cures Cold</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>
