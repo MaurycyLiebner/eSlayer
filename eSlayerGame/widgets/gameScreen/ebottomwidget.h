@@ -38,6 +38,7 @@ public:
                        const int stamina,
                        const int maxStamina,
                        const bool staminaPotion,
+                       const bool poisoned,
                        const int exp,
                        const int maxExp);
 

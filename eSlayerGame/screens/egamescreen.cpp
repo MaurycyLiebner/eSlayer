@@ -348,12 +348,13 @@ void eGameScreen::paintEvent(ePainter&) {
 
     const auto& mainChar = mGameWidget->mainChar();
     const bool staminaPotion = mainChar.staminaPotion();
+    const bool poisoned = mainChar.poisoned();
 
     mBottomWidget->setIndicators(
         stats.fHealthF, stats.fMaxHealth,
         stats.fManaF, stats.fMaxMana,
         stats.fStaminaF, stats.fMaxStamina,
-        staminaPotion,
+        staminaPotion, poisoned,
         attrs.fExp, attrs.nextLevelExp());
 
     const auto& pos = action.pos();
