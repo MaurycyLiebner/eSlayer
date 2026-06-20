@@ -20,7 +20,7 @@ enum class eExplodeType {
     none, flesh, ice
 };
 
-enum class eBoostCurseType {
+enum class eBoostCurseType : uint8_t {
     regular
 };
 

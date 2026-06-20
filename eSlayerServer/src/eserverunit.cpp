@@ -227,6 +227,12 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
     const float totalStamina = info.fPotionTotalStamina +
         info.fPotionTotalStaminaFrac*mStats.fMaxStamina;
     it.fStaminaPerFrame = totalStamina/len;
+
+    const auto& mods = info.fPotionMods;
+    if(!mods.empty()) {
+        addTimedBoost(mods, info.fPotionBoostType,
+                      0, it.fFrameLength);
+    }
 }
 
 float eServerUnit::itemsAttackSpeed(

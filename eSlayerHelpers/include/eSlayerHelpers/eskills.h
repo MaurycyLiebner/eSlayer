@@ -27,7 +27,7 @@ struct eSynergy {
     }
 };
 
-enum class eBoostCurseType;
+enum class eBoostCurseType : uint8_t;
 enum class eBoostCurseTarget;
 
 enum class eAuraType;

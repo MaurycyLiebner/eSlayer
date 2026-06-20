@@ -122,6 +122,21 @@ void eItemsData::load(const std::string& name,
         itemData.fPotionTotalHealthFrac = jdata.value("totalHealthFrac", 0.f);
         itemData.fPotionTotalManaFrac = jdata.value("totalManaFrac", 0.f);
         itemData.fPotionTotalStaminaFrac = jdata.value("totalStaminaFrac", 0.f);
+
+        if(jdata.contains("modifiers")) {
+            const auto boostCurseTypeStr = jdata.value("boostCurseType", "");
+            const int id = eBoostCurseTypes::sTypes.id(boostCurseTypeStr);
+            if(id <= 0) {
+                eRuntimeThrow("Invalid \"boostCurseType\" \"" + boostCurseTypeStr +
+                              "\" in \"" + dir + "/" + name + ".json\"");
+            }
+            itemData.fPotionBoostType = static_cast<eBoostCurseType>(id);
+            const auto& mods = jdata["modifiers"];
+            for(const auto& [name, modData] : mods.items()) {
+                auto& mod = itemData.fPotionMods.emplace_back();
+                mod.read(name, json(modData));
+            }
+        }
     } else if(type == eItemType::gold) {
         const int id = sItems.nextId();
         sGoldIds.emplace_back(id);

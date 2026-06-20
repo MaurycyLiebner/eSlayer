@@ -8,6 +8,8 @@
 #include <vector>
 
 #include <eSlayerHelpers/epotiontype.h>
+#include <eSlayerHelpers/emodifier.h>
+#include <eSlayerHelpers/eboostcursetypes.h>
 
 enum class eItemType : uint8_t {
     none,
@@ -25,6 +27,8 @@ enum class eItemType : uint8_t {
     potion,
     gold
 };
+
+enum class eBoostCurseType : uint8_t;
 
 namespace eItemTypeHelpers {
     ESLAYERHELPERS_API
@@ -59,6 +63,9 @@ struct eItemData {
     float fPotionTotalHealthFrac = 0.f;
     float fPotionTotalManaFrac = 0.f;
     float fPotionTotalStaminaFrac = 0.f;
+
+    eBoostCurseType fPotionBoostType;
+    std::vector<eModifier> fPotionMods;
 
     int fMinDamageMin = 0;
     int fMinDamageMax = 0;
