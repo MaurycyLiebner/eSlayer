@@ -46,13 +46,15 @@ eItem eItemGenerator::generateItem(
     item.fDataId = typeId;
     item.fType = type;
     item.fSubType = itemData.fSubtype;
-    if(type == eItemType::potion) {
+    if(type == eItemType::gold) {
+        item.fCount = 1 + 5.f*sqrt(level)*worth;
+        return item;
+    } else if(type == eItemType::potion) {
         item.fRequiredLevel = 1;
+        return item;
     } else {
         item.fRequiredLevel = level;
     }
-
-    if(type == eItemType::potion) return item;
 
     int minDmg = eRand::rand(itemData.fMinDamageMin,
                              itemData.fMinDamageMax);
