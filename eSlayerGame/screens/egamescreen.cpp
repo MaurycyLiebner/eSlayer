@@ -352,7 +352,7 @@ void eGameScreen::paintEvent(ePainter&) {
     mBottomWidget->setIndicators(
         stats.fHealthF, stats.fMaxHealth,
         stats.fManaF, stats.fMaxMana,
-        action.stamina(), action.maxStamina(),
+        stats.fStaminaF, stats.fMaxStamina,
         staminaPotion,
         attrs.fExp, attrs.nextLevelExp());
 

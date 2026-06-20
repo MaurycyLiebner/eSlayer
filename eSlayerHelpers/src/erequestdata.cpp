@@ -70,6 +70,7 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
     }
 
     p >> fMana;
+    p >> fStamina;
     p >> fLevel;
     p >> fExperience;
 
@@ -157,6 +158,7 @@ void eRequestData::write(ePacket& p) const {
     }
 
     p << fMana;
+    p << fStamina;
     p << fLevel;
     p << fExperience;
 

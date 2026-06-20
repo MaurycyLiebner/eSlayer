@@ -487,7 +487,7 @@ void eStatsWidget::updateStats() {
                       std::vector<float>{mStats->fDefense});
 
     mStamina->setText({eText::text(11, 7)},
-                      {mStats->fStamina, mStats->fStamina});
+                      {mStats->fMaxStamina, mStats->fStaminaF});
     mLife->setText({eText::text(11, 8)},
                    {mStats->fMaxHealth, mStats->fHealthF});
     mMana->setText({eText::text(11, 9)},

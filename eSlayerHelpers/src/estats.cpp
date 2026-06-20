@@ -492,6 +492,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     const float healthFrac = fHealthF/fMaxHealth;
     const float manaFrac = fManaF/fMaxMana;
+    const float staminaFrac = fStaminaF/fMaxStamina;
 
     const auto& leftW = (eq.fWeapons1 ?
                              eq.fWeapon1L :
@@ -526,6 +527,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     float baseMana = 0.f;
     float bonusMana = 0.f;
     float manaRegBonus = 0.f;
+
+    float baseStamina = 0.f;
+    float bonusStamina = 0.f;
 
     fBlockChance = 0.f;
     fWalkRun = 0.f;
@@ -846,12 +850,16 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     baseLife += 3.f*fVitality;
     baseMana += 1.5f*fEnergy;
+    baseStamina += 3.f*fVitality;
 
     fDefense = baseDef*(1.f + ed) + fDexterity/4.f;
     fMaxHealth = baseLife*(1.f + bonusLife);
     fHealthF = healthFrac*fMaxHealth;
     fMaxMana = baseMana*(1.f + bonusMana);
     fManaF = manaFrac*fMaxMana;
+
+    fMaxStamina = baseStamina*(1.f + bonusStamina);
+    fStaminaF = manaFrac*fMaxStamina;
 
     fMaxFireResistance = std::min(1.f, fMaxFireResistance);
     fMaxColdResistance = std::min(1.f, fMaxColdResistance);

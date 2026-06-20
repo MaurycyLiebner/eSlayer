@@ -465,6 +465,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 auto& attrs = eGameWidget::attributes();
                 stats.fHealthF = u.fHealth;
                 stats.fManaF = worldResult.fMana;
+                stats.fStaminaF = worldResult.fStamina;
                 attrs.fExp = worldResult.fExperience;
                 const auto oldLevel = attrs.fLevel;
                 const auto newLevel = worldResult.fLevel;

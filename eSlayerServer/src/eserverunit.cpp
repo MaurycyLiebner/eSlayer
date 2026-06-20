@@ -89,7 +89,7 @@ bool eServerUnit::hitData(
 }
 
 float eServerUnit::defense() const {
-    if(fAnim == mData.runAnimId()) {
+    if(isRunning()) {
         return 0.f;
     } else {
         return mStats.fDefense;
@@ -97,11 +97,15 @@ float eServerUnit::defense() const {
 }
 
 float eServerUnit::blockChance() const {
-    if(fAnim == mData.runAnimId()) {
+    if(isRunning()) {
         return std::clamp(0.33f*mStats.fBlockChance, 0.f, 0.25f);
     } else {
         return std::clamp(mStats.fBlockChance, 0.f, 0.75f);
     }
+}
+
+bool eServerUnit::isRunning() const {
+    return fAnim == mData.runAnimId();
 }
 
 eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
@@ -846,6 +850,13 @@ void eServerUnit::increment(const float by) {
         const float manaChange = manaReg;
         mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
                                    0.f, mStats.fMaxMana);
+        if(staminaPotion) {
+            mStats.fStaminaF = mStats.fMaxStamina;
+        } else {
+            const float staminaChange = isRunning() ? -0.1f : 0.1f;
+            mStats.fStaminaF = std::clamp(mStats.fStaminaF + staminaChange,
+                                          0.f, mStats.fMaxStamina);
+        }
         setHealth(std::ceil(mStats.fHealthF));
         if(fHealth <= 0) dieAndCast(fPos);
     } else {
@@ -1092,6 +1103,7 @@ void eServerUnit::killed(const eServerUnit& killed) {
         setHealth(fMaxHealth);
         mStats.fHealthF = mStats.fMaxHealth;
         mStats.fManaF = mStats.fMaxMana;
+        mStats.fStaminaF = mStats.fMaxStamina;
     }
 }
 
@@ -1139,6 +1151,7 @@ void eServerUnit::respawn() {
     setHealth(fMaxHealth);
     mStats.fHealthF = mStats.fMaxHealth;
     mStats.fManaF = mStats.fMaxMana;
+    mStats.fStaminaF = mStats.fMaxStamina;
     mAction->setChild(nullptr);
     setBlockingActionTime(0.f);
     updateAll();

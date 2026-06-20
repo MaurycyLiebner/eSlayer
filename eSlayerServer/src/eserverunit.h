@@ -79,6 +79,8 @@ public:
 
     float blockChance() const;
 
+    bool isRunning() const;
+
     float fasterHitRecovery() const { return mStats.fFasterHitRecovery; }
 
     float fasterBlockRate() const { return mStats.fFasterBlockRate; }
@@ -225,6 +227,7 @@ public:
                                 const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
+    float stamina() const { return mStats.fStaminaF; }
     float experience() const { return mAttributes.fExp; }
     float maxHealth() const { return mStats.fMaxHealth; }
 

@@ -33,6 +33,7 @@ bool eServerClientHandler::receiveData(
     mArea->mapPortions(mClientId, data.fMapPortions);
     const auto u = mArea->unit(mClientId);
     data.fMana = u ? std::floor(u->mana()) : 0;
+    data.fStamina = u ? std::floor(u->stamina()) : 0;
     data.fLevel = u ? std::round(u->level()) : 0;
     data.fExperience = u ? std::round(u->experience()) : 0;
     return true;

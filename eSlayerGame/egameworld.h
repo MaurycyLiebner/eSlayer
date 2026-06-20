@@ -50,6 +50,7 @@ public:
         bool fHasMainCharData = false;
         eUnitData fMainCharData;
         uint16_t fMana = 0;
+        uint16_t fStamina = 0;
         uint16_t fLevel = 0;
         uint16_t fExperience = 0;
         bool fUpdateBoostsAuras = false;

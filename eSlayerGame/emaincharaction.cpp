@@ -508,15 +508,12 @@ void eMainCharAction::updateMovementAnimation(
 
         if(run) {
             mContinueRunning = true;
-            incStamina(-by * 0.1f);
             animId = mRunAnimId;
         } else {
-            incStamina(by * 0.1f);
             animId = eMovementHandler::sChooseAnim(
                 mWalkAnimId, mWalkReadyAnimId, aggressive);
         }
     } else {
-        incStamina(by * 0.1f);
         animId = eMovementHandler::sChooseAnim(
             mStandAnimId, mStandReadyAnimId, aggressive);
     }
@@ -571,10 +568,6 @@ void eMainCharAction::stop() {
     mMovementHandler.stopMoving();
 }
 
-void eMainCharAction::incStamina(const float by) {
-    mStamina = std::clamp(mStamina + by, 0.f, mMaxStamina);
-}
-
 bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
     return mStats.rangedAttack(schoice);
 }
@@ -610,5 +603,6 @@ void eMainCharAction::stand() {
 
 bool eMainCharAction::shouldRun() const {
     if(!mRunning) return false;
-    return mStamina > 5.f || (mStamina > 0.f && mContinueRunning);
+    const float s = stamina();
+    return s > 5.f || (s > 0.f && mContinueRunning);
 }

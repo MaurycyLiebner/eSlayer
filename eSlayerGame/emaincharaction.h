@@ -54,9 +54,7 @@ public:
     const ePointF& pos() const { return mMovementHandler.pos(); }
     const std::shared_ptr<eUnit>& unit() const { return mMainChar; }
 
-    float stamina() const { return mStamina; }
-    void incStamina(const float by);
-    float maxStamina() const { return mMaxStamina; }
+    float stamina() const { return mStats.fStaminaF; }
     bool running() const { return mRunning; }
     void setRunning(const bool r) { mRunning = r; }
 
@@ -121,8 +119,6 @@ private:
     bool mClickAction = false;
 
     bool mRunning = false;
-    float mMaxStamina = 100.f;
-    float mStamina = mMaxStamina;
     bool mContinueRunning = false;
 
     int mRunAnimId = -1;

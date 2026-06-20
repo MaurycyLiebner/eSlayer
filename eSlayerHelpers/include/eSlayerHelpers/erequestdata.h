@@ -25,6 +25,7 @@ struct ESLAYERHELPERS_API eRequestData {
     std::multimap<eBoostCurseType, eModifier> fBoosts;
     std::multimap<eAuraType, eModifier> fAuras;
     uint16_t fMana;
+    uint16_t fStamina;
     uint16_t fLevel;
     uint16_t fExperience;
 
