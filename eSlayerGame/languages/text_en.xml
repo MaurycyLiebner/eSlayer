@@ -220,4 +220,19 @@
         <string id="10">How Much Gold Would You Like to Deposit?</string>
         <string id="11">How Much Gold Would You Like to Withdraw?</string>
     </group>
+    <group id="19">
+        <string id="0">Duration: %1 Seconds</string>
+        <string id="1">Instantly Restores %1 Life</string>
+        <string id="2">Instantly Restores %1 Mana</string>
+        <string id="3">Instantly Restores %1 Stamina</string>
+        <string id="4">Instantly Restores %1% of Life</string>
+        <string id="5">Instantly Restores %1% of Mana</string>
+        <string id="6">Instantly Restores %1% of Stamina</string>
+        <string id="7">Gradually Restores %1 Life</string>
+        <string id="8">Gradually Restores %1 Mana</string>
+        <string id="9">Gradually Restores %1 Stamina</string>
+        <string id="10">Gradually Restores %1% of Life</string>
+        <string id="11">Gradually Restores %1% of Mana</string>
+        <string id="12">Gradually Restores %1% of Stamina</string>
+    </group>
 </strings>

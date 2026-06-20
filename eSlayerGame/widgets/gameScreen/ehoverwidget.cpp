@@ -159,6 +159,106 @@ void eHoverWidget::setHoverItem(
             gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
                          mod.fSkillId, eFontColor::blue, mod.fType);
         }
+        if(itemData.fType == eItemType::potion) {
+            if(itemData.fPotionFrameLength > 0.f) {
+                auto text = eText::text(19, 0);
+                const float durBase = itemData.fPotionFrameLength/25.f;
+                const int dur10 = durBase*10;
+                const float dur = dur10/10.f;
+                const auto durStr = eStringHelpers::floatToString(dur);
+                text = eStringHelpers::replaceAll(text, "%1", durStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantHealth > 0.f) {
+                auto text = eText::text(19, 1);
+                const float instant = itemData.fPotionInstantHealth;
+                const auto instantStr = eStringHelpers::floatToString(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantMana > 0.f) {
+                auto text = eText::text(19, 2);
+                const float instant = itemData.fPotionInstantMana;
+                const auto instantStr = eStringHelpers::floatToString(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantStamina > 0.f) {
+                auto text = eText::text(19, 3);
+                const float instant = itemData.fPotionInstantStamina;
+                const auto instantStr = eStringHelpers::floatToString(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantHealthFrac > 0.f) {
+                auto text = eText::text(19, 4);
+                const int instant = 100*itemData.fPotionInstantHealthFrac;
+                const auto instantStr = std::to_string(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantManaFrac > 0.f) {
+                auto text = eText::text(19, 5);
+                const int instant = 100*itemData.fPotionInstantManaFrac;
+                const auto instantStr = std::to_string(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionInstantStaminaFrac > 0.f) {
+                auto text = eText::text(19, 6);
+                const int instant = 100*itemData.fPotionInstantStaminaFrac;
+                const auto instantStr = std::to_string(instant);
+                text = eStringHelpers::replaceAll(text, "%1", instantStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalHealth > 0.f) {
+                auto text = eText::text(19, 7);
+                const float total = itemData.fPotionTotalHealth;
+                const auto totalStr = eStringHelpers::floatToString(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalMana > 0.f) {
+                auto text = eText::text(19, 8);
+                const float total = itemData.fPotionTotalMana;
+                const auto totalStr = eStringHelpers::floatToString(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalStamina > 0.f) {
+                auto text = eText::text(19, 9);
+                const float total = itemData.fPotionTotalStamina;
+                const auto totalStr = eStringHelpers::floatToString(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalHealthFrac > 0.f) {
+                auto text = eText::text(19, 10);
+                const int total = 100*itemData.fPotionTotalHealthFrac;
+                const auto totalStr = std::to_string(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalManaFrac > 0.f) {
+                auto text = eText::text(19, 11);
+                const int total = 100*itemData.fPotionTotalManaFrac;
+                const auto totalStr = std::to_string(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            if(itemData.fPotionTotalStaminaFrac > 0.f) {
+                auto text = eText::text(19, 12);
+                const int total = 100*itemData.fPotionTotalStaminaFrac;
+                const auto totalStr = std::to_string(total);
+                text = eStringHelpers::replaceAll(text, "%1", totalStr);
+                gen.addText(r, text, eFontColor::blue);
+            }
+            for(const auto& mod : itemData.fPotionMods) {
+                const int s = static_cast<int>(mod.fType);
+                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                             mod.fSkillId, eFontColor::blue, mod.fType);
+            }
+        }
         if(item.fSockets > 0) {
             gen.addValue(r, 6, 3, item.fSockets, eFontColor::blue);
         }
