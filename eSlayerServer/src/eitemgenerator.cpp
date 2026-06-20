@@ -39,8 +39,21 @@ eItem eItemGenerator::generateItem(
     const int level, const float worth) {
     eItem item;
     eItemGenerator::applyItemId(item);
-    const int typeMax = eItemsData::sItems.size() - 1;
-    const int typeId = eRand::rand(0, typeMax);
+    int typeId;
+    if(worth < 1.f && eRand::randChance(0.5f)) {
+        typeId = eItemsData::sGoldIds[0];
+    } else {
+        std::vector<int> typeIds;
+        for(int i = 0; i < eItemsData::sItems.size(); i++) {
+            const auto& itemData = eItemsData::get(i);
+            const int levelReq = itemData.fLevelReq;
+            if(levelReq > level) continue;
+            typeIds.emplace_back(i);
+        }
+        if(typeIds.empty()) return item;
+        const int id = eRand::rand() % typeIds.size();
+        typeId = typeIds[id];
+    }
     const auto& itemData = eItemsData::get(typeId);
     const auto type = itemData.fType;
     item.fDataId = typeId;
