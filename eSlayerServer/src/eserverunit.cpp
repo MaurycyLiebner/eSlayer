@@ -8,6 +8,7 @@
 #include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/eitemsdata.h>
 
 std::atomic<uint32_t> eServerUnit::sNextCharId = 1;
 
@@ -200,68 +201,32 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
         item = mEquipment.take(itemId);
     }
     if(item.fType != eItemType::potion) return;
-    const auto potionType = static_cast<ePotionType>(item.fSubType);
-    if(ePotionTypeHelpers::sameCategory(potionType, ePotionType::minorRejuvenation)) {
-        float frac = 0.f;
-        switch(potionType) {
-        case ePotionType::minorRejuvenation:
-            frac = 0.25f;
-            break;
-        case ePotionType::lightRejuvenation:
-            frac = 0.5f;
-            break;
-        case ePotionType::rejuvenation:
-            frac = 0.75f;
-            break;
-        case ePotionType::greaterRejuvenation:
-            frac = 1.f;
-            break;
-        default:
-            return;
-        }
-        restoreHealth(frac*mStats.fMaxHealth);
-        restoreMana(frac*mStats.fMaxMana);
-        return;
-    }
-    auto& it = mPotions[potionType];
-    float total = 0.f;
-    switch(potionType) {
-    case ePotionType::minorHealing:
-        total = 45.f;
-        break;
-    case ePotionType::lightHealing:
-        total = 90.f;
-        break;
-    case ePotionType::healing:
-        total = 150.f;
-        break;
-    case ePotionType::greaterHealing:
-        total = 270.f;
-        break;
+    const auto itemType = item.fDataId;
+    const auto& info = eItemsData::get(itemType);
 
-    case ePotionType::minorMana:
-        total = 30.f;
-        break;
-    case ePotionType::lightMana:
-        total = 60.f;
-        break;
-    case ePotionType::mana:
-        total = 120.f;
-        break;
-    case ePotionType::greaterMana:
-        total = 225.f;
-        break;
-
-    case ePotionType::stamina:
-        it.fFrameLength += 750.f;
-        it.fPerFrame = 0.f;
-        return;
-    default:
-        return;
-    }
-
-    it.fFrameLength += 128.f;
-    it.fPerFrame = total/128.f;
+    const float instantHealth = info.fPotionInstantHealth +
+        info.fPotionInstantHealthFrac*mStats.fMaxHealth;
+    const float instantMana = info.fPotionInstantMana +
+        info.fPotionInstantManaFrac*mStats.fMaxMana;
+    const float instantStamina = info.fPotionInstantStamina +
+        info.fPotionInstantStaminaFrac*mStats.fMaxStamina;
+    restoreHealth(instantHealth);
+    restoreMana(instantMana);
+    restoreStamina(instantStamina);
+    const float len = info.fPotionFrameLength;
+    if(len <= 0.f) return;
+    auto& mit = mPotions[info.fSubtype];
+    auto& it = mit[itemType];
+    it.fFrameLength += len;
+    const float totalHealth = info.fPotionTotalHealth +
+        info.fPotionTotalHealthFrac*mStats.fMaxHealth;
+    it.fHealthPerFrame = totalHealth/len;
+    const float totalMana = info.fPotionTotalMana +
+        info.fPotionTotalManaFrac*mStats.fMaxMana;
+    it.fManaPerFrame = totalMana/len;
+    const float totalStamina = info.fPotionTotalStamina +
+        info.fPotionTotalStaminaFrac*mStats.fMaxStamina;
+    it.fStaminaPerFrame = totalStamina/len;
 }
 
 float eServerUnit::itemsAttackSpeed(
@@ -654,6 +619,10 @@ void eServerUnit::restoreMana(const float by) {
     mStats.fManaF = std::min(mStats.fMaxMana, mStats.fManaF + by);
 }
 
+void eServerUnit::restoreStamina(const float by) {
+    mStats.fStaminaF = std::min(mStats.fMaxStamina, mStats.fStaminaF + by);
+}
+
 bool eServerUnit::consumeMana(const float mana) {
     if(mStats.fManaF < mana) return false;
     mStats.fManaF = std::max(0.f, mStats.fManaF - mana);
@@ -784,52 +753,45 @@ void eServerUnit::increment(const float by) {
 
         float healthReg = by*mStats.fHealthRegeneration;
         float manaReg = by*mStats.fManaRegeneration;
+        float staminaReg = isRunning() ? -0.1f : 0.1f;
         if(!mPotions.empty()) {
-            for(const auto type : {ePotionType::greaterHealing,
-                                   ePotionType::healing,
-                                   ePotionType::lightHealing,
-                                   ePotionType::minorHealing}) {
-                const auto it = mPotions.find(type);
-                if(it == mPotions.end()) continue;
-                auto& p = it->second;
-                if(p.fFrameLength > 0.f) {
-                    p.fFrameLength -= by;
-                    healthReg += by*p.fPerFrame;
-                    if(p.fFrameLength <= 0.f) {
-                        mPotions.erase(type);
+            float potionHealth = 0.f;
+            float potionMana = 0.f;
+            float potionStamina = 0.f;
+            int maxHealthPotionType = -1;
+            int maxManaPotionType = -1;
+            int maxStaminaPotionType = -1;
+            for(auto& mit : mPotions) {
+                auto& mp = mit.second;
+                int maxLevel = -1;
+                uint8_t maxItemLevelId = 0;
+                for(const auto& it : mp) {
+                    auto& p = it.second;
+                    const auto itemId = it.first;
+                    const auto& info = eItemsData::sItems.get(itemId);
+                    if(maxLevel < info.fLevelReq) {
+                        maxLevel = info.fLevelReq;
+                        maxItemLevelId = itemId;
                     }
-                    break;
                 }
-            }
-            for(const auto type : {ePotionType::greaterMana,
-                                   ePotionType::mana,
-                                   ePotionType::lightMana,
-                                   ePotionType::minorMana}) {
-                const auto it = mPotions.find(type);
-                if(it == mPotions.end()) continue;
-                auto& p = it->second;
-                if(p.fFrameLength > 0.f) {
-                    p.fFrameLength -= by;
-                    manaReg += by*p.fPerFrame;
-                    if(p.fFrameLength <= 0.f) {
-                        mPotions.erase(type);
-                    }
-                    break;
-                }
-            }
-            for(const auto type : {ePotionType::stamina}) {
-                const auto it = mPotions.find(type);
-                if(it == mPotions.end()) continue;
-                auto& p = it->second;
-                if(p.fFrameLength > 0.f) {
-                    staminaPotion = true;
+                if(maxLevel > 0) {
+                    auto& p = mp[maxItemLevelId];
+                    potionHealth += p.fHealthPerFrame;
+                    potionMana += p.fManaPerFrame;
+                    potionStamina += p.fStaminaPerFrame;
+
                     p.fFrameLength -= by;
                     if(p.fFrameLength <= 0.f) {
-                        mPotions.erase(type);
+                        mp.erase(maxItemLevelId);
                     }
-                    break;
                 }
             }
+
+            staminaPotion = potionStamina > 0.f;
+
+            healthReg += by*potionHealth;
+            manaReg += by*potionMana;
+            staminaReg += by*potionStamina;
         }
 
         if(poisonDmg > 0.f) {
@@ -850,13 +812,11 @@ void eServerUnit::increment(const float by) {
         const float manaChange = manaReg;
         mStats.fManaF = std::clamp(mStats.fManaF + manaChange,
                                    0.f, mStats.fMaxMana);
-        if(staminaPotion) {
-            mStats.fStaminaF = mStats.fMaxStamina;
-        } else {
-            const float staminaChange = isRunning() ? -0.1f : 0.1f;
-            mStats.fStaminaF = std::clamp(mStats.fStaminaF + staminaChange,
-                                          0.f, mStats.fMaxStamina);
-        }
+
+        const float staminaChange = staminaReg;
+        mStats.fStaminaF = std::clamp(mStats.fStaminaF + staminaChange,
+                                      0.f, mStats.fMaxStamina);
+
         setHealth(std::ceil(mStats.fHealthF));
         if(fHealth <= 0) dieAndCast(fPos);
     } else {

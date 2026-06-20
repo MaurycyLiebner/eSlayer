@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <eSlayerHelpers/epotiontype.h>
+
 enum class eItemType : uint8_t {
     none,
     boots,
@@ -39,6 +41,24 @@ struct eItemData {
     float fRange = 0.f;
     // Weapon speed modifier
     float fWSM = 0.f;
+
+    float fPotionFrameLength = 0.f;
+
+    float fPotionInstantHealth = 0.f;
+    float fPotionInstantMana = 0.f;
+    float fPotionInstantStamina = 0.f;
+
+    float fPotionInstantHealthFrac = 0.f;
+    float fPotionInstantManaFrac = 0.f;
+    float fPotionInstantStaminaFrac = 0.f;
+
+    float fPotionTotalHealth = 0.f;
+    float fPotionTotalMana = 0.f;
+    float fPotionTotalStamina = 0.f;
+
+    float fPotionTotalHealthFrac = 0.f;
+    float fPotionTotalManaFrac = 0.f;
+    float fPotionTotalStaminaFrac = 0.f;
 
     int fMinDamageMin = 0;
     int fMinDamageMax = 0;

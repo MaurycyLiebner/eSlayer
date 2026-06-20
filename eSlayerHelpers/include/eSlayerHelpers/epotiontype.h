@@ -3,38 +3,11 @@
 
 #include "eslayerhelpersexport.h"
 
-#include <stdint.h>
-#include <string>
+#include <eSlayerHelpers/estringidmapvector.h>
 
-enum class ePotionType : uint8_t {
-    none,
-
-    minorHealing,
-    lightHealing,
-    healing,
-    greaterHealing,
-
-    minorMana,
-    lightMana,
-    mana,
-    greaterMana,
-
-    minorRejuvenation,
-    lightRejuvenation,
-    rejuvenation,
-    greaterRejuvenation,
-
-    stamina
+class ESLAYERHELPERS_API ePotionTypes {
+public:
+    static eStringIdMapVector<bool> sTypes;
 };
-
-namespace ePotionTypeHelpers {
-    ESLAYERHELPERS_API
-    std::string name(const ePotionType type);
-    ESLAYERHELPERS_API
-    ePotionType type(const std::string& name);
-    ESLAYERHELPERS_API
-    bool sameCategory(const ePotionType type1,
-                      const ePotionType type2);
-}
 
 #endif // EPOTIONTYPE_H

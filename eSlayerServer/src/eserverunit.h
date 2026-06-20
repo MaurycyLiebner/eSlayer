@@ -32,7 +32,9 @@ struct ePoisonDamage {
 };
 
 struct ePotionHealing {
-    float fPerFrame = 0.f;
+    float fHealthPerFrame = 0.f;
+    float fManaPerFrame = 0.f;
+    float fStaminaPerFrame = 0.f;
     float fFrameLength = 0.f;
 };
 
@@ -219,6 +221,7 @@ public:
 
     void restoreHealth(const float by);
     void restoreMana(const float by);
+    void restoreStamina(const float by);
 
     bool consumeMana(const float mana);
     eDamage attackDamage(const int schoice,
@@ -401,7 +404,7 @@ private:
 
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;
-    std::map<ePotionType, ePotionHealing> mPotions;
+    std::map<uint8_t, std::map<uint8_t, ePotionHealing>> mPotions;
     std::vector<uint32_t> mFollowers;
 
     eUnitType mType = eUnitType::normal;

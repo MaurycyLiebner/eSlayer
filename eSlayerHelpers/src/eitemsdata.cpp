@@ -37,6 +37,8 @@ void eItemsData::load() {
 
     const auto dir = "Items";
 
+    ePotionTypes::sTypes.add("", false);
+
     try {
         const auto jdata = eFileLoaderBase::parse(dir, "items.json");
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
@@ -93,8 +95,33 @@ void eItemsData::load(const std::string& name,
         itemData.fMissileRadius = jdata.value("missileRadius", 0.1f);
         itemData.fMissileSpeed = jdata.value("missileSpeed", 0.25f);
     } else if(type == eItemType::potion) {
-        const auto potionType = ePotionTypeHelpers::type(name);
-        itemData.fSubtype = static_cast<uint8_t>(potionType);
+        const auto typeStr = jdata.value("type", "");
+        if(typeStr.empty()) {
+            eRuntimeThrow("No potion type provided for \"" + name + "\"");
+        }
+        int typeId = ePotionTypes::sTypes.id(typeStr);
+        if(typeId < 0) {
+            typeId = ePotionTypes::sTypes.add(typeStr, true);
+        }
+        itemData.fSubtype = typeId;
+
+        itemData.fPotionFrameLength = jdata.value("frameLength", 0.f);
+
+        itemData.fPotionInstantHealth = jdata.value("instantHealth", 0.f);
+        itemData.fPotionInstantMana = jdata.value("instantMana", 0.f);
+        itemData.fPotionInstantStamina = jdata.value("instantStamina", 0.f);
+
+        itemData.fPotionInstantHealthFrac = jdata.value("instantHealthFrac", 0.f);
+        itemData.fPotionInstantManaFrac = jdata.value("instantManaFrac", 0.f);
+        itemData.fPotionInstantStaminaFrac = jdata.value("instantStaminaFrac", 0.f);
+
+        itemData.fPotionTotalHealth = jdata.value("totalHealth", 0.f);
+        itemData.fPotionTotalMana = jdata.value("totalMana", 0.f);
+        itemData.fPotionTotalStamina = jdata.value("totalStamina", 0.f);
+
+        itemData.fPotionTotalHealthFrac = jdata.value("totalHealthFrac", 0.f);
+        itemData.fPotionTotalManaFrac = jdata.value("totalManaFrac", 0.f);
+        itemData.fPotionTotalStaminaFrac = jdata.value("totalStaminaFrac", 0.f);
     } else if(type == eItemType::gold) {
         const int id = sItems.nextId();
         sGoldIds.emplace_back(id);
