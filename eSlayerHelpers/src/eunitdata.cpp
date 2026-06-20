@@ -128,6 +128,14 @@ bool eUnitData::setPoisoned(
     return true;
 }
 
+bool eUnitData::setStaminaPotion(
+    const bool p) {
+    if(getState(eState::staminaPotion_) == p) return false;
+    setState(eState::staminaPotion_, p);
+    setUpdate(eShift::state, true);
+    return true;
+}
+
 bool eUnitData::getUpdate(
     const eShift shift) const {
     return getUpdate(fUpdate, shift);
@@ -239,6 +247,10 @@ bool eUnitData::frozen() const {
 
 bool eUnitData::poisoned() const {
     return getState(eState::poisoned_);
+}
+
+bool eUnitData::staminaPotion() const {
+    return getState(eState::staminaPotion_);
 }
 
 void eUnitData::read(ePacket& p) {

@@ -69,7 +69,8 @@ public:
     void setMenuVisible(const bool v) { mMenuVisible = v; }
 
     void stop();
-    eMainCharAction& mainAction() { return *mMainAction; }
+    eMainCharAction& mainAction() const { return *mMainAction; }
+    eUnit& mainChar() const { return *mMainChar; }
 
     eCharacter character();
 

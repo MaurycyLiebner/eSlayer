@@ -18,6 +18,8 @@ gPotionTypeToString = {
     {ePotionType::lightRejuvenation, "lightRejuvenation"},
     {ePotionType::rejuvenation, "rejuvenation"},
     {ePotionType::greaterRejuvenation, "greaterRejuvenation"},
+
+    {ePotionType::stamina, "stamina"},
 };
 
 std::map<std::string, ePotionType>

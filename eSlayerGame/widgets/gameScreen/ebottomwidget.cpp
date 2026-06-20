@@ -180,6 +180,7 @@ void eBottomWidget::setIndicators(
     const int maxMana,
     const int stamina,
     const int maxStamina,
+    const bool staminaPotion,
     const int exp,
     const int maxExp) {
     mHealthIndicator->setRange(0, maxHealth);
@@ -190,6 +191,10 @@ void eBottomWidget::setIndicators(
 
     mStaminaIndicator->setRange(0, maxStamina);
     mStaminaIndicator->setValue(stamina);
+    const auto staminaColor = staminaPotion ?
+        eColors::sStaminaPotion :
+        eColors::sStamina;
+    mStaminaIndicator->setColor(staminaColor);
 
     mExperienceIndicator->setRange(0, maxExp);
     mExperienceIndicator->setValue(exp);

@@ -23,6 +23,8 @@ enum class ePotionType : uint8_t {
     lightRejuvenation,
     rejuvenation,
     greaterRejuvenation,
+
+    stamina
 };
 
 namespace ePotionTypeHelpers {

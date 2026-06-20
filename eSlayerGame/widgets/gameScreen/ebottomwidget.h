@@ -37,6 +37,7 @@ public:
                        const int maxMana,
                        const int stamina,
                        const int maxStamina,
+                       const bool staminaPotion,
                        const int exp,
                        const int maxExp);
 

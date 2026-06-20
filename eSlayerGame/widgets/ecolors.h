@@ -7,6 +7,7 @@ struct eColors {
     static SDL_Color sHealth;
     static SDL_Color sMana;
     static SDL_Color sStamina;
+    static SDL_Color sStaminaPotion;
     static SDL_Color sExperience;
 };
 

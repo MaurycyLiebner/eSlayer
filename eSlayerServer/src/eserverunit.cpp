@@ -247,6 +247,11 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
     case ePotionType::greaterMana:
         total = 225.f;
         break;
+
+    case ePotionType::stamina:
+        it.fFrameLength += 750.f;
+        it.fPerFrame = 0.f;
+        return;
     default:
         return;
     }
@@ -757,6 +762,7 @@ void eServerUnit::increment(const float by) {
         }
     }
 
+    bool staminaPotion = false;
     bool poisoned = false;
     if(fHealth > 0) {
         float poisonDmg = 0.f;
@@ -772,8 +778,8 @@ void eServerUnit::increment(const float by) {
         poisonDmg *= 1.f - mStats.fPoisonResistance;
         poisoned = poisonDmg > 0.f;
 
-        float healthReg = mStats.fHealthRegeneration;
-        float manaReg = mStats.fManaRegeneration;
+        float healthReg = by*mStats.fHealthRegeneration;
+        float manaReg = by*mStats.fManaRegeneration;
         if(!mPotions.empty()) {
             for(const auto type : {ePotionType::greaterHealing,
                                    ePotionType::healing,
@@ -784,7 +790,7 @@ void eServerUnit::increment(const float by) {
                 auto& p = it->second;
                 if(p.fFrameLength > 0.f) {
                     p.fFrameLength -= by;
-                    healthReg += p.fPerFrame;
+                    healthReg += by*p.fPerFrame;
                     if(p.fFrameLength <= 0.f) {
                         mPotions.erase(type);
                     }
@@ -800,7 +806,20 @@ void eServerUnit::increment(const float by) {
                 auto& p = it->second;
                 if(p.fFrameLength > 0.f) {
                     p.fFrameLength -= by;
-                    manaReg += p.fPerFrame;
+                    manaReg += by*p.fPerFrame;
+                    if(p.fFrameLength <= 0.f) {
+                        mPotions.erase(type);
+                    }
+                    break;
+                }
+            }
+            for(const auto type : {ePotionType::stamina}) {
+                const auto it = mPotions.find(type);
+                if(it == mPotions.end()) continue;
+                auto& p = it->second;
+                if(p.fFrameLength > 0.f) {
+                    staminaPotion = true;
+                    p.fFrameLength -= by;
                     if(p.fFrameLength <= 0.f) {
                         mPotions.erase(type);
                     }
@@ -834,6 +853,7 @@ void eServerUnit::increment(const float by) {
     }
 
     setPoisoned(poisoned);
+    setStaminaPotion(staminaPotion);
 }
 
 int eServerUnit::skillId(const eSkillChoice schoice) const {
@@ -1309,6 +1329,12 @@ void eServerUnit::setFrozen(const bool f) {
 
 void eServerUnit::setPoisoned(const bool p) {
     if(eUnitData::setPoisoned(p)) {
+        update(eUnitData::eShift::state);
+    }
+}
+
+void eServerUnit::setStaminaPotion(const bool p) {
+    if(eUnitData::setStaminaPotion(p)) {
         update(eUnitData::eShift::state);
     }
 }

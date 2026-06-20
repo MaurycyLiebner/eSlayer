@@ -46,7 +46,8 @@ struct ESLAYERHELPERS_API eUnitData :
     enum eState : uint8_t {
         cold_,
         frozen_,
-        poisoned_
+        poisoned_,
+        staminaPotion_
     };
 
     enum eShift : uint16_t {
@@ -88,10 +89,12 @@ struct ESLAYERHELPERS_API eUnitData :
     bool setCold(const bool c);
     bool setFrozen(const bool f);
     bool setPoisoned(const bool p);
+    bool setStaminaPotion(const bool p);
 
     bool cold() const;
     bool frozen() const;
     bool poisoned() const;
+    bool staminaPotion() const;
 
     bool getUpdate(const eShift shift) const;
     void setUpdate(const eShift shift, const bool value);

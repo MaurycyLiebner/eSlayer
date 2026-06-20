@@ -333,6 +333,7 @@ public:
     void setCold(const bool c);
     void setFrozen(const bool f);
     void setPoisoned(const bool p);
+    void setStaminaPotion(const bool p);
 
     void applyBoostsTmp();
 private:
@@ -360,6 +361,7 @@ private:
     using eUnitData::setCold;
     using eUnitData::setFrozen;
     using eUnitData::setPoisoned;
+    using eUnitData::setStaminaPotion;
 
     void removeBoostDataTmp(const uint8_t id);
     void addBoostDataTmp(const uint8_t id);
