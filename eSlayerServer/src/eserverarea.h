@@ -109,9 +109,12 @@ public:
     bool clientMoved(const uint32_t clientId);
     bool planRemoveUnit(const uint32_t charId);
     bool removeUnit(const uint32_t charId);
-    bool pickupBody(const uint32_t clientId, const uint32_t bodyId,
-                    bool& bodyRemoved, eBody& body);
-    bool changeTeam(const uint32_t clientId, const eTeamId newTeam);
+    bool pickupBody(const uint32_t clientId,
+                    const uint32_t bodyId,
+                    bool& bodyRemoved,
+                    eBodyItemsTaken& taken);
+    bool changeTeam(const uint32_t clientId,
+                    const eTeamId newTeam);
 
     bool spawnPortal(const uint32_t clientId,
                      uint32_t& portalId,

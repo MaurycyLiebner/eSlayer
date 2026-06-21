@@ -639,31 +639,16 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             uint32_t bodyId;
             p >> bodyId;
             bool bodyRemoved;
-            eBody body;
-            const bool r = eLocalServer::pickupBody(
-                charId, bodyId, bodyRemoved, body);
+            eBodyItemsTaken taken;
+            const bool r = eLocalServer::pickupBodyImpl(
+                charId, bodyId, bodyRemoved, taken);
             if(r) {
-                {
-                    eEquipment data;
-                    const bool r = eLocalServer::receiveEquipment(
-                        charId, data);
-                    if(!r) return;
-                    ePacket p;
-                    p << ePacketType::equipment;
-                    data.write(p);
-                    mNet.sendToClient(tcpClientId, p);
-                }
-                {
-                    ePacket p;
-                    p << ePacketType::bodyPickedUp;
-                    p << bodyRemoved;
-                    if(bodyRemoved) {
-                        p << bodyId;
-                    } else {
-                        body.write(p);
-                    }
-                    mNet.sendToClient(tcpClientId, p);
-                }
+                ePacket p;
+                p << ePacketType::bodyPickedUp;
+                p << bodyRemoved;
+                p << bodyId;
+                taken.write(p);
+                mNet.sendToClient(tcpClientId, p);
             } else {
                 ePacket p;
                 p << ePacketType::unblockEquipment;

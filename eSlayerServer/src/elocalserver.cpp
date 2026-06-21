@@ -249,27 +249,26 @@ bool eLocalServer::pickupBody(
     const uint32_t clientId,
     const uint32_t bodyId) {
     bool bodyRemoved;
-    eBody body;
-    const bool r = pickupBody(
-        clientId, bodyId, bodyRemoved, body);
+    eBodyItemsTaken taken;
+    const bool r = pickupBodyImpl(
+        clientId, bodyId, bodyRemoved, taken);
     if(r) {
         if(bodyRemoved) {
             mBodiesPickedUp.emplace_back(bodyId);
-        } else {
-            mBodiesChanged.emplace_back(body);
         }
+        mBodyItemsTaken.emplace_back(taken);
     }
     return r;
 }
 
-bool eLocalServer::pickupBody(
+bool eLocalServer::pickupBodyImpl(
     const uint32_t clientId,
     const uint32_t bodyId,
     bool& bodyRemoved,
-    eBody& body) {
+    eBodyItemsTaken& taken) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->pickupBody(bodyId, bodyRemoved, body);
+    return h->pickupBody(bodyId, bodyRemoved, taken);
 }
 
 void eLocalServer::mapReady(const eMapAndArea& ma) {

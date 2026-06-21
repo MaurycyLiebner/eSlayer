@@ -216,9 +216,10 @@ bool eServerClientHandler::consumePotion(
 bool eServerClientHandler::pickupBody(
     const uint32_t bodyId,
     bool& bodyRemoved,
-    eBody& body) {
+    eBodyItemsTaken& taken) {
     if(!mArea) return false;
-    mArea->pickupBody(mClientId, bodyId, bodyRemoved, body);
+    mArea->pickupBody(mClientId, bodyId,
+                      bodyRemoved, taken);
     return true;
 }
 

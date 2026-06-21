@@ -2,8 +2,8 @@
 
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/epacket.h"
-#include "eSlayerHelpers/epotiontype.h"
 #include "eSlayerHelpers/evectorhelpers.h"
+#include "eSlayerHelpers/eequipmentaction.h"
 
 void eInventoryItem::read(ePacket& p) {
     fItem.read(p);
@@ -50,27 +50,8 @@ eItem eEquipment::get(const uint32_t itemId) const {
 }
 
 eItem eEquipment::take(const uint32_t itemId) {
-    for(const auto it : {&fBoots,
-                         &fGloves,
-                         &fHelmet,
-                         &fArmor,
-                         &fBelt,
-                         &fRingL,
-                         &fRingR,
-                         &fAmulet,
-                         &fWeapon1L,
-                         &fWeapon1R,
-                         &fWeapon2L,
-                         &fWeapon2R,
-                         &fDragged}) {
-        auto& item = *it;
-        if(item.fType == eItemType::none) continue;
-        if(item.fItemId == itemId) {
-            const auto result = item;
-            item = eItem();
-            return result;
-        }
-    }
+    const auto b = takeBodyItem(itemId);
+    if(b.fType != eItemType::none) return b;
     for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
         for(int i = 0; i < v->size(); i++) {
             const auto& it = (*v)[i];
@@ -297,37 +278,68 @@ int eEquipment::beltX(const uint32_t itemId) const {
     return -1;
 }
 
-void eEquipment::moveFromBody(eBodyEquipment& srcEq) {
-    const auto tryMove = [&](eItem eBodyEquipment::* ptr) {
+void eEquipment::moveFromBody(
+    eBodyEquipment& srcEq,
+    std::vector<eBodyEqAction>* const moved) {
+    const auto tryMove = [&](eItem eBodyEquipment::* ptr,
+                             const ePlaceType place) {
         auto& src = srcEq.*ptr;
         if(src.fType == eItemType::none) return true;
         auto& dst = this->*ptr;
         if(dst.fType == eItemType::none) {
             const bool r = canPlace(src, dst);
             if(r) {
+                if(moved) {
+                    auto& a = moved->emplace_back();
+                    a.fItemId = src.fItemId;
+                    a.fPlace.fType = place;
+                }
                 std::swap(src, dst);
                 return true;
             }
         }
-        const bool r = fInventory.tryAdd(src);
+        uint8_t x;
+        uint8_t y;
+        const bool r = fInventory.tryAdd(src, &x, &y);
         if(!r) return false;
+        if(moved) {
+            auto& a = moved->emplace_back();
+            a.fItemId = src.fItemId;
+            auto& place = a.fPlace;
+            place.fType = ePlaceType::inventory;
+            place.fX = x;
+            place.fY = y;
+        }
         src = eItem();
 
         return true;
     };
-    tryMove(&eBodyEquipment::fBoots);
-    tryMove(&eBodyEquipment::fGloves);
-    tryMove(&eBodyEquipment::fHelmet);
-    tryMove(&eBodyEquipment::fArmor);
-    tryMove(&eBodyEquipment::fBelt);
-    tryMove(&eBodyEquipment::fRingL);
-    tryMove(&eBodyEquipment::fRingR);
-    tryMove(&eBodyEquipment::fAmulet);
-    tryMove(&eBodyEquipment::fWeapon1L);
-    tryMove(&eBodyEquipment::fWeapon1R);
-    tryMove(&eBodyEquipment::fWeapon2L);
-    tryMove(&eBodyEquipment::fWeapon2R);
-    tryMove(&eBodyEquipment::fDragged);
+    tryMove(&eBodyEquipment::fBoots,
+            ePlaceType::boots);
+    tryMove(&eBodyEquipment::fGloves,
+            ePlaceType::gloves);
+    tryMove(&eBodyEquipment::fHelmet,
+            ePlaceType::helmet);
+    tryMove(&eBodyEquipment::fArmor,
+            ePlaceType::armor);
+    tryMove(&eBodyEquipment::fBelt,
+            ePlaceType::belt);
+    tryMove(&eBodyEquipment::fRingL,
+            ePlaceType::ringL);
+    tryMove(&eBodyEquipment::fRingR,
+            ePlaceType::ringR);
+    tryMove(&eBodyEquipment::fAmulet,
+            ePlaceType::amulet);
+    tryMove(&eBodyEquipment::fWeapon1L,
+            ePlaceType::weapon1L);
+    tryMove(&eBodyEquipment::fWeapon1R,
+            ePlaceType::weapon1R);
+    tryMove(&eBodyEquipment::fWeapon2L,
+            ePlaceType::weapon2L);
+    tryMove(&eBodyEquipment::fWeapon2R,
+            ePlaceType::weapon2R);
+    tryMove(&eBodyEquipment::fDragged,
+            ePlaceType::dragged);
 }
 
 void eEquipment::moveFrom(eEquipment& srcEq) {
@@ -447,6 +459,31 @@ void eBodyEquipment::writeBodyIds(ePacket& p) const {
     iterateOverBody([&](const eItem& item) {
         p << item.fItemId;
     });
+}
+
+eItem eBodyEquipment::takeBodyItem(const uint32_t itemId) {
+    for(const auto it : {&fBoots,
+                          &fGloves,
+                          &fHelmet,
+                          &fArmor,
+                          &fBelt,
+                          &fRingL,
+                          &fRingR,
+                          &fAmulet,
+                          &fWeapon1L,
+                          &fWeapon1R,
+                          &fWeapon2L,
+                          &fWeapon2R,
+                          &fDragged}) {
+        auto& item = *it;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            const auto result = item;
+            item = eItem();
+            return result;
+        }
+    }
+    return eItem();
 }
 
 void eEquipment::read(ePacket& p) {

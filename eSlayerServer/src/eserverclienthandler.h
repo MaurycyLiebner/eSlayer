@@ -56,7 +56,7 @@ public:
     bool consumePotion(const uint32_t itemId);
     bool pickupBody(const uint32_t bodyId,
                     bool& bodyRemoved,
-                    eBody& body);
+                    eBodyItemsTaken& taken);
     bool changeTeam(const eTeamId newTeam);
     bool spawnPortal(uint32_t& portalId,
                      uint8_t& mapId,

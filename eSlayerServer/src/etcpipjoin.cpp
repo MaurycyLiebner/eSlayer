@@ -499,14 +499,13 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::bodyPickedUp: {
         bool removed;
         p >> removed;
+        uint32_t bodyId;
+        p >> bodyId;
+        eBodyItemsTaken taken;
+        taken.read(p);
+        mBodyItemsTaken.emplace_back(taken);
         if(removed) {
-            uint32_t bodyId;
-            p >> bodyId;
             mBodiesPickedUp.emplace_back(bodyId);
-        } else {
-            eBody body;
-            body.read(p);
-            mBodiesChanged.emplace_back(body);
         }
     } break;
     case ePacketType::disconnect: {

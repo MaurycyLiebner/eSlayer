@@ -75,9 +75,9 @@ std::vector<uint32_t> eServer::receiveBodiesPickedUp() {
     return result;
 }
 
-std::vector<eBody> eServer::receiveBodiesChanged() {
-    std::vector<eBody> result;
-    std::swap(mBodiesChanged, result);
+std::vector<eBodyItemsTaken> eServer::receiveBodiesChanged() {
+    std::vector<eBodyItemsTaken> result;
+    std::swap(mBodyItemsTaken, result);
     return result;
 }
 

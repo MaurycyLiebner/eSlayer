@@ -6,6 +6,8 @@
 #include "eitem.h"
 #include "eequipmentplace.h"
 
+struct eBodyEqAction;
+
 struct ESLAYERHELPERS_API eInventoryItem {
     eItem fItem;
     int fX;
@@ -68,6 +70,8 @@ struct ESLAYERHELPERS_API eBodyEquipment {
     void readBodyIds(ePacket& p);
     void writeBodyIds(ePacket& p) const;
 
+    eItem takeBodyItem(const uint32_t itemId);
+
     using eIter = std::function<void(eItem& item)>;
     void iterateOverBody(const eIter& iter);
     using eCIter = std::function<void(const eItem& item)>;
@@ -111,7 +115,8 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     eItem takePotion(const int x);
     int beltX(const uint32_t itemId) const;
 
-    void moveFromBody(eBodyEquipment& srcEq);
+    void moveFromBody(eBodyEquipment& srcEq,
+                      std::vector<eBodyEqAction>* const moved = nullptr);
     void moveFrom(eEquipment& srcEq);
     bool empty() const;
 

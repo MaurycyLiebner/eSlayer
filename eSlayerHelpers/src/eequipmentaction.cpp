@@ -112,6 +112,8 @@ bool eEquipmentAction::apply(eEquipment& eq) const {
         return drag(eq);
     case eEquipmentActionType::switchDrag:
         return switchDrag(eq);
+    case eEquipmentActionType::dragAndDrop:
+        return dragAndDrop(eq);
     case eEquipmentActionType::drop:
         return drop(eq);
     case eEquipmentActionType::gold:

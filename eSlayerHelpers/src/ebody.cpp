@@ -101,3 +101,21 @@ void eBodies::remove(const uint32_t id) {
 void eBodies::add(const eBody& body) {
     sBodies.emplace_back(body);
 }
+
+eBody* eBodies::get(const uint32_t id) {
+    for(auto& b : sBodies) {
+        if(b.fBodyId != id) continue;
+        return &b;
+    }
+    return nullptr;
+}
+
+void eBodyItemsTaken::read(ePacket& p) {
+    p >> fBodyId;
+    p.read16(fItems);
+}
+
+void eBodyItemsTaken::write(ePacket& p) const {
+    p << fBodyId;
+    p.write16(fItems);
+}

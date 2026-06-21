@@ -89,10 +89,10 @@ public:
     bool pickupBody(const uint32_t clientId,
                     const uint32_t bodyId) override;
 
-    bool pickupBody(const uint32_t clientId,
-                    const uint32_t bodyId,
-                    bool& bodyRemoved,
-                    eBody& body);
+    bool pickupBodyImpl(const uint32_t clientId,
+                        const uint32_t bodyId,
+                        bool& bodyRemoved,
+                        eBodyItemsTaken& taken);
 
     void checkMapsReady() override;
 

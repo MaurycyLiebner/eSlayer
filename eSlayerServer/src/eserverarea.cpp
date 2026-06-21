@@ -1027,8 +1027,10 @@ bool eServerArea::removeUnit(const uint32_t charId) {
 }
 
 bool eServerArea::pickupBody(
-    const uint32_t clientId, const uint32_t bodyId,
-    bool& bodyRemoved, eBody& body) {
+    const uint32_t clientId,
+    const uint32_t bodyId,
+    bool& bodyRemoved,
+    eBodyItemsTaken& taken) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& client = it->second;
@@ -1043,16 +1045,12 @@ bool eServerArea::pickupBody(
     if(dist > 1.f) return false;
     auto& dst = u->equipment();
     auto& src = ubody->equipment();
-    dst.moveFromBody(src);
+    dst.moveFromBody(src, &taken.fItems);
+    taken.fBodyId = bodyId;
     bodyRemoved = src.bodyEmpty();
     if(bodyRemoved) {
         bodies.erase(bit);
         planRemoveUnit(bodyId);
-    } else {
-        body.fBodyId = bodyId;
-        body.fMapId = mMap->id();
-        body.fPos = ubody->fPos;
-        body.fEq = src;
     }
     u->recalculateStats();
     u->recalculateAuras();

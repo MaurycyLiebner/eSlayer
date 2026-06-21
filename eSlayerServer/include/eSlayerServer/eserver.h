@@ -169,7 +169,7 @@ public:
     std::vector<eServerObject> receiveObjectStateChanges();
     std::vector<eServerDoors> receiveDoorsStateChanges();
     std::vector<uint32_t> receiveBodiesPickedUp();
-    std::vector<eBody> receiveBodiesChanged();
+    std::vector<eBodyItemsTaken> receiveBodiesChanged();
     std::vector<eEquipmentAction> receiveEqActions();
 protected:
     void failed(const std::string& msg,
@@ -181,7 +181,7 @@ protected:
     std::vector<eServerObject> mObjectStateChanges;
     std::vector<eServerDoors> mDoorsStateChanged;
     std::vector<uint32_t> mBodiesPickedUp;
-    std::vector<eBody> mBodiesChanged;
+    std::vector<eBodyItemsTaken> mBodyItemsTaken;
     std::vector<eEquipmentAction> mEqActions;
 private:
     const eServerData mData;

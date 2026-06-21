@@ -360,14 +360,28 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& d : doors) {
             mMap->triggerDoors(d);
         }
+        const auto bodiesChanged = mServer->receiveBodiesChanged();
+        for(const auto& changes : bodiesChanged) {
+            const auto b = eBodies::get(changes.fBodyId);
+            if(!b) continue;
+            const auto& items = changes.fItems;
+            auto& beq = b->fEq;
+            for(const auto& i : items) {
+                auto item = beq.takeBodyItem(i.fItemId);
+                if(item.fType == eItemType::none) continue;
+                eEquipmentAction action;
+                std::swap(item, action.fAddItem);
+                action.fPlace = i.fPlace;
+                action.fType = eEquipmentActionType::add;
+                action.apply(eq);
+            }
+        }
+        if(!bodiesChanged.empty()) {
+            eInventoryWidget::sBlocked = false;
+        }
         const auto bodiesToRemove = mServer->receiveBodiesPickedUp();
         for(const auto bodyId : bodiesToRemove) {
             eBodies::remove(bodyId);
-        }
-        const auto bodiesChanged = mServer->receiveBodiesChanged();
-        for(const auto& body : bodiesChanged) {
-            eBodies::remove(body.fBodyId);
-            eBodies::add(body);
         }
         const auto eqActions = mServer->receiveEqActions();
         for(const auto& a : eqActions) {

@@ -1,6 +1,8 @@
 #ifndef EEQUIPMENTACTION_H
 #define EEQUIPMENTACTION_H
 
+#include "eslayerhelpersexport.h"
+
 #include "eitem.h"
 #include "eequipmentplace.h"
 
@@ -13,7 +15,12 @@ enum class eEquipmentActionType {
     dragAndDrop
 };
 
-struct eEquipmentAction {
+struct eBodyEqAction {
+    eEquipmentPlace fPlace;
+    uint32_t fItemId;
+};
+
+struct ESLAYERHELPERS_API eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
     eEquipmentPlace fPlace;
 
