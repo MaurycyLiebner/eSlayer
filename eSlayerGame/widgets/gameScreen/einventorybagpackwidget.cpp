@@ -217,7 +217,12 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     const auto b = e.button();
     if(b == eMouseButton::right) {
         if(item.fType == eItemType::potion) {
-            inv.erase(inv.begin() + itemId);
+            const int x = mEq->beltX(item.fItemId);
+            if(x != -1) {
+                mEq->takePotion(x);
+            } else {
+                inv.erase(inv.begin() + itemId);
+            }
             const auto gw = eGameWidget::sInstance;
             gw->consumePotion(item);
         }
