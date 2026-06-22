@@ -18,7 +18,7 @@ public:
 
     void initialize(const int w, const int h,
                     std::vector<eInventoryItem>& items,
-                    eEquipment& eq, const eStats& stats,
+                    eEquipment& eq,
                     const eBagpackType type);
 
     bool dropItem();

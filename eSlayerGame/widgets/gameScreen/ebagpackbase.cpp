@@ -7,10 +7,8 @@
 
 void eBagpackBase::initialize(
     const int w, const int h,
-    std::vector<eInventoryItem>& items,
-    const eStats& stats) {
+    std::vector<eInventoryItem>& items) {
 
-    mStats = &stats;
     mItems = &items;
 
     const auto& boxTex = eUITextures::sEmptySlot;

@@ -193,7 +193,7 @@ void eInventoryWidget::initialize(eEquipment& eq, const eStats& stats) {
     mBagpack->initialize(eEquipment::fInventoryWidth,
                          eEquipment::fInventoryHeight,
                          eq.fInventory,
-                         eq, stats, eBagpackType::inventory);
+                         eq, eBagpackType::inventory);
     inner->addWidget(mBagpack);
 
     mCoins = new eCoinsWidget(window());

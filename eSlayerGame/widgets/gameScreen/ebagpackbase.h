@@ -12,8 +12,7 @@ public:
     using eWidget::eWidget;
 
     void initialize(const int w, const int h,
-                    std::vector<eInventoryItem>& items,
-                    const eStats& stats);
+                    std::vector<eInventoryItem>& items);
 
     void setHoverItem(const eInventoryItem& invItem);
 protected:
@@ -37,7 +36,6 @@ protected:
     int mDimensions = 0;
 
     std::vector<eInventoryItem>* mItems = nullptr;
-    const eStats* mStats = nullptr;
 };
 
 #endif // EBAGPACKBASE_H

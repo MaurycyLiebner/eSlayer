@@ -14,9 +14,9 @@
 void eInventoryBagpackWidget::initialize(
     const int w, const int h,
     std::vector<eInventoryItem>& items,
-    eEquipment& eq, const eStats& stats,
+    eEquipment& eq,
     const eBagpackType type) {
-    eBagpackBase::initialize(w, h, items, stats);
+    eBagpackBase::initialize(w, h, items);
     mEq = &eq;
     mType = type;
 }

@@ -128,7 +128,7 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     mBelt = new eInventoryBagpackWidget(window());
     mBelt->initialize(eEquipment::fBeltHPotionSlots,
                       1, mEq.fBeltPotions,
-                      mEq, mStats, eBagpackType::belt);
+                      mEq, eBagpackType::belt);
 
     staminaBelt->addWidget(staminaWid);
     staminaBelt->addWidget(mBelt);
@@ -252,7 +252,7 @@ void eBottomWidget::showBeltExt() {
     mBeltExt->initialize(eEquipment::fBeltHPotionSlots,
                          eEquipment::fBeltVPotionSlots - 1,
                          mEq.fBeltHiddenPotions,
-                         mEq, mStats, eBagpackType::beltExtension);
+                         mEq, eBagpackType::beltExtension);
     int x = 0;
     int y = 0;
     mBelt->mapTo(this, x, y);
