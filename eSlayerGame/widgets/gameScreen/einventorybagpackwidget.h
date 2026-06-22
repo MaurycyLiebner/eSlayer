@@ -1,12 +1,9 @@
 #ifndef EINVENTORYBAGPACKWIDGET_H
 #define EINVENTORYBAGPACKWIDGET_H
 
-#include "../ewidget.h"
+#include "ebagpackbase.h"
 
 struct eEquipment;
-struct eInventoryItem;
-struct eItemData;
-struct eStats;
 
 enum class eBagpackType {
     inventory,
@@ -15,9 +12,9 @@ enum class eBagpackType {
     beltExtension
 };
 
-class eInventoryBagpackWidget : public eWidget {
+class eInventoryBagpackWidget : public eBagpackBase {
 public:
-    using eWidget::eWidget;
+    using eBagpackBase::eBagpackBase;
 
     void initialize(const int w, const int h,
                     std::vector<eInventoryItem>& items,
@@ -25,29 +22,12 @@ public:
                     const eBagpackType type);
 
     bool dropItem();
-    void setHoverItem(const eInventoryItem& invItem);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
-    bool mouseMoveEvent(const eMouseEvent& e) override;
-    bool mouseLeaveEvent(const eMouseEvent& e) override;
 private:
-    int itemIdAt(const SDL_Point& ipos) const;
-    std::vector<int> itemIdsAt(const SDL_Rect& irect) const;
-    bool rectInBounds(const SDL_Rect& irect) const;
-    SDL_Rect itemDropRect(const SDL_Point& ipos,
-                          const eItemData& itemData) const;
-
-    SDL_Point mousePosToItemPos(const SDL_Point& mpos);
-
-    int mWidth = 0;
-    int mHeight = 0;
-    int mDimensions = 0;
-
     eBagpackType mType = eBagpackType::inventory;
     eEquipment* mEq = nullptr;
-    std::vector<eInventoryItem>* mItems = nullptr;
-    const eStats* mStats = nullptr;
 
     std::vector<std::shared_ptr<eTexture>> mBeltNumbers;
 };

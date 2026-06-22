@@ -1,8 +1,6 @@
 #include "einventorybagpackwidget.h"
 
-#include "../../textures/euitextures.h"
 #include "../../textures/etextgenerator.h"
-#include "../../textures/etexturecolorholder.h"
 #include "../../textures/eiteminstancetexture.h"
 #include "einventorywidget.h"
 #include "ehoverwidget.h"
@@ -18,15 +16,9 @@ void eInventoryBagpackWidget::initialize(
     std::vector<eInventoryItem>& items,
     eEquipment& eq, const eStats& stats,
     const eBagpackType type) {
+    eBagpackBase::initialize(w, h, items, stats);
     mEq = &eq;
-    mStats = &stats;
-    mItems = &items;
     mType = type;
-    const auto& boxTex = eUITextures::sEmptySlot;
-    mDimensions = boxTex->width();
-    mWidth = w;
-    mHeight = h;
-    resize(mWidth*mDimensions, mHeight*mDimensions);
 }
 
 bool eInventoryBagpackWidget::dropItem() {
@@ -96,18 +88,6 @@ bool eInventoryBagpackWidget::dropItem() {
     return true;
 }
 
-void eInventoryBagpackWidget::setHoverItem(
-    const eInventoryItem& invItem) {
-    const auto& item = invItem.fItem;
-    int x = invItem.fX*mDimensions;
-    int y = invItem.fY*mDimensions;
-    mapToGlobal(x, y);
-    const int w = invItem.fW*mDimensions;
-    const int h = invItem.fH*mDimensions;
-    const SDL_Rect rect{x, y, w, h};
-    eHoverWidget::sSetHoverItem(item, rect);
-}
-
 void eInventoryBagpackWidget::paintEvent(ePainter& p) {
     SDL_FColor fillColor{0.f, 0.f, 0.f, 1.f};
     SDL_Rect ihoverRect = {0, 0, 0, 0};
@@ -145,43 +125,9 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
         }
     }
 
-    const auto& boxTex = eUITextures::sEmptySlot;
-    for(int x = 0; x < mWidth; x++) {
-        for(int y = 0; y < mHeight; y++) {
-            const SDL_Rect rect{x*mDimensions,
-                                y*mDimensions,
-                                mDimensions,
-                                mDimensions};
-            eTextureColorSetting color;
-            const SDL_Point pt{x, y};
-            if(SDL_PointInRect(&pt, &ihoverRect)) {
-                color.set(fillColor);
-            } else {
-                for(const auto& i : *mItems) {
-                    const SDL_Rect iRect{i.fX, i.fY, i.fW, i.fH};
-                    if(SDL_PointInRect(&pt, &iRect)) {
-                        color.set(0.4f, 0.4f, 0.4f);
-                        break;
-                    }
-                }
-            }
-            const eTextureColorHolder mod(color, boxTex);
-            p.drawTexture(rect.x, rect.y, boxTex);
-        }
-    }
-    const auto r = renderer();
-    const auto& res = resolution();
-    for(const auto& i : *mItems) {
-        const int x = i.fX*mDimensions;
-        const int y = i.fY*mDimensions;
-        const auto& item = i.fItem;
-        const eItemInstanceTexture tex(r, res, item);
-        const auto mod = tex.request();
-        const int w = i.fW*mDimensions;
-        const int h = i.fH*mDimensions;
-        p.drawTexture(SDL_Rect{x, y, w, h}, mod.fTex, eAlignment::center);
-    }
+    eBagpackBase::paint(p, ihoverRect, fillColor);
 
+    const auto r = renderer();
     if(mType == eBagpackType::belt) {
         if(mBeltNumbers.size() < mWidth) {
             const auto& res = resolution();
@@ -253,63 +199,4 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
         }
     }
     return true;
-}
-
-bool eInventoryBagpackWidget::mouseMoveEvent(const eMouseEvent& e) {
-    const auto ipos = mousePosToItemPos({e.x(), e.y()});
-    const int itemId = itemIdAt(ipos);
-    if(itemId == -1) {
-        eHoverWidget::sSetHoverItem(eItem());
-    } else {
-        const auto& inv = *mItems;
-        setHoverItem(inv[itemId]);
-    }
-    return true;
-}
-
-bool eInventoryBagpackWidget::mouseLeaveEvent(const eMouseEvent& e) {
-    eHoverWidget::sSetHoverItem(eItem());
-    return true;
-}
-
-int eInventoryBagpackWidget::itemIdAt(const SDL_Point& ipos) const {
-    int id = 0;
-    for(const auto& i : *mItems) {
-        const SDL_Rect rect{i.fX, i.fY, i.fW, i.fH};
-        const bool r = SDL_PointInRect(&ipos, &rect);
-        if(r) return id;
-        id++;
-    }
-    return -1;
-}
-
-std::vector<int> eInventoryBagpackWidget::itemIdsAt(const SDL_Rect& irect) const {
-    std::vector<int> result;
-    int id = 0;
-    for(const auto& i : *mItems) {
-        const SDL_Rect rect{i.fX, i.fY, i.fW, i.fH};
-        const bool r = SDL_HasRectIntersection(&irect, &rect);
-        if(r) result.push_back(id);
-        id++;
-    }
-    return result;
-}
-
-bool eInventoryBagpackWidget::rectInBounds(const SDL_Rect& irect) const {
-    return irect.x >= 0 && irect.y >= 0 &&
-           irect.x + irect.w <= mWidth &&
-           irect.y + irect.h <= mHeight;
-}
-
-SDL_Rect eInventoryBagpackWidget::itemDropRect(
-    const SDL_Point& ipos, const eItemData& itemData) const {
-    return SDL_Rect{ipos.x - itemData.fWidth/2,
-                    ipos.y - itemData.fHeight/2,
-                    itemData.fWidth, itemData.fHeight};
-}
-
-SDL_Point eInventoryBagpackWidget::mousePosToItemPos(
-    const SDL_Point& mpos) {
-    if(mpos.x < 0 || mpos.y < 0) return SDL_Point{-1, -1};
-    return SDL_Point{mpos.x/mDimensions, mpos.y/mDimensions};
 }

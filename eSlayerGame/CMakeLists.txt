@@ -293,6 +293,18 @@ add_executable(eSlayerGame
     widgets/gameScreen/estatuswidget.h
     widgets/gameScreen/epartywidget.cpp
     widgets/gameScreen/epartywidget.h
+    widgets/gameScreen/ewaypointwidget.cpp
+    widgets/gameScreen/ewaypointwidget.h
+    widgets/gameScreen/ebottomwidget.cpp
+    widgets/gameScreen/ebottomwidget.h
+    widgets/gameScreen/estashwidget.cpp
+    widgets/gameScreen/estashwidget.h
+    widgets/gameScreen/ecoinsquestionwidget.cpp
+    widgets/gameScreen/ecoinsquestionwidget.h
+    widgets/gameScreen/eokcancelbutton.cpp
+    widgets/gameScreen/eokcancelbutton.h
+    widgets/gameScreen/ebagpackbase.cpp
+    widgets/gameScreen/ebagpackbase.h
 
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp
@@ -301,11 +313,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    widgets/gameScreen/ewaypointwidget.h widgets/gameScreen/ewaypointwidget.cpp
-    widgets/gameScreen/ebottomwidget.h widgets/gameScreen/ebottomwidget.cpp
-    widgets/gameScreen/estashwidget.h widgets/gameScreen/estashwidget.cpp
-    widgets/gameScreen/ecoinsquestionwidget.h widgets/gameScreen/ecoinsquestionwidget.cpp
-    widgets/gameScreen/eokcancelbutton.h widgets/gameScreen/eokcancelbutton.cpp
 )
 
 include(GNUInstallDirs)
