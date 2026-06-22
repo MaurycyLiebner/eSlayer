@@ -10,7 +10,8 @@ enum class eObjectType {
     treasure,
     waypoint,
     portal,
-    stash
+    stash,
+    healer
 };
 
 struct eObjectInfo {

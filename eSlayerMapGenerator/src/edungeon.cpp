@@ -320,11 +320,6 @@ void eDungeon::generate(ePointF& spawnPos) const {
         const eObjectCount os(id, 1, 2);
         tryAddObject(helper, chambers, os);
     }
-    if(mSettings.fType == eAreaType::camp) {
-        const auto id = eObjectsInfo::sObjects.id("stash");
-        const eObjectCount os(id, 1, 1);
-        tryAddObject(helper, chambers, os);
-    }
     for(const auto& os : objs) {
         for(int i = 0; i < os.fCount; i++) {
             const bool r = tryAddObject(helper, chambers, os);

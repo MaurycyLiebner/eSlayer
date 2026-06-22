@@ -30,6 +30,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::portal;
             } else if(typeStr == "stash") {
                 info.fType = eObjectType::stash;
+            } else if(typeStr == "healer") {
+                info.fType = eObjectType::healer;
             } else if(typeStr == ""){
                 info.fType = eObjectType::none;
             } else {
