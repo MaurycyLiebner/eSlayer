@@ -140,8 +140,13 @@ public:
     bool dropItem(const uint32_t clientId);
     bool dropGold(const uint32_t clientId,
                   uint32_t count);
-    void rearrangeItems(const uint32_t clientId, const eEquipment& eq);
-    bool equipmentAction(const uint32_t clientId, const eEquipmentAction& a);
+    void rearrangeItems(const uint32_t clientId,
+                        const eEquipment& eq);
+    bool equipmentAction(const uint32_t clientId,
+                         const eEquipmentAction& a);
+    bool buyAction(const uint32_t clientId,
+                   const eBuyAction& a,
+                   uint32_t& newItemId);
     void changeAttributes(const uint32_t clientId, const eAttributes& attrs);
     void changeSkillLevels(const uint32_t clientId, const eSkillLevels& skillLevels);
     void consumePotion(const uint32_t clientId, const uint32_t itemId);

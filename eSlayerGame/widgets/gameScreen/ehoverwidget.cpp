@@ -61,15 +61,38 @@ void eHoverWidget::setItem(const eItem& item) {
 }
 
 void eHoverWidget::setHoverItem(
-    const eItem& item, const SDL_Rect& hoverRect) {
+    const eHoverItem& hitem,
+    const SDL_Rect& hoverRect) {
     mHoverSkillId = -1;
     mHoverRect = hoverRect;
+    const auto& item = hitem.fItem;
     if(item.fType == eItemType::none) {
         mHover = nullptr;
     } else if(!mHover || item.fItemId != mHoverItemId) {
         const auto& res = resolution();
         const auto r = renderer();
         eHoverGenerator gen(res);
+
+        {
+            int s = -1;
+            switch(hitem.fType) {
+            case eHoverItemType::regular:
+                break;
+            case eHoverItemType::buy:
+                s = 12;
+                break;
+            case eHoverItemType::sell:
+                s = 13;
+                break;
+            }
+
+            if(s >= 0) {
+                auto text = eText::text(6, s);
+                const auto costStr = std::to_string(s);
+                text = eStringHelpers::replaceAll(text, "%1", costStr);
+                gen.addText(r, text, eFontColor::normal);
+            }
+        }
 
         {
             const auto name = eItemNames::name(item);
@@ -440,9 +463,9 @@ void eHoverWidget::sUpdateDragItem(const eEquipment& eq) {
 }
 
 void eHoverWidget::sSetHoverItem(
-    const eItem& item, const SDL_Rect& rect) {
+    const eHoverItem& hitem, const SDL_Rect& rect) {
     if(!sInstance) return;
-    sInstance->setHoverItem(item, rect);
+    sInstance->setHoverItem(hitem, rect);
 }
 
 void eHoverWidget::sSetHoverSkill(

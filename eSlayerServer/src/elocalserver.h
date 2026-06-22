@@ -103,6 +103,9 @@ public:
 
     bool equipmentAction(const uint32_t clientId,
                          const eEquipmentAction& a) override;
+    bool buyAction(const uint32_t clientId,
+                   const eBuyAction& a,
+                   uint32_t& newItemId) override;
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);

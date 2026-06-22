@@ -40,6 +40,7 @@
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/esellers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 
@@ -176,6 +177,18 @@ void eGameWidget::sendEqAction(const eEquipmentAction& a) {
     mMainAction->recalculateStats();
 }
 
+void eGameWidget::sendBuyAction(
+    const eBuyAction& a) {
+    uint32_t newItemId = 0;
+    mServer->buyAction(mClientId, a, newItemId);
+    if(newItemId) {
+        eSellers::replaceItemId(
+            mClientId, a.fSellerId,
+            a.fItemId, newItemId);
+    }
+    mMainAction->recalculateStats();
+}
+
 void eGameWidget::sendAttributesChanged() {
     const auto& attrs = mMainAction->attributes();
     mServer->changeAttributes(mClientId, attrs);
@@ -299,6 +312,10 @@ void eGameWidget::spawnPortal() {
 
 void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
     sInstance->sendEqAction(a);
+}
+
+void eGameWidget::sSendBuyAction(const eBuyAction& a) {
+    sInstance->sendBuyAction(a);
 }
 
 void eGameWidget::sSendSkillLevelsChanged() {
@@ -1439,6 +1456,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto t2 = eTeams::playerTeam(mClientId);
                     highlightable = t1 == t2;
                 } break;
+                case eObjectType::healer:
                 case eObjectType::stash:
                     highlightable = true;
                     break;

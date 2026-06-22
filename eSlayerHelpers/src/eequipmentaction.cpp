@@ -129,6 +129,7 @@ bool eEquipmentAction::apply(eEquipment& eq) const {
 void eEquipmentAction::read(ePacket& p) {
     p >> fType;
     p >> fPlace;
+    p >> fSellerId;
     fAddItem.read(p);
     p >> fItemId1;
     p >> fItemId2;
@@ -142,6 +143,7 @@ void eEquipmentAction::read(ePacket& p) {
 void eEquipmentAction::write(ePacket& p) const {
     p << fType;
     p << fPlace;
+    p << fSellerId;
     fAddItem.write(p);
     p << fItemId1;
     p << fItemId2;

@@ -7,9 +7,11 @@
 
 void eBagpackBase::initialize(
     const int w, const int h,
-    std::vector<eInventoryItem>& items) {
+    std::vector<eInventoryItem>& items,
+    const eHoverItemType htype) {
 
     mItems = &items;
+    mHoverType = htype;
 
     const auto& boxTex = eUITextures::sEmptySlot;
     mDimensions = boxTex->width();
@@ -27,7 +29,11 @@ void eBagpackBase::setHoverItem(
     const int w = invItem.fW*mDimensions;
     const int h = invItem.fH*mDimensions;
     const SDL_Rect rect{x, y, w, h};
-    eHoverWidget::sSetHoverItem(item, rect);
+    eHoverItem hitem;
+    hitem.fItem = item;
+    hitem.fType = mHoverType;
+    hitem.fCost = 100;
+    eHoverWidget::sSetHoverItem(hitem, rect);
 }
 
 void eBagpackBase::paint(
@@ -76,7 +82,7 @@ bool eBagpackBase::mouseMoveEvent(const eMouseEvent& e) {
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);
     if(itemId == -1) {
-        eHoverWidget::sSetHoverItem(eItem());
+        eHoverWidget::sSetHoverItem(eHoverItem());
     } else {
         const auto& inv = *mItems;
         setHoverItem(inv[itemId]);
@@ -85,7 +91,7 @@ bool eBagpackBase::mouseMoveEvent(const eMouseEvent& e) {
 }
 
 bool eBagpackBase::mouseLeaveEvent(const eMouseEvent& e) {
-    eHoverWidget::sSetHoverItem(eItem());
+    eHoverWidget::sSetHoverItem(eHoverItem());
     return true;
 }
 

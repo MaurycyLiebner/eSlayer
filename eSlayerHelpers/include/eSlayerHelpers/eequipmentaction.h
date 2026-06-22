@@ -20,9 +20,18 @@ struct eBodyEqAction {
     uint32_t fItemId;
 };
 
+struct ESLAYERHELPERS_API eBuyAction {
+    eEquipmentPlace fPlace;
+
+    uint32_t fSellerId;
+    uint32_t fItemId;
+};
+
 struct ESLAYERHELPERS_API eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
     eEquipmentPlace fPlace;
+
+    uint32_t fSellerId;
 
     eItem fAddItem;
 
@@ -38,11 +47,12 @@ struct ESLAYERHELPERS_API eEquipmentAction {
 
     void read(ePacket& p);
     void write(ePacket& p) const;
-private:
-    bool add(eEquipment& eq) const;
+
     static bool add(eEquipment& eq,
                     const eItem& item,
                     const eEquipmentPlace place);
+private:
+    bool add(eEquipment& eq) const;
     bool drag(eEquipment& eq) const;
     bool switchDrag(eEquipment& eq) const;
     bool drop(eEquipment& eq) const;

@@ -21,6 +21,7 @@ struct ESLAYERHELPERS_API eInventoryItem {
 
 struct ESLAYERHELPERS_API eInventoryItems :
     public std::vector<eInventoryItem> {
+    eInventoryItems() {}
     eInventoryItems(const int width, const int height) :
         mWidth(width), mHeight(height) {}
 
@@ -36,6 +37,10 @@ struct ESLAYERHELPERS_API eInventoryItems :
     bool tryAdd(const eItem& item,
                 const uint8_t x,
                 const uint8_t y);
+    eItem take(const uint32_t itemId);
+    eItem item(const uint32_t itemId) const;
+    bool setItemId(const uint32_t itemId,
+                   const uint32_t newItemId);
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -99,6 +104,9 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     eInventoryItems fStash{fStashWidth,
                            fStashHeight};
     uint32_t fStashGold = 0;
+
+    uint32_t totalGold() const;
+    bool takeGold(const uint32_t take);
 
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);

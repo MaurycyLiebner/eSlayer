@@ -17,13 +17,15 @@ void eItemPlaceWidget::intialize(
     const eStats& stats,
     eItem eEquipment::* const item,
     const std::vector<eItemType>& allowedTypes,
-    const ePlaceType place) {
+    const ePlaceType place,
+    const eHoverItemType htype) {
     setNoPadding();
     mEq = &eq;
     mStats = &stats;
     mDst = item;
     mAllowedTypes = allowedTypes;
     mPlace.fType = place;
+    mHoverType = htype;
 
     setTexture(tex);
     mTex = tex;
@@ -55,7 +57,11 @@ bool eItemPlaceWidget::dropItem() {
 void eItemPlaceWidget::setHoverItem() {
     const auto& item = mEq->*mDst;
     const auto rect = globalRect();
-    eHoverWidget::sSetHoverItem(item, rect);
+    eHoverItem hitem;
+    hitem.fItem = item;
+    hitem.fType = mHoverType;
+    hitem.fCost = 100;
+    eHoverWidget::sSetHoverItem(hitem, rect);
 }
 
 bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
@@ -84,7 +90,7 @@ bool eItemPlaceWidget::mouseEnterEvent(const eMouseEvent& e) {
 }
 
 bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
-    eHoverWidget::sSetHoverItem(eItem());
+    eHoverWidget::sSetHoverItem(eHoverItem());
     return true;
 }
 

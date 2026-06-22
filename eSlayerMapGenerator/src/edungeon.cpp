@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
+#include <eSlayerHelpers/esellers.h>
 
 eDungeon::eDungeon() {}
 
@@ -254,6 +255,16 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
         calcMaxArea(c, maxA, xMax, yMax);
         helper.set(id, maxA);
+
+        switch(info.fType) {
+        case eObjectType::healer: {
+            auto& s = eSellers::sSellers[obj.fObjectId];
+            s.fType = eSellerType::healer;
+            s.fMapId = mMap->id();
+        } break;
+        default:
+            break;
+        }
 
         return true;
     };

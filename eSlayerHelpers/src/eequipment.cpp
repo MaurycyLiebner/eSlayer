@@ -21,6 +21,19 @@ void eInventoryItem::write(ePacket& p) const {
     p << fH;
 }
 
+uint32_t eEquipment::totalGold() const {
+    return fInventoryGold + fStashGold;
+}
+
+bool eEquipment::takeGold(const uint32_t take) {
+    const uint32_t total = totalGold();
+    if(total < take) return false;
+    const uint32_t i = std::min(take, fInventoryGold);
+    fInventoryGold -= i;
+    fStashGold -= take - i;
+    return true;
+}
+
 eItem eEquipment::get(const uint32_t itemId) const {
     for(const auto it : {&fBoots,
                          &fGloves,
@@ -53,16 +66,8 @@ eItem eEquipment::take(const uint32_t itemId) {
     const auto b = takeBodyItem(itemId);
     if(b.fType != eItemType::none) return b;
     for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
-        for(int i = 0; i < v->size(); i++) {
-            const auto& it = (*v)[i];
-            const auto& item = it.fItem;
-            if(item.fType == eItemType::none) continue;
-            if(item.fItemId == itemId) {
-                const auto result = item;
-                v->erase(v->begin() + i);
-                return result;
-            }
-        }
+        const auto b = v->take(itemId);
+        if(b.fType != eItemType::none) return b;
     }
     return eItem();
 }
@@ -625,6 +630,47 @@ bool eInventoryItems::tryAdd(
     iitem.fW = w;
     iitem.fH = h;
     return true;
+}
+
+eItem eInventoryItems::take(const uint32_t itemId) {
+    for(int i = 0; i < size(); i++) {
+        const auto& it = (*this)[i];
+        const auto& item = it.fItem;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            const auto result = item;
+            erase(begin() + i);
+            return result;
+        }
+    }
+    return eItem();
+}
+
+eItem eInventoryItems::item(const uint32_t itemId) const {
+    for(int i = 0; i < size(); i++) {
+        const auto& it = (*this)[i];
+        const auto& item = it.fItem;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            return item;
+        }
+    }
+    return eItem();
+}
+
+bool eInventoryItems::setItemId(
+    const uint32_t itemId,
+    const uint32_t newItemId) {
+    for(int i = 0; i < size(); i++) {
+        auto& it = (*this)[i];
+        auto& item = it.fItem;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            item.fItemId = newItemId;
+            return true;
+        }
+    }
+    return false;
 }
 
 void eInventoryItems::read(ePacket& p) {

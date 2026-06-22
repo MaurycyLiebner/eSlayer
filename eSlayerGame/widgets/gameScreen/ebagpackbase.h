@@ -3,6 +3,8 @@
 
 #include "../ewidget.h"
 
+#include <eSlayerHelpers/eitem.h>
+
 struct eInventoryItem;
 struct eStats;
 struct eItemData;
@@ -10,12 +12,13 @@ struct eItemData;
 class eBagpackBase : public eWidget {
 public:
     using eWidget::eWidget;
-
+protected:
     void initialize(const int w, const int h,
-                    std::vector<eInventoryItem>& items);
+                    std::vector<eInventoryItem>& items,
+                    const eHoverItemType htype);
 
     void setHoverItem(const eInventoryItem& invItem);
-protected:
+
     void paint(ePainter& p,
                const SDL_Rect& ihoverRect,
                const SDL_FColor& fillColor);
@@ -30,6 +33,8 @@ protected:
                           const eItemData& itemData) const;
 
     SDL_Point mousePosToItemPos(const SDL_Point& mpos);
+
+    eHoverItemType mHoverType = eHoverItemType::regular;
 
     int mWidth = 0;
     int mHeight = 0;

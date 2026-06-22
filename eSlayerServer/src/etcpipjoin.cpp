@@ -384,6 +384,28 @@ bool eTcpIpJoin::equipmentAction(
     return true;
 }
 
+bool eTcpIpJoin::buyAction(
+    const uint32_t clientId,
+    const eBuyAction& a,
+    uint32_t& newItemId) {
+    ePacket p;
+    p << ePacketType::buyAction;
+    p << a;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send buy action to the host.");
+    const auto handler = [&](ePacket& p, const ePacketType type) {
+        if(type == ePacketType::newItemId) {
+            ePacketType type;
+            p >> type;
+            p >> newItemId;
+            return true;
+        }
+        return false;
+    };
+    return waitFor(10000, "Buy request timed out.", handler);
+
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,

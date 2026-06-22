@@ -188,6 +188,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eequipmentplace.h
     include/eSlayerHelpers/eequipmentaction.h
     src/eequipmentaction.cpp
+    include/eSlayerHelpers/esellers.h
+    src/esellers.cpp
 
 )
 

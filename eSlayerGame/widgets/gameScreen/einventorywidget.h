@@ -3,6 +3,8 @@
 
 #include "ebgwidget.h"
 
+#include <eSlayerHelpers/eitem.h>
+
 class eHoverWidget;
 class eInventoryBagpackWidget;
 class eItemPlaceWidget;
@@ -17,7 +19,8 @@ public:
     eInventoryWidget(eMainWindow* const window);
     ~eInventoryWidget();
 
-    void initialize(eEquipment& eq, const eStats& stats);
+    void initialize(eEquipment& eq, const eStats& stats,
+                    const eHoverItemType htype);
 
     bool dropItem();
 

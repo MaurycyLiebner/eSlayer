@@ -24,6 +24,7 @@
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/esellers.h>
 
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
@@ -223,6 +224,14 @@ void eServerArea::generatePotion(
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
+
+    const auto mapId = mMap->id();
+
+    for(auto &it : eSellers::sSellers) {
+        auto& s = it.second;
+        if(s.fMapId != mapId) continue;
+        auto& p = s.addPage();
+    }
 
     const int w = map->width();
     const int h = map->height();
@@ -1139,6 +1148,7 @@ bool eServerArea::triggerObject(
         case eObjectType::waypoint:
         case eObjectType::portal:
         case eObjectType::stash:
+        case eObjectType::healer:
         case eObjectType::none:
             break;
         }
@@ -1245,6 +1255,37 @@ bool eServerArea::equipmentAction(
     if(!u) return false;
     auto& eq = u->equipment();
     return a.apply(eq);
+}
+
+bool eServerArea::buyAction(
+    const uint32_t clientId,
+    const eBuyAction& a,
+    uint32_t& newItemId) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    auto& eq = u->equipment();
+    const uint32_t gold = 100;
+    const uint32_t hgold = eq.totalGold();
+    if(gold > hgold) return false;
+    auto item = eSellers::item(
+        clientId, a.fSellerId, a.fItemId);
+    if(item.fType == eItemType::none) return false;
+    const bool r = eEquipmentAction::add(
+        eq, item, a.fPlace);
+    if(!r) return false;
+    eq.takeGold(gold);
+    if(item.fType == eItemType::potion) {
+        eItemGenerator::applyItemId(item);
+        newItemId = item.fItemId;
+        eSellers::replaceItemId(
+            clientId, a.fSellerId,
+            a.fItemId, newItemId);
+    } else {
+        newItemId = 0;
+        eSellers::takeItem(
+            clientId, a.fSellerId, a.fItemId);
+    }
+    return true;
 }
 
 void eServerArea::changeAttributes(

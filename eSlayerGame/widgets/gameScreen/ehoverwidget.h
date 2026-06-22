@@ -32,7 +32,7 @@ public:
 
     void setItem(const eItem& item);
 
-    void setHoverItem(const eItem& item,
+    void setHoverItem(const eHoverItem& item,
                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     void setHoverSkill(const int skillId,
                        const bool showNextLevel,
@@ -41,7 +41,8 @@ public:
     static eHoverWidget* sInstance;
     static void sUpdateDragItem(const eEquipment& eq);
     static void sSetHoverItem(
-        const eItem& item, const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+        const eHoverItem& item,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     static void sSetHoverSkill(
         const int skillId, const bool showNextLevel,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});

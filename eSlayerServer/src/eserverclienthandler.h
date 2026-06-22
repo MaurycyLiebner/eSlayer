@@ -63,6 +63,7 @@ public:
                      uint8_t& areaId,
                      ePointF& pos);
     bool equipmentAction(const eEquipmentAction& a);
+    bool buyAction(const eBuyAction& a, uint32_t& newItemId);
 private:
     const uint32_t mClientId;
     std::shared_ptr<eServerArea> mArea;

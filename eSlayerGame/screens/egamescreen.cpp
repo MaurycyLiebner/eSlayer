@@ -481,7 +481,7 @@ void eGameScreen::showInventoryMenu() {
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mInventoryMenu);
-    mInventoryMenu->initialize(eq, stats);
+    mInventoryMenu->initialize(eq, stats, eHoverItemType::regular);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     mInventoryMenu->updateWeapons();
     eHoverWidget::sUpdateDragItem(eq);
@@ -494,7 +494,7 @@ void eGameScreen::hideInventoryMenu() {
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
     updateCharPos();
-    mDragWidget->setHoverItem(eItem());
+    mDragWidget->setHoverItem(eHoverItem());
 }
 
 void eGameScreen::showPartyMenu() {

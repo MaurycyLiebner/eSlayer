@@ -245,3 +245,9 @@ bool eServerClientHandler::equipmentAction(
     if(!mArea) return false;
     return mArea->equipmentAction(mClientId, a);
 }
+
+bool eServerClientHandler::buyAction(
+    const eBuyAction& a, uint32_t& newItemId) {
+    if(!mArea) return false;
+    return mArea->buyAction(mClientId, a, newItemId);
+}

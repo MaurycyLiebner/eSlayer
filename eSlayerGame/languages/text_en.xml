@@ -58,6 +58,8 @@
         <string id="9">Normal Attack Speed</string>
         <string id="10">Fast Attack Speed</string>
         <string id="11">Very Fast Attack Speed</string>
+        <string id="12">Cost: %1</string>
+        <string id="13">Sell Value: %1</string>
     </group>
     <group id="7">
         <string id="0">Life</string>

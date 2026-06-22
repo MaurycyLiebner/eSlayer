@@ -378,6 +378,15 @@ bool eLocalServer::equipmentAction(
     return h->equipmentAction(a);
 }
 
+bool eLocalServer::buyAction(
+    const uint32_t clientId,
+    const eBuyAction& a,
+    uint32_t& newItemId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->buyAction(a, newItemId);
+}
+
 bool eLocalServer::changeTeam(
     const uint32_t clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);

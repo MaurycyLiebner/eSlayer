@@ -37,4 +37,14 @@ struct ESLAYERHELPERS_API eItem : public eItemBase {
     void write(ePacket& p) const;
 };
 
+enum class eHoverItemType {
+    regular, buy, sell
+};
+
+struct ESLAYERHELPERS_API eHoverItem {
+    eHoverItemType fType = eHoverItemType::regular;
+    eItem fItem;
+    uint32_t fCost = 0;
+};
+
 #endif // EITEM_H

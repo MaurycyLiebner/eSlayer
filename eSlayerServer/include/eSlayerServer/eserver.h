@@ -156,6 +156,11 @@ public:
     equipmentAction(const uint32_t clientId,
                     const eEquipmentAction& a) = 0;
 
+    virtual bool
+    buyAction(const uint32_t clientId,
+              const eBuyAction& a,
+              uint32_t& newItemId) = 0;
+
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }
 

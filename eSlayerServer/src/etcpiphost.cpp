@@ -448,6 +448,26 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::equipment: {
 
     } break;
+    case ePacketType::newItemId: {
+
+    } break;
+    case ePacketType::buyAction: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            eBuyAction a;
+            p >> a;
+            uint32_t newItemId = 0;
+            const bool r = eLocalServer::buyAction(
+                charId, a, newItemId);
+            if(newItemId != 0 && r) {
+                ePacket p;
+                p << ePacketType::newItemId;
+                p << newItemId;
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
     case ePacketType::equipmentAction: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {

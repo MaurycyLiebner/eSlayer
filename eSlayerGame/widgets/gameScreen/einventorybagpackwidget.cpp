@@ -16,7 +16,12 @@ void eInventoryBagpackWidget::initialize(
     std::vector<eInventoryItem>& items,
     eEquipment& eq,
     const eBagpackType type) {
-    eBagpackBase::initialize(w, h, items);
+    const bool trade = false;
+    const eHoverItemType htype =
+        trade ? eHoverItemType::sell :
+                eHoverItemType::regular;
+    eBagpackBase::initialize(
+        w, h, items, htype);
     mEq = &eq;
     mType = type;
 }
@@ -178,7 +183,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
             const bool r = mEq->addToBelt(item, &place);
             if(r) {
                 inv.erase(inv.begin() + itemId);
-                eHoverWidget::sSetHoverItem(eItem());
+                eHoverWidget::sSetHoverItem(eHoverItem());
 
                 eEquipmentAction a;
                 a.fType = eEquipmentActionType::dragAndDrop;
@@ -190,7 +195,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
             inv.erase(inv.begin() + itemId);
             mEq->fDragged = item;
             eHoverWidget::sUpdateDragItem(*mEq);
-            eHoverWidget::sSetHoverItem(eItem());
+            eHoverWidget::sSetHoverItem(eHoverItem());
 
             eEquipmentAction a;
             a.fType = eEquipmentActionType::drag;
