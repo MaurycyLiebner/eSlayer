@@ -503,7 +503,8 @@ void eGameScreen::hideInventoryMenu() {
     mInventoryMenu->deleteLater();
     mInventoryMenu = nullptr;
     updateCharPos();
-    mDragWidget->setHoverItem(eHoverItem());
+    eHoverItem hitem;
+    mDragWidget->setHoverItem(hitem);
 }
 
 void eGameScreen::showPartyMenu() {

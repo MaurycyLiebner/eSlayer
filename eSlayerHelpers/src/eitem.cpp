@@ -2,6 +2,14 @@
 
 #include "eSlayerHelpers/epacket.h"
 
+uint32_t eItem::calculateCost() const {
+    if(fType == eItemType::none) return 0;
+    const auto& mods = fModifiers;
+    const int nmods = mods.size();
+    const int l = fRequiredLevel;
+    return 20*((1 + l*l)*(2 + nmods));
+}
+
 void eItem::read(ePacket& p) {
     p >> fItemId;
 
@@ -59,4 +67,12 @@ void eItem::write(ePacket& p) const {
     for(const auto& mod : fModifiers) {
         mod.write(p);
     }
+}
+
+uint32_t eHoverItem::sellCost() const {
+    return std::min(fCost, 35000u);
+}
+
+void eHoverItem::calculateCost() {
+    fCost = fItem.calculateCost();
 }

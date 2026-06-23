@@ -60,7 +60,6 @@ void eItemPlaceWidget::setHoverItem() {
     eHoverItem hitem;
     hitem.fItem = item;
     hitem.fType = mHoverType;
-    hitem.fCost = 100;
     eHoverWidget::sSetHoverItem(hitem, rect);
 }
 

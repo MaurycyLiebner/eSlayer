@@ -61,7 +61,7 @@ void eHoverWidget::setItem(const eItem& item) {
 }
 
 void eHoverWidget::setHoverItem(
-    const eHoverItem& hitem,
+    eHoverItem hitem,
     const SDL_Rect& hoverRect) {
     mHoverSkillId = -1;
     mHoverRect = hoverRect;
@@ -69,26 +69,31 @@ void eHoverWidget::setHoverItem(
     if(item.fType == eItemType::none) {
         mHover = nullptr;
     } else if(!mHover || item.fItemId != mHoverItemId) {
+        hitem.calculateCost();
+
         const auto& res = resolution();
         const auto r = renderer();
         eHoverGenerator gen(res);
 
         {
+            uint32_t cost = 0;
             int s = -1;
             switch(hitem.fType) {
             case eHoverItemType::regular:
                 break;
             case eHoverItemType::buy:
                 s = 12;
+                cost = hitem.fCost;
                 break;
             case eHoverItemType::sell:
                 s = 13;
+                cost = hitem.sellCost();
                 break;
             }
 
             if(s >= 0) {
                 auto text = eText::text(6, s);
-                const auto costStr = std::to_string(s);
+                const auto costStr = std::to_string(cost);
                 text = eStringHelpers::replaceAll(text, "%1", costStr);
                 gen.addText(r, text, eFontColor::normal);
             }

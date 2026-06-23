@@ -33,6 +33,8 @@ struct ESLAYERHELPERS_API eItem : public eItemBase {
     uint16_t fBlockChance = 0; // shield block chance
     std::vector<eModifier> fModifiers;
 
+    uint32_t calculateCost() const;
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };
@@ -45,6 +47,10 @@ struct ESLAYERHELPERS_API eHoverItem {
     eHoverItemType fType = eHoverItemType::regular;
     eItem fItem;
     uint32_t fCost = 0;
+
+    uint32_t sellCost() const;
+
+    void calculateCost();
 };
 
 #endif // EITEM_H

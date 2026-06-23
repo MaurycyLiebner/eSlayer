@@ -1299,11 +1299,11 @@ bool eServerArea::buyAction(
     const auto u = unit(clientId);
     if(!u) return false;
     auto& eq = u->equipment();
-    const uint32_t gold = 100;
-    const uint32_t hgold = eq.totalGold();
-    if(gold > hgold) return false;
     auto item = eSellers::item(
         clientId, a.fSellerId, a.fItemId);
+    const uint32_t gold = item.calculateCost();
+    const uint32_t hgold = eq.totalGold();
+    if(gold > hgold) return false;
     if(item.fType == eItemType::none) return false;
     const bool r = eEquipmentAction::add(
         eq, item, a.fPlace);
