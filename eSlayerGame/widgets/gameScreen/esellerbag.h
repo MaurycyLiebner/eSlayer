@@ -13,8 +13,6 @@ public:
                     const int w, const int h,
                     std::vector<eInventoryItem>& items,
                     const eStats& stats, eEquipment& eq);
-
-    bool dropItem();
 protected:
     bool mousePressEvent(const eMouseEvent& e) override;
     void paintEvent(ePainter& p) override;

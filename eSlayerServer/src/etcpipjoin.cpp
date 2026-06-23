@@ -394,6 +394,16 @@ bool eTcpIpJoin::buyAction(const uint32_t clientId,
     return true;
 }
 
+bool eTcpIpJoin::sellAction(const uint32_t clientId,
+                            const eSellAction& a) {
+    ePacket p;
+    p << ePacketType::sellAction;
+    p << a;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send sell action to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::requestSeller(
     const uint32_t clientId,
     const uint32_t sellerId) {

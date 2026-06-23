@@ -18,14 +18,6 @@ void eSellerBag::initialize(
     mEq = &eq;
 }
 
-bool eSellerBag::dropItem() {
-    if(eInventoryWidget::sBlocked) return false;
-    auto& dragged = mEq->fDragged;
-    if(dragged.fType == eItemType::none) return false;
-    dragged = eItem();
-    return true;
-}
-
 bool eSellerBag::mousePressEvent(
     const eMouseEvent& e) {
     if(eInventoryWidget::sBlocked) return true;
@@ -37,7 +29,7 @@ bool eSellerBag::mousePressEvent(
     const auto b = e.button();
     if(b == eMouseButton::left) {
         eEquipmentPlace place;
-        const uint32_t gold = 100;
+        const uint32_t gold = item.calculateCost();
         const uint32_t hgold = mEq->totalGold();
         if(gold > hgold) return true;
         const bool met = mStats->itemReqsMet(item);
@@ -46,6 +38,8 @@ bool eSellerBag::mousePressEvent(
         mEq->takeGold(gold);
         if(item.fType != eItemType::potion) {
             inv.erase(inv.begin() + itemId);
+        } else {
+            eInventoryWidget::sBlocked = true;
         }
 
         eBuyAction a;

@@ -61,7 +61,7 @@ void eHoverWidget::setItem(const eItem& item) {
 }
 
 void eHoverWidget::setHoverItem(
-    eHoverItem hitem,
+    const eHoverItem& hitem,
     const SDL_Rect& hoverRect) {
     mHoverSkillId = -1;
     mHoverRect = hoverRect;
@@ -69,8 +69,6 @@ void eHoverWidget::setHoverItem(
     if(item.fType == eItemType::none) {
         mHover = nullptr;
     } else if(!mHover || item.fItemId != mHoverItemId) {
-        hitem.calculateCost();
-
         const auto& res = resolution();
         const auto r = renderer();
         eHoverGenerator gen(res);
@@ -83,11 +81,11 @@ void eHoverWidget::setHoverItem(
                 break;
             case eHoverItemType::buy:
                 s = 12;
-                cost = hitem.fCost;
+                cost = item.calculateCost();
                 break;
             case eHoverItemType::sell:
                 s = 13;
-                cost = hitem.sellCost();
+                cost = item.calculateSellCost();
                 break;
             }
 

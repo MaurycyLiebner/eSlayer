@@ -234,6 +234,14 @@ bool eTcpIpHost::buyAction(
         clientId, a);
 }
 
+bool eTcpIpHost::sellAction(
+    const uint32_t clientId,
+    const eSellAction& a) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::sellAction(
+        clientId, a);
+}
+
 bool eTcpIpHost::requestSeller(
     const uint32_t clientId,
     const uint32_t sellerId) {
@@ -479,18 +487,30 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             uint32_t newItemId = 0;
             const bool r = eLocalServer::buyActionImpl(
                 charId, a, newItemId);
-            if(newItemId != 0 && r) {
-                ePacket p;
-                p << ePacketType::replaceItemId;
-                eReplaceItemId i;
-                i.fSellerId = a.fSellerId;
-                i.fOldItemId = a.fItemId;
-                i.fNewItemId = newItemId;
-                p << i;
-                mNet.sendToClient(tcpClientId, p);
+            if(r) {
+                if(newItemId != 0) {
+                    ePacket p;
+                    p << ePacketType::replaceItemId;
+                    eReplaceItemId i;
+                    i.fSellerId = a.fSellerId;
+                    i.fOldItemId = a.fItemId;
+                    i.fNewItemId = newItemId;
+                    p << i;
+                    mNet.sendToClient(tcpClientId, p);
+                }
             } else {
                 synchronizeEq(charId, tcpClientId);
             }
+        }
+    } break;
+    case ePacketType::sellAction: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            eSellAction a;
+            p >> a;
+            eLocalServer::sellAction(
+                charId, a);
         }
     } break;
     case ePacketType::requestSeller: {

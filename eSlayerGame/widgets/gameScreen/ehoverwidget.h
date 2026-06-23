@@ -32,7 +32,7 @@ public:
 
     void setItem(const eItem& item);
 
-    void setHoverItem(eHoverItem hitem,
+    void setHoverItem(const eHoverItem& hitem,
                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     void setHoverSkill(const int skillId,
                        const bool showNextLevel,

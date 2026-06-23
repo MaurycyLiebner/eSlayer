@@ -34,6 +34,7 @@ struct ESLAYERHELPERS_API eItem : public eItemBase {
     std::vector<eModifier> fModifiers;
 
     uint32_t calculateCost() const;
+    uint32_t calculateSellCost() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -46,11 +47,6 @@ enum class eHoverItemType {
 struct ESLAYERHELPERS_API eHoverItem {
     eHoverItemType fType = eHoverItemType::regular;
     eItem fItem;
-    uint32_t fCost = 0;
-
-    uint32_t sellCost() const;
-
-    void calculateCost();
 };
 
 #endif // EITEM_H

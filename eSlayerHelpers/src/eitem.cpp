@@ -10,6 +10,11 @@ uint32_t eItem::calculateCost() const {
     return 20*((1 + l*l)*(2 + nmods));
 }
 
+uint32_t eItem::calculateSellCost() const {
+    const uint32_t cost = calculateCost();
+    return std::min(cost, 35000u);
+}
+
 void eItem::read(ePacket& p) {
     p >> fItemId;
 
@@ -67,12 +72,4 @@ void eItem::write(ePacket& p) const {
     for(const auto& mod : fModifiers) {
         mod.write(p);
     }
-}
-
-uint32_t eHoverItem::sellCost() const {
-    return std::min(fCost, 35000u);
-}
-
-void eHoverItem::calculateCost() {
-    fCost = fItem.calculateCost();
 }

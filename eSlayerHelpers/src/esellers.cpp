@@ -74,7 +74,8 @@ void eSeller::read(const uint32_t clientId,
         page.read(p);
     }
 
-    fClientPage[clientId].read(p);
+    auto& page = addClientPage(clientId);
+    page.read(p);
 }
 
 void eSeller::write(const uint32_t clientId,

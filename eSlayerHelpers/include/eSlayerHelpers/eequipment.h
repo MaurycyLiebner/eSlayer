@@ -76,6 +76,7 @@ struct ESLAYERHELPERS_API eBodyEquipment {
     void writeBodyIds(ePacket& p) const;
 
     eItem takeBodyItem(const uint32_t itemId);
+    eItem bodyItem(const uint32_t itemId) const;
 
     using eIter = std::function<void(eItem& item)>;
     void iterateOverBody(const eIter& iter);
@@ -110,6 +111,7 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
 
     eItem get(const uint32_t itemId) const;
     eItem take(const uint32_t itemId);
+    eItem item(const uint32_t itemId) const;
     bool add(const eItem& item, const bool reqsMet,
              eEquipmentPlace* const pPtr);
     bool addToBelt(const eItem& item, eEquipmentPlace* const pPtr);

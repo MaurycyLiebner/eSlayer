@@ -27,6 +27,11 @@ struct ESLAYERHELPERS_API eBuyAction {
     uint32_t fItemId;
 };
 
+struct ESLAYERHELPERS_API eSellAction {
+    uint32_t fSellerId;
+    uint32_t fItemId;
+};
+
 struct ESLAYERHELPERS_API eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
     eEquipmentPlace fPlace;

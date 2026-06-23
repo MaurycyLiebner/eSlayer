@@ -182,9 +182,11 @@ void eGameWidget::sendEqAction(const eEquipmentAction& a) {
 void eGameWidget::sendBuyAction(
     const eBuyAction& a) {
     const bool r = mServer->buyAction(mClientId, a);
-    if(r) {
-        eInventoryWidget::sBlocked = true;
-    }
+}
+
+void eGameWidget::sendSellAction(
+    const eSellAction& a) {
+    const bool r = mServer->sellAction(mClientId, a);
 }
 
 void eGameWidget::sendAttributesChanged() {
@@ -318,6 +320,10 @@ void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
 
 void eGameWidget::sSendBuyAction(const eBuyAction& a) {
     sInstance->sendBuyAction(a);
+}
+
+void eGameWidget::sSendSellAction(const eSellAction& a) {
+    sInstance->sendSellAction(a);
 }
 
 void eGameWidget::sSendSkillLevelsChanged() {

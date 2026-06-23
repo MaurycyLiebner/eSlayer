@@ -402,6 +402,14 @@ bool eLocalServer::buyActionImpl(
     return h->buyAction(a, newItemId);
 }
 
+bool eLocalServer::sellAction(
+    const uint32_t clientId,
+    const eSellAction& a) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->sellAction(a);
+}
+
 bool eLocalServer::requestSeller(
     const uint32_t clientId,
     const uint32_t sellerId) {

@@ -252,6 +252,12 @@ bool eServerClientHandler::buyAction(
     return mArea->buyAction(mClientId, a, newItemId);
 }
 
+bool eServerClientHandler::sellAction(
+    const eSellAction& a) {
+    if(!mArea) return false;
+    return mArea->sellAction(mClientId, a);
+}
+
 bool eServerClientHandler::requestSeller(
     const uint32_t sellerId, eSeller& seller) {
     if(!mArea) return false;

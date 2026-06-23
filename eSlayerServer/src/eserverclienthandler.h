@@ -65,6 +65,7 @@ public:
                      ePointF& pos);
     bool equipmentAction(const eEquipmentAction& a);
     bool buyAction(const eBuyAction& a, uint32_t& newItemId);
+    bool sellAction(const eSellAction& a);
 
     bool requestSeller(const uint32_t sellerId,
                        eSeller& seller);

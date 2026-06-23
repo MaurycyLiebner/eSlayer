@@ -92,6 +92,8 @@ public:
                          const eEquipmentAction& a) override;
     bool buyAction(const uint32_t clientId,
                    const eBuyAction& a) override;
+    bool sellAction(const uint32_t clientId,
+                    const eSellAction& a) override;
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId) override;
 private:

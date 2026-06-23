@@ -16,6 +16,7 @@ public:
                     const eSeller& s,
                     eEquipment& eq,
                     const eStats& stats);
+    bool dropItem();
 
     static bool sReplaceItemId(const uint32_t clientId,
                                const eReplaceItemId& r);
@@ -25,6 +26,8 @@ private:
     bool replaceItemId(const uint32_t clientId,
                        const eReplaceItemId& r);
 
+    uint32_t mClientId = 0;
+    eEquipment* mEq = nullptr;
     eSeller mSeller;
     eSellerBag* mBag = nullptr;
 };

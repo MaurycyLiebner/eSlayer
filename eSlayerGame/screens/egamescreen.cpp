@@ -179,6 +179,12 @@ void eGameScreen::initialize(const uint32_t clientId,
             const bool h = mStashMenu->hovered();
             if(h) return;
         }
+        if(mSellerMenu) {
+            const bool r = mSellerMenu->dropItem();
+            if(r) return;
+            const bool h = mSellerMenu->hovered();
+            if(h) return;
+        }
         mGameWidget->dropItem();
     });
     addWidget(mDragWidget);

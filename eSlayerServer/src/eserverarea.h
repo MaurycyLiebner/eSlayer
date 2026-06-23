@@ -148,6 +148,8 @@ public:
     bool buyAction(const uint32_t clientId,
                    const eBuyAction& a,
                    uint32_t& newItemId);
+    bool sellAction(const uint32_t clientId,
+                   const eSellAction& a);
     void changeAttributes(const uint32_t clientId, const eAttributes& attrs);
     void changeSkillLevels(const uint32_t clientId, const eSkillLevels& skillLevels);
     void consumePotion(const uint32_t clientId, const uint32_t itemId);

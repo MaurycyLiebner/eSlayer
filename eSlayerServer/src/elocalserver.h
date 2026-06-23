@@ -109,6 +109,8 @@ public:
     bool buyActionImpl(const uint32_t clientId,
                        const eBuyAction& a,
                        uint32_t& newItemId);
+    bool sellAction(const uint32_t clientId,
+                    const eSellAction& a) override;
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId) override;
     bool requestSellerImpl(const uint32_t clientId,

@@ -162,6 +162,10 @@ public:
               const eBuyAction& a) = 0;
 
     virtual bool
+    sellAction(const uint32_t clientId,
+               const eSellAction& a) = 0;
+
+    virtual bool
     requestSeller(const uint32_t clientId,
                   const uint32_t sellerId) = 0;
 

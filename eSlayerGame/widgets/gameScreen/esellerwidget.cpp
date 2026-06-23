@@ -2,6 +2,9 @@
 
 #include "../../etext.h"
 #include "../mainMenu/emainmenubutton.h"
+#include "einventorywidget.h"
+#include "egamewidget.h"
+#include "ehoverwidget.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
 
@@ -17,8 +20,13 @@ eSellerWidget::~eSellerWidget() {
     sInstance = nullptr;
 }
 
-void eSellerWidget::initialize(const uint32_t clientId, const eSeller& s, eEquipment& eq,
-                               const eStats& stats) {
+void eSellerWidget::initialize(
+    const uint32_t clientId,
+    const eSeller& s,
+    eEquipment& eq,
+    const eStats& stats) {
+    mClientId = clientId;
+    mEq = &eq;
     mSeller = s;
 
     const auto innerW = new eWidget(window());
@@ -81,4 +89,22 @@ bool eSellerWidget::replaceItemId(
     if(mSeller.fId != r.fSellerId) return false;
     return mSeller.setItemId(
         clientId, r.fOldItemId, r.fNewItemId);
+}
+
+
+bool eSellerWidget::dropItem() {
+    if(eInventoryWidget::sBlocked) return false;
+    auto& dragged = mEq->fDragged;
+    if(dragged.fType == eItemType::none) return false;
+    const uint32_t gold = dragged.calculateSellCost();
+    mEq->fInventoryGold += gold;
+    eSellAction a;
+    a.fSellerId = mSeller.fId;
+    a.fItemId = dragged.fItemId;
+    eGameWidget::sSendSellAction(a);
+    auto& p = mSeller.fClientPage[mClientId];
+    p.tryAdd(dragged);
+    dragged = eItem();
+    eHoverWidget::sUpdateDragItem(*mEq);
+    return true;
 }

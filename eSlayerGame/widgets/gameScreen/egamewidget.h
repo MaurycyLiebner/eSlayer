@@ -86,6 +86,7 @@ public:
     void dropGold(const int count);
     void sendEqAction(const eEquipmentAction& a);
     void sendBuyAction(const eBuyAction& a);
+    void sendSellAction(const eSellAction& a);
     void sendAttributesChanged();
     void sendSkillLevelsChanged();
 
@@ -118,6 +119,7 @@ public:
     static eGameWidget* sInstance;
     static void sSendEqAction(const eEquipmentAction& a);
     static void sSendBuyAction(const eBuyAction& a);
+    static void sSendSellAction(const eSellAction& a);
     static void sSendSkillLevelsChanged();
     static void sSendAttributesChanged();
     static void sMoveToMap(const eMoveToMapData& moveData);

@@ -65,8 +65,20 @@ eItem eEquipment::get(const uint32_t itemId) const {
 eItem eEquipment::take(const uint32_t itemId) {
     const auto b = takeBodyItem(itemId);
     if(b.fType != eItemType::none) return b;
-    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
+    for(const auto v : {&fInventory, &fBeltPotions,
+                        &fBeltHiddenPotions, &fStash}) {
         const auto b = v->take(itemId);
+        if(b.fType != eItemType::none) return b;
+    }
+    return eItem();
+}
+
+eItem eEquipment::item(const uint32_t itemId) const {
+    const auto b = bodyItem(itemId);
+    if(b.fType != eItemType::none) return b;
+    for(const auto v : {&fInventory, &fBeltPotions,
+                         &fBeltHiddenPotions, &fStash}) {
+        const auto b = v->item(itemId);
         if(b.fType != eItemType::none) return b;
     }
     return eItem();
@@ -486,6 +498,30 @@ eItem eBodyEquipment::takeBodyItem(const uint32_t itemId) {
             const auto result = item;
             item = eItem();
             return result;
+        }
+    }
+    return eItem();
+}
+
+eItem eBodyEquipment::bodyItem(
+    const uint32_t itemId) const {
+    for(const auto it : {&fBoots,
+                          &fGloves,
+                          &fHelmet,
+                          &fArmor,
+                          &fBelt,
+                          &fRingL,
+                          &fRingR,
+                          &fAmulet,
+                          &fWeapon1L,
+                          &fWeapon1R,
+                          &fWeapon2L,
+                          &fWeapon2R,
+                          &fDragged}) {
+        auto& item = *it;
+        if(item.fType == eItemType::none) continue;
+        if(item.fItemId == itemId) {
+            return item;
         }
     }
     return eItem();

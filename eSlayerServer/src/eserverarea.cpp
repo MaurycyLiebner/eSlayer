@@ -1326,6 +1326,25 @@ bool eServerArea::buyAction(
     return true;
 }
 
+bool eServerArea::sellAction(
+    const uint32_t clientId,
+    const eSellAction& a) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    auto& ss = eSellers::sSellers;
+    const auto it = ss.find(a.fSellerId);
+    if(it == ss.end()) return false;
+    auto& s = it->second;
+    auto& eq = u->equipment();
+    const auto item = eq.take(a.fItemId);
+    if(item.fType == eItemType::none) return false;
+    const uint32_t gold = item.calculateSellCost();
+    eq.fInventoryGold += gold;
+    auto& p = s.fClientPage[clientId];
+    p.tryAdd(item);
+    return true;
+}
+
 void eServerArea::changeAttributes(
     const uint32_t clientId, const eAttributes& attrs) {
     const auto u = unit(clientId);
