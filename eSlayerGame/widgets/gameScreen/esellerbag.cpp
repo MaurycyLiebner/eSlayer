@@ -12,7 +12,7 @@ void eSellerBag::initialize(
     std::vector<eInventoryItem>& items,
     const eStats& stats, eEquipment& eq) {
     eBagpackBase::initialize(
-        w, h, items, eHoverItemType::sell);
+        w, h, items, eHoverItemType::buy);
     mSellerId = sellerId;
     mStats = &stats;
     mEq = &eq;
@@ -55,4 +55,23 @@ bool eSellerBag::mousePressEvent(
         eGameWidget::sSendBuyAction(a);
     }
     return true;
+}
+
+void eSellerBag::paintEvent(ePainter& p) {
+    SDL_FColor fillColor{0.f, 0.f, 0.f, 1.f};
+    SDL_Rect ihoverRect = {0, 0, 0, 0};
+    const auto& dragged = mEq->fDragged;
+    const auto mpos = mousePos();
+    const auto ipos = mousePosToItemPos(mpos);
+    if(dragged.fType == eItemType::none) {
+        const int itemId = itemIdAt(ipos);
+        if(itemId != -1) {
+            const auto& item = (*mItems)[itemId];
+            ihoverRect = SDL_Rect{item.fX, item.fY,
+                                  item.fW, item.fH};
+            fillColor = SDL_FColor{0.f, 0.7f, 0.f, 1.f};
+        }
+    }
+
+    eBagpackBase::paint(p, ihoverRect, fillColor);
 }

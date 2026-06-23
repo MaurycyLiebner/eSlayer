@@ -17,6 +17,7 @@ public:
     bool dropItem();
 protected:
     bool mousePressEvent(const eMouseEvent& e) override;
+    void paintEvent(ePainter& p) override;
 private:
     uint32_t mSellerId = 0;
     eEquipment* mEq = nullptr;

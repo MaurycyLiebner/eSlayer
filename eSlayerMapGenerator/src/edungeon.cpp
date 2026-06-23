@@ -258,7 +258,9 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
         switch(info.fType) {
         case eObjectType::healer: {
-            auto& s = eSellers::sSellers[obj.fObjectId];
+            const auto id = obj.fObjectId;
+            auto& s = eSellers::sSellers[id];
+            s.fId = id;
             s.fType = eSellerType::healer;
             s.fMapId = mMap->id();
         } break;

@@ -78,6 +78,10 @@ public:
 
     bool equipmentAction(const uint32_t clientId,
                          const eEquipmentAction& a) override;
+    bool buyAction(const uint32_t clientId,
+                   const eBuyAction& a) override;
+    bool requestSeller(const uint32_t clientId,
+                       const uint32_t sellerId) override;
 private:
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);
@@ -90,6 +94,9 @@ private:
                               const eServerObject& obj);
 
     void sendToMapClients(const uint8_t mapId, const ePacket& p);
+
+    bool synchronizeEq(const uint32_t clientId,
+                       const int tcpClientId);
 
     std::thread mThread;
     bool mRunning = false;

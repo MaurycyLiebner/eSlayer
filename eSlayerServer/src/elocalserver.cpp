@@ -4,6 +4,7 @@
 
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/esellers.h>
 
 #include <thread>
 
@@ -12,9 +13,9 @@ bool eLocalServer::initialize() {
 }
 
 uint32_t eLocalServer::connect() {
-    const uint32_t clientId = eServerUnit::sNextCharId++;
-    mClientHandlers[clientId] = std::make_shared<eServerClientHandler>(clientId);
-    return clientId;
+    mClientId = eServerUnit::sNextCharId++;
+    mClientHandlers[mClientId] = std::make_shared<eServerClientHandler>(mClientId);
+    return mClientId;
 }
 
 bool eLocalServer::disconnect(const uint32_t clientId) {
@@ -380,11 +381,44 @@ bool eLocalServer::equipmentAction(
 
 bool eLocalServer::buyAction(
     const uint32_t clientId,
+    const eBuyAction& a) {
+    uint32_t newItemId;
+    const bool r = buyActionImpl(clientId, a, newItemId);
+    if(!r) return false;
+    eReplaceItemId i;
+    i.fSellerId = a.fSellerId;
+    i.fOldItemId = a.fItemId;
+    i.fNewItemId = newItemId;
+    mReplaceItemId = i;
+    return true;
+}
+
+bool eLocalServer::buyActionImpl(
+    const uint32_t clientId,
     const eBuyAction& a,
     uint32_t& newItemId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->buyAction(a, newItemId);
+}
+
+bool eLocalServer::requestSeller(
+    const uint32_t clientId,
+    const uint32_t sellerId) {
+    eSeller s;
+    const bool r = requestSellerImpl(clientId, sellerId, s);
+    if(!r) return false;
+    mSeller = s;
+    return true;
+}
+
+bool eLocalServer::requestSellerImpl(
+    const uint32_t clientId,
+    const uint32_t sellerId,
+    eSeller& seller) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->requestSeller(sellerId, seller);
 }
 
 bool eLocalServer::changeTeam(

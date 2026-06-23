@@ -91,8 +91,9 @@ public:
     bool equipmentAction(const uint32_t clientId,
                          const eEquipmentAction& a) override;
     bool buyAction(const uint32_t clientId,
-                   const eBuyAction& a,
-                   uint32_t& newItemId) override;
+                   const eBuyAction& a) override;
+    bool requestSeller(const uint32_t clientId,
+                       const uint32_t sellerId) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;

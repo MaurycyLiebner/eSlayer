@@ -305,6 +305,10 @@ add_executable(eSlayerGame
     widgets/gameScreen/eokcancelbutton.h
     widgets/gameScreen/ebagpackbase.cpp
     widgets/gameScreen/ebagpackbase.h
+    widgets/gameScreen/esellerbag.cpp
+    widgets/gameScreen/esellerbag.h
+    widgets/gameScreen/esellerwidget.cpp
+    widgets/gameScreen/esellerwidget.h
 
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp
@@ -313,7 +317,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    widgets/gameScreen/esellerbag.h widgets/gameScreen/esellerbag.cpp
 )
 
 include(GNUInstallDirs)

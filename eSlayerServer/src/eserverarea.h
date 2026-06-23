@@ -29,6 +29,7 @@ class eCharacter;
 struct eUnitInfo;
 struct eServerDoors;
 struct eMoveToMapData;
+struct eSeller;
 
 struct eClientData {
     eClientData();
@@ -217,6 +218,10 @@ public:
                           ePointF& result) const;
     bool findPlaceForPortal(const ePointF& pos,
                             ePointF& result) const;
+
+    bool requestSeller(const uint32_t clientId,
+                       const uint32_t sellerId,
+                       eSeller& seller);
 private:
     bool spawnPortal(ePointF& pos,
                      uint32_t& portalId,

@@ -3,6 +3,8 @@
 #include "eskillbutton.h"
 
 #include "../../emainwindow.h"
+#include "../../screens/egamescreen.h"
+#include "esellerwidget.h"
 
 #include "../../textures/eobjstextures.h"
 #include "../../textures/eterrstextures.h"
@@ -179,14 +181,10 @@ void eGameWidget::sendEqAction(const eEquipmentAction& a) {
 
 void eGameWidget::sendBuyAction(
     const eBuyAction& a) {
-    uint32_t newItemId = 0;
-    mServer->buyAction(mClientId, a, newItemId);
-    if(newItemId) {
-        eSellers::replaceItemId(
-            mClientId, a.fSellerId,
-            a.fItemId, newItemId);
+    const bool r = mServer->buyAction(mClientId, a);
+    if(r) {
+        eInventoryWidget::sBlocked = true;
     }
-    mMainAction->recalculateStats();
 }
 
 void eGameWidget::sendAttributesChanged() {
@@ -310,6 +308,10 @@ void eGameWidget::spawnPortal() {
     mServer->spawnPortal(mClientId);
 }
 
+void eGameWidget::openSellerMenu(const uint32_t sellerId) {
+    mServer->requestSeller(mClientId, sellerId);
+}
+
 void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
     sInstance->sendEqAction(a);
 }
@@ -336,6 +338,10 @@ void eGameWidget::sDropGold(const int gold) {
     sInstance->dropGold(gold);
 }
 
+void eGameWidget::sOpenSellerMenu(const uint32_t sellerId) {
+    sInstance->openSellerMenu(sellerId);
+}
+
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
@@ -346,6 +352,14 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     auto& eq = eGameWidget::equipment();
     {
+        const auto seller = mServer->receiveSeller();
+        if(seller) {
+            eGameScreen::sOpenSellerMenu(*seller);
+        }
+        const auto replaceItemId = mServer->receiveReplaceItemId();
+        if(replaceItemId) {
+            eSellerWidget::sReplaceItemId(mClientId, *replaceItemId);
+        }
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {
             const auto& name = u.fName;
@@ -393,9 +407,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 action.apply(eq);
             }
         }
-        if(!bodiesChanged.empty()) {
-            eInventoryWidget::sBlocked = false;
-        }
         const auto bodiesToRemove = mServer->receiveBodiesPickedUp();
         for(const auto bodyId : bodiesToRemove) {
             eBodies::remove(bodyId);
@@ -407,7 +418,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(!eqActions.empty()) {
             mMainAction->recalculateStats();
             eHoverWidget::sUpdateDragItem(eq);
-            eInventoryWidget::sBlocked = false;
         }
     }
     const auto& res = resolution();

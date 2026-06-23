@@ -113,6 +113,7 @@ public:
     void waypointTeleport(const uint8_t mapId,
                           const uint8_t areaId);
     void spawnPortal();
+    void openSellerMenu(const uint32_t sellerId);
 
     static eGameWidget* sInstance;
     static void sSendEqAction(const eEquipmentAction& a);
@@ -121,6 +122,7 @@ public:
     static void sSendAttributesChanged();
     static void sMoveToMap(const eMoveToMapData& moveData);
     static void sDropGold(const int gold);
+    static void sOpenSellerMenu(const uint32_t sellerId);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

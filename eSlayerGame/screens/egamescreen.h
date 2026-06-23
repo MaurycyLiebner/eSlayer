@@ -26,6 +26,8 @@ class eWaypointWidget;
 struct eMoveToMapData;
 class eBottomWidget;
 class eStashWidget;
+struct eSeller;
+class eSellerWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -46,6 +48,8 @@ public:
         const uint8_t mapId,
         const uint8_t areaId);
     static void sOpenStash();
+    static void sOpenSellerMenu(
+        const eSeller& s);
     static void sCloseObjectMenu();
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
@@ -65,7 +69,8 @@ private:
     void showESCMenu();
     void hideESCMenu();
 
-    void showInventoryMenu();
+    void showInventoryMenu(
+        const eHoverItemType htype = eHoverItemType::regular);
     void hideInventoryMenu();
 
     void showPartyMenu();
@@ -85,8 +90,13 @@ private:
                           const uint8_t cAreaId);
     void hideWaypointMenu();
 
+    void showSellerMenu(const eSeller& seller);
+    void hideSellerMenu();
+
     void showStashMenu();
-    void hideStashAndInventoryMenu();
+    void hideStashMenu();
+
+    void hideInventoryConnectedMenu();
 
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
@@ -102,6 +112,7 @@ private:
     eInventoryWidget* mInventoryMenu = nullptr;
     ePartyWidget* mPartyMenu = nullptr;
     eWaypointWidget* mWaypointMenu = nullptr;
+    eSellerWidget* mSellerMenu = nullptr;
     eStatsWidget* mStatsMenu = nullptr;
     eSkillTreesWidget* mSkillTreesMenu = nullptr;
     eHoverWidget* mDragWidget = nullptr;

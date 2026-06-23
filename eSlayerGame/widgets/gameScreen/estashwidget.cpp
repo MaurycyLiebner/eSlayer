@@ -32,7 +32,8 @@ void eStashWidget::initialize(eEquipment& eq, const eStats& stats) {
     mStash->initialize(eEquipment::fStashWidth,
                        eEquipment::fStashHeight,
                        eq.fStash,
-                       eq, eBagpackType::inventory);
+                       eq, eBagpackType::inventory,
+                       eHoverItemType::regular);
     inner->addWidget(mStash);
 
     mCoins = new eCoinsWidget(window());

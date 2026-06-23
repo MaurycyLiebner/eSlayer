@@ -27,7 +27,8 @@ std::shared_ptr<eServer> eSlayerServer::generate(
 eServer::eServer(const eServerData& data) :
     mData(data) {}
 
-void eServer::setFailureHandler(const eServerFailureHandler& h) {
+void eServer::setFailureHandler(
+    const eServerFailureHandler& h) {
     mFailure = h;
 }
 
@@ -39,51 +40,73 @@ bool eServer::requestMapCall(
     return requestMap(clientId, moveData, func);
 }
 
-std::vector<eSlayer> eServer::receiveNewUsers() {
+std::vector<eSlayer>
+eServer::receiveNewUsers() {
     std::vector<eSlayer> result;
     std::swap(mNewUsers, result);
     return result;
 }
 
-std::vector<eSlayer> eServer::receiveLeftUsers() {
+std::vector<eSlayer>
+eServer::receiveLeftUsers() {
     std::vector<eSlayer> result;
     std::swap(mLeftUsers, result);
     return result;
 }
 
-std::vector<eMessage> eServer::receiveMessages() {
+std::vector<eMessage>
+eServer::receiveMessages() {
     std::vector<eMessage> result;
     std::swap(mMessages, result);
     return result;
 }
 
-std::vector<eServerObject> eServer::receiveObjectStateChanges() {
+std::vector<eServerObject>
+eServer::receiveObjectStateChanges() {
     std::vector<eServerObject> result;
     std::swap(mObjectStateChanges, result);
     return result;
 }
 
-std::vector<eServerDoors> eServer::receiveDoorsStateChanges() {
+std::vector<eServerDoors>
+eServer::receiveDoorsStateChanges() {
     std::vector<eServerDoors> result;
     std::swap(mDoorsStateChanged, result);
     return result;
 }
 
-std::vector<uint32_t> eServer::receiveBodiesPickedUp() {
+std::vector<uint32_t>
+eServer::receiveBodiesPickedUp() {
     std::vector<uint32_t> result;
     std::swap(mBodiesPickedUp, result);
     return result;
 }
 
-std::vector<eBodyItemsTaken> eServer::receiveBodiesChanged() {
+std::vector<eBodyItemsTaken>
+eServer::receiveBodiesChanged() {
     std::vector<eBodyItemsTaken> result;
     std::swap(mBodyItemsTaken, result);
     return result;
 }
 
-std::vector<eEquipmentAction> eServer::receiveEqActions() {
+std::vector<eEquipmentAction>
+eServer::receiveEqActions() {
     std::vector<eEquipmentAction> result;
     std::swap(mEqActions, result);
+    return result;
+}
+
+std::optional<eSeller>
+eServer::receiveSeller() {
+    std::optional<eSeller> result;
+    std::swap(mSeller, result);
+    return result;
+}
+
+std::optional<eReplaceItemId>
+eServer::receiveReplaceItemId() {
+    std::optional<eReplaceItemId> result;
+    std::swap(mReplaceItemId, result);
     return result;
 }
 

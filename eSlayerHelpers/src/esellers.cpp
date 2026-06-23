@@ -2,18 +2,21 @@
 
 #include "eSlayerHelpers/epacket.h"
 
+int eSeller::sSellerPageWidth = 10;
+int eSeller::sSellerPageHeight = 12;
+
 std::map<uint32_t, eSeller> eSellers::sSellers;
 
 eInventoryItems& eSeller::addPage() {
-    return fPages.emplace_back(fSellerPageWidth,
-                               fSellerPageHeight);
+    return fPages.emplace_back(sSellerPageWidth,
+                               sSellerPageHeight);
 }
 
 eInventoryItems& eSeller::addClientPage(
     const uint32_t clientId) {
     auto& page = fClientPage[clientId];
-    page = eInventoryItems(fSellerPageWidth,
-                           fSellerPageHeight);
+    page = eInventoryItems(sSellerPageWidth,
+                           sSellerPageHeight);
     return page;
 }
 
@@ -86,7 +89,7 @@ void eSeller::write(const uint32_t clientId,
     const auto it = fClientPage.find(clientId);
     if(it == fClientPage.end()) {
         const eInventoryItems items{
-            fSellerPageWidth, fSellerPageHeight};
+            sSellerPageWidth, sSellerPageHeight};
         items.write(p);
     } else {
         const auto& items = it->second;
@@ -114,11 +117,9 @@ bool eSellers::takeItem(const uint32_t clientId,
 
 bool eSellers::replaceItemId(
     const uint32_t clientId,
-    const uint32_t sellerId,
-    const uint32_t itemId,
-    const uint32_t newItemId) {
-    const auto it = sSellers.find(sellerId);
+    const eReplaceItemId& r) {
+    const auto it = sSellers.find(r.fSellerId);
     if(it == sSellers.end()) return false;
     auto& s = it->second;
-    return s.setItemId(clientId, itemId, newItemId);
+    return s.setItemId(clientId, r.fOldItemId, r.fNewItemId);
 }

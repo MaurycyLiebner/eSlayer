@@ -927,6 +927,41 @@ bool eServerArea::findPlaceForPortal(
     return false;
 }
 
+bool eServerArea::requestSeller(
+    const uint32_t clientId,
+    const uint32_t sellerId,
+    eSeller& seller) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    const auto level = u->level();
+    auto& ss = eSellers::sSellers;
+    auto it = ss.find(sellerId);
+    if(it == ss.end()) return false;
+    auto& s = it->second;
+    {
+        auto& cp = s.fClientPage;
+        const auto it = cp.find(clientId);
+        if(it == cp.end()) {
+            auto& p = s.addClientPage(clientId);
+            for(int i = 0; i < eItemsData::sItems.size(); i++) {
+                const auto& itemData = eItemsData::get(i);
+                if(itemData.fType != eItemType::potion) continue;
+                const int levelReq = itemData.fLevelReq;
+                if(levelReq > level) continue;
+                eItem item;
+                eItemGenerator::applyItemId(item);
+                const auto type = itemData.fType;
+                item.fDataId = i;
+                item.fType = type;
+                item.fSubType = itemData.fSubtype;
+                p.tryAdd(item);
+            }
+        }
+    }
+    seller = s;
+    return true;
+}
+
 bool goThroughPortal(
     const uint32_t clientId,
     const uint32_t portalId) {
@@ -1275,11 +1310,14 @@ bool eServerArea::buyAction(
     if(!r) return false;
     eq.takeGold(gold);
     if(item.fType == eItemType::potion) {
+        eReplaceItemId r;
+        r.fSellerId = a.fSellerId;
+        r.fOldItemId = item.fItemId;
         eItemGenerator::applyItemId(item);
         newItemId = item.fItemId;
+        r.fNewItemId = newItemId;
         eSellers::replaceItemId(
-            clientId, a.fSellerId,
-            a.fItemId, newItemId);
+            clientId, r);
     } else {
         newItemId = 0;
         eSellers::takeItem(

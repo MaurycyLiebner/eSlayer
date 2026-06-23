@@ -6,7 +6,6 @@
 
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
-#include "../widgets/gameScreen/einventorybagpackwidget.h"
 #include "../widgets/gameScreen/einventorywidget.h"
 #include "../widgets/gameScreen/ehoverwidget.h"
 #include "../widgets/gameScreen/eminimap.h"
@@ -20,6 +19,7 @@
 #include "../widgets/gameScreen/ewaypointwidget.h"
 #include "../widgets/gameScreen/ebottomwidget.h"
 #include "../widgets/gameScreen/estashwidget.h"
+#include "../widgets/gameScreen/esellerwidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -100,7 +100,7 @@ void eGameScreen::initialize(const uint32_t clientId,
 
     const auto invA = [this](const bool) {
         if(mInventoryMenu) {
-            hideStashAndInventoryMenu();
+            hideInventoryConnectedMenu();
         } else {
             hideRightMenu();
             showInventoryMenu();
@@ -202,9 +202,14 @@ void eGameScreen::sOpenStash() {
     sInstance->showStashMenu();
 }
 
+void eGameScreen::sOpenSellerMenu(
+    const eSeller& s) {
+    sInstance->showSellerMenu(s);
+}
+
 void eGameScreen::sCloseObjectMenu() {
     sInstance->hideWaypointMenu();
-    sInstance->hideStashAndInventoryMenu();
+    sInstance->hideInventoryConnectedMenu();
     sInstance->updateCharPos();
 }
 
@@ -217,7 +222,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else if(mStatsMenu) {
             hideStatsMenu();
         } else if(mInventoryMenu) {
-            hideStashAndInventoryMenu();
+            hideInventoryConnectedMenu();
         } else if(mSkillTreesMenu) {
             hideSkillTreesMenu();
         } else if(mPartyMenu) {
@@ -241,7 +246,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         mBottomWidget->setRunning(run);
     } else if(!mMessage && key == SDL_SCANCODE_I) {
         if(mInventoryMenu) {
-            hideStashAndInventoryMenu();
+            hideInventoryConnectedMenu();
         } else {
             hideRightMenu();
             showInventoryMenu();
@@ -403,7 +408,10 @@ void eGameScreen::hideLeftMenu() {
         hideWaypointMenu();
     }
     if(mStashMenu) {
-        hideStashAndInventoryMenu();
+        hideInventoryConnectedMenu();
+    }
+    if(mSellerMenu) {
+        hideInventoryConnectedMenu();
     }
 }
 
@@ -412,7 +420,7 @@ void eGameScreen::hideRightMenu() {
         hideSkillTreesMenu();
     }
     if(mInventoryMenu) {
-        hideStashAndInventoryMenu();
+        hideInventoryConnectedMenu();
     }
 }
 
@@ -472,7 +480,8 @@ void eGameScreen::hideESCMenu() {
     mGameWidget->setMenuVisible(false);
 }
 
-void eGameScreen::showInventoryMenu() {
+void eGameScreen::showInventoryMenu(
+    const eHoverItemType htype) {
     if(mInventoryMenu) return;
     mInventoryMenu = new eInventoryWidget(window());
     const int w = width();
@@ -481,7 +490,7 @@ void eGameScreen::showInventoryMenu() {
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mInventoryMenu);
-    mInventoryMenu->initialize(eq, stats, eHoverItemType::regular);
+    mInventoryMenu->initialize(eq, stats, htype);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     mInventoryMenu->updateWeapons();
     eHoverWidget::sUpdateDragItem(eq);
@@ -644,6 +653,32 @@ void eGameScreen::hideWaypointMenu() {
     updateCharPos();
 }
 
+void eGameScreen::showSellerMenu(
+    const eSeller& seller) {
+    if(mSellerMenu) return;
+    mSellerMenu = new eSellerWidget(window());
+    const int w = width();
+    const int h = height();
+    mSellerMenu->resize(w/2, h - mBottomWidget->height());
+    const auto clientId = mGameWidget->clientId();
+    auto& eq = mGameWidget->equipment();
+    const auto& stats = mGameWidget->stats();
+    mSellerMenu->initialize(clientId, seller, eq, stats);
+    mMenusWidget->addWidget(mSellerMenu);
+    mSellerMenu->align(eAlignment::left | eAlignment::top);
+
+    showInventoryMenu(eHoverItemType::sell);
+
+    updateCharPos();
+}
+
+void eGameScreen::hideSellerMenu() {
+    if(!mSellerMenu) return;
+    mSellerMenu->deleteLater();
+    mSellerMenu = nullptr;
+    updateCharPos();
+}
+
 void eGameScreen::showStashMenu() {
     if(mStashMenu) return;
     mStashMenu = new eStashWidget(window());
@@ -662,12 +697,17 @@ void eGameScreen::showStashMenu() {
     updateCharPos();
 }
 
-void eGameScreen::hideStashAndInventoryMenu() {
-    hideInventoryMenu();
+void eGameScreen::hideStashMenu() {
     if(!mStashMenu) return;
     mStashMenu->deleteLater();
     mStashMenu = nullptr;
     updateCharPos();
+}
+
+void eGameScreen::hideInventoryConnectedMenu() {
+    hideInventoryMenu();
+    hideSellerMenu();
+    hideStashMenu();
 }
 
 void eGameScreen::openSkillMenu(const eAlignment align,
@@ -712,7 +752,8 @@ void eGameScreen::openSkillMenu(const eAlignment align,
 void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
     const bool left = mStatsMenu || mPartyMenu ||
-                      mWaypointMenu || mStashMenu;
+                      mWaypointMenu || mStashMenu ||
+                      mSellerMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {

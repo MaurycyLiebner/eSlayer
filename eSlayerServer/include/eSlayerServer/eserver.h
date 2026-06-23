@@ -10,6 +10,7 @@
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eequipmentaction.h>
+#include <eSlayerHelpers/esellers.h>
 
 #include <memory>
 
@@ -158,8 +159,11 @@ public:
 
     virtual bool
     buyAction(const uint32_t clientId,
-              const eBuyAction& a,
-              uint32_t& newItemId) = 0;
+              const eBuyAction& a) = 0;
+
+    virtual bool
+    requestSeller(const uint32_t clientId,
+                  const uint32_t sellerId) = 0;
 
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }
@@ -176,6 +180,8 @@ public:
     std::vector<uint32_t> receiveBodiesPickedUp();
     std::vector<eBodyItemsTaken> receiveBodiesChanged();
     std::vector<eEquipmentAction> receiveEqActions();
+    std::optional<eSeller> receiveSeller();
+    std::optional<eReplaceItemId> receiveReplaceItemId();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -188,6 +194,10 @@ protected:
     std::vector<uint32_t> mBodiesPickedUp;
     std::vector<eBodyItemsTaken> mBodyItemsTaken;
     std::vector<eEquipmentAction> mEqActions;
+    std::optional<eSeller> mSeller;
+    std::optional<eReplaceItemId> mReplaceItemId;
+
+    uint32_t mClientId = 0;
 private:
     const eServerData mData;
     static uint32_t sServerState;

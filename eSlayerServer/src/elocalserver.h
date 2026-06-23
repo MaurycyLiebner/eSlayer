@@ -10,6 +10,7 @@
 #include <map>
 
 struct eAttackData;
+struct eSeller;
 
 struct eMapAndArea {
     uint8_t fId;
@@ -104,8 +105,15 @@ public:
     bool equipmentAction(const uint32_t clientId,
                          const eEquipmentAction& a) override;
     bool buyAction(const uint32_t clientId,
-                   const eBuyAction& a,
-                   uint32_t& newItemId) override;
+                   const eBuyAction& a) override;
+    bool buyActionImpl(const uint32_t clientId,
+                       const eBuyAction& a,
+                       uint32_t& newItemId);
+    bool requestSeller(const uint32_t clientId,
+                       const uint32_t sellerId) override;
+    bool requestSellerImpl(const uint32_t clientId,
+                           const uint32_t sellerId,
+                           eSeller& seller);
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);

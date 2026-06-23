@@ -19,7 +19,8 @@ public:
     void initialize(const int w, const int h,
                     std::vector<eInventoryItem>& items,
                     eEquipment& eq,
-                    const eBagpackType type);
+                    const eBagpackType type,
+                    const eHoverItemType htype);
 
     bool dropItem();
 protected:

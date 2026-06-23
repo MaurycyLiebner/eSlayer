@@ -40,12 +40,12 @@ uint32_t eTcpIpJoin::connect() {
         failed("Disconnected", "Failed to send connection request.");
         return 0;
     }
-    int32_t clientId = 0;
+    mClientId = 0;
     const auto handler = [&](ePacket& p, const ePacketType type) {
         if(type == ePacketType::connect) {
             ePacketType type;
             p >> type;
-            p >> clientId;
+            p >> mClientId;
             return true;
         }
         return false;
@@ -58,7 +58,7 @@ uint32_t eTcpIpJoin::connect() {
 
     waitFor(10000, "Connection timed out.", handler);
 
-    return clientId;
+    return mClientId;
 }
 
 bool eTcpIpJoin::disconnect(const uint32_t clientId) {
@@ -384,26 +384,25 @@ bool eTcpIpJoin::equipmentAction(
     return true;
 }
 
-bool eTcpIpJoin::buyAction(
-    const uint32_t clientId,
-    const eBuyAction& a,
-    uint32_t& newItemId) {
+bool eTcpIpJoin::buyAction(const uint32_t clientId,
+                           const eBuyAction& a) {
     ePacket p;
     p << ePacketType::buyAction;
     p << a;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send buy action to the host.");
-    const auto handler = [&](ePacket& p, const ePacketType type) {
-        if(type == ePacketType::newItemId) {
-            ePacketType type;
-            p >> type;
-            p >> newItemId;
-            return true;
-        }
-        return false;
-    };
-    return waitFor(10000, "Buy request timed out.", handler);
+    return true;
+}
 
+bool eTcpIpJoin::requestSeller(
+    const uint32_t clientId,
+    const uint32_t sellerId) {
+    ePacket p;
+    p << ePacketType::requestSeller;
+    p << sellerId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send seller request to the host.");
+    return true;
 }
 
 bool eTcpIpJoin::waitFor(
@@ -469,10 +468,17 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         mEquipment = eEquipment();
         mEquipment.read(p);
         mNewEquipment = true;
+        mUnblockEquipment = true;
     } break;
     case ePacketType::equipmentAction: {
         auto& action = mEqActions.emplace_back();
         action.read(p);
+        mUnblockEquipment = true;
+    } break;
+    case ePacketType::replaceItemId: {
+        eReplaceItemId i;
+        p >> i;
+        mReplaceItemId = i;
         mUnblockEquipment = true;
     } break;
     case ePacketType::unblockEquipment: {
@@ -508,6 +514,11 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::portals: {
         ePortal::read(p);
     } break;
+    case ePacketType::provideSeller: {
+        eSeller s;
+        s.read(mClientId, p);
+        mSeller = s;
+    } break;
     case ePacketType::objectStateChanged: {
         eServerObject obj;
         p >> obj;
@@ -529,6 +540,7 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         if(removed) {
             mBodiesPickedUp.emplace_back(bodyId);
         }
+        mUnblockEquipment = true;
     } break;
     case ePacketType::disconnect: {
         failed("Disconnected", "Host closed the connection.");

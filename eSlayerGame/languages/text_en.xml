@@ -60,6 +60,7 @@
         <string id="11">Very Fast Attack Speed</string>
         <string id="12">Cost: %1</string>
         <string id="13">Sell Value: %1</string>
+        <string id="14">Page %1</string>
     </group>
     <group id="7">
         <string id="0">Life</string>

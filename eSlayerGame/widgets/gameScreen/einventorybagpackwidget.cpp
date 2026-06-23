@@ -15,11 +15,8 @@ void eInventoryBagpackWidget::initialize(
     const int w, const int h,
     std::vector<eInventoryItem>& items,
     eEquipment& eq,
-    const eBagpackType type) {
-    const bool trade = false;
-    const eHoverItemType htype =
-        trade ? eHoverItemType::sell :
-                eHoverItemType::regular;
+    const eBagpackType type,
+    const eHoverItemType htype) {
     eBagpackBase::initialize(
         w, h, items, htype);
     mEq = &eq;
