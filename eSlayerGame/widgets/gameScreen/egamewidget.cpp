@@ -637,6 +637,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     continue;
                 }
                 const auto texObjectId = object.fTexId;
+                if(texObjectId < 0) continue;
                 const auto& objectTex = eObjsTextures::get(texObjectId);
                 if(objectTex.fFlat) {
                     flat.emplace_back(obj);

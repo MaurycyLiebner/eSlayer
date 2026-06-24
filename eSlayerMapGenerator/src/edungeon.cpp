@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eterrstexturesdata.h>
+#include <eSlayerHelpers/eblueprints.h>
 #include <eSlayerHelpers/esellers.h>
 
 eDungeon::eDungeon() {}
@@ -210,7 +211,8 @@ void eDungeon::generate(ePointF& spawnPos) const {
     const auto calcMaxArea = [&](const eChamber& c,
                                  int& maxA,
                                  int& xMax,
-                                 int& yMax) {
+                                 int& yMax,
+                                 const bool random) {
         maxA = 0;
         for(const auto& r : c.fRects) {
             for(int x = r.fX; x < r.fX + r.fW; x++) {
@@ -220,11 +222,75 @@ void eDungeon::generate(ePointF& spawnPos) const {
                     const int a = calcArea(x, y, c);
                     if(a <= maxA) continue;
                     maxA = a;
-                    xMax = x + eRand::rand(0, a/2);
-                    yMax = y + eRand::rand(0, a/2);
+                    xMax = x;
+                    yMax = y;
+                    if(random) {
+                        xMax += eRand::rand(-a/2, a/2);
+                        yMax += eRand::rand(-a/2, a/2);
+                    }
                 }
             }
         }
+    };
+
+    bool waypointAdded = false;
+
+    const auto addObject = [&](const int x, const int y,
+                               const uint16_t type) {
+        const auto& info = eObjectsInfo::sObjects.get(type);
+        auto& obj = *mMap->addObject({x, y});
+        obj.fObjectType = type;
+        obj.fSubtype = eRand::rand();
+        obj.fSize = info.fSize;
+        switch(info.fType) {
+        case eObjectType::healer: {
+            const auto id = obj.fObjectId;
+            auto& s = eSellers::sSellers[id];
+            s.fId = id;
+            s.fLevel = mSettings.fLevel;
+            s.fType = eSellerType::healer;
+            s.fMapId = mMap->id();
+        } break;
+        case eObjectType::waypoint:
+            waypointAdded = true;
+            break;
+        default:
+            break;
+        }
+    };
+
+    const auto tryAddBlueprint = [&](ePlacementHelper& helper,
+                                     const std::vector<eChamber>& cs,
+                                     const eBlueprintCount& bpc) {
+        if(cs.empty()) return false;
+        int area;
+        const int id = helper.get(area);
+        if(id < 0) return false;
+        const auto& c = cs[id];
+        const auto& rects = c.fRects;
+        if(rects.empty()) return false;
+        const auto& r0 = rects[0];
+
+        int maxA = 0;
+        int xMax = r0.fX;
+        int yMax = r0.fY;
+
+        calcMaxArea(c, maxA, xMax, yMax, false);
+        if(maxA == 0) return false;
+
+        const auto& bp = eBlueprints::sBlueprints.get(bpc.fType);
+
+        xMax -= bp.fWidth/2;
+        yMax -= bp.fHeight/2;
+
+        for(const auto& o : bp.fObjects) {
+            addObject(xMax + o.fX, yMax + o.fY, o.fObjId);
+        }
+
+        calcMaxArea(c, maxA, xMax, yMax, false);
+        helper.set(id, maxA);
+
+        return true;
     };
 
     const auto tryAddObject = [&](ePlacementHelper& helper,
@@ -244,30 +310,13 @@ void eDungeon::generate(ePointF& spawnPos) const {
         int xMax = r0.fX;
         int yMax = r0.fY;
 
-        calcMaxArea(c, maxA, xMax, yMax);
+        calcMaxArea(c, maxA, xMax, yMax, true);
         if(maxA == 0) return false;
         const auto type = os.fType;
-        const auto& info = eObjectsInfo::sObjects.get(type);
-        auto& obj = *mMap->addObject({xMax, yMax});
-        obj.fObjectType = type;
-        obj.fSubtype = eRand::rand();
-        obj.fSize = info.fSize;
+        addObject(xMax, yMax, type);
 
-        calcMaxArea(c, maxA, xMax, yMax);
+        calcMaxArea(c, maxA, xMax, yMax, true);
         helper.set(id, maxA);
-
-        switch(info.fType) {
-        case eObjectType::healer: {
-            const auto id = obj.fObjectId;
-            auto& s = eSellers::sSellers[id];
-            s.fId = id;
-            s.fLevel = mSettings.fLevel;
-            s.fType = eSellerType::healer;
-            s.fMapId = mMap->id();
-        } break;
-        default:
-            break;
-        }
 
         return true;
     };
@@ -285,7 +334,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         int maxA = 0;
         int xMax;
         int yMax;
-        calcMaxArea(sc, maxA, xMax, yMax);
+        calcMaxArea(sc, maxA, xMax, yMax, true);
         helper.add(i, maxA);
         for(const auto& rect : sc.fRects) {
             const int minX = rect.fX;
@@ -328,8 +377,16 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
     }
 
+    const auto& bps = mSettings.fBlueprints;
+    for(const auto& bp : bps) {
+        for(int i = 0; i < bp.fCount; i++) {
+            const bool r = tryAddBlueprint(helper, chambers, bp);
+            if(!r) break;
+        }
+    }
+
     const auto& objs = mSettings.fObjects;
-    if(mSettings.fWaypoint) {
+    if(mSettings.fWaypoint && !waypointAdded) {
         const auto id = eObjectsInfo::sObjects.id("waypoint");
         const eObjectCount os(id, 1, 2);
         tryAddObject(helper, chambers, os);
@@ -363,7 +420,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             int maxA = 0;
             int xMax;
             int yMax;
-            calcMaxArea(c, maxA, xMax, yMax);
+            calcMaxArea(c, maxA, xMax, yMax, true);
             const int id = ochambers.size() - 1;
             helper.add(id, maxA);
         }

@@ -45,6 +45,7 @@
 #include <eSlayerHelpers/eauratypes.h>
 #include <eSlayerHelpers/eitemaffixes.h>
 #include <eSlayerHelpers/emapsettings.h>
+#include <eSlayerHelpers/eblueprints.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -298,6 +299,10 @@ int main(int argc, char* argv[]) {
         loadings.emplace_back([&]() {
             eObjectsInfo::load();
             eObjsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eBlueprints::load();
         });
 
         loadings.emplace_back([&]() {

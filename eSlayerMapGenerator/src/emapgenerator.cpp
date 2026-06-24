@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/eblueprints.h>
 
 class eMapGenerator {
 public:
@@ -269,6 +270,14 @@ eMapGenerator::generate(const uint8_t mapId) const {
 
         for(const auto& o : settings.fObjects) {
             objTypes.emplace(o.fType);
+        }
+
+        for(const auto& bpc : settings.fBlueprints) {
+            const auto type = bpc.fType;
+            const auto& bp = eBlueprints::sBlueprints.get(type);
+            for(const auto& o : bp.fObjects) {
+                objTypes.emplace(o.fObjId);
+            }
         }
 
         const auto place = placer.choosePlace(nextTo);

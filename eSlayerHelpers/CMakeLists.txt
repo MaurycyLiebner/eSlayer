@@ -190,6 +190,8 @@ add_library(eSlayerHelpers SHARED
     src/eequipmentaction.cpp
     include/eSlayerHelpers/esellers.h
     src/esellers.cpp
+    include/eSlayerHelpers/eblueprints.h
+    src/eblueprints.cpp
 
 )
 

@@ -4,6 +4,7 @@
 #include "eSlayerHelpers/echardatainfo.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
+#include "eSlayerHelpers/eblueprints.h"
 #include "eSlayerHelpers/ewaypoints.h"
 
 eStringIdMapVector<eMapSettings>
@@ -134,6 +135,31 @@ void eMapsSettings::load() {
                 if(jArea.contains("outObjects")) {
                     const auto& items = jArea["outObjects"];
                     parseObjects(items, area.fOutsideObjects);
+                }
+
+                const auto parseBlueprints = [&](const ordered_json& items,
+                                                 std::vector<eBlueprintCount>& vec) {
+                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
+                        const auto bpname = cit.key();
+                        const int type = eBlueprints::sBlueprints.id(bpname);
+                        if(type == -1) {
+                            eRuntimeThrow("Invalid blueprint type \"" + bpname +
+                                          "\" in " + dir + "/" + name + ".json");
+                        }
+                        const auto& values = cit.value();
+                        int count = 1;
+                        if(values.is_number_integer()) {
+                            count = values;
+                        } else {
+                            count = values.value("count", 1);
+                        }
+                        vec.emplace_back(type, count);
+                    }
+                };
+
+                if(jArea.contains("blueprints")) {
+                    const auto& items = jArea["blueprints"];
+                    parseBlueprints(items, area.fBlueprints);
                 }
 
                 if(jArea.contains("connections")) {

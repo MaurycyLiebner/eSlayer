@@ -31,6 +31,17 @@ struct eObjectCount {
     int fMinArea;
 };
 
+struct eBlueprintCount {
+    eBlueprintCount() {}
+    eBlueprintCount(const uint16_t type,
+                    const int count) :
+        fType(type),
+        fCount(count) {}
+
+    uint16_t fType;
+    int fCount;
+};
+
 struct eMonsterCount {
     uint16_t fBaseType;
     std::vector<uint16_t> fTypes;
@@ -62,6 +73,7 @@ struct eAreaSettings {
     eMapMonsterSettings fMonsters;
     std::vector<eObjectCount> fObjects;
     std::vector<eObjectCount> fOutsideObjects;
+    std::vector<eBlueprintCount> fBlueprints;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;
