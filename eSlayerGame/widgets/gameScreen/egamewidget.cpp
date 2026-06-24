@@ -181,12 +181,12 @@ void eGameWidget::sendEqAction(const eEquipmentAction& a) {
 
 void eGameWidget::sendBuyAction(
     const eBuyAction& a) {
-    const bool r = mServer->buyAction(mClientId, a);
+    mServer->buyAction(mClientId, a);
 }
 
 void eGameWidget::sendSellAction(
     const eSellAction& a) {
-    const bool r = mServer->sellAction(mClientId, a);
+    mServer->sellAction(mClientId, a);
 }
 
 void eGameWidget::sendAttributesChanged() {
@@ -622,6 +622,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         int wallMinTY = uipos.fY - 1000;
         int wallMaxTY = uipos.fY + 1000;
         std::vector<std::shared_ptr<eObject>> waypoints;
+        std::vector<std::shared_ptr<eObject>> flat;
         const auto handleTile = [&](const eTileInfo& info) {
             const int x = info.fTX;
             const int y = info.fTY;
@@ -637,6 +638,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
                 const auto texObjectId = object.fTexId;
                 const auto& objectTex = eObjsTextures::get(texObjectId);
+                if(objectTex.fFlat) {
+                    flat.emplace_back(obj);
+                    continue;
+                }
                 if(objectTex.fBlocksLight) {
                     const auto& pos = objRef.fPos;
                     mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
@@ -1194,7 +1199,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto texObjectId = object.fTexId;
             const auto& objectTex = eObjsTextures::get(texObjectId);
             const auto& types = objectTex.fTypes;
-            auto pos = w->fPos;
+            auto pos = obj.fPos;
             const float size = object.fSize;
             pos.fX += size*0.5f;
             pos.fY += size*0.5f;
@@ -1204,6 +1209,25 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& tex = state.fTexs.getTexture(0);
             mGamePainter.drawTexture(ipixel.fX, ipixel.fY,
                                      tex, eAlignment::center);
+        }
+
+        for(const auto& f : flat) {
+            const auto& obj = *f;
+
+            const auto& pos = obj.fPos;
+            const auto ipixel = tilePosToIPixel(pos);
+
+            const auto objType = obj.fObjectType;
+            const auto& object = eObjectsInfo::sObjects.get(objType);
+            const auto texObjectId = object.fTexId;
+            const auto& objectTex = eObjsTextures::get(texObjectId);
+            const auto& types = objectTex.fTypes;
+            const auto typeId = obj.fSubtype % types.size();
+            const auto& type = types[typeId];
+            const auto& tex = type[obj.fState].fTexs.getTexture(0);
+            const int h = object.fSize*tileH;
+            const auto align = eAlignment::top | eAlignment::hcenter;
+            mGamePainter.drawTexture(ipixel.fX, ipixel.fY + h, tex, align);
         }
 
         mGamePainter.calculateAndRenderLighting();
@@ -1492,7 +1516,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                                     pos.fX + obj.fSize,
                                     pos.fY + obj.fSize,
                                     drawX, drawY, tex,
-                                    highlight, true);
+                                    highlight, objectTex.fShadow);
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::wall) {
                 const auto& wall = static_cast<eWall&>(*ePtr);

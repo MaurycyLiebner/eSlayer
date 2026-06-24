@@ -20,6 +20,8 @@ struct eObjTextures {
 
     using eType = std::vector<eObjAnim>;
     bool fBlocksLight;
+    bool fShadow;
+    bool fFlat;
     std::vector<eType> fTypes;
     std::map<std::string, int> fAnimIds;
 
