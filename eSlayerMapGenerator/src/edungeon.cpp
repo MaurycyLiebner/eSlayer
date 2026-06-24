@@ -261,6 +261,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             const auto id = obj.fObjectId;
             auto& s = eSellers::sSellers[id];
             s.fId = id;
+            s.fLevel = mSettings.fLevel;
             s.fType = eSellerType::healer;
             s.fMapId = mMap->id();
         } break;

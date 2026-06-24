@@ -20,6 +20,8 @@ struct eReplaceItemId {
 struct ESLAYERHELPERS_API eSeller {
     uint32_t fId;
 
+    uint8_t fLevel;
+
     uint8_t fMapId;
     eSellerType fType;
 

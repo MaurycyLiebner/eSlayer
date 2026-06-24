@@ -230,7 +230,31 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     for(auto &it : eSellers::sSellers) {
         auto& s = it.second;
         if(s.fMapId != mapId) continue;
-        auto& p = s.addPage();
+        const auto maxLevel = s.fLevel;
+        std::vector<int> typeIds;
+        for(int i = 0; i < eItemsData::sItems.size(); i++) {
+            const auto& itemData = eItemsData::get(i);
+            if(itemData.fType == eItemType::gold ||
+               itemData.fType == eItemType::potion) continue;
+            const int levelReq = itemData.fLevelReq;
+            if(levelReq > maxLevel) continue;
+            typeIds.emplace_back(i);
+        }
+        if(typeIds.empty()) {
+            continue;
+        }
+        for(int i = 0; i < 3; i++) {
+            auto& p = s.addPage();
+            bool added = false;
+            do {
+                const int typeId = eRand::randomElement(typeIds);
+                const auto level = eRand::rand(1, maxLevel);
+                const float worth = eRand::biasedRandF(2.f, 4.f, 1.f);
+                const auto item = eItemGenerator::generateItem(
+                    typeId, level, worth);
+                added = p.tryAdd(item);
+            } while(added);
+        }
     }
 
     const int w = map->width();

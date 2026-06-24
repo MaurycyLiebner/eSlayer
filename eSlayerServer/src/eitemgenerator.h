@@ -11,6 +11,9 @@ public:
     static eItem generatePotion(
         const int level, const float worth);
     static eItem generateItem(
+        const int typeId,
+        const int level, const float worth);
+    static eItem generateItem(
         const int level, const float worth);
 private:
     static uint32_t sNextItemId;

@@ -13,7 +13,7 @@ std::shared_ptr<eAttackAction> eAttackAction::sCreate(
     const eWeaponChoice wchoice) {
     const auto& data = unit.data();
     if(anims.empty()) return nullptr;
-    const int anim = anims[eRand::rand() % anims.size()];
+    const int anim = eRand::randomElement(anims);
     const int animLen = data.animFrames(anim);
     int frames;
     if(type == eAttackType::attack) {

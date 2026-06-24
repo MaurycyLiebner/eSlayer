@@ -25,8 +25,7 @@ eItem eItemGenerator::generatePotion(
         typeIds.emplace_back(i);
     }
     if(typeIds.empty()) return item;
-    const int id = eRand::rand() % typeIds.size();
-    const int typeId = typeIds[id];
+    const int typeId = eRand::randomElement(typeIds);
     const auto& itemData = eItemsData::get(typeId);
     const auto type = itemData.fType;
     item.fDataId = typeId;
@@ -36,24 +35,10 @@ eItem eItemGenerator::generatePotion(
 }
 
 eItem eItemGenerator::generateItem(
+    const int typeId,
     const int level, const float worth) {
     eItem item;
     eItemGenerator::applyItemId(item);
-    int typeId;
-    if(worth < 1.f && eRand::randChance(0.5f)) {
-        typeId = eItemsData::sGoldIds[0];
-    } else {
-        std::vector<int> typeIds;
-        for(int i = 0; i < eItemsData::sItems.size(); i++) {
-            const auto& itemData = eItemsData::get(i);
-            const int levelReq = itemData.fLevelReq;
-            if(levelReq > level) continue;
-            typeIds.emplace_back(i);
-        }
-        if(typeIds.empty()) return item;
-        const int id = eRand::rand() % typeIds.size();
-        typeId = typeIds[id];
-    }
     const auto& itemData = eItemsData::get(typeId);
     const auto type = itemData.fType;
     item.fDataId = typeId;
@@ -133,4 +118,23 @@ eItem eItemGenerator::generateItem(
         }
     }
     return item;
+}
+
+eItem eItemGenerator::generateItem(
+    const int level, const float worth) {
+    int typeId;
+    if(worth < 1.f && eRand::randChance(0.5f)) {
+        typeId = eItemsData::sGoldIds[0];
+    } else {
+        std::vector<int> typeIds;
+        for(int i = 0; i < eItemsData::sItems.size(); i++) {
+            const auto& itemData = eItemsData::get(i);
+            const int levelReq = itemData.fLevelReq;
+            if(levelReq > level) continue;
+            typeIds.emplace_back(i);
+        }
+        if(typeIds.empty()) return eItem();
+        typeId = eRand::randomElement(typeIds);
+    }
+    return generateItem(typeId, level, worth);
 }

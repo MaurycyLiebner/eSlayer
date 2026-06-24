@@ -42,6 +42,9 @@ void eSellerWidget::initialize(
         const auto text = eStringHelpers::replaceAll(
             textBase, "%1", i1Str);
         const auto b = new eMainMenuButton(text, window());
+        b->setSmallFontSize();
+        b->setSmallPadding();
+        b->fitContent();
         tabsWidget->addWidget(b);
         b->setPressAction([this, i, &items, &stats, &eq]() {
             mBag->initialize(mSeller.fId,
@@ -49,13 +52,14 @@ void eSellerWidget::initialize(
                              eSeller::sSellerPageHeight,
                              items, stats, eq);
         });
+        return b;
     };
     const int iMax = mSeller.fPages.size();
     for(; i < iMax; i++) {
         addTab(mSeller.fPages[i]);
     }
     auto& lastPage = mSeller.fClientPage[clientId];
-    addTab(lastPage);
+    const auto lastB = addTab(lastPage);
 
     const auto& res = resolution();
     const int p = res.largePadding();
@@ -68,6 +72,9 @@ void eSellerWidget::initialize(
                      eSeller::sSellerPageWidth,
                      eSeller::sSellerPageHeight,
                      lastPage, stats, eq);
+    const int w = mBag->width();
+    tabsWidget->setWidth(w);
+    lastB->align(eAlignment::right);
     innerW->addWidget(mBag);
 
     innerW->stackVertically(p);
