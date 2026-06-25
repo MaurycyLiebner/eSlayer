@@ -1489,10 +1489,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 eAlignment align = eAlignment::top | eAlignment::hcenter;
                 bool highlightable = false;
                 switch(info.fType) {
-                case eObjectType::portalArea:
-                case eObjectType::spawnArea:
-                case eObjectType::none:
-                    break;
                 case eObjectType::treasure: {
                     highlightable = obj.fState == 0;
                 } break;
@@ -1507,6 +1503,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 case eObjectType::healer:
                 case eObjectType::stash:
                     highlightable = true;
+                    break;
+                default:
                     break;
                 };
                 ePainter::drawCoordinates(drawX, drawY, texW, texH, align);

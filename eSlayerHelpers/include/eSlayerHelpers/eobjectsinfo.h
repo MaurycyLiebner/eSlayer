@@ -13,7 +13,8 @@ enum class eObjectType {
     stash,
     healer,
     portalArea,
-    spawnArea
+    spawnArea,
+    empty
 };
 
 struct eObjectInfo {

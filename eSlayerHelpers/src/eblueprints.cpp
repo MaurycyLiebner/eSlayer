@@ -29,10 +29,8 @@ void eBlueprints::load() {
             const auto jdata = eFileLoaderBase::parse(dir, path);
             bp.fWidth = jdata.value("width", 0.f);
             bp.fHeight = jdata.value("height", 0.f);
-            const auto& objects = jdata.at("objects");
-            for(auto it = objects.begin(); it != objects.end(); ++it) {
-                const std::string& oname = it.key();
-                const auto& data = it.value();
+            for(const auto& objData : jdata["objects"]) {
+                const auto oname = objData.value("type", "");
                 const auto id = eObjectsInfo::sObjects.id(oname);
                 if(id < 0) {
                     eRuntimeThrow("Invalid object name \"" + oname +
@@ -40,8 +38,8 @@ void eBlueprints::load() {
                 }
                 auto& obj = bp.fObjects.emplace_back();
                 obj.fObjId = id;
-                obj.fX = data.value("x", 0.f);
-                obj.fY = data.value("y", 0.f);
+                obj.fX = objData.value("x", 0.f);
+                obj.fY = objData.value("y", 0.f);
             }
             sBlueprints.add(name, bp);
         } catch(...) {
