@@ -36,8 +36,16 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     addWidget(mLeftSkillButton);
     mLeftSkillButton->setSkillId(leftSkillId);
 
+    const auto& res = resolution();
+    const int p = res.tinyPadding();
+
     const auto centerWid = new eWidget(window());
     centerWid->setNoPadding();
+
+    const auto spaceW = new eWidget(window());
+    spaceW->setHugePadding();
+    spaceW->fitContent();
+    centerWid->addWidget(spaceW);
 
     const auto buttonW = new eWidget(window());
     buttonW->setNoPadding();
@@ -141,8 +149,6 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
                              eUITextures::sPortalIcon);
     staminaBelt->addWidget(portalButton);
 
-    const auto& res = resolution();
-    const int p = res.tinyPadding();
     staminaBelt->stackHorizontally(p);
     staminaBelt->fitContent();
     centerWid->addWidget(staminaBelt);
