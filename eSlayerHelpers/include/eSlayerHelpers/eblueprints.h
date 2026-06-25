@@ -7,7 +7,8 @@
 #include <vector>
 
 struct eBlueprintObject {
-    uint8_t fObjId;
+    uint8_t fType;
+    uint8_t fSubtype;
     float fX;
     float fY;
 };

@@ -276,7 +276,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             const auto type = bpc.fType;
             const auto& bp = eBlueprints::sBlueprints.get(type);
             for(const auto& o : bp.fObjects) {
-                objTypes.emplace(o.fObjId);
+                objTypes.emplace(o.fType);
             }
         }
 

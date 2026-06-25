@@ -236,11 +236,12 @@ void eDungeon::generate(ePointF& spawnPos) const {
     bool waypointAdded = false;
 
     const auto addObject = [&](const float x, const float y,
-                               const uint16_t type) {
+                               const uint16_t type,
+                               const uint8_t subtype = eRand::rand(0, 255)) {
         const auto& info = eObjectsInfo::sObjects.get(type);
         auto& obj = *mMap->addObject({x, y});
         obj.fObjectType = type;
-        obj.fSubtype = eRand::rand();
+        obj.fSubtype = subtype;
         obj.fSize = info.fSize;
         switch(info.fType) {
         case eObjectType::healer: {
@@ -292,7 +293,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         yMax -= bp.fHeight/2;
 
         for(const auto& o : bp.fObjects) {
-            addObject(xMax + o.fX, yMax + o.fY, o.fObjId);
+            addObject(xMax + o.fX, yMax + o.fY, o.fType, o.fSubtype);
         }
 
         calcMaxArea(c, maxA, xMax, yMax, false);

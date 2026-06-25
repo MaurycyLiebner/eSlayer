@@ -37,7 +37,8 @@ void eBlueprints::load() {
                                   "\" in blueprint \"" + name + "\".");
                 }
                 auto& obj = bp.fObjects.emplace_back();
-                obj.fObjId = id;
+                obj.fType = id;
+                obj.fSubtype = objData.value("subtype", 0);
                 obj.fX = objData.value("x", 0.f);
                 obj.fY = objData.value("y", 0.f);
             }
