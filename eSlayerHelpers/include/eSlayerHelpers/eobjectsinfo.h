@@ -11,7 +11,9 @@ enum class eObjectType {
     waypoint,
     portal,
     stash,
-    healer
+    healer,
+    portalArea,
+    spawnArea
 };
 
 struct eObjectInfo {

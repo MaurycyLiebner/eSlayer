@@ -254,6 +254,14 @@ void eDungeon::generate(ePointF& spawnPos) const {
         case eObjectType::waypoint:
             waypointAdded = true;
             break;
+        case eObjectType::spawnArea: {
+            const float s = 0.5f*obj.fSize;
+            mMap->mSpawnPos = obj.fPos + eVec2f{s, s};
+        } break;
+        case eObjectType::portalArea: {
+            const float s = 0.5f*obj.fSize;
+            mMap->mPortalSpawnPos = obj.fPos + eVec2f{s, s};
+        } break;
         default:
             break;
         }

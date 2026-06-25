@@ -58,6 +58,7 @@ public:
 
     const ePointF& spawnPos() const { return mSpawnPos; }
     ePointF spawnPos(const uint8_t entranceMap) const;
+    const ePointF& portalSpawnPos() const { return mPortalSpawnPos; }
 
     const std::set<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
@@ -125,6 +126,7 @@ private:
     const uint8_t mId;
 
     ePointF mSpawnPos{0, 0};
+    ePointF mPortalSpawnPos{0, 0};
 
     uint16_t mWidth = 0;
     uint16_t mHeight = 0;

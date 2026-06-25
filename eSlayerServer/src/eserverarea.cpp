@@ -1150,7 +1150,7 @@ bool eServerArea::spawnCampPortal(
     uint8_t& mapId,
     uint8_t& areaId,
     ePointF& pos) {
-    pos = mMap->spawnPos();
+    pos = mMap->portalSpawnPos();
     return spawnPortal(pos, portalId, mapId, areaId);
 }
 
@@ -1204,11 +1204,7 @@ bool eServerArea::triggerObject(
             generateItems(pos, level, 7.5f);
             state = 1;
         } break;
-        case eObjectType::waypoint:
-        case eObjectType::portal:
-        case eObjectType::stash:
-        case eObjectType::healer:
-        case eObjectType::none:
+        default:
             break;
         }
         static_cast<eObject&>(obj) = *sobj;

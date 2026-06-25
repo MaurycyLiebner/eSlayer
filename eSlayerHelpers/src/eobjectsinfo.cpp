@@ -32,6 +32,10 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::stash;
             } else if(typeStr == "healer") {
                 info.fType = eObjectType::healer;
+            } else if(typeStr == "portalArea") {
+                info.fType = eObjectType::portalArea;
+            } else if(typeStr == "spawnArea") {
+                info.fType = eObjectType::spawnArea;
             } else if(typeStr == ""){
                 info.fType = eObjectType::none;
             } else {
