@@ -639,13 +639,18 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto texObjectId = object.fTexId;
                 if(texObjectId < 0) continue;
                 const auto& objectTex = eObjsTextures::get(texObjectId);
+                const auto& pos = objRef.fPos;
+                if(objectTex.fBlocksLight) {
+                    mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
+                }
+                if(objectTex.fLightRadius > 0.01f) {
+                    const float s = 0.5f*objRef.fSize;
+                    mGamePainter.addLight(pos.fX + s, pos.fY + s,
+                                          objectTex.fLightRadius);
+                }
                 if(objectTex.fFlat) {
                     flat.emplace_back(obj);
                     continue;
-                }
-                if(objectTex.fBlocksLight) {
-                    const auto& pos = objRef.fPos;
-                    mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
                 }
                 renderElements.emplace_back(eRenderElement{false,
                                                            eRenderElementType::object,
@@ -1484,6 +1489,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 eAlignment align = eAlignment::top | eAlignment::hcenter;
                 bool highlightable = false;
                 switch(info.fType) {
+                case eObjectType::portalArea:
+                case eObjectType::spawnArea:
                 case eObjectType::none:
                     break;
                 case eObjectType::treasure: {

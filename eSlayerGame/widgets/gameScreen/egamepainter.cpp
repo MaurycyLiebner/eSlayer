@@ -91,9 +91,8 @@ void eGamePainter::render(
 void eGamePainter::addObjectShadow(
     const float tx, const float ty,
     const float size) {
-    auto o = std::make_unique<eObjectLightBlocker>(
-        tx, ty, size);
-    std::unique_ptr<eBlockerBase> b = std::move(o);
+    std::unique_ptr<eBlockerBase> b =
+        std::make_unique<eObjectLightBlocker>(tx, ty, size);
     mLightingTex.addBlocker(b);
 }
 
