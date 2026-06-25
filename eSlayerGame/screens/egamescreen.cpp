@@ -214,9 +214,7 @@ void eGameScreen::sOpenSellerMenu(
 }
 
 void eGameScreen::sCloseObjectMenu() {
-    sInstance->hideWaypointMenu();
-    sInstance->hideInventoryConnectedMenu();
-    sInstance->updateCharPos();
+    sInstance->hidePositionedMenu();
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -401,6 +399,14 @@ void eGameScreen::hotkeyPressed(const int fkey) {
 
 void eGameScreen::consumePotion(const int x) {
     return mGameWidget->consumePotion(x);
+}
+
+void eGameScreen::hidePositionedMenu() {
+    hideWaypointMenu();
+    if(mStashMenu || mSellerMenu) {
+        hideInventoryConnectedMenu();
+    }
+    updateCharPos();
 }
 
 void eGameScreen::hideLeftMenu() {

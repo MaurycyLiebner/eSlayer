@@ -61,6 +61,8 @@ private:
     void hotkeyPressed(const int fkey);
     void consumePotion(const int x);
 
+    void hidePositionedMenu();
+
     void hideLeftMenu();
     void hideRightMenu();
 
