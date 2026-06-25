@@ -222,6 +222,7 @@
         <string id="9">How Much Gold Would You Like to Drop?</string>
         <string id="10">How Much Gold Would You Like to Deposit?</string>
         <string id="11">How Much Gold Would You Like to Withdraw?</string>
+        <string id="12">Stash Gold</string>
     </group>
     <group id="19">
         <string id="0">Duration: %1 Seconds</string>

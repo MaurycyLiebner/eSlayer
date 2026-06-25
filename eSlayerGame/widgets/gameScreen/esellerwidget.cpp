@@ -5,6 +5,7 @@
 #include "einventorywidget.h"
 #include "egamewidget.h"
 #include "ehoverwidget.h"
+#include "ecoinswidget.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
 
@@ -77,6 +78,10 @@ void eSellerWidget::initialize(
     lastB->align(eAlignment::right);
     innerW->addWidget(mBag);
 
+    mStashCoins = new eCoinsWidget(window());
+    mStashCoins->initialize(eq.fStashGold, nullptr, 12);
+    innerW->addWidget(mStashCoins);
+
     innerW->stackVertically(p);
     innerW->fitContent();
 
@@ -114,4 +119,9 @@ bool eSellerWidget::dropItem() {
     dragged = eItem();
     eHoverWidget::sUpdateDragItem(*mEq);
     return true;
+}
+
+void eSellerWidget::paintEvent(ePainter& p) {
+    eBgWidget::paintEvent(p);
+    mStashCoins->setCount(mEq->fStashGold);
 }

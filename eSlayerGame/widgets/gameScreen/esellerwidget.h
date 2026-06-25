@@ -7,6 +7,8 @@
 
 #include <eSlayerHelpers/esellers.h>
 
+class eCoinsWidget;
+
 class eSellerWidget : public eBgWidget {
 public:
     eSellerWidget(eMainWindow* const w);
@@ -20,11 +22,15 @@ public:
 
     static bool sReplaceItemId(const uint32_t clientId,
                                const eReplaceItemId& r);
+protected:
+    void paintEvent(ePainter& p) override;
 private:
     static eSellerWidget* sInstance;
 
     bool replaceItemId(const uint32_t clientId,
                        const eReplaceItemId& r);
+
+    eCoinsWidget* mStashCoins = nullptr;
 
     uint32_t mClientId = 0;
     eEquipment* mEq = nullptr;
