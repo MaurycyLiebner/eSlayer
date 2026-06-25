@@ -235,7 +235,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
     bool waypointAdded = false;
 
-    const auto addObject = [&](const int x, const int y,
+    const auto addObject = [&](const float x, const float y,
                                const uint16_t type) {
         const auto& info = eObjectsInfo::sObjects.get(type);
         auto& obj = *mMap->addObject({x, y});

@@ -27,8 +27,8 @@ void eBlueprints::load() {
         try {
             eBlueprint bp;
             const auto jdata = eFileLoaderBase::parse(dir, path);
-            bp.fWidth = jdata.value("width", 0);
-            bp.fHeight = jdata.value("height", 0);
+            bp.fWidth = jdata.value("width", 0.f);
+            bp.fHeight = jdata.value("height", 0.f);
             const auto& objects = jdata.at("objects");
             for(auto it = objects.begin(); it != objects.end(); ++it) {
                 const std::string& oname = it.key();
@@ -40,8 +40,8 @@ void eBlueprints::load() {
                 }
                 auto& obj = bp.fObjects.emplace_back();
                 obj.fObjId = id;
-                obj.fX = data.value("x", 0);
-                obj.fY = data.value("y", 0);
+                obj.fX = data.value("x", 0.f);
+                obj.fY = data.value("y", 0.f);
             }
             sBlueprints.add(name, bp);
         } catch(...) {

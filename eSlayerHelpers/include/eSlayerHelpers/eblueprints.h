@@ -8,13 +8,13 @@
 
 struct eBlueprintObject {
     uint8_t fObjId;
-    uint8_t fX;
-    uint8_t fY;
+    float fX;
+    float fY;
 };
 
 struct eBlueprint {
-    uint8_t fWidth;
-    uint8_t fHeight;
+    float fWidth;
+    float fHeight;
 
     std::vector<eBlueprintObject> fObjects;
 };
