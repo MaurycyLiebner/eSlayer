@@ -331,40 +331,86 @@ void eLightingHandler::render(
         const int y0 = (c.fTY - icty)/singleShift;
         switch(type) {
         case eRenderCallType::object: {
-            float l = 0.f;
-            const auto handle = [&](const int dx, const int dy) {
-                int x = x0 + dx;
-                int y = y0 + dy;
-                int tx = ictx;
-                int ty = icty;
-                if(x < 0) {
-                    tx--;
-                    x = mTileDiv + x;
-                } else if(x > mTileDiv) {
-                    tx++;
-                    x -= mTileDiv + 1;
-                }
-                if(y < 0) {
-                    ty--;
-                    y = mTileDiv + y;
-                } else if(y > mTileDiv) {
-                    ty++;
-                    y -= mTileDiv + 1;
-                }
-                const auto tile = mIterator.getTile(tx, ty);
-                if(tile) {
-                    const auto& lighting = tile->fLighting;
-                    l += lighting[y*mNDots + x];
-                }
-            };
+            if(c.fObjSplitLighting) {
+                const auto handle = [&](const int dx, const int dy) {
+                    int x = x0 + dx;
+                    int y = y0 + dy;
+                    int tx = ictx;
+                    int ty = icty;
+                    const int tileSize = mTileDiv + 1;
+                    if(x < 0) {
+                        const int d = (-x + tileSize - 1) / tileSize;
+                        tx -= d;
+                        x += d * tileSize;
+                    } else if (x > mTileDiv) {
+                        const int d = x / tileSize;
+                        tx += d;
+                        x -= d * tileSize;
+                    }
 
-            handle(0, 0);
-            handle(-1, 0);
-            handle(0, -1);
+                    if(y < 0) {
+                        const int d = (-y + tileSize - 1) / tileSize;
+                        ty -= d;
+                        y += d * tileSize;
+                    } else if (y > mTileDiv) {
+                        const int d = y / tileSize;
+                        ty += d;
+                        y -= d * tileSize;
+                    }
+                    const auto tile = mIterator.getTile(tx, ty);
+                    if(tile) {
+                        const auto& lighting = tile->fLighting;
+                        const float l = lighting[y*mNDots + x] + addL;
+                        lightness.emplace_back(l);
+                    } else {
+                        lightness.emplace_back(mLightness + addL);
+                    }
+                };
 
-            l = std::max(mLightness, l*0.33f) + addL;
+                const int n = mTileDiv*c.fObjSize;
 
-            lightness.emplace_back(l);
+                for(int dx = -n; dx <= 0; dx++) {
+                    handle(dx, 0);
+                }
+                for(int dy = -n; dy < 0; dy++) {
+                    handle(0, dy);
+                }
+            } else {
+                float l = 0.f;
+                const auto handle = [&](const int dx, const int dy) {
+                    int x = x0 + dx;
+                    int y = y0 + dy;
+                    int tx = ictx;
+                    int ty = icty;
+                    if(x < 0) {
+                        tx--;
+                        x += mTileDiv;
+                    } else if(x > mTileDiv) {
+                        tx++;
+                        x -= mTileDiv + 1;
+                    }
+                    if(y < 0) {
+                        ty--;
+                        y += mTileDiv;
+                    } else if(y > mTileDiv) {
+                        ty++;
+                        y -= mTileDiv + 1;
+                    }
+                    const auto tile = mIterator.getTile(tx, ty);
+                    if(tile) {
+                        const auto& lighting = tile->fLighting;
+                        l += lighting[y*mNDots + x];
+                    }
+                };
+
+                handle(0, 0);
+                handle(-1, 0);
+                handle(0, -1);
+
+                l = std::max(mLightness, l*0.33f) + addL;
+
+                lightness.emplace_back(l);
+            }
         } break;
         case eRenderCallType::area:
         case eRenderCallType::missile:

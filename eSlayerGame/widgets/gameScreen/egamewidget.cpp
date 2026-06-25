@@ -1277,10 +1277,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mHighlightItem.reset();
                 highlight = true;
             }
-            const eRenderCall c(eRenderCallType::object,
-                                pos.fX, pos.fY,
-                                drawX, drawY, tex,
-                                highlight, false);
+            eRenderCall c(eRenderCallType::object,
+                          pos.fX, pos.fY,
+                          drawX, drawY, tex);
+            c.fHighlight = highlight;
+            c.fShadow = false;
             mGamePainter.render(c);
         }
 
@@ -1407,23 +1408,30 @@ void eGameWidget::paintEvent(ePainter& p) {
                         if(nFrames <= 0) continue;
                         const uint16_t frame = (mFrame + 16*u->fCharId) % nFrames;
                         const auto& ftex = missileTex.get(baseId, 0, frame);
-                        const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
-                                            drawX, drawY, ftex, false, false, false);
+                        const eRenderCall c(eRenderCallType::missile,
+                                            pos.fX, pos.fY,
+                                            drawX, drawY, ftex);
                         mGamePainter.render(c);
                     }
                 }
 
                 const int drawX = ipixel.fX + rect.x;
                 const int drawY = ipixel.fY + rect.y;
-                const eRenderCall c(eRenderCallType::unit, pos.fX, pos.fY,
-                                    drawX, drawY, tex, highlight, true,
-                                    e.fLighting, colorMod);
+                eRenderCall c(eRenderCallType::unit,
+                              pos.fX, pos.fY,
+                              drawX, drawY, tex);
+                c.fHighlight = highlight;
+                c.fShadow = true;
+                c.fLighting = e.fLighting;
+                c.fColorMod = colorMod;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::missile) {
                 const auto& ftex = e.fTex;
-                const eRenderCall c(eRenderCallType::missile, pos.fX, pos.fY,
-                                    ipixel.fX, ipixel.fY, ftex, false, false,
-                                    e.fLighting);
+                eRenderCall c(eRenderCallType::missile,
+                              pos.fX, pos.fY,
+                              ipixel.fX, ipixel.fY,
+                              ftex);
+                c.fLighting = e.fLighting;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::area) {
                 const auto a = std::static_pointer_cast<eExtendedSkillArea>(ePtr);
@@ -1434,10 +1442,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const float texR = missileInfo.radius();
                 const float scale = aR/texR;
                 const auto& ftex = e.fTex;
-                const eRenderCall c(eRenderCallType::area, pos.fX, pos.fY,
-                                    ipixel.fX, ipixel.fY, ftex, false, false,
-                                    e.fLighting, {1.f, 1.f, 1.f, 1.f},
-                                    eWallType::topLeft, false, scale);
+                eRenderCall c(eRenderCallType::area,
+                              pos.fX, pos.fY,
+                              ipixel.fX, ipixel.fY,
+                              ftex);
+                c.fLighting = e.fLighting;
+                c.fScale = scale;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::item) {
                 const auto i = std::static_pointer_cast<eGroundItem>(ePtr);
@@ -1462,9 +1472,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                     }
                 }
 
-                const eRenderCall c(eRenderCallType::item, pos.fX, pos.fY,
-                                    drawX, drawY, tex, highlight, false, false,
-                                    colorMod);
+                eRenderCall c(eRenderCallType::item,
+                              pos.fX, pos.fY,
+                              drawX, drawY,
+                              tex);
+                c.fHighlight = highlight;
+                c.fColorMod = colorMod;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::object) {
                 const auto objPtr = std::static_pointer_cast<eObject>(ePtr);
@@ -1518,11 +1531,14 @@ void eGameWidget::paintEvent(ePainter& p) {
                         highlight = true;
                     }
                 }
-                const eRenderCall c(eRenderCallType::object,
-                                    pos.fX + obj.fSize,
-                                    pos.fY + obj.fSize,
-                                    drawX, drawY, tex,
-                                    highlight, objectTex.fShadow);
+                eRenderCall c(eRenderCallType::object,
+                              pos.fX + obj.fSize,
+                              pos.fY + obj.fSize,
+                              drawX, drawY, tex);
+                c.fHighlight = highlight;
+                c.fShadow = objectTex.fShadow;
+                c.fObjSize = obj.fSize;
+                c.fObjSplitLighting = objectTex.fSplit;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::wall) {
                 const auto& wall = static_cast<eWall&>(*ePtr);
@@ -1594,13 +1610,11 @@ void eGameWidget::paintEvent(ePainter& p) {
                 ePainter::drawCoordinates(drawX, drawY, texW, texH,
                                           eAlignment::top | eAlignment::hcenter);
 
-                const eRenderCall c(eRenderCallType::wall,
-                                    pos.fX, pos.fY,
-                                    drawX, drawY, tex,
-                                    false, false, false,
-                                    SDL_FColor{1.f, 1.f, 1.f, 1.f},
-                                    wall.fType,
-                                    transparent);
+                eRenderCall c(eRenderCallType::wall,
+                              pos.fX, pos.fY,
+                              drawX, drawY, tex);
+                c.fWallType = wall.fType;
+                c.fTransparent = transparent;
                 mGamePainter.render(c);
                 if(doors) {
                     bool highlight = false;
@@ -1658,13 +1672,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                         int drawY = bottomY;
                         ePainter::drawCoordinates(drawX, drawY, texW, texH,
                                                   eAlignment::top | eAlignment::hcenter);
-                        const eRenderCall c(eRenderCallType::wall,
-                                            pos.fX, pos.fY,
-                                            drawX, drawY, tex,
-                                            highlight, false, false,
-                                            SDL_FColor{1.f, 1.f, 1.f, 1.f},
-                                            wall.fType,
-                                            transparent);
+                        eRenderCall c(eRenderCallType::wall,
+                                      pos.fX, pos.fY,
+                                      drawX, drawY,
+                                      tex);
+                        c.fHighlight = highlight;
+                        c.fWallType = wall.fType;
+                        c.fTransparent = transparent;
                         mGamePainter.render(c);
                     }
                 } else if(stairs) {
@@ -1738,13 +1752,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                     int drawY = bottomY;
                     ePainter::drawCoordinates(drawX, drawY, texW, texH,
                                               eAlignment::top | eAlignment::hcenter);
-                    const eRenderCall c(eRenderCallType::wall,
-                                        pos.fX, pos.fY,
-                                        drawX, drawY, tex,
-                                        highlight, false, false,
-                                        SDL_FColor{1.f, 1.f, 1.f, 1.f},
-                                        wall.fType,
-                                        transparent);
+                    eRenderCall c(eRenderCallType::wall,
+                                  pos.fX, pos.fY,
+                                  drawX, drawY,
+                                  tex);
+                    c.fHighlight = highlight;
+                    c.fWallType = wall.fType;
+                    c.fTransparent = transparent;
                     mGamePainter.render(c);
                 }
             }

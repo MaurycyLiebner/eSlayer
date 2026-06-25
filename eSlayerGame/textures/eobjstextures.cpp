@@ -63,6 +63,7 @@ void eObjsTextures::load() {
             obj.fShadow = jdata.value("shadow", true);
             obj.fFlat = jdata.value("flat", false);
             obj.fLightRadius = jdata.value("lightRadius", 0.f);
+            obj.fSplit = jdata.value("split", false);
             struct eAnimInfo {
                 eAnimInfo(const std::string& name,
                           const int frames) :

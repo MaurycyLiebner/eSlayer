@@ -25,35 +25,23 @@ struct eRenderCall : public ePaintCall {
     eRenderCall(const eRenderCallType type,
                 const float tx, const float ty,
                 const float px, const float py,
-                const std::shared_ptr<eTexture>& tex,
-                const bool highlight,
-                const bool shadow,
-                const bool lighting = false,
-                const SDL_FColor& colorMod = {1.f, 1.f, 1.f, 1.f},
-                const eWallType wall = eWallType::topLeft,
-                const bool transparent = false,
-                const float scale = 1.f) :
+                const std::shared_ptr<eTexture>& tex) :
         ePaintCall{px, py, tex},
         fType(type),
-        fHighlight(highlight),
-        fShadow(shadow),
-        fColorMod(colorMod),
-        fWallType(wall),
-        fTransparent(transparent),
-        fLighting(lighting),
-        fTX(tx), fTY(ty),
-        fScale(scale) {}
+        fTX(tx), fTY(ty) {}
 
     eRenderCallType fType;
-    bool fHighlight;
-    bool fShadow;
-    SDL_FColor fColorMod;
-    eWallType fWallType;
-    bool fTransparent;
-    bool fLighting;
     float fTX;
     float fTY;
-    float fScale;
+    bool fHighlight = false;
+    bool fShadow = false;
+    SDL_FColor fColorMod{1.f, 1.f, 1.f, 1.f};
+    eWallType fWallType = eWallType::topLeft;
+    bool fTransparent = false;
+    bool fLighting = false;
+    float fScale = 1.f;
+    float fObjSize = 1.f;
+    bool fObjSplitLighting = false;
 };
 
 class eLightingHandler {
