@@ -12,7 +12,6 @@ public:
     void initialize(const std::string& name);
 protected:
     void paintEvent(ePainter& p) override;
-    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     void updatePartyWidgets();
 

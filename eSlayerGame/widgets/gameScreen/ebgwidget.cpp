@@ -56,3 +56,7 @@ void eBgWidget::paintEvent(ePainter& p) {
         }
     }
 }
+
+bool eBgWidget::mousePressEvent(const eMouseEvent& e) {
+    return true;
+}

@@ -134,10 +134,6 @@ void ePartyWidget::initialize(const std::string& name) {
     updatePartyWidgets();
 }
 
-bool ePartyWidget::mousePressEvent(const eMouseEvent& e) {
-    return true;
-}
-
 void ePartyWidget::paintEvent(ePainter& p) {
     const auto gw = eGameWidget::sInstance;
     const auto clientTeam = gw->team();

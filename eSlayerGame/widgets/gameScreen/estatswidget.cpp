@@ -382,10 +382,6 @@ void eStatsWidget::initialize(const std::string& name,
     setup(innerW);
 }
 
-bool eStatsWidget::mousePressEvent(const eMouseEvent& e) {
-    return true;
-}
-
 void eStatsWidget::paintEvent(ePainter& p) {
     updateStats();
     eBgWidget::paintEvent(p);

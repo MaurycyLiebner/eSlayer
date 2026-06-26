@@ -113,7 +113,3 @@ void eSkillTreesWidget::paintEvent(ePainter& p) {
     mRemPtsLabel->align(eAlignment::hcenter);
     eBgWidget::paintEvent(p);
 }
-
-bool eSkillTreesWidget::mousePressEvent(const eMouseEvent& e) {
-    return true;
-}

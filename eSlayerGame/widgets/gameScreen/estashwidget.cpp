@@ -69,10 +69,6 @@ void eStashWidget::paintEvent(ePainter& p) {
     mCoins->setCount(mEq->fStashGold);
 }
 
-bool eStashWidget::mousePressEvent(const eMouseEvent& e) {
-    return true;
-}
-
 bool eStashWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return false;
     const bool b = mStash->dropItem();

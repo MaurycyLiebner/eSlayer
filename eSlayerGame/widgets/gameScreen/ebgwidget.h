@@ -10,6 +10,7 @@ protected:
     void setup(eWidget* const inner);
 
     void paintEvent(ePainter& p) override;
+    bool mousePressEvent(const eMouseEvent& e) override;
 };
 
 #endif // EBGWIDGET_H

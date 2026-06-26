@@ -18,7 +18,6 @@ public:
                     const eEquipment& eq);
 protected:
     void paintEvent(ePainter& p) override;
-    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eStats* mStats = nullptr;
 

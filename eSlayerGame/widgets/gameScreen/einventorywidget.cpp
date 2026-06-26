@@ -236,10 +236,6 @@ void eInventoryWidget::initialize(
     setup(inner);
 }
 
-bool eInventoryWidget::mousePressEvent(const eMouseEvent& e) {
-    return true;
-}
-
 bool eInventoryWidget::dropItem() {
     if(sBlocked) return false;
     const bool b = mBagpack->dropItem();

@@ -21,7 +21,6 @@ public:
     static eStashWidget* sInstance;
 protected:
     void paintEvent(ePainter& p) override;
-    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eInventoryBagpackWidget* mStash = nullptr;
     eCoinsWidget* mCoins = nullptr;

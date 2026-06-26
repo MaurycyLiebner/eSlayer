@@ -30,7 +30,6 @@ public:
     static eInventoryWidget* sInstance;
 protected:
     void paintEvent(ePainter& p) override;
-    bool mousePressEvent(const eMouseEvent& e) override;
 private:
     eInventoryBagpackWidget* mBagpack = nullptr;
     eCoinsWidget* mCoins = nullptr;
