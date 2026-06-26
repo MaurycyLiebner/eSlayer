@@ -1195,6 +1195,11 @@ bool eServerArea::triggerObject(
             generateItems(pos, level, 7.5f);
             state = 1;
         } break;
+        case eObjectType::trapDoor: {
+            auto& state = sobj->fState;
+            if(state != 0) return false;
+            state = 1;
+        } break;
         default:
             break;
         }

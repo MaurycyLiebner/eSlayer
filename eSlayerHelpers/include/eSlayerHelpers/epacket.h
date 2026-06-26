@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <set>
-
+struct eTile;
 class ESLAYERHELPERS_API ePacket {
 public:
     const uint8_t* data() const { return buffer.data(); }
@@ -41,6 +41,9 @@ public:
         read(v);
         return *this;
     }
+
+    ePacket& operator<<(const eTile& v) = delete;
+    ePacket& operator>>(eTile& v) = delete;
 
     ePacket& operator<<(const std::string& str) {
         const uint32_t len = str.size();

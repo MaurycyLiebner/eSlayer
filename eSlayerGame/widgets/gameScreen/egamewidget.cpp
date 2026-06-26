@@ -819,22 +819,29 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         mTileIterator.nextIteration(this);
         bool iniObjs = true;
+        const auto align = eAlignment::top | eAlignment::hcenter;
         for(const auto terrType : terrTypes) {
             if(terrType == 0) continue;
             const auto& texs = eTerrsTextures::get(terrType);
+            const auto drawTerr = [&](const int px, const int py,
+                                      const uint8_t drawTerrType,
+                                      const uint8_t drawTileType) {
+                if(drawTerrType != terrType) return;
+                if(drawTileType == 0) return;
+                const auto& tex = texs.getTexture(drawTileType);
+                mGamePainter.drawTexture(px, py, tex, align);
+            };
             mTileIterator.iterate([&](const eTileInfo& info) {
                 const int x = info.fTX;
                 const int y = info.fTY;
                 if(iniObjs) handleTile(info);
                 const auto& tile = mMap->tile(x, y);
-                if(tile.fTerrainType != terrType) return;
-                const auto tileType = tile.fTileType;
-                if(tileType == 0) return;
-                const auto& tex = texs.getTexture(tileType);
                 const int px = info.fPX;
-                const int py = info.fPY;
-                mGamePainter.drawTexture(px, py + tileH, tex,
-                                         eAlignment::top | eAlignment::hcenter);
+                const int py = info.fPY + tileH;
+                drawTerr(px, py, tile.fTerrainType, tile.fTileType);
+                for(const auto& o : tile.fOverlays) {
+                    drawTerr(px, py, o.fTerrainType, o.fTileType);
+                }
             });
             iniObjs = false;
         }
@@ -1513,6 +1520,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto t2 = eTeams::playerTeam(mClientId);
                     highlightable = t1 == t2;
                 } break;
+                case eObjectType::trapDoor:
                 case eObjectType::healer:
                 case eObjectType::trader:
                 case eObjectType::stash:
@@ -1732,10 +1740,11 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                         if(!tiles.empty()) {
                             const auto& tile = tiles[0];
-                            const auto mapId = mMap->stairsMapId(
+                            const auto s = mMap->mapStairs(
                                 tile.fX, tile.fY, wall.fType);
-                            if(mapId) {
-                                stairs.fTargetMapId = *mapId;
+                            if(s) {
+                                stairs.fTargetMapId = s->fMapId;
+                                stairs.fTargetAreaId = s->fAreaId;
                                 if(highlight && !mHighlightStairs) {
                                     setHighlightedStairs(stairs);
                                     mHighlightObject.reset();
@@ -1934,6 +1943,13 @@ void eGameWidget::setHighlightedObject(
             const auto area = mMap->areaAt(pos);
             const auto aname = mMap->areaName(area);
             lines.emplace_back(aname);
+        } else if(object.fType == eObjectType::trapDoor) {
+            if(obj->fState != 0) {
+                const auto mapId = obj->fTargetMapId;
+                const auto areaNameBase = eMapsSettings::sMaps.name(mapId);
+                const auto areaName = eAreaNames::name(areaNameBase);
+                lines.emplace_back(areaName);
+            }
         } else if(object.fType == eObjectType::portal) {
             const auto p = ePortal::portal(obj->fObjectId);
             if(p) {
@@ -1999,7 +2015,9 @@ void eGameWidget::setHighlightedStairs(
         const int h = 100*mult;
         const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
         const auto mapId = stairs->fTargetMapId;
-        const auto areaNameBase = eMapsSettings::sMaps.name(mapId);
+        const auto& info = eMapsSettings::sMaps.get(mapId);
+        const auto areaId = stairs->fTargetAreaId;
+        const auto areaNameBase = info.fAreas.name(areaId);
         const auto areaName = eAreaNames::name(areaNameBase);
         eHoverWidget::sSetGameTooltip(areaName, rect);
     } else {

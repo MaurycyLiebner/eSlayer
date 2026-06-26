@@ -60,6 +60,9 @@ public:
     ePointF spawnPos(const uint8_t entranceMap) const;
     const ePointF& portalSpawnPos() const { return mPortalSpawnPos; }
 
+    std::vector<std::shared_ptr<eObject>>&
+    trapDoors();
+
     const std::set<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
 
@@ -109,14 +112,15 @@ public:
     void fillPathFinderMap();
     void triggerDoors(const eDoors& doors);
 
-    std::optional<int> stairsMapId(
+    std::optional<eMapStairs> mapStairs(
         const int x, const int y,
         const eWallType type) const;
     void addStairs(const int x, const int y,
                    const eWallType wallType,
                    const eConnectionDir dir,
                    const uint8_t type,
-                   const int mapId);
+                   const int mapId,
+                   const int areaId);
 
     bool waypointPosition(
         const uint8_t areaId, ePointF& pos) const;
@@ -150,6 +154,7 @@ private:
     eObstaclesMap mObstaclesMap;
 
     std::vector<eMapStairs> mStairs;
+    std::vector<std::shared_ptr<eObject>> mTrapDoors;
 };
 
 #endif // EMAP_H

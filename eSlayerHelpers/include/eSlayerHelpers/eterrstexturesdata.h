@@ -40,6 +40,9 @@ struct eTileTextureData {
     std::vector<bool> fObstacle;
     std::vector<bool> fWalkable;
 
+    int fWidth;
+    int fHeight;
+
     eFloorUse fFloorUse;
     std::vector<int> fFloor;
 

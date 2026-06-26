@@ -41,6 +41,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::spawnArea;
             } else if(typeStr == "empty") {
                 info.fType = eObjectType::empty;
+            } else if(typeStr == "trapDoor") {
+                info.fType = eObjectType::trapDoor;
             } else if(typeStr == ""){
                 info.fType = eObjectType::none;
             } else {

@@ -10,6 +10,8 @@ struct eObject : public ePositioned {
     uint8_t fSubtype;
     uint8_t fState = 0;
 
+    uint8_t fTargetMapId;
+
     float fSize;
 };
 

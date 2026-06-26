@@ -187,6 +187,9 @@ void eDungeon::generate(ePointF& spawnPos) const {
                     if(!c.contains({xx, yy})) return dim;
                     const auto& objs = mMap->objects(xx, yy);
                     if(!objs.empty()) return dim;
+                    const auto& tile = mMap->tile(xx, yy);
+                    const auto& overlays = tile.fOverlays;
+                    if(!overlays.empty()) return dim;
                 }
             }
         }
@@ -235,14 +238,22 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
     bool waypointAdded = false;
 
+    std::vector<std::shared_ptr<eObject>> trapDoors;
+
     const auto addObject = [&](const float x, const float y,
                                const uint16_t type,
                                const uint8_t subtype = eRand::rand(0, 255)) {
         const auto& info = eObjectsInfo::sObjects.get(type);
-        auto& obj = *mMap->addObject({x, y});
+        const auto objPtr = mMap->addObject({x, y});
+        auto& obj = *objPtr;
         obj.fObjectType = type;
         obj.fSubtype = subtype;
         obj.fSize = info.fSize;
+
+        if(info.fType == eObjectType::trapDoor) {
+            trapDoors.emplace_back(objPtr);
+            mMap->mTrapDoors.emplace_back(objPtr);
+        }
 
         const auto addSeller = [&](const eSellerType type) {
             const auto id = obj.fObjectId;
@@ -301,6 +312,18 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
         xMax -= bp.fWidth/2;
         yMax -= bp.fHeight/2;
+
+        for(const auto& o : bp.fTerrain) {
+            const auto& info = eTerrsTexturesData::get(o.fType);
+            uint8_t tileType = 0;
+            for(int dy = 0; dy < info.fHeight; dy++) {
+                for(int dx = 0; dx < info.fWidth; dx++) {
+                    auto& tile = mMap->tile(xMax + dx, yMax + dy);
+                    auto& os = tile.fOverlays;
+                    os.emplace_back(o.fType, tileType++);
+                }
+            }
+        }
 
         for(const auto& o : bp.fObjects) {
             addObject(xMax + o.fX, yMax + o.fY, o.fType, o.fSubtype);
@@ -450,6 +473,27 @@ void eDungeon::generate(ePointF& spawnPos) const {
                 if(!r) break;
             }
         }
+    }
+
+    std::vector<int> trapConns;
+    for(const auto& it : mSettings.fConnections) {
+        const auto& name = it.first;
+        const auto& c = it.second;
+        if(c.fType != eConnectionType::trapDoor) continue;
+        const int mapId = eMapsSettings::sMaps.id(name);
+        if(mapId < 0) {
+            eRuntimeThrow("Unrecognized connection map name \"" + name + "\".");
+        }
+        trapConns.emplace_back(mapId);
+    }
+
+    if(trapDoors.size() != trapConns.size()) {
+        eRuntimeThrow("Trap door count mismatch in \"" + mSettings.fName + "\".");
+    }
+
+    for(int i = 0; i < trapDoors.size(); i++) {
+        const auto& o = trapDoors[i];
+        o->fTargetMapId = trapConns[i];
     }
 }
 

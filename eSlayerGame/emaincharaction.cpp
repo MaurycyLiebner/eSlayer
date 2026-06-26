@@ -261,6 +261,18 @@ void eMainCharAction::increment(const bool mousePressed,
                       info.fType == eObjectType::trader) {
                 const auto sellerId = object->fObjectId;
                 eGameWidget::sOpenSellerMenu(sellerId);
+            } else if(info.fType == eObjectType::trapDoor) {
+                if(object->fState == 0) {
+                    const eServerObject sobject(mapId, *object);
+                    mServer->triggerObject(mClientId, sobject);
+                } else {
+                    const auto toMapId = object->fTargetMapId;
+                    eMoveToMapData moveData;
+                    moveData.fType = eMoveToMapType::entrance;
+                    moveData.fFromMapId = mapId;
+                    moveData.fMapId = toMapId;
+                    eGameWidget::sMoveToMap(moveData);
+                }
             } else if(info.fType == eObjectType::portal) {
                 const auto portalId = object->fObjectId;
                 const auto p = ePortal::portal(portalId);

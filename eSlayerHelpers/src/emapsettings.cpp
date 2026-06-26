@@ -48,6 +48,7 @@ void eMapsSettings::load() {
                 const auto& jArea = it.value();
 
                 eAreaSettings area;
+                area.fName = areaName;
                 const auto areaTypeStr = jArea.value("type", "open");
                 if(areaTypeStr == "dungeon") {
                     area.fType = eAreaType::dungeon;
@@ -178,6 +179,8 @@ void eMapsSettings::load() {
                             connType = eConnectionType::stairs;
                         } else if(type == "plain") {
                             connType = eConnectionType::plain;
+                        } else if(type == "trapDoor") {
+                            connType = eConnectionType::trapDoor;
                         } else {
                             eRuntimeThrow("Invalid connection type \"" + type + "\".");
                         }

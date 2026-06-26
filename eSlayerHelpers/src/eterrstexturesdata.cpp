@@ -35,6 +35,8 @@ void eTerrsTexturesData::load() {
             texs.fWallsShadow = jdata.value("wallsShadow", true);
             texs.fWallsTransparent = jdata.value("wallsTransparent", true);
             texs.fWallsThickness = jdata.value("wallsThickness", 0.25f);
+            texs.fWidth = jdata.value("width", 0);
+            texs.fHeight = jdata.value("height", 0);
             texs.fObstacle.resize(count + 1, false);
             texs.fWalkable.resize(count + 1, false);
             for(int i = 0; i < count; i++) {

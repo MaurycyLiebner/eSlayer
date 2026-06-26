@@ -33,6 +33,7 @@ struct ESLAYERHELPERS_API eStairs :
             const uint8_t targetMapId);
 
     uint8_t fTargetMapId;
+    uint8_t fTargetAreaId;
 };
 
 struct ESLAYERHELPERS_API eDoors :

@@ -7,7 +7,7 @@ void eMapPortion::write(ePacket& p) const {
 
     for(const auto& row : fTiles) {
         for(const auto& tile : row) {
-            p << tile;
+            tile.write(p);
         }
     }
 
@@ -25,7 +25,7 @@ void eMapPortion::read(ePacket& p) {
     for(auto& row : fTiles) {
         row.resize(fArea.fWidth);
         for(auto& tile : row) {
-            p >> tile;
+            tile.read(p);
         }
     }
 

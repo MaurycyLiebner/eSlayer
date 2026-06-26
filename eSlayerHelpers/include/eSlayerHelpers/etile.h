@@ -4,6 +4,20 @@
 #include "eslayerhelpersexport.h"
 
 #include <cstdint>
+#include <vector>
+
+class ePacket;
+
+struct ESLAYERHELPERS_API eTerrainOverlay {
+    eTerrainOverlay(const uint8_t terrType,
+                    const uint8_t tileType) :
+        fTerrainType(terrType),
+        fTileType(tileType) {}
+    eTerrainOverlay() {}
+
+    uint8_t fTerrainType;
+    uint8_t fTileType;
+};
 
 struct ESLAYERHELPERS_API eTile {
     uint8_t fTerrainType;
@@ -15,8 +29,13 @@ struct ESLAYERHELPERS_API eTile {
     uint8_t fStairsTL;
     uint8_t fStairsTR;
 
+    std::vector<eTerrainOverlay> fOverlays;
+
     bool walkable() const;
     bool obstacle() const;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
 
     static uint8_t encodeWall(
         const bool wall,

@@ -50,6 +50,7 @@ struct eMapStairs {
     eWallType fWallType;
     eConnectionDir fStairsDir;
     uint8_t fMapId;
+    uint8_t fAreaId;
 };
 
 struct ESLAYERHELPERS_API eMapData {

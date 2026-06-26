@@ -13,6 +13,7 @@ enum class eObjectType {
     stash,
     healer,
     trader,
+    trapDoor,
     portalArea,
     spawnArea,
     empty

@@ -278,6 +278,9 @@ eMapGenerator::generate(const uint8_t mapId) const {
             for(const auto& o : bp.fObjects) {
                 objTypes.emplace(o.fType);
             }
+            for(const auto& o : bp.fTerrain) {
+                terrTypes.emplace(o.fType);
+            }
         }
 
         const auto place = placer.choosePlace(nextTo);

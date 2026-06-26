@@ -10,7 +10,7 @@
 #include <string>
 
 enum class eConnectionType {
-    plain, cave, portal, stairs
+    plain, cave, portal, stairs, trapDoor
 };
 
 enum class eAreaType {
@@ -67,6 +67,7 @@ struct eConnectionSettings {
 };
 
 struct eAreaSettings {
+    std::string fName;
     eAreaType fType;
     bool fWaypoint;
     uint8_t fTerrainType;

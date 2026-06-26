@@ -61,7 +61,17 @@ ePointF eMap::spawnPos(const uint8_t entranceMap) const {
         if(sMapId != entranceMap) continue;
         return {s.fX, s.fY};
     }
+    for(const auto& o : mTrapDoors) {
+        const auto tMapId = o->fTargetMapId;
+        if(tMapId != entranceMap) continue;
+        return o->fPos;
+    }
     return spawnPos();
+}
+
+std::vector<std::shared_ptr<eObject>>&
+eMap::trapDoors() {
+    return mTrapDoors;
 }
 
 bool eMap::walkable(const ePointF& pos) {
@@ -325,14 +335,14 @@ void eMap::triggerDoors(const eDoors& doors) {
     }
 }
 
-std::optional<int> eMap::stairsMapId(
+std::optional<eMapStairs> eMap::mapStairs(
     const int x, const int y,
     const eWallType type) const {
     for(const auto& s : mStairs) {
         if(s.fX != x) continue;
         if(s.fY != y) continue;
         if(s.fWallType != type) continue;
-        return s.fMapId;
+        return s;
     }
     return std::nullopt;
 }
@@ -342,7 +352,8 @@ void eMap::addStairs(
     const eWallType wallType,
     const eConnectionDir dir,
     const uint8_t type,
-    const int mapId) {
+    const int mapId,
+    const int areaId) {
     auto& tile = eMap::tile(x, y);
     const bool up = dir == eConnectionDir::up;
     switch(wallType) {
@@ -359,6 +370,7 @@ void eMap::addStairs(
     stairs.fWallType = wallType;
     stairs.fStairsDir = dir;
     stairs.fMapId = mapId;
+    stairs.fAreaId = areaId;
 }
 
 bool eMap::waypointPosition(

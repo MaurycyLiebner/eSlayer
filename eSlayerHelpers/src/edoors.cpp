@@ -81,12 +81,14 @@ void eServerStairs::read(ePacket& p) {
     p >> fMapId;
     eDoorsStairsBase::read(p);
     p >> fTargetMapId;
+    p >> fTargetAreaId;
 }
 
 void eServerStairs::write(ePacket& p) const {
     p << fMapId;
     eDoorsStairsBase::write(p);
     p << fTargetMapId;
+    p << fTargetAreaId;
 }
 
 eServerDoors::eServerDoors() {}

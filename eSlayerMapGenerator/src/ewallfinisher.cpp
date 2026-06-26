@@ -413,13 +413,21 @@ void eWallFinisher::finish(
     eRand::randomShuffle(stairsOptions);
     std::vector<eExtendedStairs> used;
     for(const auto& it : settings.fConnections) {
+        const auto& areaName = it.first;
         const auto& conn = it.second;
         const auto type = conn.fType;
         if(type != eConnectionType::stairs) continue;
-        const auto& name = it.first;
+        const auto& name = conn.fMap;
         const int mapId = eMapsSettings::sMaps.id(name);
-        if(mapId < 0) continue;
+        if(mapId < 0) {
+            eRuntimeThrow("Unrecognized map connection \"" + name + "\".");
+        }
         if(stairsOptions.empty()) continue;
+        const auto& info = eMapsSettings::sMaps.get(mapId);
+        const int areaId = info.fAreas.id(areaName);
+        if(areaId < 0) {
+            eRuntimeThrow("Unrecognized area connection \"" + areaName + "\".");
+        }
         eExtendedStairs stairs;
 
         bool tooClose = false;
@@ -447,14 +455,16 @@ void eWallFinisher::finish(
             for(int dy = 0; dy < size; dy++) {
                 auto& dst = tiles[y + dy][x];
                 map.addStairs(x, y, stairs.fWallType,
-                                conn.fDir, v[dy], mapId);
+                              conn.fDir, v[dy], mapId,
+                              areaId);
             }
         } break;
         case eWallType::topRight: {
             for(int dx = 0; dx < size; dx++) {
                 auto& dst = tiles[y][x + dx];
                 map.addStairs(x, y, stairs.fWallType,
-                                conn.fDir, v[dx], mapId);
+                              conn.fDir, v[dx], mapId,
+                              areaId);
             }
         } break;
         }

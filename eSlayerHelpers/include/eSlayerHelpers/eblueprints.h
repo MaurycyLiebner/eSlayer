@@ -18,6 +18,7 @@ struct eBlueprint {
     float fHeight;
 
     std::vector<eBlueprintObject> fObjects;
+    std::vector<eBlueprintObject> fTerrain;
 };
 
 class eBlueprints {
