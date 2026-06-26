@@ -8,7 +8,7 @@
 #include <cstdint>
 
 enum class eSellerType {
-    healer
+    healer, trader
 };
 
 struct eReplaceItemId {
@@ -31,6 +31,9 @@ struct ESLAYERHELPERS_API eSeller {
     std::vector<eInventoryItems> fPages;
 
     std::map<uint32_t, eInventoryItems> fClientPage;
+
+    std::vector<int> fSellPotionTypes;
+    std::vector<int> fSellItemTypes;
 
     eInventoryItems& addPage();
     eInventoryItems& addClientPage(const uint32_t clientId);

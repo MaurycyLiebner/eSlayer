@@ -1514,6 +1514,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     highlightable = t1 == t2;
                 } break;
                 case eObjectType::healer:
+                case eObjectType::trader:
                 case eObjectType::stash:
                     highlightable = true;
                     break;

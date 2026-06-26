@@ -257,7 +257,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 eGameScreen::sOpenWaypointMenu(actId, mapId, areaId);
             } else if(info.fType == eObjectType::stash) {
                 eGameScreen::sOpenStash();
-            } else if(info.fType == eObjectType::healer) {
+            } else if(info.fType == eObjectType::healer ||
+                      info.fType == eObjectType::trader) {
                 const auto sellerId = object->fObjectId;
                 eGameWidget::sOpenSellerMenu(sellerId);
             } else if(info.fType == eObjectType::portal) {

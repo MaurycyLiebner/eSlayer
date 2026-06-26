@@ -12,6 +12,7 @@ enum class eObjectType {
     portal,
     stash,
     healer,
+    trader,
     portalArea,
     spawnArea,
     empty
@@ -24,6 +25,8 @@ struct eObjectInfo {
     int fTexId;
     bool fObstacle;
     bool fWalkable;
+    std::vector<int> fItemTypes;
+    std::vector<int> fPotionTypes;
 };
 
 class ESLAYERHELPERS_API eObjectsInfo {

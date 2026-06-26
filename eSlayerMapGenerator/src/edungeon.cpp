@@ -243,15 +243,25 @@ void eDungeon::generate(ePointF& spawnPos) const {
         obj.fObjectType = type;
         obj.fSubtype = subtype;
         obj.fSize = info.fSize;
-        switch(info.fType) {
-        case eObjectType::healer: {
+
+        const auto addSeller = [&](const eSellerType type) {
             const auto id = obj.fObjectId;
             auto& s = eSellers::sSellers[id];
             s.fId = id;
             s.fLevel = mSettings.fLevel;
-            s.fType = eSellerType::healer;
+            s.fType = type;
             s.fMapId = mMap->id();
-        } break;
+            s.fSellItemTypes = info.fItemTypes;
+            s.fSellPotionTypes = info.fPotionTypes;
+        };
+
+        switch(info.fType) {
+        case eObjectType::healer:
+            addSeller(eSellerType::healer);
+            break;
+        case eObjectType::trader:
+            addSeller(eSellerType::trader);
+            break;
         case eObjectType::waypoint:
             waypointAdded = true;
             break;

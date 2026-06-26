@@ -55,9 +55,11 @@ void eSellerWidget::initialize(
         });
         return b;
     };
-    const int iMax = mSeller.fPages.size();
+
+    auto& ps = mSeller.fPages;
+    const int iMax = ps.size();
     for(; i < iMax; i++) {
-        addTab(mSeller.fPages[i]);
+        addTab(ps[i]);
     }
     auto& lastPage = mSeller.fClientPage[clientId];
     const auto lastB = addTab(lastPage);
@@ -69,10 +71,12 @@ void eSellerWidget::initialize(
     innerW->addWidget(tabsWidget);
 
     mBag = new eSellerBag(window());
+    auto& firstPage = ps.empty() ? lastPage : ps[0];
+    auto& page = lastPage.empty() ? firstPage : lastPage;
     mBag->initialize(mSeller.fId,
                      eSeller::sSellerPageWidth,
                      eSeller::sSellerPageHeight,
-                     lastPage, stats, eq);
+                     page, stats, eq);
     const int w = mBag->width();
     tabsWidget->setWidth(w);
     lastB->align(eAlignment::right);

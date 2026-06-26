@@ -231,19 +231,12 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         auto& s = it.second;
         if(s.fMapId != mapId) continue;
         const auto maxLevel = s.fLevel;
-        std::vector<int> typeIds;
-        for(int i = 0; i < eItemsData::sItems.size(); i++) {
-            const auto& itemData = eItemsData::get(i);
-            if(itemData.fType == eItemType::gold ||
-               itemData.fType == eItemType::potion) continue;
-            const int levelReq = itemData.fLevelReq;
-            if(levelReq > maxLevel) continue;
-            typeIds.emplace_back(i);
-        }
+        const auto& typeIds = s.fSellItemTypes;
         if(typeIds.empty()) {
             continue;
         }
-        for(int i = 0; i < 3; i++) {
+        const int iMax = std::clamp(1 + typeIds.size()/3, 1lu, 3lu);
+        for(int i = 0; i < iMax; i++) {
             auto& p = s.addPage();
             bool added = false;
             do {
@@ -957,7 +950,6 @@ bool eServerArea::requestSeller(
     eSeller& seller) {
     const auto u = unit(clientId);
     if(!u) return false;
-    const auto level = u->level();
     auto& ss = eSellers::sSellers;
     auto it = ss.find(sellerId);
     if(it == ss.end()) return false;
@@ -967,15 +959,14 @@ bool eServerArea::requestSeller(
         const auto it = cp.find(clientId);
         if(it == cp.end()) {
             auto& p = s.addClientPage(clientId);
-            for(int i = 0; i < eItemsData::sItems.size(); i++) {
-                const auto& itemData = eItemsData::get(i);
+            const auto& potionTypes = s.fSellPotionTypes;
+            for(const auto ptype : potionTypes) {
+                const auto& itemData = eItemsData::get(ptype);
                 if(itemData.fType != eItemType::potion) continue;
-                const int levelReq = itemData.fLevelReq;
-                if(levelReq > level) continue;
                 eItem item;
                 eItemGenerator::applyItemId(item);
                 const auto type = itemData.fType;
-                item.fDataId = i;
+                item.fDataId = ptype;
                 item.fType = type;
                 item.fSubType = itemData.fSubtype;
                 p.tryAdd(item);

@@ -1,6 +1,7 @@
 #include "eSlayerHelpers/eobjectsinfo.h"
 
 #include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 bool eObjectsInfo::sLoaded = false;
 eStringIdMapVector<eObjectInfo>
@@ -32,6 +33,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::stash;
             } else if(typeStr == "healer") {
                 info.fType = eObjectType::healer;
+            } else if(typeStr == "trader") {
+                info.fType = eObjectType::trader;
             } else if(typeStr == "portalArea") {
                 info.fType = eObjectType::portalArea;
             } else if(typeStr == "spawnArea") {
@@ -44,6 +47,24 @@ void eObjectsInfo::load() {
                 eRuntimeThrow("Unrecognized object type \"" + typeStr + "\"");
             }
             info.fTexStr = value.value("texture", "");
+            const auto itemTypes = value.value("itemTypes", std::vector<std::string>());
+            for(const auto& str : itemTypes) {
+                const int id = eItemsData::id(str);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
+                                  dir + "/objects.json");
+                }
+                info.fItemTypes.emplace_back(id);
+            }
+            const auto potionTypes = value.value("potionTypes", std::vector<std::string>());
+            for(const auto& str : potionTypes) {
+                const int id = eItemsData::id(str);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
+                                  dir + "/objects.json");
+                }
+                info.fPotionTypes.emplace_back(id);
+            }
             sObjects.add(key, info);
         }
     } catch(...) {
