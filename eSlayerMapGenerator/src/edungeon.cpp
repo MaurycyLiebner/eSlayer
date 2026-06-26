@@ -315,10 +315,12 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
         for(const auto& o : bp.fTerrain) {
             const auto& info = eTerrsTexturesData::get(o.fType);
-            uint8_t tileType = 0;
+            uint8_t tileType = 1;
+            const int x0 = xMax + o.fX;
+            const int y0 = yMax + o.fY;
             for(int dy = 0; dy < info.fHeight; dy++) {
                 for(int dx = 0; dx < info.fWidth; dx++) {
-                    auto& tile = mMap->tile(xMax + dx, yMax + dy);
+                    auto& tile = mMap->tile(x0 + dx, y0 + dy);
                     auto& os = tile.fOverlays;
                     os.emplace_back(o.fType, tileType++);
                 }
