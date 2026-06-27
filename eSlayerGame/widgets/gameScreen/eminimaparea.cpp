@@ -1,9 +1,11 @@
 #include "eminimaparea.h"
 
-#include "../../textures/etexturecolorholder.h"
 #include "../epainter.h"
 
 #include <eSlayerMapGenerator/emap.h>
+
+#include <eSlayerHelpers/eobject.h>
+#include <eSlayerHelpers/eobjectsinfo.h>
 
 eMiniMapArea::eMiniMapArea(
     const eResolution* res,
@@ -145,22 +147,55 @@ bool eMiniMapArea::setKnown(
         }
     }
 
-    eTextureColorSetting color;
-    if(map.inside(mx, my)) {
+    {
         const auto& tile = map.tile(mx, my);
-        if(tile.fStairsTL || tile.fStairsTR) {
-            color.set(1.f, 0.f, 0.f);
+        bool cross = false;
+        int crossX = texX;
+        int crossY = texY;
+        if(tile.fStairsTL) {
+            cross = true;
+            crossX -= fTileW/4;
+            crossY += fTileH/4;
+        } else if(tile.fStairsTR) {
+            cross = true;
+            crossX += fTileW/4;
+            crossY += fTileH/4;
+        } else {
+            const auto& objIds = map.objects(mx, my);
+            for(const auto id : objIds) {
+                const auto& o = map.object(id);
+                const auto objectType = o->fObjectType;
+                const auto& info = eObjectsInfo::sObjects.get(objectType);
+                switch(info.fType) {
+                case eObjectType::trapDoor:
+                case eObjectType::portalDoor: {
+                    cross = true;
+                    const auto& pos = o->fPos;
+                    const float dx = pos.fX - mx;
+                    const float dy = pos.fY - my;
+                    crossX += (dx - dy)*fTileW/2;
+                    crossY += (dx + dy)*fTileH/2;
+                } break;
+                default:
+                    break;
+                };
+                if(cross) break;
+            }
+        }
+        if(cross) {
+            const int dim = fTileH/2;
+            const int thick = std::max(1, dim/2);
+            p.drawCross(crossX, crossY, dim, thick,
+                        SDL_Color{0, 0, 255, 255});
         }
     }
 
     if(texId1 != -1) {
         const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
-        const eTextureColorHolder mod(color, tex1);
         p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
     }
     if(texId2 != -1) {
         const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
-        const eTextureColorHolder mod(color, tex2);
         p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
     }
     return true;

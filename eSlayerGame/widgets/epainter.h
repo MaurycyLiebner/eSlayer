@@ -65,6 +65,10 @@ public:
 
     void setClipRect(const SDL_Rect* const rect);
 
+    void drawCross(const int x, const int y,
+                   const int dim, const int thick,
+                   const SDL_Color& color) const;
+
     int x() const { return mX; }
     int y() const { return mY; }
 private:

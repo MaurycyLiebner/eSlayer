@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/eslayers.h>
 #include <eSlayerHelpers/eteamid.h>
 #include <eSlayerHelpers/ebody.h>
+#include <eSlayerHelpers/eportals.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -142,10 +143,8 @@ void eMiniMap::paintEvent(ePainter& p) {
                 const int yy = 0.5f*height() + (dx + dy) * (fTileH / 2.f) - 4*fTileH;
                 const int dim = fTileH/2;
                 const int thick = std::max(1, dim/2);
-                p.fillRect(SDL_Rect{xx - dim, yy - thick, 2*dim, 2*thick},
-                           color);
-                p.fillRect(SDL_Rect{xx - thick, yy - dim, 2*thick, 2*dim},
-                           color);
+                p.drawCross(xx, yy, dim, thick, color);
+                if(!clientId) return;
                 if(clientId != eSlayers::sThisSlayer) {
                     const auto tex = requestNameTex(clientId);
                     p.drawTexture(xx, yy - 2*dim, tex,
@@ -170,6 +169,16 @@ void eMiniMap::paintEvent(ePainter& p) {
                 if(b.fMapId != mapId) continue;
                 drawCross(b.fPos, SDL_Color{255, 0, 0, 255},
                           eSlayers::sThisSlayer);
+            }
+            for(const auto& p : ePortal::sPortals) {
+                const auto& ca = p.fCampArea;
+                if(ca.fMapId == mapId) {
+                    drawCross(p.fCampPos, SDL_Color{0, 0, 255, 255}, 0);
+                }
+                const auto& oa = p.fOutdoorArea;
+                if(oa.fMapId == mapId) {
+                    drawCross(p.fOutdoorPos, SDL_Color{0, 0, 255, 255}, 0);
+                }
             }
         }
     }

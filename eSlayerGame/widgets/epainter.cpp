@@ -3,9 +3,7 @@
 #include "../textures/etextgenerator.h"
 
 ePainter::ePainter(SDL_Renderer* const renderer) :
-    mRenderer(renderer) {
-
-}
+    mRenderer(renderer) {}
 
 void ePainter::save() {
     ePainterSave save;
@@ -170,4 +168,14 @@ void ePainter::setClipRect(const SDL_Rect* const rect) {
     } else {
         SDL_SetRenderClipRect(mRenderer, nullptr);
     }
+}
+
+void ePainter::drawCross(
+    const int x, const int y,
+    const int dim, const int thick,
+    const SDL_Color& color) const {
+    fillRect(SDL_Rect{x - dim, y - thick, 2*dim, 2*thick},
+             color);
+    fillRect(SDL_Rect{x - thick, y - dim, 2*thick, 2*dim},
+             color);
 }
