@@ -5,10 +5,11 @@
 
 #include <cstdint>
 #include <vector>
+#include <optional>
 
 struct eBlueprintObject {
     uint8_t fType;
-    uint8_t fSubtype;
+    std::optional<uint8_t> fSubtype;
     float fX;
     float fY;
 };

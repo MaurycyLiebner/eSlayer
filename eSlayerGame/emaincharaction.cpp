@@ -273,6 +273,12 @@ void eMainCharAction::increment(const bool mousePressed,
                     moveData.fTo = object->fTo;
                     eGameWidget::sMoveToMap(moveData);
                 }
+            } else if(info.fType == eObjectType::portalDoor) {
+                eMoveToMapData moveData;
+                moveData.fType = eMoveToMapType::entrance;
+                moveData.fFrom = current;
+                moveData.fTo = object->fTo;
+                eGameWidget::sMoveToMap(moveData);
             } else if(info.fType == eObjectType::portal) {
                 const auto portalId = object->fObjectId;
                 const auto p = ePortal::portal(portalId);

@@ -60,16 +60,11 @@ ePointF eMap::spawnPos(const eAreaIds& from) const {
         if(s.fTo != from) continue;
         return {s.fX, s.fY};
     }
-    for(const auto& o : mTrapDoors) {
+    for(const auto& o : mConnObjs) {
         if(o->fTo != from) continue;
         return o->fPos;
     }
     return spawnPos();
-}
-
-std::vector<std::shared_ptr<eObject>>&
-eMap::trapDoors() {
-    return mTrapDoors;
 }
 
 bool eMap::walkable(const ePointF& pos) {

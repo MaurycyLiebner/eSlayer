@@ -59,9 +59,6 @@ public:
     ePointF spawnPos(const eAreaIds& from) const;
     const ePointF& portalSpawnPos() const { return mPortalSpawnPos; }
 
-    std::vector<std::shared_ptr<eObject>>&
-    trapDoors();
-
     const std::set<uint16_t>&
     terrainTypes() const { return mTerrainTypes; }
 
@@ -152,7 +149,7 @@ private:
     eObstaclesMap mObstaclesMap;
 
     std::vector<eMapStairs> mStairs;
-    std::vector<std::shared_ptr<eObject>> mTrapDoors;
+    std::vector<std::shared_ptr<eObject>> mConnObjs;
 };
 
 #endif // EMAP_H

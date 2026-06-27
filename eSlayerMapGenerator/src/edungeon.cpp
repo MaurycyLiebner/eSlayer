@@ -239,20 +239,28 @@ void eDungeon::generate(ePointF& spawnPos) const {
     bool waypointAdded = false;
 
     std::vector<std::shared_ptr<eObject>> trapDoors;
+    std::vector<std::shared_ptr<eObject>> portals;
 
     const auto addObject = [&](const float x, const float y,
                                const uint16_t type,
-                               const uint8_t subtype = eRand::rand(0, 255)) {
+                               const std::optional<uint8_t> subtype) {
         const auto& info = eObjectsInfo::sObjects.get(type);
         const auto objPtr = mMap->addObject({x, y});
         auto& obj = *objPtr;
         obj.fObjectType = type;
-        obj.fSubtype = subtype;
+        if(subtype) {
+            obj.fSubtype = *subtype;
+        } else {
+            obj.fSubtype = eRand::rand(0, 255);
+        }
         obj.fSize = info.fSize;
 
         if(info.fType == eObjectType::trapDoor) {
             trapDoors.emplace_back(objPtr);
-            mMap->mTrapDoors.emplace_back(objPtr);
+            mMap->mConnObjs.emplace_back(objPtr);
+        } else if(info.fType == eObjectType::portalDoor) {
+            portals.emplace_back(objPtr);
+            mMap->mConnObjs.emplace_back(objPtr);
         }
 
         const auto addSeller = [&](const eSellerType type) {
@@ -357,7 +365,8 @@ void eDungeon::generate(ePointF& spawnPos) const {
         calcMaxArea(c, maxA, xMax, yMax, true);
         if(maxA == 0) return false;
         const auto type = os.fType;
-        addObject(xMax, yMax, type);
+        const auto subtype = os.fSubtype;
+        addObject(xMax, yMax, type, subtype);
 
         calcMaxArea(c, maxA, xMax, yMax, true);
         helper.set(id, maxA);
@@ -432,7 +441,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
     const auto& objs = mSettings.fObjects;
     if(mSettings.fWaypoint && !waypointAdded) {
         const auto id = eObjectsInfo::sObjects.id("waypoint");
-        const eObjectCount os(id, 1, 2);
+        const eObjectCount os(id, std::nullopt, 1, 2);
         tryAddObject(helper, chambers, os);
     }
     for(const auto& os : objs) {
@@ -477,32 +486,48 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
     }
 
+    const auto extractConns = [&](const eConnectionType type,
+                                  std::vector<eAreaIds>& conns) {
+        for(const auto& it : mSettings.fConnections) {
+            const auto& aname = it.first;
+            const auto& c = it.second;
+            if(c.fType != type) continue;
+            const auto& mname = c.fMap;
+            const int mapId = eMapsSettings::sMaps.id(mname);
+            if(mapId < 0) {
+                eRuntimeThrow("Unrecognized connection map name \"" + mname + "\".");
+            }
+            const auto& map = eMapsSettings::sMaps.get(mapId);
+            const int areaId = map.fAreas.id(aname);
+            if(areaId < 0) {
+                eRuntimeThrow("Unrecognized connection area name \"" + aname + "\".");
+            }
+            conns.emplace_back(mapId, areaId);
+        }
+    };
+
+    using eObjs = std::vector<std::shared_ptr<eObject>>;
+    using eAreas = std::vector<eAreaIds>;
+    const auto assignConns = [&](
+        const eObjs& objs,
+        const eAreas& conns) {
+        if(objs.size() != conns.size()) {
+            eRuntimeThrow("Connection object count mismatch in \"" + mSettings.fName + "\".");
+        }
+
+        for(int i = 0; i < objs.size(); i++) {
+            const auto& o = objs[i];
+            o->fTo = conns[i];
+        }
+    };
+
     std::vector<eAreaIds> trapConns;
-    for(const auto& it : mSettings.fConnections) {
-        const auto& aname = it.first;
-        const auto& c = it.second;
-        if(c.fType != eConnectionType::trapDoor) continue;
-        const auto& mname = c.fMap;
-        const int mapId = eMapsSettings::sMaps.id(mname);
-        if(mapId < 0) {
-            eRuntimeThrow("Unrecognized connection map name \"" + mname + "\".");
-        }
-        const auto& map = eMapsSettings::sMaps.get(mapId);
-        const int areaId = map.fAreas.id(aname);
-        if(areaId < 0) {
-            eRuntimeThrow("Unrecognized connection area name \"" + aname + "\".");
-        }
-        trapConns.emplace_back(mapId, areaId);
-    }
+    extractConns(eConnectionType::trapDoor, trapConns);
+    assignConns(trapDoors, trapConns);
 
-    if(trapDoors.size() != trapConns.size()) {
-        eRuntimeThrow("Trap door count mismatch in \"" + mSettings.fName + "\".");
-    }
-
-    for(int i = 0; i < trapDoors.size(); i++) {
-        const auto& o = trapDoors[i];
-        o->fTo = trapConns[i];
-    }
+    std::vector<eAreaIds> portalConns;
+    extractConns(eConnectionType::portal, portalConns);
+    assignConns(portals, portalConns);
 }
 
 void eDungeon::generateWalls() const {

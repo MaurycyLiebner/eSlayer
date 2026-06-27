@@ -14,6 +14,7 @@ enum class eObjectType {
     healer,
     trader,
     trapDoor,
+    portalDoor,
     portalArea,
     spawnArea,
     empty

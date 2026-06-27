@@ -1521,6 +1521,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 case eObjectType::healer:
                 case eObjectType::trader:
                 case eObjectType::stash:
+                case eObjectType::portalDoor:
                     highlightable = true;
                     break;
                 default:
@@ -1956,6 +1957,10 @@ void eGameWidget::setHighlightedObject(
                 const auto& name = areaName(area);
                 lines.emplace_back(name);
             }
+        } else if(object.fType == eObjectType::portalDoor) {
+            const auto& area = obj->fTo;
+            const auto& name = areaName(area);
+            lines.emplace_back(name);
         } else if(object.fType == eObjectType::portal) {
             const auto p = ePortal::portal(obj->fObjectId);
             if(p) {

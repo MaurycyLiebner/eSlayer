@@ -118,13 +118,17 @@ void eMapsSettings::load() {
                         const auto& values = cit.value();
                         int count = 1;
                         int minArea = 0;
+                        std::optional<uint8_t> subtype;
                         if(values.is_number_integer()) {
                             count = values;
                         } else {
                             count = values.value("count", 1);
                             minArea = values.value("minArea", 0);
+                            if(values.contains("subtype")) {
+                                subtype = values.value("subtype", 0);
+                            }
                         }
-                        vec.emplace_back(type, count, minArea);
+                        vec.emplace_back(type, subtype, count, minArea);
                     }
                 };
 

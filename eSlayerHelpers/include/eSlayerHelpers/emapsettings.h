@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <optional>
 
 enum class eConnectionType {
     plain, cave, portal, stairs, trapDoor
@@ -20,13 +21,16 @@ enum class eAreaType {
 struct eObjectCount {
     eObjectCount() {}
     eObjectCount(const uint16_t type,
+                 const std::optional<uint8_t> subtype,
                  const int count,
                  const int minArea) :
         fType(type),
+        fSubtype(subtype),
         fCount(count),
         fMinArea(minArea) {}
 
     uint16_t fType;
+    std::optional<uint8_t> fSubtype;
     int fCount;
     int fMinArea;
 };

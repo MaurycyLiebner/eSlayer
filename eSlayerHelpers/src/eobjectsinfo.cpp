@@ -43,6 +43,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::empty;
             } else if(typeStr == "trapDoor") {
                 info.fType = eObjectType::trapDoor;
+            } else if(typeStr == "portalDoor") {
+                info.fType = eObjectType::portalDoor;
             } else if(typeStr == ""){
                 info.fType = eObjectType::none;
             } else {
