@@ -61,6 +61,29 @@ void eBlueprints::load() {
                     terr.fY = terrData.value("y", 0.f);
                 }
             }
+            if(jdata.contains("blueprints")) {
+                for(const auto& jbp : jdata["blueprints"]) {
+                    const auto bpname = jbp.value("type", "");
+                    const auto id = eBlueprints::sBlueprints.id(bpname);
+                    if(id < 0) {
+                        eRuntimeThrow("Invalid blueprint name \"" + bpname +
+                                      "\" in blueprint \"" + name + "\".");
+                    }
+                    const float dx = jbp.value("x", 0.f);
+                    const float dy = jbp.value("y", 0.f);
+                    auto& b = eBlueprints::sBlueprints.get(id);
+                    for(const auto& o : b.fObjects) {
+                        auto& obj = bp.fObjects.emplace_back(o);
+                        obj.fX += dx;
+                        obj.fY += dy;
+                    }
+                    for(const auto& t : b.fTerrain) {
+                        auto& terr = bp.fTerrain.emplace_back(t);
+                        terr.fX += dx;
+                        terr.fY += dy;
+                    }
+                }
+            }
             sBlueprints.add(name, bp);
         } catch(...) {
             eRuntimeThrow("Failed to parse " + dir + "/" + path);
