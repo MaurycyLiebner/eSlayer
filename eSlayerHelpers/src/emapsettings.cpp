@@ -200,8 +200,7 @@ void eMapsSettings::load() {
                 if(area.fWaypoint) {
                     auto& w = eWaypoint::sWaypoints.emplace_back();
                     w.fActId = map.fActId;
-                    w.fMapId = sMaps.nextId();
-                    w.fAreaId = areaId;
+                    w.fArea = eAreaIds(sMaps.nextId(), areaId);
                     w.fKnown = false;
                 }
             }

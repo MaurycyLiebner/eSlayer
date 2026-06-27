@@ -3,6 +3,8 @@
 
 #include "epoint.h"
 
+#include "eareaids.h"
+
 #include <cstdint>
 #include <vector>
 #include <optional>
@@ -12,13 +14,11 @@ class ePacket;
 struct ePortal {
     uint32_t fCreator;
 
-    uint8_t fOutdoorMapId;
-    uint8_t fOutdoorAreaId;
+    eAreaIds fOutdoorArea;
     uint32_t fOutdoorPortalId;
     ePointF fOutdoorPos;
 
-    uint8_t fCampMapId;
-    uint8_t fCampAreaId;
+    eAreaIds fCampArea;
     uint32_t fCampPortalId;
     ePointF fCampPos;
 

@@ -231,13 +231,12 @@ bool eServerClientHandler::changeTeam(
 
 bool eServerClientHandler::spawnPortal(
     uint32_t& portalId,
-    uint8_t& mapId,
-    uint8_t& areaId,
+    eAreaIds& area,
     ePointF& pos) {
     if(!mArea) return false;
     return mArea->spawnPortal(
         mClientId, portalId,
-        mapId, areaId, pos);
+        area, pos);
 }
 
 bool eServerClientHandler::equipmentAction(

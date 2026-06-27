@@ -250,11 +250,12 @@ void eMainCharAction::increment(const bool mousePressed,
         handlePos(tl);
         if(minDist < 0.5f) {
             const auto mapId = mMap->id();
+            const auto areaId = mMap->areaAt(opos);
+            const eAreaIds current(mapId, areaId);
             if(info.fType == eObjectType::waypoint) {
-                const auto areaId = mMap->areaAt(opos);
-                eWaypoint::setKnown(mapId, areaId);
+                eWaypoint::setKnown(current);
                 const auto actId = mMap->actId();
-                eGameScreen::sOpenWaypointMenu(actId, mapId, areaId);
+                eGameScreen::sOpenWaypointMenu(actId, current);
             } else if(info.fType == eObjectType::stash) {
                 eGameScreen::sOpenStash();
             } else if(info.fType == eObjectType::healer ||
@@ -266,11 +267,10 @@ void eMainCharAction::increment(const bool mousePressed,
                     const eServerObject sobject(mapId, *object);
                     mServer->triggerObject(mClientId, sobject);
                 } else {
-                    const auto toMapId = object->fTargetMapId;
                     eMoveToMapData moveData;
                     moveData.fType = eMoveToMapType::entrance;
-                    moveData.fFromMapId = mapId;
-                    moveData.fMapId = toMapId;
+                    moveData.fFrom = current;
+                    moveData.fTo = object->fTo;
                     eGameWidget::sMoveToMap(moveData);
                 }
             } else if(info.fType == eObjectType::portal) {
@@ -280,10 +280,8 @@ void eMainCharAction::increment(const bool mousePressed,
                     const bool camp = p->fCampPortalId == portalId;
                     eMoveToMapData moveData;
                     moveData.fType = eMoveToMapType::portal;
-                    moveData.fMapId = camp ? p->fOutdoorMapId :
-                        p->fCampMapId;
-                    moveData.fAreaId = camp ? p->fOutdoorAreaId:
-                        p->fCampAreaId;
+                    moveData.fTo = camp ? p->fOutdoorArea :
+                        p->fCampArea;
                     moveData.fPortalId = portalId;
                     eGameWidget::sMoveToMap(moveData);
                 }
@@ -306,15 +304,15 @@ void eMainCharAction::increment(const bool mousePressed,
         const float dist = ePointF::distance(pos, charPos);
         if(dist < 0.5f) {
             const auto mapId = mMap->id();
+            const auto areaId = mMap->areaAt(pos);
             if(mPressedDoors) {
                 const eServerDoors sdoors(mapId, *mPressedDoors);
                 mServer->triggerDoors(mClientId, sdoors);
             } else if(mPressedStairs) {
-                const auto toMapId = mPressedStairs->fTargetMapId;
                 eMoveToMapData moveData;
                 moveData.fType = eMoveToMapType::entrance;
-                moveData.fFromMapId = mapId;
-                moveData.fMapId = toMapId;
+                moveData.fFrom = eAreaIds(mapId, areaId);
+                moveData.fTo = mPressedStairs->fTo;
                 eGameWidget::sMoveToMap(moveData);
             }
             mClickAction = mousePressed;

@@ -46,7 +46,8 @@ bool eLocalServer::requestMap(
     const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const auto mapId = moveData.fMapId;
+    const auto& to = moveData.fTo;
+    const auto mapId = to.fMapId;
     std::shared_ptr<eMap> map;
     std::shared_ptr<eServerArea> area;
     const auto ofunc = [this, func, clientId, moveData](const eMapAndArea& ma) {
@@ -347,8 +348,7 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
     p.fCreator = clientId;
     const bool r = h->spawnPortal(
         p.fOutdoorPortalId,
-        p.fOutdoorMapId,
-        p.fOutdoorAreaId,
+        p.fOutdoorArea,
         p.fOutdoorPos);
     if(!r) return false;
     const auto map = h->map();
@@ -364,8 +364,7 @@ bool eLocalServer::spawnPortal(const uint32_t clientId) {
         const bool r = a->spawnCampPortal(
             clientId,
             p2.fCampPortalId,
-            p2.fCampMapId,
-            p2.fCampAreaId,
+            p2.fCampArea,
             p2.fCampPos);
         if(r) ePortal::addPortal(p2);
     });

@@ -6,6 +6,7 @@
 #include "epacket.h"
 #include "ewalldirection.h"
 #include "epoint.h"
+#include "eareaids.h"
 
 #include <vector>
 
@@ -30,10 +31,9 @@ struct ESLAYERHELPERS_API eStairs :
     eStairs(const eWallType wallType,
             const int type, const int nTypes,
             const int x0, const int y0,
-            const uint8_t targetMapId);
-
-    uint8_t fTargetMapId;
-    uint8_t fTargetAreaId;
+            const eAreaIds& to);
+    
+    eAreaIds fTo;
 };
 
 struct ESLAYERHELPERS_API eDoors :

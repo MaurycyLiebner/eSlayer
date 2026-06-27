@@ -60,8 +60,7 @@ public:
                     eBodyItemsTaken& taken);
     bool changeTeam(const eTeamId newTeam);
     bool spawnPortal(uint32_t& portalId,
-                     uint8_t& mapId,
-                     uint8_t& areaId,
+                     eAreaIds& area,
                      ePointF& pos);
     bool equipmentAction(const eEquipmentAction& a);
     bool buyAction(const eBuyAction& a, uint32_t& newItemId);

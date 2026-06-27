@@ -27,9 +27,8 @@ enum class eMoveToMapType {
 
 struct eMoveToMapData {
     eMoveToMapType fType;
-    uint8_t fFromMapId;
-    uint8_t fMapId;
-    uint8_t fAreaId;
+    eAreaIds fFrom;
+    eAreaIds fTo;
     uint32_t fPortalId;
 };
 
@@ -57,7 +56,7 @@ public:
     const std::shared_ptr<eObject>& object(const int id) const;
 
     const ePointF& spawnPos() const { return mSpawnPos; }
-    ePointF spawnPos(const uint8_t entranceMap) const;
+    ePointF spawnPos(const eAreaIds& from) const;
     const ePointF& portalSpawnPos() const { return mPortalSpawnPos; }
 
     std::vector<std::shared_ptr<eObject>>&
@@ -119,8 +118,7 @@ public:
                    const eWallType wallType,
                    const eConnectionDir dir,
                    const uint8_t type,
-                   const int mapId,
-                   const int areaId);
+                   const eAreaIds& to);
 
     bool waypointPosition(
         const uint8_t areaId, ePointF& pos) const;

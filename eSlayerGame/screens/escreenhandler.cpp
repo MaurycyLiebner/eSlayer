@@ -283,7 +283,7 @@ void eScreenHandler::showGame(eServerData serverData,
 
         eMoveToMapData moveData;
         moveData.fType = eMoveToMapType::respawn;
-        moveData.fMapId = mapId;
+        moveData.fTo = eAreaIds(mapId, 0);
 
         const bool r = requestMap(**server, *clientId, moveData, data);
         if(r) map->loadData(data);
@@ -334,7 +334,8 @@ void eScreenHandler::moveToMap(
     const eCharacter& c,
     const std::shared_ptr<eServer>& server,
     const eMoveToMapData& moveData) {
-    const auto mapId = moveData.fMapId;
+    const auto& area = moveData.fTo;
+    const auto mapId = area.fMapId;
     const auto map = std::make_shared<eMap>(mapId);
 
     const auto& res = mWindow->resolution();
@@ -497,8 +498,7 @@ void eScreenHandler::finishGameShow(
     for(const auto& cw : c.waypoints()) {
         for(auto& w : eWaypoint::sWaypoints) {
             if(cw.fActId != w.fActId) continue;
-            if(cw.fMapId != w.fMapId) continue;
-            if(cw.fAreaId != w.fAreaId) continue;
+            if(cw.fArea != w.fArea) continue;
             w.fKnown = cw.fKnown;
         }
     }

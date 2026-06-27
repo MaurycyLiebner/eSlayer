@@ -47,7 +47,8 @@ void ePortal::removeCreatorActPortal(
     const uint32_t creator, const uint8_t actId) {
     for(int i = 0; i < sPortals.size(); i++) {
         const auto& p = sPortals[i];
-        const auto mapId = p.fOutdoorMapId;
+        const auto& area = p.fOutdoorArea;
+        const auto mapId = area.fMapId;
         const auto& info = eMapsSettings::sMaps.get(mapId);
         const auto pactId = info.fActId;
         if(pactId == actId) {

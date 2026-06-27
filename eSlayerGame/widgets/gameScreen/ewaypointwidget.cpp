@@ -41,8 +41,7 @@ public:
 
 void eWaypointWidget::initialize(
     const uint8_t cActId,
-    const uint8_t cMapId,
-    const uint8_t cAreaId,
+    const eAreaIds& area,
     const eWaypointAction& waction) {
     const auto innerW = new eWidget(window());
     innerW->setNoPadding();
@@ -126,17 +125,17 @@ void eWaypointWidget::initialize(
         acts->emplace_back(act);
         for(const auto& way : eWaypoint::sWaypoints) {
             if(way.fActId != actId) continue;
-            const auto& mapInfo = eMapsSettings::sMaps.get(way.fMapId);
-            const auto nameBase = mapInfo.fAreas.name(way.fAreaId);
+            const auto& warea = way.fArea;
+            const auto& mapInfo = eMapsSettings::sMaps.get(warea.fMapId);
+            const auto nameBase = mapInfo.fAreas.name(warea.fAreaId);
             const auto name = eAreaNames::name(nameBase);
 
             const auto line = new eWaypointLine(window());
-            const bool current = way.fMapId == cMapId &&
-                                 way.fAreaId == cAreaId;
+            const bool current = warea == area;
             eAction action;
             if(!current && way.fKnown) {
-                action = [way, waction]() {
-                    waction(way.fMapId, way.fAreaId);
+                action = [warea, waction]() {
+                    waction(warea);
                 };
             }
             line->resize(singleW, singleH);

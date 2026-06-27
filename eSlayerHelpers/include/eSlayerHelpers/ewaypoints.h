@@ -4,16 +4,15 @@
 #include <cstdint>
 #include <vector>
 
+#include "eobject.h"
+
 struct eWaypoint {
     uint8_t fActId;
-    uint8_t fMapId;
-    uint8_t fAreaId;
+    eAreaIds fArea;
     bool fKnown;
 
-    static bool known(const uint8_t mapId,
-                      const uint8_t areaId);
-    static bool setKnown(const uint8_t mapId,
-                         const uint8_t areaId);
+    static bool known(const eAreaIds& area);
+    static bool setKnown(const eAreaIds& area);
 
     static std::vector<eWaypoint> sWaypoints;
 };

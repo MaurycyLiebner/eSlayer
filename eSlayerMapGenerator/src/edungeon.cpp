@@ -477,16 +477,22 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
     }
 
-    std::vector<int> trapConns;
+    std::vector<eAreaIds> trapConns;
     for(const auto& it : mSettings.fConnections) {
-        const auto& name = it.first;
+        const auto& aname = it.first;
         const auto& c = it.second;
         if(c.fType != eConnectionType::trapDoor) continue;
-        const int mapId = eMapsSettings::sMaps.id(name);
+        const auto& mname = c.fMap;
+        const int mapId = eMapsSettings::sMaps.id(mname);
         if(mapId < 0) {
-            eRuntimeThrow("Unrecognized connection map name \"" + name + "\".");
+            eRuntimeThrow("Unrecognized connection map name \"" + mname + "\".");
         }
-        trapConns.emplace_back(mapId);
+        const auto& map = eMapsSettings::sMaps.get(mapId);
+        const int areaId = map.fAreas.id(aname);
+        if(areaId < 0) {
+            eRuntimeThrow("Unrecognized connection area name \"" + aname + "\".");
+        }
+        trapConns.emplace_back(mapId, areaId);
     }
 
     if(trapDoors.size() != trapConns.size()) {
@@ -495,7 +501,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
     for(int i = 0; i < trapDoors.size(); i++) {
         const auto& o = trapDoors[i];
-        o->fTargetMapId = trapConns[i];
+        o->fTo = trapConns[i];
     }
 }
 

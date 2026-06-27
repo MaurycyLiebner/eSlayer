@@ -57,9 +57,9 @@ eStairs::eStairs() {}
 eStairs::eStairs(const eWallType wallType,
                  const int type, const int nTypes,
                  const int x0, const int y0,
-                 const uint8_t targetMapId) :
+                 const eAreaIds& to) :
     eDoorsStairsBase(wallType, type, nTypes, x0, y0),
-    fTargetMapId(targetMapId) {}
+    fTo(to) {}
 
 eDoors::eDoors() {}
 
@@ -80,15 +80,13 @@ eServerStairs::eServerStairs(
 void eServerStairs::read(ePacket& p) {
     p >> fMapId;
     eDoorsStairsBase::read(p);
-    p >> fTargetMapId;
-    p >> fTargetAreaId;
+    p >> fTo;
 }
 
 void eServerStairs::write(ePacket& p) const {
     p << fMapId;
     eDoorsStairsBase::write(p);
-    p << fTargetMapId;
-    p << fTargetAreaId;
+    p << fTo;
 }
 
 eServerDoors::eServerDoors() {}

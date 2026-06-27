@@ -6,7 +6,8 @@
 
 class eAreaNames {
 public:
-    static std::string name(const std::string& nameBase);
+    static const std::string&
+    name(const std::string& nameBase);
     static bool load();
     static bool reload();
 private:

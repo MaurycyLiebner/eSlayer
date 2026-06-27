@@ -3,16 +3,17 @@
 
 #include "ebgwidget.h"
 
+#include "eSlayerHelpers/eobject.h"
+
 class eWaypointWidget : public eBgWidget {
 public:
     using eBgWidget::eBgWidget;
 
     using eWaypointAction = std::function<
-        void(const uint8_t mapId, const uint8_t areaId)>;
+        void(const eAreaIds& area)>;
 
     void initialize(const uint8_t cActId,
-                    const uint8_t cMapId,
-                    const uint8_t cAreaId,
+                    const eAreaIds& area,
                     const eWaypointAction& waction);
 };
 

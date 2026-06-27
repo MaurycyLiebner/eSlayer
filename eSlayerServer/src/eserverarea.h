@@ -119,13 +119,11 @@ public:
 
     bool spawnPortal(const uint32_t clientId,
                      uint32_t& portalId,
-                     uint8_t& mapId,
-                     uint8_t& areaId,
+                     eAreaIds& area,
                      ePointF& pos);
     bool spawnCampPortal(const uint32_t clientId,
                          uint32_t& portalId,
-                         uint8_t& mapId,
-                         uint8_t& areaId,
+                         eAreaIds& area,
                          ePointF& pos);
 
     bool triggerObject(
@@ -227,8 +225,7 @@ public:
 private:
     bool spawnPortal(ePointF& pos,
                      uint32_t& portalId,
-                     uint8_t& mapId,
-                     uint8_t& areaId);
+                     eAreaIds& area);
     bool spawnBody(const uint32_t clientId,
                    const eBodyEquipment& beq,
                    uint32_t& bodyId,

@@ -323,8 +323,7 @@ bool eCharacter::load(const std::string& path,
             for(const auto& a : m.fAreas) {
                 if(name == a.fName) {
                     w.fActId = m.fActId;
-                    w.fMapId = mit.fId;
-                    w.fAreaId = a.fId;
+                    w.fArea = eAreaIds(mit.fId, a.fId);
                     return true;
                 }
             }
@@ -597,8 +596,11 @@ bool eCharacter::write(const std::string& path) const {
         const auto ar = eStringHelpers::toRoman(actId);
         const auto aE = wE->InsertNewChildElement(ar.c_str());
         for(const auto& w : it.second) {
-            const auto& minfo = eMapsSettings::sMaps.get(w.fMapId);
-            const auto name = minfo.fAreas.name(w.fAreaId);
+            const auto& area = w.fArea;
+            const auto mapId = area.fMapId;
+            const auto& minfo = eMapsSettings::sMaps.get(mapId);
+            const auto areaId = area.fAreaId;
+            const auto name = minfo.fAreas.name(areaId);
             const auto wE = aE->InsertNewChildElement(name.c_str());
             wE->SetAttribute("known", w.fKnown);
         }

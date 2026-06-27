@@ -3,6 +3,8 @@
 
 #include "epositioned.h"
 
+#include "eareaids.h"
+
 struct eObject : public ePositioned {
     uint32_t fObjectId;
 
@@ -10,7 +12,7 @@ struct eObject : public ePositioned {
     uint8_t fSubtype;
     uint8_t fState = 0;
 
-    uint8_t fTargetMapId;
+    eAreaIds fTo;
 
     float fSize;
 };

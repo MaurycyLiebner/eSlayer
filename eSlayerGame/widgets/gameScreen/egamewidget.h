@@ -111,8 +111,7 @@ public:
     void consumePotion(const int x);
     void consumePotion(const eItem& p);
 
-    void waypointTeleport(const uint8_t mapId,
-                          const uint8_t areaId);
+    void waypointTeleport(const eAreaIds& area);
     void spawnPortal();
     void openSellerMenu(const uint32_t sellerId);
 

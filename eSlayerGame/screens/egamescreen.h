@@ -45,8 +45,7 @@ public:
     static eGameScreen* sInstance;
     static void sOpenWaypointMenu(
         const uint8_t actId,
-        const uint8_t mapId,
-        const uint8_t areaId);
+        const eAreaIds& area);
     static void sOpenStash();
     static void sOpenSellerMenu(
         const eSeller& s);
@@ -88,8 +87,7 @@ private:
     void hideMessageBox();
 
     void showWaypointMenu(const uint8_t cActId,
-                          const uint8_t cMapId,
-                          const uint8_t cAreaId);
+                          const eAreaIds& cArea);
     void hideWaypointMenu();
 
     void showSellerMenu(const eSeller& seller);

@@ -199,9 +199,8 @@ void eGameScreen::initialize(const uint32_t clientId,
 
 void eGameScreen::sOpenWaypointMenu(
     const uint8_t actId,
-    const uint8_t mapId,
-    const uint8_t areaId) {
-    sInstance->showWaypointMenu(actId, mapId, areaId);
+    const eAreaIds& area) {
+    sInstance->showWaypointMenu(actId, area);
 }
 
 void eGameScreen::sOpenStash() {
@@ -640,20 +639,17 @@ void eGameScreen::hideMessageBox() {
 
 void eGameScreen::showWaypointMenu(
     const uint8_t cActId,
-    const uint8_t cMapId,
-    const uint8_t cAreaId) {
+    const eAreaIds& cArea) {
     if(mWaypointMenu) return;
     mWaypointMenu = new eWaypointWidget(window());
     const int w = width();
     const int h = height();
     mWaypointMenu->resize(w/2, h - mBottomWidget->height());
-    const auto action = [this](
-        const uint8_t mapId,
-        const uint8_t areaId) {
-        mGameWidget->waypointTeleport(mapId, areaId);
+    const auto action = [this](const eAreaIds& area) {
+        mGameWidget->waypointTeleport(area);
     };
     mWaypointMenu->initialize(
-        cActId, cMapId, cAreaId, action);
+        cActId, cArea, action);
     mMenusWidget->addWidget(mWaypointMenu);
     mWaypointMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();

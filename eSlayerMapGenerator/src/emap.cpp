@@ -55,15 +55,13 @@ const std::shared_ptr<eObject>& eMap::object(
     return mObjects[id];
 }
 
-ePointF eMap::spawnPos(const uint8_t entranceMap) const {
+ePointF eMap::spawnPos(const eAreaIds& from) const {
     for(const auto& s : mStairs) {
-        const auto sMapId = s.fMapId;
-        if(sMapId != entranceMap) continue;
+        if(s.fTo != from) continue;
         return {s.fX, s.fY};
     }
     for(const auto& o : mTrapDoors) {
-        const auto tMapId = o->fTargetMapId;
-        if(tMapId != entranceMap) continue;
+        if(o->fTo != from) continue;
         return o->fPos;
     }
     return spawnPos();
@@ -352,8 +350,7 @@ void eMap::addStairs(
     const eWallType wallType,
     const eConnectionDir dir,
     const uint8_t type,
-    const int mapId,
-    const int areaId) {
+    const eAreaIds& to) {
     auto& tile = eMap::tile(x, y);
     const bool up = dir == eConnectionDir::up;
     switch(wallType) {
@@ -369,8 +366,7 @@ void eMap::addStairs(
     stairs.fY = y;
     stairs.fWallType = wallType;
     stairs.fStairsDir = dir;
-    stairs.fMapId = mapId;
-    stairs.fAreaId = areaId;
+    stairs.fTo = to;
 }
 
 bool eMap::waypointPosition(

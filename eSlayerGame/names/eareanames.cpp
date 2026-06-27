@@ -4,7 +4,8 @@
 
 eAreaNames eAreaNames::sInstance;
 
-std::string eAreaNames::name(const std::string& nameBase) {
+const std::string&
+eAreaNames::name(const std::string& nameBase) {
     return sInstance.mNames[nameBase];
 }
 

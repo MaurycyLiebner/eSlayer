@@ -446,10 +446,9 @@ void eServerArea::increment(const float by) {
         const auto mapId = mMap->id();
         std::set<uint32_t> newPortals;
         const auto addPortal = [&](const uint32_t objId,
-                                   const uint8_t pmapId,
-                                   const uint8_t areaId,
+                                   const eAreaIds& to,
                                    const ePointF& pos) {
-            if(pmapId != mapId) return;
+            if(to.fMapId != mapId) return;
             const int n = mPortals.count(objId);
             if(n > 0) return;
             newPortals.emplace(objId);
@@ -457,12 +456,10 @@ void eServerArea::increment(const float by) {
 
         for(const auto& p : ePortal::sPortals) {
             addPortal(p.fCampPortalId,
-                      p.fCampMapId,
-                      p.fCampAreaId,
+                      p.fCampArea,
                       p.fCampPos);
             addPortal(p.fOutdoorPortalId,
-                      p.fOutdoorMapId,
-                      p.fOutdoorAreaId,
+                      p.fOutdoorArea,
                       p.fOutdoorPos);
         }
 
@@ -848,9 +845,11 @@ bool eServerArea::addClient(
     const eScreenDimensions& screenDims,
     const eMoveToMapData& moveData,
     ePointF& spawnPos) {
-    spawnPos = mMap->spawnPos(moveData.fFromMapId);
+    spawnPos = mMap->spawnPos(moveData.fFrom);
     if(moveData.fType == eMoveToMapType::waypoint) {
-        mMap->waypointPosition(moveData.fAreaId, spawnPos);
+        const auto& to = moveData.fTo;
+        const auto toArea = to.fAreaId;
+        mMap->waypointPosition(toArea, spawnPos);
     } else if(moveData.fType == eMoveToMapType::portal) {
         const auto pid = moveData.fPortalId;
         const auto p = ePortal::portal(pid);
@@ -1126,30 +1125,27 @@ bool eServerArea::changeTeam(
 
 bool eServerArea::spawnPortal(const uint32_t clientId,
                               uint32_t& portalId,
-                              uint8_t& mapId,
-                              uint8_t& areaId,
+                              eAreaIds& area,
                               ePointF& pos) {
     const auto u = unit(clientId);
     if(!u) return false;
     pos = u->fPos;
-    return spawnPortal(pos, portalId, mapId, areaId);
+    return spawnPortal(pos, portalId, area);
 }
 
 bool eServerArea::spawnCampPortal(
     const uint32_t clientId,
     uint32_t& portalId,
-    uint8_t& mapId,
-    uint8_t& areaId,
+    eAreaIds& area,
     ePointF& pos) {
     pos = mMap->portalSpawnPos();
-    return spawnPortal(pos, portalId, mapId, areaId);
+    return spawnPortal(pos, portalId, area);
 }
 
 bool eServerArea::spawnPortal(
     ePointF& pos,
     uint32_t& portalId,
-    uint8_t& mapId,
-    uint8_t& areaId) {
+    eAreaIds& area) {
     const bool r = findPlaceForPortal(pos, pos);
     if(!r) return false;
     const auto o = mMap->addObject(pos);
@@ -1159,8 +1155,8 @@ bool eServerArea::spawnPortal(
     o->fSize = info.fSize;
     o->fSubtype = 0;
     portalId = o->fObjectId;
-    mapId = mMap->id();
-    areaId = mMap->areaAt(pos);
+    area.fMapId = mMap->id();
+    area.fAreaId = mMap->areaAt(pos);
     return true;
 }
 

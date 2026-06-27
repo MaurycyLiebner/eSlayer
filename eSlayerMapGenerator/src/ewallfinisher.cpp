@@ -450,21 +450,20 @@ void eWallFinisher::finish(
         used.emplace_back(stairs);
         const auto& v = *stairs.fVPtr;
         const int size = v.size();
+        const eAreaIds area(mapId, areaId);
         switch(stairs.fWallType) {
         case eWallType::topLeft: {
             for(int dy = 0; dy < size; dy++) {
                 auto& dst = tiles[y + dy][x];
                 map.addStairs(x, y, stairs.fWallType,
-                              conn.fDir, v[dy], mapId,
-                              areaId);
+                              conn.fDir, v[dy], area);
             }
         } break;
         case eWallType::topRight: {
             for(int dx = 0; dx < size; dx++) {
                 auto& dst = tiles[y][x + dx];
                 map.addStairs(x, y, stairs.fWallType,
-                              conn.fDir, v[dx], mapId,
-                              areaId);
+                              conn.fDir, v[dx], area);
             }
         } break;
         }

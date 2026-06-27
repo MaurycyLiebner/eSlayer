@@ -298,11 +298,10 @@ void eGameWidget::consumePotion(const eItem& p) {
 }
 
 void eGameWidget::waypointTeleport(
-    const uint8_t mapId, const uint8_t areaId) {
+    const eAreaIds& area) {
     eMoveToMapData moveData;
     moveData.fType = eMoveToMapType::waypoint;
-    moveData.fMapId = mapId;
-    moveData.fAreaId = areaId;
+    moveData.fTo = area;
     sMoveToMap(moveData);
 }
 
@@ -450,10 +449,9 @@ void eGameWidget::paintEvent(ePainter& p) {
         std::set<uint32_t> newPortals;
         const auto addPortal = [&](
             const uint32_t objId,
-            const uint8_t pmapId,
-            const uint8_t areaId,
+            const eAreaIds& area,
             const ePointF& pos) {
-            if(pmapId != mapId) return;
+            if(area.fMapId != mapId) return;
             const int n = mPortals.count(objId);
             if(n > 0) return;
             const auto old = mMap->object(pos, objId);
@@ -472,12 +470,10 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         for(const auto& p : ePortal::sPortals) {
             addPortal(p.fCampPortalId,
-                      p.fCampMapId,
-                      p.fCampAreaId,
+                      p.fCampArea,
                       p.fCampPos);
             addPortal(p.fOutdoorPortalId,
-                      p.fOutdoorMapId,
-                      p.fOutdoorAreaId,
+                      p.fOutdoorArea,
                       p.fOutdoorPos);
         }
 
@@ -1260,7 +1256,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto iPos = pos.floor();
 
             const int areaId = mMap->areaAt(iPos);
-            const bool known = eWaypoint::known(mapId, areaId);
+            const eAreaIds area(mapId, areaId);
+            const bool known = eWaypoint::known(area);
             auto& stateId = w->fState;
             stateId = known ? 1 : 2;
 
@@ -1714,7 +1711,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                        !mHighlightObject.lock() &&
                        !mHighlightDoors) {
                         eStairs stairs(wall.fType, stype, nTypes,
-                                       iPos.fX, iPos.fY, 0);
+                                       iPos.fX, iPos.fY, eAreaIds());
                         auto& tiles = stairs.fTiles;
 
                         const SDL_Point p{int(mpos.fX), int(mpos.fY)};
@@ -1743,8 +1740,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                             const auto s = mMap->mapStairs(
                                 tile.fX, tile.fY, wall.fType);
                             if(s) {
-                                stairs.fTargetMapId = s->fMapId;
-                                stairs.fTargetAreaId = s->fAreaId;
+                                stairs.fTo = s->fTo;
                                 if(highlight && !mHighlightStairs) {
                                     setHighlightedStairs(stairs);
                                     mHighlightObject.reset();
@@ -1928,6 +1924,15 @@ void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
     }
 }
 
+const std::string& areaName(const eAreaIds& area) {
+    const auto mapId = area.fMapId;
+    const auto areaId = area.fAreaId;
+    const auto& map = eMapsSettings::sMaps.get(mapId);
+    const auto areaBaseName = map.fAreas.name(areaId);
+    const auto& areaName = eAreaNames::name(areaBaseName);
+    return areaName;
+}
+
 void eGameWidget::setHighlightedObject(
     const std::shared_ptr<eObject>& obj) {
     mHighlightObject = obj;
@@ -1940,32 +1945,24 @@ void eGameWidget::setHighlightedObject(
         const auto objType = obj->fObjectType;
         const auto& object = eObjectsInfo::sObjects.get(objType);
         if(object.fType == eObjectType::waypoint) {
-            const auto area = mMap->areaAt(pos);
-            const auto aname = mMap->areaName(area);
-            lines.emplace_back(aname);
+            const auto mapId = mMap->id();
+            const auto areaId = mMap->areaAt(pos);
+            const eAreaIds area(mapId, areaId);
+            const auto& name = areaName(area);
+            lines.emplace_back(name);
         } else if(object.fType == eObjectType::trapDoor) {
             if(obj->fState != 0) {
-                const auto mapId = obj->fTargetMapId;
-                const auto areaNameBase = eMapsSettings::sMaps.name(mapId);
-                const auto areaName = eAreaNames::name(areaNameBase);
-                lines.emplace_back(areaName);
+                const auto& area = obj->fTo;
+                const auto& name = areaName(area);
+                lines.emplace_back(name);
             }
         } else if(object.fType == eObjectType::portal) {
             const auto p = ePortal::portal(obj->fObjectId);
             if(p) {
-                uint8_t mapId;
-                uint8_t areaId;
-                if(obj->fObjectId == p->fCampPortalId) {
-                    mapId = p->fOutdoorMapId;
-                    areaId = p->fOutdoorAreaId;
-                } else {
-                    mapId = p->fCampMapId;
-                    areaId = p->fCampAreaId;
-                }
-                const auto& map = eMapsSettings::sMaps.get(mapId);
-                const auto areaBaseName = map.fAreas.name(areaId);
-                const auto areaName = eAreaNames::name(areaBaseName);
-                lines.emplace_back(areaName);
+                const bool toCamp = obj->fObjectId == p->fOutdoorPortalId;
+                const auto& area = toCamp ? p->fCampArea : p->fOutdoorArea;
+                const auto name = areaName(area);
+                lines.emplace_back(name);
                 const auto clientId = p->fCreator;
                 const auto slayerName = eSlayers::name(clientId);
                 lines.emplace_back(slayerName);
@@ -2014,12 +2011,8 @@ void eGameWidget::setHighlightedStairs(
         const float mult = res.multiplier();
         const int h = 100*mult;
         const SDL_Rect rect{ipixel.fX, ipixel.fY - h, 0, 0};
-        const auto mapId = stairs->fTargetMapId;
-        const auto& info = eMapsSettings::sMaps.get(mapId);
-        const auto areaId = stairs->fTargetAreaId;
-        const auto areaNameBase = info.fAreas.name(areaId);
-        const auto areaName = eAreaNames::name(areaNameBase);
-        eHoverWidget::sSetGameTooltip(areaName, rect);
+        const auto& name = areaName(stairs->fTo);
+        eHoverWidget::sSetGameTooltip(name, rect);
     } else {
         eHoverWidget::sSetGameTooltip("");
     }
