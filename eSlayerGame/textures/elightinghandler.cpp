@@ -367,12 +367,20 @@ void eLightingHandler::render(
                     }
                 };
 
-                const int n = mTileDiv*c.fObjSize;
+                const auto& tex = *c.fTex;
+                const int tox = tex.offsetX();
+                const int tw = tex.width();
+                const float left = tox + 0.5f*(mBaseTileW - tw);
+                const float xMin = 2.f*left/mBaseTileW;
+                const int dxMin = -mTileDiv*(c.fObjSize - xMin);
+                const float right = left + tw;
+                const float xMax = 2 - 2.f*right/mBaseTileW;
+                const int dyMin = -mTileDiv*(c.fObjSize - xMax);
 
-                for(int dx = -n; dx <= 0; dx++) {
+                for(int dx = dxMin; dx <= 0; dx++) {
                     handle(dx, 0);
                 }
-                for(int dy = -n; dy < 0; dy++) {
+                for(int dy = 0; dy >= dyMin; dy--) {
                     handle(0, dy);
                 }
             } else {
