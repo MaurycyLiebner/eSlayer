@@ -28,6 +28,25 @@ void eNova::obstacle2(
     return fIntervals.subtract(a1, a2);
 }
 
+void eNova::obstacle4(const ePointF& pos,
+                      const float width,
+                      const float height) {
+    const ePointF r{pos.fX + width, pos.fY};
+    const ePointF b{pos.fX + width, pos.fY + height};
+    const ePointF l{pos.fX, pos.fY + height};
+    obstacle4(pos, r, b, l);
+}
+
+void eNova::obstacle4(const ePointF& pos1,
+                      const ePointF& pos2,
+                      const ePointF& pos3,
+                      const ePointF& pos4) {
+    obstacle2(pos1, pos2);
+    obstacle2(pos2, pos3);
+    obstacle2(pos3, pos4);
+    obstacle2(pos4, pos1);
+}
+
 bool eNova::angleInRange(const float angle) const {
     return fIntervals.angleInRange(angle);
 }

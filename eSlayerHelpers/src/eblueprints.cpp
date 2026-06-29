@@ -45,6 +45,12 @@ void eBlueprints::load() {
                     }
                     obj.fX = objData.value("x", 0.f);
                     obj.fY = objData.value("y", 0.f);
+                    if(objData.contains("width")) {
+                        obj.fWidth = objData.value("width", 1.f);
+                    }
+                    if(objData.contains("height")) {
+                        obj.fHeight = objData.value("height", 1.f);
+                    }
                 }
             }
             if(jdata.contains("terrain")) {

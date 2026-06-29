@@ -160,8 +160,9 @@ bool eNovaIncrementer::increment(
                     const auto& info = eObjectsInfo::sObjects.get(type);
                     if(!info.fObstacle) continue;
                     const auto& pos = obj->fPos;
-                    const float size = info.fSize;
-                    n.obstacle1(pos, 0.5f*size);
+                    const float width = info.fWidth;
+                    const float height = info.fHeight;
+                    n.obstacle4(pos, width, height);
                 }
             }
 

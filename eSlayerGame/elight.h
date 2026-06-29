@@ -17,7 +17,7 @@ struct eLight {
 };
 
 enum class eBlockerBaseType {
-    object, wall
+    object, rect, wall
 };
 
 struct eBlockerBase {
@@ -38,6 +38,17 @@ struct eObjectLightBlocker : public eBlockerBase {
         eBlockerBase(eBlockerBaseType::object, tx, ty),
         fSize(size) {}
     float fSize;
+};
+
+struct eRectLightBlocker : public eBlockerBase {
+    eRectLightBlocker(const float tx,
+                      const float ty,
+                      const float width,
+                      const float height) :
+        eBlockerBase(eBlockerBaseType::rect, tx, ty),
+        fWidth(width), fHeight(height) {}
+    float fWidth;
+    float fHeight;
 };
 
 struct eWallLightBlocker : public eBlockerBase {

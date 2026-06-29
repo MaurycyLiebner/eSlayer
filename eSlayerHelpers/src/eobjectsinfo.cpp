@@ -19,7 +19,32 @@ void eObjectsInfo::load() {
             const auto& key = it.key();
             const auto& value = it.value();
             eObjectInfo info;
-            info.fSize = value.value("size", 1.f);
+
+            if(value.contains("size")) {
+                const float size = value.value("size", 1.f);
+                info.fWidth = size;
+                info.fHeight = size;
+            } else {
+                info.fWidth = value.value("width", 1.f);
+                info.fHeight = value.value("height", 1.f);
+            }
+
+            const auto blocksLightStr = value.value("blocksLight", "none");
+            if(blocksLightStr == "none") {
+                info.fBlocksLight = eBlockLightType::none;
+            } else if(blocksLightStr == "center") {
+                info.fBlocksLight = eBlockLightType::center;
+            } else if(blocksLightStr == "rect") {
+                info.fBlocksLight = eBlockLightType::rect;
+            } else {
+                eRuntimeThrow("Unrecognized block light type \"" +
+                              blocksLightStr + "\" in " + dir + "/objects.json");
+            }
+            info.fShadow = value.value("shadow", true);
+            info.fFlat = value.value("flat", false);
+            info.fLightRadius = value.value("lightRadius", 0.f);
+            info.fSplit = value.value("split", false);
+
             info.fObstacle = value.value("obstacle", true);
             info.fWalkable = value.value("walkable", false);
             const auto typeStr = value.value("type", "");
@@ -39,8 +64,6 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::portalArea;
             } else if(typeStr == "spawnArea") {
                 info.fType = eObjectType::spawnArea;
-            } else if(typeStr == "empty") {
-                info.fType = eObjectType::empty;
             } else if(typeStr == "trapDoor") {
                 info.fType = eObjectType::trapDoor;
             } else if(typeStr == "portalDoor") {

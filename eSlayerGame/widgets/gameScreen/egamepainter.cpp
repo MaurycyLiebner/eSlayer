@@ -6,8 +6,9 @@ eGamePainter::eGamePainter(
     ePainter(r),
     mLightingTex(iterator) {}
 
-std::shared_ptr<eTexture> eGamePainter::initialize(const int w, const int h, const int tileW,
-                                                   const int tileH) {
+std::shared_ptr<eTexture> eGamePainter::initialize(
+    const int w, const int h,
+    const int tileW, const int tileH) {
     const auto r = renderer();
 
     mBaseTex = std::make_shared<eTexture>();
@@ -93,6 +94,14 @@ void eGamePainter::addObjectShadow(
     const float size) {
     std::unique_ptr<eBlockerBase> b =
         std::make_unique<eObjectLightBlocker>(tx, ty, size);
+    mLightingTex.addBlocker(b);
+}
+
+void eGamePainter::addRectShadow(
+    const float tx, const float ty,
+    const float width, const float height) {
+    std::unique_ptr<eBlockerBase> b =
+        std::make_unique<eRectLightBlocker>(tx, ty, width, height);
     mLightingTex.addBlocker(b);
 }
 

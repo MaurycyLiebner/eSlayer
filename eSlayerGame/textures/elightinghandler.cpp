@@ -583,6 +583,27 @@ void eLightingHandler::calculate(
                                     mult = std::min(mult, 1.f - std::clamp((s - dist)/mFeatherLen, 0.f, 1.f));
                                 }
                             } break;
+                            case eBlockerBaseType::rect: {
+                                const auto& oref = static_cast<const eRectLightBlocker&>(bref);
+                                const ePointF pt{bref.fTX, bref.fTY};
+                                const ePointF pr{bref.fTX + oref.fWidth, bref.fTY};
+                                const ePointF pb{bref.fTX + oref.fWidth, bref.fTY + oref.fHeight};
+                                const ePointF pl{bref.fTX, bref.fTY + oref.fHeight};
+                                const auto handlePts = [&](const ePointF& p1, const ePointF& p2) {
+                                    ePointF inters;
+                                    const bool r = lineIntersection(tp, lp, p1, p2, &inters);
+                                    if(r) {
+                                        const float dist1 = ePointF::distance(p1, inters);
+                                        const float dist2 = ePointF::distance(p2, inters);
+                                        const float dist = std::min(dist1, dist2);
+                                        mult = std::min(mult, 1.f - std::clamp(dist/mFeatherLen, 0.f, 1.f));
+                                    }
+                                };
+                                handlePts(pt, pr);
+                                handlePts(pr, pb);
+                                handlePts(pb, pl);
+                                handlePts(pl, pt);
+                            } break;
                             case eBlockerBaseType::wall: {
                                 const auto& wref = static_cast<const eWallLightBlocker&>(bref);
                                 const int itx = wref.fITX;

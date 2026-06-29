@@ -5,7 +5,8 @@
 
 #include "eareaids.h"
 
-struct eObject : public ePositioned {
+struct ESLAYERHELPERS_API eObject :
+    public ePositioned {
     uint32_t fObjectId;
 
     uint16_t fObjectType;
@@ -14,7 +15,10 @@ struct eObject : public ePositioned {
 
     eAreaIds fTo;
 
-    float fSize;
+    float fWidth;
+    float fHeight;
+
+    bool inside(const ePointF& pos) const;
 };
 
 struct eServerObject : public eObject {

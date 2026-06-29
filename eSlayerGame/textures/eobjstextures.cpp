@@ -59,11 +59,6 @@ void eObjsTextures::load() {
             obj.fName = name;
             const auto jdata = eFileLoader::parse(dir, path);
             const int types = jdata.value("types", 1);
-            obj.fBlocksLight = jdata.value("blocksLight", true);
-            obj.fShadow = jdata.value("shadow", true);
-            obj.fFlat = jdata.value("flat", false);
-            obj.fLightRadius = jdata.value("lightRadius", 0.f);
-            obj.fSplit = jdata.value("split", false);
             struct eAnimInfo {
                 eAnimInfo(const std::string& name,
                           const int frames) :

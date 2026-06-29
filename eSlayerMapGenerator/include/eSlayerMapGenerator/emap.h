@@ -82,7 +82,10 @@ public:
                         ePointF& pos) const;
     void addObject(const std::shared_ptr<eObject>& o);
     void removeObject(const uint32_t objectId);
-    std::shared_ptr<eObject> addObject(const ePointF& pos);
+    std::shared_ptr<eObject> addObject(
+        const ePointF& pos,
+        const float width,
+        const float height);
 
     void loadPortion(const eMapPortion& portion);
     bool extractPortion(eMapPortionArea area, eMapPortion& result) const;

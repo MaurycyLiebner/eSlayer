@@ -124,11 +124,22 @@ bool eMap::objectPosition(const uint32_t objectId,
 }
 
 void eMap::addObject(const std::shared_ptr<eObject>& o) {
-    const int i = mObjects.size();
+    const int id = mObjects.size();
     mObjects.emplace_back(o);
     const auto& pos = o->fPos;
-    const auto iPos = pos.floor();
-    mObjectsMap[iPos.fY][iPos.fX].emplace_back(i);
+    const auto min = pos.floor();
+    const float w = o->fWidth;
+    const float h = o->fHeight;
+    const ePointF bottom{pos.fX + w - 0.001f,
+                         pos.fY + h - 0.001f};
+    const auto max = bottom.floor();
+    for(int x = min.fX; x <= max.fX; x++) {
+        for(int y = min.fY; y <= max.fY; y++) {
+            const bool in = inside(x, y);
+            if(!in) continue;
+            mObjectsMap[y][x].emplace_back(id);
+        }
+    }
 }
 
 void eMap::removeObject(const uint32_t objectId) {
@@ -723,9 +734,10 @@ void eMap::generateTiles(const int w, const int h) {
                         const auto& info = eObjectsInfo::sObjects.get(type);
                         if(info.fWalkable) continue;
                         const auto& pos = o.fPos;
-                        const float size = o.fSize;
+                        const float width = o.fWidth;
+                        const float height = o.fHeight;
                         walkObstacles.emplace_back(
-                            pos.fX, pos.fY, size, size);
+                            pos.fX, pos.fY, width, height);
                     }
                 } else if(processedWalkObstacle.count(key) == 0) {
                     eEmptyTiles et(eEmptyTiles::eType::walkObstacle, *this);
@@ -750,9 +762,10 @@ void eMap::generateTiles(const int w, const int h) {
                         const auto& info = eObjectsInfo::sObjects.get(type);
                         if(!info.fObstacle) continue;
                         const auto& pos = o.fPos;
-                        const float size = o.fSize;
+                        const float width = o.fWidth;
+                        const float height = o.fHeight;
                         missileObstacles.emplace_back(
-                            pos.fX, pos.fY, size, size);
+                            pos.fX, pos.fY, width, height);
                     }
                 } else if(processedMissileObstacle.count(key) == 0) {
                     eEmptyTiles et(eEmptyTiles::eType::missileObstacle, *this);
@@ -814,9 +827,13 @@ void eMap::generateTiles(const int w, const int h) {
 }
 
 std::shared_ptr<eObject> eMap::addObject(
-    const ePointF& pos) {
+    const ePointF& pos,
+    const float width,
+    const float height) {
     const auto obj = std::make_shared<eObject>();
     obj->fPos = pos;
+    obj->fWidth = width;
+    obj->fHeight = height;
     obj->fObjectId = sNextObjectId++;
     addObject(obj);
     return obj;

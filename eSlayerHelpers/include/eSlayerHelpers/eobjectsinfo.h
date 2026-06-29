@@ -16,12 +16,23 @@ enum class eObjectType {
     trapDoor,
     portalDoor,
     portalArea,
-    spawnArea,
-    empty
+    spawnArea
+};
+
+enum class eBlockLightType {
+    none, center, rect
 };
 
 struct eObjectInfo {
-    float fSize;
+    float fWidth;
+    float fHeight;
+
+    eBlockLightType fBlocksLight;
+    bool fShadow;
+    bool fFlat;
+    bool fSplit;
+    float fLightRadius;
+
     eObjectType fType;
     std::string fTexStr;
     int fTexId;

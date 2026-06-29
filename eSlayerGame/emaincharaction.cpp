@@ -223,15 +223,16 @@ void eMainCharAction::increment(const bool mousePressed,
         const auto type = object->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
         const auto& opos = object->fPos;
-        const float size = info.fSize;
+        const float w = info.fWidth;
+        const float h = info.fHeight;
         const ePointF t{opos};
-        const ePointF tr{opos.fX + 0.5f*size, opos.fY};
-        const ePointF r{opos.fX + size, opos.fY};
-        const ePointF br{opos.fX + size, opos.fY + 0.5f*size};
-        const ePointF b{opos.fX + size, opos.fY + size};
-        const ePointF bl{opos.fX + 0.5f*size, opos.fY + size};
-        const ePointF l{opos.fX, opos.fY + size};
-        const ePointF tl{opos.fX, opos.fY + 0.5f*size};
+        const ePointF tr{opos.fX + 0.5f*w, opos.fY};
+        const ePointF r{opos.fX + w, opos.fY};
+        const ePointF br{opos.fX + w, opos.fY + 0.5f*h};
+        const ePointF b{opos.fX + w, opos.fY + h};
+        const ePointF bl{opos.fX + 0.5f*w, opos.fY + h};
+        const ePointF l{opos.fX, opos.fY + h};
+        const ePointF tl{opos.fX, opos.fY + 0.5f*h};
         ePointF closesPos = t;
         float minDist = ePointF::distance(t, charPos);
         const auto handlePos = [&](const ePointF& pos) {

@@ -24,6 +24,13 @@ struct ESLAYERHELPERS_API eNova {
                    const float radius);
     void obstacle2(const ePointF& pos1,
                    const ePointF& pos2);
+    void obstacle4(const ePointF& pos,
+                   const float width,
+                   const float height);
+    void obstacle4(const ePointF& pos1,
+                   const ePointF& pos2,
+                   const ePointF& pos3,
+                   const ePointF& pos4);
     bool angleInRange(const float angle) const;
 
     void read(ePacket& p);

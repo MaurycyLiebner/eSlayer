@@ -193,6 +193,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eblueprints.h
     src/eblueprints.cpp
     include/eSlayerHelpers/eareaids.h
+    src/eobject.cpp
 
 )
 

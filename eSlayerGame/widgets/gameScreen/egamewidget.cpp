@@ -463,7 +463,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto typeId = eObjectsInfo::sObjects.id("portal");
             const auto& info = eObjectsInfo::sObjects.get(typeId);
             new_->fObjectType = typeId;
-            new_->fSize = info.fSize;
+            new_->fWidth = info.fWidth;
+            new_->fHeight = info.fHeight;
             new_->fSubtype = 0;
             mMap->addObjectIfHasPortion(new_);
         };
@@ -619,11 +620,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         int wallMaxTY = uipos.fY + 1000;
         std::vector<std::shared_ptr<eObject>> waypoints;
         std::vector<std::shared_ptr<eObject>> flat;
+        std::set<int> handledObjects;
         const auto handleTile = [&](const eTileInfo& info) {
             const int x = info.fTX;
             const int y = info.fTY;
             const auto& iobjs = mMap->objects(x, y);
-            for(const auto& iobj : iobjs) {
+            for(const int iobj : iobjs) {
+                if(handledObjects.count(iobj) > 0) continue;
+                handledObjects.emplace(iobj);
                 const auto& obj = mMap->object(iobj);
                 const auto& objRef = *obj;
                 const auto objType = objRef.fObjectType;
@@ -632,22 +636,26 @@ void eGameWidget::paintEvent(ePainter& p) {
                     waypoints.emplace_back(obj);
                     continue;
                 }
-                const auto texObjectId = object.fTexId;
-                if(texObjectId < 0) continue;
-                const auto& objectTex = eObjsTextures::get(texObjectId);
                 const auto& pos = objRef.fPos;
-                if(objectTex.fBlocksLight) {
-                    mGamePainter.addObjectShadow(pos.fX, pos.fY, object.fSize);
+                if(object.fBlocksLight == eBlockLightType::center) {
+                    const float s = 0.5f*(object.fWidth + object.fHeight);
+                    mGamePainter.addObjectShadow(
+                        pos.fX, pos.fY, s);
+                } else if(object.fBlocksLight == eBlockLightType::rect) {
+                    mGamePainter.addRectShadow(
+                        pos.fX, pos.fY, object.fWidth, object.fHeight);
                 }
-                if(objectTex.fLightRadius > 0.01f) {
-                    const float s = 0.5f*objRef.fSize;
-                    mGamePainter.addLight(pos.fX + s, pos.fY + s,
-                                          objectTex.fLightRadius);
+                if(object.fLightRadius > 0.01f) {
+                    const float dx = 0.5f*objRef.fWidth;
+                    const float dy = 0.5f*objRef.fHeight;
+                    mGamePainter.addLight(pos.fX + dx, pos.fY + dy,
+                                          object.fLightRadius);
                 }
-                if(objectTex.fFlat) {
+                if(object.fFlat) {
                     flat.emplace_back(obj);
                     continue;
                 }
+                if(object.fTexId < 0) continue;
                 renderElements.emplace_back(eRenderElement{false,
                                                            eRenderElementType::object,
                                                            std::static_pointer_cast<ePositioned>(obj)});
@@ -1209,9 +1217,10 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& objectTex = eObjsTextures::get(texObjectId);
             const auto& types = objectTex.fTypes;
             auto pos = obj.fPos;
-            const float size = object.fSize;
-            pos.fX += size*0.5f;
-            pos.fY += size*0.5f;
+            const float width = object.fWidth;
+            const float height = object.fHeight;
+            pos.fX += width*0.5f;
+            pos.fY += height*0.5f;
             const auto ipixel = tilePosToIPixel(pos);
             const auto& type = types[0];
             const auto& state = type[0];
@@ -1234,7 +1243,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto typeId = obj.fSubtype % types.size();
             const auto& type = types[typeId];
             const auto& tex = type[obj.fState].fTexs.getTexture(0);
-            const int h = object.fSize*tileH;
+            const int h = 0.5f*(object.fWidth + object.fHeight)*tileH;
             const auto align = eAlignment::top | eAlignment::hcenter;
             mGamePainter.drawTexture(ipixel.fX, ipixel.fY + h, tex, align);
         }
@@ -1250,9 +1259,10 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& objectTex = eObjsTextures::get(texObjectId);
             const auto& types = objectTex.fTypes;
             auto pos = w->fPos;
-            const float size = object.fSize;
-            pos.fX += size*0.5f;
-            pos.fY += size*0.5f;
+            const float width = object.fWidth;
+            const float height = object.fHeight;
+            pos.fX += width*0.5f;
+            pos.fY += height*0.5f;
             const auto iPos = pos.floor();
 
             const int areaId = mMap->areaAt(iPos);
@@ -1494,7 +1504,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto typeId = obj.fSubtype % types.size();
                 const auto& type = types[typeId];
                 const auto& tex = type[obj.fState].fTexs.getTexture(0);
-                const int h = object.fSize*tileH;
+                const int h = 0.5f*(object.fWidth + object.fHeight)*tileH;
 
                 bool highlight = false;
                 const int texW = tex->width();
@@ -1539,13 +1549,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                     }
                 }
                 eRenderCall c(eRenderCallType::object,
-                              pos.fX + obj.fSize,
-                              pos.fY + obj.fSize,
+                              pos.fX + obj.fWidth,
+                              pos.fY + obj.fHeight,
                               drawX, drawY, tex);
                 c.fHighlight = highlight;
-                c.fShadow = objectTex.fShadow;
-                c.fObjSize = obj.fSize;
-                c.fObjSplitLighting = objectTex.fSplit;
+                c.fShadow = object.fShadow;
+                c.fObjSize = 0.5f*(obj.fWidth + obj.fHeight);
+                c.fObjSplitLighting = object.fSplit;
                 mGamePainter.render(c);
             } else if(e.fType == eRenderElementType::wall) {
                 const auto& wall = static_cast<eWall&>(*ePtr);
@@ -1975,8 +1985,9 @@ void eGameWidget::setHighlightedObject(
         }
         lines.emplace_back(name);
 
-        const float size = obj->fSize;
-        const eVec2f d{size, size};
+        const float width = obj->fWidth;
+        const float height = obj->fHeight;
+        const eVec2f d{width, height};
         const auto pixel = tilePosToPixel(pos - d);
         const auto ipixel = pixel.floor();
         const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};

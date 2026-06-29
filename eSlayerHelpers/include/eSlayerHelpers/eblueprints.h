@@ -12,6 +12,8 @@ struct eBlueprintObject {
     std::optional<uint8_t> fSubtype;
     float fX;
     float fY;
+    std::optional<float> fWidth;
+    std::optional<float> fHeight;
 };
 
 struct eBlueprint {

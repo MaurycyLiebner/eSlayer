@@ -31,6 +31,8 @@ public:
 
     void addObjectShadow(const float tx, const float ty,
                          const float size);
+    void addRectShadow(const float tx, const float ty,
+                       const float width, const float height);
     void addWallShadow(const int tx, const int ty,
                        const eWallType dir,
                        const float wallMin,

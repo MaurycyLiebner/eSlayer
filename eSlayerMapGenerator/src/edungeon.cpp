@@ -243,9 +243,14 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
     const auto addObject = [&](const float x, const float y,
                                const uint16_t type,
-                               const std::optional<uint8_t> subtype) {
+                               const std::optional<uint8_t> subtype,
+                               const std::optional<float> widthO,
+                               const std::optional<float> heightO) {
         const auto& info = eObjectsInfo::sObjects.get(type);
-        const auto objPtr = mMap->addObject({x, y});
+        const float width = widthO ? *widthO : info.fWidth;
+        const float height = heightO ? *heightO : info.fHeight;
+        const auto objPtr = mMap->addObject(
+            {x, y}, width, height);
         auto& obj = *objPtr;
         obj.fObjectType = type;
         if(subtype) {
@@ -253,7 +258,6 @@ void eDungeon::generate(ePointF& spawnPos) const {
         } else {
             obj.fSubtype = eRand::rand(0, 255);
         }
-        obj.fSize = info.fSize;
 
         if(info.fType == eObjectType::trapDoor) {
             trapDoors.emplace_back(objPtr);
@@ -285,12 +289,14 @@ void eDungeon::generate(ePointF& spawnPos) const {
             waypointAdded = true;
             break;
         case eObjectType::spawnArea: {
-            const float s = 0.5f*obj.fSize;
-            mMap->mSpawnPos = obj.fPos + eVec2f{s, s};
+            const float dx = 0.5f*obj.fWidth;
+            const float dy = 0.5f*obj.fHeight;
+            mMap->mSpawnPos = obj.fPos + eVec2f{dx, dy};
         } break;
         case eObjectType::portalArea: {
-            const float s = 0.5f*obj.fSize;
-            mMap->mPortalSpawnPos = obj.fPos + eVec2f{s, s};
+            const float dx = 0.5f*obj.fWidth;
+            const float dy = 0.5f*obj.fHeight;
+            mMap->mPortalSpawnPos = obj.fPos + eVec2f{dx, dy};
         } break;
         default:
             break;
@@ -336,7 +342,9 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
 
         for(const auto& o : bp.fObjects) {
-            addObject(xMax + o.fX, yMax + o.fY, o.fType, o.fSubtype);
+            addObject(xMax + o.fX, yMax + o.fY,
+                      o.fType, o.fSubtype,
+                      o.fWidth, o.fHeight);
         }
 
         calcMaxArea(c, maxA, xMax, yMax, false);
@@ -366,7 +374,8 @@ void eDungeon::generate(ePointF& spawnPos) const {
         if(maxA == 0) return false;
         const auto type = os.fType;
         const auto subtype = os.fSubtype;
-        addObject(xMax, yMax, type, subtype);
+        addObject(xMax, yMax, type, subtype,
+                  std::nullopt, std::nullopt);
 
         calcMaxArea(c, maxA, xMax, yMax, true);
         helper.set(id, maxA);

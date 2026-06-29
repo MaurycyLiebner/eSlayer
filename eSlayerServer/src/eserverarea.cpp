@@ -918,8 +918,7 @@ bool eServerArea::findPlaceForPortal(
                 for(const auto oId : oIds) {
                     const auto& o = mMap->object(oId);
                     if(portalType != o->fObjectType) continue;
-                    const float dist = ePointF::distance(o->fPos, pos);
-                    if(dist < o->fSize) return false;
+                    if(o->inside(pos)) return false;
                 }
             }
         }
@@ -1148,11 +1147,10 @@ bool eServerArea::spawnPortal(
     eAreaIds& area) {
     const bool r = findPlaceForPortal(pos, pos);
     if(!r) return false;
-    const auto o = mMap->addObject(pos);
     const auto typeId = eObjectsInfo::sObjects.id("portal");
     const auto& info = eObjectsInfo::sObjects.get(typeId);
+    const auto o = mMap->addObject(pos, info.fWidth, info.fHeight);
     o->fObjectType = typeId;
-    o->fSize = info.fSize;
     o->fSubtype = 0;
     portalId = o->fObjectId;
     area.fMapId = mMap->id();
@@ -1186,7 +1184,7 @@ bool eServerArea::triggerObject(
         case eObjectType::treasure: {
             auto& state = sobj->fState;
             if(state != 0) return false;
-            const float fx = tx + sobj->fSize + 0.5f;
+            const float fx = tx + sobj->fWidth + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, level, 7.5f);
             state = 1;
