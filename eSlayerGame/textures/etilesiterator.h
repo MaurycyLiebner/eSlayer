@@ -58,7 +58,7 @@ struct eExtendedLight : public eLight {
 
 struct eCell {
     std::vector<eExtendedLight> fLights;
-    std::vector<std::unique_ptr<eBlockerBase>> fBlockers;
+    std::vector<std::shared_ptr<eBlockerBase>> fBlockers;
 };
 
 using eVisibleTileFunc = std::function<void(eTileInfo& tile)>;
@@ -79,7 +79,7 @@ public:
     int tileCount() const { return mTiles.size(); }
 
     void addLight(const eLight& light);
-    void addBlocker(std::unique_ptr<eBlockerBase>& b);
+    void addBlocker(const std::shared_ptr<eBlockerBase>& b);
     void lightCellRect(const eLight& light,
                        int& minCellX, int& maxCellX,
                        int& minCellY, int& maxCellY) const;

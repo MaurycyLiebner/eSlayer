@@ -92,16 +92,18 @@ void eGamePainter::render(
 void eGamePainter::addObjectShadow(
     const float tx, const float ty,
     const float size) {
-    std::unique_ptr<eBlockerBase> b =
-        std::make_unique<eObjectLightBlocker>(tx, ty, size);
+    const std::shared_ptr<eBlockerBase> b =
+        std::make_shared<eObjectLightBlocker>(
+            tx, ty, size);
     mLightingTex.addBlocker(b);
 }
 
 void eGamePainter::addRectShadow(
     const float tx, const float ty,
     const float width, const float height) {
-    std::unique_ptr<eBlockerBase> b =
-        std::make_unique<eRectLightBlocker>(tx, ty, width, height);
+    const std::shared_ptr<eBlockerBase> b =
+        std::make_shared<eRectLightBlocker>(
+            tx, ty, width, height);
     mLightingTex.addBlocker(b);
 }
 
@@ -113,9 +115,9 @@ void eGamePainter::addWallShadow(
     const bool minFeatherForce,
     const bool maxFeatherForce) {
     if(wallMin == wallMax) return;
-    auto o = std::make_unique<eWallLightBlocker>(
+    const std::shared_ptr<eBlockerBase> b =
+        std::make_unique<eWallLightBlocker>(
         tx, ty, dir, wallMin, wallMax,
         minFeatherForce, maxFeatherForce);
-    std::unique_ptr<eBlockerBase> b = std::move(o);
     mLightingTex.addBlocker(b);
 }

@@ -61,7 +61,8 @@ void eLightingHandler::addLight(const eLight& light) {
     mIterator.addLight(light);
 }
 
-void eLightingHandler::addBlocker(std::unique_ptr<eBlockerBase>& b) {
+void eLightingHandler::addBlocker(
+    const std::shared_ptr<eBlockerBase>& b) {
     mIterator.addBlocker(b);
 }
 
@@ -584,11 +585,10 @@ void eLightingHandler::calculate(
                                 }
                             } break;
                             case eBlockerBaseType::rect: {
-                                const auto& oref = static_cast<const eRectLightBlocker&>(bref);
                                 const ePointF pt{bref.fTX, bref.fTY};
-                                const ePointF pr{bref.fTX + oref.fWidth, bref.fTY};
-                                const ePointF pb{bref.fTX + oref.fWidth, bref.fTY + oref.fHeight};
-                                const ePointF pl{bref.fTX, bref.fTY + oref.fHeight};
+                                const ePointF pr{bref.fTX + bref.fWidth, bref.fTY};
+                                const ePointF pb{bref.fTX + bref.fWidth, bref.fTY + bref.fHeight};
+                                const ePointF pl{bref.fTX, bref.fTY + bref.fHeight};
                                 const auto handlePts = [&](const ePointF& p1, const ePointF& p2) {
                                     ePointF inters;
                                     const bool r = lineIntersection(tp, lp, p1, p2, &inters);
@@ -596,7 +596,8 @@ void eLightingHandler::calculate(
                                         const float dist1 = ePointF::distance(p1, inters);
                                         const float dist2 = ePointF::distance(p2, inters);
                                         const float dist = std::min(dist1, dist2);
-                                        mult = std::min(mult, 1.f - std::clamp(dist/mFeatherLen, 0.f, 1.f));
+                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                        mult = std::min(mult, 1.f - t);
                                     }
                                 };
                                 handlePts(pt, pr);

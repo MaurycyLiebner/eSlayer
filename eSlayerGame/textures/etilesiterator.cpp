@@ -113,14 +113,22 @@ void eTilesIterator::addLight(
 }
 
 void eTilesIterator::addBlocker(
-    std::unique_ptr<eBlockerBase>& b) {
-    const int x = b->fTX;
-    const int y = b->fTY;
-    const int cellX = x/sCellSize;
-    const int cellY = y/sCellSize;
-    const auto c = requestCell(cellX, cellY);
-    if(!c) return;
-    c->fBlockers.emplace_back(std::move(b));
+    const std::shared_ptr<eBlockerBase>& b) {
+    const int xMin = b->fTX;
+    const int yMin = b->fTY;
+    const int cellMinX = xMin/sCellSize;
+    const int cellMinY = yMin/sCellSize;
+    const int xMax = b->fTX + b->fWidth - 0.01f;
+    const int yMax = b->fTY + b->fHeight - 0.01f;
+    const int cellMaxX = xMax/sCellSize;
+    const int cellMaxY = yMax/sCellSize;
+    for(int cellX = cellMinX; cellX <= cellMaxX; cellX++) {
+        for(int cellY = cellMinY; cellY <= cellMaxY; cellY++) {
+            const auto c = requestCell(cellX, cellY);
+            if(!c) continue;
+            c->fBlockers.emplace_back(b);
+        }
+    }
 }
 
 void eTilesIterator::lightCellRect(

@@ -638,12 +638,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                 }
                 const auto& pos = objRef.fPos;
                 if(object.fBlocksLight == eBlockLightType::center) {
-                    const float s = 0.5f*(object.fWidth + object.fHeight);
+                    const float s = 0.5f*(objRef.fWidth + objRef.fHeight);
                     mGamePainter.addObjectShadow(
                         pos.fX, pos.fY, s);
                 } else if(object.fBlocksLight == eBlockLightType::rect) {
                     mGamePainter.addRectShadow(
-                        pos.fX, pos.fY, object.fWidth, object.fHeight);
+                        pos.fX, pos.fY, objRef.fWidth, objRef.fHeight);
                 }
                 if(object.fLightRadius > 0.01f) {
                     const float dx = 0.5f*objRef.fWidth;
@@ -926,7 +926,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const float l = uinfo.fLighting;
                     if(l > 0.01f) {
                         const auto& pos = u->fPos;
-                        mGamePainter.addLight(pos.fX, pos.fY, 3.f);
+                        mGamePainter.addLight(pos.fX, pos.fY, l);
                     }
                 }
                 renderElements.emplace_back(eRenderElement{floor,
@@ -940,7 +940,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
             const float l = uinfo.fLighting;
             if(l > 0.01f) {
-                mGamePainter.addLight(pos.fX, pos.fY, 3.f);
+                mGamePainter.addLight(pos.fX, pos.fY, l);
             }
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);

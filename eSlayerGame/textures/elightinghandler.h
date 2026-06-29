@@ -56,7 +56,7 @@ public:
     void clear();
 
     void addLight(const eLight& light);
-    void addBlocker(std::unique_ptr<eBlockerBase>& b);
+    void addBlocker(const std::shared_ptr<eBlockerBase>& b);
 
     void setTopLeftTilePos(const ePointF& pos);
 

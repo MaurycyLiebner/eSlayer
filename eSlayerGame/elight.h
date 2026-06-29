@@ -22,20 +22,26 @@ enum class eBlockerBaseType {
 
 struct eBlockerBase {
     eBlockerBase(const eBlockerBaseType type,
-                 const float tx, const float ty) :
+                 const float tx, const float ty,
+                 const float w, const float h) :
         fType(type),
-        fTX(tx), fTY(ty) {}
+        fTX(tx), fTY(ty),
+        fWidth(w), fHeight(h) {}
 
     eBlockerBaseType fType;
     float fTX;
     float fTY;
+
+    float fWidth;
+    float fHeight;
 };
 
 struct eObjectLightBlocker : public eBlockerBase {
     eObjectLightBlocker(const float tx,
                         const float ty,
                         const float size) :
-        eBlockerBase(eBlockerBaseType::object, tx, ty),
+        eBlockerBase(eBlockerBaseType::object,
+                     tx, ty, size, size),
         fSize(size) {}
     float fSize;
 };
@@ -45,10 +51,8 @@ struct eRectLightBlocker : public eBlockerBase {
                       const float ty,
                       const float width,
                       const float height) :
-        eBlockerBase(eBlockerBaseType::rect, tx, ty),
-        fWidth(width), fHeight(height) {}
-    float fWidth;
-    float fHeight;
+        eBlockerBase(eBlockerBaseType::rect,
+                     tx, ty, width, height) {}
 };
 
 struct eWallLightBlocker : public eBlockerBase {
@@ -59,7 +63,8 @@ struct eWallLightBlocker : public eBlockerBase {
                       const float wallMax,
                       const bool minFeatherForce,
                       const bool maxFeatherForce) :
-        eBlockerBase(eBlockerBaseType::wall, tx, ty),
+        eBlockerBase(eBlockerBaseType::wall,
+                     tx, ty, 1.f, 1.f),
         fDir(dir) {
         fITX = std::round(tx);
         fITY = std::round(ty);
