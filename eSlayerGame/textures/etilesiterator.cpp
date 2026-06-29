@@ -148,6 +148,8 @@ void eTilesIterator::lightCellRect(
 
 const eCell* eTilesIterator::getCellAtCellPos(
     const int cellX, const int cellY) const {
+    if(cellX < 0 || cellX > mMapWidth/sCellSize) return nullptr;
+    if(cellY < 0 || cellY > mMapHeight/sCellSize) return nullptr;
     const auto& mapCell = mCellMap[cellY][cellX];
     if(mapCell.fIter != mIter) return nullptr;
     const int id = mapCell.fId;
@@ -158,8 +160,6 @@ const eCell* eTilesIterator::getCellAtPos(
     const int x, const int y) const {
     const int cellX = x/sCellSize;
     const int cellY = y/sCellSize;
-    if(cellX < 0 || cellX > mMapWidth/sCellSize) return nullptr;
-    if(cellY < 0 || cellY > mMapHeight/sCellSize) return nullptr;
     return getCellAtCellPos(cellX, cellY);
 }
 
