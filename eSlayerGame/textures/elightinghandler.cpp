@@ -585,25 +585,50 @@ void eLightingHandler::calculate(
                                 }
                             } break;
                             case eBlockerBaseType::rect: {
+                                const float left   = bref.fTX;
+                                const float top    = bref.fTY;
+                                const float right  = left + bref.fWidth;
+                                const float bottom = top  + bref.fHeight;
+
+                                if(tp.fX >= left && tp.fX <= right &&
+                                   tp.fY >= top  && tp.fY <= bottom) {
+                                    continue;
+                                }
                                 const ePointF pt{bref.fTX, bref.fTY};
                                 const ePointF pr{bref.fTX + bref.fWidth, bref.fTY};
                                 const ePointF pb{bref.fTX + bref.fWidth, bref.fTY + bref.fHeight};
                                 const ePointF pl{bref.fTX, bref.fTY + bref.fHeight};
-                                const auto handlePts = [&](const ePointF& p1, const ePointF& p2) {
+                                const auto handlePts = [&](
+                                    const ePointF& p1, const ePointF& p2,
+                                    const bool featherP1, const bool featherP2) {
                                     ePointF inters;
                                     const bool r = lineIntersection(tp, lp, p1, p2, &inters);
                                     if(r) {
-                                        const float dist1 = ePointF::distance(p1, inters);
-                                        const float dist2 = ePointF::distance(p2, inters);
-                                        const float dist = std::min(dist1, dist2);
-                                        const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
-                                        mult = std::min(mult, 1.f - t);
+                                        float feather = 0.f;
+
+                                        if(featherP1) {
+                                            const float dist = ePointF::distance(p1, inters);
+                                            const float t = std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                            feather = std::max(feather, 1.f - t);
+                                        }
+
+                                        if(featherP2) {
+                                            const float dist = ePointF::distance(p2, inters);
+                                            const float t = 1.f - std::clamp(dist/mFeatherLen, 0.f, 1.f);
+                                            feather = std::max(feather, t);
+                                        }
+
+                                        mult = std::min(mult, feather);
                                     }
                                 };
-                                handlePts(pt, pr);
-                                handlePts(pr, pb);
-                                handlePts(pb, pl);
-                                handlePts(pl, pt);
+                                const bool tf = lp.fX >= pt.fX || lp.fY >= pt.fY;
+                                const bool rf = lp.fX <= pr.fX || lp.fY >= pr.fY;
+                                const bool bf = lp.fX <= pb.fX || lp.fY <= pb.fY;
+                                const bool lf = lp.fX >= pl.fX || lp.fY <= pl.fY;
+                                handlePts(pt, pr, tf, rf);
+                                handlePts(pr, pb, rf, bf);
+                                handlePts(pb, pl, bf, lf);
+                                handlePts(pl, pt, lf, tf);
                             } break;
                             case eBlockerBaseType::wall: {
                                 const auto& wref = static_cast<const eWallLightBlocker&>(bref);
