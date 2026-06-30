@@ -279,24 +279,33 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
     const auto calcArea = [&](const int x, const int y,
                               const eChamber& c) {
-        int dim;
-        for(dim = 0;; dim++) {
+        int area = 0;
+        int obstacles = 0;
+        for(int dim = 0;; dim++) {
             for(int dx = -dim; dx <= dim; dx++) {
                 const int xx = x + dx;
                 for(int dy = -dim; dy <= dim; dy++) {
                     const int yy = y + dy;
                     if(std::abs(dx) != dim && std::abs(dy) != dim) continue;
-                    if(!c.contains({xx, yy})) return dim;
+                    if(!c.contains({xx, yy})) return area - obstacles;
+                    area++;
                     const auto& objs = mMap->objects(xx, yy);
-                    if(!objs.empty()) return dim;
+                    if(!objs.empty()) obstacles++;
                     const auto uarea = mUnitAreas.posArea(ePoint{xx, yy});
                     if(!mUnitAreas.hasArea(uarea)) continue;
                     const auto& us = mUnitAreas.at(uarea);
-                    if(!us.empty()) return dim;
+                    for(const auto uid : us) {
+                        const auto& u = mUnits.get(uid);
+                        const auto& pos = u->fPos;
+                        const auto ipos = pos.floor();
+                        if(ipos.fX == xx && ipos.fY == yy) {
+                            obstacles++;
+                        }
+                    }
                 }
             }
         }
-        return dim;
+        return area - obstacles;
     };
 
     const auto calcMaxArea = [&](const eChamber& c,
