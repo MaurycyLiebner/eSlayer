@@ -330,6 +330,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             calcMaxArea(sc, maxA, xMax, yMax);
             helper.add(i, maxA);
         }
+        helper.randomize();
 
         const auto& types = ma.fSettings.fTypes;
         for(const auto& us : types) {

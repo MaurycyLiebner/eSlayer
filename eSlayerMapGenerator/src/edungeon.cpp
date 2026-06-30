@@ -438,6 +438,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             }
         }
     }
+    helper.randomize();
 
     const auto& bps = mSettings.fBlueprints;
     for(const auto& bp : bps) {
@@ -486,6 +487,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             const int id = ochambers.size() - 1;
             helper.add(id, maxA);
         }
+        helper.randomize();
         const auto& objs = mSettings.fOutsideObjects;
         for(const auto& os : objs) {
             for(int i = 0; i < os.fCount; i++) {

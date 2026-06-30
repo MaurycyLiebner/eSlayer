@@ -1,6 +1,21 @@
 #include "eSlayerHelpers/eplacementhelper.h"
 
+#include <vector>
+#include <string>
+
+#include <eSlayerHelpers/erand.h>
+
 ePlacementHelper::ePlacementHelper() {}
+
+void ePlacementHelper::randomize() {
+    std::vector<std::pair<int, int>> vec(
+        mMap.begin(), mMap.end());
+
+    eRand::randomShuffle(vec);
+
+    mMap.clear();
+    mMap.insert(vec.begin(), vec.end());
+}
 
 void ePlacementHelper::add(
     const int id, const int count) {

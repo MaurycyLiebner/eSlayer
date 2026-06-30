@@ -9,6 +9,7 @@ class ESLAYERHELPERS_API ePlacementHelper {
 public:
     ePlacementHelper();
 
+    void randomize();
     void add(const int id, const int count);
     int get(int& area);
     void set(const int id, const int count);
