@@ -1509,11 +1509,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                 bool highlight = false;
                 const int texW = tex->width();
                 const int texH = tex->height();
-                int drawX = ipixel.fX;
-                int drawY = ipixel.fY + h;
                 const auto otype = obj.fObjectType;
                 const auto& info = eObjectsInfo::sObjects.get(otype);
-                eAlignment align = eAlignment::top | eAlignment::hcenter;
+                int drawX = info.fSplit ? ipixel.fX - tileW/2 : ipixel.fX ;
+                int drawY = ipixel.fY + h;
+                const auto align = info.fSplit ?
+                    eAlignment::top | eAlignment::right :
+                    eAlignment::top | eAlignment::hcenter;
                 bool highlightable = false;
                 switch(info.fType) {
                 case eObjectType::treasure: {
