@@ -845,19 +845,31 @@ bool eServerArea::addClient(
     const eScreenDimensions& screenDims,
     const eMoveToMapData& moveData,
     ePointF& spawnPos) {
-    spawnPos = mMap->spawnPos(moveData.fFrom);
-    if(moveData.fType == eMoveToMapType::waypoint) {
+    switch(moveData.fType) {
+    case eMoveToMapType::waypoint: {
         const auto& to = moveData.fTo;
         const auto toArea = to.fAreaId;
-        mMap->waypointPosition(toArea, spawnPos);
-    } else if(moveData.fType == eMoveToMapType::portal) {
+        const bool r = mMap->waypointPosition(
+            toArea, spawnPos);
+        if(!r) return false;
+    } break;
+    case eMoveToMapType::portal: {
         const auto pid = moveData.fPortalId;
         const auto p = ePortal::portal(pid);
-        if(p) {
-            const bool camp = p->fCampPortalId == pid;
-            spawnPos = camp ? p->fOutdoorPos : p->fCampPos;
-        }
+        if(!p) return false;
+        const bool camp = p->fCampPortalId == pid;
+        spawnPos = camp ? p->fOutdoorPos : p->fCampPos;
+    } break;
+    case eMoveToMapType::entrance: {
+        const bool r = mMap->spawnPos(
+            moveData.fFrom, spawnPos);
+        if(!r) return false;
+    } break;
+    case eMoveToMapType::respawn: {
+        spawnPos = mMap->spawnPos();
+    } break;
     }
+
     findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
     const auto a = std::make_shared<eClientAction>(*u, *this);

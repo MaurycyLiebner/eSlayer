@@ -59,7 +59,13 @@ bool eLocalServer::requestMap(
         const auto& map = ma.fMap;
         map->mapData(data);
         if(carea) {
-            eServerArea::moveClient(clientId, *carea, *area, moveData, data.fSpawnPos);
+            const bool r = eServerArea::moveClient(
+                clientId, *carea, *area,
+                moveData, data.fSpawnPos);
+            if(!r) {
+                disconnect(clientId);
+                return;
+            }
             const auto mapId = map->id();
             eSlayers::setLocation(clientId, mapId, data.fSpawnPos);
         }

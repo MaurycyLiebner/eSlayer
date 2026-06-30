@@ -55,16 +55,19 @@ const std::shared_ptr<eObject>& eMap::object(
     return mObjects[id];
 }
 
-ePointF eMap::spawnPos(const eAreaIds& from) const {
+bool eMap::spawnPos(const eAreaIds& from,
+                    ePointF& result) const {
     for(const auto& s : mStairs) {
         if(s.fTo != from) continue;
-        return {s.fX, s.fY};
+        result = {s.fX, s.fY};
+        return true;
     }
     for(const auto& o : mConnObjs) {
         if(o->fTo != from) continue;
-        return o->fPos;
+        result = o->fPos;
+        return true;
     }
-    return spawnPos();
+    return false;
 }
 
 bool eMap::walkable(const ePointF& pos) {

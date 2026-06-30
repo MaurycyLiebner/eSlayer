@@ -56,7 +56,8 @@ public:
     const std::shared_ptr<eObject>& object(const int id) const;
 
     const ePointF& spawnPos() const { return mSpawnPos; }
-    ePointF spawnPos(const eAreaIds& from) const;
+    bool spawnPos(const eAreaIds& from,
+                  ePointF& result) const;
     const ePointF& portalSpawnPos() const { return mPortalSpawnPos; }
 
     const std::set<uint16_t>&
