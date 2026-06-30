@@ -174,7 +174,7 @@ bool eMiniMapArea::setKnown(
                     const float dx = pos.fX - mx;
                     const float dy = pos.fY - my;
                     crossX += (dx - dy)*fTileW/2;
-                    crossY += (dx + dy)*fTileH/2;
+                    crossY += (dx + dy + 1)*fTileH/2;
                 } break;
                 default:
                     break;

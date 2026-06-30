@@ -10,16 +10,23 @@ class ePainter;
 
 struct eMiniMapArea {
     static const int sAreaDim = 10;
-    eMiniMapArea(const eResolution* res, SDL_Renderer* const r);
+    eMiniMapArea(const eResolution* res,
+                 SDL_Renderer* const r);
 
     void initialize();
 
-    void setKnown(ePointF pos, const int x0, const int y0, eMap& map);
+    void setKnown(ePointF pos,
+                  const int x0, const int y0,
+                  eMap& map);
 
-    bool setKnown(ePainter& p, const int x0, const int y0, const int x, const int y, eMap& map,
+    bool setKnown(ePainter& p,
+                  const int x0, const int y0,
+                  const int x, const int y,
+                  eMap& map,
                   const float xOffset);
 
-    bool tryFillingPastKnown(const int x0, const int y0, eMap& map);
+    bool tryFillingPastKnown(const int x0, const int y0,
+                             eMap& map);
 
     const eResolution* fRes = nullptr;
     SDL_Renderer* fR = nullptr;
