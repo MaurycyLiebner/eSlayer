@@ -125,6 +125,9 @@ public:
         const uint8_t areaId, ePointF& pos) const;
 private:
     void generateTiles(const int w, const int h);
+    using eIter = std::function<void(const int x, const int y)>;
+    void iterateOverObjectTiles(const std::shared_ptr<eObject>& o,
+                                const eIter& iter);
 
     const uint8_t mId;
 

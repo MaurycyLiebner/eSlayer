@@ -126,9 +126,9 @@ bool eMap::objectPosition(const uint32_t objectId,
     return false;
 }
 
-void eMap::addObject(const std::shared_ptr<eObject>& o) {
-    const int id = mObjects.size();
-    mObjects.emplace_back(o);
+void eMap::iterateOverObjectTiles(
+    const std::shared_ptr<eObject>& o,
+    const eIter& iter) {
     const auto& pos = o->fPos;
     const auto min = pos.floor();
     const float w = o->fWidth;
@@ -140,20 +140,27 @@ void eMap::addObject(const std::shared_ptr<eObject>& o) {
         for(int y = min.fY; y <= max.fY; y++) {
             const bool in = inside(x, y);
             if(!in) continue;
-            mObjectsMap[y][x].emplace_back(id);
+            iter(x, y);
         }
     }
+}
+
+void eMap::addObject(const std::shared_ptr<eObject>& o) {
+    const int id = mObjects.size();
+    mObjects.emplace_back(o);
+    iterateOverObjectTiles(o, [&](const int x, const int y) {
+        mObjectsMap[y][x].emplace_back(id);
+    });
 }
 
 void eMap::removeObject(const uint32_t objectId) {
     for(int i = 0; i < mObjects.size(); i++) {
         const auto& o = mObjects[i];
         if(o->fObjectId != objectId) continue;
-        const auto& pos = o->fPos;
-        const auto iPos = pos.floor();
-        auto& vec = mObjectsMap[iPos.fY][iPos.fX];
-        eVectorHelpers::remove(vec, i);
-        break;
+        iterateOverObjectTiles(o, [&](const int x, const int y) {
+            auto& vec = mObjectsMap[y][x];
+            eVectorHelpers::remove(vec, i);
+        });
     }
 }
 
@@ -226,8 +233,13 @@ bool eMap::extractPortion(
             dstTile = srcTile;
 
             const auto& objs = objects(srcX, srcY);
+            const ePoint srcPos{srcX, srcY};
             for(const auto id : objs) {
                 const auto& o = object(id);
+                const auto& pos = o->fPos;
+                const auto ipos = pos.floor();
+                const bool isMain = ipos == srcPos;
+                if(!isMain) continue;
                 result.fObjects.emplace_back(o);
             }
         }
