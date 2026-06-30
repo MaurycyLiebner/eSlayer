@@ -70,20 +70,18 @@ void eMapsSettings::load() {
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;
                     auto& mtypes = monsters.fTypes;
-                    const auto& items = jArea["monsters"];
-                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
-                        const auto mname = cit.key();
-                        const auto& values = cit.value();
+                    for(const auto& values : jArea["monsters"]) {
                         eMonsterCount result;
-                        result.fCount = values.value("count", 1);
-                        result.fGroupSize = values.value("groupSize", 1);
-                        result.fElite = values.value("elite", false);
-                        result.fMinArea = values.value("minArea", 0);
+                        const auto mname = values.value("type", "");
                         result.fBaseType = eCharDataInfo::id(mname);
                         if(result.fBaseType < 0) {
                             eRuntimeThrow("Invalid monster type \"" + mname +
                                           "\" in " + dir + "/" + name + ".json");
                         }
+                        result.fCount = values.value("count", 1);
+                        result.fGroupSize = values.value("groupSize", 1);
+                        result.fElite = values.value("elite", false);
+                        result.fMinArea = values.value("minArea", 0);
                         const auto typeNames = values.value("types", std::vector<std::string>({mname}));
                         for(const auto& typeName : typeNames) {
                             const auto type = eCharDataInfo::id(typeName);
@@ -108,25 +106,18 @@ void eMapsSettings::load() {
 
                 const auto parseObjects = [&](const ordered_json& items,
                                               std::vector<eObjectCount>& vec) {
-                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
-                        const auto oname = cit.key();
+                    for(const auto& values : items) {
+                        const auto oname = values.value("type", "");
                         const int type = eObjectsInfo::sObjects.id(oname);
                         if(type == -1) {
                             eRuntimeThrow("Invalid object type \"" + oname +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        const auto& values = cit.value();
-                        int count = 1;
-                        int minArea = 0;
+                        const int count = values.value("count", 1);
+                        const int minArea = values.value("minArea", 0);
                         std::optional<uint8_t> subtype;
-                        if(values.is_number_integer()) {
-                            count = values;
-                        } else {
-                            count = values.value("count", 1);
-                            minArea = values.value("minArea", 0);
-                            if(values.contains("subtype")) {
-                                subtype = values.value("subtype", 0);
-                            }
+                        if(values.contains("subtype")) {
+                            subtype = values.value("subtype", 0);
                         }
                         vec.emplace_back(type, subtype, count, minArea);
                     }
@@ -144,20 +135,14 @@ void eMapsSettings::load() {
 
                 const auto parseBlueprints = [&](const ordered_json& items,
                                                  std::vector<eBlueprintCount>& vec) {
-                    for(auto cit = items.begin(); cit != items.end(); ++cit) {
-                        const auto bpname = cit.key();
+                    for(const auto& values : items) {
+                        const auto bpname = values.value("type", "");
                         const int type = eBlueprints::sBlueprints.id(bpname);
                         if(type == -1) {
                             eRuntimeThrow("Invalid blueprint type \"" + bpname +
                                           "\" in " + dir + "/" + name + ".json");
                         }
-                        const auto& values = cit.value();
-                        int count = 1;
-                        if(values.is_number_integer()) {
-                            count = values;
-                        } else {
-                            count = values.value("count", 1);
-                        }
+                        const int count = values.value("count", 1);
                         vec.emplace_back(type, count);
                     }
                 };
