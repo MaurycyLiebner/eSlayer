@@ -82,6 +82,15 @@ bool eTcpIpHost::sendMessage(const uint32_t clientId,
     return true;
 }
 
+bool eTcpIpHost::requestMap(
+    const uint32_t clientId,
+    const eMoveToMapData& moveData,
+    const eMapReadyAction& func) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::requestMap(
+        clientId, moveData, func);
+}
+
 bool eTcpIpHost::spawn(
     const uint32_t clientId,
     eCharacter& c,

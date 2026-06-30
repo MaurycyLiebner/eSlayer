@@ -19,6 +19,10 @@ public:
     bool sendMessage(const uint32_t clientId,
                      const std::string& text) override;
 
+    bool requestMap(const uint32_t clientId,
+                    const eMoveToMapData& moveData,
+                    const eMapReadyAction& func) override;
+
     bool spawn(const uint32_t clientId,
                eCharacter& c,
                eTeamId& teamId,
