@@ -134,6 +134,16 @@ void eGameScreen::initialize(const uint32_t clientId,
         }
     };
 
+    mMiniMap = new eMiniMap(window());
+    mMiniMap->resize(width(), height());
+    eGameSettings settings;
+    settings.fType = server->name();
+    settings.fIP = server->ip();
+    settings.fPassword = server->password();
+    mMiniMap->initialize(settings);
+    mMiniMap->setMap(map);
+    addWidget(mMiniMap);
+
     mBottomWidget = new eBottomWidget(
         stats, eq, window());
     mBottomWidget->initialize(
@@ -149,16 +159,6 @@ void eGameScreen::initialize(const uint32_t clientId,
     mMenusWidget = new eWidget(window());
     mMenusWidget->resize(w, h);
     addWidget(mMenusWidget);
-
-    mMiniMap = new eMiniMap(window());
-    mMiniMap->resize(width(), height());
-    eGameSettings settings;
-    settings.fType = server->name();
-    settings.fIP = server->ip();
-    settings.fPassword = server->password();
-    mMiniMap->initialize(settings);
-    mMiniMap->setMap(map);
-    addWidget(mMiniMap);
 
     const auto& attrs = mGameWidget->attributes();
 
