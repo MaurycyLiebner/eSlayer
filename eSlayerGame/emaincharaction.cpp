@@ -9,6 +9,8 @@
 #include "widgets/gameScreen/egamewidget.h"
 #include "screens/egamescreen.h"
 
+#include "etext.h"
+
 #include <eSlayerServer/eserver.h>
 
 #include <eSlayerMapGenerator/emap.h>
@@ -261,8 +263,58 @@ void eMainCharAction::increment(const bool mousePressed,
                 eGameScreen::sOpenStash();
             } else if(info.fType == eObjectType::healer ||
                       info.fType == eObjectType::trader) {
-                const auto sellerId = object->fObjectId;
-                eGameWidget::sOpenSellerMenu(sellerId);
+                const float width = 2*object->fWidth;
+                const float height = 2*object->fHeight;
+                const eVec2f d{width, height};
+                const auto gw = eGameWidget::sInstance;
+                const auto pixel = gw->tilePosToPixel(opos - d);
+                const auto ipixel = pixel.floor();
+                const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+                const auto actions = std::make_shared<std::vector<eHoverAction>>();
+                auto& actionsRef = *actions;
+
+                const auto openMainMenu = [rect, actions]() {
+                    auto& actionsRef = *actions;
+                    eHoverWidget::sOpenMenu("Idoya", actionsRef, rect);
+                };
+
+                {
+                    auto& talkAct = actionsRef.emplace_back();
+                    talkAct.fText = eText::text(20, 0);
+                    talkAct.fPress = [rect, openMainMenu]() {
+                        std::vector<eHoverAction> talkActions;
+                        {
+                            auto& a = talkActions.emplace_back();
+                            a.fText = "Introduction";
+                            a.fPress = [rect]() {
+                                eHoverWidget::sOpenTalk("\"The wounded always find their way here... one way or another.\"\n\n Welcome, traveler. Sit a while and let me tend to your wounds. Steel can be reforged, but flesh is less forgiving, and the roads beyond this camp show little mercy to the careless. I keep fresh bandages, healing draughts, and restorative elixirs for those willing to brave the darkness. Whether you seek to mend broken bones, replenish your strength, or prepare for the trials ahead, you'll find what you need here. May your hands remain steady, your heart resolute, and your supply of potions never run dry. The wilds claim enough souls already—I would rather they not claim yours.", rect);
+                            };
+                        }
+                        {
+                            auto& cancelAct = talkActions.emplace_back();
+                            cancelAct.fText = eText::text(20, 2);
+                            cancelAct.fPress = openMainMenu;
+                        }
+                        eHoverWidget::sOpenMenu(eText::text(20, 0), talkActions, rect);
+                    };
+                }
+                {
+                    auto& tradeAct = actionsRef.emplace_back();
+                    tradeAct.fText = eText::text(20, 1);
+                    const auto sellerId = object->fObjectId;
+                    tradeAct.fPress = [sellerId]() {
+                        eHoverWidget::sOpenMenu("", {});
+                        eGameWidget::sOpenSellerMenu(sellerId);
+                    };
+                }
+                {
+                    auto& cancelAct = actionsRef.emplace_back();
+                    cancelAct.fText = eText::text(20, 2);
+                    cancelAct.fPress = []() {
+                        eHoverWidget::sOpenMenu("", {});
+                    };
+                }
+                openMainMenu();
             } else if(info.fType == eObjectType::trapDoor) {
                 if(object->fState == 0) {
                     const eServerObject sobject(mapId, *object);

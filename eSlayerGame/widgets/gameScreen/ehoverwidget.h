@@ -12,6 +12,13 @@ struct eEquipment;
 struct eItem;
 struct eAttributes;
 struct eStats;
+class eHoverMenu;
+class eTalkWidget;
+
+struct eHoverAction {
+    std::string fText;
+    eAction fPress;
+};
 
 class eHoverWidget : public eWidget {
 public:
@@ -38,6 +45,12 @@ public:
                        const bool showNextLevel,
                        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
+    void openMenu(const std::string& name,
+                  const std::vector<eHoverAction>& actions,
+                  const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    void openTalk(const std::string& text,
+                  const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+
     static eHoverWidget* sInstance;
     static void sUpdateDragItem(const eEquipment& eq);
     static void sSetHoverItem(
@@ -51,6 +64,13 @@ public:
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     static void sSetGameTooltip(
         const std::vector<std::string>& text,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    static void sOpenMenu(
+        const std::string& name,
+        const std::vector<eHoverAction>& actions,
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    static void sOpenTalk(
+        const std::string& text,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 protected:
     void paintEvent(ePainter& p) override;
@@ -78,6 +98,9 @@ private:
 
     std::vector<std::string> mTooltip;
     std::shared_ptr<eTexture> mTooltipTex;
+
+    eHoverMenu* mMenu = nullptr;
+    eTalkWidget* mTalkWidget = nullptr;
 };
 
 #endif // EHOVERWIDGET_H

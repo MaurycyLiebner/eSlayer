@@ -4,6 +4,10 @@
 #include "../../etext.h"
 #include "ehovergenerator.h"
 #include "../../names/eskillnames.h"
+#include "../ecolors.h"
+#include "../../textures/etextgenerator.h"
+#include "../escrollwidget.h"
+#include "../elabel.h"
 
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eequipment.h>
@@ -11,6 +15,7 @@
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/erunsettings.h>
 
 eHoverWidget* eHoverWidget::sInstance = nullptr;
 
@@ -460,6 +465,220 @@ void eHoverWidget::setHoverSkill(
     mHoverSkillId = skillId;
 }
 
+class eHoverLine : public eWidget {
+public:
+    using eWidget::eWidget;
+
+    void initialize(const std::string& text,
+                    const eAction& action,
+                    const bool hover) {
+        setNoPadding();
+
+        mAction = action;
+        const auto r = renderer();
+        const auto& res = resolution();
+        const int fontSize = res.smallFontSize();
+        const auto font = eFonts::defaultFont(fontSize);
+        {
+            const auto color = hover ?
+                eFontColor::white : eFontColor::gray;
+            eTextGenerator gen(r, color, font);
+            mNormal = gen.generate(text);
+        }
+        if(hover) {
+            eTextGenerator gen(r, eFontColor::blue, font);
+            mHover = gen.generate(text);
+        }
+
+        const int w = mNormal->width();
+        const int h = mNormal->height();
+        resize(w, h);
+    }
+protected:
+    void paintEvent(ePainter& p) override {
+        if(!mHover || !hovered()) {
+            p.drawTexture(0, 0, mNormal);
+        } else {
+            p.drawTexture(0, 0, mHover);
+        }
+    }
+
+    bool mouseReleaseEvent(const eMouseEvent& e) override {
+        if(mAction) mAction();
+        return true;
+    }
+
+    bool mousePressEvent(const eMouseEvent& e) override {
+        return true;
+    }
+private:
+    eAction mAction;
+    std::shared_ptr<eTexture> mNormal;
+    std::shared_ptr<eTexture> mHover;
+};
+
+class eHoverMenu : public eWidget {
+public:
+    using eWidget::eWidget;
+
+    void initialize(const std::string& name,
+                    const std::vector<eHoverAction>& actions) {
+        setNoPadding();
+
+        const auto inner = new eWidget(window());
+        inner->setNoPadding();
+
+        std::vector<eHoverLine*> lines;
+
+        const auto l = new eHoverLine(window());
+        l->initialize(name, nullptr, false);
+        lines.emplace_back(l);
+        inner->addWidget(l);
+
+        for(const auto& a : actions) {
+            const auto l = new eHoverLine(window());
+            l->initialize(a.fText, a.fPress, true);
+            inner->addWidget(l);
+            lines.emplace_back(l);
+        }
+
+        inner->stackVertically();
+        inner->fitContent();
+
+        for(const auto l : lines) {
+            l->align(eAlignment::hcenter);
+        }
+
+        addWidget(inner);
+
+        const auto& res = resolution();
+        const int p = res.largePadding();
+
+        resize(inner->width() + 2*p,
+               inner->height() + 2*p);
+        inner->move(p, p);
+    }
+protected:
+    void paintEvent(ePainter& p) override {
+        const auto r = rect();
+        p.fillRect(r, eColors::sHoverBg);
+    }
+
+    bool mousePressEvent(const eMouseEvent& e) override {
+        return true;
+    }
+
+    bool mouseReleaseEvent(const eMouseEvent& e) override {
+        return true;
+    }
+};
+
+class eTalkWidget : public eWidget {
+public:
+    using eWidget::eWidget;
+
+    void initialize(const eAction& closeAction,
+                    const std::string& text) {
+        const auto& res = resolution();
+        const int p = res.largePadding();
+        const int w = res.centralWidgetSmallWidth();
+        const int h = res.centralWidgetSmallHeight()/3;
+        const auto label = new eLabel(window());
+        label->setNoPadding();
+        label->setWrapWidth(w);
+        label->setText(text);
+        label->setSmallFontSize();
+        label->fitContent();
+        mScroll = new eScrollWidget(window());
+        mScroll->setNoPadding();
+        mScroll->setScrollArea(label);
+        mScroll->resize(w, h);
+        addWidget(mScroll);
+        resize(w + 2*p, h + 2*p);
+        mScroll->move(p, p);
+        mCloseAction = closeAction;
+    }
+protected:
+    void paintEvent(ePainter& p) override {
+        const auto r = rect();
+        p.fillRect(r, eColors::sHoverBg);
+        mDY += 8.f/eRunSettings::sFPS;
+        mScroll->setDY(mDY);
+        if(mDY > mScroll->dy() + 125) {
+            if(mCloseAction) mCloseAction();
+        }
+    }
+
+    bool mousePressEvent(const eMouseEvent& e) override {
+        return true;
+    }
+
+    bool mouseReleaseEvent(const eMouseEvent& e) override {
+        if(mCloseAction) mCloseAction();
+        return true;
+    }
+private:
+    float mDY = -20.f;
+    eAction mCloseAction;
+    eScrollWidget* mScroll = nullptr;
+};
+
+void position(eWidget* const w,
+              const int padding,
+              const SDL_Rect& rect) {
+    const int x = std::max(padding, rect.x - (w->width() - rect.w)/2);
+    const int y = std::max(padding, rect.y - w->height());
+    w->move(x, y);
+}
+
+void eHoverWidget::openMenu(
+    const std::string& name,
+    const std::vector<eHoverAction>& actions,
+    const SDL_Rect& rect) {
+    if(mMenu) {
+        mMenu->deleteLater();
+        mMenu = nullptr;
+    }
+    if(mTalkWidget) {
+        mTalkWidget->deleteLater();
+        mTalkWidget = nullptr;
+    }
+    if(actions.empty()) {
+        return;
+    }
+
+    mMenu = new eHoverMenu(window());
+    mMenu->initialize(name, actions);
+    addWidget(mMenu);
+    const auto& res = resolution();
+    const int p = res.largePadding();
+    position(mMenu, p, rect);
+}
+
+void eHoverWidget::openTalk(
+    const std::string& text,
+    const SDL_Rect& rect) {
+    if(mTalkWidget) {
+        mTalkWidget->deleteLater();
+        mTalkWidget = nullptr;
+    }
+    if(text.empty()) {
+        if(mMenu) mMenu->show();
+        return;
+    }
+    if(mMenu) mMenu->hide();
+
+    mTalkWidget = new eTalkWidget(window());
+    const auto closeAction = [this]() {
+        eHoverWidget::sOpenTalk("");
+    };
+    mTalkWidget->initialize(closeAction, text);
+    addWidget(mTalkWidget);
+    const auto& res = resolution();
+    const int p = res.largePadding();
+    position(mTalkWidget, p, rect);
+}
+
 void eHoverWidget::sUpdateDragItem(const eEquipment& eq) {
     if(!sInstance) return;
     sInstance->setItem(eq.fDragged);
@@ -489,6 +708,21 @@ void eHoverWidget::sSetGameTooltip(
     const SDL_Rect& rect) {
     if(!sInstance) return;
     sInstance->setGameTooltip(text, rect);
+}
+
+void eHoverWidget::sOpenMenu(
+    const std::string& name,
+    const std::vector<eHoverAction>& actions,
+    const SDL_Rect& rect) {
+    if(!sInstance) return;
+    sInstance->openMenu(name, actions, rect);
+}
+
+void eHoverWidget::sOpenTalk(
+    const std::string& text,
+    const SDL_Rect& rect) {
+    if(!sInstance) return;
+    sInstance->openTalk(text, rect);
 }
 
 void eHoverWidget::paintEvent(ePainter& p) {

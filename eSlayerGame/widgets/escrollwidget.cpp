@@ -22,6 +22,11 @@ void eScrollWidget::scrollDown() {
     clampDY();
 }
 
+void eScrollWidget::setDY(const int dy) {
+    mDy = dy;
+    clampDY();
+}
+
 void eScrollWidget::scrollToTheTop() {
     mDy = 0;
     clampDY();

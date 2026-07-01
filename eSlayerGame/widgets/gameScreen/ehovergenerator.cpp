@@ -3,6 +3,7 @@
 #include "../../textures/etextgenerator.h"
 #include "../epainter.h"
 #include "../../etext.h"
+#include "../ecolors.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eskills.h>
@@ -188,7 +189,7 @@ eHoverGenerator::generate(const eResolution& res,
     const int fillMargin = 10*mult;
     result->create(r, maxWidth + 2*fillMargin,
                    totalHeight+2*fillMargin,
-                   SDL_Color{0, 0, 0, 200});
+                   eColors::sHoverBg);
     {
         const auto h = result->createTargetHolder(r);
         ePainter p(r);

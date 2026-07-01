@@ -405,6 +405,8 @@ void eGameScreen::hidePositionedMenu() {
     if(mStashMenu || mSellerMenu) {
         hideInventoryConnectedMenu();
     }
+    eHoverWidget::sOpenMenu("", {});
+    eHoverWidget::sOpenTalk("");
     updateCharPos();
 }
 

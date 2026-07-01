@@ -10,6 +10,7 @@ struct eColors {
     static SDL_Color sStamina;
     static SDL_Color sStaminaPotion;
     static SDL_Color sExperience;
+    static SDL_Color sHoverBg;
 };
 
 #endif // ECOLORS_H

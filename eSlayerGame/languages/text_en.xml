@@ -239,4 +239,9 @@
         <string id="11">Gradually Restores %1% of Mana</string>
         <string id="12">Gradually Restores %1% of Stamina</string>
     </group>
+    <group id="20">
+        <string id="0">Talk</string>
+        <string id="1">Trade</string>
+        <string id="2">Cancel</string>
+    </group>
 </strings>

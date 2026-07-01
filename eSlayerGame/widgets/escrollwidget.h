@@ -14,10 +14,13 @@ public:
 
     void scrollUp();
     void scrollDown();
+    void setDY(const int dy);
     void scrollToTheTop();
     void scrollToTheBottom();
     void clampDY();
     void setScrollStep(const int s);
+
+    int dy() const { return mDy; }
 protected:
     void paintEvent(ePainter& p) override;
 
