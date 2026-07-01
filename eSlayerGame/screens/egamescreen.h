@@ -28,6 +28,7 @@ class eBottomWidget;
 class eStashWidget;
 struct eSeller;
 class eSellerWidget;
+class eQuestsWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -77,6 +78,9 @@ private:
     void showPartyMenu();
     void hidePartyMenu();
 
+    void showQuestsMenu();
+    void hideQuestsMenu();
+
     void showStatsMenu();
     void hideStatsMenu();
 
@@ -118,6 +122,7 @@ private:
     eHoverWidget* mDragWidget = nullptr;
     eMiniMap* mMiniMap = nullptr;
     eStashWidget* mStashMenu = nullptr;
+    eQuestsWidget* mQuestsMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
 
     eWidget* mSkillMenu = nullptr;

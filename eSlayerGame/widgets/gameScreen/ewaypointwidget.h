@@ -1,13 +1,13 @@
 #ifndef EWAYPOINTWIDGET_H
 #define EWAYPOINTWIDGET_H
 
-#include "ebgwidget.h"
+#include "eactswidget.h"
 
-#include "eSlayerHelpers/eobject.h"
+#include <eSlayerHelpers/eareaids.h>
 
-class eWaypointWidget : public eBgWidget {
+class eWaypointWidget : public eActsWidget {
 public:
-    using eBgWidget::eBgWidget;
+    using eActsWidget::eActsWidget;
 
     using eWaypointAction = std::function<
         void(const eAreaIds& area)>;

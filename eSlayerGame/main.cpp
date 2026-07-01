@@ -26,6 +26,7 @@
 #include "names/eservernames.h"
 #include "names/elanguagenames.h"
 #include "names/etalktext.h"
+#include "names/equesttext.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -347,6 +348,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eTalkText::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eQuestText::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

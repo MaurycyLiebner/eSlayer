@@ -20,6 +20,7 @@
 #include "../widgets/gameScreen/ebottomwidget.h"
 #include "../widgets/gameScreen/estashwidget.h"
 #include "../widgets/gameScreen/esellerwidget.h"
+#include "../widgets/gameScreen/equestswidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -134,6 +135,15 @@ void eGameScreen::initialize(const uint32_t clientId,
         }
     };
 
+    const auto questsA = [this](const bool) {
+        if(mQuestsMenu) {
+            hideQuestsMenu();
+        } else {
+            hideLeftMenu();
+            showQuestsMenu();
+        }
+    };
+
     mMiniMap = new eMiniMap(window());
     mMiniMap->resize(width(), height());
     eGameSettings settings;
@@ -230,6 +240,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideSkillTreesMenu();
         } else if(mPartyMenu) {
             hidePartyMenu();
+        } else if(mQuestsMenu) {
+            hideQuestsMenu();
         } else if(mWaypointMenu) {
             hideWaypointMenu();
         } else if(mSkillMenu) {
@@ -282,6 +294,13 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else {
             hideLeftMenu();
             showPartyMenu();
+        }
+    } else if(!mMessage && key == SDL_SCANCODE_Q) {
+        if(mQuestsMenu) {
+            hideQuestsMenu();
+        } else {
+            hideLeftMenu();
+            showQuestsMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_T) {
         if(mSkillTreesMenu) {
@@ -414,6 +433,9 @@ void eGameScreen::hideLeftMenu() {
     if(mPartyMenu) {
         hidePartyMenu();
     }
+    if(mQuestsMenu) {
+        hideQuestsMenu();
+    }
     if(mStatsMenu) {
         hideStatsMenu();
     }
@@ -537,6 +559,27 @@ void eGameScreen::hidePartyMenu() {
     if(!mPartyMenu) return;
     mPartyMenu->deleteLater();
     mPartyMenu = nullptr;
+    updateCharPos();
+}
+
+void eGameScreen::showQuestsMenu() {
+    if(mQuestsMenu) return;
+    mQuestsMenu = new eQuestsWidget(window());
+    const int w = width();
+    const int h = height();
+    mQuestsMenu->resize(w/2, h - mBottomWidget->height());
+    const auto& map = mGameWidget->map();
+    const auto actId = map->actId();
+    mQuestsMenu->initialize(actId, eSlayerQuests());
+    mMenusWidget->addWidget(mQuestsMenu);
+    mQuestsMenu->align(eAlignment::left | eAlignment::top);
+    updateCharPos();
+}
+
+void eGameScreen::hideQuestsMenu() {
+    if(!mQuestsMenu) return;
+    mQuestsMenu->deleteLater();
+    mQuestsMenu = nullptr;
     updateCharPos();
 }
 
@@ -764,7 +807,7 @@ void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
     const bool left = mStatsMenu || mPartyMenu ||
                       mWaypointMenu || mStashMenu ||
-                      mSellerMenu;
+                      mSellerMenu || mQuestsMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {

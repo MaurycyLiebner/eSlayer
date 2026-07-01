@@ -13,14 +13,17 @@ struct eQuestStep {
     int fCount = 0;
 };
 
-struct eQuest {
-    std::string fTexture;
+struct ESLAYERHELPERS_API eQuest {
     int fAct = 0;
     std::vector<eQuestStep> fSteps;
     std::vector<int> fPrerequisites;
+
+    int nStages() const {
+        return fSteps.size() + 2;
+    }
 };
 
-class eQuests {
+class ESLAYERHELPERS_API eQuests {
 public:
     static eStringIdMapVector<eQuest> sQuests;
 

@@ -24,7 +24,6 @@ void eQuests::load() {
                 const auto& key = it.key();
                 const auto& value = it.value();
                 eQuest q;
-                q.fTexture = value.value("texture", "");
                 q.fAct = act;
 
                 if(!value.contains("steps")) {

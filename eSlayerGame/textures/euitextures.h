@@ -11,6 +11,12 @@
 class SDL_Renderer;
 class eTexture;
 
+struct eQuestTextures {
+    std::shared_ptr<eTexture> fNotStarted;
+    std::shared_ptr<eTexture> fStarted;
+    std::shared_ptr<eTexture> fFinished;
+};
+
 class eUITextures {
 public:
     static void sLoad(SDL_Renderer* const r,
@@ -83,6 +89,9 @@ public:
     sWeaponSwitch1;
     static std::shared_ptr<eTexture>
     sWeaponSwitch2;
+
+    static eStringIdMapVector<eQuestTextures>
+    sQuestIcons;
 private:
     static std::string sLoaded;
 };

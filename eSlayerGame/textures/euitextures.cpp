@@ -62,6 +62,9 @@ eUITextures::sStatsPlusButtonHovered;
 std::shared_ptr<eTexture> eUITextures::sWeaponSwitch1;
 std::shared_ptr<eTexture> eUITextures::sWeaponSwitch2;
 
+eStringIdMapVector<eQuestTextures>
+eUITextures::sQuestIcons;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
     const auto suffix = res.textureSuffix();
@@ -135,19 +138,66 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sWeaponSwitch1 = eFileLoader::readTexture(r, dir, "ui/inventory/weaponSwitch1" + suffix + ".png");
     sWeaponSwitch2 = eFileLoader::readTexture(r, dir, "ui/inventory/weaponSwitch2" + suffix + ".png");
 
-    const auto path = "ui/skills/skills.json";
-    const auto jdata = eFileLoader::parse(dir, path);
-    const auto names = jdata.get<std::vector<std::string>>();
+    {
+        const auto path = "ui/skills/skills.json";
+        const auto jdata = eFileLoader::parse(dir, path);
+        const auto names = jdata.get<std::vector<std::string>>();
 
-    sSkillIcons.clear();
-    for(const auto& name : names) {
-        const auto path = "ui/skills/" + name + suffix + ".png";
-        const auto tex = eFileLoader::readTexture(r, dir, path);
-        sSkillIcons.add(name, tex);
+        sSkillIcons.clear();
+        for(const auto& name : names) {
+            const auto path = "ui/skills/" + name + suffix + ".png";
+            const auto tex = eFileLoader::readTexture(r, dir, path);
+            sSkillIcons.add(name, tex);
+        }
+
+        for(const auto& it : eSkills::sSkills) {
+            auto& skill = it.fValue;
+            skill.fIconId = sSkillIcons.id(skill.fIcon);
+        }
     }
 
-    for(const auto& it : eSkills::sSkills) {
-        auto& skill = it.fValue;
-        skill.fIconId = sSkillIcons.id(skill.fIcon);
+    {
+        const auto path = "ui/skills/skills.json";
+        const auto jdata = eFileLoader::parse(dir, path);
+        const auto names = jdata.get<std::vector<std::string>>();
+
+        sSkillIcons.clear();
+        for(const auto& name : names) {
+            const auto path = "ui/skills/" + name + suffix + ".png";
+            const auto tex = eFileLoader::readTexture(r, dir, path);
+            sSkillIcons.add(name, tex);
+        }
+
+        for(const auto& it : eSkills::sSkills) {
+            auto& skill = it.fValue;
+            skill.fIconId = sSkillIcons.id(skill.fIcon);
+        }
+    }
+
+    {
+        const auto path = "ui/quests/quests.json";
+        const auto jdata = eFileLoader::parse(dir, path);
+        const auto names = jdata.get<std::vector<std::string>>();
+
+        sQuestIcons.clear();
+        for(const auto& name : names) {
+            eQuestTextures texs;
+            {
+                const auto path = "ui/quests/" + name +
+                                  "_not_started" + suffix + ".png";
+                texs.fNotStarted = eFileLoader::readTexture(r, dir, path);
+            }
+            {
+                const auto path = "ui/quests/" + name +
+                                  "_started" + suffix + ".png";
+                texs.fStarted = eFileLoader::readTexture(r, dir, path);
+            }
+            {
+                const auto path = "ui/quests/" + name +
+                                  "_finished" + suffix + ".png";
+                texs.fFinished = eFileLoader::readTexture(r, dir, path);
+            }
+            sQuestIcons.add(name, texs);
+        }
     }
 }

@@ -4,7 +4,6 @@
 #include "../ebuttonbase.h"
 #include "../../etext.h"
 #include "../../names/eareanames.h"
-#include "../mainMenu/emainmenubutton.h"
 
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/emapsettings.h>
@@ -43,86 +42,33 @@ void eWaypointWidget::initialize(
     const uint8_t cActId,
     const eAreaIds& area,
     const eWaypointAction& waction) {
-    const auto innerW = new eWidget(window());
-    innerW->setNoPadding();
-
     const auto title = eText::text(17, 0);
-    const auto titleLabel = new eLabel(window());
-    titleLabel->setNoPadding();
-    titleLabel->setSmallFontSize();
-    titleLabel->setText(title);
-    titleLabel->fitContent();
-    innerW->addWidget(titleLabel);
 
     const auto& res = resolution();
     const float mult = res.multiplier();
-    const int p = res.largePadding();
+
+    const int singleW = 400*mult;
+    const int singleH = 50*mult;
+
+    std::vector<eAct> acts;
 
     uint8_t maxAct = 0;
     for(const auto& w : eWaypoint::sWaypoints) {
         maxAct = std::max(maxAct, w.fActId);
     }
 
-    const auto actsW = new eWidget(window());
-    actsW->setNoPadding();
-
-    const auto wW = new eWidget(window());
-    wW->setNoPadding();
-
-    const int singleW = 400*mult;
-    const int singleH = 50*mult;
-
-    wW->resize(singleW, 8*singleH);
-
-    struct eAct {
-        uint8_t fActId;
-        eMainMenuButton* fButton = nullptr;
-        eWidget* fWidget = nullptr;
-
-        bool operator==(const eAct& act) const {
-            return fActId == act.fActId;
-        }
-    };
-
-    const auto acts = std::make_shared<std::vector<eAct>>();
-
-    const auto setCurrent = [acts](const eAct& act) {
-        for(const auto& a : *acts) {
-            const auto b = act.fButton;
-            const auto w = act.fWidget;
-            if(a == act) {
-                w->show();
-                b->setFontColor(eFontColor::white);
-            } else {
-                w->hide();
-                b->setFontColor(eFontColor::gray);
-            }
-        }
-    };
-
     eAct currentAct;
     for(uint8_t actId = 0; actId <= maxAct; actId++) {
-        const auto r = eStringHelpers::toRoman(actId);
-        const auto b = new eMainMenuButton(r, window());
-        b->resize(singleW, singleH);
-        actsW->addWidget(b);
-
         const auto w = new eWidget(window());
         w->setNoPadding();
-        w->resize(wW->width(), wW->height());
-        wW->addWidget(w);
+        w->resize(singleW, 8*singleH);
 
-        eAct act;
+        auto& act = acts.emplace_back();
         act.fActId = actId;
         act.fWidget = w;
-        act.fButton = b;
         if(cActId == actId) {
             currentAct = act;
         }
-        b->setPressAction([act, setCurrent]() {
-            setCurrent(act);
-        });
-        acts->emplace_back(act);
         for(const auto& way : eWaypoint::sWaypoints) {
             if(way.fActId != actId) continue;
             const auto& warea = way.fArea;
@@ -144,17 +90,6 @@ void eWaypointWidget::initialize(
         }
         w->stackVertically();
     }
-    setCurrent(currentAct);
 
-    actsW->stackHorizontally(p);
-    actsW->fitContent();
-    innerW->addWidget(actsW);
-
-    innerW->addWidget(wW);
-
-    innerW->stackVertically(p);
-    innerW->fitContent();
-
-    setup(innerW);
-    titleLabel->align(eAlignment::hcenter);
+    eActsWidget::initialize(title, acts, currentAct);
 }

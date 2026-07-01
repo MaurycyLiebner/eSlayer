@@ -20,9 +20,8 @@ bool eSlayerQuests::finished(
     const uint8_t questId) const {
     const auto s = stage(questId);
     const auto& quest = eQuests::sQuests.get(questId);
-    const auto& steps = quest.fSteps;
-    const uint8_t nsteps = steps.size();
-    return s >= nsteps;
+    const uint8_t nstages = quest.nStages();
+    return s >= nstages;
 }
 
 void eSlayerQuests::initialize() {
@@ -45,6 +44,7 @@ bool eSlayerQuests::nextStage(
     auto it = mStages.find(questId);
     if(it == mStages.end()) return false;
     it->second++;
+    mState++;
     return true;
 }
 
@@ -57,6 +57,7 @@ bool eSlayerQuests::setStage(
 
 void eSlayerQuests::read(ePacket& p) {
     mStages.clear();
+    p >> mState;
     uint8_t n;
     p >> n;
     for(int i = 0; i < n; i++) {
@@ -69,6 +70,7 @@ void eSlayerQuests::read(ePacket& p) {
 }
 
 void eSlayerQuests::write(ePacket& p) const {
+    p << mState;
     const uint8_t n = mStages.size();
     p << n;
     for(const auto& it : mStages) {

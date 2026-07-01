@@ -19,7 +19,7 @@ struct eTalk {
     std::vector<eConvo> fConvo;
 };
 
-class eTalks {
+class ESLAYERHELPERS_API eTalks {
 public:
     static eStringIdMapVector<eTalk> sTalk;
 
