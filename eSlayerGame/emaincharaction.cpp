@@ -9,6 +9,9 @@
 #include "widgets/gameScreen/egamewidget.h"
 #include "screens/egamescreen.h"
 
+#include "names/eobjectnames.h"
+#include "names/etalktext.h"
+
 #include "etext.h"
 
 #include <eSlayerServer/eserver.h>
@@ -23,6 +26,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/etalk.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -263,6 +267,9 @@ void eMainCharAction::increment(const bool mousePressed,
                 eGameScreen::sOpenStash();
             } else if(info.fType == eObjectType::healer ||
                       info.fType == eObjectType::trader) {
+                const auto baseName = eObjectsInfo::sObjects.name(type);
+                const auto name = eObjectNames::name(type);
+
                 const float width = 2*object->fWidth;
                 const float height = 2*object->fHeight;
                 const eVec2f d{width, height};
@@ -273,22 +280,28 @@ void eMainCharAction::increment(const bool mousePressed,
                 const auto actions = std::make_shared<std::vector<eHoverAction>>();
                 auto& actionsRef = *actions;
 
-                const auto openMainMenu = [rect, actions]() {
+                const auto openMainMenu = [name, rect, actions]() {
                     auto& actionsRef = *actions;
-                    eHoverWidget::sOpenMenu("Idoya", actionsRef, rect);
+                    eHoverWidget::sOpenMenu(name, actionsRef, rect);
                 };
 
                 {
                     auto& talkAct = actionsRef.emplace_back();
                     talkAct.fText = eText::text(20, 0);
-                    talkAct.fPress = [rect, openMainMenu]() {
+                    talkAct.fPress = [rect, openMainMenu, baseName]() {
                         std::vector<eHoverAction> talkActions;
-                        {
-                            auto& a = talkActions.emplace_back();
-                            a.fText = "Introduction";
-                            a.fPress = [rect]() {
-                                eHoverWidget::sOpenTalk("\"The wounded always find their way here... one way or another.\"\n\n Welcome, traveler. Sit a while and let me tend to your wounds. Steel can be reforged, but flesh is less forgiving, and the roads beyond this camp show little mercy to the careless. I keep fresh bandages, healing draughts, and restorative elixirs for those willing to brave the darkness. Whether you seek to mend broken bones, replenish your strength, or prepare for the trials ahead, you'll find what you need here. May your hands remain steady, your heart resolute, and your supply of potions never run dry. The wilds claim enough souls already—I would rather they not claim yours.", rect);
-                            };
+                        const int id = eTalks::sTalk.id(baseName);
+                        if(id >= 0) {
+                            const auto& talks = eTalks::sTalk.get(id);
+                            for(const auto& c : talks.fConvo) {
+                                const auto& title = eTalkText::title(c.fName);
+                                const auto& text = eTalkText::text(c.fName);
+                                auto& a = talkActions.emplace_back();
+                                a.fText = title;
+                                a.fPress = [rect, text]() {
+                                    eHoverWidget::sOpenTalk(text, rect);
+                                };
+                            }
                         }
                         {
                             auto& cancelAct = talkActions.emplace_back();

@@ -8,6 +8,31 @@
 #include <fstream>
 #include <filesystem>
 
+std::string unescape(const std::string& s) {
+    std::string out;
+    out.reserve(s.size());
+
+    for(size_t i = 0; i < s.size(); ++i) {
+        if(s[i] == '\\' && i + 1 < s.size()) {
+            switch(s[++i]) {
+            case 'n': out += '\n'; break;
+            case 'r': out += '\r'; break;
+            case 't': out += '\t'; break;
+            case '\\': out += '\\'; break;
+            case '"': out += '"'; break;
+            default:
+                out += '\\';
+                out += s[i];
+                break;
+            }
+        } else {
+            out += s[i];
+        }
+    }
+
+    return out;
+}
+
 bool eLoadTextHelper::load(const std::vector<std::byte>& data, eMap& map) {
     std::string content(reinterpret_cast<const char*>(data.data()), data.size());
     std::istringstream file(content);
@@ -29,8 +54,8 @@ bool eLoadTextHelper::load(const std::vector<std::byte>& data, eMap& map) {
         const auto valueEnd = str.rfind('"');
         if(valueEnd == std::string::npos) continue;
         const auto valueLen = valueEnd - valueStart;
-        const auto value = str.substr(valueStart + 1, valueLen - 1);
-
+        auto value = str.substr(valueStart + 1, valueLen - 1);
+        value = unescape(value);
         map[key] = value;
     }
     return true;

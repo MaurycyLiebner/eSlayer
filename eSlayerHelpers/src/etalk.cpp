@@ -33,6 +33,7 @@ void eTalks::load() {
                 const auto& key = it.key();
                 const auto& value = it.value();
                 auto& convo = talk.fConvo.emplace_back();
+                convo.fName = key;
                 const auto typeStr = value.value("type", "");
                 if(typeStr == "intro") {
                     convo.fType = eConvoType::intro;

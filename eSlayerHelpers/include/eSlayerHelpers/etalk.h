@@ -10,6 +10,7 @@ enum class eConvoType {
 };
 
 struct eConvo {
+    std::string fName;
     eConvoType fType;
     int fQuestId;
 };
