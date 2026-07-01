@@ -32,6 +32,7 @@
 #include "../names/eelitemodifiersnames.h"
 #include "../names/eservernames.h"
 #include "../names/elanguagenames.h"
+#include "../names/etalktext.h"
 #include "../etext.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
@@ -437,6 +438,10 @@ void eScreenHandler::showSettings() {
 
             loadings.emplace_back([&]() {
                 eServerNames::reload();
+            });
+
+            loadings.emplace_back([&]() {
+                eTalkText::reload();
             });
 
             const auto finish = [this]() {

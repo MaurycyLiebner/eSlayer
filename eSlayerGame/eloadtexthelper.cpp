@@ -26,7 +26,8 @@ bool eLoadTextHelper::load(const std::vector<std::byte>& data, eMap& map) {
 
         const auto valueStart = str.find('"');
         if(valueStart == std::string::npos) continue;
-        const auto valueEnd = str.find('"', valueStart + 1);
+        const auto valueEnd = str.rfind('"');
+        if(valueEnd == std::string::npos) continue;
         const auto valueLen = valueEnd - valueStart;
         const auto value = str.substr(valueStart + 1, valueLen - 1);
 

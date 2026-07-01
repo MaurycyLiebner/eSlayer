@@ -130,6 +130,8 @@ add_executable(eSlayerGame
     names/eservernames.h
     names/elanguagenames.cpp
     names/elanguagenames.h
+    names/etalktext.cpp
+    names/etalktext.h
     elanguage.cpp
     elanguage.h
 
