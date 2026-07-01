@@ -47,6 +47,7 @@
 #include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eblueprints.h>
 #include <eSlayerHelpers/equests.h>
+#include <eSlayerHelpers/etalk.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -337,6 +338,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eQuests::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eTalks::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);
