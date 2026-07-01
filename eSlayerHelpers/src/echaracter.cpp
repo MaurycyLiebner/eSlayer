@@ -6,6 +6,7 @@
 #include "eSlayerHelpers/eitemaffixes.h"
 #include "eSlayerHelpers/estringhelpers.h"
 #include "eSlayerHelpers/emapsettings.h"
+#include "eSlayerHelpers/equests.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -214,6 +215,29 @@ bool gReadSkill(XMLElement* const e,
     return true;
 }
 
+bool gReadQuests(const XMLElement* parentE,
+                 eSlayerQuests& quests) {
+    quests.initialize();
+    const auto questsE = parentE->FirstChildElement("quests");
+    if(!questsE) return false;
+    auto aE = questsE->FirstChildElement();
+    while(aE) {
+        auto qE = aE->FirstChildElement();
+        while(qE) {
+            const auto name = qE->Name();
+            const int id = eQuests::sQuests.id(name);
+            if(id >= 0) {
+                unsigned int stage = 0;
+                qE->QueryAttribute("stage", &stage);
+                quests.setStage(id, stage);
+            }
+            qE = qE->NextSiblingElement();
+        }
+        aE = aE->NextSiblingElement();
+    }
+    return true;
+}
+
 bool eCharacter::load(const std::string& path,
                       eCharacter& c) {
     XMLDocument doc;
@@ -348,6 +372,8 @@ bool eCharacter::load(const std::string& path,
             aE = aE->NextSiblingElement();
         }
     }
+
+    gReadQuests(rootE, c.mQuests);
 
     return true;
 }
@@ -507,10 +533,42 @@ void gWriteSkill(XMLElement* const e,
     skillE->SetAttribute("skill", name.c_str());
 }
 
+bool gWriteQuests(XMLElement* const rootE,
+                  const eSlayerQuests& quests) {
+    const auto qE = rootE->InsertNewChildElement("quests");
+    struct eQuestStage {
+        std::string fName;
+        uint8_t fStage;
+    };
+
+    std::map<uint8_t, std::vector<eQuestStage>> acts;
+    for(const auto& it : eQuests::sQuests) {
+        const int id = it.fId;
+        const auto& q = it.fValue;
+        eQuestStage s;
+        s.fName = it.fName;
+        s.fStage = quests.stage(id);
+        acts[q.fAct].emplace_back(s);
+    }
+
+    for(const auto& it : acts) {
+        const auto actId = it.first;
+        const auto ar = eStringHelpers::toRoman(actId);
+        const auto aE = qE->InsertNewChildElement(ar.c_str());
+        for(const auto& q : it.second) {
+            const auto qE = aE->InsertNewChildElement(q.fName.c_str());
+            qE->SetAttribute("stage", q.fStage);
+        }
+    }
+
+    return true;
+}
+
 bool eCharacter::write(const std::string& path) const {
     XMLDocument doc;
 
-    const auto decl = doc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
+    const auto decl = doc.NewDeclaration(
+        "xml version=\"1.0\" encoding=\"UTF-8\"");
     doc.InsertFirstChild(decl);
 
     const auto rootE = doc.NewElement("character");
@@ -605,6 +663,8 @@ bool eCharacter::write(const std::string& path) const {
             wE->SetAttribute("known", w.fKnown);
         }
     }
+
+    gWriteQuests(rootE, mQuests);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {
