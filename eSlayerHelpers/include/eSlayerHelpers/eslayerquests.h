@@ -15,6 +15,9 @@ public:
     bool hasQuest(const uint8_t questId) const;
     uint8_t stage(const uint8_t questId) const;
     bool finished(const uint8_t questId) const;
+    bool introStage(const uint8_t questId) const;
+    bool outroStage(const uint8_t questId) const;
+    bool prerequisitesMet(const uint8_t questId) const;
 
     void initialize();
 

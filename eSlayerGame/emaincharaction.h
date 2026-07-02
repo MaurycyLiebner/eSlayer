@@ -3,13 +3,16 @@
 
 #include "emovementhandler.h"
 
-#include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eattackdata.h>
-#include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/eequipment.h>
+#include <eSlayerHelpers/erequestdata.h>
+#include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/ewalldirection.h>
-#include <eSlayerHelpers/edoors.h>
+
+#include <SDL3/SDL_rect.h>
 
 #include <memory>
 
@@ -66,8 +69,19 @@ public:
     eEquipment& equipment() { return mEquipment; }
     eAttributes& attributes() { return mAttributes; }
     eStats& stats() { return mStats; }
+    eSlayerQuests& quests() { return mQuests; }
     void recalculateStats();
 private:
+    void openMainMenu(
+        const uint32_t sellerId,
+        const std::string& baseName,
+        const std::string& name,
+        const SDL_Rect& rect);
+    bool tryOpenTalk(const uint32_t sellerId,
+                     const std::string& baseName,
+                     const std::string& name,
+                     const SDL_Rect& rect);
+
     void updateWalkRunSpeed();
     bool shouldRun() const;
     void handleAttackStop(const bool mousePressed,
@@ -114,6 +128,7 @@ private:
 
     eEquipment mEquipment;
     eAttributes mAttributes;
+    eSlayerQuests mQuests;
     eStats mStats;
 
     bool mClickAction = false;

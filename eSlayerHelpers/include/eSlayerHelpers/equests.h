@@ -8,6 +8,7 @@ enum class eQuestType {
 };
 
 struct eQuestStep {
+    std::string fConvoStr;
     eQuestType fType;
     int fTarget = 0;
     int fCount = 0;

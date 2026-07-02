@@ -24,6 +24,30 @@ bool eSlayerQuests::finished(
     return s >= nstages;
 }
 
+bool eSlayerQuests::introStage(
+    const uint8_t questId) const {
+    const auto s = stage(questId);
+    return s == 0;
+}
+
+bool eSlayerQuests::outroStage(
+    const uint8_t questId) const {
+    const auto s = stage(questId);
+    const auto& quest = eQuests::sQuests.get(questId);
+    const uint8_t nstages = quest.nStages();
+    return s == nstages - 1;
+}
+
+bool eSlayerQuests::prerequisitesMet(
+    const uint8_t questId) const {
+    const auto& quest = eQuests::sQuests.get(questId);
+    for(const int qid : quest.fPrerequisites) {
+        const bool r = finished(qid);
+        if(!r) return false;
+    }
+    return true;
+}
+
 void eSlayerQuests::initialize() {
     mStages.clear();
     for(const auto& q : eQuests::sQuests) {

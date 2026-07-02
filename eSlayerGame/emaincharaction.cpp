@@ -13,6 +13,7 @@
 #include "names/etalktext.h"
 
 #include "etext.h"
+#include "etalkheard.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -277,57 +278,11 @@ void eMainCharAction::increment(const bool mousePressed,
                 const auto pixel = gw->tilePosToPixel(opos - d);
                 const auto ipixel = pixel.floor();
                 const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
-                const auto actions = std::make_shared<std::vector<eHoverAction>>();
-                auto& actionsRef = *actions;
 
-                const auto openMainMenu = [name, rect, actions]() {
-                    auto& actionsRef = *actions;
-                    eHoverWidget::sOpenMenu(name, actionsRef, rect);
-                };
-
-                {
-                    auto& talkAct = actionsRef.emplace_back();
-                    talkAct.fText = eText::text(20, 0);
-                    talkAct.fPress = [rect, openMainMenu, baseName]() {
-                        std::vector<eHoverAction> talkActions;
-                        const int id = eTalks::sTalk.id(baseName);
-                        if(id >= 0) {
-                            const auto& talks = eTalks::sTalk.get(id);
-                            for(const auto& c : talks.fConvo) {
-                                const auto& title = eTalkText::title(c.fName);
-                                const auto& text = eTalkText::text(c.fName);
-                                auto& a = talkActions.emplace_back();
-                                a.fText = title;
-                                a.fPress = [rect, text]() {
-                                    eHoverWidget::sOpenTalk(text, rect);
-                                };
-                            }
-                        }
-                        {
-                            auto& cancelAct = talkActions.emplace_back();
-                            cancelAct.fText = eText::text(20, 2);
-                            cancelAct.fPress = openMainMenu;
-                        }
-                        eHoverWidget::sOpenMenu(eText::text(20, 0), talkActions, rect);
-                    };
+                const auto sellerId = object->fObjectId;
+                if(!tryOpenTalk(sellerId, baseName, name, rect)) {
+                    openMainMenu(sellerId, baseName, name, rect);
                 }
-                {
-                    auto& tradeAct = actionsRef.emplace_back();
-                    tradeAct.fText = eText::text(20, 1);
-                    const auto sellerId = object->fObjectId;
-                    tradeAct.fPress = [sellerId]() {
-                        eHoverWidget::sOpenMenu("", {});
-                        eGameWidget::sOpenSellerMenu(sellerId);
-                    };
-                }
-                {
-                    auto& cancelAct = actionsRef.emplace_back();
-                    cancelAct.fText = eText::text(20, 2);
-                    cancelAct.fPress = []() {
-                        eHoverWidget::sOpenMenu("", {});
-                    };
-                }
-                openMainMenu();
             } else if(info.fType == eObjectType::trapDoor) {
                 if(object->fState == 0) {
                     const eServerObject sobject(mapId, *object);
@@ -623,6 +578,88 @@ void eMainCharAction::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     mStats.calculateAuras(mEquipment);
     updateWalkRunSpeed();
+}
+
+void eMainCharAction::openMainMenu(
+    const uint32_t sellerId,
+    const std::string& baseName,
+    const std::string& name,
+    const SDL_Rect& rect) {
+    const auto actions = std::make_shared<std::vector<eHoverAction>>();
+    auto& actionsRef = *actions;
+
+    const auto openMainMenu = [name, rect, actions]() {
+        auto& actionsRef = *actions;
+        eHoverWidget::sOpenMenu(name, actionsRef, rect);
+    };
+
+    {
+        auto& talkAct = actionsRef.emplace_back();
+        talkAct.fText = eText::text(20, 0);
+        talkAct.fPress = [this, rect, openMainMenu, baseName]() {
+            std::vector<eHoverAction> talkActions;
+            const int id = eTalks::sTalk.id(baseName);
+            if(id >= 0) {
+                const auto relevant = eTalkHeard::allRelevant(
+                    baseName, mQuests);
+                for(const auto& cid : relevant) {
+                    const auto& c = eTalks::get(cid);
+                    const auto& title = eTalkText::title(c.fName);
+                    const auto& text = eTalkText::text(c.fName);
+                    auto& a = talkActions.emplace_back();
+                    a.fText = title;
+                    a.fPress = [rect, text]() {
+                        eHoverWidget::sOpenTalk(text, nullptr, rect);
+                    };
+                }
+            }
+            {
+                auto& cancelAct = talkActions.emplace_back();
+                cancelAct.fText = eText::text(20, 2);
+                cancelAct.fPress = openMainMenu;
+            }
+            eHoverWidget::sOpenMenu(eText::text(20, 0), talkActions, rect);
+        };
+    }
+    {
+        auto& tradeAct = actionsRef.emplace_back();
+        tradeAct.fText = eText::text(20, 1);
+        tradeAct.fPress = [sellerId]() {
+            eHoverWidget::sOpenMenu("", {});
+            eGameWidget::sOpenSellerMenu(sellerId);
+        };
+    }
+    {
+        auto& cancelAct = actionsRef.emplace_back();
+        cancelAct.fText = eText::text(20, 2);
+        cancelAct.fPress = []() {
+            eHoverWidget::sOpenMenu("", {});
+        };
+    }
+
+    openMainMenu();
+}
+
+bool eMainCharAction::tryOpenTalk(
+    const uint32_t sellerId,
+    const std::string& baseName,
+    const std::string& name,
+    const SDL_Rect& rect) {
+    const auto talk = eTalkHeard::nextUnheard(
+        baseName, mQuests);
+    if(!talk) return false;
+    const auto& c = eTalks::get(*talk);
+    const auto& text = eTalkText::text(c.fName);
+    const auto closeAction =
+        [this, sellerId, baseName, name, rect]() {
+        const bool r = tryOpenTalk(
+                sellerId, baseName, name, rect);
+        if(r) return;
+        openMainMenu(sellerId, baseName, name, rect);
+    };
+    eHoverWidget::sOpenTalk(text, closeAction, rect);
+    eTalkHeard::setHeard(*talk, true);
+    return true;
 }
 
 void eMainCharAction::updateWalkRunSpeed() {

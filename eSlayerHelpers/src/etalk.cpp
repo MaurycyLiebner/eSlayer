@@ -6,6 +6,27 @@
 eStringIdMapVector<eTalk> eTalks::sTalk;
 bool eTalks::sLoaded = false;
 
+std::optional<eConvoId>
+eTalks::id(const std::string& npc,
+           const std::string& convo) {
+    const int npcId = sTalk.id(npc);
+    if(npcId < 0) return std::nullopt;
+    const auto& n = sTalk.get(npcId);
+    const auto& convos = n.fConvo;
+    for(uint8_t i = 0; i < convos.size(); i++) {
+        const auto& c = convos[i];
+        if(convo == c.fName) {
+            const uint8_t unpcId = npcId;
+            return eConvoId{unpcId, i};
+        }
+    }
+    return std::nullopt;
+}
+
+const eConvo& eTalks::get(const eConvoId& id) {
+    return sTalk.get(id.fNPC).fConvo[id.fConvo];
+}
+
 void eTalks::load() {
     if(sLoaded) return;
     sLoaded = true;
@@ -54,6 +75,17 @@ void eTalks::load() {
                         eRuntimeThrow("Unrecognized quest \"" + questStr + "\".");
                     }
                     convo.fQuestId = id;
+                    if(convo.fType == eConvoType::questStep) {
+                        const auto& q = eQuests::sQuests.get(id);
+
+                        for(int i = 0; i < q.fSteps.size(); i++) {
+                            const auto& s = q.fSteps[i];
+                            if(s.fConvoStr == key) {
+                                convo.fStageId = i + 1;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             sTalk.add(npc, talk);

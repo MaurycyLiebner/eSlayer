@@ -490,14 +490,16 @@ public:
             mHover = gen.generate(text);
         }
 
-        const int w = mNormal->width();
-        const int h = mNormal->height();
-        resize(w, h);
+        if(mNormal) {
+            const int w = mNormal->width();
+            const int h = mNormal->height();
+            resize(w, h);
+        }
     }
 protected:
     void paintEvent(ePainter& p) override {
         if(!mHover || !hovered()) {
-            p.drawTexture(0, 0, mNormal);
+            if(mNormal) p.drawTexture(0, 0, mNormal);
         } else {
             p.drawTexture(0, 0, mHover);
         }
@@ -657,6 +659,7 @@ void eHoverWidget::openMenu(
 
 void eHoverWidget::openTalk(
     const std::string& text,
+    const eAction& closeAction,
     const SDL_Rect& rect) {
     if(mTalkWidget) {
         mTalkWidget->deleteLater();
@@ -669,10 +672,11 @@ void eHoverWidget::openTalk(
     if(mMenu) mMenu->hide();
 
     mTalkWidget = new eTalkWidget(window());
-    const auto closeAction = [this]() {
+    const auto closeActionV =
+        closeAction ? closeAction : [this]() {
         eHoverWidget::sOpenTalk("");
     };
-    mTalkWidget->initialize(closeAction, text);
+    mTalkWidget->initialize(closeActionV, text);
     addWidget(mTalkWidget);
     const auto& res = resolution();
     const int p = res.largePadding();
@@ -720,9 +724,10 @@ void eHoverWidget::sOpenMenu(
 
 void eHoverWidget::sOpenTalk(
     const std::string& text,
+    const eAction& closeAction,
     const SDL_Rect& rect) {
     if(!sInstance) return;
-    sInstance->openTalk(text, rect);
+    sInstance->openTalk(text, closeAction, rect);
 }
 
 void eHoverWidget::paintEvent(ePainter& p) {

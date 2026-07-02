@@ -49,6 +49,7 @@ public:
                   const std::vector<eHoverAction>& actions,
                   const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     void openTalk(const std::string& text,
+                  const eAction& closeAction = nullptr,
                   const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
     static eHoverWidget* sInstance;
@@ -71,6 +72,7 @@ public:
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     static void sOpenTalk(
         const std::string& text,
+        const eAction& closeAction = nullptr,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 protected:
     void paintEvent(ePainter& p) override;

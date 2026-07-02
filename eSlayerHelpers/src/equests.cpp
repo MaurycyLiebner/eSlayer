@@ -49,6 +49,7 @@ void eQuests::load() {
                             eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
                         }
                         step.fTarget = id;
+                        step.fConvoStr = stepData.value("conversation", "");
                     } else {
                         eRuntimeThrow("Unrecognized quest type \"" + typeStr + "\".");
                     }
