@@ -101,13 +101,23 @@ void eGameWidget::initialize(const uint32_t clientId,
     const auto& srcEq = c.equipment();
     auto& dstEq = mMainAction->equipment();
     dstEq = srcEq;
+
     const auto& srcAttrs = c.attributes();
     auto& dstAttrs = mMainAction->attributes();
     dstAttrs = srcAttrs;
+
     auto& dstStats = mMainAction->stats();
     dstStats.fBaseSkillLevels = c.skillLevels();
     dstStats.calculate(dstAttrs, dstEq);
     dstStats.calculateAuras(dstEq);
+
+    const auto& srcQuests = c.quests();
+    auto& dstQuests = mMainAction->quests();
+    dstQuests = srcQuests;
+
+    const auto& srcTalkHeard = c.talkHeard();
+    auto& dstTalkHeard = mMainAction->talkHeard();
+    dstTalkHeard = srcTalkHeard;
 
     mWorld.initialize(clientId, mMainChar);
 
@@ -267,6 +277,8 @@ eCharacter eGameWidget::character() {
     eCharacter c(mCName, mHardcore);
     c.equipment() = equipment();
     c.attributes() = attributes();
+    c.quests() = quests();
+    c.talkHeard() = talkHeard();
     const auto& stats = eGameWidget::stats();
     c.skillLevels() = stats.fBaseSkillLevels;
     c.leftSkill() = mLeftSkill;

@@ -82,6 +82,8 @@ public:
     const std::string& cname() const { return mCName; }
     eEquipment& equipment() { return mMainAction->equipment(); }
     eAttributes& attributes() { return mMainAction->attributes(); }
+    eSlayerQuests& quests() { return mMainAction->quests(); }
+    eTalkHeard& talkHeard() { return mMainAction->talkHeard(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
     void dropItem();

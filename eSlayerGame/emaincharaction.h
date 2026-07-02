@@ -11,6 +11,7 @@
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/ewalldirection.h>
+#include <eSlayerHelpers/etalkheard.h>
 
 #include <SDL3/SDL_rect.h>
 
@@ -70,6 +71,7 @@ public:
     eAttributes& attributes() { return mAttributes; }
     eStats& stats() { return mStats; }
     eSlayerQuests& quests() { return mQuests; }
+    eTalkHeard& talkHeard() { return mTalkHeard; }
     void recalculateStats();
 private:
     void openMainMenu(
@@ -129,6 +131,7 @@ private:
     eEquipment mEquipment;
     eAttributes mAttributes;
     eSlayerQuests mQuests;
+    eTalkHeard mTalkHeard;
     eStats mStats;
 
     bool mClickAction = false;

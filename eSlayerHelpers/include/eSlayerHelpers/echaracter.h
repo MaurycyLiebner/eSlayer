@@ -8,6 +8,7 @@
 #include "eSlayerHelpers/estats.h"
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/eslayerquests.h"
+#include "eSlayerHelpers/etalkheard.h"
 
 #include <string>
 
@@ -32,6 +33,9 @@ public:
 
     const eSlayerQuests& quests() const { return mQuests; }
     eSlayerQuests& quests() { return mQuests; }
+
+    const eTalkHeard& talkHeard() const { return mTalkHeard; }
+    eTalkHeard& talkHeard() { return mTalkHeard; }
 
     const eSkillLevels& skillLevels() const { return mSkillLevels; }
     eSkillLevels& skillLevels() { return mSkillLevels; }
@@ -77,6 +81,7 @@ private:
     std::map<int, int> mRightHotkeys;
     std::vector<eWaypoint> mWaypoints;
     eSlayerQuests mQuests;
+    eTalkHeard mTalkHeard;
 };
 
 #endif // ECHARACTER_H

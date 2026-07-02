@@ -238,6 +238,37 @@ bool gReadQuests(const XMLElement* parentE,
     return true;
 }
 
+bool gReadTalkHeard(const XMLElement* parentE,
+                    eTalkHeard& talkHeard) {
+    talkHeard.initialize();
+    const auto talkE = parentE->FirstChildElement("talkHeard");
+    if(!talkE) return false;
+    auto npcE = talkE->FirstChildElement();
+    while(npcE) {
+        const auto npcName = npcE->Name();
+        const int npcId = eTalks::sTalk.id(npcName);
+        if(npcId >= 0) {
+            auto cE = npcE->FirstChildElement();
+            while(cE) {
+                const auto cName = cE->Name();
+                const auto& talks = eTalks::sTalk.get(npcId);
+                const auto& cs = talks.fConvo;
+                for(uint8_t i = 0; i < cs.size(); i++) {
+                    const auto& c = cs[i];
+                    if(c.fName == cName) {
+                        const uint8_t unpcId = npcId;
+                        const eConvoId cid{unpcId, i};
+                        talkHeard.setHeard(cid, true);
+                    }
+                }
+                cE = cE->NextSiblingElement();
+            }
+        }
+        npcE = npcE->NextSiblingElement();
+    }
+    return true;
+}
+
 bool eCharacter::load(const std::string& path,
                       eCharacter& c) {
     XMLDocument doc;
@@ -374,6 +405,8 @@ bool eCharacter::load(const std::string& path,
     }
 
     gReadQuests(rootE, c.mQuests);
+
+    gReadTalkHeard(rootE, c.mTalkHeard);
 
     return true;
 }
@@ -564,6 +597,34 @@ bool gWriteQuests(XMLElement* const rootE,
     return true;
 }
 
+bool gWriteTalkHeard(XMLElement* const rootE,
+                     const eTalkHeard& talkHeard) {
+    auto talkE = rootE->InsertNewChildElement("talkHeard");
+
+    for(int npcId = 0; npcId < eTalks::sTalk.size(); ++npcId) {
+        const auto& talks = eTalks::sTalk.get(npcId);
+
+        tinyxml2::XMLElement* npcE = nullptr;
+
+        for(uint8_t i = 0; i < talks.fConvo.size(); ++i) {
+            const eConvoId cid{static_cast<uint8_t>(npcId), i};
+
+            if(!talkHeard.heard(cid)) {
+                continue;
+            }
+
+            if(!npcE) {
+                const auto npcName = eTalks::sTalk.name(npcId);
+                npcE = talkE->InsertNewChildElement(npcName.c_str());
+            }
+
+            const auto& c = talks.fConvo[i];
+            npcE->InsertNewChildElement(c.fName.c_str());
+        }
+    }
+    return true;
+}
+
 bool eCharacter::write(const std::string& path) const {
     XMLDocument doc;
 
@@ -665,6 +726,7 @@ bool eCharacter::write(const std::string& path) const {
     }
 
     gWriteQuests(rootE, mQuests);
+    gWriteTalkHeard(rootE, mTalkHeard);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {

@@ -13,7 +13,7 @@
 #include "names/etalktext.h"
 
 #include "etext.h"
-#include "etalkheard.h"
+#include "../eSlayerHelpers/include/eSlayerHelpers/etalkheard.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -600,7 +600,7 @@ void eMainCharAction::openMainMenu(
             std::vector<eHoverAction> talkActions;
             const int id = eTalks::sTalk.id(baseName);
             if(id >= 0) {
-                const auto relevant = eTalkHeard::allRelevant(
+                const auto relevant = mTalkHeard.allRelevant(
                     baseName, mQuests);
                 for(const auto& cid : relevant) {
                     const auto& c = eTalks::get(cid);
@@ -645,7 +645,7 @@ bool eMainCharAction::tryOpenTalk(
     const std::string& baseName,
     const std::string& name,
     const SDL_Rect& rect) {
-    const auto talk = eTalkHeard::nextUnheard(
+    const auto talk = mTalkHeard.nextUnheard(
         baseName, mQuests);
     if(!talk) return false;
     const auto& c = eTalks::get(*talk);
@@ -658,7 +658,7 @@ bool eMainCharAction::tryOpenTalk(
         openMainMenu(sellerId, baseName, name, rect);
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
-    eTalkHeard::setHeard(*talk, true);
+    mTalkHeard.setHeard(*talk, true);
     return true;
 }
 

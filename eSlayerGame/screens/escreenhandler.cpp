@@ -10,7 +10,7 @@
 #include "eerrorscreen.h"
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
-#include "../etalkheard.h"
+#include "../../eSlayerHelpers/include/eSlayerHelpers/etalkheard.h"
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/eminimap.h"
 #include "../erendersettings.h"
@@ -248,7 +248,6 @@ void eScreenHandler::showGame(eServerData serverData,
     eSlayers::clear();
     eTeams::clear();
     eBodies::clear();
-    eTalkHeard::initialize();
 
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();

@@ -1,41 +1,37 @@
-#include "etalkheard.h"
+#include "../include/eSlayerHelpers/etalkheard.h"
 
-#include <eSlayerHelpers/equests.h>
-#include <eSlayerHelpers/eslayerquests.h>
-
-std::map<eConvoId, bool>
-eTalkHeard::sHeard;
+#include "eSlayerHelpers/eslayerquests.h"
 
 void eTalkHeard::initialize() {
-    sHeard.clear();
+    clear();
     for(const auto& it : eTalks::sTalk) {
         const uint8_t npcId = it.fId;
         const auto& npc = it.fValue;
         const auto& convos = npc.fConvo;
         for(uint8_t i = 0; i < convos.size(); i++) {
             const eConvoId cid{npcId, i};
-            sHeard[cid] = false;
+            (*this)[cid] = false;
         }
     }
 }
 
-bool eTalkHeard::heard(const eConvoId& cid) {
-    const auto it = sHeard.find(cid);
-    if(it == sHeard.end()) return false;
+bool eTalkHeard::heard(const eConvoId& cid) const {
+    const auto it = find(cid);
+    if(it == end()) return false;
     return it->second;
 }
 
 void eTalkHeard::setHeard(
     const eConvoId& cid,
     const bool h) {
-    sHeard[cid] = h;
+    (*this)[cid] = h;
 }
 
 std::optional<eConvoId> eTalkHeard::nextUnheard(
     const std::string& npcName,
     const eSlayerQuests& squests) {
     const int npcId = eTalks::sTalk.id(npcName);
-    for(const auto& it : sHeard) {
+    for(const auto& it : *this) {
         const bool h = it.second;
         if(h) continue;
         const auto& cid = it.first;
@@ -70,7 +66,7 @@ std::vector<eConvoId> eTalkHeard::allRelevant(
     const eSlayerQuests& squests) {
     std::vector<eConvoId> result;
     const int npcId = eTalks::sTalk.id(npcName);
-    for(const auto& it : sHeard) {
+    for(const auto& it : *this) {
         const auto& cid = it.first;
         if(cid.fNPC != npcId) continue;
         const auto& convo = eTalks::get(cid);

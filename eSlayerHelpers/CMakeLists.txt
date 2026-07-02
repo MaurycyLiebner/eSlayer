@@ -200,6 +200,8 @@ add_library(eSlayerHelpers SHARED
     src/etalk.cpp
     include/eSlayerHelpers/eslayerquests.h
     src/eslayerquests.cpp
+    include/eSlayerHelpers/etalkheard.h
+    src/etalkheard.cpp
 
 )
 

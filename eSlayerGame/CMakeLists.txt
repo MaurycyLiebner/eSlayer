@@ -108,8 +108,6 @@ add_executable(eSlayerGame
     ewindowsettings.h
     emovementhandler.cpp
     emovementhandler.h
-    etalkheard.cpp
-    etalkheard.h
 
     # Names
     names/eareanames.cpp
