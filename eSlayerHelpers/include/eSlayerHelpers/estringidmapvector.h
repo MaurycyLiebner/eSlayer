@@ -70,6 +70,10 @@ public:
         return mValues[id];
     }
 
+    bool has(const int id) {
+        return id >= 0 && id < mValues.size();
+    }
+
     int id(const std::string& str) const {
         const auto it = mMap.find(str);
         if(it == mMap.end()) return -1;

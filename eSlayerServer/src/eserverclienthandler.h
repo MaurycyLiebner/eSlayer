@@ -5,6 +5,7 @@
 
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eequipmentaction.h>
+#include <eSlayerHelpers/etalk.h>
 
 #include <memory>
 
@@ -25,6 +26,11 @@ public:
     bool receiveData(eRequestData& data,
                      float& resultTime);
     bool receiveEquipment(eEquipment& data);
+
+    std::optional<eSlayerQuests>
+    receiveQuests();
+
+    bool heardTalk(const eConvoId& talk);
 
     const std::shared_ptr<eServerArea>& area() const { return mArea; }
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }

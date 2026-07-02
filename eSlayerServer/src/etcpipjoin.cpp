@@ -183,6 +183,24 @@ bool eTcpIpJoin::unblockEquipment(const uint32_t clientId) {
     return unblock;
 }
 
+std::optional<eSlayerQuests>
+eTcpIpJoin::receiveQuests(const uint32_t clientId) {
+    std::optional<eSlayerQuests> result;
+    std::swap(mQuests, result);
+    return result;
+}
+
+bool eTcpIpJoin::heardTalk(
+    const uint32_t clientId,
+    const eConvoId& talk) {
+    ePacket p;
+    p << ePacketType::heardTalk;
+    p << talk;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send heard talk to the host.");
+    return r;
+}
+
 bool eTcpIpJoin::changeState(
     const uint32_t clientId, const eUnitData& u) {
     ePacket p;

@@ -244,4 +244,7 @@
         <string id="1">Trade</string>
         <string id="2">Cancel</string>
     </group>
+    <group id="21">
+        <string id="0">You completed this quest</string>
+    </group>
 </strings>

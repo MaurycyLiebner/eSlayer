@@ -85,7 +85,8 @@ bool eLocalServer::spawn(const uint32_t clientId,
                          const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const bool r = h->spawn(c, teamId, spawnPos, bodies, screenDims);
+    const bool r = h->spawn(c, teamId, spawnPos,
+                            bodies, screenDims);
     if(!r) return false;
     const auto& name = c.name();
     eSlayer slayer;
@@ -112,14 +113,31 @@ bool eLocalServer::requestEquipment(const uint32_t clientId) {
     return h->requestEquipment();
 }
 
-bool eLocalServer::receiveEquipment(const uint32_t clientId,
-                                    eEquipment& data) {
+std::optional<eSlayerQuests>
+eLocalServer::receiveQuests(const uint32_t clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return std::nullopt;
+    return h->receiveQuests();
+}
+
+bool eLocalServer::heardTalk(
+    const uint32_t clientId,
+    const eConvoId& talk) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->heardTalk(talk);
+}
+
+bool eLocalServer::receiveEquipment(
+    const uint32_t clientId,
+    eEquipment& data) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     return h->receiveEquipment(data);
 }
 
-bool eLocalServer::unblockEquipment(const uint32_t clientId) {
+bool eLocalServer::unblockEquipment(
+    const uint32_t clientId) {
     return true;
 }
 

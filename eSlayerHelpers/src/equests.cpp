@@ -5,6 +5,8 @@
 #include "eSlayerHelpers/eobjectsinfo.h"
 
 eStringIdMapVector<eQuest> eQuests::sQuests;
+std::map<int, std::vector<eQuestStepId>>
+eQuests::sMonsterQuests;
 bool eQuests::sLoaded = false;
 
 void eQuests::load() {
@@ -23,6 +25,7 @@ void eQuests::load() {
             for(auto it = value.begin(); it != value.end(); ++it) {
                 const auto& key = it.key();
                 const auto& value = it.value();
+                const int questId = sQuests.size();
                 eQuest q;
                 q.fAct = act;
 
@@ -30,6 +33,7 @@ void eQuests::load() {
                     eRuntimeThrow("Missing quest steps in \"" + key + "\".");
                 }
                 for(const auto& stepData : value["steps"]) {
+                    const int stepId = q.fSteps.size();
                     auto& step = q.fSteps.emplace_back();
                     const auto typeStr = stepData.value("type", "");
                     if(typeStr == "kill") {
@@ -39,6 +43,8 @@ void eQuests::load() {
                         if(id < 0) {
                             eRuntimeThrow("Unrecognized monster type \"" + monsterStr + "\".");
                         }
+                        const auto stageId = eQuest::stepToStage(stepId);
+                        sMonsterQuests[id].emplace_back(questId, stageId);
                         step.fTarget = id;
                         step.fCount = stepData.value("count", 1);
                     } else if(typeStr == "talkTo") {

@@ -3,6 +3,7 @@
 #include "../elabel.h"
 #include "../../names/equesttext.h"
 #include "../../textures/euitextures.h"
+#include "../../etext.h"
 
 eSlayerQuests eQuestsWidget::sState;
 
@@ -63,11 +64,11 @@ void eQuestsWidget::initialize(
     const float mult = res.multiplier();
     const int p = res.largePadding();
 
-    int maxAct = 0;
-    std::map<int, eQuestAct> qacts;
+    uint8_t maxAct = 0;
+    std::map<uint8_t, eQuestAct> qacts;
     std::vector<uint8_t> updated;
     for(const auto& it : eQuests::sQuests) {
-        const int id = it.fId;
+        const uint8_t id = it.fId;
         const auto oldStage = sState.stage(id);
         const auto newStage = newState.stage(id);
         if(newStage > oldStage) {
@@ -113,19 +114,31 @@ void eQuestsWidget::initialize(
             titleLabel->fitContent();
             titleLabel->align(eAlignment::hcenter);
 
-            const auto stage = sState.stage(q.fId);
-            const auto& text = eQuestText::text(q.fName, stage);
-            textLabel->setText(text);
+            const bool f = sState.finished(q.fId);
+            if(f) {
+                const auto& text = eText::text(21, 0);
+                textLabel->setText(text);
+            } else {
+                const auto stage = sState.stage(q.fId);
+                const auto& text = eQuestText::text(q.fName, stage);
+                textLabel->setText(text);
+            }
             textLabel->fitContent();
         };
 
+        std::optional<eExtQuest> current;
         for(const auto& q : qa.fQuests) {
             const auto qw = new eQuestWidget(window());
             const int id = q.fId;
             const auto stage = sState.stage(id);
-            qw->initialize(id, stage, [q, setCurrent]() {
-                setCurrent(q);
-            });
+            eAction pressAction;
+            if(stage > 0) {
+                pressAction = [q, setCurrent]() {
+                    setCurrent(q);
+                };
+                current = q;
+            }
+            qw->initialize(id, stage, pressAction);
             iconsWidget->addWidget(qw);
         }
 
@@ -138,6 +151,8 @@ void eQuestsWidget::initialize(
 
         w->stackVertically(p);
         w->fitContent();
+
+        if(current) setCurrent(*current);
     }
 
     eActsWidget::initialize("", acts, currentAct);

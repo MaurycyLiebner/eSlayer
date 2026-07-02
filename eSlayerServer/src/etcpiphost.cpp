@@ -133,6 +133,23 @@ bool eTcpIpHost::unblockEquipment(
         clientId);
 }
 
+std::optional<eSlayerQuests>
+eTcpIpHost::receiveQuests(
+    const uint32_t clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveQuests(
+        clientId);
+}
+
+bool
+eTcpIpHost::heardTalk(
+    const uint32_t clientId,
+    const eConvoId& talk) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::heardTalk(
+        clientId, talk);
+}
+
 bool eTcpIpHost::changeState(
     const uint32_t clientId, const eUnitData& u) {
     std::unique_lock lock(mMutex);
@@ -481,11 +498,23 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::equipment: {
 
     } break;
+    case ePacketType::quests: {
+
+    } break;
     case ePacketType::replaceItemId: {
 
     } break;
     case ePacketType::provideSeller: {
 
+    } break;
+    case ePacketType::heardTalk: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            eConvoId talk;
+            p >> talk;
+            eLocalServer::heardTalk(charId, talk);
+        }
     } break;
     case ePacketType::buyAction: {
         const auto it = mClientIdMap.find(tcpClientId);
@@ -598,6 +627,17 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
             const uint32_t charId = it->second;
+
+            {
+                const auto q = eLocalServer::receiveQuests(charId);
+                if(q) {
+                    ePacket p;
+                    p << ePacketType::quests;
+                    q->write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
+            }
+
             eRequestData data;
             p >> data.fRequestId;
             p >> data.fServerState;

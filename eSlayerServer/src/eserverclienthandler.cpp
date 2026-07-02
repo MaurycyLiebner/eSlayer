@@ -47,6 +47,18 @@ bool eServerClientHandler::receiveEquipment(eEquipment& data) {
     return true;
 }
 
+std::optional<eSlayerQuests>
+eServerClientHandler::receiveQuests() {
+    if(!mArea) return std::nullopt;
+    return mArea->quests(mClientId);
+}
+
+bool eServerClientHandler::heardTalk(
+    const eConvoId& talk) {
+    if(!mArea) return false;
+    return mArea->heardTalk(mClientId, talk);
+}
+
 std::shared_ptr<eMap> eServerClientHandler::map() const {
     if(!mArea) return nullptr;
     return mArea->map();

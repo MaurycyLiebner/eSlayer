@@ -659,6 +659,7 @@ bool eMainCharAction::tryOpenTalk(
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
     mTalkHeard.setHeard(*talk, true);
+    mServer->heardTalk(mClientId, *talk);
     return true;
 }
 

@@ -13,7 +13,7 @@ uint8_t eSlayerQuests::stage(
     const uint8_t questId) const {
     const bool r = hasQuest(questId);
     if(!r) return 0;
-    return mStages.at(questId);
+    return mStages.at(questId).fStage;
 }
 
 bool eSlayerQuests::finished(
@@ -59,7 +59,7 @@ bool eSlayerQuests::addQuest(
     const uint8_t questId) {
     const bool r = hasQuest(questId);
     if(r) return false;
-    mStages[questId] = 0;
+    mStages[questId];
     return true;
 }
 
@@ -67,7 +67,9 @@ bool eSlayerQuests::nextStage(
     const uint8_t questId) {
     auto it = mStages.find(questId);
     if(it == mStages.end()) return false;
-    it->second++;
+    auto& s = it->second;
+    s.fStage++;
+    s.fCount = 0;
     mState++;
     return true;
 }
@@ -75,8 +77,45 @@ bool eSlayerQuests::nextStage(
 bool eSlayerQuests::setStage(
     const uint8_t questId,
     const uint8_t stageId) {
-    mStages[questId] = stageId;
+    auto& s = mStages[questId];
+    s.fStage = stageId;
+    s.fCount = 0;
     return true;
+}
+
+bool eSlayerQuests::incCount(
+    const uint8_t questId,
+    const uint8_t stage) {
+    auto it = mStages.find(questId);
+    if(it == mStages.end()) return false;
+    auto& s = it->second;
+    if(s.fStage != stage) return false;
+    s.fCount++;
+    const auto& q = eQuests::sQuests.get(questId);
+    const auto stepId = q.stageToStep(stage);
+    if(stepId >= q.fSteps.size()) return false;
+    const auto& step = q.fSteps[stepId];
+    switch(step.fType) {
+    case eQuestType::talkTo:
+        return false;
+    default:
+        break;
+    }
+    if(step.fCount <= s.fCount) {
+        nextStage(questId);
+    }
+    return true;
+}
+
+bool eSlayerQuests::heardTalk(
+    const eConvoId& talk) {
+    const bool r = eTalks::has(talk);
+    if(!r) return false;
+    const auto& c = eTalks::get(talk);
+    if(c.fType == eConvoType::intro) return false;
+    auto& s = mStages[c.fQuestId];
+    if(s.fStage != c.fStageId) return false;
+    return nextStage(c.fQuestId);
 }
 
 void eSlayerQuests::read(ePacket& p) {
@@ -87,9 +126,9 @@ void eSlayerQuests::read(ePacket& p) {
     for(int i = 0; i < n; i++) {
         uint8_t questId;
         p >> questId;
-        uint8_t stage;
-        p >> stage;
-        mStages[questId] = stage;
+        eQuestState state;
+        p >> state;
+        mStages[questId] = state;
     }
 }
 

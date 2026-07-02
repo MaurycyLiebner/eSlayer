@@ -40,6 +40,7 @@ public:
     id(const std::string& npc,
        const std::string& convo);
     static const eConvo& get(const eConvoId& id);
+    static bool has(const eConvoId& id);
 
     static void load();
 private:

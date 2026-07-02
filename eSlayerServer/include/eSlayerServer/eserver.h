@@ -11,6 +11,8 @@
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eequipmentaction.h>
 #include <eSlayerHelpers/esellers.h>
+#include <eSlayerHelpers/eslayerquests.h>
+#include <eSlayerHelpers/etalk.h>
 
 #include <memory>
 
@@ -88,6 +90,13 @@ public:
                      eEquipment& data) = 0;
     virtual bool
     unblockEquipment(const uint32_t clientId) = 0;
+
+    virtual std::optional<eSlayerQuests>
+    receiveQuests(const uint32_t clientId) = 0;
+
+    virtual bool
+    heardTalk(const uint32_t clientId,
+              const eConvoId& talk) = 0;
 
     virtual bool
     changeState(const uint32_t clientId,

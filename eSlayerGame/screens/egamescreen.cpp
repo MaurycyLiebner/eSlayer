@@ -570,7 +570,8 @@ void eGameScreen::showQuestsMenu() {
     mQuestsMenu->resize(w/2, h - mBottomWidget->height());
     const auto& map = mGameWidget->map();
     const auto actId = map->actId();
-    mQuestsMenu->initialize(actId, eSlayerQuests());
+    const auto& quests = mGameWidget->quests();
+    mQuestsMenu->initialize(actId, quests);
     mMenusWidget->addWidget(mQuestsMenu);
     mQuestsMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();

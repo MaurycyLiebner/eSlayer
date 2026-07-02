@@ -25,6 +25,7 @@
 #include <eSlayerHelpers/eplacementhelper.h>
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/esellers.h>
+#include <eSlayerHelpers/equests.h>
 
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
@@ -834,6 +835,8 @@ bool eServerArea::addClient(const uint32_t clientId,
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
+    const auto& quests = c.quests();
+    clientData.fQuests = quests;
 
     for(auto& eq : c.bodies()) {
         eq.iterateOverBody([](eItem& item) {
@@ -853,6 +856,7 @@ bool eServerArea::addClient(
     const uint32_t clientId,
     const std::shared_ptr<eServerUnit>& u,
     const eScreenDimensions& screenDims,
+    const eSlayerQuests& quests,
     const eMoveToMapData& moveData,
     ePointF& spawnPos) {
     switch(moveData.fType) {
@@ -895,6 +899,7 @@ bool eServerArea::addClient(
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
+    clientData.fQuests = quests;
 
     return true;
 }
@@ -1018,9 +1023,10 @@ bool eServerArea::moveClient(
     if(!u) return false;
     const auto& clientData = from.mClientData[clientId];
     const auto screen = clientData.fScreen;
+    const auto quests = clientData.fQuests;
     if(&from != &to) from.clientMoved(clientId);
     const bool r = to.addClient(
-        clientId, u, screen,
+        clientId, u, screen, quests,
         moveData, spawnPos);
     if(!r) return false;
     if(moveData.fType == eMoveToMapType::portal) {
@@ -1497,6 +1503,28 @@ eServerArea::auras(const uint32_t clientId) {
     return stats.fAuraBoosts;
 }
 
+std::optional<eSlayerQuests>
+eServerArea::quests(const uint32_t clientId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return std::nullopt;
+    auto& clientData = it->second;
+    if(!clientData.fSendQuests) return std::nullopt;
+    clientData.fSendQuests = false;
+    return clientData.fQuests;
+}
+
+bool eServerArea::heardTalk(
+    const uint32_t clientId,
+    const eConvoId& talk) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& clientData = it->second;
+    auto& qs = clientData.fQuests;
+    qs.heardTalk(talk);
+    clientData.fSendQuests = true;
+    return true;
+}
+
 void eServerArea::addSkillArea(
     const std::shared_ptr<eServerSkillArea>& a) {
     mSkillAreas.add(a->fId, a);
@@ -1900,6 +1928,22 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 }
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
+    {
+        const auto id = killed.fUnitInfoId;
+        const auto& mqs = eQuests::sMonsterQuests;
+        const auto it = mqs.find(id);
+        if(it != mqs.end()) {
+            for(auto& cit : mClientData) {
+                auto& c = cit.second;
+                const auto& qs = it->second;
+                for(const auto& q : qs) {
+                    const bool r = c.fQuests.incCount(
+                        q.fQuestId, q.fStageId);
+                    if(r) c.fSendQuests = true;
+                }
+            }
+        }
+    }
     const int level = killed.level();
     const auto type = killed.unitType();
     float worth = 0.f;

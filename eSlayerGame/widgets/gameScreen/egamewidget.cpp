@@ -369,6 +369,10 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     auto& eq = eGameWidget::equipment();
     {
+        const auto quests = mServer->receiveQuests(mClientId);
+        if(quests) {
+            eGameWidget::quests() = *quests;
+        }
         const auto seller = mServer->receiveSeller();
         if(seller) {
             eGameScreen::sOpenSellerMenu(*seller);

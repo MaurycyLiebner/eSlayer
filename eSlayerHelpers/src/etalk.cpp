@@ -27,6 +27,13 @@ const eConvo& eTalks::get(const eConvoId& id) {
     return sTalk.get(id.fNPC).fConvo[id.fConvo];
 }
 
+bool eTalks::has(const eConvoId& id) {
+    if(!sTalk.has(id.fNPC)) return false;
+    const auto& npc = sTalk.get(id.fNPC);
+    const auto& cs = npc.fConvo;
+    return id.fConvo < cs.size();
+}
+
 void eTalks::load() {
     if(sLoaded) return;
     sLoaded = true;
@@ -75,9 +82,9 @@ void eTalks::load() {
                         eRuntimeThrow("Unrecognized quest \"" + questStr + "\".");
                     }
                     convo.fQuestId = id;
-                    if(convo.fType == eConvoType::questStep) {
-                        const auto& q = eQuests::sQuests.get(id);
 
+                    const auto& q = eQuests::sQuests.get(id);
+                    if(convo.fType == eConvoType::questStep) {
                         for(int i = 0; i < q.fSteps.size(); i++) {
                             const auto& s = q.fSteps[i];
                             if(s.fConvoStr == key) {
@@ -85,6 +92,8 @@ void eTalks::load() {
                                 break;
                             }
                         }
+                    } else if(convo.fType == eConvoType::questOutro) {
+                        convo.fStageId = q.nStages() - 1;
                     }
                 }
             }

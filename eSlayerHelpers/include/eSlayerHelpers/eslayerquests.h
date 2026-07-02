@@ -3,10 +3,17 @@
 
 #include "eslayerhelpersexport.h"
 
+#include <eSlayerHelpers/etalk.h>
+
 #include <map>
 #include <cstdint>
 
 class ePacket;
+
+struct eQuestState {
+    uint8_t fStage = 0;
+    uint8_t fCount = 0;
+};
 
 class ESLAYERHELPERS_API eSlayerQuests {
 public:
@@ -25,12 +32,15 @@ public:
     bool nextStage(const uint8_t questId);
     bool setStage(const uint8_t questId,
                   const uint8_t stageId);
+    bool incCount(const uint8_t questId,
+                  const uint8_t stage);
+    bool heardTalk(const eConvoId& talk);
 
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
     uint16_t mState = 0;
-    std::map<uint8_t, uint8_t> mStages;
+    std::map<uint8_t, eQuestState> mStages;
 };
 
 #endif // ESLAYERQUESTS_H

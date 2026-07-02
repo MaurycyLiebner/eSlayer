@@ -743,6 +743,7 @@ void eCharacter::read(ePacket& p) {
     mEquipment.read(p);
     mAttributes.read(p);
     mSkillLevels.read(p);
+    mQuests.read(p);
 
     uint8_t nBodies;
     p >> nBodies;
@@ -758,6 +759,7 @@ void eCharacter::write(ePacket& p) const {
     mEquipment.write(p);
     mAttributes.write(p);
     mSkillLevels.write(p);
+    mQuests.write(p);
 
     const uint8_t nBodies = mBodies.size();
     p << nBodies;

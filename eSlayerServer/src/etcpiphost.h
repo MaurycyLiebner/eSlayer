@@ -38,6 +38,13 @@ public:
                           eEquipment& data) override;
     bool unblockEquipment(const uint32_t clientId) override;
 
+    std::optional<eSlayerQuests>
+    receiveQuests(const uint32_t clientId) override;
+
+    bool
+    heardTalk(const uint32_t clientId,
+              const eConvoId& talk) override;
+
     bool changeState(const uint32_t clientId,
                      const eUnitData& u) override;
 

@@ -18,6 +18,8 @@
 #include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eequipmentaction.h>
+#include <eSlayerHelpers/eslayerquests.h>
+#include <eSlayerHelpers/etalk.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -43,6 +45,9 @@ struct eClientData {
     uint32_t fLatestSkillArea;
     eAreas fKnownMap;
     bool fUpdateBoostsAuras = false;
+
+    eSlayerQuests fQuests;
+    bool fSendQuests = false;
 };
 
 class eServerArea {
@@ -77,6 +82,11 @@ public:
     boosts(const uint32_t clientId);
     std::multimap<eAuraType, eModifier>
     auras(const uint32_t clientId);
+    std::optional<eSlayerQuests>
+    quests(const uint32_t clientId);
+
+    bool heardTalk(const uint32_t clientId,
+                   const eConvoId& talk);
 
     eArea unitArea(const uint32_t charId) const;
     eArea unitArea(const eServerUnit& u) const;
@@ -233,6 +243,7 @@ private:
     bool addClient(const uint32_t clientId,
                    const std::shared_ptr<eServerUnit>& u,
                    const eScreenDimensions& screenDims,
+                   const eSlayerQuests& quests,
                    const eMoveToMapData& moveData,
                    ePointF& spawnPos);
     void iniMissileInc();
