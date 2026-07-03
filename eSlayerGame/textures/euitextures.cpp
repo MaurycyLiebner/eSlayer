@@ -7,26 +7,41 @@
 #include <eSlayerHelpers/eskills.h>
 
 std::string eUITextures::sLoaded;
-std::shared_ptr<eTexture> eUITextures::sOkIcon;
-std::shared_ptr<eTexture> eUITextures::sCancelIcon;
+std::shared_ptr<eTexture>
+eUITextures::sOkIcon;
+std::shared_ptr<eTexture>
+eUITextures::sCancelIcon;
 eStringIdMapVector<std::shared_ptr<eTexture>>
 eUITextures::sSkillIcons;
-std::shared_ptr<eTexture> eUITextures::sWalkIcon;
-std::shared_ptr<eTexture> eUITextures::sRunIcon;
-std::shared_ptr<eTexture> eUITextures::sPortalIcon;
-std::shared_ptr<eTexture> eUITextures::sInventoryIcon;
-std::shared_ptr<eTexture> eUITextures::sPartyIcon;
-std::shared_ptr<eTexture> eUITextures::sAttributesIcon;
-std::shared_ptr<eTexture> eUITextures::sSkillsIcon;
+std::shared_ptr<eTexture>
+eUITextures::sWalkIcon;
+std::shared_ptr<eTexture>
+eUITextures::sRunIcon;
+std::shared_ptr<eTexture>
+eUITextures::sPortalIcon;
+std::shared_ptr<eTexture>
+eUITextures::sInventoryIcon;
+std::shared_ptr<eTexture>
+eUITextures::sPartyIcon;
+std::shared_ptr<eTexture>
+eUITextures::sAttributesIcon;
+std::shared_ptr<eTexture>
+eUITextures::sSkillsIcon;
 
-std::shared_ptr<eTexture> eUITextures::sLifeBar1;
-std::shared_ptr<eTexture> eUITextures::sLifeBar2;
+std::shared_ptr<eTexture>
+eUITextures::sLifeBar1;
+std::shared_ptr<eTexture>
+eUITextures::sLifeBar2;
 
-std::shared_ptr<eTexture> eUITextures::sStaminaBar1;
-std::shared_ptr<eTexture> eUITextures::sStaminaBar2;
+std::shared_ptr<eTexture>
+eUITextures::sStaminaBar1;
+std::shared_ptr<eTexture>
+eUITextures::sStaminaBar2;
 
-std::shared_ptr<eTexture> eUITextures::sExpBar1;
-std::shared_ptr<eTexture> eUITextures::sExpBar2;
+std::shared_ptr<eTexture>
+eUITextures::sExpBar1;
+std::shared_ptr<eTexture>
+eUITextures::sExpBar2;
 
 std::shared_ptr<eTexture>
 eUITextures::sAmuletSlot;
@@ -59,11 +74,16 @@ eUITextures::sStatsPlusButton;
 std::shared_ptr<eTexture>
 eUITextures::sStatsPlusButtonHovered;
 
-std::shared_ptr<eTexture> eUITextures::sWeaponSwitch1;
-std::shared_ptr<eTexture> eUITextures::sWeaponSwitch2;
+std::shared_ptr<eTexture>
+eUITextures::sWeaponSwitch1;
+std::shared_ptr<eTexture>
+eUITextures::sWeaponSwitch2;
 
 eStringIdMapVector<eQuestTextures>
 eUITextures::sQuestIcons;
+
+std::shared_ptr<eTexture>
+eUITextures::sTalk;
 
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
@@ -200,4 +220,6 @@ void eUITextures::sLoad(SDL_Renderer* const r,
             sQuestIcons.add(name, texs);
         }
     }
+
+    sTalk = eFileLoader::readTexture(r, dir, "ui/talk" + suffix + ".png");
 }

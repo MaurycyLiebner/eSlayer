@@ -92,6 +92,9 @@ public:
 
     static eStringIdMapVector<eQuestTextures>
     sQuestIcons;
+
+    static std::shared_ptr<eTexture>
+    sTalk;
 private:
     static std::string sLoaded;
 };

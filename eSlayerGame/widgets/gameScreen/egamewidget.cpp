@@ -12,6 +12,7 @@
 #include "../../textures/etextgenerator.h"
 #include "../../textures/eiteminstancetexture.h"
 #include "../../textures/eitemstextures.h"
+#include "../../textures/euitextures.h"
 
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
@@ -371,7 +372,10 @@ void eGameWidget::paintEvent(ePainter& p) {
     {
         const auto quests = mServer->receiveQuests(mClientId);
         if(quests) {
-            eGameWidget::quests() = *quests;
+            auto& dstQuests = eGameWidget::quests();
+            dstQuests = *quests;
+            auto& talkHeard = eGameWidget::talkHeard();
+            talkHeard.updateWantsToTalk(dstQuests);
         }
         const auto seller = mServer->receiveSeller();
         if(seller) {
@@ -1532,6 +1536,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto align = info.fSplit ?
                     eAlignment::top | eAlignment::right :
                     eAlignment::top | eAlignment::hcenter;
+                ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
                 bool highlightable = false;
                 switch(info.fType) {
                 case eObjectType::treasure: {
@@ -1545,9 +1550,22 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto t2 = eTeams::playerTeam(mClientId);
                     highlightable = t1 == t2;
                 } break;
-                case eObjectType::trapDoor:
                 case eObjectType::healer:
-                case eObjectType::trader:
+                case eObjectType::trader: {
+                    const auto& quests = eGameWidget::quests();
+                    auto& talkHeard = eGameWidget::talkHeard();
+                    const bool w = talkHeard.wantsToTalk(
+                        objType, obj.fObjectId, quests);
+                    if(w) {
+                        const auto& bubble = eUITextures::sTalk;
+                        const int x = drawX + texW/2;
+                        const int bh = bubble->height();
+                        const int y = drawY - bh;
+                        const auto a = eAlignment::hcenter | eAlignment::top;
+                        mGamePainter.drawTexture(x, y, bubble, a);
+                    }
+                }
+                case eObjectType::trapDoor:
                 case eObjectType::stash:
                 case eObjectType::portalDoor:
                     highlightable = true;
@@ -1555,7 +1573,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                 default:
                     break;
                 };
-                ePainter::drawCoordinates(drawX, drawY, texW, texH, align);
                 if(highlightable && !mHighlightUnit.lock() && !mHighlightObject.lock()) {
                     const SDL_Point p{int(mpos.fX), int(mpos.fY)};
                     const SDL_Rect rect{drawX, drawY, texW, texH};

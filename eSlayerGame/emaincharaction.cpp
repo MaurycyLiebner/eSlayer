@@ -13,7 +13,6 @@
 #include "names/etalktext.h"
 
 #include "etext.h"
-#include "../eSlayerHelpers/include/eSlayerHelpers/etalkheard.h"
 
 #include <eSlayerServer/eserver.h>
 
@@ -27,6 +26,7 @@
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/etalkheard.h>
 #include <eSlayerHelpers/etalk.h>
 
 eMainCharAction::eMainCharAction(
@@ -659,6 +659,7 @@ bool eMainCharAction::tryOpenTalk(
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
     mTalkHeard.setHeard(*talk, true);
+    mTalkHeard.updateWantsToTalk(mQuests);
     mServer->heardTalk(mClientId, *talk);
     return true;
 }

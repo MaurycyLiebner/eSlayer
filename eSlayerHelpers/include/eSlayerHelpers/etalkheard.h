@@ -17,9 +17,27 @@ public:
     std::optional<eConvoId> nextUnheard(
         const std::string& npcName,
         const eSlayerQuests& squests);
+    std::optional<eConvoId> nextUnheard(
+        const uint8_t npcId,
+        const eSlayerQuests& squests);
     std::vector<eConvoId> allRelevant(
         const std::string& npcName,
         const eSlayerQuests& squests);
+
+    bool wantsToTalk(const uint16_t objType,
+                     const uint32_t objectId,
+                     const eSlayerQuests& squests);
+    bool updateWantsToTalk(const uint16_t objType,
+                           const uint32_t objectId,
+                           const eSlayerQuests& squests);
+    void updateWantsToTalk(const eSlayerQuests& squests);
+private:
+    struct eNPCWantsToTalk {
+        uint16_t fObjectType;
+        bool fWantsToTalk = false;
+    };
+
+    std::map<uint32_t, eNPCWantsToTalk> mNPCWantsToTalk;
 };
 
 #endif // ETALKHEARD_H

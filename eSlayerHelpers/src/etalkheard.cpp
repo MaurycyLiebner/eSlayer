@@ -1,6 +1,7 @@
 #include "../include/eSlayerHelpers/etalkheard.h"
 
 #include "eSlayerHelpers/eslayerquests.h"
+#include "eSlayerHelpers/eobjectsinfo.h"
 
 void eTalkHeard::initialize() {
     clear();
@@ -31,6 +32,14 @@ std::optional<eConvoId> eTalkHeard::nextUnheard(
     const std::string& npcName,
     const eSlayerQuests& squests) {
     const int npcId = eTalks::sTalk.id(npcName);
+    if(npcId < 0) return std::nullopt;
+    return nextUnheard(npcId, squests);
+}
+
+std::optional<eConvoId>
+eTalkHeard::nextUnheard(
+    const uint8_t npcId,
+    const eSlayerQuests& squests) {
     for(const auto& it : *this) {
         const bool h = it.second;
         if(h) continue;
@@ -92,4 +101,43 @@ std::vector<eConvoId> eTalkHeard::allRelevant(
         if(add) result.emplace_back(cid);
     }
     return result;
+}
+
+bool eTalkHeard::wantsToTalk(
+    const uint16_t objType,
+    const uint32_t objectId,
+    const eSlayerQuests& squests) {
+    const auto it = mNPCWantsToTalk.find(objectId);
+    if(it == mNPCWantsToTalk.end()) {
+        return updateWantsToTalk(objType, objectId, squests);
+    }
+    const auto& wt = it->second;
+    return wt.fWantsToTalk;
+}
+
+bool eTalkHeard::updateWantsToTalk(
+    const uint16_t objType,
+    const uint32_t objectId,
+    const eSlayerQuests& squests) {
+    const auto baseName = eObjectsInfo::sObjects.name(objType);
+    const auto npcId = eTalks::sTalk.id(baseName);
+    if(npcId < 0) {
+        return false;
+    }
+
+    const auto next = nextUnheard(npcId, squests);
+    auto& wt = mNPCWantsToTalk[objectId];
+    wt.fObjectType = objType;
+    wt.fWantsToTalk = !!next;
+    return !!next;
+}
+
+void eTalkHeard::updateWantsToTalk(
+    const eSlayerQuests& squests) {
+    for(const auto& it : mNPCWantsToTalk) {
+        const auto objId = it.first;
+        const auto& wt = it.second;
+        const auto objType = wt.fObjectType;
+        updateWantsToTalk(objType, objId, squests);
+    }
 }
