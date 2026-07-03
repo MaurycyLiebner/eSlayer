@@ -512,6 +512,11 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::unblockEquipment: {
         mUnblockEquipment = true;
     } break;
+    case ePacketType::quests: {
+        eSlayerQuests q;
+        q.read(p);
+        mQuests = q;
+    } break;
     case ePacketType::userEntered: {
         eSlayer slayer;
         slayer.read(p);
