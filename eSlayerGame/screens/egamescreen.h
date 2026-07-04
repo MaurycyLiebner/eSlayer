@@ -29,6 +29,7 @@ class eStashWidget;
 struct eSeller;
 class eSellerWidget;
 class eQuestsWidget;
+class eMessagesWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -90,6 +91,9 @@ private:
     void showMessageBox();
     void hideMessageBox();
 
+    void showMessagesMenu();
+    void hideMessagesMenu();
+
     void showWaypointMenu(const uint8_t cActId,
                           const eAreaIds& cArea);
     void hideWaypointMenu();
@@ -123,6 +127,7 @@ private:
     eMiniMap* mMiniMap = nullptr;
     eStashWidget* mStashMenu = nullptr;
     eQuestsWidget* mQuestsMenu = nullptr;
+    eMessagesWidget* mMessagesMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
 
     eWidget* mSkillMenu = nullptr;

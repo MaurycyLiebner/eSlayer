@@ -318,6 +318,8 @@ add_executable(eSlayerGame
     widgets/gameScreen/equestswidget.h
     widgets/gameScreen/eactswidget.cpp
     widgets/gameScreen/eactswidget.h
+    widgets/gameScreen/emessageswidget.cpp
+    widgets/gameScreen/emessageswidget.h
 
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp

@@ -27,7 +27,11 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
                                const eCheckAction& invA,
                                const eCheckAction& attrsA,
                                const eCheckAction& skillA,
-                               const eCheckAction& partyA) {
+                               const eCheckAction& partyA,
+                               const eCheckAction& questsA,
+                               const eCheckAction& automapA,
+                               const eCheckAction& messagesA,
+                               const eCheckAction& gameMenuA) {
     setNoPadding();
 
     mLeftSkillButton = new eSkillButton(window());
@@ -77,6 +81,34 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     partyButton->initialize(eUITextures::sPartyIcon,
                             eUITextures::sPartyIcon);
     buttonW->addWidget(partyButton);
+
+    const auto questsButton = new eTextureCheckButton(window());
+    questsButton->setTooltip(eText::text(18, 13));
+    questsButton->setCheckAction(questsA);
+    questsButton->initialize(eUITextures::sQuestsIcon,
+                             eUITextures::sQuestsIcon);
+    buttonW->addWidget(questsButton);
+
+    const auto automapButton = new eTextureCheckButton(window());
+    automapButton->setTooltip(eText::text(18, 15));
+    automapButton->setCheckAction(automapA);
+    automapButton->initialize(eUITextures::sAutomapIcon,
+                              eUITextures::sAutomapIcon);
+    buttonW->addWidget(automapButton);
+
+    const auto messagesButton = new eTextureCheckButton(window());
+    messagesButton->setTooltip(eText::text(18, 14));
+    messagesButton->setCheckAction(messagesA);
+    messagesButton->initialize(eUITextures::sMessagesIcon,
+                               eUITextures::sMessagesIcon);
+    buttonW->addWidget(messagesButton);
+
+    const auto gameMenuButton = new eTextureCheckButton(window());
+    gameMenuButton->setTooltip(eText::text(18, 16));
+    gameMenuButton->setCheckAction(gameMenuA);
+    gameMenuButton->initialize(eUITextures::sGameMenuIcon,
+                               eUITextures::sGameMenuIcon);
+    buttonW->addWidget(gameMenuButton);
 
     buttonW->stackHorizontally();
     buttonW->fitContent();

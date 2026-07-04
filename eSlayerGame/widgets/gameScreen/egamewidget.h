@@ -103,6 +103,9 @@ public:
     const std::shared_ptr<eServer>& server() const { return mServer; }
     uint32_t clientId() const { return mClientId; }
 
+    const std::vector<std::string>& messageLog() const
+    { return mMessagesLog; }
+
     void setDeathHandler(const eDeathHandler& h) { mDeathHandler = h; }
     void setRespawnHandler(const eRespawnHandler& h) { mRespawnHandler = h; }
 
@@ -159,6 +162,7 @@ private:
     std::shared_ptr<eMainCharAction> mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
+    std::vector<std::string> mMessagesLog;
     std::vector<eScreenMessage> mMessages;
 
     std::weak_ptr<eUnit> mHighlightUnit;

@@ -21,6 +21,7 @@
 #include "../widgets/gameScreen/estashwidget.h"
 #include "../widgets/gameScreen/esellerwidget.h"
 #include "../widgets/gameScreen/equestswidget.h"
+#include "../widgets/gameScreen/emessageswidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -144,6 +145,30 @@ void eGameScreen::initialize(const uint32_t clientId,
         }
     };
 
+    const auto automapA = [this](const bool) {
+        mMiniMap->switchShowMap();
+    };
+
+    const auto messagesA = [this](const bool) {
+        if(mMessagesMenu) {
+            hideMessagesMenu();
+        } else {
+            hideLeftMenu();
+            hideRightMenu();
+            showMessagesMenu();
+        }
+    };
+
+    const auto gameMenuA = [this](const bool) {
+        if(mESCMenu) {
+            hideESCMenu();
+        } else {
+            hideLeftMenu();
+            hideRightMenu();
+            showESCMenu();
+        }
+    };
+
     mMiniMap = new eMiniMap(window());
     mMiniMap->resize(width(), height());
     eGameSettings settings;
@@ -160,7 +185,8 @@ void eGameScreen::initialize(const uint32_t clientId,
         leftSkillA, c.leftSkill(),
         rightSkillA, c.rightSkill(),
         runA, portalA, invA, attrsA,
-        skillA, partyA);
+        skillA, partyA, questsA,
+        automapA, messagesA, gameMenuA);
     addWidget(mBottomWidget);
     mBottomWidget->align(eAlignment::bottom | eAlignment::hcenter);
 
@@ -247,6 +273,9 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else if(mSkillMenu) {
             mSkillMenu->deleteLater();
             mSkillMenu = nullptr;
+        } else if(mMessagesMenu) {
+            mMessagesMenu->deleteLater();
+            mMessagesMenu = nullptr;
         } else if(mDeadMenu) {
             mGameWidget->respawn();
         } else {
@@ -301,6 +330,14 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else {
             hideLeftMenu();
             showQuestsMenu();
+        }
+    } else if(!mMessage && key == SDL_SCANCODE_M) {
+        if(mMessagesMenu) {
+            hideMessagesMenu();
+        } else {
+            hideLeftMenu();
+            hideRightMenu();
+            showMessagesMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_T) {
         if(mSkillTreesMenu) {
@@ -448,6 +485,9 @@ void eGameScreen::hideLeftMenu() {
     if(mSellerMenu) {
         hideInventoryConnectedMenu();
     }
+    if(mMessagesMenu) {
+        hideMessagesMenu();
+    }
 }
 
 void eGameScreen::hideRightMenu() {
@@ -456,6 +496,9 @@ void eGameScreen::hideRightMenu() {
     }
     if(mInventoryMenu) {
         hideInventoryConnectedMenu();
+    }
+    if(mMessagesMenu) {
+        hideMessagesMenu();
     }
 }
 
@@ -681,6 +724,21 @@ void eGameScreen::hideMessageBox() {
     window->stopTextInput();
     mMessage->deleteLater();
     mMessage = nullptr;
+}
+
+void eGameScreen::showMessagesMenu() {
+    if(mMessagesMenu) return;
+    mMessagesMenu = new eMessagesWidget(window());
+    const auto& log = mGameWidget->messageLog();
+    mMessagesMenu->initialize(log);
+    mMenusWidget->addWidget(mMessagesMenu);
+    mMessagesMenu->align(eAlignment::top | eAlignment::hcenter);
+}
+
+void eGameScreen::hideMessagesMenu() {
+    if(!mMessagesMenu) return;
+    mMessagesMenu->deleteLater();
+    mMessagesMenu = nullptr;
 }
 
 void eGameScreen::showWaypointMenu(

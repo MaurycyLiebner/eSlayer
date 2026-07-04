@@ -27,6 +27,18 @@ std::shared_ptr<eTexture>
 eUITextures::sAttributesIcon;
 std::shared_ptr<eTexture>
 eUITextures::sSkillsIcon;
+std::shared_ptr<eTexture>
+eUITextures::sQuestsIcon;
+std::shared_ptr<eTexture>
+eUITextures::sMessagesIcon;
+std::shared_ptr<eTexture>
+eUITextures::sAutomapIcon;
+std::shared_ptr<eTexture>
+eUITextures::sGameMenuIcon;
+std::shared_ptr<eTexture>
+eUITextures::sNewFalseIcon;
+std::shared_ptr<eTexture>
+eUITextures::sNewTrueIcon;
 
 std::shared_ptr<eTexture>
 eUITextures::sLifeBar1;
@@ -126,6 +138,12 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sPartyIcon = eFileLoader::readTexture(r, dir, "ui/party" + suffix + ".png");
     sAttributesIcon = eFileLoader::readTexture(r, dir, "ui/attributes" + suffix + ".png");
     sSkillsIcon = eFileLoader::readTexture(r, dir, "ui/skills" + suffix + ".png");
+    sQuestsIcon = eFileLoader::readTexture(r, dir, "ui/quests" + suffix + ".png");
+    sMessagesIcon = eFileLoader::readTexture(r, dir, "ui/messages" + suffix + ".png");
+    sAutomapIcon = eFileLoader::readTexture(r, dir, "ui/automap" + suffix + ".png");
+    sGameMenuIcon = eFileLoader::readTexture(r, dir, "ui/gameMenu" + suffix + ".png");
+    sNewFalseIcon = eFileLoader::readTexture(r, dir, "ui/new_button_false" + suffix + ".png");
+    sNewTrueIcon = eFileLoader::readTexture(r, dir, "ui/new_button_true" + suffix + ".png");
 
     sAmuletSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotAmulet" + suffix + ".png");
     sArmorSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotArmor" + suffix + ".png");

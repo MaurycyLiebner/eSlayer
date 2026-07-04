@@ -26,7 +26,11 @@ public:
                     const eCheckAction& invA,
                     const eCheckAction& attrsA,
                     const eCheckAction& skillA,
-                    const eCheckAction& partyA);
+                    const eCheckAction& partyA,
+                    const eCheckAction& questsA,
+                    const eCheckAction& automapA,
+                    const eCheckAction& messagesA,
+                    const eCheckAction& gameMenuA);
 
     void setLeftSkill(const int skillId);
     void setRightSkill(const int skillId);

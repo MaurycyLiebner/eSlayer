@@ -42,6 +42,18 @@ public:
     static std::shared_ptr<eTexture>
     sAttributesIcon;
     static std::shared_ptr<eTexture>
+    sQuestsIcon;
+    static std::shared_ptr<eTexture>
+    sMessagesIcon;
+    static std::shared_ptr<eTexture>
+    sAutomapIcon;
+    static std::shared_ptr<eTexture>
+    sGameMenuIcon;
+    static std::shared_ptr<eTexture>
+    sNewFalseIcon;
+    static std::shared_ptr<eTexture>
+    sNewTrueIcon;
+    static std::shared_ptr<eTexture>
     sSkillsIcon;
     static std::shared_ptr<eTexture>
     sLifeBar1;
