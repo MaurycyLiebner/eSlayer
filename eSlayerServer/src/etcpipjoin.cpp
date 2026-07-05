@@ -327,7 +327,7 @@ bool eTcpIpJoin::changeAttributes(
     const uint32_t clientId, const eAttributes& attrs) {
     ePacket p;
     p << ePacketType::attributes;
-    attrs.write(p);
+    p << attrs;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send attributes change to the host.");
     return true;

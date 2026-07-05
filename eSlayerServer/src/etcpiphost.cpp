@@ -805,7 +805,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         if(it != mClientIdMap.end()) {
             const uint32_t charId = it->second;
             eAttributes attrs;
-            attrs.read(p);
+            p >> attrs;
             eLocalServer::changeAttributes(
                 charId, attrs);
         }

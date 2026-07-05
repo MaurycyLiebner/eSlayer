@@ -1,6 +1,5 @@
 #include "eSlayerHelpers/eattributes.h"
 
-#include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 
 #include <nlohmann/json.hpp>
@@ -9,6 +8,7 @@ using namespace nlohmann;
 #include <cmath>
 
 uint8_t eAttributes::sMaxLevel = 99;
+uint16_t eAttributes::sStatPointsPerLevel = 5;
 std::vector<uint32_t>
 eAttributes::sLevelExperience;
 
@@ -19,24 +19,26 @@ uint32_t eAttributes::nextLevelExp() const {
     return sLevelExperience.at(id);
 }
 
-void eAttributes::read(ePacket& p) {
-    p >> fLevel;
-    p >> fExp;
-    p >> fStrength;
-    p >> fDexterity;
-    p >> fVitality;
-    p >> fEnergy;
-    p >> fStatPoints;
+bool eAttributes::levelUp() {
+    if(fLevel == sMaxLevel) return false;
+    fLevel++;
+    fExp = 0.f;
+    fStatPoints += sStatPointsPerLevel;
+    return true;
 }
 
-void eAttributes::write(ePacket& p) const {
-    p << fLevel;
-    p << fExp;
-    p << fStrength;
-    p << fDexterity;
-    p << fVitality;
-    p << fEnergy;
-    p << fStatPoints;
+uint32_t eAttributes::totalPoints() const {
+    return fStrength + fDexterity +
+           fVitality + fEnergy +
+           fStatPoints;
+}
+
+bool eAttributes::samePoints(
+    const eAttributes& attrs1,
+    const eAttributes& attrs2) {
+    const auto t1 = attrs1.totalPoints();
+    const auto t2 = attrs2.totalPoints();
+    return t1 == t2;
 }
 
 void eAttributes::load() {

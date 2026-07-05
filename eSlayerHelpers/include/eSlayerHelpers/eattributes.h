@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <vector>
 
-class ePacket;
-
 struct ESLAYERHELPERS_API eAttributes {
     uint8_t fLevel = 1;
     float fExp = 0.f;
@@ -16,12 +14,17 @@ struct ESLAYERHELPERS_API eAttributes {
     uint16_t fVitality = 20;
     uint16_t fEnergy = 15;
 
+    static uint16_t sStatPointsPerLevel;
     uint16_t fStatPoints = 10;
 
     uint32_t nextLevelExp() const;
+    bool levelUp();
 
-    void read(ePacket& p);
-    void write(ePacket& p) const;
+    uint32_t totalPoints() const;
+
+    static bool samePoints(
+        const eAttributes& attrs1,
+        const eAttributes& attrs2);
 
     static void load();
 private:

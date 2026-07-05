@@ -208,6 +208,8 @@ struct ESLAYERHELPERS_API eStats {
     std::multimap<eAuraType, eModifier> fAuraBoosts;
     std::vector<eAura> fAuras;
 
+    void levelUp();
+
     bool canUseSkill(const int schoice,
                      const eWeaponChoice wchoice) const;
 

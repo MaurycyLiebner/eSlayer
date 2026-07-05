@@ -71,8 +71,16 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
 
     p >> fMana;
     p >> fStamina;
-    p >> fLevel;
-    p >> fExperience;
+
+    bool attrs;
+    p >> attrs;
+    if(attrs) {
+        eAttributes a;
+        p >> a;
+        fAttributes = a;
+    }
+
+    p >> fRemainingSkillPoints;
 
     uint8_t nMapPoritons;
     p >> nMapPoritons;
@@ -159,8 +167,14 @@ void eRequestData::write(ePacket& p) const {
 
     p << fMana;
     p << fStamina;
-    p << fLevel;
-    p << fExperience;
+
+    const bool attrs = !!fAttributes;
+    p << attrs;
+    if(attrs) {
+        p << *fAttributes;
+    }
+
+    p << fRemainingSkillPoints;
 
     const uint8_t nMapPoritons = fMapPortions.size();
     p << nMapPoritons;

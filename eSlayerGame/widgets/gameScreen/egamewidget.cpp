@@ -536,11 +536,13 @@ void eGameWidget::paintEvent(ePainter& p) {
                 stats.fHealthF = u.fHealth;
                 stats.fManaF = worldResult.fMana;
                 stats.fStaminaF = worldResult.fStamina;
-                attrs.fExp = worldResult.fExperience;
                 const auto oldLevel = attrs.fLevel;
-                const auto newLevel = worldResult.fLevel;
+                const auto& attrsSrc = worldResult.fAttributes;
+                if(attrsSrc) attrs = *attrsSrc;
+                auto& skills = stats.fBaseSkillLevels;
+                skills.fRemainingPoints = worldResult.fRemainingSkillPoints;
+                const auto newLevel = attrs.fLevel;
                 if(oldLevel != newLevel) {
-                    attrs.fLevel = newLevel;
                     const auto& eq = eGameWidget::equipment();
                     stats.calculate(attrs, eq);
                     stats.calculateAuras(eq);

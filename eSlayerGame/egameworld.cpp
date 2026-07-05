@@ -133,8 +133,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     mResult.fMana = data.fMana;
     mResult.fStamina = data.fStamina;
-    mResult.fLevel = data.fLevel;
-    mResult.fExperience = data.fExperience;
+    mResult.fAttributes = data.fAttributes;
+    mResult.fRemainingSkillPoints = data.fRemainingSkillPoints;
     mResult.fUpdateBoostsAuras = data.fUpdateBoostsAuras;
     if(mResult.fUpdateBoostsAuras) {
         mResult.fBoosts = data.fBoosts;

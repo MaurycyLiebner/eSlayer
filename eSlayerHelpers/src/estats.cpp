@@ -13,9 +13,11 @@ uint32_t eAura::sNextId = 1;
 
 eAura::eAura() : fId(sNextId++) {}
 
-bool eStats::canUseSkill(
-    const int schoice,
-    const eWeaponChoice wchoice) const {
+void eStats::levelUp() {
+    fBaseSkillLevels.fRemainingPoints++;
+}
+
+bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
     const auto weapon = wchoice == eWeaponChoice::left ?
         fWeaponTypeL : fWeaponTypeR;
     const auto otherWeapon = wchoice == eWeaponChoice::right ?

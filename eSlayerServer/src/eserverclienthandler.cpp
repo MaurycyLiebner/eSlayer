@@ -34,8 +34,14 @@ bool eServerClientHandler::receiveData(
     const auto u = mArea->unit(mClientId);
     data.fMana = u ? std::floor(u->mana()) : 0;
     data.fStamina = u ? std::floor(u->stamina()) : 0;
-    data.fLevel = u ? std::round(u->level()) : 0;
-    data.fExperience = u ? std::round(u->experience()) : 0;
+    const bool c = u->attributesChanged();
+    if(c) {
+        data.fAttributes = u->attributes();
+        u->setAttributesChanged(false);
+    }
+    const auto& stats = u->stats();
+    const auto& skills = stats.fBaseSkillLevels;
+    data.fRemainingSkillPoints = skills.fRemainingPoints;
     return true;
 }
 

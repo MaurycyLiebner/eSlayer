@@ -7,6 +7,7 @@
 #include "eskillarea.h"
 #include "egrounditem.h"
 #include "emapportion.h"
+#include "eattributes.h"
 
 class ePacket;
 
@@ -26,8 +27,8 @@ struct ESLAYERHELPERS_API eRequestData {
     std::multimap<eAuraType, eModifier> fAuras;
     uint16_t fMana;
     uint16_t fStamina;
-    uint16_t fLevel;
-    uint16_t fExperience;
+    std::optional<eAttributes> fAttributes;
+    uint8_t fRemainingSkillPoints;
 
     bool read(ePacket& p, const uint32_t currentServerState);
     void write(ePacket& p) const;

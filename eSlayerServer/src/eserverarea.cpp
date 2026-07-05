@@ -1387,7 +1387,9 @@ void eServerArea::changeAttributes(
     const uint32_t clientId, const eAttributes& attrs) {
     const auto u = unit(clientId);
     if(!u) return;
-    u->setAttributes(attrs);
+    const auto& dst = u->attributes();
+    const bool r = eAttributes::samePoints(attrs, dst);
+    if(r) u->setAttributes(attrs);
 }
 
 void eServerArea::changeSkillLevels(

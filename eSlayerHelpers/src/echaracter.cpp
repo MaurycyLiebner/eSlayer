@@ -755,7 +755,7 @@ void eCharacter::read(ePacket& p) {
     p >> mName;
     p >> mHardcore;
     mEquipment.read(p);
-    mAttributes.read(p);
+    p >> mAttributes;
     mSkillLevels.read(p);
     mQuests.read(p);
 
@@ -771,7 +771,7 @@ void eCharacter::write(ePacket& p) const {
     p << mName;
     p << mHardcore;
     mEquipment.write(p);
-    mAttributes.write(p);
+    p << mAttributes;
     mSkillLevels.write(p);
     mQuests.write(p);
 

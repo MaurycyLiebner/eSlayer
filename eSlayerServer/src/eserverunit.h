@@ -122,6 +122,8 @@ public:
     void setAttributes(const eAttributes& attrs,
                        const bool recalc = true);
     eAttributes& attributes() { return mAttributes; }
+    bool attributesChanged() const { return mAttributesChanged; }
+    void setAttributesChanged(const bool c) { mAttributesChanged = c; }
 
     void setSkillLevels(const eSkillLevels& skillLevels,
                         const bool recalc = true);
@@ -222,6 +224,7 @@ public:
     void restoreHealth(const float by);
     void restoreMana(const float by);
     void restoreStamina(const float by);
+    void healAll();
 
     bool consumeMana(const float mana);
     eDamage attackDamage(const int schoice,
@@ -410,6 +413,7 @@ private:
     eUnitType mType = eUnitType::normal;
 
     std::map<uint32_t, uint16_t> mUpdateMap;
+    bool mAttributesChanged = false;
 };
 
 #endif // ESERVERUNIT_H

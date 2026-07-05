@@ -15,6 +15,7 @@
 #include <eSlayerHelpers/egrounditem.h>
 #include <eSlayerHelpers/enova.h>
 #include <eSlayerHelpers/eskillarea.h>
+#include <eSlayerHelpers/eattributes.h>
 
 struct eBody;
 class eMap;
@@ -51,8 +52,8 @@ public:
         eUnitData fMainCharData;
         uint16_t fMana = 0;
         uint16_t fStamina = 0;
-        uint16_t fLevel = 0;
-        uint16_t fExperience = 0;
+        std::optional<eAttributes> fAttributes;
+        uint8_t fRemainingSkillPoints = 0;
         bool fUpdateBoostsAuras = false;
         std::multimap<eBoostCurseType, eModifier> fBoosts;
         std::multimap<eAuraType, eModifier> fAuras;
