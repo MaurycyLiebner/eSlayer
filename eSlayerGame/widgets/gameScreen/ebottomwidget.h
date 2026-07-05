@@ -9,10 +9,12 @@ class eTextureCheckButton;
 class eInventoryBagpackWidget;
 struct eStats;
 struct eEquipment;
+struct eAttributes;
 
 class eBottomWidget : public eWidget {
 public:
     eBottomWidget(const eStats& stats,
+                  const eAttributes& attrs,
                   eEquipment& eq,
                   eMainWindow* const window);
 
@@ -63,10 +65,17 @@ private:
     void showBeltExt();
 
     const eStats& mStats;
+    const eAttributes& mAttrs;
     eEquipment& mEq;
 
     eSkillButton* mLeftSkillButton = nullptr;
     eSkillButton* mRightSkillButton = nullptr;
+
+    eTextureCheckButton* mNewStats = nullptr;
+    eTextureCheckButton* mNewSkill = nullptr;
+
+    bool mNewStatsEnabled = false;
+    bool mNewSkillEnabled = false;
 
     ePlayerHealthIndicator* mExperienceIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;

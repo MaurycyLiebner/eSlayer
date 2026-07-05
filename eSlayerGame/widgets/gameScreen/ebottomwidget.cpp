@@ -9,14 +9,18 @@
 #include "../../textures/euitextures.h"
 
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/eequipment.h>
 
 eBottomWidget::eBottomWidget(
     const eStats& stats,
+    const eAttributes& attrs,
     eEquipment& eq,
     eMainWindow* const window) :
     eWidget(window),
-    mStats(stats), mEq(eq) {}
+    mStats(stats),
+    mAttrs(attrs),
+    mEq(eq) {}
 
 void eBottomWidget::initialize(const eAction& leftSkillA,
                                const int leftSkillId,
@@ -39,6 +43,15 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     mLeftSkillButton->setPressAction(leftSkillA);
     addWidget(mLeftSkillButton);
     mLeftSkillButton->setSkillId(leftSkillId);
+
+    mNewStats = new eTextureCheckButton(window());
+    mNewStats->initialize(eUITextures::sNewFalseIcon,
+                          eUITextures::sNewFalseIcon);
+    mNewStats->setTooltip(eText::text(18, 17));
+    mNewStats->setCheckAction([attrsA](const bool c) {
+        if(attrsA) attrsA(c);
+    });
+    addWidget(mNewStats);
 
     const auto& res = resolution();
     const int p = res.tinyPadding();
@@ -192,6 +205,15 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
     addWidget(centerWid);
 
+    mNewSkill = new eTextureCheckButton(window());
+    mNewSkill->initialize(eUITextures::sNewFalseIcon,
+                          eUITextures::sNewFalseIcon);
+    mNewSkill->setTooltip(eText::text(18, 18));
+    mNewSkill->setCheckAction([skillA](const bool c) {
+        if(skillA) skillA(c);
+    });
+    addWidget(mNewSkill);
+
     mRightSkillButton = new eSkillButton(window());
     mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
     mRightSkillButton->setPressAction(rightSkillA);
@@ -202,6 +224,8 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     fitContent();
     mLeftSkillButton->align(eAlignment::bottom);
     mRightSkillButton->align(eAlignment::bottom);
+    mNewStats->align(eAlignment::bottom);
+    mNewSkill->align(eAlignment::bottom);
 }
 
 void eBottomWidget::setLeftSkill(const int skillId) {
@@ -276,6 +300,30 @@ void eBottomWidget::paintEvent(ePainter& p) {
     } else if(mBeltExt && mBeltExtTmp &&
               !mBelt->hovered() && !mBeltExt->hovered()) {
         hideBeltExt();
+    }
+
+    const bool statsEnabled = mAttrs.fStatPoints > 0;
+    if(mNewStatsEnabled != statsEnabled) {
+        mNewStatsEnabled = statsEnabled;
+        if(statsEnabled) {
+            mNewStats->initialize(eUITextures::sNewTrueIcon,
+                                  eUITextures::sNewTrueIcon);
+        } else {
+            mNewStats->initialize(eUITextures::sNewFalseIcon,
+                                  eUITextures::sNewFalseIcon);
+        }
+    }
+    const auto& skills = mStats.fBaseSkillLevels;
+    const bool skillEnabled = skills.fRemainingPoints > 0;
+    if(mNewSkillEnabled != skillEnabled) {
+        mNewSkillEnabled = skillEnabled;
+        if(skillEnabled) {
+            mNewSkill->initialize(eUITextures::sNewTrueIcon,
+                                  eUITextures::sNewTrueIcon);
+        } else {
+            mNewSkill->initialize(eUITextures::sNewFalseIcon,
+                                  eUITextures::sNewFalseIcon);
+        }
     }
 }
 

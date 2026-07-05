@@ -84,6 +84,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     mGameWidget->setUnitIndicator(mUnitIndicator);
 
     const auto& stats = mGameWidget->stats();
+    const auto& attrs = mGameWidget->attributes();
     auto& eq = mGameWidget->equipment();
 
     const auto leftSkillA = [this]() {
@@ -190,7 +191,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     addWidget(mMiniMap);
 
     mBottomWidget = new eBottomWidget(
-        stats, eq, window());
+        stats, attrs, eq, window());
     mBottomWidget->initialize(
         leftSkillA, c.leftSkill(),
         rightSkillA, c.rightSkill(),
@@ -230,8 +231,6 @@ void eGameScreen::initialize(const uint32_t clientId,
     mMenusWidget = new eWidget(window());
     mMenusWidget->resize(w, h);
     addWidget(mMenusWidget);
-
-    const auto& attrs = mGameWidget->attributes();
 
     mDragWidget = new eHoverWidget(attrs, stats, window());
     mDragWidget->resize(w, h);
