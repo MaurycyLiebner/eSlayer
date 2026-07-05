@@ -229,24 +229,13 @@ bool eTcpIpJoin::stopAttack(const uint32_t clientId) {
     return true;
 }
 
-bool eTcpIpJoin::respawn(const uint32_t clientId,
-                         uint32_t& bodyId,
-                         ePointF& bodyPos) {
+bool eTcpIpJoin::createBody(
+    const uint32_t clientId) {
     ePacket p;
-    p << ePacketType::respawn;
+    p << ePacketType::createBody;
     const bool r = mNet.sendToServer(p);
-    if(!r) failed("Disconnected", "Failed to send respawn request to the host.");
-    const auto handler = [&](ePacket& p, const ePacketType type) {
-        if(type == ePacketType::body) {
-            ePacketType type;
-            p >> type;
-            p >> bodyId;
-            p >> bodyPos;
-            return true;
-        }
-        return false;
-    };
-    return waitFor(10000, "Body request timed out.", handler);
+    if(!r) failed("Disconnected", "Failed to send create body request to the host.");
+    return true;
 }
 
 bool eTcpIpJoin::setSkillId(const uint32_t clientId,
@@ -574,6 +563,10 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
             mBodiesPickedUp.emplace_back(bodyId);
         }
         mUnblockEquipment = true;
+    } break;
+    case ePacketType::body: {
+        auto& body = mBodiesCreated.emplace_back();
+        body.read(p);
     } break;
     case ePacketType::disconnect: {
         failed("Disconnected", "Host closed the connection.");

@@ -57,9 +57,7 @@ public:
                 const eAttackData& target) override;
     bool stopAttack(const uint32_t clientId) override;
 
-    bool respawn(const uint32_t clientId,
-                 uint32_t& bodyId,
-                 ePointF& bodyPos) override;
+    bool createBody(const uint32_t clientId) override;
 
     bool setSkillId(const uint32_t clientId,
                     const eSkillChoice schoice,

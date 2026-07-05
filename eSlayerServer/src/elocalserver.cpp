@@ -46,8 +46,18 @@ bool eLocalServer::requestMap(
     const eMapReadyAction& func) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    const auto& to = moveData.fTo;
-    const auto mapId = to.fMapId;
+    uint8_t mapId;
+    if(moveData.fType == eMoveToMapType::respawn) {
+        const auto& carea = h->area();
+        if(!carea) return false;
+        const auto& cmap = carea->map();
+        const auto cmapId = cmap->id();
+        const auto& info = eMapsSettings::sMaps.get(cmapId);
+        mapId = info.fRespawnMap;
+    } else {
+        const auto& to = moveData.fTo;
+        mapId = to.fMapId;
+    }
     std::shared_ptr<eMap> map;
     std::shared_ptr<eServerArea> area;
     const auto ofunc = [this, func, clientId, moveData](const eMapAndArea& ma) {
@@ -164,12 +174,20 @@ bool eLocalServer::stopAttack(const uint32_t clientId) {
     return h->stopAttack();
 }
 
-bool eLocalServer::respawn(const uint32_t clientId,
-                           uint32_t& bodyId,
-                           ePointF& bodyPos) {
+bool eLocalServer::createBody(
+    const uint32_t clientId) {
+    eBody body;
+    const bool r = createBodyImpl(clientId, body);
+    if(!r) return false;
+    mBodiesCreated.emplace_back(body);
+    return true;
+}
+
+bool eLocalServer::createBodyImpl(
+    const uint32_t clientId, eBody& body) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->respawn(bodyId, bodyPos);
+    return h->createBody(body);
 }
 
 bool eLocalServer::setSkillId(const uint32_t clientId,

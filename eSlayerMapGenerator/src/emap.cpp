@@ -12,6 +12,8 @@
 
 std::atomic<uint32_t> sNextObjectId = 1;
 
+eMap::eMap() {}
+
 eMap::eMap(const uint8_t id) :
     mId(id) {}
 
@@ -248,6 +250,7 @@ bool eMap::extractPortion(
 }
 
 void eMap::mapData(eMapData& data) const {
+    data.fId = mId;
     data.fTotalWidth = mWidth;
     data.fTotalHeight = mHeight;
     data.fTerrainTypes = mTerrainTypes;
@@ -259,6 +262,7 @@ void eMap::mapData(eMapData& data) const {
 }
 
 void eMap::loadData(const eMapData& data) {
+    mId = data.fId;
     generateTiles(data.fTotalWidth, data.fTotalHeight);
     mTerrainTypes = data.fTerrainTypes;
     mObjectTypes = data.fObjectTypes;

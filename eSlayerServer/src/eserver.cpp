@@ -82,6 +82,13 @@ eServer::receiveBodiesPickedUp() {
     return result;
 }
 
+std::vector<eBody>
+eServer::receiveBodiesCreated() {
+    std::vector<eBody> result;
+    std::swap(mBodiesCreated, result);
+    return result;
+}
+
 std::vector<eBodyItemsTaken>
 eServer::receiveBodiesChanged() {
     std::vector<eBodyItemsTaken> result;

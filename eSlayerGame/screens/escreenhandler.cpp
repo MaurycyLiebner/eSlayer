@@ -285,7 +285,7 @@ void eScreenHandler::showGame(eServerData serverData,
         eMapData data;
 
         eMoveToMapData moveData;
-        moveData.fType = eMoveToMapType::respawn;
+        moveData.fType = eMoveToMapType::spawn;
         moveData.fTo = eAreaIds(mapId, 0);
 
         const bool r = requestMap(**server, *clientId, moveData, data);
@@ -337,9 +337,7 @@ void eScreenHandler::moveToMap(
     const eCharacter& c,
     const std::shared_ptr<eServer>& server,
     const eMoveToMapData& moveData) {
-    const auto& area = moveData.fTo;
-    const auto mapId = area.fMapId;
-    const auto map = std::make_shared<eMap>(mapId);
+    const auto map = std::make_shared<eMap>();
 
     const auto& res = mWindow->resolution();
 

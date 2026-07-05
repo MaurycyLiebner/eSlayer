@@ -108,9 +108,7 @@ public:
     stopAttack(const uint32_t clientId) = 0;
 
     virtual bool
-    respawn(const uint32_t clientId,
-            uint32_t& bodyId,
-            ePointF& bodyPos) = 0;
+    createBody(const uint32_t clientId) = 0;
 
     virtual bool
     setSkillId(const uint32_t clientId,
@@ -191,6 +189,7 @@ public:
     std::vector<eServerObject> receiveObjectStateChanges();
     std::vector<eServerDoors> receiveDoorsStateChanges();
     std::vector<uint32_t> receiveBodiesPickedUp();
+    std::vector<eBody> receiveBodiesCreated();
     std::vector<eBodyItemsTaken> receiveBodiesChanged();
     std::vector<eEquipmentAction> receiveEqActions();
     std::optional<eSeller> receiveSeller();
@@ -205,6 +204,7 @@ protected:
     std::vector<eServerObject> mObjectStateChanges;
     std::vector<eServerDoors> mDoorsStateChanged;
     std::vector<uint32_t> mBodiesPickedUp;
+    std::vector<eBody> mBodiesCreated;
     std::vector<eBodyItemsTaken> mBodyItemsTaken;
     std::vector<eEquipmentAction> mEqActions;
     std::optional<eSeller> mSeller;

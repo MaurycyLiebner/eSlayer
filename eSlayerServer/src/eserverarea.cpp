@@ -879,8 +879,10 @@ bool eServerArea::addClient(
             moveData.fFrom, spawnPos);
         if(!r) return false;
     } break;
+    case eMoveToMapType::spawn:
     case eMoveToMapType::respawn: {
         spawnPos = mMap->spawnPos();
+        u->respawn();
     } break;
     }
 
@@ -1063,23 +1065,21 @@ bool eServerArea::spawnBody(const uint32_t clientId,
     return true;
 }
 
-bool eServerArea::respawn(const uint32_t clientId,
-                          uint32_t& bodyId,
-                          ePointF& bodyPos) {
+bool eServerArea::createBody(
+    const uint32_t clientId,
+    eBody& body) {
     const auto client = unit(clientId);
     if(!client) return false;
     const bool createBody = true;
-    if(createBody) {
-        auto& eq = client->equipment();
-        const auto beq = eq.takeBody();
-        const bool r = spawnBody(clientId, beq, bodyId, bodyPos);
-        if(!r) return false;
-    }
-    client->respawn();
-    auto spawnPos = mMap->spawnPos();
-    findPlaceForUnit(spawnPos, spawnPos);
-    client->setPosition(spawnPos);
-    return true;
+    if(!createBody) return false;
+    auto& eq = client->equipment();
+    const auto beq = eq.takeBody();
+    body.fMapId = mMap->id();
+    body.fEq = beq;
+    const bool r = spawnBody(
+        clientId, beq,
+        body.fBodyId, body.fPos);
+    return r;
 }
 
 bool eServerArea::removeClient(const uint32_t clientId) {

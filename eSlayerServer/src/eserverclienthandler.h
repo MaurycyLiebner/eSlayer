@@ -40,7 +40,7 @@ public:
     bool changeState(const eUnitData& u);
     bool attack(const eAttackData& target);
     bool stopAttack();
-    bool respawn(uint32_t& bodyId, ePointF& bodyPos);
+    bool createBody(eBody& body);
     bool spawn(eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,

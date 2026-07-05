@@ -136,10 +136,9 @@ bool eServerClientHandler::stopAttack() {
     return true;
 }
 
-bool eServerClientHandler::respawn(
-    uint32_t& bodyId, ePointF& bodyPos) {
+bool eServerClientHandler::createBody(eBody& body) {
     if(!mArea) return false;
-    return mArea->respawn(mClientId, bodyId, bodyPos);
+    return mArea->createBody(mClientId, body);
 }
 
 bool eServerClientHandler::spawn(

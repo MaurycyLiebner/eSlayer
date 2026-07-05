@@ -113,9 +113,7 @@ public:
                    ePointF& spawnPos,
                    std::vector<eBody>& bodies,
                    const eScreenDimensions& screenDims);
-    bool respawn(const uint32_t clientId,
-                 uint32_t& bodyId,
-                 ePointF& bodyPos);
+    bool createBody(const uint32_t clientId, eBody& body);
     bool removeClient(const uint32_t clientId);
     bool clientMoved(const uint32_t clientId);
     bool planRemoveUnit(const uint32_t charId);

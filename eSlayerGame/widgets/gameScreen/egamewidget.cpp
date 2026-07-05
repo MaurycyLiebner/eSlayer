@@ -239,12 +239,12 @@ void eGameWidget::setOtherRightSkill(const int s) {
 
 void eGameWidget::respawn() {
     auto& eq = equipment();
-    eBody body;
-    body.fMapId = mMap->id();
-    body.fEq = eq.takeBody();
-    mServer->respawn(mClientId, body.fBodyId, body.fPos);
-    eBodies::add(body);
-    mMainAction->recalculateStats();
+    eq.takeBody();
+    mServer->createBody(mClientId);
+
+    eMoveToMapData move;
+    move.fType = eMoveToMapType::respawn;
+    mMoveAction(move);
 }
 
 bool eGameWidget::switchRunning() {
@@ -437,6 +437,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 action.fType = eEquipmentActionType::add;
                 action.apply(eq);
             }
+        }
+        const auto bodiesToAdd = mServer->receiveBodiesCreated();
+        for(const auto& body : bodiesToAdd) {
+            eBodies::add(body);
         }
         const auto bodiesToRemove = mServer->receiveBodiesPickedUp();
         for(const auto bodyId : bodiesToRemove) {

@@ -170,13 +170,11 @@ bool eTcpIpHost::stopAttack(
     return eLocalServer::stopAttack(clientId);
 }
 
-bool eTcpIpHost::respawn(
-    const uint32_t clientId,
-    uint32_t& bodyId,
-    ePointF& bodyPos) {
+bool eTcpIpHost::createBody(
+    const uint32_t clientId) {
     std::unique_lock lock(mMutex);
-    return eLocalServer::respawn(
-        clientId, bodyId, bodyPos);
+    return eLocalServer::createBody(
+        clientId);
 }
 
 bool eTcpIpHost::setSkillId(
@@ -669,19 +667,17 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eLocalServer::stopAttack(charId);
         }
     } break;
-    case ePacketType::respawn: {
+    case ePacketType::createBody: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {
             const uint32_t charId = it->second;
-            uint32_t bodyId;
-            ePointF bodyPos;
-            const bool r = eLocalServer::respawn(
-                charId, bodyId, bodyPos);
+            eBody body;
+            const bool r = eLocalServer::createBodyImpl(
+                charId, body);
             if(r) {
                 ePacket p;
                 p << ePacketType::body;
-                p << bodyId;
-                p << bodyPos;
+                body.write(p);
                 mNet.sendToClient(tcpClientId, p);
             }
         }

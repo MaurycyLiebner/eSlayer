@@ -53,6 +53,8 @@ struct eMapStairs {
 };
 
 struct ESLAYERHELPERS_API eMapData {
+    uint8_t fId = 0;
+
     uint16_t fTotalWidth = 0;
     uint16_t fTotalHeight = 0;
 

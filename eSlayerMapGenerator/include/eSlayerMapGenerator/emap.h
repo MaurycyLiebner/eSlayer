@@ -21,6 +21,7 @@
 class ePacket;
 
 enum class eMoveToMapType {
+    spawn,
     respawn, entrance,
     waypoint, portal
 };
@@ -38,6 +39,7 @@ class ESLAYERMAPGENERATOR_API eMap {
     friend class eDungeon;
     friend class eServer;
 public:
+    eMap();
     eMap(const uint8_t id);
 
     int width() const { return mWidth; }
@@ -129,7 +131,7 @@ private:
     void iterateOverObjectTiles(const std::shared_ptr<eObject>& o,
                                 const eIter& iter);
 
-    const uint8_t mId;
+    uint8_t mId = 0;
 
     ePointF mSpawnPos{0, 0};
     ePointF mPortalSpawnPos{0, 0};
