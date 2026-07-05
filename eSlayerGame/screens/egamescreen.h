@@ -129,6 +129,7 @@ private:
     eQuestsWidget* mQuestsMenu = nullptr;
     eMessagesWidget* mMessagesMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
+    eWidget* mQuestsButtonW = nullptr;
 
     eWidget* mSkillMenu = nullptr;
 

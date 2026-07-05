@@ -13,8 +13,15 @@ public:
     void initialize(
         const uint8_t cActId,
         const eSlayerQuests& newState);
+
+    static bool checkUpdated(const eSlayerQuests& newState);
+    static bool updated();
 private:
+    static std::vector<uint8_t> getUpdated(
+        const eSlayerQuests& newState);
+
     static eSlayerQuests sState;
+    static bool sUpdated;
 };
 
 #endif // EQUESTSWIDGET_H

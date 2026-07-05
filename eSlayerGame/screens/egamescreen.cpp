@@ -3,6 +3,9 @@
 #include "../etext.h"
 #include "../emainwindow.h"
 #include "../widgets/elineedit.h"
+#include "../widgets/etexturecheckbutton.h"
+
+#include "../textures/euitextures.h"
 
 #include "../widgets/gameScreen/eescmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
@@ -57,6 +60,8 @@ void eGameScreen::initialize(const uint32_t clientId,
     mGameWidget->initialize(clientId, server, map, c, teamId, move);
 
     mGameWidget->setDeathHandler([this]() {
+        hideLeftMenu();
+        hideRightMenu();
         if(!mDeadMenu) showDeadMenu();
     });
 
@@ -97,10 +102,12 @@ void eGameScreen::initialize(const uint32_t clientId,
         action.setRunning(check);
     };
     const auto portalA = [this](const bool) {
+        if(mDeadMenu) return;
         mGameWidget->spawnPortal();
     };
 
     const auto invA = [this](const bool) {
+        if(mDeadMenu) return;
         if(mInventoryMenu) {
             hideInventoryConnectedMenu();
         } else {
@@ -110,6 +117,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     };
 
     const auto attrsA = [this](const bool) {
+        if(mDeadMenu) return;
         if(mStatsMenu) {
             hideStatsMenu();
         } else {
@@ -119,6 +127,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     };
 
     const auto skillA = [this](const bool) {
+        if(mDeadMenu) return;
         if(mSkillTreesMenu) {
             hideSkillTreesMenu();
         } else {
@@ -160,6 +169,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     };
 
     const auto gameMenuA = [this](const bool) {
+        if(mDeadMenu) return;
         if(mESCMenu) {
             hideESCMenu();
         } else {
@@ -189,6 +199,31 @@ void eGameScreen::initialize(const uint32_t clientId,
         automapA, messagesA, gameMenuA);
     addWidget(mBottomWidget);
     mBottomWidget->align(eAlignment::bottom | eAlignment::hcenter);
+
+    mQuestsButtonW = new eWidget(window());
+    mQuestsButtonW->setNoPadding();
+    const auto questsText = new eLabel(window());
+    questsText->setNoPadding();
+    questsText->setText(eText::text(18, 13));
+    questsText->fitContent();
+    mQuestsButtonW->addWidget(questsText);
+    const auto questsButton = new eTextureCheckButton(window());
+    questsButton->initialize(eUITextures::sNewTrueIcon,
+                             eUITextures::sNewTrueIcon);
+    questsButton->setCheckAction([this](const bool) {
+        showQuestsMenu();
+    });
+    mQuestsButtonW->addWidget(questsButton);
+    const int p = res.largePadding();
+    mQuestsButtonW->stackVertically(p);
+    mQuestsButtonW->fitContent();
+    questsText->align(eAlignment::hcenter);
+    questsButton->align(eAlignment::hcenter);
+    addWidget(mQuestsButtonW);
+    const int bwy = mBottomWidget->y();
+    const int bh = mQuestsButtonW->height();
+    mQuestsButtonW->move(3*p, bwy - 3*p - bh);
+    mQuestsButtonW->hide();
 
     const int w = width();
     const int h = height();
@@ -286,9 +321,11 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             }
         }
     } else if(!mMessage && key == SDL_SCANCODE_R) {
+        if(mDeadMenu) return true;
         const bool run = mGameWidget->switchRunning();
         mBottomWidget->setRunning(run);
     } else if(!mMessage && key == SDL_SCANCODE_I) {
+        if(mDeadMenu) return true;
         if(mInventoryMenu) {
             hideInventoryConnectedMenu();
         } else {
@@ -296,6 +333,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             showInventoryMenu();
         }
     } else if(!mMessage && key == SDL_SCANCODE_W) {
+        if(mDeadMenu) return true;
         const int leftTmp = mLeftSkill;
         setLeftSkill(mOtherLeftSkill);
         mOtherLeftSkill = leftTmp;
@@ -311,6 +349,7 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             mInventoryMenu->updateWeapons();
         }
     } else if(!mMessage && key == SDL_SCANCODE_A) {
+        if(mDeadMenu) return true;
         if(mStatsMenu) {
             hideStatsMenu();
         } else {
@@ -423,6 +462,9 @@ void eGameScreen::paintEvent(ePainter&) {
 
     const auto& pos = action.pos();
     mMiniMap->setPos(pos);
+
+    const bool v = eQuestsWidget::updated();
+    mQuestsButtonW->setVisible(v);
 }
 
 void eGameScreen::setLeftSkill(const int skillId) {

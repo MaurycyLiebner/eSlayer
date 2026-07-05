@@ -5,7 +5,10 @@
 #include "../../textures/euitextures.h"
 #include "../../etext.h"
 
+#include <eSlayerHelpers/evectorhelpers.h>
+
 eSlayerQuests eQuestsWidget::sState;
+bool eQuestsWidget::sUpdated = false;
 
 class eQuestWidget : public eLabel {
 public:
@@ -42,12 +45,12 @@ private:
 };
 
 struct eExtQuest {
-    eExtQuest(const int id,
+    eExtQuest(const uint8_t id,
               const std::string& name,
               const eQuest& quest) :
         fId(id), fName(name),
         fQuest(quest) {}
-    int fId;
+    uint8_t fId;
     std::string fName;
     eQuest fQuest;
 };
@@ -66,15 +69,9 @@ void eQuestsWidget::initialize(
 
     uint8_t maxAct = 0;
     std::map<uint8_t, eQuestAct> qacts;
-    std::vector<uint8_t> updated;
+    const auto updated = getUpdated(newState);
     for(const auto& it : eQuests::sQuests) {
         const uint8_t id = it.fId;
-        const auto oldStage = sState.stage(id);
-        const auto newStage = newState.stage(id);
-        if(newStage > oldStage) {
-            updated.emplace_back(id);
-        }
-
         const auto& q = it.fValue;
         auto& a = qacts[q.fAct];
         a.fActId = q.fAct;
@@ -127,16 +124,20 @@ void eQuestsWidget::initialize(
         };
 
         std::optional<eExtQuest> current;
+        bool lockCurrent = false;
         for(const auto& q : qa.fQuests) {
             const auto qw = new eQuestWidget(window());
-            const int id = q.fId;
+            const uint8_t id = q.fId;
             const auto stage = sState.stage(id);
             eAction pressAction;
             if(stage > 0) {
                 pressAction = [q, setCurrent]() {
                     setCurrent(q);
                 };
-                current = q;
+                if(!lockCurrent) {
+                    lockCurrent = eVectorHelpers::contains(updated, id);
+                    current = q;
+                }
             }
             qw->initialize(id, stage, pressAction);
             iconsWidget->addWidget(qw);
@@ -156,4 +157,33 @@ void eQuestsWidget::initialize(
     }
 
     eActsWidget::initialize("", acts, currentAct);
+
+    sUpdated = false;
+}
+
+bool eQuestsWidget::checkUpdated(
+    const eSlayerQuests& newState) {
+    if(sUpdated) return true;
+    const auto vec = getUpdated(newState);
+    sUpdated = !vec.empty();
+    return sUpdated;
+}
+
+bool eQuestsWidget::updated() {
+    return sUpdated;
+}
+
+std::vector<uint8_t>
+eQuestsWidget::getUpdated(
+    const eSlayerQuests& newState) {
+    std::vector<uint8_t> updated;
+    for(const auto& it : eQuests::sQuests) {
+        const uint8_t id = it.fId;
+        const auto oldStage = sState.stage(id);
+        const auto newStage = newState.stage(id);
+        if(newStage > oldStage) {
+            updated.emplace_back(id);
+        }
+    }
+    return updated;
 }

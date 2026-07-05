@@ -1,10 +1,16 @@
 #include "egamewidget.h"
 
 #include "eskillbutton.h"
+#include "esellerwidget.h"
+#include "equestswidget.h"
+
+#include "eunitindicator.h"
+#include "ehoverwidget.h"
+#include "einventorywidget.h"
+#include "eminimap.h"
 
 #include "../../emainwindow.h"
 #include "../../screens/egamescreen.h"
-#include "esellerwidget.h"
 
 #include "../../textures/eobjstextures.h"
 #include "../../textures/eterrstextures.h"
@@ -19,11 +25,6 @@
 #include "../../names/emonsternames.h"
 
 #include "../../etext.h"
-
-#include "eunitindicator.h"
-#include "ehoverwidget.h"
-#include "einventorywidget.h"
-#include "eminimap.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -376,6 +377,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             dstQuests = *quests;
             auto& talkHeard = eGameWidget::talkHeard();
             talkHeard.updateWantsToTalk(dstQuests);
+            eQuestsWidget::checkUpdated(dstQuests);
         }
         const auto seller = mServer->receiveSeller();
         if(seller) {
