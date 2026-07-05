@@ -69,10 +69,13 @@ void eActsWidget::initialize(
     actsW->stackHorizontally(p);
     actsW->fitContent();
     innerW->addWidget(actsW);
+    if(acts.size() <= 1) {
+        actsW->hide();
+    }
 
     innerW->addWidget(wW);
 
-    innerW->stackVertically(p);
+    innerW->stackVertically(p, true);
     innerW->fitContent();
 
     setup(innerW);
