@@ -862,7 +862,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fManaF = manaFrac*fMaxMana;
 
     fMaxStamina = baseStamina*(1.f + bonusStamina);
-    fStaminaF = manaFrac*fMaxStamina;
+    fStaminaF = staminaFrac*fMaxStamina;
 
     fMaxFireResistance = std::min(1.f, fMaxFireResistance);
     fMaxColdResistance = std::min(1.f, fMaxColdResistance);
