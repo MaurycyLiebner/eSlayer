@@ -101,6 +101,11 @@ void eObjsTextures::load() {
 
     for(const auto& it : eObjectsInfo::sObjects) {
         auto& info = it.fValue;
-        info.fTexId = sInstance.id(info.fTexStr);
+        const auto& texStr = info.fTexStr;
+        const int id = sInstance.id(texStr);
+        if(id < 0 && !texStr.empty()) {
+            eRuntimeThrow("Unrecognized texture \"" + texStr + "\".");
+        }
+        info.fTexId = id;
     }
 }
