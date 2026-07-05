@@ -23,6 +23,11 @@ bool isTrue(std::string value) {
     return value == "true";
 }
 
+bool isTrue(const char* value) {
+    const std::string valueStr(value);
+    return isTrue(valueStr);
+}
+
 bool gReadModifier(eModifier& mod, const XMLElement* modE) {
     if(!modE) return false;
 
@@ -298,8 +303,14 @@ bool eCharacter::load(const std::string& path,
     }
 
     c.mName = nameE->GetText();
-    const std::string hardcoreV(hardcoreE->GetText());
-    c.mHardcore = isTrue(hardcoreV);
+    const auto hText = hardcoreE->GetText();
+    c.mHardcore = isTrue(hText);
+
+    const auto runningE = rootE->FirstChildElement("running");
+    if(runningE) {
+        const auto rText = runningE->GetText();
+        c.mRunning = isTrue(rText);
+    }
 
     // attributes
     if(const auto attrE = rootE->FirstChildElement("attributes")) {
@@ -640,6 +651,9 @@ bool eCharacter::write(const std::string& path) const {
 
     const auto hardcoreE = rootE->InsertNewChildElement("hardcore");
     hardcoreE->SetText(mHardcore ? "true" : "false");
+
+    const auto runningE = rootE->InsertNewChildElement("running");
+    runningE->SetText(mRunning ? "true" : "false");
 
     const auto attrE = rootE->InsertNewChildElement("attributes");
     const auto levelE = attrE->InsertNewChildElement("level");

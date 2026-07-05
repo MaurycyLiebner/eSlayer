@@ -25,6 +25,9 @@ public:
     const std::string& name() const { return mName; }
     bool hardcore() const { return mHardcore; }
 
+    bool running() const { return mRunning; }
+    void setRunning(const bool r) { mRunning = r; }
+
     const eEquipment& equipment() const { return mEquipment; }
     const eAttributes& attributes() const { return mAttributes; }
 
@@ -82,6 +85,7 @@ private:
     std::vector<eWaypoint> mWaypoints;
     eSlayerQuests mQuests;
     eTalkHeard mTalkHeard;
+    bool mRunning = false;
 };
 
 #endif // ECHARACTER_H

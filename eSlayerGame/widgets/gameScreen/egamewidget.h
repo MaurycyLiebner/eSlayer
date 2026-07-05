@@ -86,6 +86,7 @@ public:
     eTalkHeard& talkHeard() { return mMainAction->talkHeard(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
+    bool running() const { return mMainAction->running(); }
     void dropItem();
     void dropGold(const int count);
     void sendEqAction(const eEquipmentAction& a);

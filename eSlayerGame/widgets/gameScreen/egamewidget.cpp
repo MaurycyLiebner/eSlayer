@@ -100,6 +100,9 @@ void eGameWidget::initialize(const uint32_t clientId,
     setRightSkill(c.rightSkill());
     setLeftSkill(c.leftSkill());
 
+    const bool run = c.running();
+    mMainAction->setRunning(run);
+
     const auto& srcEq = c.equipment();
     auto& dstEq = mMainAction->equipment();
     dstEq = srcEq;
@@ -277,6 +280,7 @@ void eGameWidget::save() {
 
 eCharacter eGameWidget::character() {
     eCharacter c(mCName, mHardcore);
+    c.setRunning(running());
     c.equipment() = equipment();
     c.attributes() = attributes();
     c.quests() = quests();
