@@ -14,7 +14,8 @@ uint32_t eAura::sNextId = 1;
 eAura::eAura() : fId(sNextId++) {}
 
 void eStats::levelUp() {
-    fBaseSkillLevels.fRemainingPoints++;
+    fBaseSkillLevels.fRemainingPoints +=
+        eAttributes::sSkillPointsPerLevel;
 }
 
 bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {

@@ -1,5 +1,6 @@
 #include "eSlayerHelpers/eattributes.h"
 
+#include "eSlayerHelpers/eexceptions.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 
 #include <nlohmann/json.hpp>
@@ -9,6 +10,7 @@ using namespace nlohmann;
 
 uint8_t eAttributes::sMaxLevel = 99;
 uint16_t eAttributes::sStatPointsPerLevel = 5;
+uint16_t eAttributes::sSkillPointsPerLevel = 1;
 std::vector<uint32_t>
 eAttributes::sLevelExperience;
 
@@ -43,11 +45,24 @@ bool eAttributes::samePoints(
 
 void eAttributes::load() {
     const auto dir = "Other";
-    const auto jdata = eFileLoaderBase::parse(dir, "experience.json");
-    sMaxLevel = jdata.value("maxLevel", 99);
-    sLevelExperience.resize(sMaxLevel - 1);
-    for(int i = 1; i < sMaxLevel; i++) {
-        const auto iStr = std::to_string(i);
-        sLevelExperience[i - 1] = jdata.value(iStr, sLevelExperience[i - 2]);
+
+    try {
+        const auto jdata = eFileLoaderBase::parse(dir, "experience.json");
+        sMaxLevel = jdata.value("maxLevel", 99);
+        sLevelExperience.resize(sMaxLevel - 1);
+        for(int i = 1; i < sMaxLevel; i++) {
+            const auto iStr = std::to_string(i);
+            sLevelExperience[i - 1] = jdata.value(iStr, sLevelExperience[i - 2]);
+        }
+    } catch(...) {
+        eRuntimeThrow("Error while parsing Other/experience.json");
+    }
+
+    try {
+        const auto jdata = eFileLoaderBase::parse(dir, "points.json");
+        sSkillPointsPerLevel = jdata.value("skillPoints", 1);
+        sStatPointsPerLevel = jdata.value("attributePoints", 5);
+    } catch(...) {
+        eRuntimeThrow("Error while parsing Other/points.json");
     }
 }
