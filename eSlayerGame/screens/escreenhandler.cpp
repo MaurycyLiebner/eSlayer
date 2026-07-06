@@ -259,9 +259,7 @@ void eScreenHandler::showGame(eServerData serverData,
 
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();
-    const auto mapName = /*"basement_1"*/"act1_1";
-    const uint8_t mapId = eMapsSettings::sMaps.id(mapName);
-    const auto map = std::make_shared<eMap>(mapId);
+    const auto map = std::make_shared<eMap>();
     const auto clientId = std::make_shared<uint32_t>();
     const auto teamId = std::make_shared<eTeamId>();
     const auto serverC = std::make_shared<eCharacter>(c);
@@ -289,12 +287,12 @@ void eScreenHandler::showGame(eServerData serverData,
     loading.emplace_back([server, clientId]() {
         *clientId = (*server)->connect();
     });
-    loading.emplace_back([this, server, mapId, map, clientId]() {
+    loading.emplace_back([this, server, map, clientId]() {
         eMapData data;
 
         eMoveToMapData moveData;
         moveData.fType = eMoveToMapType::spawn;
-        moveData.fTo = eAreaIds(mapId, 0);
+        moveData.fTo = eAreaIds(0, 0);
 
         const bool r = requestMap(**server, *clientId, moveData, data);
         if(r) map->loadData(data);
