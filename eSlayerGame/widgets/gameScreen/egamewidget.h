@@ -104,8 +104,10 @@ public:
     const std::shared_ptr<eServer>& server() const { return mServer; }
     uint32_t clientId() const { return mClientId; }
 
-    const std::vector<std::string>& messageLog() const
-    { return mMessagesLog; }
+    static const std::vector<std::string>& messageLog()
+    { return sMessageLog; }
+    static void clearMessageLog()
+    { sMessageLog.clear(); }
 
     void setDeathHandler(const eDeathHandler& h) { mDeathHandler = h; }
     void setRespawnHandler(const eRespawnHandler& h) { mRespawnHandler = h; }
@@ -150,6 +152,8 @@ private:
     void addMessage(SDL_Renderer* const r,
                     const std::string& msg);
 
+    static std::vector<std::string> sMessageLog;
+
     std::string mCName;
     bool mHardcore;
 
@@ -163,7 +167,6 @@ private:
     std::shared_ptr<eMainCharAction> mMainAction;
     std::shared_ptr<eUnit> mMainChar;
 
-    std::vector<std::string> mMessagesLog;
     std::vector<eScreenMessage> mMessages;
 
     std::weak_ptr<eUnit> mHighlightUnit;

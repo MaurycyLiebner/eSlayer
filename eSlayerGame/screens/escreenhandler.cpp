@@ -255,6 +255,7 @@ void eScreenHandler::showGame(eServerData serverData,
     eSlayers::clear();
     eTeams::clear();
     eBodies::clear();
+    eGameWidget::clearMessageLog();
 
     mGameStarted = true;
     const auto server = std::make_shared<std::shared_ptr<eServer>>();

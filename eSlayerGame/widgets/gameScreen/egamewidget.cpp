@@ -47,6 +47,7 @@
 #include <eSlayerHelpers/esellers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
+std::vector<std::string> eGameWidget::sMessageLog;
 
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eLabel(window),
@@ -2118,7 +2119,7 @@ void eGameWidget::addMessage(SDL_Renderer* const r,
     const auto& res = resolution();
     const auto font = eFonts::textFont(res.tinyFontSize());
     const int w = width()/2;
-    mMessagesLog.emplace_back(text);
+    sMessageLog.emplace_back(text);
     auto& msg = mMessages.emplace_back();
     msg.fText = text;
     msg.fFramesRemaining = 5*text.size() + 250;
