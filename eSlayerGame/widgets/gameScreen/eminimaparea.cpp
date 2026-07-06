@@ -147,6 +147,15 @@ bool eMiniMapArea::setKnown(
         }
     }
 
+    if(texId1 != -1) {
+        const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
+        p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
+    }
+    if(texId2 != -1) {
+        const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
+        p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
+    }
+
     {
         const auto& tile = map.tile(mx, my);
         bool cross = false;
@@ -167,6 +176,7 @@ bool eMiniMapArea::setKnown(
                 const auto objectType = o->fObjectType;
                 const auto& info = eObjectsInfo::sObjects.get(objectType);
                 switch(info.fType) {
+                case eObjectType::waypoint:
                 case eObjectType::trapDoor:
                 case eObjectType::portalDoor: {
                     cross = true;
@@ -190,14 +200,6 @@ bool eMiniMapArea::setKnown(
         }
     }
 
-    if(texId1 != -1) {
-        const auto& tex1 = eMapTextures::sWalls.getTexture(texId1);
-        p.drawTexture(texX, texY, tex1, eAlignment::hcenter);
-    }
-    if(texId2 != -1) {
-        const auto& tex2 = eMapTextures::sWalls.getTexture(texId2);
-        p.drawTexture(texX, texY, tex2, eAlignment::hcenter);
-    }
     return true;
 }
 
