@@ -73,6 +73,7 @@ bool eTcpIpHost::initialize() {
 
 void eTcpIpHost::increment(const float by) {
     checkMapsReady();
+    sendSlain();
 }
 
 bool eTcpIpHost::sendMessage(const uint32_t clientId,
@@ -271,6 +272,26 @@ bool eTcpIpHost::requestSeller(
     std::unique_lock lock(mMutex);
     return eLocalServer::requestSeller(
         clientId, sellerId);
+}
+
+void eTcpIpHost::sendSlain() {
+    auto& ss = eServerArea::sSlain;
+    if(ss.empty()) return;
+    std::unique_lock lock(mMutex);
+    for(const auto s : ss) {
+        ePacket p;
+        p << ePacketType::slain;
+        p << s;
+        mNet.broadcast(p);
+
+        auto& ss = eSlayers::sSlayers;
+        const auto sit = ss.find(s);
+        if(sit != ss.end()) {
+            const auto& s = sit->second;
+            mSlainUsers.emplace_back(s);
+        }
+    }
+    ss.clear();
 }
 
 void eTcpIpHost::checkMapsReady() {
@@ -490,6 +511,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
 
     } break;
     case ePacketType::userEntered: {
+
+    } break;
+    case ePacketType::slain: {
 
     } break;
     case ePacketType::userLeft: {

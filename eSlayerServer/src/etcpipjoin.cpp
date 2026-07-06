@@ -520,6 +520,16 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
             ss.erase(sit);
         }
     } break;
+    case ePacketType::slain: {
+        uint32_t clientId;
+        p >> clientId;
+        auto& ss = eSlayers::sSlayers;
+        const auto sit = ss.find(clientId);
+        if(sit != ss.end()) {
+            const auto& s = sit->second;
+            mSlainUsers.emplace_back(s);
+        }
+    } break;
     case ePacketType::message: {
         uint32_t clientId;
         p >> clientId;

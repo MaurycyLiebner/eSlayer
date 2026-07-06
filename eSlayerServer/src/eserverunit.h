@@ -39,6 +39,7 @@ struct ePotionHealing {
 };
 
 enum eUnitType {
+    slayer,
     normal,
     uniqueBoss,
     minion

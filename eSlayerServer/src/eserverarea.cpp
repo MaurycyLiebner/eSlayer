@@ -27,6 +27,8 @@
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/equests.h>
 
+std::vector<uint32_t> eServerArea::sSlain;
+
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
     mNIncrementer(mUnitAreas) {
@@ -806,6 +808,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         true, data, typeId, *this, map);
+    u->setUnitType(eUnitType::slayer);
     u->addSkill();
     u->addSkill();
     spawnPos = mMap->spawnPos();
@@ -1938,6 +1941,15 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
             for(auto& cit : mClientData) {
                 auto& c = cit.second;
                 const auto& qs = it->second;
+
+                const uint32_t clientId = cit.first;
+                const auto u = unit(clientId);
+                if(!u) continue;
+                if(u->fHealth <= 0) continue;
+                const float dist = ePointF::distance(
+                    u->fPos, killed.fPos);
+                if(dist > 15.f) continue;
+
                 for(const auto& q : qs) {
                     const bool r = c.fQuests.incCount(
                         q.fQuestId, q.fStageId);
@@ -1946,10 +1958,15 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
             }
         }
     }
+
     const int level = killed.level();
     const auto type = killed.unitType();
     float worth = 0.f;
     switch(type) {
+    case eUnitType::slayer: {
+        sSlain.emplace_back(killed.fCharId);
+        return;
+    } break;
     case eUnitType::normal: {
         const bool gen = eRand::randChance(0.2f);
         if(gen) worth = eRand::biasedRandF(0.25f, 10.f, 8.f);

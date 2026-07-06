@@ -230,6 +230,8 @@ public:
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId,
                        eSeller& seller);
+
+    static std::vector<uint32_t> sSlain;
 private:
     bool spawnPortal(ePointF& pos,
                      uint32_t& portalId,

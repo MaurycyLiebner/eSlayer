@@ -54,6 +54,13 @@ eServer::receiveLeftUsers() {
     return result;
 }
 
+std::vector<eSlayer>
+eServer::receiveSlainUsers() {
+    std::vector<eSlayer> result;
+    std::swap(mSlainUsers, result);
+    return result;
+}
+
 std::vector<eMessage>
 eServer::receiveMessages() {
     std::vector<eMessage> result;

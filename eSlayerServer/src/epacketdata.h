@@ -24,6 +24,7 @@ enum class ePacketType : uint8_t {
     body, bodyPickedUp,
     teamsAction, spawnPortal,
     quests, heardTalk,
+    slain,
     disconnect
 };
 

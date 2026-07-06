@@ -93,6 +93,7 @@ public:
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId) override;
 private:
+    void sendSlain();
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);
     void threadWork(const float fpsClamp, const float by);

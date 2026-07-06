@@ -184,6 +184,7 @@ public:
 
     std::vector<eSlayer> receiveNewUsers();
     std::vector<eSlayer> receiveLeftUsers();
+    std::vector<eSlayer> receiveSlainUsers();
     std::vector<eMessage> receiveMessages();
     std::vector<eServerObject> receiveObjectStateChanges();
     std::vector<eServerDoors> receiveDoorsStateChanges();
@@ -199,6 +200,7 @@ protected:
 
     std::vector<eSlayer> mNewUsers;
     std::vector<eSlayer> mLeftUsers;
+    std::vector<eSlayer> mSlainUsers;
     std::vector<eMessage> mMessages;
     std::vector<eServerObject> mObjectStateChanges;
     std::vector<eServerDoors> mDoorsStateChanged;

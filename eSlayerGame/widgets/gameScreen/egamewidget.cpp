@@ -405,6 +405,13 @@ void eGameWidget::paintEvent(ePainter& p) {
             text = eStringHelpers::replaceAll(text, "%1", name);
             addMessage(r, text);
         }
+        const auto slainUsers = mServer->receiveSlainUsers();
+        for(const auto& u : slainUsers) {
+            const auto name = u.fName;
+            auto text = eText::text(12, 2);
+            text = eStringHelpers::replaceAll(text, "%1", name);
+            addMessage(r, text);
+        }
         const auto messages = mServer->receiveMessages();
         for(const auto& msg : messages) {
             const uint32_t clientId = msg.fClientId;
