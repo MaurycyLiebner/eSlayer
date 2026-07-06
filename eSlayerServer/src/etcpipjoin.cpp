@@ -111,7 +111,6 @@ bool eTcpIpJoin::spawn(
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
-    std::vector<eBody>& bodies,
     const eScreenDimensions& screenDims) {
     ePacket p;
     p << ePacketType::spawn;
@@ -129,8 +128,6 @@ bool eTcpIpJoin::spawn(
             eSlayers::read(p);
             auto& eq = c.equipment();
             eq.readIds(p);
-
-            eBodies::readIds(c.bodies(), bodies, p);
 
             eTeams::read(p);
             ePortal::read(p);

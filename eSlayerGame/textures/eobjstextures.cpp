@@ -38,6 +38,10 @@ eObjTextures& eObjsTextures::get(const int id) {
     return sInstance.get(id);
 }
 
+bool eObjsTextures::has(const int id) {
+    return sInstance.has(id);
+}
+
 void eObjsTextures::load() {
     if(sLoaded) return;
     sLoaded = true;

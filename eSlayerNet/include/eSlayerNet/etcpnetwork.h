@@ -35,6 +35,7 @@ public:
 
     void update();
     std::set<int> removeDisconnectedClients();
+    void removeClient(const int id);
 
     bool sendToServer(const ePacket& p);
     bool sendToClient(const int id, const ePacket& p);
@@ -53,7 +54,6 @@ private:
                         const int id,
                         std::vector<uint8_t>& buffer);
     bool sendPacket(NET_StreamSocket* const sock, const ePacket& p);
-    void removeClient(const int id);
 private:
     NET_Server* mServer = nullptr;
     NET_StreamSocket* mClientSocket = nullptr;

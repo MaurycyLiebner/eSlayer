@@ -28,13 +28,6 @@ struct ESLAYERHELPERS_API eBodyItemsTaken {
 
 struct ESLAYERHELPERS_API eBodies {
     static std::vector<eBody> sBodies;
-    static void read(ePacket& p);
-    static void read(std::vector<eBody>& bodies, ePacket& p);
-    static void readIds(std::vector<eBodyEquipment>& eqs,
-                        std::vector<eBody>& bodies, ePacket& p);
-    static void write(ePacket& p);
-    static void write(const std::vector<eBody>& bodies, ePacket& p);
-    static void writeIds(const std::vector<eBody>& bodies, ePacket& p);
     static void clear();
     static void remove(const uint32_t id);
     static void add(const eBody& body);

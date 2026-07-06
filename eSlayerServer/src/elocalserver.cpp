@@ -91,8 +91,23 @@ bool eLocalServer::spawn(const uint32_t clientId,
                          eCharacter& c,
                          eTeamId& teamId,
                          ePointF& spawnPos,
-                         std::vector<eBody>& bodies,
                          const eScreenDimensions& screenDims) {
+    std::vector<eBody> bodies;
+    const bool r = spawnImpl(
+        clientId, c, teamId, spawnPos,
+        bodies, screenDims);
+    if(!r) return false;
+    mBodiesCreated = bodies;
+    return true;
+}
+
+bool eLocalServer::spawnImpl(
+    const uint32_t clientId,
+    eCharacter& c,
+    eTeamId& teamId,
+    ePointF& spawnPos,
+    std::vector<eBody>& bodies,
+    const eScreenDimensions& screenDims) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
     const bool r = h->spawn(c, teamId, spawnPos,

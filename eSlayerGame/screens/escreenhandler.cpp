@@ -205,10 +205,17 @@ void loadObjectTypes(const eResolution& res,
                      const std::shared_ptr<eMap>& map) {
     const auto& objTypes = map->objectTypes();
     const auto loadById = [&](const uint16_t objType) {
+        const bool h = eObjectsInfo::sObjects.has(objType);
+        if(!h) {
+            eRuntimeThrow("Missing object type.");
+        }
         const auto& objInfo = eObjectsInfo::sObjects.get(objType);
         const auto objTexId = objInfo.fTexId;
-        auto& texs = eObjsTextures::get(objTexId);
-        texs.load(res, r);
+        const bool hh = eObjsTextures::has(objTexId);
+        if(hh) {
+            auto& texs = eObjsTextures::get(objTexId);
+            texs.load(res, r);
+        }
     };
     for(const auto objType : objTypes) {
         loadById(objType);
@@ -319,7 +326,7 @@ void eScreenHandler::showGame(eServerData serverData,
                                            int(std::ceil(2.f*height/tileH))};
         ePointF spawnPos;
         (*server)->spawn(*clientId, *serverC, *teamId, spawnPos,
-                         eBodies::sBodies, screenDims);
+                         screenDims);
         map->setSpawnPos(spawnPos);
     });
     loading.emplace_back([&res, r]() {

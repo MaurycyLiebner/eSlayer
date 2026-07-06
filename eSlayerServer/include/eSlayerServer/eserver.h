@@ -76,7 +76,6 @@ public:
           eCharacter& c,
           eTeamId& teamId,
           ePointF& spawnPos,
-          std::vector<eBody>& bodies,
           const eScreenDimensions& screenDims) = 0;
 
     virtual bool

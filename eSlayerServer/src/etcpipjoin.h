@@ -32,7 +32,6 @@ public:
                eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,
-               std::vector<eBody>& bodies,
                const eScreenDimensions& screenDims) override;
 
     bool requestData(const uint32_t clientId,

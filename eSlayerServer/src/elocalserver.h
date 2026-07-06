@@ -35,8 +35,13 @@ public:
                eCharacter& c,
                eTeamId& teamId,
                ePointF& spawnPos,
-               std::vector<eBody>& bodies,
                const eScreenDimensions& screenDims) override;
+    bool spawnImpl(const uint32_t clientId,
+                   eCharacter& c,
+                   eTeamId& teamId,
+                   ePointF& spawnPos,
+                   std::vector<eBody>& bodies,
+                   const eScreenDimensions& screenDims);
 
     bool requestData(const uint32_t clientId,
                      eRequestData& data,

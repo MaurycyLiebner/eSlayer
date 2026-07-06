@@ -96,11 +96,10 @@ bool eTcpIpHost::spawn(
     eCharacter& c,
     eTeamId& teamId,
     ePointF& spawnPos,
-    std::vector<eBody>& bodies,
     const eScreenDimensions& screenDims) {
     std::unique_lock lock(mMutex);
     return eLocalServer::spawn(
-        clientId, c, teamId, spawnPos, bodies, screenDims);
+        clientId, c, teamId, spawnPos, screenDims);
 }
 
 bool eTcpIpHost::requestData(
@@ -325,6 +324,7 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const uint32_t charId = it->second;
     mClientIdMap.erase(tcpClientId);
     disconnect(charId);
+    mNet.removeClient(tcpClientId);
     {
         ePacket p;
         p << ePacketType::userLeft;
@@ -435,7 +435,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eTeamId teamId;
             ePointF spawnPos;
             std::vector<eBody> bodies;
-            const bool r = eLocalServer::spawn(
+            const bool r = eLocalServer::spawnImpl(
                 charId, c, teamId, spawnPos, bodies, screenDims);
 
             if(r) {
@@ -448,12 +448,17 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     const auto& eq = c.equipment();
                     eq.writeIds(p);
 
-                    eBodies::writeIds(bodies, p);
-
                     eTeams::write(p);
                     ePortal::write(p);
                     p << teamId;
                     p << spawnPos;
+                    mNet.sendToClient(tcpClientId, p);
+                }
+
+                for(const auto& b : bodies) {
+                    ePacket p;
+                    p << ePacketType::body;
+                    b.write(p);
                     mNet.sendToClient(tcpClientId, p);
                 }
 

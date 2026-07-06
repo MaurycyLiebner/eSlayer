@@ -77,31 +77,36 @@ void eDungeon::generate(ePointF& spawnPos) const {
     case eAreaType::camp: {
         rectWalls = false;
         fillEmptySapces = true;
-        if(mConnections.size() != 1) {
-            eRuntimeThrow("Camp should have exactly one connection.");
-        }
-        const auto& c = mConnections[0];
-        eRect connIn;
-        const eRect connRect{c.fX, c.fY, c.fW, c.fH};
-        eRect::intersection(rect, connRect, connIn);
-        const int size = mSettings.fSize;
         eRect crect;
-        if(connIn.fX == rect.fX) { // top left
-            crect = eRect{connIn.fX + connIn.fW,
-                          connIn.fY + connIn.fH/2 - size/2,
+        const int size = mSettings.fSize;
+        if(mConnections.size() > 1) {
+            eRuntimeThrow("Camp should have exactly one connection.");
+        } else if(mConnections.empty()) {
+            crect = eRect{rect.fX + rect.fW/2 - size/2,
+                          rect.fY + rect.fH/2 - size/2,
                           size, size};
-        } else if(connIn.fX + connIn.fW == rect.fX + rect.fW) { // bottom right
-            crect = eRect{connIn.fX - size,
-                          connIn.fY + connIn.fH/2 - size/2,
-                          size, size};
-        } else if(connIn.fY == rect.fY) { // top right
-            crect = eRect{connIn.fX + connIn.fW/2 - size/2,
-                          connIn.fY + connIn.fH,
-                          size, size};
-        } else { // bottom left
-            crect = eRect{connIn.fX + connIn.fW/2 - size/2,
-                          connIn.fY - size,
-                          size, size};
+        } else {
+            const auto& c = mConnections[0];
+            eRect connIn;
+            const eRect connRect{c.fX, c.fY, c.fW, c.fH};
+            eRect::intersection(rect, connRect, connIn);
+            if(connIn.fX == rect.fX) { // top left
+                crect = eRect{connIn.fX + connIn.fW,
+                              connIn.fY + connIn.fH/2 - size/2,
+                              size, size};
+            } else if(connIn.fX + connIn.fW == rect.fX + rect.fW) { // bottom right
+                crect = eRect{connIn.fX - size,
+                              connIn.fY + connIn.fH/2 - size/2,
+                              size, size};
+            } else if(connIn.fY == rect.fY) { // top right
+                crect = eRect{connIn.fX + connIn.fW/2 - size/2,
+                              connIn.fY + connIn.fH,
+                              size, size};
+            } else { // bottom left
+                crect = eRect{connIn.fX + connIn.fW/2 - size/2,
+                              connIn.fY - size,
+                              size, size};
+            }
         }
         spawnPos = crect.center();
         chambers.emplace_back(crect);

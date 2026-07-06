@@ -33,6 +33,7 @@ public:
     static int id(const std::string& name);
     static eObjTextures& get(const std::string& name);
     static eObjTextures& get(const int id);
+    static bool has(const int id);
     static void load();
 private:
     static bool sLoaded;
