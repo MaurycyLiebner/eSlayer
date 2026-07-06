@@ -138,21 +138,3 @@ eItem eItemGenerator::generateItem(
     }
     return generateItem(typeId, level, worth);
 }
-
-eItem eItemGenerator::generateGold(
-    const uint32_t count) {
-    eItem result;
-    std::vector<int> typeIds;
-    for(int i = 0; i < eItemsData::sItems.size(); i++) {
-        const auto& itemData = eItemsData::get(i);
-        const auto type = itemData.fType;
-        if(type != eItemType::gold) continue;
-        eItemGenerator::applyItemId(result);
-        result.fDataId = i;
-        result.fType = type;
-        result.fSubType = itemData.fSubtype;
-        result.fCount = count;
-        break;
-    }
-    return result;
-}

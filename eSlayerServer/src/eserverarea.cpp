@@ -1084,10 +1084,7 @@ bool eServerArea::createBody(
         clientId, beq,
         body.fBodyId, body.fPos);
 
-    const auto gitem = eItemGenerator::generateGold(
-        eq.fInventoryGold);
-    addGroundItem(body.fPos, gitem);
-    eq.fInventoryGold = 0;
+    dropGold(clientId, eq.fInventoryGold);
 
     return r;
 }

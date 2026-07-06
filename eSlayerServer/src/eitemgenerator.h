@@ -15,8 +15,6 @@ public:
         const int level, const float worth);
     static eItem generateItem(
         const int level, const float worth);
-    static eItem generateGold(
-        const uint32_t count);
 private:
     static uint32_t sNextItemId;
 };
