@@ -309,19 +309,6 @@ bool eTcpIpJoin::rearrangeItems(
     return true;
 }
 
-bool eTcpIpJoin::insertJewel(
-    const uint32_t clientId,
-    const uint32_t jewelId,
-    const uint32_t targetId) {
-    ePacket p;
-    p << ePacketType::insertJewel;
-    p << jewelId;
-    p << targetId;
-    const bool r = mNet.sendToServer(p);
-    if(!r) failed("Disconnected", "Failed to send insert jewel to the host.");
-    return true;
-}
-
 bool eTcpIpJoin::changeAttributes(
     const uint32_t clientId, const eAttributes& attrs) {
     ePacket p;

@@ -51,10 +51,6 @@ public:
                           eEquipment& data) override;
     bool unblockEquipment(const uint32_t clientId) override;
 
-    bool insertJewel(const uint32_t clientId,
-                     const uint32_t jewelId,
-                     const uint32_t targetId) override;
-
     std::optional<eSlayerQuests>
     receiveQuests(const uint32_t clientId) override;
 

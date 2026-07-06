@@ -218,15 +218,6 @@ bool eTcpIpHost::rearrangeItems(
         clientId, eq);
 }
 
-bool eTcpIpHost::insertJewel(
-    const uint32_t clientId,
-    const uint32_t jewelId,
-    const uint32_t targetId) {
-    std::unique_lock lock(mMutex);
-    return eLocalServer::insertJewel(
-        clientId, jewelId, targetId);
-}
-
 bool eTcpIpHost::changeAttributes(
     const uint32_t clientId,
     const eAttributes& attrs) {
@@ -614,18 +605,6 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             if(!r) {
                 synchronizeEq(charId, tcpClientId);
             }
-        }
-    } break;
-    case ePacketType::insertJewel: {
-        const auto it = mClientIdMap.find(tcpClientId);
-        if(it != mClientIdMap.end()) {
-            const uint32_t charId = it->second;
-            uint32_t jewelId;
-            p >> jewelId;
-            uint32_t targetId;
-            p >> targetId;
-            eLocalServer::insertJewel(
-                charId, jewelId, targetId);
         }
     } break;
     case ePacketType::body: {

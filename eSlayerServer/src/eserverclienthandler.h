@@ -58,8 +58,6 @@ public:
     bool dropItem();
     bool dropGold(const uint32_t count);
     bool rearrangeItems(const eEquipment& eq);
-    bool insertJewel(const uint32_t jewelId,
-                     const uint32_t targetId);
     bool changeAttributes(const eAttributes& attrs);
     bool changeSkillLevels(const eSkillLevels& skillLevels);
     bool consumePotion(const uint32_t itemId);

@@ -209,14 +209,6 @@ bool eServerClientHandler::rearrangeItems(
     return true;
 }
 
-bool eServerClientHandler::insertJewel(
-    const uint32_t jewelId,
-    const uint32_t targetId) {
-    if(!mArea) return false;
-    mArea->insertJewel(mClientId, jewelId, targetId);
-    return true;
-}
-
 bool eServerClientHandler::changeAttributes(
     const eAttributes& attrs) {
     if(!mArea) return false;
