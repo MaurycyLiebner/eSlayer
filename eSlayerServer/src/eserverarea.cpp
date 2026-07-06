@@ -166,6 +166,7 @@ void eServerArea::iniSetupUnit(
 
 void eServerArea::addGroundItem(
     const ePointF& pos, const eItem& item) {
+    if(item.fType == eItemType::none) return;
     const auto itemId = item.fItemId;
     const auto groundItem = std::make_shared<eGroundItem>();
     static_cast<eItemBase&>(*groundItem) = item;
@@ -1082,6 +1083,12 @@ bool eServerArea::createBody(
     const bool r = spawnBody(
         clientId, beq,
         body.fBodyId, body.fPos);
+
+    const auto gitem = eItemGenerator::generateGold(
+        eq.fInventoryGold);
+    addGroundItem(body.fPos, gitem);
+    eq.fInventoryGold = 0;
+
     return r;
 }
 

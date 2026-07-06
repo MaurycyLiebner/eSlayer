@@ -241,6 +241,7 @@ void eGameWidget::setOtherRightSkill(const int s) {
 void eGameWidget::respawn() {
     auto& eq = equipment();
     eq.takeBody();
+    eq.fInventoryGold = 0;
     mServer->createBody(mClientId);
 
     eMoveToMapData move;
