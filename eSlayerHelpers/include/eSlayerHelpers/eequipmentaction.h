@@ -12,7 +12,7 @@ enum class eEquipmentActionType {
     none, add,
     drag, switchDrag, drop,
     gold, switchWeapons,
-    dragAndDrop
+    dragAndDrop, insertJewel
 };
 
 struct eBodyEqAction {
@@ -62,6 +62,7 @@ private:
     bool switchDrag(eEquipment& eq) const;
     bool drop(eEquipment& eq) const;
     bool dragAndDrop(eEquipment& eq) const;
+    bool insertJewel(eEquipment& eq) const;
     bool gold(eEquipment& eq) const;
     bool switchWeapons(eEquipment& eq) const;
 };

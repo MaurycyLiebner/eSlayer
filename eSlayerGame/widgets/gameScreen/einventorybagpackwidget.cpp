@@ -64,14 +64,33 @@ bool eInventoryBagpackWidget::dropItem() {
     place.fY = dropRect.y;
     if(ids.size() == 1) {
         auto& invItem = (*mItems)[ids[0]];
-        std::swap(dragged, invItem.fItem);
-        invItem.fX = dropRect.x;
-        invItem.fY = dropRect.y;
-        invItem.fW = dropRect.w;
-        invItem.fH = dropRect.h;
 
-        a.fItemId1 = dragged.fItemId;
-        a.fType = eEquipmentActionType::switchDrag;
+        bool addedJewel = false;
+
+        if(dragged.fType == eItemType::jewel) {
+            auto& dst = invItem.fItem;
+            if(dst.spaceForJewel()) {
+                dst.addJewel(dragged);
+                eEquipmentAction a;
+                a.fType = eEquipmentActionType::insertJewel;
+                a.fItemId1 = dragged.fItemId;
+                a.fItemId2 = dst.fItemId;
+                dragged = eItem();
+                addedJewel = true;
+                eHoverWidget::sClearHover();
+            }
+        }
+
+        if(!addedJewel) {
+            std::swap(dragged, invItem.fItem);
+            invItem.fX = dropRect.x;
+            invItem.fY = dropRect.y;
+            invItem.fW = dropRect.w;
+            invItem.fH = dropRect.h;
+
+            a.fItemId1 = dragged.fItemId;
+            a.fType = eEquipmentActionType::switchDrag;
+        }
     } else {
         eInventoryItem invItem;
         invItem.fItem = dragged;

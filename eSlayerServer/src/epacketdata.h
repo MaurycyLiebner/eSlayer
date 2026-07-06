@@ -17,6 +17,7 @@ enum class ePacketType : uint8_t {
     rearrangeItems, attributes,
     skills, teams, portals,
     equipment, unblockEquipment,
+    insertJewel,
     equipmentAction, buyAction,
     sellAction,
     replaceItemId, requestSeller,

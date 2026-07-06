@@ -88,6 +88,10 @@ public:
     receiveEquipment(const uint32_t clientId,
                      eEquipment& data) = 0;
     virtual bool
+    insertJewel(const uint32_t clientId,
+                const uint32_t jewelId,
+                const uint32_t targetId) = 0;
+    virtual bool
     unblockEquipment(const uint32_t clientId) = 0;
 
     virtual std::optional<eSlayerQuests>

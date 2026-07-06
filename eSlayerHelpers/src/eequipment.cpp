@@ -34,32 +34,16 @@ bool eEquipment::takeGold(const uint32_t take) {
     return true;
 }
 
-eItem eEquipment::get(const uint32_t itemId) const {
-    for(const auto it : {&fBoots,
-                         &fGloves,
-                         &fHelmet,
-                         &fArmor,
-                         &fBelt,
-                         &fRingL,
-                         &fRingR,
-                         &fAmulet,
-                         &fWeapon1L,
-                         &fWeapon1R,
-                         &fWeapon2L,
-                         &fWeapon2R,
-                         &fDragged}) {
-        auto& item = *it;
-        if(item.fType == eItemType::none) continue;
-        if(item.fItemId == itemId) return item;
-    }
-    for(const auto v : {&fInventory, &fBeltPotions, &fBeltHiddenPotions, &fStash}) {
-        for(const auto& it : *v) {
-            const auto& item = it.fItem;
-            if(item.fType == eItemType::none) continue;
-            if(item.fItemId == itemId) return item;
-        }
-    }
-    return eItem();
+bool eEquipment::replace(
+    const uint32_t itemId,
+    const eItem& with) {
+    bool replaced = false;
+    iterateOverAll([&](eItem& item) {
+        if(item.fItemId != itemId) return;
+        item = with;
+        replaced = true;
+    });
+    return replaced;
 }
 
 eItem eEquipment::take(const uint32_t itemId) {
@@ -77,7 +61,7 @@ eItem eEquipment::item(const uint32_t itemId) const {
     const auto b = bodyItem(itemId);
     if(b.fType != eItemType::none) return b;
     for(const auto v : {&fInventory, &fBeltPotions,
-                         &fBeltHiddenPotions, &fStash}) {
+                        &fBeltHiddenPotions, &fStash}) {
         const auto b = v->item(itemId);
         if(b.fType != eItemType::none) return b;
     }
@@ -382,6 +366,19 @@ bool eEquipment::empty() const {
     return empty;
 }
 
+bool eEquipment::insertJewel(
+    const uint32_t jewelId,
+    const uint32_t targetId) {
+    const auto jewel = item(jewelId);
+    if(jewel.fType != eItemType::jewel) return false;
+    auto target = item(targetId);
+    if(!target.spaceForJewel()) return false;
+    target.addJewel(jewel);
+    take(jewelId);
+    replace(targetId, target);
+    return true;
+}
+
 bool eBodyEquipment::bodyEmpty() const {
     bool empty = true;
     iterateOverBody([&](eItem eBodyEquipment::*it) {
@@ -506,18 +503,18 @@ eItem eBodyEquipment::takeBodyItem(const uint32_t itemId) {
 eItem eBodyEquipment::bodyItem(
     const uint32_t itemId) const {
     for(const auto it : {&fBoots,
-                          &fGloves,
-                          &fHelmet,
-                          &fArmor,
-                          &fBelt,
-                          &fRingL,
-                          &fRingR,
-                          &fAmulet,
-                          &fWeapon1L,
-                          &fWeapon1R,
-                          &fWeapon2L,
-                          &fWeapon2R,
-                          &fDragged}) {
+                         &fGloves,
+                         &fHelmet,
+                         &fArmor,
+                         &fBelt,
+                         &fRingL,
+                         &fRingR,
+                         &fAmulet,
+                         &fWeapon1L,
+                         &fWeapon1R,
+                         &fWeapon2L,
+                         &fWeapon2R,
+                         &fDragged}) {
         auto& item = *it;
         if(item.fType == eItemType::none) continue;
         if(item.fItemId == itemId) {

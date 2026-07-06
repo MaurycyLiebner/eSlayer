@@ -1328,6 +1328,16 @@ void eServerArea::rearrangeItems(
     u->setEquipment(eq);
 }
 
+bool eServerArea::insertJewel(
+    const uint32_t clientId,
+    const uint32_t jewelId,
+    const uint32_t targetId) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    auto& eq = u->equipment();
+    return eq.insertJewel(jewelId, targetId);
+}
+
 bool eServerArea::equipmentAction(
     const uint32_t clientId,
     const eEquipmentAction& a) {

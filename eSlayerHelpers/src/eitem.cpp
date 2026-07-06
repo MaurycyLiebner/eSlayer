@@ -15,6 +15,20 @@ uint32_t eItem::calculateSellCost() const {
     return std::min(cost, 35000u);
 }
 
+bool eItem::spaceForJewel() const {
+    return fSockets > fJewels.size();
+}
+
+bool eItem::addJewel(const eItem& jewel) {
+    if(!spaceForJewel()) return false;
+    if(jewel.fType != eItemType::jewel) return false;
+    for(const auto& m : jewel.fModifiers) {
+        fModifiers.emplace_back(m);
+    }
+    fJewels.emplace_back(jewel);
+    return true;
+}
+
 void eItem::read(ePacket& p) {
     p >> fItemId;
 
@@ -42,6 +56,13 @@ void eItem::read(ePacket& p) {
     for(int i = 0; i < nmods; i++) {
         auto& mod = fModifiers.emplace_back();
         mod.read(p);
+    }
+
+    uint8_t njew;
+    p >> njew;
+    for(int i = 0; i < njew; i++) {
+        auto& jew = fJewels.emplace_back();
+        jew.read(p);
     }
 }
 
@@ -71,5 +92,11 @@ void eItem::write(ePacket& p) const {
     p << nmods;
     for(const auto& mod : fModifiers) {
         mod.write(p);
+    }
+
+    const uint8_t njews = fJewels.size();
+    p << njews;
+    for(const auto& jew : fJewels) {
+        jew.write(p);
     }
 }

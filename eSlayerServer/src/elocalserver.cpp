@@ -166,6 +166,15 @@ bool eLocalServer::unblockEquipment(
     return true;
 }
 
+bool eLocalServer::insertJewel(
+    const uint32_t clientId,
+    const uint32_t jewelId,
+    const uint32_t targetId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->insertJewel(jewelId, targetId);
+}
+
 bool eLocalServer::changeState(
     const uint32_t clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);

@@ -149,6 +149,9 @@ public:
                   uint32_t count);
     void rearrangeItems(const uint32_t clientId,
                         const eEquipment& eq);
+    bool insertJewel(const uint32_t clientId,
+                     const uint32_t jewelId,
+                     const uint32_t targetId);
     bool equipmentAction(const uint32_t clientId,
                          const eEquipmentAction& a);
     bool buyAction(const uint32_t clientId,

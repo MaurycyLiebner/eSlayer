@@ -291,7 +291,8 @@ void eHoverWidget::setHoverItem(
             }
         }
         if(item.fSockets > 0) {
-            gen.addValue(r, 6, 3, item.fSockets, eFontColor::blue);
+            gen.addValue(r, 6, 3, item.fJewels.size(),
+                         item.fSockets, eFontColor::blue);
         }
 
         mHover = gen.generate(res, r);
@@ -728,6 +729,11 @@ void eHoverWidget::sOpenTalk(
     const SDL_Rect& rect) {
     if(!sInstance) return;
     sInstance->openTalk(text, closeAction, rect);
+}
+
+void eHoverWidget::sClearHover() {
+    if(!sInstance) return;
+    sInstance->mHover = nullptr;
 }
 
 void eHoverWidget::paintEvent(ePainter& p) {

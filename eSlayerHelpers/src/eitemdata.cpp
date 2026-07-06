@@ -17,6 +17,7 @@ gItemTypeToString = {
     {eItemType::arrows, "arrows"},
     {eItemType::bolts, "bolts"},
     {eItemType::potion, "potion"},
+    {eItemType::jewel, "jewel"},
     {eItemType::gold, "gold"}
 };
 

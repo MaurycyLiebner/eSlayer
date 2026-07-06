@@ -36,8 +36,23 @@ bool eItemPlaceWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return true;
     auto& dragged = mEq->fDragged;
     if(dragged.fType == eItemType::none) return true;
-    if(!draggedCompatible()) return true;
     auto& dst = mEq->*mDst;
+    if(dragged.fType == eItemType::jewel) {
+        if(dst.spaceForJewel()) {
+            dst.addJewel(dragged);
+            eEquipmentAction a;
+            a.fType = eEquipmentActionType::insertJewel;
+            a.fItemId1 = dragged.fItemId;
+            a.fItemId2 = dst.fItemId;
+            a.fPlace = mPlace;
+            eGameWidget::sSendEqAction(a);
+            dragged = eItem();
+            eHoverWidget::sUpdateDragItem(*mEq);
+            eHoverWidget::sClearHover();
+            return true;
+        }
+    }
+    if(!draggedCompatible()) return true;
     std::swap(dragged, dst);
     eHoverWidget::sUpdateDragItem(*mEq);
 

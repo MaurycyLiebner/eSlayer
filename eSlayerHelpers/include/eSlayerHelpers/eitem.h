@@ -24,7 +24,8 @@ struct ESLAYERHELPERS_API eItemBase {
     uint32_t fCount = 0;
 };
 
-struct ESLAYERHELPERS_API eItem : public eItemBase {
+struct ESLAYERHELPERS_API eItem :
+        public eItemBase {
     uint8_t fRequiredLevel = 0;
 
     uint16_t fMinDmg = 0; // min weapon / shield / boots damage
@@ -33,8 +34,13 @@ struct ESLAYERHELPERS_API eItem : public eItemBase {
     uint16_t fBlockChance = 0; // shield block chance
     std::vector<eModifier> fModifiers;
 
+    std::vector<eItem> fJewels;
+
     uint32_t calculateCost() const;
     uint32_t calculateSellCost() const;
+
+    bool spaceForJewel() const;
+    bool addJewel(const eItem& jewel);
 
     void read(ePacket& p);
     void write(ePacket& p) const;

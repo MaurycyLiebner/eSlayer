@@ -93,6 +93,12 @@ bool eEquipmentAction::dragAndDrop(eEquipment& eq) const {
     return r;
 }
 
+bool eEquipmentAction::insertJewel(eEquipment& eq) const {
+    const auto jewelId = fItemId1;
+    const auto targetId = fItemId2;
+    return eq.insertJewel(jewelId, targetId);
+}
+
 bool eEquipmentAction::gold(eEquipment& eq) const {
     eq.fInventoryGold = fInvGold;
     eq.fStashGold = fStashGold;
@@ -114,6 +120,8 @@ bool eEquipmentAction::apply(eEquipment& eq) const {
         return switchDrag(eq);
     case eEquipmentActionType::dragAndDrop:
         return dragAndDrop(eq);
+    case eEquipmentActionType::insertJewel:
+        return insertJewel(eq);
     case eEquipmentActionType::drop:
         return drop(eq);
     case eEquipmentActionType::gold:

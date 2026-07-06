@@ -74,6 +74,7 @@ public:
         const std::string& text,
         const eAction& closeAction = nullptr,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    static void sClearHover();
 protected:
     void paintEvent(ePainter& p) override;
     bool mouseMoveEvent(const eMouseEvent& e) override;

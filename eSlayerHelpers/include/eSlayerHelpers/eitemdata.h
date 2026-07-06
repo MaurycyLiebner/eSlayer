@@ -25,6 +25,7 @@ enum class eItemType : uint8_t {
     arrows,
     bolts,
     potion,
+    jewel,
     gold
 };
 

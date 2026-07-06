@@ -68,7 +68,8 @@ void eItemsTextures::loadImpl() {
                     if(key == "gold") {
                         w = 0;
                         h = 0;
-                    } else if(key == "amulets" || key == "rings" || key == "potions") {
+                    } else if(key == "amulets" || key == "rings" ||
+                              key == "potions" || key == "jewels") {
                         w = 1;
                         h = 1;
                     } else if(key == "armor") {

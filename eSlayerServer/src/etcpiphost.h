@@ -69,6 +69,9 @@ public:
     bool dropItem(const uint32_t clientId) override;
     bool rearrangeItems(const uint32_t clientId,
                         const eEquipment& eq) override;
+    bool insertJewel(const uint32_t clientId,
+                     const uint32_t jewelId,
+                     const uint32_t targetId) override;
     bool changeAttributes(const uint32_t clientId,
                           const eAttributes& attrs) override;
     bool changeSkillLevels(const uint32_t clientId,

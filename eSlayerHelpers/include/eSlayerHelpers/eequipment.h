@@ -109,7 +109,7 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     uint32_t totalGold() const;
     bool takeGold(const uint32_t take);
 
-    eItem get(const uint32_t itemId) const;
+    bool replace(const uint32_t itemId, const eItem& with);
     eItem take(const uint32_t itemId);
     eItem item(const uint32_t itemId) const;
     bool add(const eItem& item, const bool reqsMet,
@@ -129,6 +129,9 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
                       std::vector<eBodyEqAction>* const moved = nullptr);
     void moveFrom(eEquipment& srcEq);
     bool empty() const;
+
+    bool insertJewel(const uint32_t jewelId,
+                     const uint32_t targetId);
 
     void read(ePacket& p);
     void write(ePacket& p) const;
