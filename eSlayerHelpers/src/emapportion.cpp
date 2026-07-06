@@ -38,6 +38,8 @@ void eMapPortion::read(ePacket& p) {
 }
 
 void eMapData::write(ePacket& p) const {
+    p << fId;
+
     p << fTotalWidth;
     p << fTotalHeight;
 
@@ -61,6 +63,8 @@ void eMapData::write(ePacket& p) const {
 }
 
 void eMapData::read(ePacket& p) {
+    p >> fId;
+
     p >> fTotalWidth;
     p >> fTotalHeight;
 
