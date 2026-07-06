@@ -19,14 +19,47 @@ eItemInstanceTexture::eItemInstanceTexture(
     auto& itemTex = eItemsTextures::getByItemDataId(item.fDataId);
     itemTex.request(r, res);
     mTex = itemTex.fTex;
+
+    for(const auto& j : item.fJewels) {
+        mJewels.emplace_back(r, res, j);
+    }
+
+    mNSockets = item.fSockets;
 }
 
 eTextureColorHolder eItemInstanceTexture::request() const {
     return eTextureColorHolder(mColor, mTex);
 }
 
+eTextureColorHolder
+eItemInstanceTexture::requestJewel(
+    const uint8_t id) const {
+    return mJewels[id].request();
+}
+
 void eItemInstanceTexture::reset() {
     mTex.reset();
+}
+
+ePointF eItemInstanceTexture::jewelPosition(
+    const uint8_t id, const uint8_t nSockets) {
+    if(nSockets <= 1) {
+        return ePointF{0.5f, 0.5f};
+    } else if(nSockets == 2) {
+        return ePointF{0.5f, 0.33f*(1 + id)};
+    } else if(nSockets == 3) {
+        if(id == 0) return ePointF{28.0f/56.0f, 16.0f/56.0f};
+        else if(id == 1) return ePointF{18.0f/56.0f, 36.0f/56.0f};
+        else return ePointF{38.0f/56.0f, 36.0f/56.0f};
+    } else if(nSockets == 4) {
+        const uint8_t row = id/2;
+        const uint8_t col = id - row*2;
+        return ePointF{0.33f*(1 + row), 0.33f*(1 + col)};
+    } else { // if(nSockets >= 5) {
+        const uint8_t row = id/2;
+        const uint8_t col = id - row*2;
+        return ePointF{0.25f*(1 + row), 0.33f*(1 + col)};
+    }
 }
 
 SDL_FColor eItemInstanceTexture::color(const eItemBase& item) {

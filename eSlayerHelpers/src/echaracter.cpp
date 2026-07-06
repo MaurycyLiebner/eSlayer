@@ -68,6 +68,16 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
 
     item.fSockets = itemE->IntAttribute("sockets", 0);
 
+    const auto jsE = itemE->FirstChildElement("jewels");
+    if(jsE) {
+        auto jE = jsE->FirstChildElement("item");
+        while(jE) {
+            auto& jitem = item.fJewels.emplace_back();
+            gReadItem(jitem, jE);
+            jE = jE->NextSiblingElement("item");
+        }
+    }
+
     item.fRequiredLevel = itemE->IntAttribute("requiredLevel");
 
     const auto rarityName = itemE->Attribute("rarity");
@@ -89,7 +99,7 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
         item.fSuffix = eItemAffixes::sSuffixes.id(suffixStr);
     }
 
-    auto modsE = itemE->FirstChildElement("modifiers");
+    const auto modsE = itemE->FirstChildElement("modifiers");
     if(modsE) {
         auto modE = modsE->FirstChildElement("modifier");
         while(modE) {
@@ -459,6 +469,13 @@ void gWriteItem(const eItem& item,
 
     if(item.fSockets != 0) {
         itemE->SetAttribute("sockets", item.fSockets);
+
+        if(!item.fJewels.empty()) {
+            const auto jE = itemE->InsertNewChildElement("jewels");
+            for(const auto& j : item.fJewels) {
+                gWriteItem(j, jE);
+            }
+        }
     }
     if(item.fRequiredLevel != 0) {
         itemE->SetAttribute("requiredLevel", item.fRequiredLevel);

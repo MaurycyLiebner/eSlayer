@@ -68,12 +68,33 @@ void eBagpackBase::paint(
     for(const auto& i : *mItems) {
         const int x = i.fX*mDimensions;
         const int y = i.fY*mDimensions;
+        const SDL_Point pt{i.fX, i.fY};
+        const bool hovered = SDL_PointInRect(&pt, &ihoverRect);
         const auto& item = i.fItem;
         const eItemInstanceTexture tex(r, res, item);
         const auto mod = tex.request();
         const int w = i.fW*mDimensions;
         const int h = i.fH*mDimensions;
-        p.drawTexture(SDL_Rect{x, y, w, h}, mod.fTex, eAlignment::center);
+        const SDL_Rect rect{x, y, w, h};
+        p.drawTexture(rect, mod.fTex, eAlignment::center);
+        if(hovered) {
+            const uint8_t nj = tex.nJewels();
+            const uint8_t ns = tex.nSockets();
+            for(uint8_t i = 0; i < nj; i++) {
+                const auto mod = tex.requestJewel(i);
+                const auto pos = tex.jewelPosition(i, ns);
+                p.drawTexture(rect.x + rect.w*pos.fX,
+                              rect.y + rect.h*pos.fY,
+                              mod.fTex, eAlignment::center);
+            }
+            for(uint8_t i = nj; i < ns; i++) {
+                const auto& tex = eUITextures::sSocket;
+                const auto pos = eItemInstanceTexture::jewelPosition(i, ns);
+                p.drawTexture(rect.x + rect.w*pos.fX,
+                              rect.y + rect.h*pos.fY,
+                              tex, eAlignment::center);
+            }
+        }
     }
 }
 

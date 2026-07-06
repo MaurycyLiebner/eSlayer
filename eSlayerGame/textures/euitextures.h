@@ -107,6 +107,9 @@ public:
 
     static std::shared_ptr<eTexture>
     sTalk;
+
+    static std::shared_ptr<eTexture>
+    sSocket;
 private:
     static std::string sLoaded;
 };

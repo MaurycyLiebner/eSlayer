@@ -97,6 +97,9 @@ eUITextures::sQuestIcons;
 std::shared_ptr<eTexture>
 eUITextures::sTalk;
 
+std::shared_ptr<eTexture>
+eUITextures::sSocket;
+
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
     const auto suffix = res.textureSuffix();
@@ -240,4 +243,6 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     }
 
     sTalk = eFileLoader::readTexture(r, dir, "ui/talk" + suffix + ".png");
+
+    sSocket = eFileLoader::readTexture(r, dir, "ui/items/socket/socket" + suffix + ".png");
 }

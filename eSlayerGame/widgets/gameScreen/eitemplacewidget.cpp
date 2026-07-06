@@ -2,6 +2,8 @@
 
 #include "../../textures/etexturecolorholder.h"
 #include "../../textures/eiteminstancetexture.h"
+#include "../../textures/euitextures.h"
+
 #include "einventorywidget.h"
 #include "ehoverwidget.h"
 #include "egamewidget.h"
@@ -150,4 +152,22 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     const eItemInstanceTexture tex(r, res, item);
     const auto mod = tex.request();
     p.drawTexture(rect, mod.fTex, eAlignment::center);
+    if(h) {
+        const uint8_t nj = tex.nJewels();
+        const uint8_t ns = tex.nSockets();
+        for(uint8_t i = 0; i < nj; i++) {
+            const auto mod = tex.requestJewel(i);
+            const auto pos = tex.jewelPosition(i, ns);
+            p.drawTexture(rect.x + rect.w*pos.fX,
+                          rect.y + rect.h*pos.fY,
+                          mod.fTex, eAlignment::center);
+        }
+        for(uint8_t i = nj; i < ns; i++) {
+            const auto& tex = eUITextures::sSocket;
+            const auto pos = eItemInstanceTexture::jewelPosition(i, ns);
+            p.drawTexture(rect.x + rect.w*pos.fX,
+                          rect.y + rect.h*pos.fY,
+                          tex, eAlignment::center);
+        }
+    }
 }
