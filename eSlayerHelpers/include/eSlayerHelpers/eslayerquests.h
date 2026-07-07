@@ -35,6 +35,7 @@ public:
     bool incCount(const uint8_t questId,
                   const uint8_t stage);
     bool heardTalk(const eConvoId& talk);
+    bool addedSocket(const uint8_t questId);
 
     void read(ePacket& p);
     void write(ePacket& p) const;

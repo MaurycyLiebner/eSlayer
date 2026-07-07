@@ -21,7 +21,8 @@ enum class ePlaceType {
     inventory,
     stash,
     beltPotions,
-    beltHiddenPotions
+    beltHiddenPotions,
+    temporary
 };
 
 struct eEquipmentPlace {

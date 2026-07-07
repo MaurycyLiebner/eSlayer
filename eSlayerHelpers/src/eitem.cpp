@@ -29,6 +29,21 @@ bool eItem::addJewel(const eItem& jewel) {
     return true;
 }
 
+bool eItem::addSocket() {
+    switch(fType) {
+    case eItemType::none:
+    case eItemType::gold:
+    case eItemType::potion:
+    case eItemType::jewel:
+        return false;
+    default:
+        break;
+    }
+    if(fSockets > 0) return false;
+    fSockets = 1;
+    return true;
+}
+
 void eItem::read(ePacket& p) {
     p >> fItemId;
 

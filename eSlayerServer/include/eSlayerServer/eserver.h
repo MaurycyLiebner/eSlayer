@@ -98,6 +98,10 @@ public:
               const eConvoId& talk) = 0;
 
     virtual bool
+    addedSocket(const uint32_t clientId,
+                const uint8_t questId) = 0;
+
+    virtual bool
     changeState(const uint32_t clientId,
                 const eUnitData& u) = 0;
     virtual bool

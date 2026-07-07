@@ -118,6 +118,18 @@ bool eSlayerQuests::heardTalk(
     return nextStage(c.fQuestId);
 }
 
+bool eSlayerQuests::addedSocket(
+    const uint8_t questId) {
+    const auto it = mStages.find(questId);
+    if(it == mStages.end()) return false;
+    const auto& s = it->second;
+    const auto& q = eQuests::sQuests.get(questId);
+    const auto stepId = q.stageToStep(s.fStage);
+    const auto& step = q.fSteps[stepId];
+    if(step.fType != eQuestType::addSocket) return false;
+    return nextStage(questId);
+}
+
 void eSlayerQuests::read(ePacket& p) {
     mStages.clear();
     p >> mState;

@@ -97,11 +97,14 @@ void eQuestsWidget::initialize(
         const auto iconsWidget = new eWidget(window());
         iconsWidget->setNoPadding();
 
+        const int width = 400*mult;
+
         const auto titleLabel = new eLabel(window());
-        titleLabel->resize(400*mult, 20*mult);
+        titleLabel->resize(width, 20*mult);
 
         const auto textLabel = new eLabel(window());
-        textLabel->resize(400*mult, 250*mult);
+        textLabel->resize(width, 250*mult);
+        textLabel->setWrapWidth(width);
 
         const auto setCurrent =
             [this, titleLabel, textLabel](

@@ -141,13 +141,20 @@ eTcpIpHost::receiveQuests(
         clientId);
 }
 
-bool
-eTcpIpHost::heardTalk(
+bool eTcpIpHost::heardTalk(
     const uint32_t clientId,
     const eConvoId& talk) {
     std::unique_lock lock(mMutex);
     return eLocalServer::heardTalk(
         clientId, talk);
+}
+
+bool eTcpIpHost::addedSocket(
+    const uint32_t clientId,
+    const uint8_t questId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::addedSocket(
+        clientId, questId);
 }
 
 bool eTcpIpHost::changeState(
@@ -541,6 +548,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eConvoId talk;
             p >> talk;
             eLocalServer::heardTalk(charId, talk);
+        }
+    } break;
+    case ePacketType::addedSocket: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            uint8_t questId;
+            p >> questId;
+            eLocalServer::addedSocket(charId, questId);
         }
     } break;
     case ePacketType::buyAction: {

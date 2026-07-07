@@ -124,6 +124,7 @@ public:
     void waypointTeleport(const eAreaIds& area);
     void spawnPortal();
     void openSellerMenu(const uint32_t sellerId);
+    void addSocket(const uint8_t questId);
 
     static eGameWidget* sInstance;
     static void sSendEqAction(const eEquipmentAction& a);
@@ -134,6 +135,7 @@ public:
     static void sMoveToMap(const eMoveToMapData& moveData);
     static void sDropGold(const int gold);
     static void sOpenSellerMenu(const uint32_t sellerId);
+    static void sAddSocket(const uint8_t questId);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;

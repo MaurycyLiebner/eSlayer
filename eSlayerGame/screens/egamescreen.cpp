@@ -25,6 +25,7 @@
 #include "../widgets/gameScreen/esellerwidget.h"
 #include "../widgets/gameScreen/equestswidget.h"
 #include "../widgets/gameScreen/emessageswidget.h"
+#include "../widgets/gameScreen/eaddsocketwidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -249,6 +250,12 @@ void eGameScreen::initialize(const uint32_t clientId,
             const bool h = mStashMenu->hovered();
             if(h) return;
         }
+        if(mAddSocketMenu) {
+            const bool r = mAddSocketMenu->dropItem();
+            if(r) return;
+            const bool h = mAddSocketMenu->hovered();
+            if(h) return;
+        }
         if(mSellerMenu) {
             const bool r = mSellerMenu->dropItem();
             if(r) return;
@@ -284,6 +291,11 @@ void eGameScreen::sOpenSellerMenu(
 
 void eGameScreen::sCloseObjectMenu() {
     sInstance->hidePositionedMenu();
+}
+
+void eGameScreen::sOpenAddSocketMenu(
+    const uint8_t questId) {
+    sInstance->showAddSocketMenu(questId);
 }
 
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
@@ -499,7 +511,7 @@ void eGameScreen::consumePotion(const int x) {
 
 void eGameScreen::hidePositionedMenu() {
     hideWaypointMenu();
-    if(mStashMenu || mSellerMenu) {
+    if(mStashMenu || mSellerMenu || mAddSocketMenu) {
         hideInventoryConnectedMenu();
     }
     eHoverWidget::sOpenMenu("", {});
@@ -519,6 +531,9 @@ void eGameScreen::hideLeftMenu() {
     }
     if(mWaypointMenu) {
         hideWaypointMenu();
+    }
+    if(mAddSocketMenu) {
+        hideInventoryConnectedMenu();
     }
     if(mStashMenu) {
         hideInventoryConnectedMenu();
@@ -833,6 +848,44 @@ void eGameScreen::hideSellerMenu() {
     updateCharPos();
 }
 
+void eGameScreen::showAddSocketMenu(
+    const uint8_t questId) {
+    if(mAddSocketMenu) return;
+    mAddSocketMenu = new eAddSocketWidget(window());
+    const int w = width();
+    const int h = height();
+    mAddSocketMenu->resize(w/2, h - mBottomWidget->height());
+    auto& eq = mGameWidget->equipment();
+    const auto applyAction = [&eq, questId]() {
+        auto& tmp = eq.fTemporary;
+        const bool r = tmp.addSocket();
+        if(!r) return false;
+        eGameWidget::sAddSocket(questId);
+        return true;
+    };
+    const auto cancelAction = [this, &eq]() {
+        auto& tmp = eq.fTemporary;
+        if(tmp.fType != eItemType::none) {
+            mGameWidget->dropItem();
+        }
+        hideInventoryConnectedMenu();
+    };
+    mAddSocketMenu->initialize(eq, applyAction, cancelAction);
+    mMenusWidget->addWidget(mAddSocketMenu);
+    mAddSocketMenu->align(eAlignment::left | eAlignment::top);
+
+    showInventoryMenu(eHoverItemType::regular);
+
+    updateCharPos();
+}
+
+void eGameScreen::hideAddSocketMenu() {
+    if(!mAddSocketMenu) return;
+    mAddSocketMenu->deleteLater();
+    mAddSocketMenu = nullptr;
+    updateCharPos();
+}
+
 void eGameScreen::showStashMenu() {
     if(mStashMenu) return;
     mStashMenu = new eStashWidget(window());
@@ -861,6 +914,7 @@ void eGameScreen::hideStashMenu() {
 void eGameScreen::hideInventoryConnectedMenu() {
     hideInventoryMenu();
     hideSellerMenu();
+    hideAddSocketMenu();
     hideStashMenu();
 }
 
@@ -907,7 +961,8 @@ void eGameScreen::updateCharPos() {
     auto& input = mGameWidget->input();
     const bool left = mStatsMenu || mPartyMenu ||
                       mWaypointMenu || mStashMenu ||
-                      mSellerMenu || mQuestsMenu;
+                      mSellerMenu || mQuestsMenu ||
+                      mAddSocketMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {

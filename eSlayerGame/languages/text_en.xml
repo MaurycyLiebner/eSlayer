@@ -250,6 +250,7 @@
         <string id="0">Talk</string>
         <string id="1">Trade</string>
         <string id="2">Cancel</string>
+        <string id="3">Add Socket</string>
     </group>
     <group id="21">
         <string id="0">You completed this quest</string>

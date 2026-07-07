@@ -54,6 +54,11 @@ eItem eEquipment::take(const uint32_t itemId) {
         const auto b = v->take(itemId);
         if(b.fType != eItemType::none) return b;
     }
+    if(fTemporary.fItemId == itemId) {
+        eItem result;
+        std::swap(result, fTemporary);
+        return result;
+    }
     return eItem();
 }
 
@@ -64,6 +69,9 @@ eItem eEquipment::item(const uint32_t itemId) const {
                         &fBeltHiddenPotions, &fStash}) {
         const auto b = v->item(itemId);
         if(b.fType != eItemType::none) return b;
+    }
+    if(fTemporary.fItemId == itemId) {
+        return fTemporary;
     }
     return eItem();
 }
@@ -196,6 +204,10 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
         type = eItemType::ring;
     } else if(&dst == &fAmulet) {
         type = eItemType::amulet;
+    } else if(&dst == &fDragged) {
+        return true;
+    } else if(&dst == &fTemporary) {
+        return true;
     } else {
         if(&dst == &fWeapon1L || &dst == &fWeapon2L) {
             if(item.fType != eItemType::weapon) return false;
@@ -477,18 +489,18 @@ void eBodyEquipment::writeBodyIds(ePacket& p) const {
 
 eItem eBodyEquipment::takeBodyItem(const uint32_t itemId) {
     for(const auto it : {&fBoots,
-                          &fGloves,
-                          &fHelmet,
-                          &fArmor,
-                          &fBelt,
-                          &fRingL,
-                          &fRingR,
-                          &fAmulet,
-                          &fWeapon1L,
-                          &fWeapon1R,
-                          &fWeapon2L,
-                          &fWeapon2R,
-                          &fDragged}) {
+                         &fGloves,
+                         &fHelmet,
+                         &fArmor,
+                         &fBelt,
+                         &fRingL,
+                         &fRingR,
+                         &fAmulet,
+                         &fWeapon1L,
+                         &fWeapon1R,
+                         &fWeapon2L,
+                         &fWeapon2R,
+                         &fDragged}) {
         auto& item = *it;
         if(item.fType == eItemType::none) continue;
         if(item.fItemId == itemId) {
@@ -533,6 +545,8 @@ void eEquipment::read(ePacket& p) {
     fBeltHiddenPotions.read(p);
     fStash.read(p);
     p >> fStashGold;
+
+    fTemporary.read(p);
 }
 
 void eEquipment::write(ePacket& p) const {
@@ -544,6 +558,8 @@ void eEquipment::write(ePacket& p) const {
     fBeltHiddenPotions.write(p);
     fStash.write(p);
     p << fStashGold;
+
+    fTemporary.write(p);
 }
 
 void eEquipment::readIds(ePacket& p) {

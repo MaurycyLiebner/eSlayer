@@ -106,6 +106,8 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
                            fStashHeight};
     uint32_t fStashGold = 0;
 
+    eItem fTemporary;
+
     uint32_t totalGold() const;
     bool takeGold(const uint32_t take);
 
@@ -155,11 +157,16 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
         iter(self.fWeapon2R);
         iter(self.fDragged);
 
-        for(auto v : {&self.fInventory, &self.fBeltPotions, &self.fBeltHiddenPotions, &self.fStash}) {
+        for(auto v : {&self.fInventory,
+                      &self.fBeltPotions,
+                      &self.fBeltHiddenPotions,
+                      &self.fStash}) {
             for(auto& item : *v) {
                 iter(item.fItem);
             }
         }
+
+        iter(self.fTemporary);
     }
 };
 

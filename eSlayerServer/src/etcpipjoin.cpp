@@ -419,6 +419,17 @@ bool eTcpIpJoin::requestSeller(
     return true;
 }
 
+bool eTcpIpJoin::addedSocket(
+    const uint32_t clientId,
+    const uint8_t questId) {
+    ePacket p;
+    p << ePacketType::addedSocket;
+    p << questId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send add socket request to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,

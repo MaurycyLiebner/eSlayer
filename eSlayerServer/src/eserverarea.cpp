@@ -1294,10 +1294,14 @@ bool eServerArea::dropItem(const uint32_t clientId) {
     if(!u) return false;
     auto& eq = u->equipment();
     const auto pos = u->fPos;
-    auto& item = eq.fDragged;
-    if(item.fType == eItemType::none) return false;
-    addGroundItem(pos, item);
-    item = eItem();
+    const auto tryDropItem = [&](eItem& item) {
+        if(item.fType != eItemType::none) {
+            addGroundItem(pos, item);
+            item = eItem();
+        }
+    };
+    tryDropItem(eq.fDragged);
+    tryDropItem(eq.fTemporary);
     return true;
 }
 
@@ -1530,6 +1534,24 @@ bool eServerArea::heardTalk(
     auto& clientData = it->second;
     auto& qs = clientData.fQuests;
     qs.heardTalk(talk);
+    clientData.fSendQuests = true;
+    return true;
+}
+
+bool eServerArea::addedSocket(
+    const uint32_t clientId,
+    const uint8_t questId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    const auto u = unit(clientId);
+    if(!u) return false;
+    auto& eq = u->equipment();
+    auto& tmp = eq.fTemporary;
+    const bool r = tmp.addSocket();
+    if(!r) return false;
+    auto& clientData = it->second;
+    auto& qs = clientData.fQuests;
+    qs.addedSocket(questId);
     clientData.fSendQuests = true;
     return true;
 }

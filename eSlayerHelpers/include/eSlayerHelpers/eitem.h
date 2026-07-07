@@ -41,6 +41,7 @@ struct ESLAYERHELPERS_API eItem :
 
     bool spaceForJewel() const;
     bool addJewel(const eItem& jewel);
+    bool addSocket();
 
     void read(ePacket& p);
     void write(ePacket& p) const;

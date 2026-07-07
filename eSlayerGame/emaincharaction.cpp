@@ -27,6 +27,7 @@
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/etalkheard.h>
+#include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/etalk.h>
 
 eMainCharAction::eMainCharAction(
@@ -628,6 +629,33 @@ void eMainCharAction::openMainMenu(
             eHoverWidget::sOpenMenu("", {});
             eGameWidget::sOpenSellerMenu(sellerId);
         };
+    }
+    {
+        uint8_t questId;
+        bool add = false;
+        for(const auto& it : eQuests::sQuests) {
+            const int id = it.fId;
+            const auto& q = it.fValue;
+            const auto stageId = mQuests.stage(id);
+            const auto stepId = q.stageToStep(stageId);
+            const auto& steps = q.fSteps;
+            if(stepId >= steps.size()) continue;
+            const auto& step = steps[stepId];
+            if(step.fType != eQuestType::addSocket) continue;
+            const auto npcId = eObjectsInfo::sObjects.id(baseName);
+            if(step.fTarget != npcId) continue;
+            questId = id;
+            add = true;
+            break;
+        }
+        if(add) {
+            auto& addSocketAct = actionsRef.emplace_back();
+            addSocketAct.fText = eText::text(20, 3);
+            addSocketAct.fPress = [questId]() {
+                eHoverWidget::sOpenMenu("", {});
+                eGameScreen::sOpenAddSocketMenu(questId);
+            };
+        }
     }
     {
         auto& cancelAct = actionsRef.emplace_back();

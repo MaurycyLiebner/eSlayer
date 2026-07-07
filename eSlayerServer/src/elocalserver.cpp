@@ -153,6 +153,14 @@ bool eLocalServer::heardTalk(
     return h->heardTalk(talk);
 }
 
+bool eLocalServer::addedSocket(
+    const uint32_t clientId,
+    const uint8_t questId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->addedSocket(questId);
+}
+
 bool eLocalServer::receiveEquipment(
     const uint32_t clientId,
     eEquipment& data) {

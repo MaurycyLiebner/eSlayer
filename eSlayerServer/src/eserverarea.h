@@ -87,6 +87,8 @@ public:
 
     bool heardTalk(const uint32_t clientId,
                    const eConvoId& talk);
+    bool addedSocket(const uint32_t clientId,
+                     const uint8_t questId);
 
     eArea unitArea(const uint32_t charId) const;
     eArea unitArea(const eServerUnit& u) const;

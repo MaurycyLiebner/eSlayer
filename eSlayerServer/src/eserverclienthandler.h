@@ -31,6 +31,7 @@ public:
     receiveQuests();
 
     bool heardTalk(const eConvoId& talk);
+    bool addedSocket(const uint8_t questId);
 
     const std::shared_ptr<eServerArea>& area() const { return mArea; }
     void setArea(const std::shared_ptr<eServerArea>& a) { mArea = a; }

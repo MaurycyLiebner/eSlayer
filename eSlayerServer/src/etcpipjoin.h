@@ -100,6 +100,8 @@ public:
                     const eSellAction& a) override;
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId) override;
+    bool addedSocket(const uint32_t clientId,
+                     const uint8_t questId) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;

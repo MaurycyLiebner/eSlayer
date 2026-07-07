@@ -65,6 +65,12 @@ bool eServerClientHandler::heardTalk(
     return mArea->heardTalk(mClientId, talk);
 }
 
+bool eServerClientHandler::addedSocket(
+    const uint8_t questId) {
+    if(!mArea) return false;
+    return mArea->addedSocket(mClientId, questId);
+}
+
 std::shared_ptr<eMap> eServerClientHandler::map() const {
     if(!mArea) return nullptr;
     return mArea->map();

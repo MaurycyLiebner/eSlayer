@@ -40,9 +40,10 @@ public:
     std::optional<eSlayerQuests>
     receiveQuests(const uint32_t clientId) override;
 
-    bool
-    heardTalk(const uint32_t clientId,
-              const eConvoId& talk) override;
+    bool heardTalk(const uint32_t clientId,
+                   const eConvoId& talk) override;
+    bool addedSocket(const uint32_t clientId,
+                     const uint8_t questId) override;
 
     bool changeState(const uint32_t clientId,
                      const eUnitData& u) override;

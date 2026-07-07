@@ -36,8 +36,6 @@ struct ESLAYERHELPERS_API eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
     eEquipmentPlace fPlace;
 
-    uint32_t fSellerId;
-
     eItem fAddItem;
 
     uint32_t fItemId1;

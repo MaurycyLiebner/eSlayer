@@ -56,6 +56,14 @@ void eQuests::load() {
                         }
                         step.fTarget = id;
                         step.fConvoStr = stepData.value("conversation", "");
+                    } else if(typeStr == "addSocket") {
+                        step.fType = eQuestType::addSocket;
+                        const auto npcStr = stepData.value("target", "");
+                        const int id = eObjectsInfo::sObjects.id(npcStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
+                        }
+                        step.fTarget = id;
                     } else {
                         eRuntimeThrow("Unrecognized quest type \"" + typeStr + "\".");
                     }

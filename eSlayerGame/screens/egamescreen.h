@@ -30,6 +30,7 @@ struct eSeller;
 class eSellerWidget;
 class eQuestsWidget;
 class eMessagesWidget;
+class eAddSocketWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -52,6 +53,8 @@ public:
     static void sOpenSellerMenu(
         const eSeller& s);
     static void sCloseObjectMenu();
+    static void sOpenAddSocketMenu(
+        const uint8_t questId);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
@@ -101,6 +104,9 @@ private:
     void showSellerMenu(const eSeller& seller);
     void hideSellerMenu();
 
+    void showAddSocketMenu(const uint8_t questId);
+    void hideAddSocketMenu();
+
     void showStashMenu();
     void hideStashMenu();
 
@@ -130,6 +136,7 @@ private:
     eMessagesWidget* mMessagesMenu = nullptr;
     eUnitIndicator* mUnitIndicator = nullptr;
     eWidget* mQuestsButtonW = nullptr;
+    eAddSocketWidget* mAddSocketMenu = nullptr;
 
     eWidget* mSkillMenu = nullptr;
 

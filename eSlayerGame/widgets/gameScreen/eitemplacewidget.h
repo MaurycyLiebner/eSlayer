@@ -17,9 +17,8 @@ public:
 
     void intialize(const std::shared_ptr<eTexture>& tex,
                    eEquipment& eq,
-                   const eStats& stats,
+                   const eStats* const stats,
                    eItem eEquipment::* const item,
-                   const std::vector<eItemType>& allowedTypes,
                    const ePlaceType place,
                    const eHoverItemType htype);
 
@@ -37,7 +36,6 @@ private:
     eHoverItemType mHoverType = eHoverItemType::regular;
 
     eEquipmentPlace mPlace;
-    std::vector<eItemType> mAllowedTypes;
     eEquipment* mEq = nullptr;
     const eStats* mStats = nullptr;
     eItem eEquipment::*mDst = nullptr;

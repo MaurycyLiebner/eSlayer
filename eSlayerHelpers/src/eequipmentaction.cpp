@@ -58,6 +58,8 @@ bool eEquipmentAction::add(
         return placeInInv(&eEquipment::fBeltPotions);
     case ePlaceType::beltHiddenPotions:
         return placeInInv(&eEquipment::fBeltHiddenPotions);
+    case ePlaceType::temporary:
+        return placeOnPlace(&eEquipment::fTemporary);
     }
     return false;
 }
@@ -105,7 +107,8 @@ bool eEquipmentAction::gold(eEquipment& eq) const {
     return true;
 }
 
-bool eEquipmentAction::switchWeapons(eEquipment& eq) const {
+bool eEquipmentAction::switchWeapons(
+    eEquipment& eq) const {
     eq.fWeapons1 = fWeapons1;
     return true;
 }
@@ -137,7 +140,6 @@ bool eEquipmentAction::apply(eEquipment& eq) const {
 void eEquipmentAction::read(ePacket& p) {
     p >> fType;
     p >> fPlace;
-    p >> fSellerId;
     fAddItem.read(p);
     p >> fItemId1;
     p >> fItemId2;
@@ -151,7 +153,6 @@ void eEquipmentAction::read(ePacket& p) {
 void eEquipmentAction::write(ePacket& p) const {
     p << fType;
     p << fPlace;
-    p << fSellerId;
     fAddItem.write(p);
     p << fItemId1;
     p << fItemId2;

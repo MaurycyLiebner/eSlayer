@@ -23,7 +23,7 @@ enum class ePacketType : uint8_t {
     provideSeller,
     body, bodyPickedUp,
     teamsAction, spawnPortal,
-    quests, heardTalk,
+    quests, heardTalk, addedSocket,
     slain,
     disconnect
 };

@@ -6,7 +6,7 @@
 #include <cstdint>
 
 enum class eQuestType {
-    kill, talkTo
+    kill, talkTo, addSocket
 };
 
 struct eQuestStepId {

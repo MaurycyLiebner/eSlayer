@@ -16,16 +16,14 @@
 void eItemPlaceWidget::intialize(
     const std::shared_ptr<eTexture>& tex,
     eEquipment& eq,
-    const eStats& stats,
+    const eStats* const stats,
     eItem eEquipment::* const item,
-    const std::vector<eItemType>& allowedTypes,
     const ePlaceType place,
     const eHoverItemType htype) {
     setNoPadding();
     mEq = &eq;
-    mStats = &stats;
+    mStats = stats;
     mDst = item;
-    mAllowedTypes = allowedTypes;
     mPlace.fType = place;
     mHoverType = htype;
 
@@ -112,7 +110,7 @@ bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
 
 bool eItemPlaceWidget::draggedCompatible() {
     auto& dragged = mEq->fDragged;
-    const bool met = mStats->itemReqsMet(dragged);
+    const bool met = mStats ? mStats->itemReqsMet(dragged) : true;
     if(!met) return false;
     const auto& dst = mEq->*mDst;
     return mEq->canPlace(dragged, dst);
@@ -135,7 +133,7 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
             color.set(0.7f, 0.f, 0.f);
         }
     } else if(item.fType != eItemType::none) {
-        const bool met = mStats->itemReqsMet(item);
+        const bool met = mStats ? mStats->itemReqsMet(item) : true;
         if(met) {
             color.set(0.4f, 0.4f, 0.4f);
         } else {

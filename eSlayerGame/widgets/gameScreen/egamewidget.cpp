@@ -180,9 +180,12 @@ void eGameWidget::stop() {
 void eGameWidget::dropItem() {
     auto& eq = mMainAction->equipment();
     auto& dragged = eq.fDragged;
-    if(dragged.fType == eItemType::none) return;
+    auto& tmp = eq.fTemporary;
+    if(dragged.fType == eItemType::none &&
+       tmp.fType == eItemType::none) return;
     mServer->dropItem(mClientId);
     dragged = eItem();
+    tmp = eItem();
     eHoverWidget::sUpdateDragItem(eq);
 }
 
@@ -333,6 +336,10 @@ void eGameWidget::openSellerMenu(const uint32_t sellerId) {
     mServer->requestSeller(mClientId, sellerId);
 }
 
+void eGameWidget::addSocket(const uint8_t questId) {
+    mServer->addedSocket(mClientId, questId);
+}
+
 void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
     sInstance->sendEqAction(a);
 }
@@ -363,8 +370,13 @@ void eGameWidget::sDropGold(const int gold) {
     sInstance->dropGold(gold);
 }
 
-void eGameWidget::sOpenSellerMenu(const uint32_t sellerId) {
+void eGameWidget::sOpenSellerMenu(
+    const uint32_t sellerId) {
     sInstance->openSellerMenu(sellerId);
+}
+
+void eGameWidget::sAddSocket(const uint8_t questId) {
+    sInstance->addSocket(questId);
 }
 
 void eGameWidget::paintEvent(ePainter& p) {
