@@ -8,6 +8,8 @@
 eStringIdMapVector<eQuest> eQuests::sQuests;
 std::map<int, std::vector<eQuestStepId>>
 eQuests::sMonsterQuests;
+std::map<int, std::vector<eQuestStepId>>
+eQuests::sItemQuests;
 bool eQuests::sLoaded = false;
 
 void eQuests::load() {
@@ -55,7 +57,10 @@ void eQuests::load() {
                         if(id < 0) {
                             eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
                         }
+                        const auto stageId = eQuest::stepToStage(stepId);
+                        sItemQuests[id].emplace_back(questId, stageId);
                         step.fTarget = id;
+                        step.fCount = stepData.value("count", 1);
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
                         const auto npcStr = stepData.value("target", "");

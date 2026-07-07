@@ -1222,6 +1222,10 @@ bool eServerArea::triggerObject(
             const float fx = tx + sobj->fWidth + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, level, 7.5f);
+            for(const auto typeId : info.fItemTypes) {
+                const auto item = eItemGenerator::generateItem(typeId, level, 7.5f);
+                addGroundItem(pos, item);
+            }
             state = 1;
         } break;
         case eObjectType::trapDoor: {
@@ -1280,6 +1284,22 @@ bool eServerArea::pickupItem(
             if(!r) return false;
             u->recalculateStats();
             u->recalculateAuras();
+        }
+
+        const auto id = item.fDataId;
+        const auto& iqs = eQuests::sItemQuests;
+        const auto it = iqs.find(id);
+        if(it != iqs.end()) {
+            const auto& qs = it->second;
+            const auto it = mClientData.find(clientId);
+            if(it != mClientData.end()) {
+                auto& c = it->second;
+                for(const auto& q : qs) {
+                    const bool r = c.fQuests.incCount(
+                        q.fQuestId, q.fStageId);
+                    if(r) c.fSendQuests = true;
+                }
+            }
         }
     }
     mGroundItems.remove(itemId);
@@ -1957,9 +1977,9 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         const auto& mqs = eQuests::sMonsterQuests;
         const auto it = mqs.find(id);
         if(it != mqs.end()) {
+            const auto& qs = it->second;
             for(auto& cit : mClientData) {
                 auto& c = cit.second;
-                const auto& qs = it->second;
 
                 const uint32_t clientId = cit.first;
                 const auto u = unit(clientId);

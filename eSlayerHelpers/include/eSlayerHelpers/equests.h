@@ -50,6 +50,8 @@ public:
     static eStringIdMapVector<eQuest> sQuests;
     static std::map<int, std::vector<eQuestStepId>>
     sMonsterQuests;
+    static std::map<int, std::vector<eQuestStepId>>
+    sItemQuests;
 
     static void load();
 private:

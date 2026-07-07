@@ -97,6 +97,7 @@ bool eSlayerQuests::incCount(
     const auto& step = q.fSteps[stepId];
     switch(step.fType) {
     case eQuestType::talkTo:
+    case eQuestType::addSocket:
         return false;
     default:
         break;

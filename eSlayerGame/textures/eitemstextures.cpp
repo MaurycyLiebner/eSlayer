@@ -43,7 +43,7 @@ void eItemsTextures::loadImpl() {
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
             const auto& key = it.key();
             const auto& value = it.value();
-            if(key == "shields") {
+            if(key == "shields" || key == "questItems") {
                 for(const auto& [name, data] : value.items()) {
                     const auto path = key + "/" + name;
                     const int w = data.value("width", 2);

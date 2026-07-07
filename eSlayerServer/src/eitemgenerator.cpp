@@ -44,7 +44,9 @@ eItem eItemGenerator::generateItem(
     item.fDataId = typeId;
     item.fType = type;
     item.fSubType = itemData.fSubtype;
-    if(type == eItemType::gold) {
+    if(type == eItemType::questItem) {
+        return item;
+    } else if(type == eItemType::gold) {
         item.fCount = 1 + 5.f*sqrt(level)*worth;
         return item;
     } else if(type == eItemType::potion) {
