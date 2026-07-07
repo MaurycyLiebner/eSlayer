@@ -40,6 +40,8 @@ struct eObjectInfo {
     bool fWalkable;
     std::vector<int> fItemTypes;
     std::vector<int> fPotionTypes;
+
+    int fKey = -1;
 };
 
 class ESLAYERHELPERS_API eObjectsInfo {

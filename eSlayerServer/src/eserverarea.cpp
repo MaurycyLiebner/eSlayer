@@ -1215,6 +1215,18 @@ bool eServerArea::triggerObject(
         if(objId != sobj->fObjectId) continue;
         const auto type = sobj->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
+        if(info.fKey >= 0) {
+            const auto u = unit(clientId);
+            if(!u) return false;
+            const auto& eq = u->equipment();
+            bool found = false;
+            eq.iterateOverAll([&](const eItem& item) {
+                if(item.fDataId == info.fKey) {
+                    found = true;
+                }
+            });
+            if(!found) return false;
+        }
         switch(info.fType) {
         case eObjectType::treasure: {
             auto& state = sobj->fState;

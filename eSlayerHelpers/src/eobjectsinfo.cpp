@@ -73,6 +73,14 @@ void eObjectsInfo::load() {
             } else {
                 eRuntimeThrow("Unrecognized object type \"" + typeStr + "\"");
             }
+            const auto keyStr = value.value("key", "");
+            if(!keyStr.empty()) {
+                const int keyId = eItemsData::id(keyStr);
+                if(keyId < 0) {
+                    eRuntimeThrow("Invalid key type \"" + keyStr + "\".");
+                }
+                info.fKey = keyId;
+            }
             info.fTexStr = value.value("texture", "");
             const auto itemTypes = value.value("itemTypes", std::vector<std::string>());
             for(const auto& str : itemTypes) {
