@@ -8,6 +8,7 @@
 enum class eQuestType {
     kill,
     findItem,
+    bringItem,
     talkTo,
     addSocket
 };
@@ -23,7 +24,9 @@ struct eQuestStepId {
 struct eQuestStep {
     std::string fConvoStr;
     eQuestType fType;
-    uint8_t fTarget = 0;
+    uint8_t fTargetNPC = 0;
+    uint8_t fTargetItem = 0;
+    uint8_t fTargetMonster = 0;
     uint8_t fCount = 0;
 };
 
@@ -49,9 +52,11 @@ class ESLAYERHELPERS_API eQuests {
 public:
     static eStringIdMapVector<eQuest> sQuests;
     static std::map<int, std::vector<eQuestStepId>>
-    sMonsterQuests;
+    sKillMonsterQuests;
     static std::map<int, std::vector<eQuestStepId>>
-    sItemQuests;
+    sFindItemQuests;
+    static std::map<int, std::vector<eQuestStepId>>
+    sBringItemQuests;
 
     static void load();
 private:

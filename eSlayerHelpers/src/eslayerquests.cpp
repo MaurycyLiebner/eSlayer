@@ -108,6 +108,17 @@ bool eSlayerQuests::incCount(
     return true;
 }
 
+bool eSlayerQuests::resetCount(
+    const uint8_t questId,
+    const uint8_t stage) {
+    auto it = mStages.find(questId);
+    if(it == mStages.end()) return false;
+    auto& s = it->second;
+    if(s.fStage != stage) return false;
+    s.fCount = 0;
+    return true;
+}
+
 bool eSlayerQuests::heardTalk(
     const eConvoId& talk) {
     const bool r = eTalks::has(talk);

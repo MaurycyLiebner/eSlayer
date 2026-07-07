@@ -2,6 +2,8 @@
 
 #include "eSlayerHelpers/eslayerquests.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
+#include "eSlayerHelpers/equests.h"
+#include "eSlayerHelpers/eequipment.h"
 
 void eTalkHeard::initialize() {
     clear();
@@ -22,24 +24,53 @@ bool eTalkHeard::heard(const eConvoId& cid) const {
     return it->second;
 }
 
+void eTalkHeard::justHeard(
+    const eConvoId& cid,
+    eEquipment& eq) {
+    setHeard(cid, true);
+    const auto& convo = eTalks::get(cid);
+    const auto qid = convo.fQuestId;
+    const auto& q = eQuests::sQuests.get(qid);
+    const auto stepId = q.stageToStep(convo.fStageId);
+    if(stepId > q.nStages()) {
+        return;
+    }
+    const auto& step = q.fSteps[stepId];
+    if(step.fType == eQuestType::bringItem) {
+        std::vector<uint32_t> items;
+        eq.iterateOverAll([&](const eItem& item) {
+            if(items.size() >= step.fCount) return;
+            if(item.fDataId == step.fTargetItem) {
+                items.emplace_back(item.fItemId);
+            }
+        });
+        for(const auto itemId : items) {
+            eq.take(itemId);
+        }
+    }
+}
+
 void eTalkHeard::setHeard(
     const eConvoId& cid,
     const bool h) {
     (*this)[cid] = h;
 }
 
-std::optional<eConvoId> eTalkHeard::nextUnheard(
+std::optional<eConvoId>
+eTalkHeard::nextUnheard(
     const std::string& npcName,
-    const eSlayerQuests& squests) {
+    const eSlayerQuests& squests,
+    const eEquipment& eq) {
     const int npcId = eTalks::sTalk.id(npcName);
     if(npcId < 0) return std::nullopt;
-    return nextUnheard(npcId, squests);
+    return nextUnheard(npcId, squests, eq);
 }
 
 std::optional<eConvoId>
 eTalkHeard::nextUnheard(
     const uint8_t npcId,
-    const eSlayerQuests& squests) {
+    const eSlayerQuests& squests,
+    const eEquipment& eq) {
     for(const auto& it : *this) {
         const bool h = it.second;
         if(h) continue;
@@ -58,6 +89,26 @@ eTalkHeard::nextUnheard(
         } break;
         case eConvoType::questStep: {
             const auto s = squests.stage(qid);
+            {
+                const auto& q = eQuests::sQuests.get(qid);
+                const auto stepId = q.stageToStep(s);
+                if(stepId > q.nStages()) {
+                    continue;
+                }
+                const auto& step = q.fSteps[stepId];
+                if(step.fType == eQuestType::bringItem) {
+                    std::vector<uint32_t> items;
+                    eq.iterateOverAll([&](const eItem& item) {
+                        if(items.size() >= step.fCount) return;
+                        if(item.fDataId == step.fTargetItem) {
+                            items.emplace_back(item.fItemId);
+                        }
+                    });
+                    if(items.size() < step.fCount) {
+                        continue;
+                    }
+                }
+            }
             const bool r = s == convo.fStageId;
             if(r) return cid;
         } break;
@@ -106,10 +157,12 @@ std::vector<eConvoId> eTalkHeard::allRelevant(
 bool eTalkHeard::wantsToTalk(
     const uint16_t objType,
     const uint32_t objectId,
-    const eSlayerQuests& squests) {
+    const eSlayerQuests& squests,
+    const eEquipment& eq) {
     const auto it = mNPCWantsToTalk.find(objectId);
     if(it == mNPCWantsToTalk.end()) {
-        return updateWantsToTalk(objType, objectId, squests);
+        return updateWantsToTalk(
+            objType, objectId, squests, eq);
     }
     const auto& wt = it->second;
     return wt.fWantsToTalk;
@@ -118,14 +171,16 @@ bool eTalkHeard::wantsToTalk(
 bool eTalkHeard::updateWantsToTalk(
     const uint16_t objType,
     const uint32_t objectId,
-    const eSlayerQuests& squests) {
+    const eSlayerQuests& squests,
+    const eEquipment& eq) {
     const auto baseName = eObjectsInfo::sObjects.name(objType);
     const auto npcId = eTalks::sTalk.id(baseName);
     if(npcId < 0) {
         return false;
     }
 
-    const auto next = nextUnheard(npcId, squests);
+    const auto next = nextUnheard(
+        npcId, squests, eq);
     auto& wt = mNPCWantsToTalk[objectId];
     wt.fObjectType = objType;
     wt.fWantsToTalk = !!next;
@@ -133,11 +188,12 @@ bool eTalkHeard::updateWantsToTalk(
 }
 
 void eTalkHeard::updateWantsToTalk(
-    const eSlayerQuests& squests) {
+    const eSlayerQuests& squests,
+    const eEquipment& eq) {
     for(const auto& it : mNPCWantsToTalk) {
         const auto objId = it.first;
         const auto& wt = it.second;
         const auto objType = wt.fObjectType;
-        updateWantsToTalk(objType, objId, squests);
+        updateWantsToTalk(objType, objId, squests, eq);
     }
 }

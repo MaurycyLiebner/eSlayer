@@ -34,6 +34,8 @@ public:
                   const uint8_t stageId);
     bool incCount(const uint8_t questId,
                   const uint8_t stage);
+    bool resetCount(const uint8_t questId,
+                   const uint8_t stage);
     bool heardTalk(const eConvoId& talk);
     bool addedSocket(const uint8_t questId);
 

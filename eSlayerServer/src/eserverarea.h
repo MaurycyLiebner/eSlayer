@@ -235,6 +235,9 @@ public:
 
     static std::vector<uint32_t> sSlain;
 private:
+    bool checkQuestItems(
+        const uint32_t clientId);
+
     bool spawnPortal(ePointF& pos,
                      uint32_t& portalId,
                      eAreaIds& area);

@@ -389,14 +389,6 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     auto& eq = eGameWidget::equipment();
     {
-        const auto quests = mServer->receiveQuests(mClientId);
-        if(quests) {
-            auto& dstQuests = eGameWidget::quests();
-            dstQuests = *quests;
-            auto& talkHeard = eGameWidget::talkHeard();
-            talkHeard.updateWantsToTalk(dstQuests);
-            eQuestsWidget::checkUpdated(dstQuests);
-        }
         const auto seller = mServer->receiveSeller();
         if(seller) {
             eGameScreen::sOpenSellerMenu(*seller);
@@ -474,6 +466,16 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(!eqActions.empty()) {
             mMainAction->recalculateStats();
             eHoverWidget::sUpdateDragItem(eq);
+        }
+
+        const auto quests = mServer->receiveQuests(mClientId);
+        if(quests) {
+            auto& dstQuests = eGameWidget::quests();
+            dstQuests = *quests;
+            auto& talkHeard = eGameWidget::talkHeard();
+            const auto& eq = equipment();
+            talkHeard.updateWantsToTalk(dstQuests, eq);
+            eQuestsWidget::checkUpdated(dstQuests);
         }
     }
     const auto& res = resolution();
@@ -1587,8 +1589,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 case eObjectType::trader: {
                     const auto& quests = eGameWidget::quests();
                     auto& talkHeard = eGameWidget::talkHeard();
+                    const auto& eq = equipment();
                     const bool w = talkHeard.wantsToTalk(
-                        objType, obj.fObjectId, quests);
+                        objType, obj.fObjectId, quests, eq);
                     if(w) {
                         const auto& bubble = eUITextures::sTalk;
                         const int x = drawX + texW/2;

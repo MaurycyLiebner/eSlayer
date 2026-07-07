@@ -853,6 +853,8 @@ bool eServerArea::addClient(const uint32_t clientId,
         spawnBody(clientId, eq, body.fBodyId, body.fPos);
     }
 
+    checkQuestItems(clientId);
+
     return true;
 }
 
@@ -1005,6 +1007,34 @@ bool eServerArea::requestSeller(
         }
     }
     seller = s;
+    return true;
+}
+
+bool eServerArea::checkQuestItems(
+    const uint32_t clientId) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    const auto& eq = u->equipment();
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& c = it->second;
+    const auto& iqs = eQuests::sFindItemQuests;
+    for(const auto& it : iqs) {
+        const auto& qids = it.second;
+        for(const auto& qid : qids) {
+            c.fQuests.resetCount(qid.fQuestId, qid.fStageId);
+        }
+    }
+    eq.iterateOverAll([&](const eItem& item) {
+        const auto it = iqs.find(item.fDataId);
+        if(it == iqs.end()) return;
+        const auto& qs = it->second;
+        for(const auto& q : qs) {
+            const bool r = c.fQuests.incCount(
+                q.fQuestId, q.fStageId);
+            if(r) c.fSendQuests = true;
+        }
+    });
     return true;
 }
 
@@ -1298,21 +1328,7 @@ bool eServerArea::pickupItem(
             u->recalculateAuras();
         }
 
-        const auto id = item.fDataId;
-        const auto& iqs = eQuests::sItemQuests;
-        const auto it = iqs.find(id);
-        if(it != iqs.end()) {
-            const auto& qs = it->second;
-            const auto it = mClientData.find(clientId);
-            if(it != mClientData.end()) {
-                auto& c = it->second;
-                for(const auto& q : qs) {
-                    const bool r = c.fQuests.incCount(
-                        q.fQuestId, q.fStageId);
-                    if(r) c.fSendQuests = true;
-                }
-            }
-        }
+        checkQuestItems(clientId);
     }
     mGroundItems.remove(itemId);
     mItemsOnGround.remove(itemId);
@@ -1334,6 +1350,7 @@ bool eServerArea::dropItem(const uint32_t clientId) {
     };
     tryDropItem(eq.fDragged);
     tryDropItem(eq.fTemporary);
+    checkQuestItems(clientId);
     return true;
 }
 
@@ -1557,8 +1574,42 @@ bool eServerArea::heardTalk(
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
+    const auto u = unit(clientId);
+    if(!u) return false;
     auto& qs = clientData.fQuests;
+
+    {
+        const auto& c = eTalks::get(talk);
+        const auto& qinfo = eQuests::sQuests.get(c.fQuestId);
+        const auto stepId = qinfo.stageToStep(c.fStageId);
+        const auto& step = qinfo.fSteps[stepId];
+        if(step.fType == eQuestType::bringItem) {
+            auto& eq = u->equipment();
+            std::vector<uint32_t> items;
+            eq.iterateOverAll([&](const eItem& item) {
+                if(items.size() >= step.fCount) return;
+                if(item.fDataId == step.fTargetItem) {
+                    items.emplace_back(item.fItemId);
+                }
+            });
+            if(items.size() >= step.fCount) {
+                const bool r = qs.nextStage(c.fQuestId);
+                if(r) {
+                    for(const auto itemId : items) {
+                        eq.take(itemId);
+                    }
+                    checkQuestItems(clientId);
+                    clientData.fSendQuests = true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
     qs.heardTalk(talk);
+    checkQuestItems(clientId);
     clientData.fSendQuests = true;
     return true;
 }
@@ -1577,6 +1628,7 @@ bool eServerArea::addedSocket(
     auto& clientData = it->second;
     auto& qs = clientData.fQuests;
     qs.addedSocket(questId);
+    checkQuestItems(clientId);
     clientData.fSendQuests = true;
     return true;
 }
@@ -1986,7 +2038,7 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 void eServerArea::unitKilled(const eServerUnit& killed) {
     {
         const auto id = killed.fUnitInfoId;
-        const auto& mqs = eQuests::sMonsterQuests;
+        const auto& mqs = eQuests::sKillMonsterQuests;
         const auto it = mqs.find(id);
         if(it != mqs.end()) {
             const auto& qs = it->second;
@@ -2004,7 +2056,10 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
                 for(const auto& q : qs) {
                     const bool r = c.fQuests.incCount(
                         q.fQuestId, q.fStageId);
-                    if(r) c.fSendQuests = true;
+                    if(r) {
+                        checkQuestItems(clientId);
+                        c.fSendQuests = true;
+                    }
                 }
             }
         }

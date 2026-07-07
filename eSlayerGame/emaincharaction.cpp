@@ -643,7 +643,7 @@ void eMainCharAction::openMainMenu(
             const auto& step = steps[stepId];
             if(step.fType != eQuestType::addSocket) continue;
             const auto npcId = eObjectsInfo::sObjects.id(baseName);
-            if(step.fTarget != npcId) continue;
+            if(step.fTargetNPC != npcId) continue;
             questId = id;
             add = true;
             break;
@@ -674,7 +674,7 @@ bool eMainCharAction::tryOpenTalk(
     const std::string& name,
     const SDL_Rect& rect) {
     const auto talk = mTalkHeard.nextUnheard(
-        baseName, mQuests);
+        baseName, mQuests, mEquipment);
     if(!talk) return false;
     const auto& c = eTalks::get(*talk);
     const auto& text = eTalkText::text(c.fName);
@@ -686,8 +686,8 @@ bool eMainCharAction::tryOpenTalk(
         openMainMenu(sellerId, baseName, name, rect);
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
-    mTalkHeard.setHeard(*talk, true);
-    mTalkHeard.updateWantsToTalk(mQuests);
+    mTalkHeard.justHeard(*talk, mEquipment);
+    mTalkHeard.updateWantsToTalk(mQuests, mEquipment);
     mServer->heardTalk(mClientId, *talk);
     return true;
 }
