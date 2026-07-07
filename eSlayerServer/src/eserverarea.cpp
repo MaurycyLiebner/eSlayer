@@ -1309,18 +1309,11 @@ bool eServerArea::dropGold(const uint32_t clientId,
                            uint32_t count) {
     const auto u = unit(clientId);
     if(!u) return false;
-    const uint32_t ngold = eItemsData::sGoldIds.size();
-    if(ngold == 0) return false;
     auto& eq = u->equipment();
     const auto pos = u->fPos;
     count = std::min(eq.fInventoryGold, count);
     eq.fInventoryGold -= count;
-    eItem item;
-    eItemGenerator::applyItemId(item);
-    item.fType = eItemType::gold;
-    item.fCount = count;
-    const uint32_t id = std::min(count/500, ngold - 1);
-    item.fDataId = eItemsData::sGoldIds[id];
+    const auto item = eItemGenerator::generateGold(count);
     addGroundItem(pos, item);
     return true;
 }

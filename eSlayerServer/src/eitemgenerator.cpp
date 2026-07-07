@@ -124,17 +124,39 @@ eItem eItemGenerator::generateItem(
     const int level, const float worth) {
     int typeId;
     if(worth < 1.f && eRand::randChance(0.5f)) {
-        typeId = eItemsData::sGoldIds[0];
+        const uint32_t count = 1 + 5.f*sqrt(level)*worth;
+        return generateGold(count);
     } else {
         std::vector<int> typeIds;
         for(int i = 0; i < eItemsData::sItems.size(); i++) {
             const auto& itemData = eItemsData::get(i);
             const int levelReq = itemData.fLevelReq;
             if(levelReq > level) continue;
+            switch(itemData.fType) {
+            case eItemType::gold:
+            case eItemType::questItem:
+                continue;
+            default:
+                break;
+            }
+
             typeIds.emplace_back(i);
         }
         if(typeIds.empty()) return eItem();
         typeId = eRand::randomElement(typeIds);
     }
     return generateItem(typeId, level, worth);
+}
+
+eItem eItemGenerator::generateGold(
+    const uint32_t count) {
+    const uint32_t ngold = eItemsData::sGoldIds.size();
+    if(ngold == 0) return eItem();
+    eItem item;
+    eItemGenerator::applyItemId(item);
+    item.fType = eItemType::gold;
+    item.fCount = count;
+    const uint32_t id = std::min(count/500, ngold - 1);
+    item.fDataId = eItemsData::sGoldIds[id];
+    return item;
 }

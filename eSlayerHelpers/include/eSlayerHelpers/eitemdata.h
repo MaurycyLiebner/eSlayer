@@ -26,7 +26,8 @@ enum class eItemType : uint8_t {
     bolts,
     potion,
     jewel,
-    gold
+    gold,
+    questItem
 };
 
 enum class eBoostCurseType : uint8_t;

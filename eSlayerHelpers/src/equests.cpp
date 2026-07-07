@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 eStringIdMapVector<eQuest> eQuests::sQuests;
 std::map<int, std::vector<eQuestStepId>>
@@ -47,6 +48,14 @@ void eQuests::load() {
                         sMonsterQuests[id].emplace_back(questId, stageId);
                         step.fTarget = id;
                         step.fCount = stepData.value("count", 1);
+                    } else if(typeStr == "findItem") {
+                        step.fType = eQuestType::findItem;
+                        const auto itemStr = stepData.value("target", "");
+                        const int id = eItemsData::sItems.id(itemStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
+                        }
+                        step.fTarget = id;
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
                         const auto npcStr = stepData.value("target", "");
