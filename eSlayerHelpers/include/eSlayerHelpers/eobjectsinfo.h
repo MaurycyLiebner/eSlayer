@@ -13,6 +13,7 @@ enum class eObjectType {
     stash,
     healer,
     trader,
+    mercenary,
     trapDoor,
     portalDoor,
     portalArea,
@@ -40,6 +41,7 @@ struct eObjectInfo {
     bool fWalkable;
     std::vector<int> fItemTypes;
     std::vector<int> fPotionTypes;
+    std::vector<int> fMercTypes;
 
     int fKey = -1;
 };

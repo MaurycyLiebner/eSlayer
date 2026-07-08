@@ -1,8 +1,8 @@
 #ifndef EUNITINFO_H
 #define EUNITINFO_H
 
-#include "emodifier.h"
 #include "ecolor.h"
+#include "emodifier.h"
 
 struct eUnitInfo {
     int fCharData;

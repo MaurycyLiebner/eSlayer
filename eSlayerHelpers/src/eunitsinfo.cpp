@@ -76,6 +76,7 @@ void eUnitsInfo::load() {
                 u.fColor.fB = color.value("b", 1.f);
                 u.fColor.fA = color.value("a", 1.f);
             }
+
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");

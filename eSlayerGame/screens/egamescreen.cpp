@@ -26,6 +26,7 @@
 #include "../widgets/gameScreen/equestswidget.h"
 #include "../widgets/gameScreen/emessageswidget.h"
 #include "../widgets/gameScreen/eaddsocketwidget.h"
+#include "../widgets/gameScreen/ehirewidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -298,6 +299,15 @@ void eGameScreen::sOpenAddSocketMenu(
     sInstance->showAddSocketMenu(questId);
 }
 
+bool eGameScreen::sInventoryMenuOpened() {
+    return sInstance->mInventoryMenu;
+}
+
+void eGameScreen::sOpenHireMenu(
+    const std::vector<eHireInfo>& options) {
+    return sInstance->showHireMenu(options);
+}
+
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     const auto key = e.key();
     if(key == SDL_SCANCODE_ESCAPE) {
@@ -544,6 +554,9 @@ void eGameScreen::hideLeftMenu() {
     if(mMessagesMenu) {
         hideMessagesMenu();
     }
+    if(mHireMenu) {
+        hideHireMenu();
+    }
 }
 
 void eGameScreen::hideRightMenu() {
@@ -555,6 +568,9 @@ void eGameScreen::hideRightMenu() {
     }
     if(mMessagesMenu) {
         hideMessagesMenu();
+    }
+    if(mHireMenu) {
+        hideHireMenu();
     }
 }
 
@@ -626,7 +642,6 @@ void eGameScreen::showInventoryMenu(
     mMenusWidget->addWidget(mInventoryMenu);
     mInventoryMenu->initialize(eq, stats, htype);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
-    mInventoryMenu->updateWeapons();
     eHoverWidget::sUpdateDragItem(eq);
 
     updateCharPos();
@@ -846,6 +861,37 @@ void eGameScreen::hideSellerMenu() {
     mSellerMenu->deleteLater();
     mSellerMenu = nullptr;
     updateCharPos();
+}
+
+void eGameScreen::showHireMenu(
+    const std::vector<eHireInfo>& options) {
+    if(mHireMenu) return;
+    hideLeftMenu();
+    hideRightMenu();
+    mHireMenu = new eHireWidget(window());
+    const int w = width();
+    const int h = height();
+    mHireMenu->resize(w/2, h - mBottomWidget->height());
+    const auto clientId = mGameWidget->clientId();
+    auto& eq = mGameWidget->equipment();
+    const auto hireAction = [&eq](const eHireInfo& info) {
+        if(eq.totalGold() < info.fCost) return;
+        eq.takeGold(info.fCost);
+
+    };
+    const auto closeAction = [this]() {
+        hideHireMenu();
+    };
+    mHireMenu->initialize(options, eq.totalGold(),
+                          hireAction, closeAction);
+    mMenusWidget->addWidget(mHireMenu);
+    mHireMenu->align(eAlignment::hcenter | eAlignment::top);
+}
+
+void eGameScreen::hideHireMenu() {
+    if(!mHireMenu) return;
+    mHireMenu->deleteLater();
+    mHireMenu = nullptr;
 }
 
 void eGameScreen::showAddSocketMenu(

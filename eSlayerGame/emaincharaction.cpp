@@ -29,6 +29,8 @@
 #include <eSlayerHelpers/etalkheard.h>
 #include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/etalk.h>
+#include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/ehireinfo.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -218,7 +220,7 @@ void eMainCharAction::increment(const bool mousePressed,
         const auto& ipos = item->fPos;
         const float dist = ePointF::distance(ipos, charPos);
         if(!eInventoryWidget::sBlocked && dist < 0.5f) {
-            const bool dragEnabled = eInventoryWidget::sInstance;
+            const bool dragEnabled = eGameScreen::sInventoryMenuOpened();
             mServer->pickupItem(mClientId, itemId, dragEnabled);
             eInventoryWidget::sBlocked = true;
             mClickAction = mousePressed;
@@ -268,7 +270,8 @@ void eMainCharAction::increment(const bool mousePressed,
             } else if(info.fType == eObjectType::stash) {
                 eGameScreen::sOpenStash();
             } else if(info.fType == eObjectType::healer ||
-                      info.fType == eObjectType::trader) {
+                      info.fType == eObjectType::trader ||
+                      info.fType == eObjectType::mercenary) {
                 const auto baseName = eObjectsInfo::sObjects.name(type);
                 const auto name = eObjectNames::name(type);
 
@@ -281,8 +284,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
 
                 const auto sellerId = object->fObjectId;
-                if(!tryOpenTalk(sellerId, baseName, name, rect)) {
-                    openMainMenu(sellerId, baseName, name, rect);
+                if(!tryOpenTalk(sellerId, baseName, name, rect, info.fType)) {
+                    openMainMenu(sellerId, baseName, name, rect, info.fType);
                 }
             } else if(info.fType == eObjectType::trapDoor) {
                 if(object->fState == 0) {
@@ -585,7 +588,8 @@ void eMainCharAction::openMainMenu(
     const uint32_t sellerId,
     const std::string& baseName,
     const std::string& name,
-    const SDL_Rect& rect) {
+    const SDL_Rect& rect,
+    const eObjectType type) {
     const auto actions = std::make_shared<std::vector<eHoverAction>>();
     auto& actionsRef = *actions;
 
@@ -622,13 +626,45 @@ void eMainCharAction::openMainMenu(
             eHoverWidget::sOpenMenu(eText::text(20, 0), talkActions, rect);
         };
     }
-    {
+    if(type == eObjectType::healer || type == eObjectType::trader) {
         auto& tradeAct = actionsRef.emplace_back();
         tradeAct.fText = eText::text(20, 1);
         tradeAct.fPress = [sellerId]() {
             eHoverWidget::sOpenMenu("", {});
             eGameWidget::sOpenSellerMenu(sellerId);
         };
+    }
+    if(type == eObjectType::mercenary) {
+        {
+            auto& resurrectAct = actionsRef.emplace_back();
+            auto text = eText::text(20, 5);
+            const std::string name = "Example";
+            const uint32_t cost = 5000;
+            const auto costStr = std::to_string(cost);
+            text = eStringHelpers::replaceAll(text, "%1", name);
+            text = eStringHelpers::replaceAll(text, "%2", costStr);
+            resurrectAct.fText = text;
+            resurrectAct.fPress = []() {
+
+            };
+        }
+
+        auto& hireAct = actionsRef.emplace_back();
+        hireAct.fText = eText::text(20, 4);
+        const auto level = mStats.fLevel;
+        const auto npcId = eObjectsInfo::sObjects.id(baseName);
+        if(npcId >= 0) {
+            std::vector<uint8_t> mtypes;
+            const auto& npc = eObjectsInfo::sObjects.get(npcId);
+            for(const auto t : npc.fMercTypes) {
+                mtypes.emplace_back(t);
+            }
+            hireAct.fPress = [mtypes, level]() {
+                eHoverWidget::sOpenMenu("", {});
+                const auto options = eHireInfos::generate(mtypes, level, 12);
+                eGameScreen::sOpenHireMenu(options);
+            };
+        }
     }
     {
         uint8_t questId;
@@ -672,18 +708,19 @@ bool eMainCharAction::tryOpenTalk(
     const uint32_t sellerId,
     const std::string& baseName,
     const std::string& name,
-    const SDL_Rect& rect) {
+    const SDL_Rect& rect,
+    const eObjectType type) {
     const auto talk = mTalkHeard.nextUnheard(
         baseName, mQuests, mEquipment);
     if(!talk) return false;
     const auto& c = eTalks::get(*talk);
     const auto& text = eTalkText::text(c.fName);
     const auto closeAction =
-        [this, sellerId, baseName, name, rect]() {
+        [this, sellerId, baseName, name, rect, type]() {
         const bool r = tryOpenTalk(
-                sellerId, baseName, name, rect);
+                sellerId, baseName, name, rect, type);
         if(r) return;
-        openMainMenu(sellerId, baseName, name, rect);
+        openMainMenu(sellerId, baseName, name, rect, type);
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
     mTalkHeard.justHeard(*talk, mEquipment);

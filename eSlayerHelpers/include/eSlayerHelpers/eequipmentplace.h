@@ -1,9 +1,12 @@
 #ifndef EEQUIPMENTPLACE_H
 #define EEQUIPMENTPLACE_H
 
-#include <cstdint>
+#include "eslayerhelpersexport.h"
 
-enum class ePlaceType {
+#include <cstdint>
+#include <string>
+
+enum class ePlaceType : uint8_t {
     none,
     boots,
     gloves,
@@ -30,5 +33,12 @@ struct eEquipmentPlace {
     uint8_t fX;
     uint8_t fY;
 };
+
+namespace ePlaceTypeHelpers {
+    ESLAYERHELPERS_API
+    const std::string& name(const ePlaceType type);
+    ESLAYERHELPERS_API
+    ePlaceType type(const std::string& name);
+}
 
 #endif // EEQUIPMENTPLACE_H

@@ -210,6 +210,10 @@
     </group>
     <group id="17">
         <string id="0">Choose Your Destination</string>
+        <string id="1">Your Gold: %1</string>
+        <string id="2">Choose a Mercenary</string>
+        <string id="3">Cancel</string>
+        <string id="4">%1 - Lvl: %2 - Cost: %3 - %4</string>
     </group>
     <group id="18">
         <string id="0">Create Portal</string>
@@ -252,6 +256,8 @@
         <string id="1">Trade</string>
         <string id="2">Cancel</string>
         <string id="3">Add Socket</string>
+        <string id="4">Hire</string>
+        <string id="5">Resurrect %1: %2</string>
     </group>
     <group id="21">
         <string id="0">You completed this quest</string>

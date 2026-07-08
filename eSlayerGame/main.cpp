@@ -27,6 +27,7 @@
 #include "names/elanguagenames.h"
 #include "names/etalktext.h"
 #include "names/equesttext.h"
+#include "names/emercenarynames.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -51,6 +52,7 @@
 #include <eSlayerHelpers/eblueprints.h>
 #include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/etalk.h>
+#include <eSlayerHelpers/emercenaries.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -274,6 +276,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eUnitsInfo::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eMercenariesInfo::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eMercenaryNames::load();
         });
 
         loadings.emplace_back([&]() {

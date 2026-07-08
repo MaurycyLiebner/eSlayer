@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/emercenaries.h"
 
 bool eObjectsInfo::sLoaded = false;
 eStringIdMapVector<eObjectInfo>
@@ -60,6 +61,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::healer;
             } else if(typeStr == "trader") {
                 info.fType = eObjectType::trader;
+            } else if(typeStr == "mercenary") {
+                info.fType = eObjectType::mercenary;
             } else if(typeStr == "portalArea") {
                 info.fType = eObjectType::portalArea;
             } else if(typeStr == "spawnArea") {
@@ -99,6 +102,15 @@ void eObjectsInfo::load() {
                                   dir + "/objects.json");
                 }
                 info.fPotionTypes.emplace_back(id);
+            }
+            const auto mercTypes = value.value("mercTypes", std::vector<std::string>());
+            for(const auto& str : mercTypes) {
+                const int id = eMercenariesInfo::sMercs.id(str);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized mercenary type \"" + str + "\" in " +
+                                  dir + "/objects.json");
+                }
+                info.fMercTypes.emplace_back(id);
             }
             sObjects.add(key, info);
         }

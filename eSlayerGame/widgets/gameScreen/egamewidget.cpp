@@ -1593,7 +1593,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     highlightable = t1 == t2;
                 } break;
                 case eObjectType::healer:
-                case eObjectType::trader: {
+                case eObjectType::trader:
+                case eObjectType::mercenary: {
                     const auto& quests = eGameWidget::quests();
                     auto& talkHeard = eGameWidget::talkHeard();
                     const auto& eq = equipment();

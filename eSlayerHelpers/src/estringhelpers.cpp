@@ -2,29 +2,40 @@
 
 #include <sstream>
 
-std::string eStringHelpers::replaceAll(std::string str,
-                                       const std::string& from,
-                                       const std::string& to) {
+std::string eStringHelpers::replaceAll(
+    std::string str,
+    const std::string& from,
+    const std::string& to) {
     auto&& pos = str.find(from, size_t{});
-    while (pos != std::string::npos) {
+    while(pos != std::string::npos) {
         str.replace(pos, from.length(), to);
         pos = str.find(from, pos + to.length());
     }
     return str;
 }
 
-std::string eStringHelpers::floatToString(const float value) {
+std::string eStringHelpers::replaceAll(
+    const std::string& str,
+    const std::string& from,
+    const int to) {
+    return replaceAll(str, from, std::to_string(to));
+}
+
+std::string eStringHelpers::floatToString(
+    const float value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
 }
 
-std::string eStringHelpers::floatToStringWithSign(const float value) {
+std::string eStringHelpers::floatToStringWithSign(
+    const float value) {
     const auto str = floatToString(value);
     return value >= 0.f ? "+" + str : str;
 }
 
-std::string eStringHelpers::toRoman(const uint8_t n) {
+std::string eStringHelpers::toRoman(
+    const uint8_t n) {
     if(n == 0) return "I";
     if(n == 1) return "II";
     if(n == 2) return "III";
@@ -37,7 +48,8 @@ std::string eStringHelpers::toRoman(const uint8_t n) {
     return "X";
 }
 
-uint8_t eStringHelpers::fromRoman(const std::string& r) {
+uint8_t eStringHelpers::fromRoman(
+    const std::string& r) {
     if(r == "I") return 0;
     if(r == "II") return 1;
     if(r == "III") return 2;

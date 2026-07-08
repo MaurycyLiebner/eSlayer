@@ -4,6 +4,7 @@
 #include "ebgwidget.h"
 
 #include <eSlayerHelpers/eitem.h>
+#include <eSlayerHelpers/eequipmentplace.h>
 
 class eHoverWidget;
 class eInventoryBagpackWidget;
@@ -16,18 +17,30 @@ class eCoinsWidget;
 
 class eInventoryWidget : public eBgWidget {
 public:
-    eInventoryWidget(eMainWindow* const window);
-    ~eInventoryWidget();
+    using eBgWidget::eBgWidget;
 
     void initialize(eEquipment& eq, const eStats& stats,
-                    const eHoverItemType htype);
+                    const eHoverItemType htype,
+                    const std::vector<ePlaceType>& places =
+                        {ePlaceType::helmet,
+                         ePlaceType::armor,
+                         ePlaceType::belt,
+                         ePlaceType::boots,
+                         ePlaceType::gloves,
+                         ePlaceType::ringL,
+                         ePlaceType::ringR,
+                         ePlaceType::amulet,
+                         ePlaceType::weapon1L,
+                         ePlaceType::weapon1R,
+                         ePlaceType::weapon2L,
+                         ePlaceType::weapon2R,
+                         ePlaceType::inventory});
 
     bool dropItem();
 
     void updateWeapons();
 
     static bool sBlocked;
-    static eInventoryWidget* sInstance;
 protected:
     void paintEvent(ePainter& p) override;
 private:

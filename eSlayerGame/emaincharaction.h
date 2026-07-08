@@ -26,6 +26,8 @@ class eCharUnitModel;
 class eSkill;
 class eResolution;
 
+enum class eObjectType;
+
 class eMainCharAction {
 public:
     eMainCharAction(ePathFinderMap& map);
@@ -78,11 +80,13 @@ private:
         const uint32_t sellerId,
         const std::string& baseName,
         const std::string& name,
-        const SDL_Rect& rect);
+        const SDL_Rect& rect,
+        const eObjectType type);
     bool tryOpenTalk(const uint32_t sellerId,
                      const std::string& baseName,
                      const std::string& name,
-                     const SDL_Rect& rect);
+                     const SDL_Rect& rect,
+                     const eObjectType type);
 
     void updateWalkRunSpeed();
     bool shouldRun() const;

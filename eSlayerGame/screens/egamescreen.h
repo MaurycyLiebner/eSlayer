@@ -31,6 +31,8 @@ class eSellerWidget;
 class eQuestsWidget;
 class eMessagesWidget;
 class eAddSocketWidget;
+struct eHireInfo;
+class eHireWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -55,6 +57,9 @@ public:
     static void sCloseObjectMenu();
     static void sOpenAddSocketMenu(
         const uint8_t questId);
+    static bool sInventoryMenuOpened();
+    static void sOpenHireMenu(
+        const std::vector<eHireInfo>& options);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
@@ -104,6 +109,9 @@ private:
     void showSellerMenu(const eSeller& seller);
     void hideSellerMenu();
 
+    void showHireMenu(const std::vector<eHireInfo>& options);
+    void hideHireMenu();
+
     void showAddSocketMenu(const uint8_t questId);
     void hideAddSocketMenu();
 
@@ -137,6 +145,7 @@ private:
     eUnitIndicator* mUnitIndicator = nullptr;
     eWidget* mQuestsButtonW = nullptr;
     eAddSocketWidget* mAddSocketMenu = nullptr;
+    eHireWidget* mHireMenu = nullptr;
 
     eWidget* mSkillMenu = nullptr;
 

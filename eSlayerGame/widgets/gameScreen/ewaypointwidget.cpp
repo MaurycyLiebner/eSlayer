@@ -1,42 +1,12 @@
 #include "ewaypointwidget.h"
 
-#include "../elabel.h"
-#include "../ebuttonbase.h"
+#include "ewaypointline.h"
 #include "../../etext.h"
 #include "../../names/eareanames.h"
 
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/estringhelpers.h>
-
-class eWaypointLine : public eButtonBase {
-public:
-    using eButtonBase::eButtonBase;
-
-    void initialize(const std::string& name,
-                    const eAction& action,
-                    const bool current) {
-        setNoPadding();
-        setText(name);
-        // setTextAlignment(eAlignment::left);
-        if(action) {
-            setFontColor(eFontColor::white);
-            setPressAction(action);
-            setMouseEnterAction([&]() {
-                setFontColor(eFontColor::blue);
-            });
-            setMouseLeaveAction([&]() {
-                setFontColor(eFontColor::white);
-            });
-        } else {
-            if(current) {
-                setFontColor(eFontColor::blue);
-            } else {
-                setFontColor(eFontColor::gray);
-            }
-        }
-    }
-};
 
 void eWaypointWidget::initialize(
     const uint8_t cActId,

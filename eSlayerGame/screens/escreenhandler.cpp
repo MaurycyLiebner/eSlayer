@@ -10,7 +10,6 @@
 #include "eerrorscreen.h"
 #include "etcpipgamemenu.h"
 #include "etcpipjoinmenu.h"
-#include "../../eSlayerHelpers/include/eSlayerHelpers/etalkheard.h"
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/eminimap.h"
 #include "../erendersettings.h"
@@ -35,11 +34,13 @@
 #include "../names/elanguagenames.h"
 #include "../names/etalktext.h"
 #include "../names/equesttext.h"
+#include "../names/emercenarynames.h"
 #include "../etext.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/ethreads.h>
+#include <eSlayerHelpers/etalkheard.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -416,6 +417,10 @@ void eScreenHandler::showSettings() {
 
             loadings.emplace_back([&]() {
                 eClassNames::reload();
+            });
+
+            loadings.emplace_back([&]() {
+                eMercenaryNames::reload();
             });
 
             loadings.emplace_back([&]() {
