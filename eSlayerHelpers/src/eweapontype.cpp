@@ -1,5 +1,8 @@
 #include "eSlayerHelpers/eweapontype.h"
 
+#include "eSlayerHelpers/eexceptions.h"
+
+#include <cstring>
 #include <map>
 
 std::map<eWeaponType, std::string>
@@ -24,5 +27,9 @@ std::string eWeaponTypeHelpers::name(const eWeaponType type) {
 }
 
 eWeaponType eWeaponTypeHelpers::type(const std::string& name) {
-    return gStringToWeaponType[name];
+    const auto it = gStringToWeaponType.find(name);
+    if(it == gStringToWeaponType.end()) {
+        eRuntimeThrow("Unrecognized weapon type \"" + name + "\".");
+    }
+    return it->second;
 }

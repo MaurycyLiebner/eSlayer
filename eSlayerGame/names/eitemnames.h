@@ -9,10 +9,12 @@ struct eItemBase;
 class eItemNames {
 public:
     static std::string name(const eItemBase& item);
-    static std::string name(const int itemDataId);
+    static const std::string& name(const int itemDataId);
 
-    static std::string prefixName(const int id);
-    static std::string suffixName(const int id);
+    static const std::string& prefixName(const int id);
+    static const std::string& suffixName(const int id);
+
+    static const std::string& weaponClassName(const int id);
 
     static bool load();
     static bool reload();
@@ -23,6 +25,7 @@ private:
     std::map<int, std::string> mNames;
     std::map<int, std::string> mPrefixNames;
     std::map<int, std::string> mSuffixNames;
+    std::map<int, std::string> mWeaponClassNames;
 };
 
 #endif // EITEMNAMES_H

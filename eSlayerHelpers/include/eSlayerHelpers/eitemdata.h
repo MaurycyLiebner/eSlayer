@@ -3,13 +3,11 @@
 
 #include "eslayerhelpersexport.h"
 
+#include "emodifier.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include <eSlayerHelpers/epotiontype.h>
-#include <eSlayerHelpers/emodifier.h>
-#include <eSlayerHelpers/eboostcursetypes.h>
 
 enum class eItemType : uint8_t {
     none,

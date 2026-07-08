@@ -16,6 +16,7 @@
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/eweaponclass.h>
 
 eHoverWidget* eHoverWidget::sInstance = nullptr;
 
@@ -183,7 +184,13 @@ void eHoverWidget::setHoverItem(
             } else {
                 s = 7;
             }
-            gen.addValue(r, 6, s, 0.f, eFontColor::white);
+            const auto speedText = eText::text(6, s);
+            const auto classStr = eItemNames::weaponClassName(itemData.fSubtype);
+            auto classText = eText::text(6, 15);
+            classText = eStringHelpers::replaceAll(classText, "%1", classStr);
+            classText = eStringHelpers::replaceAll(classText, "%2", speedText);
+
+            gen.addText(r, classText, eFontColor::white);
         }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);

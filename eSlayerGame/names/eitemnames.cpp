@@ -6,6 +6,7 @@
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/eitemaffixes.h>
 #include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/eweaponclass.h>
 
 eItemNames eItemNames::sInstance;
 
@@ -32,16 +33,20 @@ std::string eItemNames::name(const eItemBase& item) {
     return result;
 }
 
-std::string eItemNames::name(const int itemDataId) {
+const std::string& eItemNames::name(const int itemDataId) {
     return sInstance.mNames[itemDataId];
 }
 
-std::string eItemNames::prefixName(const int id) {
+const std::string& eItemNames::prefixName(const int id) {
     return sInstance.mPrefixNames[id];
 }
 
-std::string eItemNames::suffixName(const int id) {
+const std::string& eItemNames::suffixName(const int id) {
     return sInstance.mSuffixNames[id];
+}
+
+const std::string& eItemNames::weaponClassName(const int id) {
+    return sInstance.mWeaponClassNames[id];
 }
 
 bool eItemNames::load() {
@@ -62,6 +67,14 @@ bool eItemNames::reload() {
         for(const auto& it : strMap) {
             const auto id = eItemsData::id(it.first);
             sInstance.mNames[id] = it.second;
+        }
+    }
+
+    {
+        const auto strMap = eFileLoader::loadNames(dir, "weaponClasses");
+        for(const auto& it : strMap) {
+            const auto id = eWeaponClasses::sClasses.id(it.first);
+            sInstance.mWeaponClassNames[id] = it.second;
         }
     }
 

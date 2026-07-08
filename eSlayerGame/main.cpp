@@ -46,6 +46,7 @@
 #include <eSlayerHelpers/eboostcursetypes.h>
 #include <eSlayerHelpers/eauratypes.h>
 #include <eSlayerHelpers/eitemaffixes.h>
+#include <eSlayerHelpers/eweaponclass.h>
 #include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eblueprints.h>
 #include <eSlayerHelpers/equests.h>
@@ -261,6 +262,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eCharsTextures::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eWeaponClasses::load();
         });
 
         loadings.emplace_back([&]() {

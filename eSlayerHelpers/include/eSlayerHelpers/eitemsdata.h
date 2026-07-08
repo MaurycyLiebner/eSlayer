@@ -16,7 +16,8 @@ public:
     static eStringIdMapVector<eItemData> sItems;
 private:
     static void load(const std::string& name,
-                     const eItemType type);
+                     const eItemType type,
+                     const std::string& class_ = "");
 
     static bool sLoaded;
 };

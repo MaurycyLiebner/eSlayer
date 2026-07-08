@@ -8,6 +8,7 @@
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/eweaponchoice.h"
+#include "eSlayerHelpers/eweaponclass.h"
 
 uint32_t eAura::sNextId = 1;
 
@@ -478,7 +479,8 @@ const eSkillStats& eStats::skill(const int schoice) const {
 
 eWeaponType gWeaponType(const eItem& item) {
     if(item.fType == eItemType::weapon) {
-        return static_cast<eWeaponType>(item.fSubType);
+        const auto& class_ = eWeaponClasses::sClasses.get(item.fSubType);
+        return class_.fType;
     } else if(item.fType == eItemType::shield) {
         return eWeaponType::shield;
     }
@@ -810,7 +812,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     int meeleRangeDiv = 0;
     fWeaponRangedRange = 10000.f;
     const auto handleWeapon = [&](const eItem& w, float& WSM) {
-        const auto subtype = static_cast<eWeaponType>(w.fSubType);
+        const auto subtype = gWeaponType(w);
         const bool r = gWeaponIsRanged(subtype);
         const auto& itemData = eItemsData::get(w.fDataId);
         WSM = itemData.fWSM;

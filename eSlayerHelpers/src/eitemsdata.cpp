@@ -2,8 +2,9 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eexceptions.h"
-#include "eSlayerHelpers/eweapontype.h"
+#include "eSlayerHelpers/eboostcursetypes.h"
 #include "eSlayerHelpers/epotiontype.h"
+#include "eSlayerHelpers/eweaponclass.h"
 
 // #include <fstream>
 
@@ -46,9 +47,9 @@ void eItemsData::load() {
             const auto& value = it.value();
             const auto itemType = eItemTypeHelpers::type(key);
             if(key == "weapon") {
-                for(auto& [type, types] : value.items()) {
+                for(auto& [class_, types] : value.items()) {
                     for(const auto& name : types) {
-                        load(name, itemType);
+                        load(name, itemType, class_);
                     }
                 }
             } else {
@@ -63,7 +64,8 @@ void eItemsData::load() {
 }
 
 void eItemsData::load(const std::string& name,
-                      const eItemType type) {
+                      const eItemType type,
+                      const std::string& class_) {
     const auto dir = "Items";
 
     // {
@@ -77,12 +79,15 @@ void eItemsData::load(const std::string& name,
     eItemData itemData;
     itemData.fType = type;
     if(type == eItemType::weapon) {
-        const std::string subtypeStr = jdata.value("subtype", "meele");
-        const auto weaponType = eWeaponTypeHelpers::type(subtypeStr);
-        itemData.fSubtype = static_cast<uint8_t>(weaponType);
+        const int classId = eWeaponClasses::sClasses.id(class_);
+        if(classId < 0) {
+            eRuntimeThrow("Unrecognized weapon class \"" + class_ + "\".");
+        }
+        itemData.fSubtype = classId;
+        const auto& class_ = eWeaponClasses::sClasses.get(classId);
 
-        itemData.fTwoHanded = jdata.value("twoHanded", false);
-
+        itemData.fTwoHanded = jdata.value("twoHanded", class_.fTwoHanded);
+        itemData.fSecondHand = class_.fSecondHand;
         const auto secondHand = jdata.value(
             "secondHand", std::vector<std::string>());
         itemData.fSecondHand.emplace_back(eItemType::none);

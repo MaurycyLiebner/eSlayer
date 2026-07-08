@@ -202,6 +202,8 @@ add_library(eSlayerHelpers SHARED
     src/eslayerquests.cpp
     include/eSlayerHelpers/etalkheard.h
     src/etalkheard.cpp
+    include/eSlayerHelpers/eweaponclass.h
+    src/eweaponclass.cpp
 
 )
 
