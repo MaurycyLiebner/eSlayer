@@ -90,7 +90,29 @@ bool eSlayerQuests::incCount(
     if(it == mStages.end()) return false;
     auto& s = it->second;
     if(s.fStage != stage) return false;
-    s.fCount++;
+    return setCount(questId, stage, s.fCount + 1);
+}
+
+bool eSlayerQuests::resetCount(
+    const uint8_t questId,
+    const uint8_t stage) {
+    auto it = mStages.find(questId);
+    if(it == mStages.end()) return false;
+    auto& s = it->second;
+    if(s.fStage != stage) return false;
+    s.fCount = 0;
+    return true;
+}
+
+bool eSlayerQuests::setCount(
+    const uint8_t questId,
+    const uint8_t stage,
+    const uint8_t count) {
+    auto it = mStages.find(questId);
+    if(it == mStages.end()) return false;
+    auto& s = it->second;
+    if(s.fStage != stage) return false;
+    s.fCount = count;
     const auto& q = eQuests::sQuests.get(questId);
     const auto stepId = q.stageToStep(stage);
     if(stepId >= q.fSteps.size()) return false;
@@ -103,20 +125,24 @@ bool eSlayerQuests::incCount(
         break;
     }
     if(step.fCount <= s.fCount) {
-        nextStage(questId);
+        return nextStage(questId);
+    } else {
+        return false;
     }
-    return true;
 }
 
-bool eSlayerQuests::resetCount(
+int eSlayerQuests::countNeeded(
     const uint8_t questId,
     const uint8_t stage) {
     auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
+    if(it == mStages.end()) return 0;
     auto& s = it->second;
-    if(s.fStage != stage) return false;
-    s.fCount = 0;
-    return true;
+    if(s.fStage != stage) return 0;
+    const auto& q = eQuests::sQuests.get(questId);
+    const auto stepId = q.stageToStep(stage);
+    if(stepId >= q.fSteps.size()) return 0;
+    const auto& step = q.fSteps[stepId];
+    return step.fCount;
 }
 
 bool eSlayerQuests::heardTalk(

@@ -187,6 +187,7 @@ void eGameWidget::dropItem() {
     dragged = eItem();
     tmp = eItem();
     eHoverWidget::sUpdateDragItem(eq);
+    updateWantsToTalk();
 }
 
 void eGameWidget::dropGold(const int count) {
@@ -340,6 +341,13 @@ void eGameWidget::addSocket(const uint8_t questId) {
     mServer->addedSocket(mClientId, questId);
 }
 
+void eGameWidget::updateWantsToTalk() {
+    const auto& quests = eGameWidget::quests();
+    auto& talkHeard = eGameWidget::talkHeard();
+    const auto& eq = eGameWidget::equipment();
+    talkHeard.updateWantsToTalk(quests, eq);
+}
+
 void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
     sInstance->sendEqAction(a);
 }
@@ -466,15 +474,14 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(!eqActions.empty()) {
             mMainAction->recalculateStats();
             eHoverWidget::sUpdateDragItem(eq);
+            updateWantsToTalk();
         }
 
         const auto quests = mServer->receiveQuests(mClientId);
         if(quests) {
             auto& dstQuests = eGameWidget::quests();
             dstQuests = *quests;
-            auto& talkHeard = eGameWidget::talkHeard();
-            const auto& eq = equipment();
-            talkHeard.updateWantsToTalk(dstQuests, eq);
+            eGameWidget::updateWantsToTalk();
             eQuestsWidget::checkUpdated(dstQuests);
         }
     }

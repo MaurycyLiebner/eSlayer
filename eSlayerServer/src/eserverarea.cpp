@@ -1020,21 +1020,20 @@ bool eServerArea::checkQuestItems(
     auto& c = it->second;
     const auto& iqs = eQuests::sFindItemQuests;
     for(const auto& it : iqs) {
+        const auto itemId = it.first;
+
+        uint8_t count = 0;
+        eq.iterateOverAll([&](const eItem& item) {
+            if(item.fDataId == itemId) count++;
+        });
+
         const auto& qids = it.second;
         for(const auto& qid : qids) {
-            c.fQuests.resetCount(qid.fQuestId, qid.fStageId);
-        }
-    }
-    eq.iterateOverAll([&](const eItem& item) {
-        const auto it = iqs.find(item.fDataId);
-        if(it == iqs.end()) return;
-        const auto& qs = it->second;
-        for(const auto& q : qs) {
-            const bool r = c.fQuests.incCount(
-                q.fQuestId, q.fStageId);
+            const bool r = c.fQuests.setCount(
+                qid.fQuestId, qid.fStageId, count);
             if(r) c.fSendQuests = true;
         }
-    });
+    }
     return true;
 }
 

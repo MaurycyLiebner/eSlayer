@@ -126,6 +126,8 @@ public:
     void openSellerMenu(const uint32_t sellerId);
     void addSocket(const uint8_t questId);
 
+    void updateWantsToTalk();
+
     static eGameWidget* sInstance;
     static void sSendEqAction(const eEquipmentAction& a);
     static void sSendBuyAction(const eBuyAction& a);
