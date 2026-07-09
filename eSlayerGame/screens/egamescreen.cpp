@@ -873,15 +873,13 @@ void eGameScreen::showHireMenu(
     const int h = height();
     mHireMenu->resize(w/2, h - mBottomWidget->height());
     const auto clientId = mGameWidget->clientId();
-    auto& eq = mGameWidget->equipment();
-    const auto hireAction = [&eq](const eHireInfo& info) {
-        if(eq.totalGold() < info.fCost) return;
-        eq.takeGold(info.fCost);
-
+    const auto hireAction = [this](const eHireInfo& info) {
+        mGameWidget->hire(info);
     };
     const auto closeAction = [this]() {
         hideHireMenu();
     };
+    auto& eq = mGameWidget->equipment();
     mHireMenu->initialize(options, eq.totalGold(),
                           hireAction, closeAction);
     mMenusWidget->addWidget(mHireMenu);

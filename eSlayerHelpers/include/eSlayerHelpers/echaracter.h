@@ -9,6 +9,7 @@
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/eslayerquests.h"
 #include "eSlayerHelpers/etalkheard.h"
+#include "eSlayerHelpers/emercenary.h"
 
 #include <string>
 
@@ -67,6 +68,9 @@ public:
     const std::vector<eWaypoint>& waypoints() const { return mWaypoints; }
     std::vector<eWaypoint>& waypoints() { return mWaypoints;}
 
+    const std::optional<eMercenary>& merc() const { return mMerc; }
+    std::optional<eMercenary>& merc() { return mMerc;}
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
@@ -85,6 +89,7 @@ private:
     std::vector<eWaypoint> mWaypoints;
     eSlayerQuests mQuests;
     eTalkHeard mTalkHeard;
+    std::optional<eMercenary> mMerc;
     bool mRunning = false;
 };
 

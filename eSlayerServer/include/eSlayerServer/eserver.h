@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/etalk.h>
+#include <eSlayerHelpers/emercenary.h>
 
 #include <memory>
 
@@ -179,6 +180,10 @@ public:
     requestSeller(const uint32_t clientId,
                   const uint32_t sellerId) = 0;
 
+    virtual bool
+    summonMerc(const uint32_t clientId,
+               const eMercenary& merc) = 0;
+
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }
 
@@ -198,6 +203,7 @@ public:
     std::vector<eEquipmentAction> receiveEqActions();
     std::optional<eSeller> receiveSeller();
     std::optional<eReplaceItemId> receiveReplaceItemId();
+    std::optional<eMercenary> receiveMerc();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -214,6 +220,7 @@ protected:
     std::vector<eEquipmentAction> mEqActions;
     std::optional<eSeller> mSeller;
     std::optional<eReplaceItemId> mReplaceItemId;
+    std::optional<eMercenary> mMerc;
 
     uint32_t mClientId = 0;
 private:

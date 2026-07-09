@@ -12,6 +12,7 @@
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/ewalldirection.h>
 #include <eSlayerHelpers/etalkheard.h>
+#include <eSlayerHelpers/emercenary.h>
 
 #include <SDL3/SDL_rect.h>
 
@@ -74,6 +75,7 @@ public:
     eStats& stats() { return mStats; }
     eSlayerQuests& quests() { return mQuests; }
     eTalkHeard& talkHeard() { return mTalkHeard; }
+    std::optional<eMercenary>& merc() { return mMerc; }
     void recalculateStats();
 private:
     void openMainMenu(
@@ -137,6 +139,7 @@ private:
     eSlayerQuests mQuests;
     eTalkHeard mTalkHeard;
     eStats mStats;
+    std::optional<eMercenary> mMerc;
 
     bool mClickAction = false;
 

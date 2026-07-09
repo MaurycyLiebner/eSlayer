@@ -493,6 +493,24 @@ bool eLocalServer::requestSellerImpl(
     return h->requestSeller(sellerId, seller);
 }
 
+bool eLocalServer::summonMerc(
+    const uint32_t clientId,
+    const eMercenary& merc) {
+    eMercenary result = merc;
+    const bool r = summonMercImpl(clientId, result);
+    if(!r) return false;
+    mMerc = result;
+    return true;
+}
+
+bool eLocalServer::summonMercImpl(
+    const uint32_t clientId,
+    eMercenary& merc) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->summonMerc(merc);
+}
+
 bool eLocalServer::changeTeam(
     const uint32_t clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);

@@ -281,6 +281,14 @@ bool eTcpIpHost::requestSeller(
         clientId, sellerId);
 }
 
+bool eTcpIpHost::summonMerc(
+    const uint32_t clientId,
+    const eMercenary& merc) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::summonMerc(
+        clientId, merc);
+}
+
 void eTcpIpHost::sendSlain() {
     auto& ss = eServerArea::sSlain;
     if(ss.empty()) return;
@@ -607,6 +615,22 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 ePacket p;
                 p << ePacketType::provideSeller;
                 s.write(charId, p);
+                mNet.sendToClient(tcpClientId, p);
+            }
+        }
+    } break;
+    case ePacketType::summonMerc: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            eMercenary merc;
+            merc.read(p);
+            const bool r = eLocalServer::summonMercImpl(
+                charId, merc);
+            if(r) {
+                ePacket p;
+                p << ePacketType::summonMerc;
+                merc.write(p);
                 mNet.sendToClient(tcpClientId, p);
             }
         }

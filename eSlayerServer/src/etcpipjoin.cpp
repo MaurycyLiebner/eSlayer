@@ -430,6 +430,17 @@ bool eTcpIpJoin::addedSocket(
     return true;
 }
 
+bool eTcpIpJoin::summonMerc(
+    const uint32_t clientId,
+    const eMercenary& merc) {
+    ePacket p;
+    p << ePacketType::summonMerc;
+    merc.write(p);
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send summon merc request to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,

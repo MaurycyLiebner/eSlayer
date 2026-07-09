@@ -21,6 +21,7 @@ enum class ePacketType : uint8_t {
     sellAction,
     replaceItemId, requestSeller,
     provideSeller,
+    summonMerc,
     body, bodyPickedUp,
     teamsAction, spawnPortal,
     quests, heardTalk, addedSocket,

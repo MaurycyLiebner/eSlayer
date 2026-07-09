@@ -125,6 +125,13 @@ void eGameWidget::initialize(const uint32_t clientId,
     auto& dstTalkHeard = mMainAction->talkHeard();
     dstTalkHeard = srcTalkHeard;
 
+    const auto& srcMerc = c.merc();
+    auto& dstMerc = mMainAction->merc();
+    dstMerc = srcMerc;
+    if(dstMerc) {
+        mServer->summonMerc(mClientId, *dstMerc);
+    }
+
     mWorld.initialize(clientId, mMainChar);
 
     const int fontSize = res.smallFontSize();
@@ -303,6 +310,7 @@ eCharacter eGameWidget::character() {
         c.bodies().emplace_back(b.fEq);
     }
     c.waypoints() = eWaypoint::sWaypoints;
+    c.merc() = merc();
     return c;
 }
 
@@ -339,6 +347,17 @@ void eGameWidget::openSellerMenu(const uint32_t sellerId) {
 
 void eGameWidget::addSocket(const uint8_t questId) {
     mServer->addedSocket(mClientId, questId);
+}
+
+bool eGameWidget::hire(const eHireInfo& info) {
+    auto& eq = equipment();
+    if(eq.totalGold() < info.fCost) return false;
+    eq.takeGold(info.fCost);
+    eMercenary merc;
+    merc.fMercType = info.fMercType;
+    merc.fLevel = info.fLevel;
+    merc.fNameId = info.fNameId;
+    return mServer->summonMerc(mClientId, merc);
 }
 
 void eGameWidget::updateWantsToTalk() {
@@ -404,6 +423,10 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto replaceItemId = mServer->receiveReplaceItemId();
         if(replaceItemId) {
             eSellerWidget::sReplaceItemId(mClientId, *replaceItemId);
+        }
+        const auto merc = mServer->receiveMerc();
+        if(merc) {
+            eGameWidget::merc() = *merc;
         }
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {

@@ -23,6 +23,7 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eequipment.h>
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/ehireinfo.h>
 
 class eUnitIndicator;
 class eCharacter;
@@ -84,6 +85,7 @@ public:
     eAttributes& attributes() { return mMainAction->attributes(); }
     eSlayerQuests& quests() { return mMainAction->quests(); }
     eTalkHeard& talkHeard() { return mMainAction->talkHeard(); }
+    std::optional<eMercenary>& merc() { return mMainAction->merc(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
     bool running() const { return mMainAction->running(); }
@@ -125,6 +127,8 @@ public:
     void spawnPortal();
     void openSellerMenu(const uint32_t sellerId);
     void addSocket(const uint8_t questId);
+
+    bool hire(const eHireInfo& info);
 
     void updateWantsToTalk();
 

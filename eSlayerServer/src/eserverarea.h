@@ -20,6 +20,7 @@
 #include <eSlayerHelpers/eequipmentaction.h>
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/etalk.h>
+#include <eSlayerHelpers/emercenary.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -48,6 +49,8 @@ struct eClientData {
 
     eSlayerQuests fQuests;
     bool fSendQuests = false;
+
+    uint32_t fMercUnitId = 0;
 };
 
 class eServerArea {
@@ -190,6 +193,8 @@ public:
                 const int unitId,
                 const int maxCount,
                 const std::vector<eModifier>& mods);
+    bool summonMerc(const uint32_t clientId,
+                    eMercenary& merc);
     bool castChance(eServerUnit& by,
                     const eSkillStats& skill,
                     const eWeaponChoice wchoice,

@@ -209,6 +209,8 @@ add_library(eSlayerHelpers SHARED
     src/ehireinfo.cpp
     include/eSlayerHelpers/emercenaries.h
     src/emercenaries.cpp
+    include/eSlayerHelpers/emercenary.h
+    src/emercenary.cpp
 
 )
 

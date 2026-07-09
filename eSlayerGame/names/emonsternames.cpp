@@ -2,7 +2,7 @@
 
 #include "../efileloader.h"
 
-#include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 eMonsterNames eMonsterNames::sInstance;
 
@@ -21,7 +21,7 @@ bool eMonsterNames::reload() {
     const auto dir = "Units";
     const auto strMap = eFileLoader::loadNames(dir, "names");
     for(const auto& it : strMap) {
-        const auto id = eCharDataInfo::id(it.first);
+        const auto id = eUnitsInfo::sUnits.id(it.first);
         sInstance.mNames[id] = it.second;
     }
     return true;

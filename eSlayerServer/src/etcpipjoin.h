@@ -102,6 +102,8 @@ public:
                        const uint32_t sellerId) override;
     bool addedSocket(const uint32_t clientId,
                      const uint8_t questId) override;
+    bool summonMerc(const uint32_t clientId,
+                    const eMercenary& merc) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;

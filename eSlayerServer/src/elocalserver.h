@@ -129,6 +129,11 @@ public:
     bool requestSellerImpl(const uint32_t clientId,
                            const uint32_t sellerId,
                            eSeller& seller);
+
+    bool summonMerc(const uint32_t clientId,
+                    const eMercenary& merc) override;
+    bool summonMercImpl(const uint32_t clientId,
+                        eMercenary& merc);
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);

@@ -26,6 +26,7 @@
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/equests.h>
+#include <eSlayerHelpers/emercenaries.h>
 
 std::vector<uint32_t> eServerArea::sSlain;
 
@@ -1858,11 +1859,7 @@ void eServerArea::summon(eServerUnit& by,
     }
     const auto& udata = eUnitsInfo::sUnits.get(unitId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
-    const auto name = data.name();
-    std::map<std::string, std::string> partsMap = {
-        {"wolf", "whole"}
-    };
-    const auto modelParts = data.mapToModelParts(partsMap);
+    const auto modelParts = data.randomModelParts();
 
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
@@ -1882,6 +1879,58 @@ void eServerArea::summon(eServerUnit& by,
     const auto byPtr = unit(by.fCharId);
     const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);
     u->setAction(a);
+}
+
+bool eServerArea::summonMerc(
+    const uint32_t clientId,
+    eMercenary& merc) {
+    const auto by = unit(clientId);
+    if(!by) return false;
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return false;
+    auto& clientData = it->second;
+    auto& cMercId = clientData.fMercUnitId;
+    if(cMercId != 0) {
+        planRemoveUnit(cMercId);
+        cMercId = 0;
+    }
+    ePointF to = by->fPos;
+    const bool r = findPlaceForUnit(to, to);
+    if(!r) return false;
+    auto& followers = by->followers();
+    const auto& mdata = eMercenariesInfo::sMercs.get(merc.fMercType);
+    const auto unitId = mdata.fUnitType;
+    const auto& udata = eUnitsInfo::sUnits.get(unitId);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
+    const auto modelParts = data.randomModelParts();
+
+    auto& map = mMap->pathFinderMap();
+    const auto m = std::make_shared<eServerUnit>(
+        false, data, unitId, *this, map);
+    cMercId = eServerUnit::sNextCharId++;
+    followers.emplace_back(cMercId);
+    iniSetupUnit(m, cMercId, by->fTeamId, to,
+                 unitId, udata, data, modelParts);
+    {
+        const int schoice = m->addSkill();
+        m->setSkillId(schoice, 0, false);
+    }
+
+    merc.fUnitId = cMercId;
+    auto& eq = merc.fEq;
+    eq.iterateOverAll([](eItem& item) {
+        if(item.fType == eItemType::none) return;
+        eItemGenerator::applyItemId(item);
+    });
+    m->setEquipment(eq, false);
+    merc.fDead = false;
+
+    m->recalculateStats();
+    m->recalculateAuras();
+
+    const auto a = std::make_shared<eFollowerAction>(*m, *this, by);
+    m->setAction(a);
+    return true;
 }
 
 bool eServerArea::castChance(

@@ -286,3 +286,10 @@ bool eServerClientHandler::requestSeller(
     return mArea->requestSeller(
         mClientId, sellerId, seller);
 }
+
+bool eServerClientHandler::summonMerc(
+    eMercenary& merc) {
+    if(!mArea) return false;
+    return mArea->summonMerc(
+        mClientId, merc);
+}
