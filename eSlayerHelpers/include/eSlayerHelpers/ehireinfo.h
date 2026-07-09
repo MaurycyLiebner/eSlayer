@@ -1,14 +1,10 @@
 #ifndef EHIREINFO_H
 #define EHIREINFO_H
 
-#include <cstdint>
-#include <vector>
+#include "emercenary.h"
 
-struct eHireInfo {
-    uint8_t fMercType;
-    uint8_t fNameId;
-    uint8_t fLevel;
-    uint32_t fCost;
+struct eHireInfo : public eMercenaryBase {
+    uint32_t fCost = 0;
 };
 
 class eHireInfos {

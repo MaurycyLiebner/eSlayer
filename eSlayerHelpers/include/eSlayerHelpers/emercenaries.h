@@ -13,6 +13,27 @@ struct eMercenaryInfo {
 
     std::vector<ePlaceType> fEquipment;
     std::vector<uint8_t> fWeaponClasses;
+
+    uint16_t fBaseStrength = 20;
+    uint16_t fBaseDexterity = 20;
+    uint16_t fBaseVitality = 20;
+    uint16_t fBaseEnergy = 15;
+
+    float fStrengthPerLevel = 0.f;
+    float fDexterityPerLevel = 0.f;
+    float fVitalityPerLevel = 0.f;
+    float fEnergyPerLevel = 0.f;
+
+    float fLifePerLevel = 0.f;
+
+    float fResistancePerLevel = 0.f;
+
+    float fDamagePerLevel = 0.f;
+    float fFireDamagePerLevel = 0.f;
+    float fColdDamagePerLevel = 0.f;
+    float fLightningDamagePerLevel = 0.f;
+
+    float fDefensePerLevel = 0.f;
 };
 
 class ESLAYERHELPERS_API eMercenariesInfo {

@@ -15,7 +15,7 @@ std::vector<eHireInfo> eHireInfos::generate(
         info.fMercType = eRand::randomElement(mtypes);
         info.fLevel = eRand::rand(minLevel, maxLevel);
         info.fNameId = eRand::rand();
-        info.fCost = 1000*info.fLevel;
+        info.fCost = info.cost();
     }
     return result;
 }

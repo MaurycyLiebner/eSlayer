@@ -911,6 +911,7 @@ void eServerUnit::setSkillId(const int schoice,
 void eServerUnit::setBoosts(
     const std::vector<eModifier>& mods,
     const bool recalc) {
+    removeBoost(eBoostCurseType::regular, false);
     auto& b = mStats.fBoosts;
     for(const auto& m : mods) {
         b.emplace(eBoostCurseType::regular, m);
@@ -949,14 +950,8 @@ void eServerUnit::addBoost(
 void eServerUnit::removeBoost(
     const eBoostCurseType type,
     const bool recalc) {
-    switch(type) {
-    case eBoostCurseType::regular:
-        return;
-    default: {
-        auto& b = mStats.fBoosts;
-        b.erase(type);
-    } break;
-    }
+    auto& b = mStats.fBoosts;
+    b.erase(type);
     mArea.boostsAurasChanged(fCharId);
     if(recalc) {
         recalculateStats();

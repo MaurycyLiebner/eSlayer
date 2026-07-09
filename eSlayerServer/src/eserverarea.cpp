@@ -1944,6 +1944,10 @@ bool eServerArea::summonMerc(
         eItemGenerator::applyItemId(item);
     });
     m->setEquipment(eq, false);
+    const auto attrs = merc.attributes();
+    m->setAttributes(attrs, false);
+    const auto mods = merc.mods();
+    m->setBoosts(mods, false);
     merc.fDead = false;
 
     m->recalculateStats();

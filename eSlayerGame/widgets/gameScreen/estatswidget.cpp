@@ -172,10 +172,11 @@ private:
     std::vector<eStatLabel*> mValues;
 };
 
-void eStatsWidget::initialize(const std::string& name,
-                              eStats& stats,
-                              const eEquipment& eq,
-                              eAttributes& attrs) {
+void eStatsWidgetBase::initialize(
+      const std::string& name,
+      eStats& stats,
+      const eEquipment& eq,
+      eAttributes& attrs) {
     mStats = &stats;
     mEq = &eq;
     mAttrs = &attrs;
@@ -184,8 +185,7 @@ void eStatsWidget::initialize(const std::string& name,
     const int hp = res.largePadding();
     const int sp = res.tinyPadding();
 
-    const auto innerW = new eWidget(window());
-    innerW->setNoPadding();
+    setNoPadding();
 
     const auto topW = new eWidget(window());
     topW->setNoPadding();
@@ -369,25 +369,22 @@ void eStatsWidget::initialize(const std::string& name,
     resStatPointsWidget->stackHorizontally(hp);
     resStatPointsWidget->fitContent();
 
-    innerW->addWidget(topW);
-    innerW->addWidget(strW);
-    innerW->addWidget(dexW);
-    innerW->addWidget(vitW);
-    innerW->addWidget(eneW);
-    innerW->addWidget(resStatPointsWidget);
+    addWidget(topW);
+    addWidget(strW);
+    addWidget(dexW);
+    addWidget(vitW);
+    addWidget(eneW);
+    addWidget(resStatPointsWidget);
 
-    innerW->stackVertically(hp);
-    innerW->fitContent();
-
-    setup(innerW);
+    stackVertically(hp);
+    fitContent();
 }
 
-void eStatsWidget::paintEvent(ePainter& p) {
+void eStatsWidgetBase::paintEvent(ePainter& p) {
     updateStats();
-    eBgWidget::paintEvent(p);
 }
 
-void eStatsWidget::updateStats() {
+void eStatsWidgetBase::updateStats() {
     mLevel->setValues({eText::text(11, 16),
                        std::to_string(mAttrs->fLevel)});
     mExp->setValues({eText::text(11, 17),
@@ -509,4 +506,13 @@ void eStatsWidget::updateStats() {
     mDexIncButton->setEnabled(mAttrs->fStatPoints > 0);
     mVitIncButton->setEnabled(mAttrs->fStatPoints > 0);
     mEneIncButton->setEnabled(mAttrs->fStatPoints > 0);
+}
+
+void eStatsWidget::initialize(
+    const std::string& name,
+    eStats& stats, const eEquipment& eq,
+    eAttributes& attrs) {
+    const auto inner = new eStatsWidgetBase(window());
+    inner->initialize(name, stats, eq, attrs);
+    setup(inner);
 }

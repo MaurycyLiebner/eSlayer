@@ -16,7 +16,7 @@ struct ESLAYERHELPERS_API eAttributes {
 
     static uint16_t sStatPointsPerLevel;
     static uint16_t sSkillPointsPerLevel;
-    uint16_t fStatPoints = 10;
+    uint16_t fStatPoints = 0;
 
     uint32_t nextLevelExp() const;
     bool levelUp();

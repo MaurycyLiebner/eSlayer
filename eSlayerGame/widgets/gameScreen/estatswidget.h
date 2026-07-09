@@ -10,9 +10,9 @@ class eStatLabel;
 class eStatWidget;
 class eAttrIncButton;
 
-class eStatsWidget : public eBgWidget {
+class eStatsWidgetBase : public eWidget {
 public:
-    using eBgWidget::eBgWidget;
+    using eWidget::eWidget;
 
     void initialize(const std::string& name,
                     eStats& stats,
@@ -60,6 +60,16 @@ private:
     eStatWidget* mPoisonResistance = nullptr;
 
     eStatWidget* mStatPointsRem = nullptr;
+
 };
+
+class eStatsWidget : public eBgWidget {
+public:
+    using eBgWidget::eBgWidget;
+
+    void initialize(const std::string& name,
+                    eStats& stats,
+                    const eEquipment& eq,
+                    eAttributes& attrs);};
 
 #endif // ESTATSWIDGET_H
