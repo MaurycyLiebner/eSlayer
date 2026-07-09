@@ -20,7 +20,8 @@ public:
                     std::vector<eInventoryItem>& items,
                     eEquipment& eq,
                     const eBagpackType type,
-                    const eHoverItemType htype);
+                    const eHoverItemType htype,
+                    eItem* dragged = nullptr);
 
     bool dropItem();
 protected:
@@ -29,6 +30,7 @@ protected:
 private:
     eBagpackType mType = eBagpackType::inventory;
     eEquipment* mEq = nullptr;
+    eItem* mDragged = nullptr;
 
     std::vector<std::shared_ptr<eTexture>> mBeltNumbers;
 };

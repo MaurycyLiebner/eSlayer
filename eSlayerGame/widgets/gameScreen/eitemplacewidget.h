@@ -20,7 +20,8 @@ public:
                    const eStats* const stats,
                    eItem eEquipment::* const item,
                    const ePlaceType place,
-                   const eHoverItemType htype);
+                   const eHoverItemType htype,
+                   eItem* dragged = nullptr);
 
     bool dropItem();
     void setHoverItem();
@@ -40,6 +41,7 @@ private:
     const eStats* mStats = nullptr;
     eItem eEquipment::*mDst = nullptr;
     std::shared_ptr<eTexture> mTex;
+    eItem* mDragged = nullptr;
 };
 
 #endif // EITEMPLACEWIDGET_H

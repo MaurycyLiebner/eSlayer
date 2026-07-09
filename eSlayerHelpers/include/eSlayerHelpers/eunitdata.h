@@ -15,6 +15,8 @@ struct ESLAYERHELPERS_API eUnitData :
     public ePositioned {
     uint32_t fCharId;
 
+    uint8_t fMapId;
+
     uint16_t fUpdate = std::numeric_limits<decltype(fUpdate)>::max();
 
     uint8_t fAnim;
@@ -51,6 +53,7 @@ struct ESLAYERHELPERS_API eUnitData :
     };
 
     enum eShift : uint16_t {
+        mapId,
         anim,
         animId,
         animSpeed,
@@ -69,6 +72,8 @@ struct ESLAYERHELPERS_API eUnitData :
     };
 
     bool setPosition(const ePointF& pos);
+
+    bool setMapId(const uint8_t mapId);
 
     bool setAnim(const uint8_t anim);
     bool setAnimId(const eAnimId& animId);

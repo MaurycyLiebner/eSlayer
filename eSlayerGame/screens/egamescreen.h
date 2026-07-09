@@ -33,6 +33,7 @@ class eMessagesWidget;
 class eAddSocketWidget;
 struct eHireInfo;
 class eHireWidget;
+class eFollowerPortraits;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -60,6 +61,7 @@ public:
     static bool sInventoryMenuOpened();
     static void sOpenHireMenu(
         const std::vector<eHireInfo>& options);
+    static void sAddFollower(const uint32_t id);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;
@@ -120,6 +122,9 @@ private:
 
     void hideInventoryConnectedMenu();
 
+    void showFollowerMenu(const uint32_t id);
+    void hideFollowerMenu();
+
     void openSkillMenu(const eAlignment align,
                        eSkillButton* const targetButton,
                        int& targetSkillVar,
@@ -146,9 +151,11 @@ private:
     eWidget* mQuestsButtonW = nullptr;
     eAddSocketWidget* mAddSocketMenu = nullptr;
     eHireWidget* mHireMenu = nullptr;
+    eInventoryWidget* mFollowerMenu = nullptr;
 
     eWidget* mSkillMenu = nullptr;
 
+    eFollowerPortraits* mPortraits = nullptr;
     eBottomWidget* mBottomWidget = nullptr;
     eWidget* mMenusWidget = nullptr;
 

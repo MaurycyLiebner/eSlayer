@@ -39,8 +39,8 @@ struct eClientData {
     // in tile dimensions
     eScreenDimensions fScreen;
     eArea fArea;
-    std::set<int> fKnownUnits;
-    std::set<int> fKnownItems;
+    std::set<uint32_t> fKnownUnits;
+    std::set<uint32_t> fKnownItems;
     uint32_t fLatestMissile;
     uint32_t fLatestNova;
     uint32_t fLatestSkillArea;

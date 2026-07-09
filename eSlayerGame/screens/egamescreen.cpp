@@ -27,6 +27,7 @@
 #include "../widgets/gameScreen/emessageswidget.h"
 #include "../widgets/gameScreen/eaddsocketwidget.h"
 #include "../widgets/gameScreen/ehirewidget.h"
+#include "../widgets/gameScreen/efollowerportraits.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -34,6 +35,7 @@
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/emercenaries.h>
 
 eGameScreen* eGameScreen::sInstance = nullptr;
 
@@ -55,8 +57,10 @@ void eGameScreen::initialize(const uint32_t clientId,
     eSkillButton::sLeftMap = c.leftHotkeys();
     eSkillButton::sRightMap = c.rightHotkeys();
 
+    const int w = width();
+    const int h = height();
     mGameWidget = new eGameWidget(window());
-    mGameWidget->resize(width(), height());
+    mGameWidget->resize(w, h);
     addWidget(mGameWidget);
 
     mGameWidget->initialize(clientId, server, map, c, teamId, move);
@@ -183,7 +187,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     };
 
     mMiniMap = new eMiniMap(window());
-    mMiniMap->resize(width(), height());
+    mMiniMap->resize(w, h);
     eGameSettings settings;
     settings.fType = server->name();
     settings.fIP = server->ip();
@@ -191,6 +195,14 @@ void eGameScreen::initialize(const uint32_t clientId,
     mMiniMap->initialize(settings);
     mMiniMap->setMap(map);
     addWidget(mMiniMap);
+
+    mPortraits = new eFollowerPortraits(window());
+    const auto& world = mGameWidget->world();
+    const auto pressA = [this](const uint32_t id) {
+        showFollowerMenu(id);
+    };
+    mPortraits->initialize(world, w, h, pressA);
+    addWidget(mPortraits);
 
     mBottomWidget = new eBottomWidget(
         stats, attrs, eq, window());
@@ -228,8 +240,6 @@ void eGameScreen::initialize(const uint32_t clientId,
     mQuestsButtonW->move(3*p, bwy - 3*p - bh);
     mQuestsButtonW->hide();
 
-    const int w = width();
-    const int h = height();
     mMenusWidget = new eWidget(window());
     mMenusWidget->resize(w, h);
     addWidget(mMenusWidget);
@@ -261,6 +271,12 @@ void eGameScreen::initialize(const uint32_t clientId,
             const bool r = mSellerMenu->dropItem();
             if(r) return;
             const bool h = mSellerMenu->hovered();
+            if(h) return;
+        }
+        if(mFollowerMenu) {
+            const bool r = mFollowerMenu->dropItem();
+            if(r) return;
+            const bool h = mFollowerMenu->hovered();
             if(h) return;
         }
         mGameWidget->dropItem();
@@ -308,6 +324,10 @@ void eGameScreen::sOpenHireMenu(
     return sInstance->showHireMenu(options);
 }
 
+void eGameScreen::sAddFollower(const uint32_t id) {
+    sInstance->mPortraits->addFollower(id);
+}
+
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     const auto key = e.key();
     if(key == SDL_SCANCODE_ESCAPE) {
@@ -332,6 +352,11 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
         } else if(mMessagesMenu) {
             mMessagesMenu->deleteLater();
             mMessagesMenu = nullptr;
+        } else if(mHireMenu) {
+            mHireMenu->deleteLater();
+            mHireMenu = nullptr;
+        } else if(mFollowerMenu) {
+            hideInventoryConnectedMenu();
         } else if(mDeadMenu) {
             mGameWidget->respawn();
         } else {
@@ -551,6 +576,9 @@ void eGameScreen::hideLeftMenu() {
     if(mSellerMenu) {
         hideInventoryConnectedMenu();
     }
+    if(mFollowerMenu) {
+        hideInventoryConnectedMenu();
+    }
     if(mMessagesMenu) {
         hideMessagesMenu();
     }
@@ -642,7 +670,7 @@ void eGameScreen::showInventoryMenu(
     mMenusWidget->addWidget(mInventoryMenu);
     mInventoryMenu->initialize(eq, stats, htype);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
-    eHoverWidget::sUpdateDragItem(eq);
+    eHoverWidget::sUpdateDragItem(eq.fDragged);
 
     updateCharPos();
 }
@@ -872,7 +900,6 @@ void eGameScreen::showHireMenu(
     const int w = width();
     const int h = height();
     mHireMenu->resize(w/2, h - mBottomWidget->height());
-    const auto clientId = mGameWidget->clientId();
     const auto hireAction = [this](const eHireInfo& info) {
         mGameWidget->hire(info);
     };
@@ -941,7 +968,6 @@ void eGameScreen::showStashMenu() {
     mMenusWidget->addWidget(mStashMenu);
     mStashMenu->initialize(eq, stats);
     mStashMenu->align(eAlignment::left | eAlignment::top);
-    eHoverWidget::sUpdateDragItem(eq);
 
     showInventoryMenu();
 
@@ -960,12 +986,46 @@ void eGameScreen::hideInventoryConnectedMenu() {
     hideSellerMenu();
     hideAddSocketMenu();
     hideStashMenu();
+    hideFollowerMenu();
 }
 
-void eGameScreen::openSkillMenu(const eAlignment align,
-                                eSkillButton* const targetButton,
-                                int& targetSkillVar,
-                                const eSkillChoice schoice) {
+void eGameScreen::showFollowerMenu(
+    const uint32_t id) {
+    if(mFollowerMenu) return;
+    auto& merc = mGameWidget->merc();
+    if(!merc) return;
+    if(merc->fUnitId != id) return;
+    mFollowerMenu = new eInventoryWidget(window());
+    const int w = width();
+    const int h = height();
+    mFollowerMenu->resize(w/2, h - mBottomWidget->height());
+    auto& meq = merc->fEq;
+    auto& eq = mGameWidget->equipment();
+    const auto mtype = merc->fMercType;
+    const auto& m = eMercenariesInfo::sMercs.get(mtype);
+    auto& stats = mGameWidget->stats();
+    mMenusWidget->addWidget(mFollowerMenu);
+    mFollowerMenu->initialize(
+        meq, stats, eHoverItemType::regular,
+        m.fEquipment, &eq.fDragged);
+    mFollowerMenu->align(eAlignment::left | eAlignment::top);
+
+    showInventoryMenu();
+    updateCharPos();
+}
+
+void eGameScreen::hideFollowerMenu() {
+    if(!mFollowerMenu) return;
+    mFollowerMenu->deleteLater();
+    mFollowerMenu = nullptr;
+    updateCharPos();
+}
+
+void eGameScreen::openSkillMenu(
+    const eAlignment align,
+    eSkillButton* const targetButton,
+    int& targetSkillVar,
+    const eSkillChoice schoice) {
     if(mSkillMenu) {
         mSkillMenu->deleteLater();
         mSkillMenu = nullptr;
@@ -1006,7 +1066,7 @@ void eGameScreen::updateCharPos() {
     const bool left = mStatsMenu || mPartyMenu ||
                       mWaypointMenu || mStashMenu ||
                       mSellerMenu || mQuestsMenu ||
-                      mAddSocketMenu;
+                      mAddSocketMenu || mFollowerMenu;
     const bool right = mInventoryMenu || mSkillTreesMenu;
     float hpos = 0.5f;
     if(left && right) {

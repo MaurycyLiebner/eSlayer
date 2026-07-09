@@ -323,6 +323,7 @@ public:
     void updateAll();
 
     void setPosition(const ePointF& pos);
+    void setMapId(const uint8_t mapId);
 
     void setAnim(const uint8_t anim);
     void setAnimId(const eAnimId& animId);
@@ -351,6 +352,7 @@ private:
     using eUnitData::fUpdate;
 
     using eUnitData::setPosition;
+    using eUnitData::setMapId;
 
     using eUnitData::setAnim;
     using eUnitData::setAnimId;

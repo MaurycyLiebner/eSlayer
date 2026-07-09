@@ -53,7 +53,7 @@ public:
                   const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
 
     static eHoverWidget* sInstance;
-    static void sUpdateDragItem(const eEquipment& eq);
+    static void sUpdateDragItem(const eItem& item);
     static void sSetHoverItem(
         const eHoverItem& hitem,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});

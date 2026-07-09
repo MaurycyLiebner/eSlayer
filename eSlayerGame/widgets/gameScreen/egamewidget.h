@@ -55,6 +55,7 @@ public:
     int tileHeight() const { return mInput.tileHeight(); }
 
     const std::shared_ptr<eMap>& map() const { return mMap; }
+    const eGameWorld& world() const { return mWorld; }
 
     int mapWidth() const { return mMap->width(); }
     int mapHeight() const { return mMap->height(); }

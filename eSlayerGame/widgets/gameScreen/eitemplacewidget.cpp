@@ -19,9 +19,15 @@ void eItemPlaceWidget::intialize(
     const eStats* const stats,
     eItem eEquipment::* const item,
     const ePlaceType place,
-    const eHoverItemType htype) {
+    const eHoverItemType htype,
+    eItem* dragged) {
     setNoPadding();
     mEq = &eq;
+    if(!dragged) {
+        mDragged = &mEq->fDragged;
+    } else {
+        mDragged = dragged;
+    }
     mStats = stats;
     mDst = item;
     mPlace.fType = place;
@@ -34,7 +40,7 @@ void eItemPlaceWidget::intialize(
 
 bool eItemPlaceWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return true;
-    auto& dragged = mEq->fDragged;
+    auto& dragged = *mDragged;
     if(dragged.fType == eItemType::none) return true;
     auto& dst = mEq->*mDst;
     if(dragged.fType == eItemType::jewel) {
@@ -47,14 +53,14 @@ bool eItemPlaceWidget::dropItem() {
             a.fPlace = mPlace;
             eGameWidget::sSendEqAction(a);
             dragged = eItem();
-            eHoverWidget::sUpdateDragItem(*mEq);
+            eHoverWidget::sUpdateDragItem(dragged);
             eHoverWidget::sClearHover();
             return true;
         }
     }
     if(!draggedCompatible()) return true;
     std::swap(dragged, dst);
-    eHoverWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(dragged);
 
     eEquipmentAction a;
     if(dragged.fType == eItemType::none) {
@@ -80,11 +86,11 @@ void eItemPlaceWidget::setHoverItem() {
 
 bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     if(eInventoryWidget::sBlocked) return true;
-    auto& dragged = mEq->fDragged;
+    auto& dragged = *mDragged;
     if(dragged.fType != eItemType::none) return true;
     auto& dst = mEq->*mDst;
     std::swap(dragged, dst);
-    eHoverWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(dragged);
 
     eEquipmentAction a;
     a.fType = eEquipmentActionType::drag;
@@ -109,7 +115,7 @@ bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
 }
 
 bool eItemPlaceWidget::draggedCompatible() {
-    auto& dragged = mEq->fDragged;
+    auto& dragged = *mDragged;
     const bool met = mStats ? mStats->itemReqsMet(dragged) : true;
     if(!met) return false;
     const auto& dst = mEq->*mDst;
@@ -122,7 +128,7 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     const bool h = hovered();
     eTextureColorSetting color;
     if(h) {
-        const bool dragging = mEq->fDragged.fType != eItemType::none;
+        const bool dragging = (*mDragged).fType != eItemType::none;
         if(!dragging) {
             if(item.fType != eItemType::none) {
                 color.set(0.f, 0.7f, 0.f);

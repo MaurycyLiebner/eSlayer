@@ -121,7 +121,7 @@ bool eSellerWidget::dropItem() {
     auto& p = mSeller.fClientPage[mClientId];
     p.tryAdd(dragged);
     dragged = eItem();
-    eHoverWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(dragged);
     return true;
 }
 

@@ -110,6 +110,9 @@ public:
 
     static std::shared_ptr<eTexture>
     sSocket;
+
+    static std::map<int, std::shared_ptr<eTexture>>
+    sPortraits;
 private:
     static std::string sLoaded;
 };

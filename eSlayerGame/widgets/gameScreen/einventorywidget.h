@@ -34,7 +34,8 @@ public:
                          ePlaceType::weapon1R,
                          ePlaceType::weapon2L,
                          ePlaceType::weapon2R,
-                         ePlaceType::inventory});
+                         ePlaceType::inventory},
+                    eItem* dragged = nullptr);
 
     bool dropItem();
 

@@ -691,9 +691,9 @@ void eHoverWidget::openTalk(
     position(mTalkWidget, p, rect);
 }
 
-void eHoverWidget::sUpdateDragItem(const eEquipment& eq) {
+void eHoverWidget::sUpdateDragItem(const eItem& item) {
     if(!sInstance) return;
-    sInstance->setItem(eq.fDragged);
+    sInstance->setItem(item);
 }
 
 void eHoverWidget::sSetHoverItem(

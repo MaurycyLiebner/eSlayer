@@ -193,7 +193,7 @@ void eGameWidget::dropItem() {
     mServer->dropItem(mClientId);
     dragged = eItem();
     tmp = eItem();
-    eHoverWidget::sUpdateDragItem(eq);
+    eHoverWidget::sUpdateDragItem(dragged);
     updateWantsToTalk();
 }
 
@@ -426,6 +426,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto merc = mServer->receiveMerc();
         if(merc) {
+            eGameScreen::sAddFollower(merc->fUnitId);
             eGameWidget::merc() = *merc;
         }
         const auto newUsers = mServer->receiveNewUsers();
@@ -496,7 +497,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         if(!eqActions.empty()) {
             mMainAction->recalculateStats();
-            eHoverWidget::sUpdateDragItem(eq);
+            eHoverWidget::sUpdateDragItem(eq.fDragged);
             updateWantsToTalk();
         }
 
@@ -517,7 +518,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         if(r) {
             mMainAction->recalculateStats();
             eInventoryWidget::sBlocked = false;
-            eHoverWidget::sUpdateDragItem(eq);
+            eHoverWidget::sUpdateDragItem(eq.fDragged);
         } else {
             const bool r = mServer->unblockEquipment(mClientId);
             if(r) {

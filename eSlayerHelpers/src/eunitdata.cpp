@@ -17,6 +17,13 @@ bool eUnitData::setPosition(
     return true;
 }
 
+bool eUnitData::setMapId(const uint8_t mapId) {
+    if(fMapId == mapId) return false;
+    fMapId = mapId;
+    setUpdate(eShift::mapId, true);
+    return true;
+}
+
 bool eUnitData::setAnim(
     const uint8_t anim) {
     if(fAnim == anim) return false;
@@ -258,6 +265,10 @@ void eUnitData::read(ePacket& p) {
 
     p >> fUpdate;
 
+    if(getUpdate(eShift::mapId)) {
+        p >> fMapId;
+    }
+
     if(getUpdate(eShift::anim)) {
         p >> fAnim;
     }
@@ -323,6 +334,10 @@ void eUnitData::write(ePacket& p) const {
     p << fCharId;
 
     p << fUpdate;
+
+    if(getUpdate(eShift::mapId)) {
+        p << fMapId;
+    }
 
     if(getUpdate(eShift::anim)) {
         p << fAnim;

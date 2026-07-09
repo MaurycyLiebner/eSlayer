@@ -606,7 +606,7 @@ void eServerArea::unitsData(
     const auto& clientPos = clientU->fPos;
     auto& clientData = it->second;
     auto& known = clientData.fKnownUnits;
-    std::set<int> visible;
+    std::set<uint32_t> visible;
     const auto& clientArea = clientData.fArea;
     const auto& screenDims = clientData.fScreen;
     const int width = screenDims.fWidth;
@@ -619,6 +619,31 @@ void eServerArea::unitsData(
     const int dyMax = halfHeight + 2;
     const int dxMin = -halfWidth - 2;
     const int dxMax = halfWidth + 2;
+    const auto handleUnit = [&](const uint32_t charId) {
+        const auto u = unit(charId);
+        if(!u) return;
+        const auto it = visible.emplace(charId);
+        if(!it.second) return;
+        const auto update = u->requestUpdate(clientId);
+        if(known.find(charId) == known.end()) {
+            const auto& pos = u->fPos;
+            const float y = halfHeightF +
+                            0.5f*(pos.fY - clientPos.fY + pos.fX - clientPos.fX);
+            const float x = halfWidthF +
+                            0.5f*(clientPos.fY - pos.fY + pos.fX - clientPos.fX);
+            const float margin = 4.f;
+            if(y < -margin) return;
+            if(x < -margin) return;
+            if(y > height + margin) return;
+            if(x > width + margin) return;
+            const auto d = u->toUnitData();
+            newUnits.emplace_back(d);
+            known.emplace(charId);
+        } else {
+            const auto d = u->toUnitData(update);
+            updatedUnits.emplace_back(d);
+        }
+    };
     for(int dy = dyMin; dy <= dyMax; dy++) {
         for(int dx = dxMin; dx <= dxMax; dx++) {
             const int y = clientArea.fY - dx + dy/2;
@@ -627,31 +652,16 @@ void eServerArea::unitsData(
             if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
             for(const uint32_t charId : units) {
-                const auto u = unit(charId);
-                if(!u) continue;
-                visible.emplace(charId);
-                const auto update = u->requestUpdate(clientId);
-                if(known.find(charId) == known.end()) {
-                    const auto& pos = u->fPos;
-                    const float y = halfHeightF +
-                        0.5f*(pos.fY - clientPos.fY + pos.fX - clientPos.fX);
-                    const float x = halfWidthF +
-                        0.5f*(clientPos.fY - pos.fY + pos.fX - clientPos.fX);
-                    const float margin = 4.f;
-                    if(y < -margin) continue;
-                    if(x < -margin) continue;
-                    if(y > height + margin) continue;
-                    if(x > width + margin) continue;
-                    const auto d = u->toUnitData();
-                    newUnits.emplace_back(d);
-                    known.emplace(charId);
-                } else {
-                    const auto d = u->toUnitData(update);
-                    updatedUnits.emplace_back(d);
-                }
+                handleUnit(charId);
             }
         }
     }
+
+    const auto& followers = clientU->followers();
+    for(const auto fId : followers) {
+        handleUnit(fId);
+    }
+
     // Remove units no longer visible from the known set
     for(auto it = known.begin(); it != known.end(); ) {
         if(visible.find(*it) == visible.end()) {
@@ -670,7 +680,7 @@ void eServerArea::itemsData(
     if(!client) return;
     auto& clientData = mClientData[clientId];
     auto& known = clientData.fKnownItems;
-    std::set<int> visible;
+    std::set<uint32_t> visible;
     const auto& clientPos = client->fPos;
     const auto clientArea = mItemAreas.posArea(clientPos);
     const auto& screenDims = clientData.fScreen;

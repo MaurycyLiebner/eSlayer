@@ -5,6 +5,7 @@
 #include "espriteloader.h"
 
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 std::string eUITextures::sLoaded;
 std::shared_ptr<eTexture>
@@ -99,6 +100,9 @@ eUITextures::sTalk;
 
 std::shared_ptr<eTexture>
 eUITextures::sSocket;
+
+std::map<int, std::shared_ptr<eTexture>>
+eUITextures::sPortraits;
 
 void eUITextures::sLoad(SDL_Renderer* const r,
                         const eResolution& res) {
@@ -245,4 +249,13 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sTalk = eFileLoader::readTexture(r, dir, "ui/talk" + suffix + ".png");
 
     sSocket = eFileLoader::readTexture(r, dir, "ui/items/socket/socket" + suffix + ".png");
+
+    for(const auto& it : eUnitsInfo::sUnits) {
+        const auto name = it.fName;
+        const auto path = "ui/portraits/" + name + suffix + ".png";
+        const bool rr = eFileLoader::fileExists(dir, path);
+        if(!rr) continue;
+        const auto p = eFileLoader::readTexture(r, dir, path);
+        sPortraits[it.fId] = p;
+    }
 }

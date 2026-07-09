@@ -16,17 +16,23 @@ void eInventoryBagpackWidget::initialize(
     std::vector<eInventoryItem>& items,
     eEquipment& eq,
     const eBagpackType type,
-    const eHoverItemType htype) {
+    const eHoverItemType htype,
+    eItem* dragged) {
     eBagpackBase::initialize(
         w, h, items, htype);
     mEq = &eq;
+    if(!dragged) {
+        mDragged = &mEq->fDragged;
+    } else {
+        mDragged = dragged;
+    }
     mType = type;
 }
 
 bool eInventoryBagpackWidget::dropItem() {
     const auto mpos = mousePos();
     if(eInventoryWidget::sBlocked) return false;
-    auto& dragged = mEq->fDragged;
+    auto& dragged = *mDragged;
     if(dragged.fType == eItemType::none) return false;
     switch(mType) {
     case eBagpackType::belt:
@@ -104,7 +110,7 @@ bool eInventoryBagpackWidget::dropItem() {
 
         a.fType = eEquipmentActionType::drop;
     }
-    eHoverWidget::sUpdateDragItem(*mEq);
+    eHoverWidget::sUpdateDragItem(dragged);
     eGameWidget::sSendEqAction(a);
     return true;
 }
@@ -112,7 +118,7 @@ bool eInventoryBagpackWidget::dropItem() {
 void eInventoryBagpackWidget::paintEvent(ePainter& p) {
     SDL_FColor fillColor{0.f, 0.f, 0.f, 1.f};
     SDL_Rect ihoverRect = {0, 0, 0, 0};
-    const auto& dragged = mEq->fDragged;
+    const auto& dragged = *mDragged;
     const auto mpos = mousePos();
     const auto ipos = mousePosToItemPos(mpos);
     if(dragged.fType == eItemType::none) {
@@ -175,7 +181,7 @@ void eInventoryBagpackWidget::paintEvent(ePainter& p) {
 
 bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
     if(eInventoryWidget::sBlocked) return true;
-    if(mEq->fDragged.fType != eItemType::none) return true;
+    if((*mDragged).fType != eItemType::none) return true;
     const auto ipos = mousePosToItemPos({e.x(), e.y()});
     const int itemId = itemIdAt(ipos);
     if(itemId == -1) return true;
@@ -209,8 +215,8 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
             }
         } else {
             inv.erase(inv.begin() + itemId);
-            mEq->fDragged = item;
-            eHoverWidget::sUpdateDragItem(*mEq);
+            *mDragged = item;
+            eHoverWidget::sUpdateDragItem(*mDragged);
             eHoverWidget::sSetHoverItem(eHoverItem());
 
             eEquipmentAction a;
