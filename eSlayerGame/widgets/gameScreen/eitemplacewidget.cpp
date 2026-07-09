@@ -14,13 +14,15 @@
 #include <eSlayerHelpers/evectorhelpers.h>
 
 void eItemPlaceWidget::intialize(
+    const uint32_t unitId,
     const std::shared_ptr<eTexture>& tex,
     eEquipment& eq,
     const eStats* const stats,
     eItem eEquipment::* const item,
     const ePlaceType place,
     const eHoverItemType htype,
-    eItem* dragged) {
+    eItem* const dragged) {
+    mUnitId = unitId;
     setNoPadding();
     mEq = &eq;
     if(!dragged) {
@@ -47,6 +49,7 @@ bool eItemPlaceWidget::dropItem() {
         if(dst.spaceForJewel()) {
             dst.addJewel(dragged);
             eEquipmentAction a;
+            a.fUnitId = mUnitId;
             a.fType = eEquipmentActionType::insertJewel;
             a.fItemId1 = dragged.fItemId;
             a.fItemId2 = dst.fItemId;
@@ -63,6 +66,7 @@ bool eItemPlaceWidget::dropItem() {
     eHoverWidget::sUpdateDragItem(dragged);
 
     eEquipmentAction a;
+    a.fUnitId = mUnitId;
     if(dragged.fType == eItemType::none) {
         a.fType = eEquipmentActionType::drop;
     } else {
@@ -93,6 +97,7 @@ bool eItemPlaceWidget::mousePressEvent(const eMouseEvent& e) {
     eHoverWidget::sUpdateDragItem(dragged);
 
     eEquipmentAction a;
+    a.fUnitId = mUnitId;
     a.fType = eEquipmentActionType::drag;
     a.fItemId1 = dragged.fItemId;
     eGameWidget::sSendEqAction(a);

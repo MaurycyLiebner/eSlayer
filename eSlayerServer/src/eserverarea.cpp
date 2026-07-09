@@ -1390,7 +1390,18 @@ bool eServerArea::equipmentAction(
     const auto u = unit(clientId);
     if(!u) return false;
     auto& eq = u->equipment();
-    return a.apply(eq);
+    if(a.fUnitId == clientId) {
+        const bool r = a.apply(eq, eq.fDragged);
+        u->recalculateStats();
+        return r;
+    } else {
+        const auto u = unit(a.fUnitId);
+        if(!u) return false;
+        auto& ueq = u->equipment();
+        const bool r = a.apply(ueq, eq.fDragged);
+        u->recalculateStats();
+        return r;
+    }
 }
 
 bool eServerArea::buyAction(

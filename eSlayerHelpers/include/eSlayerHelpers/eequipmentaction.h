@@ -34,6 +34,7 @@ struct ESLAYERHELPERS_API eSellAction {
 
 struct ESLAYERHELPERS_API eEquipmentAction {
     eEquipmentActionType fType = eEquipmentActionType::none;
+    uint32_t fUnitId = 0;
     eEquipmentPlace fPlace;
 
     eItem fAddItem;
@@ -46,7 +47,7 @@ struct ESLAYERHELPERS_API eEquipmentAction {
 
     bool fWeapons1;
 
-    bool apply(eEquipment& eq) const;
+    bool apply(eEquipment& eq, eItem& dragged) const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -56,9 +57,9 @@ struct ESLAYERHELPERS_API eEquipmentAction {
                     const eEquipmentPlace place);
 private:
     bool add(eEquipment& eq) const;
-    bool drag(eEquipment& eq) const;
-    bool switchDrag(eEquipment& eq) const;
-    bool drop(eEquipment& eq) const;
+    bool drag(eEquipment& eq, eItem& dragged) const;
+    bool switchDrag(eEquipment& eq, eItem& dragged) const;
+    bool drop(eEquipment& eq, eItem& dragged) const;
     bool dragAndDrop(eEquipment& eq) const;
     bool insertJewel(eEquipment& eq) const;
     bool gold(eEquipment& eq) const;

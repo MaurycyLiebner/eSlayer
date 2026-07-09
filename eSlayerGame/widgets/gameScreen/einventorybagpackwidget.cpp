@@ -12,6 +12,7 @@
 #include <SDL3/SDL_mouse.h>
 
 void eInventoryBagpackWidget::initialize(
+    const uint32_t unitId,
     const int w, const int h,
     std::vector<eInventoryItem>& items,
     eEquipment& eq,
@@ -19,7 +20,7 @@ void eInventoryBagpackWidget::initialize(
     const eHoverItemType htype,
     eItem* dragged) {
     eBagpackBase::initialize(
-        w, h, items, htype);
+        unitId, w, h, items, htype);
     mEq = &eq;
     if(!dragged) {
         mDragged = &mEq->fDragged;
@@ -51,6 +52,7 @@ bool eInventoryBagpackWidget::dropItem() {
     const auto ids = itemIdsAt(dropRect);
     if(ids.size() > 1) return true;
     eEquipmentAction a;
+    a.fUnitId = mUnitId;
     auto& place = a.fPlace;
     switch(mType) {
     case eBagpackType::belt:
@@ -77,7 +79,6 @@ bool eInventoryBagpackWidget::dropItem() {
             auto& dst = invItem.fItem;
             if(dst.spaceForJewel()) {
                 dst.addJewel(dragged);
-                eEquipmentAction a;
                 a.fType = eEquipmentActionType::insertJewel;
                 a.fItemId1 = dragged.fItemId;
                 a.fItemId2 = dst.fItemId;
@@ -208,6 +209,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
                 eHoverWidget::sSetHoverItem(eHoverItem());
 
                 eEquipmentAction a;
+                a.fUnitId = mUnitId;
                 a.fType = eEquipmentActionType::dragAndDrop;
                 a.fItemId1 = item.fItemId;
                 a.fPlace = place;
@@ -220,6 +222,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
             eHoverWidget::sSetHoverItem(eHoverItem());
 
             eEquipmentAction a;
+            a.fUnitId = mUnitId;
             a.fType = eEquipmentActionType::drag;
             a.fItemId1 = item.fItemId;
             eGameWidget::sSendEqAction(a);

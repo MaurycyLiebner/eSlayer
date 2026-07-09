@@ -16,7 +16,8 @@ class eInventoryBagpackWidget : public eBagpackBase {
 public:
     using eBagpackBase::eBagpackBase;
 
-    void initialize(const int w, const int h,
+    void initialize(const uint32_t unitId,
+                    const int w, const int h,
                     std::vector<eInventoryItem>& items,
                     eEquipment& eq,
                     const eBagpackType type,

@@ -15,24 +15,25 @@
 
 bool eInventoryWidget::sBlocked = false;
 
-void eInventoryWidget::initialize(
+void eInventoryWidgetBase::initialize(
+    const uint32_t unitId,
     eEquipment& eq, const eStats& stats,
     const eHoverItemType htype,
     const std::vector<ePlaceType>& places,
     eItem* dragged) {
+    setNoPadding();
+    mUnitId = unitId;
     mEq = &eq;
     if(!dragged) {
         dragged = &mEq->fDragged;
     }
     const auto& res = resolution();
 
-    const auto inner = new eWidget(window());
-    inner->setNoPadding();
-
     eItemPlaceWidget* helmet = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::helmet)) {
         helmet = new eItemPlaceWidget(window());
-        helmet->intialize(eUITextures::sHelmetSlot, eq, &stats,
+        helmet->intialize(unitId,
+                          eUITextures::sHelmetSlot, eq, &stats,
                           &eEquipment::fHelmet,
                           ePlaceType::helmet, htype,
                           dragged);
@@ -42,7 +43,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* armor = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::armor)) {
         armor = new eItemPlaceWidget(window());
-        armor->intialize(eUITextures::sArmorSlot, eq, &stats,
+        armor->intialize(unitId,
+                         eUITextures::sArmorSlot, eq, &stats,
                          &eEquipment::fArmor,
                          ePlaceType::armor, htype,
                          dragged);
@@ -52,7 +54,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* belt = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::belt)) {
         belt = new eItemPlaceWidget(window());
-        belt->intialize(eUITextures::sBeltSlot, eq, &stats,
+        belt->intialize(unitId,
+                        eUITextures::sBeltSlot, eq, &stats,
                         &eEquipment::fBelt,
                         ePlaceType::belt, htype,
                         dragged);
@@ -62,7 +65,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* boots = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::boots)) {
         boots = new eItemPlaceWidget(window());
-        boots->intialize(eUITextures::sBootsSlot, eq, &stats,
+        boots->intialize(unitId,
+                         eUITextures::sBootsSlot, eq, &stats,
                          &eEquipment::fBoots,
                          ePlaceType::boots, htype,
                          dragged);
@@ -72,7 +76,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* gloves = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::gloves)) {
         gloves = new eItemPlaceWidget(window());
-        gloves->intialize(eUITextures::sGlovesSlot, eq, &stats,
+        gloves->intialize(unitId,
+                          eUITextures::sGlovesSlot, eq, &stats,
                           &eEquipment::fGloves,
                           ePlaceType::gloves, htype,
                           dragged);
@@ -82,7 +87,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* ringL = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::ringL)) {
         ringL = new eItemPlaceWidget(window());
-        ringL->intialize(eUITextures::sRingSlot, eq, &stats,
+        ringL->intialize(unitId,
+                         eUITextures::sRingSlot, eq, &stats,
                          &eEquipment::fRingL,
                          ePlaceType::ringL, htype,
                          dragged);
@@ -92,7 +98,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* ringR = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::ringR)) {
         ringR = new eItemPlaceWidget(window());
-        ringR->intialize(eUITextures::sRingSlot, eq, &stats,
+        ringR->intialize(unitId,
+                         eUITextures::sRingSlot, eq, &stats,
                          &eEquipment::fRingR,
                          ePlaceType::ringR, htype,
                          dragged);
@@ -102,7 +109,8 @@ void eInventoryWidget::initialize(
     eItemPlaceWidget* amulet = nullptr;
     if(eVectorHelpers::contains(places, ePlaceType::amulet)) {
         amulet = new eItemPlaceWidget(window());
-        amulet->intialize(eUITextures::sAmuletSlot, eq, &stats,
+        amulet->intialize(unitId,
+                          eUITextures::sAmuletSlot, eq, &stats,
                           &eEquipment::fAmulet,
                           ePlaceType::amulet, htype,
                           dragged);
@@ -111,7 +119,8 @@ void eInventoryWidget::initialize(
 
     if(eVectorHelpers::contains(places, ePlaceType::weapon1L)) {
         mWeapon1L = new eItemPlaceWidget(window());
-        mWeapon1L->intialize(eUITextures::sWeaponSlot, eq, &stats,
+        mWeapon1L->intialize(unitId,
+                             eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon1L,
                              ePlaceType::weapon1L, htype,
                              dragged);
@@ -120,7 +129,8 @@ void eInventoryWidget::initialize(
 
     if(eVectorHelpers::contains(places, ePlaceType::weapon1R)) {
         mWeapon1R = new eItemPlaceWidget(window());
-        mWeapon1R->intialize(eUITextures::sWeaponSlot, eq, &stats,
+        mWeapon1R->intialize(unitId,
+                             eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon1R,
                              ePlaceType::weapon1R, htype,
                              dragged);
@@ -129,7 +139,8 @@ void eInventoryWidget::initialize(
 
     if(eVectorHelpers::contains(places, ePlaceType::weapon2L)) {
         mWeapon2L = new eItemPlaceWidget(window());
-        mWeapon2L->intialize(eUITextures::sWeaponSlot, eq, &stats,
+        mWeapon2L->intialize(unitId,
+                             eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon2L,
                              ePlaceType::weapon2L, htype,
                              dragged);
@@ -138,7 +149,8 @@ void eInventoryWidget::initialize(
 
     if(eVectorHelpers::contains(places, ePlaceType::weapon2R)) {
         mWeapon2R = new eItemPlaceWidget(window());
-        mWeapon2R->intialize(eUITextures::sWeaponSlot, eq, &stats,
+        mWeapon2R->intialize(unitId,
+                             eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon2R,
                              ePlaceType::weapon2R, htype,
                              dragged);
@@ -207,7 +219,7 @@ void eInventoryWidget::initialize(
     firstRow->addWidget(rweaponCont);
     firstRow->stackHorizontally(p);
     firstRow->fitContent();
-    inner->addWidget(firstRow);
+    addWidget(firstRow);
 
     const auto secondRow = new eWidget(window());
     secondRow->setNoPadding();
@@ -219,16 +231,17 @@ void eInventoryWidget::initialize(
     if(boots) secondRow->addWidget(boots);
     secondRow->stackHorizontally(p);
     secondRow->fitContent();
-    inner->addWidget(secondRow);
+    addWidget(secondRow);
 
     if(eVectorHelpers::contains(places, ePlaceType::inventory)) {
         mBagpack = new eInventoryBagpackWidget(window());
-        mBagpack->initialize(eEquipment::fInventoryWidth,
+        mBagpack->initialize(mUnitId,
+                             eEquipment::fInventoryWidth,
                              eEquipment::fInventoryHeight,
                              eq.fInventory,
                              eq, eBagpackType::inventory,
                              htype, dragged);
-        inner->addWidget(mBagpack);
+        addWidget(mBagpack);
 
         mCoins = new eCoinsWidget(window());
         const bool stash = eStashWidget::sInstance;
@@ -254,24 +267,22 @@ void eInventoryWidget::initialize(
         };
         mCoins->initialize(eq.fInventoryGold,
                            action, stash ? 7 : 6);
-        inner->addWidget(mCoins);
+        addWidget(mCoins);
     }
 
-    inner->stackVertically(p);
-    inner->fitContent();
+    stackVertically(p);
+    fitContent();
 
     firstRow->align(eAlignment::hcenter);
     secondRow->align(eAlignment::hcenter);
     if(mBagpack) mBagpack->align(eAlignment::hcenter);
     if(mCoins) mCoins->align(eAlignment::hcenter);
 
-    setup(inner);
-
     updateWeapons();
 }
 
-bool eInventoryWidget::dropItem() {
-    if(sBlocked) return false;
+bool eInventoryWidgetBase::dropItem() {
+    if(eInventoryWidget::sBlocked) return false;
     const bool b = mBagpack && mBagpack->dropItem();
     if(b) return true;
     for(const auto w : mItemPlaces) {
@@ -283,7 +294,7 @@ bool eInventoryWidget::dropItem() {
     return false;
 }
 
-void eInventoryWidget::updateWeapons() {
+void eInventoryWidgetBase::updateWeapons() {
     if(mLWeaponSwitch) mLWeaponSwitch->updateChecked();
     if(mRWeaponSwitch) mRWeaponSwitch->updateChecked();
     if(mWeapon1L) mWeapon1L->setVisible(mEq->fWeapons1);
@@ -307,7 +318,24 @@ void eInventoryWidget::updateWeapons() {
     }
 }
 
-void eInventoryWidget::paintEvent(ePainter& p) {
-    eBgWidget::paintEvent(p);
+void eInventoryWidgetBase::paintEvent(ePainter& p) {
+    eWidget::paintEvent(p);
     if(mCoins) mCoins->setCount(mEq->fInventoryGold);
+}
+
+void eInventoryWidget::initialize(
+    const uint32_t unitId,
+    eEquipment& eq, const eStats& stats,
+    const eHoverItemType htype) {
+    mBase = new eInventoryWidgetBase(window());
+    mBase->initialize(unitId, eq, stats, htype);
+    setup(mBase);
+}
+
+bool eInventoryWidget::dropItem() {
+    return mBase->dropItem();
+}
+
+void eInventoryWidget::updateWeapons() {
+    mBase->updateWeapons();
 }

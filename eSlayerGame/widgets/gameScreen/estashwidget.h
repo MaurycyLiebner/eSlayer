@@ -14,7 +14,9 @@ public:
     eStashWidget(eMainWindow* const window);
     ~eStashWidget();
 
-    void initialize(eEquipment& eq, const eStats& stats);
+    void initialize(
+        const uint32_t clientId,
+        eEquipment& eq, const eStats& stats);
 
     bool dropItem();
 

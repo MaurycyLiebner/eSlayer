@@ -64,27 +64,24 @@ bool eEquipmentAction::add(
     return false;
 }
 
-bool eEquipmentAction::drag(eEquipment& eq) const {
-    auto& eqD = eq.fDragged;
-    if(eqD.fType != eItemType::none) return false;
-    eqD = eq.take(fItemId1);
+bool eEquipmentAction::drag(eEquipment& eq, eItem& dragged) const {
+    if(dragged.fType != eItemType::none) return false;
+    dragged = eq.take(fItemId1);
     return true;
 }
 
-bool eEquipmentAction::switchDrag(eEquipment& eq) const {
-    auto& eqD = eq.fDragged;
-    if(eqD.fType == eItemType::none) return false;
-    auto tmp = eqD;
-    eqD = eq.take(fItemId1);
+bool eEquipmentAction::switchDrag(eEquipment& eq, eItem& dragged) const {
+    if(dragged.fType == eItemType::none) return false;
+    auto tmp = dragged;
+    dragged = eq.take(fItemId1);
     return add(eq, tmp, fPlace);
 }
 
-bool eEquipmentAction::drop(eEquipment& eq) const {
-    auto& eqD = eq.fDragged;
-    if(eqD.fType == eItemType::none) return false;
-    const bool r = add(eq, eqD, fPlace);
+bool eEquipmentAction::drop(eEquipment& eq, eItem& dragged) const {
+    if(dragged.fType == eItemType::none) return false;
+    const bool r = add(eq, dragged, fPlace);
     if(!r) return false;
-    eqD = eItem();
+    dragged = eItem();
     return true;
 }
 
@@ -113,20 +110,21 @@ bool eEquipmentAction::switchWeapons(
     return true;
 }
 
-bool eEquipmentAction::apply(eEquipment& eq) const {
+bool eEquipmentAction::apply(
+    eEquipment& eq, eItem& dragged) const {
     switch(fType) {
     case eEquipmentActionType::add:
         return add(eq);
     case eEquipmentActionType::drag:
-        return drag(eq);
+        return drag(eq, dragged);
     case eEquipmentActionType::switchDrag:
-        return switchDrag(eq);
+        return switchDrag(eq, dragged);
     case eEquipmentActionType::dragAndDrop:
         return dragAndDrop(eq);
     case eEquipmentActionType::insertJewel:
         return insertJewel(eq);
     case eEquipmentActionType::drop:
-        return drop(eq);
+        return drop(eq, dragged);
     case eEquipmentActionType::gold:
         return gold(eq);
     case eEquipmentActionType::switchWeapons:
@@ -139,6 +137,7 @@ bool eEquipmentAction::apply(eEquipment& eq) const {
 
 void eEquipmentAction::read(ePacket& p) {
     p >> fType;
+    p >> fUnitId;
     p >> fPlace;
     fAddItem.read(p);
     p >> fItemId1;
@@ -152,6 +151,7 @@ void eEquipmentAction::read(ePacket& p) {
 
 void eEquipmentAction::write(ePacket& p) const {
     p << fType;
+    p << fUnitId;
     p << fPlace;
     fAddItem.write(p);
     p << fItemId1;

@@ -13,11 +13,13 @@
 #include <eSlayerHelpers/eequipment.h>
 
 eBottomWidget::eBottomWidget(
+    const uint32_t clientId,
     const eStats& stats,
     const eAttributes& attrs,
     eEquipment& eq,
     eMainWindow* const window) :
     eWidget(window),
+    mClientId(clientId),
     mStats(stats),
     mAttrs(attrs),
     mEq(eq) {}
@@ -179,7 +181,8 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     staminaWid->fitContent();
 
     mBelt = new eInventoryBagpackWidget(window());
-    mBelt->initialize(eEquipment::fBeltHPotionSlots,
+    mBelt->initialize(mClientId,
+                      eEquipment::fBeltHPotionSlots,
                       1, mEq.fBeltPotions,
                       mEq, eBagpackType::belt,
                       eHoverItemType::regular);
@@ -336,7 +339,8 @@ void eBottomWidget::hideBeltExt() {
 void eBottomWidget::showBeltExt() {
     if(mBeltExt) return;
     mBeltExt = new eInventoryBagpackWidget(window());
-    mBeltExt->initialize(eEquipment::fBeltHPotionSlots,
+    mBeltExt->initialize(mClientId,
+                         eEquipment::fBeltHPotionSlots,
                          eEquipment::fBeltVPotionSlots - 1,
                          mEq.fBeltHiddenPotions,
                          mEq, eBagpackType::beltExtension,

@@ -20,7 +20,9 @@ eStashWidget::~eStashWidget() {
     sInstance = nullptr;
 }
 
-void eStashWidget::initialize(eEquipment& eq, const eStats& stats) {
+void eStashWidget::initialize(
+    const uint32_t clientId,
+    eEquipment& eq, const eStats& stats) {
     mEq = &eq;
     const auto& res = resolution();
     const int p = res.largePadding();
@@ -29,7 +31,8 @@ void eStashWidget::initialize(eEquipment& eq, const eStats& stats) {
     inner->setNoPadding();
 
     mStash = new eInventoryBagpackWidget(window());
-    mStash->initialize(eEquipment::fStashWidth,
+    mStash->initialize(clientId,
+                       eEquipment::fStashWidth,
                        eEquipment::fStashHeight,
                        eq.fStash,
                        eq, eBagpackType::inventory,

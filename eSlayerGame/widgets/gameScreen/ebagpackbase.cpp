@@ -6,10 +6,11 @@
 #include <eSlayerHelpers/eequipment.h>
 
 void eBagpackBase::initialize(
+    const uint32_t unitId,
     const int w, const int h,
     std::vector<eInventoryItem>& items,
     const eHoverItemType htype) {
-
+    mUnitId = unitId;
     mItems = &items;
     mHoverType = htype;
 

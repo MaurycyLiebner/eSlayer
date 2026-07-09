@@ -15,13 +15,14 @@ class eItemPlaceWidget : public eLabel {
 public:
     using eLabel::eLabel;
 
-    void intialize(const std::shared_ptr<eTexture>& tex,
+    void intialize(const uint32_t unitId,
+                   const std::shared_ptr<eTexture>& tex,
                    eEquipment& eq,
                    const eStats* const stats,
                    eItem eEquipment::* const item,
                    const ePlaceType place,
                    const eHoverItemType htype,
-                   eItem* dragged = nullptr);
+                   eItem* const dragged = nullptr);
 
     bool dropItem();
     void setHoverItem();
@@ -33,6 +34,8 @@ protected:
     bool mouseLeaveEvent(const eMouseEvent& e) override;
 private:
     bool draggedCompatible();
+
+    uint32_t mUnitId = 0;
 
     eHoverItemType mHoverType = eHoverItemType::regular;
 

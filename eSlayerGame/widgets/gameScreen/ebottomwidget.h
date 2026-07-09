@@ -13,7 +13,8 @@ struct eAttributes;
 
 class eBottomWidget : public eWidget {
 public:
-    eBottomWidget(const eStats& stats,
+    eBottomWidget(const uint32_t clientId,
+                  const eStats& stats,
                   const eAttributes& attrs,
                   eEquipment& eq,
                   eMainWindow* const window);
@@ -63,6 +64,8 @@ protected:
 private:
     void hideBeltExt();
     void showBeltExt();
+
+    const uint32_t mClientId;
 
     const eStats& mStats;
     const eAttributes& mAttrs;

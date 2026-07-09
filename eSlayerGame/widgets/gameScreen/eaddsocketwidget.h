@@ -14,7 +14,8 @@ class eAddSocketWidget :
 public:
     using eBgWidget::eBgWidget;
 
-    void initialize(eEquipment& eq,
+    void initialize(const uint32_t clientId,
+                    eEquipment& eq,
                     const eTryAction& applyAction,
                     const eAction& cancelAction);
 

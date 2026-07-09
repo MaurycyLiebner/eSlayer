@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/eequipment.h>
 
 void eAddSocketWidget::initialize(
+    const uint32_t clientId,
     eEquipment& eq,
     const eTryAction& applyAction,
     const eAction& cancelAction) {
@@ -19,7 +20,8 @@ void eAddSocketWidget::initialize(
     innerW->setNoPadding();
 
     mPlace = new eItemPlaceWidget(window());
-    mPlace->intialize(eUITextures::sWeaponSlot,
+    mPlace->intialize(clientId,
+                      eUITextures::sWeaponSlot,
                       eq, nullptr,
                       &eEquipment::fTemporary,
                       ePlaceType::temporary,

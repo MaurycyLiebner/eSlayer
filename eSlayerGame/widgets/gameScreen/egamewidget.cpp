@@ -272,6 +272,7 @@ bool eGameWidget::switchWeapons() {
 
     eEquipmentAction a;
     a.fType = eEquipmentActionType::switchWeapons;
+    a.fUnitId = mClientId;
     a.fWeapons1 = eq.fWeapons1;
     eGameWidget::sSendEqAction(a);
 
@@ -480,7 +481,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 std::swap(item, action.fAddItem);
                 action.fPlace = i.fPlace;
                 action.fType = eEquipmentActionType::add;
-                action.apply(eq);
+                action.apply(eq, eq.fDragged);
             }
         }
         const auto bodiesToAdd = mServer->receiveBodiesCreated();
@@ -493,7 +494,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto eqActions = mServer->receiveEqActions();
         for(const auto& a : eqActions) {
-            a.apply(eq);
+            a.apply(eq, eq.fDragged);
         }
         if(!eqActions.empty()) {
             mMainAction->recalculateStats();

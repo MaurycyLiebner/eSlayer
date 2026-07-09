@@ -12,7 +12,7 @@ void eSellerBag::initialize(
     std::vector<eInventoryItem>& items,
     const eStats& stats, eEquipment& eq) {
     eBagpackBase::initialize(
-        w, h, items, eHoverItemType::buy);
+        sellerId, w, h, items, eHoverItemType::buy);
     mSellerId = sellerId;
     mStats = &stats;
     mEq = &eq;

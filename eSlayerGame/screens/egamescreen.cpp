@@ -28,6 +28,7 @@
 #include "../widgets/gameScreen/eaddsocketwidget.h"
 #include "../widgets/gameScreen/ehirewidget.h"
 #include "../widgets/gameScreen/efollowerportraits.h"
+#include "../widgets/gameScreen/emercwidget.h"
 
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
@@ -54,6 +55,8 @@ void eGameScreen::initialize(const uint32_t clientId,
                              const eCharacter& c,
                              const eTeamId teamId,
                              const eMoveToMapAction& move) {
+    mClientId = clientId;
+
     eSkillButton::sLeftMap = c.leftHotkeys();
     eSkillButton::sRightMap = c.rightHotkeys();
 
@@ -205,7 +208,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     addWidget(mPortraits);
 
     mBottomWidget = new eBottomWidget(
-        stats, attrs, eq, window());
+        clientId, stats, attrs, eq, window());
     mBottomWidget->initialize(
         leftSkillA, c.leftSkill(),
         rightSkillA, c.rightSkill(),
@@ -668,7 +671,7 @@ void eGameScreen::showInventoryMenu(
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mInventoryMenu);
-    mInventoryMenu->initialize(eq, stats, htype);
+    mInventoryMenu->initialize(mClientId, eq, stats, htype);
     mInventoryMenu->align(eAlignment::right | eAlignment::top);
     eHoverWidget::sUpdateDragItem(eq.fDragged);
 
@@ -872,10 +875,9 @@ void eGameScreen::showSellerMenu(
     const int w = width();
     const int h = height();
     mSellerMenu->resize(w/2, h - mBottomWidget->height());
-    const auto clientId = mGameWidget->clientId();
     auto& eq = mGameWidget->equipment();
     const auto& stats = mGameWidget->stats();
-    mSellerMenu->initialize(clientId, seller, eq, stats);
+    mSellerMenu->initialize(mClientId, seller, eq, stats);
     mMenusWidget->addWidget(mSellerMenu);
     mSellerMenu->align(eAlignment::left | eAlignment::top);
 
@@ -941,7 +943,7 @@ void eGameScreen::showAddSocketMenu(
         }
         hideInventoryConnectedMenu();
     };
-    mAddSocketMenu->initialize(eq, applyAction, cancelAction);
+    mAddSocketMenu->initialize(mClientId, eq, applyAction, cancelAction);
     mMenusWidget->addWidget(mAddSocketMenu);
     mAddSocketMenu->align(eAlignment::left | eAlignment::top);
 
@@ -966,7 +968,7 @@ void eGameScreen::showStashMenu() {
     auto& eq = mGameWidget->equipment();
     auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mStashMenu);
-    mStashMenu->initialize(eq, stats);
+    mStashMenu->initialize(mClientId, eq, stats);
     mStashMenu->align(eAlignment::left | eAlignment::top);
 
     showInventoryMenu();
@@ -994,20 +996,19 @@ void eGameScreen::showFollowerMenu(
     if(mFollowerMenu) return;
     auto& merc = mGameWidget->merc();
     if(!merc) return;
-    if(merc->fUnitId != id) return;
-    mFollowerMenu = new eInventoryWidget(window());
+    auto& mercRef = *merc;
+    if(mercRef.fUnitId != id) return;
+    mFollowerMenu = new eMercWidget(window());
     const int w = width();
     const int h = height();
     mFollowerMenu->resize(w/2, h - mBottomWidget->height());
-    auto& meq = merc->fEq;
+    auto& meq = mercRef.fEq;
     auto& eq = mGameWidget->equipment();
-    const auto mtype = merc->fMercType;
+    const auto mtype = mercRef.fMercType;
     const auto& m = eMercenariesInfo::sMercs.get(mtype);
-    auto& stats = mGameWidget->stats();
+    const auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mFollowerMenu);
-    mFollowerMenu->initialize(
-        meq, stats, eHoverItemType::regular,
-        m.fEquipment, &eq.fDragged);
+    mFollowerMenu->initialize(mercRef, eq, stats);
     mFollowerMenu->align(eAlignment::left | eAlignment::top);
 
     showInventoryMenu();

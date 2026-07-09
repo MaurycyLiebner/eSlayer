@@ -34,6 +34,7 @@ class eAddSocketWidget;
 struct eHireInfo;
 class eHireWidget;
 class eFollowerPortraits;
+class eMercWidget;
 
 class eGameScreen : public eScreenBase {
 public:
@@ -151,7 +152,7 @@ private:
     eWidget* mQuestsButtonW = nullptr;
     eAddSocketWidget* mAddSocketMenu = nullptr;
     eHireWidget* mHireMenu = nullptr;
-    eInventoryWidget* mFollowerMenu = nullptr;
+    eMercWidget* mFollowerMenu = nullptr;
 
     eWidget* mSkillMenu = nullptr;
 
@@ -164,6 +165,8 @@ private:
 
     int mOtherLeftSkill = 0;
     int mOtherRightSkill = 0;
+
+    uint32_t mClientId = 0;
 
     eLineEdit* mMessage = nullptr;
 };

@@ -15,26 +15,27 @@ class eHoverWidget;
 struct eStats;
 class eCoinsWidget;
 
-class eInventoryWidget : public eBgWidget {
+class eInventoryWidgetBase : public eWidget {
 public:
-    using eBgWidget::eBgWidget;
+    using eWidget::eWidget;
 
-    void initialize(eEquipment& eq, const eStats& stats,
+    void initialize(const uint32_t unitId,
+                    eEquipment& eq, const eStats& stats,
                     const eHoverItemType htype,
                     const std::vector<ePlaceType>& places =
-                        {ePlaceType::helmet,
-                         ePlaceType::armor,
-                         ePlaceType::belt,
-                         ePlaceType::boots,
-                         ePlaceType::gloves,
-                         ePlaceType::ringL,
-                         ePlaceType::ringR,
-                         ePlaceType::amulet,
-                         ePlaceType::weapon1L,
-                         ePlaceType::weapon1R,
-                         ePlaceType::weapon2L,
-                         ePlaceType::weapon2R,
-                         ePlaceType::inventory},
+                    {ePlaceType::helmet,
+                     ePlaceType::armor,
+                     ePlaceType::belt,
+                     ePlaceType::boots,
+                     ePlaceType::gloves,
+                     ePlaceType::ringL,
+                     ePlaceType::ringR,
+                     ePlaceType::amulet,
+                     ePlaceType::weapon1L,
+                     ePlaceType::weapon1R,
+                     ePlaceType::weapon2L,
+                     ePlaceType::weapon2R,
+                     ePlaceType::inventory},
                     eItem* dragged = nullptr);
 
     bool dropItem();
@@ -45,6 +46,8 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
 private:
+    uint32_t mUnitId = 0;
+
     eInventoryBagpackWidget* mBagpack = nullptr;
     eCoinsWidget* mCoins = nullptr;
     std::vector<eItemPlaceWidget*> mItemPlaces;
@@ -56,6 +59,22 @@ private:
     eItemPlaceWidget* mWeapon1R = nullptr;
     eItemPlaceWidget* mWeapon2L = nullptr;
     eItemPlaceWidget* mWeapon2R = nullptr;
+};
+
+class eInventoryWidget : public eBgWidget {
+public:
+    using eBgWidget::eBgWidget;
+
+    void initialize(const uint32_t unitId,
+                    eEquipment& eq, const eStats& stats,
+                    const eHoverItemType htype);
+
+    bool dropItem();
+    void updateWeapons();
+
+    static bool sBlocked;
+private:
+    eInventoryWidgetBase* mBase = nullptr;
 };
 
 #endif // EINVENTORYWIDGET_H
