@@ -73,6 +73,9 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mStandAnimId = data.animId("stand");
     mStandReadyAnimId = data.animId("standReady");
 
+    mWalkSpeed = udata.fWalkSpeed;
+    mRunSpeed = udata.fRunSpeed;
+
     const auto model = mMainCharTexs->requestModel(
         modelParts, res, r);
     eCharUnitModel umodel;
@@ -731,7 +734,7 @@ bool eMainCharAction::tryOpenTalk(
 
 void eMainCharAction::updateWalkRunSpeed() {
     const bool run = shouldRun();
-    const float base = run ? 0.1f : 0.07f;
+    const float base = run ? mRunSpeed : mWalkSpeed;
     const float speed = base*(1.f + mStats.fWalkRun);
     mMovementHandler.setSpeed(speed);
 }

@@ -151,6 +151,9 @@ private:
     int mWalkReadyAnimId = -1;
     int mStandAnimId = -1;
     int mStandReadyAnimId = -1;
+
+    float mWalkSpeed = 0.07f;
+    float mRunSpeed = 0.1f;
 };
 
 #endif // EMAINCHARACTION_H
