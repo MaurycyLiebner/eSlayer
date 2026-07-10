@@ -6,6 +6,7 @@
 #include <set>
 
 class eGameWorld;
+class eGameWidget;
 class eUnit;
 class ePortrait;
 struct eEquipment;
@@ -16,7 +17,8 @@ public:
 
     using eDropAction = std::function<bool(const uint32_t)>;
     using ePressAction = std::function<void(const uint32_t)>;
-    void initialize(const eGameWorld& world,
+    void initialize(const eGameWidget& gw,
+                    const eGameWorld& world,
                     const int w, const int h,
                     const ePressAction& pressA,
                     const eDropAction& dropA);
@@ -34,6 +36,7 @@ private:
 
     std::map<uint32_t, ePortrait*> mPortraits;
     const eGameWorld* mWorld = nullptr;
+    const eGameWidget* mGW = nullptr;
     std::set<uint32_t> mFollowers;
     ePressAction mPressAction;
     eDropAction mDropAction;

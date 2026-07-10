@@ -23,6 +23,7 @@
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
 #include "../../names/emonsternames.h"
+#include "../../names/emercenarynames.h"
 
 #include "../../etext.h"
 
@@ -408,6 +409,40 @@ void eGameWidget::openSellerMenu(const uint32_t sellerId) {
 
 void eGameWidget::addSocket(const uint8_t questId) {
     mServer->addedSocket(mClientId, questId);
+}
+
+std::string eGameWidget::name(const uint32_t uid) const {
+    const auto& s = eSlayers::sSlayers;
+    const auto it = s.find(uid);
+    if(it == s.end()) {
+        const auto& merc = eGameWidget::merc();
+        if(merc && merc->fUnitId == uid) {
+            const auto& names = eMercenaryNames::sNames.get(merc->fMercType);
+            return names[merc->fNameId % names.size()];
+        }
+    } else {
+        const auto& slayer = it->second;
+        return slayer.fName;
+    }
+    return "";
+}
+
+std::string eGameWidget::name(const eUnit& u) const {
+    if(u.isSlayerBody()) {
+        return mCName;
+    }
+    const auto charId = u.fCharId;
+    const auto name = eGameWidget::name(charId);
+    if(name.empty()) {
+        const auto typeId = u.fUnitInfoId;
+        return eMonsterNames::name(typeId);
+    }
+    return name;
+}
+
+std::string eGameWidget::name(const std::shared_ptr<eUnit>& u) const {
+    if(!u) return "";
+    return name(*u);
 }
 
 bool eGameWidget::hire(const eHireInfo& info) {
@@ -2063,23 +2098,7 @@ bool eGameWidget::mouseMoveEvent(const eMouseEvent& e) {
 
 void eGameWidget::setIndicatorUnit(
     const std::shared_ptr<eUnit>& u) {
-    std::string name;
-    if(u) {
-        if(u->isSlayerBody()) {
-            name = mCName;
-        } else {
-            const auto charId = u->fCharId;
-            const auto& s = eSlayers::sSlayers;
-            const auto it = s.find(charId);
-            if(it == s.end()) {
-                const int typeId = u->fUnitInfoId;
-                name = eMonsterNames::name(typeId);
-            } else {
-                const auto& slayer = it->second;
-                name = slayer.fName;
-            }
-        }
-    }
+    const auto name = eGameWidget::name(u);
     mUnitIndicator->setUnit(u, name);
 }
 

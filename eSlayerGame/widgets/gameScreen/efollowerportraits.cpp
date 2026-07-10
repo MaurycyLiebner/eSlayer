@@ -3,19 +3,28 @@
 #include "../../egameworld.h"
 #include "../etexturecheckbutton.h"
 #include "../../textures/euitextures.h"
+#include "../../textures/etextgenerator.h"
 #include "../ecolors.h"
+#include "egamewidget.h"
 
 class ePortrait : public eTextureCheckButton {
 public:
     using eTextureCheckButton::eTextureCheckButton;
 
-    void initialize(const eUnit& u) {
+    void initialize(const eUnit& u, const std::string& name) {
         const auto& ps = eUITextures::sPortraits;
         const auto it = ps.find(u.fUnitInfoId);
         if(it == ps.end()) return;
         const auto& p = it->second;
         eTextureCheckButton::initialize(p, p);
         update(u);
+
+        const auto r = renderer();
+        const auto& res = resolution();
+        const int fs = res.tinyFontSize();
+        const auto font = eFonts::defaultFont(fs);
+        eTextGenerator gen(r, eFontColor::white, font);
+        mName = gen.generate(name);
     }
 
     void update(const eUnit& u) {
@@ -28,17 +37,22 @@ protected:
         const int th = height();
         const int w = mHealthFrac*tw;
         p.fillRect(SDL_Rect{0, th, w, th/8}, eColors::sHealth);
+        if(!mName) return;
+        p.drawTexture(tw/2, th + th/8, mName, eAlignment::hcenter);
     }
 private:
     float mHealthFrac = 1.f;
+    std::shared_ptr<eTexture> mName;
 };
 
 void eFollowerPortraits::initialize(
+    const eGameWidget& gw,
     const eGameWorld& world,
     const int w, const int h,
     const ePressAction& pressA,
     const eDropAction& dropA) {
     resize(w, h);
+    mGW = &gw;
     mWorld = &world;
     mPressAction = pressA;
     mDropAction = dropA;
@@ -90,7 +104,8 @@ void eFollowerPortraits::updatePortrait(const eUnit& u) {
 
 void eFollowerPortraits::addPortrait(const eUnit& u) {
     const auto p = new ePortrait(window());
-    p->initialize(u);
+    const auto name = mGW->name(u);
+    p->initialize(u, name);
     const auto id = u.fCharId;
     p->setCheckAction([this, id](const bool) {
         mPressAction(id);

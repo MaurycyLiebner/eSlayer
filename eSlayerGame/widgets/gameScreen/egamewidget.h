@@ -86,7 +86,7 @@ public:
     eAttributes& attributes() { return mMainAction->attributes(); }
     eSlayerQuests& quests() { return mMainAction->quests(); }
     eTalkHeard& talkHeard() { return mMainAction->talkHeard(); }
-    std::optional<eMercenary>& merc() { return mMainAction->merc(); }
+    std::optional<eMercenary>& merc() const { return mMainAction->merc(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }
     bool running() const { return mMainAction->running(); }
@@ -133,6 +133,10 @@ public:
     void spawnPortal();
     void openSellerMenu(const uint32_t sellerId);
     void addSocket(const uint8_t questId);
+
+    std::string name(const uint32_t uid) const;
+    std::string name(const eUnit& u) const;
+    std::string name(const std::shared_ptr<eUnit>& u) const;
 
     bool hire(const eHireInfo& info);
 
