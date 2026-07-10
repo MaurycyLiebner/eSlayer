@@ -76,8 +76,6 @@ bool eLocalServer::requestMap(
                 disconnect(clientId);
                 return;
             }
-            const auto mapId = map->id();
-            eSlayers::setLocation(clientId, mapId, data.fSpawnPos);
         }
         h->setArea(area);
         func(data);
@@ -117,8 +115,6 @@ bool eLocalServer::spawnImpl(
     eSlayer slayer;
     slayer.fClientId = clientId;
     const auto map = h->map();
-    slayer.fMapId = map->id();
-    slayer.fPos = spawnPos;
     slayer.fName = name;
     eSlayers::sSlayers[clientId] = slayer;
     return true;
@@ -178,9 +174,6 @@ bool eLocalServer::changeState(
     const uint32_t clientId, const eUnitData& u) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    if(u.getUpdate(eUnitData::eShift::position)) {
-        eSlayers::setPoisition(clientId, u.fPos);
-    }
     return h->changeState(u);
 }
 

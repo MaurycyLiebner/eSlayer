@@ -6,6 +6,7 @@
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/eattackdata.h>
+#include <eSlayerHelpers/eslayers.h>
 
 eServerClientHandler::eServerClientHandler(
     const uint32_t clientId) :
@@ -85,6 +86,10 @@ bool eServerClientHandler::changeState(
         if(ePointF::distance(unit->fPos, u.fPos) > 0.0001f) {
             unit->setPosition(u.fPos);
             unit->setMoving(true);
+
+            const auto& map = mArea->map();
+            const auto areaId = map->areaAt(u.fPos);
+            unit->setAreaId(areaId);
         } else {
             unit->setMoving(false);
         }

@@ -501,7 +501,6 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         const auto state = eServer::serverState();
         const bool r = mData.read(p, state);
         mNewData = mNewData || r;
-        eSlayers::readLocations(p);
     } break;
     case ePacketType::equipment: {
         mEquipment = eEquipment();
@@ -599,6 +598,11 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
     case ePacketType::body: {
         auto& body = mBodiesCreated.emplace_back();
         body.read(p);
+    } break;
+    case ePacketType::summonMerc: {
+        eMercenary merc;
+        merc.read(p);
+        mMerc = merc;
     } break;
     case ePacketType::disconnect: {
         failed("Disconnected", "Host closed the connection.");

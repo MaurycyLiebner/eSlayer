@@ -97,7 +97,11 @@ void eGameWorld::iniNovaInc() {
                              nullptr);
 }
 
-void eGameWorld::addUnit(const ePointF& pos, const uint32_t charId) {
+void eGameWorld::addUnit(const eUnitData& data) {
+    const auto mapId = mMap->id();
+    if(data.fMapId != mapId) return;
+    const uint32_t charId = data.fCharId;
+    const auto& pos = data.fPos;
     const auto area = mUnitAreas.posArea(pos);
     mUnitAreas.emplace(area, charId);
     mUsedUnitAreas.emplace(area);
@@ -155,7 +159,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     for(const auto& u : newUnits) {
         const uint32_t charId = u.fCharId;
-        addUnit(u.fPos, charId);
+        addUnit(u);
         uPresent.emplace(charId);
         if(charId == clientId) {
             mResult.fHasMainCharData = true;
@@ -191,14 +195,14 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             mResult.fHasMainCharData = true;
             auto& d = mResult.fMainCharData;
             u.apply(d);
-            addUnit(d.fPos, charId);
+            addUnit(d);
             continue;
         }
         const auto unit = mUnits.get(charId);
         if(!unit) continue;
         auto& unitRef = *unit;
         u.apply(unitRef);
-        addUnit(unitRef.fPos, charId);
+        addUnit(unitRef);
         auto& model = unitRef.model();
         model.setAngle(unitRef.fAngle);
         model.setAnimation(unitRef.fAnim, unitRef.fAnimId,
@@ -211,6 +215,21 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     for(const auto& u : mUnits) {
         const uint32_t charId = u->fCharId;
+
+        {
+            auto& ss = eSlayers::sSlayers;
+            const auto it = ss.find(charId);
+            if(it != ss.end()) {
+                auto& s = it->second;
+                s.fPos = u->fPos;
+                s.fMapId = u->fMapId;
+                s.fAreaId = u->fAreaId;
+                s.fHealth = u->fHealth;
+                s.fMaxHealth = u->fMaxHealth;
+                s.fTeamId = u->fTeamId;
+            }
+        }
+
         const auto it = uPresent.find(charId);
         if(it != uPresent.end()) continue;
         mUnits.remove(charId);

@@ -68,6 +68,8 @@ public:
                 eServerArea& area,
                 ePathFinderMap& map);
 
+    bool isSlayer() const { return mSlayer; }
+
     int unitTypeId() const { return mUnitTypeId; }
 
     bool aggressive() const { return mAggressive; }
@@ -325,6 +327,7 @@ public:
 
     void setPosition(const ePointF& pos);
     void setMapId(const uint8_t mapId);
+    void setAreaId(const uint8_t areaId);
 
     void setAnim(const uint8_t anim);
     void setAnimId(const eAnimId& animId);
@@ -354,6 +357,7 @@ private:
 
     using eUnitData::setPosition;
     using eUnitData::setMapId;
+    using eUnitData::setAreaId;
 
     using eUnitData::setAnim;
     using eUnitData::setAnimId;

@@ -99,7 +99,7 @@ private:
     void iniMissileInc();
     void iniNovaInc();
 
-    void addUnit(const ePointF& pos, const uint32_t charId);
+    void addUnit(const eUnitData& data);
 
     const std::shared_ptr<eMap>& mMap;
     uint32_t mClientId;

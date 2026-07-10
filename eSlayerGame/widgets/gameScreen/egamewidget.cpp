@@ -90,8 +90,10 @@ void eGameWidget::initialize(const uint32_t clientId,
     const auto iter = [this](const ePointF& pos,
                              const float dist,
                              const eOtherHandler& handler) {
+        const auto mapId = mMap->id();
         for(const auto& u : mWorld.units()) {
             if(!u) continue;
+            if(u->fMapId != mapId) continue;
             handler(*u);
         }
     };
@@ -1059,7 +1061,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                        eRenderElementType::item,
                                                        std::static_pointer_cast<ePositioned>(i)});
         }
+        const auto mapId = mMap->id();
         for(const auto& u : mWorld.units()) {
+            if(u->fMapId != mapId) continue;
             const auto& pos = u->fPos;
             const auto pixel = tilePosToPixel(pos);
             if(pixel.fX < -margin || pixel.fY < -margin ||
@@ -1432,7 +1436,6 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         mGamePainter.calculateAndRenderLighting();
 
-        const uint8_t mapId = mMap->id();
         for(const auto& w : waypoints) {
             const auto& obj = *w;
             const auto objType = obj.fObjectType;
@@ -2020,7 +2023,9 @@ void eGameWidget::paintEvent(ePainter& p) {
         p.drawTexture(rect(), tex, eAlignment::center);
     }
 
+    const float mult = res.multiplier();
     const int m = res.smallPadding();
+    const int x = m + 100*mult;
     int y = m;
     for(int i = 0; i < mMessages.size(); i++) {
         auto& msg = mMessages[i];
@@ -2028,7 +2033,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             mMessages.erase(mMessages.begin() + i);
             i--;
         } else {
-            p.drawTexture(m, y, msg.fTex);
+            p.drawTexture(x, y, msg.fTex);
             y += msg.fTex->height() + m;
         }
     }

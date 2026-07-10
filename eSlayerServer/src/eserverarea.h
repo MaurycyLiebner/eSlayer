@@ -242,6 +242,7 @@ public:
                        const uint32_t sellerId,
                        eSeller& seller);
 
+    static std::map<uint32_t, std::shared_ptr<eServerUnit>> sSlayers;
     static std::vector<uint32_t> sSlain;
 private:
     bool checkQuestItems(

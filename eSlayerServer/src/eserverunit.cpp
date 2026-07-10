@@ -1245,7 +1245,13 @@ void eServerUnit::setPosition(const ePointF& pos) {
 
 void eServerUnit::setMapId(const uint8_t mapId) {
     if(eUnitData::setMapId(mapId)) {
-        update(eUnitData::eShift::mapId);
+        update(eUnitData::eShift::mapIdAreaId);
+    }
+}
+
+void eServerUnit::setAreaId(const uint8_t areaId) {
+    if(eUnitData::setAreaId(areaId)) {
+        update(eUnitData::eShift::mapIdAreaId);
     }
 }
 

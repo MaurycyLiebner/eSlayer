@@ -19,7 +19,6 @@ public:
     using ePressAction = std::function<void(const uint32_t)>;
     void initialize(const eGameWidget& gw,
                     const eGameWorld& world,
-                    const int w, const int h,
                     const ePressAction& pressA,
                     const eDropAction& dropA);
 
@@ -33,11 +32,13 @@ private:
     void updatePortrait(const eUnit& u);
     void addPortrait(const eUnit& u);
     void removePortrait(const uint32_t uid);
+    void afterChanged();
 
     std::map<uint32_t, ePortrait*> mPortraits;
     const eGameWorld* mWorld = nullptr;
     const eGameWidget* mGW = nullptr;
     std::set<uint32_t> mFollowers;
+    std::set<uint32_t> mSlayers;
     ePressAction mPressAction;
     eDropAction mDropAction;
 };

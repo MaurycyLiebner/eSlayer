@@ -209,8 +209,9 @@ void eGameScreen::initialize(const uint32_t clientId,
         if(r) eHoverWidget::sUpdateDragItem(eItem());
         return r;
     };
-    mPortraits->initialize(*mGameWidget, world, w, h, pressA, dropA);
+    mPortraits->initialize(*mGameWidget, world, pressA, dropA);
     addWidget(mPortraits);
+    mPortraits->move(20*m, 20*m);
 
     mBottomWidget = new eBottomWidget(
         clientId, stats, attrs, eq, window());

@@ -716,7 +716,6 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                 ePacket p;
                 p << ePacketType::data;
                 data.write(p);
-                eSlayers::writeLocations(p);
                 mNet.sendToClient(tcpClientId, p);
             }
         }

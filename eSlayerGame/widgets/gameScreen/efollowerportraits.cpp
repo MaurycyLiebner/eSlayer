@@ -48,10 +48,8 @@ private:
 void eFollowerPortraits::initialize(
     const eGameWidget& gw,
     const eGameWorld& world,
-    const int w, const int h,
     const ePressAction& pressA,
     const eDropAction& dropA) {
-    resize(w, h);
     mGW = &gw;
     mWorld = &world;
     mPressAction = pressA;
@@ -81,14 +79,32 @@ void eFollowerPortraits::paintEvent(
 
 void eFollowerPortraits::updateFollowers() {
     const auto followers = mFollowers;
-    for(const auto f : followers) {
-        const auto u = mWorld->getUnit(f);
+    const auto handleUnit = [&](const uint32_t unitId) {
+        const auto u = mWorld->getUnit(unitId);
         if(u) {
             updatePortrait(*u);
         } else {
-            mFollowers.erase(f);
-            removePortrait(f);
+            removePortrait(unitId);
         }
+    };
+    for(const auto f : followers) {
+        handleUnit(f);
+    }
+    const auto clientId = mGW->clientId();
+    const auto team = eTeams::playerTeam(clientId);
+    for(const auto& it : eSlayers::sSlayers) {
+        const auto unitId = it.first;
+        if(unitId == clientId) continue;
+        const auto& s = it.second;
+        if(s.fTeamId != team) {
+            removePortrait(unitId);
+            continue;
+        }
+        mSlayers.emplace(unitId);
+    }
+    const auto slayers = mSlayers;
+    for(const auto unitId : slayers) {
+        handleUnit(unitId);
     }
 }
 
@@ -111,16 +127,24 @@ void eFollowerPortraits::addPortrait(const eUnit& u) {
         mPressAction(id);
     });
     addWidget(p);
-    const auto& res = resolution();
-    const int pp = res.largePadding();
-    stackHorizontally(pp);
+    afterChanged();
     mPortraits[u.fCharId] = p;
 }
 
 void eFollowerPortraits::removePortrait(const uint32_t uid) {
+    mFollowers.erase(uid);
+    mSlayers.erase(uid);
     const auto it = mPortraits.find(uid);
     if(it == mPortraits.end()) return;
     const auto p = it->second;
     p->deleteLater();
+    afterChanged();
     mPortraits.erase(it);
+}
+
+void eFollowerPortraits::afterChanged() {
+    const auto& res = resolution();
+    const int pp = res.largePadding();
+    stackVertically(3*pp);
+    fitContent();
 }

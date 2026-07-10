@@ -29,6 +29,8 @@
 #include <eSlayerHelpers/emercenaries.h>
 
 std::vector<uint32_t> eServerArea::sSlain;
+std::map<uint32_t, std::shared_ptr<eServerUnit>>
+eServerArea::sSlayers;
 
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
@@ -163,6 +165,11 @@ void eServerArea::iniSetupUnit(
     mUnits.add(charId, u);
     const auto area = unitArea(*u);
     mUnitAreas.emplace(area, charId);
+
+    const auto mapId = mMap->id();
+    u->setMapId(mapId);
+    const auto areaId = mMap->areaAt(pos);
+    u->setAreaId(areaId);
 }
 
 void eServerArea::addGroundItem(
@@ -619,30 +626,50 @@ void eServerArea::unitsData(
     const int dyMax = halfHeight + 2;
     const int dxMin = -halfWidth - 2;
     const int dxMax = halfWidth + 2;
-    const auto handleUnit = [&](const uint32_t charId) {
-        const auto u = unit(charId);
-        if(!u) return;
+
+    enum class eHandleType {
+        regular,
+        slayers,
+        followers
+    };
+
+    const auto handleUnit = [&](
+            eServerUnit& u,
+            const eHandleType htype) {
+        const bool slayer = htype == eHandleType::slayers;
+        if(u.isSlayer() != slayer) return;
+        const auto charId = u.fCharId;
         const auto it = visible.emplace(charId);
         if(!it.second) return;
-        const auto update = u->requestUpdate(clientId);
+        const auto update = u.requestUpdate(clientId);
         if(known.find(charId) == known.end()) {
-            const auto& pos = u->fPos;
-            const float y = halfHeightF +
-                            0.5f*(pos.fY - clientPos.fY + pos.fX - clientPos.fX);
-            const float x = halfWidthF +
-                            0.5f*(clientPos.fY - pos.fY + pos.fX - clientPos.fX);
-            const float margin = 4.f;
-            if(y < -margin) return;
-            if(x < -margin) return;
-            if(y > height + margin) return;
-            if(x > width + margin) return;
-            const auto d = u->toUnitData();
+            if(htype == eHandleType::regular) {
+                const auto& pos = u.fPos;
+                const float y = halfHeightF +
+                                0.5f*(pos.fY - clientPos.fY + pos.fX - clientPos.fX);
+                const float x = halfWidthF +
+                                0.5f*(clientPos.fY - pos.fY + pos.fX - clientPos.fX);
+                const float margin = 4.f;
+                if(y < -margin) return;
+                if(x < -margin) return;
+                if(y > height + margin) return;
+                if(x > width + margin) return;
+            }
+            const auto d = u.toUnitData();
             newUnits.emplace_back(d);
             known.emplace(charId);
         } else {
-            const auto d = u->toUnitData(update);
+            const auto d = u.toUnitData(update);
             updatedUnits.emplace_back(d);
         }
+    };
+
+    const auto handleUnitById = [&](
+            const uint32_t charId,
+            const eHandleType htype) {
+        const auto u = unit(charId);
+        if(!u) return;
+        handleUnit(*u, htype);
     };
     for(int dy = dyMin; dy <= dyMax; dy++) {
         for(int dx = dxMin; dx <= dxMax; dx++) {
@@ -652,14 +679,19 @@ void eServerArea::unitsData(
             if(!mUnitAreas.hasArea(area)) continue;
             const auto& units = mUnitAreas.at(area);
             for(const uint32_t charId : units) {
-                handleUnit(charId);
+                handleUnitById(charId, eHandleType::regular);
             }
         }
     }
 
     const auto& followers = clientU->followers();
     for(const auto fId : followers) {
-        handleUnit(fId);
+        handleUnitById(fId, eHandleType::followers);
+    }
+
+    for(const auto& t : sSlayers) {
+        const auto& s = t.second;
+        handleUnit(*s, eHandleType::slayers);
     }
 
     // Remove units no longer visible from the known set
@@ -820,6 +852,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         true, data, typeId, *this, map);
+    sSlayers[clientId] = u;
     u->setUnitType(eUnitType::slayer);
     u->addSkill();
     u->addSkill();
@@ -905,6 +938,7 @@ bool eServerArea::addClient(
 
     findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
+
     const auto a = std::make_shared<eClientAction>(*u, *this);
     u->setAction(a);
     u->setBlockingActionTime(0.f);
@@ -1130,6 +1164,7 @@ bool eServerArea::createBody(
 }
 
 bool eServerArea::removeClient(const uint32_t clientId) {
+    sSlayers.erase(clientId);
     planRemoveUnit(clientId);
     const auto& bodies = mBodies[clientId];
     for(const auto bodyId : bodies) {
