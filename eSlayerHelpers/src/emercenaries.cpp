@@ -45,7 +45,14 @@ void eMercenariesInfo::load() {
                 "equipment", std::vector<std::string>());
             for(const auto& place : eq) {
                 const auto type = ePlaceTypeHelpers::type(place);
-                u.fEquipment.emplace_back(type);
+                u.fEq.fEquipment.emplace_back(type);
+            }
+
+            const auto& types = jdata.value(
+                "types", std::vector<std::string>());
+            for(const auto& name : types) {
+                const auto type = eItemTypeHelpers::type(name);
+                u.fEq.fTypes.emplace_back(type);
             }
 
             const auto& weapon = jdata.value(
@@ -55,7 +62,7 @@ void eMercenariesInfo::load() {
                 if(classId < 0) {
                     eRuntimeThrow("Unrecognized weapon class \"" + class_ + "\".");
                 }
-                u.fWeaponClasses.emplace_back(classId);
+                u.fEq.fWeaponClasses.emplace_back(classId);
             }
 
             sMercs.add(name, u);

@@ -18,12 +18,13 @@ void eMercWidget::initialize(
 
     const auto& m = eMercenariesInfo::sMercs.get(
         merc.fMercType);
-    const auto& places = m.fEquipment;
+    const auto& eqO = m.fEq;
+    const auto& places = eqO.fEquipment;
 
     mInv = new eInventoryWidgetBase(window());
     mInv->initialize(merc.fUnitId, merc.fEq, stats,
                      eHoverItemType::regular, places,
-                     &eq.fDragged);
+                     &eq.fDragged, eqO);
     innerW->addTab(eText::text(17, 5), mInv);
 
     mStats.fSkills.emplace_back();

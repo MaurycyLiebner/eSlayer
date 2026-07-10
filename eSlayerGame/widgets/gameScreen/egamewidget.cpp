@@ -46,6 +46,7 @@
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/emercenaries.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 std::vector<std::string> eGameWidget::sMessageLog;
@@ -243,7 +244,10 @@ bool eGameWidget::dropPortrait(const uint32_t unitId) {
     } else {
         const auto mtype = merc->fMercType;
         const auto& m = eMercenariesInfo::sMercs.get(mtype);
-        for(const auto type : m.fEquipment) {
+        const auto& eqO = m.fEq;
+        const bool r = eqO.validateItem(dragged);
+        if(!r) return false;
+        for(const auto type : eqO.fEquipment) {
             eEquipmentPlace p;
             const bool r = meq.tryAdd(dragged, type, &p);
             if(!r) continue;

@@ -21,7 +21,8 @@ void eItemPlaceWidget::intialize(
     eItem eEquipment::* const item,
     const ePlaceType place,
     const eHoverItemType htype,
-    eItem* const dragged) {
+    eItem* const dragged,
+    const std::optional<eEqOptions>& options) {
     mUnitId = unitId;
     setNoPadding();
     mEq = &eq;
@@ -30,6 +31,7 @@ void eItemPlaceWidget::intialize(
     } else {
         mDragged = dragged;
     }
+    mOptions = options;
     mStats = stats;
     mDst = item;
     mPlace.fType = place;
@@ -44,6 +46,10 @@ bool eItemPlaceWidget::dropItem() {
     if(eInventoryWidget::sBlocked) return true;
     auto& dragged = *mDragged;
     if(dragged.fType == eItemType::none) return true;
+    if(mOptions) {
+        const bool r = mOptions->validateItem(dragged);
+        if(!r) return false;
+    }
     auto& dst = mEq->*mDst;
     if(dragged.fType == eItemType::jewel) {
         if(dst.spaceForJewel()) {
@@ -121,6 +127,10 @@ bool eItemPlaceWidget::mouseLeaveEvent(const eMouseEvent& e) {
 
 bool eItemPlaceWidget::draggedCompatible() {
     auto& dragged = *mDragged;
+    if(mOptions) {
+        const bool r = mOptions->validateItem(dragged);
+        if(!r) return false;
+    }
     const bool met = mStats ? mStats->itemReqsMet(dragged) : true;
     if(!met) return false;
     const auto& dst = mEq->*mDst;

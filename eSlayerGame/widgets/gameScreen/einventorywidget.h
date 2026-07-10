@@ -5,6 +5,7 @@
 
 #include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/eequipmentplace.h>
+#include <eSlayerHelpers/eeqoptions.h>
 
 class eHoverWidget;
 class eInventoryBagpackWidget;
@@ -36,7 +37,8 @@ public:
                      ePlaceType::weapon2L,
                      ePlaceType::weapon2R,
                      ePlaceType::inventory},
-                    eItem* dragged = nullptr);
+                    eItem* const dragged = nullptr,
+                    const std::optional<eEqOptions>& options = std::nullopt);
 
     bool dropItem();
 
@@ -47,6 +49,9 @@ protected:
     void paintEvent(ePainter& p) override;
 private:
     uint32_t mUnitId = 0;
+
+    std::optional<eEqOptions> mOptions;
+    eItem* mDragged = nullptr;
 
     eInventoryBagpackWidget* mBagpack = nullptr;
     eCoinsWidget* mCoins = nullptr;

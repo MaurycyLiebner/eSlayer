@@ -1,18 +1,15 @@
 #ifndef EMERCENARIES_H
 #define EMERCENARIES_H
 
-#include "eequipmentplace.h"
-
 #include "estringidmapvector.h"
+#include "eeqoptions.h"
 
 #include <cstdint>
-#include <vector>
 
 struct eMercenaryInfo {
     uint8_t fUnitType;
 
-    std::vector<ePlaceType> fEquipment;
-    std::vector<uint8_t> fWeaponClasses;
+    eEqOptions fEq;
 
     uint16_t fBaseStrength = 20;
     uint16_t fBaseDexterity = 20;

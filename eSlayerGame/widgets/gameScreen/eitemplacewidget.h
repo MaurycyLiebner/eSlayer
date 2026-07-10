@@ -5,6 +5,7 @@
 
 #include <eSlayerHelpers/eequipmentplace.h>
 #include <eSlayerHelpers/eitem.h>
+#include <eSlayerHelpers/eeqoptions.h>
 
 struct eEquipment;
 struct eItem;
@@ -22,7 +23,8 @@ public:
                    eItem eEquipment::* const item,
                    const ePlaceType place,
                    const eHoverItemType htype,
-                   eItem* const dragged = nullptr);
+                   eItem* const dragged = nullptr,
+                   const std::optional<eEqOptions>& options = std::nullopt);
 
     bool dropItem();
     void setHoverItem();
@@ -39,6 +41,7 @@ private:
 
     eHoverItemType mHoverType = eHoverItemType::regular;
 
+    std::optional<eEqOptions> mOptions;
     eEquipmentPlace mPlace;
     eEquipment* mEq = nullptr;
     const eStats* mStats = nullptr;

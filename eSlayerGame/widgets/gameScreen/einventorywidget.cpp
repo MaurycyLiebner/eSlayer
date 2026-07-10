@@ -20,13 +20,17 @@ void eInventoryWidgetBase::initialize(
     eEquipment& eq, const eStats& stats,
     const eHoverItemType htype,
     const std::vector<ePlaceType>& places,
-    eItem* dragged) {
+    eItem* const dragged,
+    const std::optional<eEqOptions>& options) {
     setNoPadding();
     mUnitId = unitId;
     mEq = &eq;
-    if(!dragged) {
-        dragged = &mEq->fDragged;
+    if(dragged) {
+        mDragged = dragged;
+    } else {
+        mDragged = &mEq->fDragged;
     }
+    mOptions = options;
     const auto& res = resolution();
 
     eItemPlaceWidget* helmet = nullptr;
@@ -36,7 +40,7 @@ void eInventoryWidgetBase::initialize(
                           eUITextures::sHelmetSlot, eq, &stats,
                           &eEquipment::fHelmet,
                           ePlaceType::helmet, htype,
-                          dragged);
+                          mDragged, mOptions);
         mItemPlaces.emplace_back(helmet);
     }
 
@@ -47,7 +51,7 @@ void eInventoryWidgetBase::initialize(
                          eUITextures::sArmorSlot, eq, &stats,
                          &eEquipment::fArmor,
                          ePlaceType::armor, htype,
-                         dragged);
+                         mDragged, mOptions);
         mItemPlaces.emplace_back(armor);
     }
 
@@ -58,7 +62,7 @@ void eInventoryWidgetBase::initialize(
                         eUITextures::sBeltSlot, eq, &stats,
                         &eEquipment::fBelt,
                         ePlaceType::belt, htype,
-                        dragged);
+                        mDragged, mOptions);
         mItemPlaces.emplace_back(belt);
     }
 
@@ -69,7 +73,7 @@ void eInventoryWidgetBase::initialize(
                          eUITextures::sBootsSlot, eq, &stats,
                          &eEquipment::fBoots,
                          ePlaceType::boots, htype,
-                         dragged);
+                         mDragged, mOptions);
         mItemPlaces.emplace_back(boots);
     }
 
@@ -80,7 +84,7 @@ void eInventoryWidgetBase::initialize(
                           eUITextures::sGlovesSlot, eq, &stats,
                           &eEquipment::fGloves,
                           ePlaceType::gloves, htype,
-                          dragged);
+                          mDragged, mOptions);
         mItemPlaces.emplace_back(gloves);
     }
 
@@ -91,7 +95,7 @@ void eInventoryWidgetBase::initialize(
                          eUITextures::sRingSlot, eq, &stats,
                          &eEquipment::fRingL,
                          ePlaceType::ringL, htype,
-                         dragged);
+                         mDragged, mOptions);
         mItemPlaces.emplace_back(ringL);
     }
 
@@ -102,7 +106,7 @@ void eInventoryWidgetBase::initialize(
                          eUITextures::sRingSlot, eq, &stats,
                          &eEquipment::fRingR,
                          ePlaceType::ringR, htype,
-                         dragged);
+                         mDragged, mOptions);
         mItemPlaces.emplace_back(ringR);
     }
 
@@ -113,7 +117,7 @@ void eInventoryWidgetBase::initialize(
                           eUITextures::sAmuletSlot, eq, &stats,
                           &eEquipment::fAmulet,
                           ePlaceType::amulet, htype,
-                          dragged);
+                          mDragged, mOptions);
         mItemPlaces.emplace_back(amulet);
     }
 
@@ -123,7 +127,7 @@ void eInventoryWidgetBase::initialize(
                              eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon1L,
                              ePlaceType::weapon1L, htype,
-                             dragged);
+                             mDragged, mOptions);
         mItemPlaces.emplace_back(mWeapon1L);
     }
 
@@ -133,7 +137,7 @@ void eInventoryWidgetBase::initialize(
                              eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon1R,
                              ePlaceType::weapon1R, htype,
-                             dragged);
+                             mDragged, mOptions);
         mItemPlaces.emplace_back(mWeapon1R);
     }
 
@@ -143,7 +147,7 @@ void eInventoryWidgetBase::initialize(
                              eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon2L,
                              ePlaceType::weapon2L, htype,
-                             dragged);
+                             mDragged, mOptions);
         mItemPlaces.emplace_back(mWeapon2L);
     }
 
@@ -153,7 +157,7 @@ void eInventoryWidgetBase::initialize(
                              eUITextures::sWeaponSlot, eq, &stats,
                              &eEquipment::fWeapon2R,
                              ePlaceType::weapon2R, htype,
-                             dragged);
+                             mDragged, mOptions);
         mItemPlaces.emplace_back(mWeapon2R);
     }
 
@@ -240,7 +244,7 @@ void eInventoryWidgetBase::initialize(
                              eEquipment::fInventoryHeight,
                              eq.fInventory,
                              eq, eBagpackType::inventory,
-                             htype, dragged);
+                             htype, mDragged);
         addWidget(mBagpack);
 
         mCoins = new eCoinsWidget(window());
