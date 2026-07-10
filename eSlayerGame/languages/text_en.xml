@@ -214,6 +214,8 @@
         <string id="2">Choose a Mercenary</string>
         <string id="3">Cancel</string>
         <string id="4">%1 - Lvl: %2 - Cost: %3 - %4</string>
+        <string id="5">Equipment</string>
+        <string id="6">Attributes</string>
     </group>
     <group id="18">
         <string id="0">Create Portal</string>

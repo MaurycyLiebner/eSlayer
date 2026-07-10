@@ -1,6 +1,8 @@
 #include "emercwidget.h"
 
 #include "../../names/emercenarynames.h"
+#include "../etabwidget.h"
+#include "../../etext.h"
 
 #include <eSlayerHelpers/emercenaries.h>
 
@@ -11,11 +13,8 @@ void eMercWidget::initialize(
     mMerc = &merc;
     mAttributes = merc.attributes();
 
-    const auto& res = resolution();
-    const int p = res.largePadding();
-
-    const auto innerW = new eWidget(window());
-    innerW->setNoPadding();
+    const auto innerW = new eTabWidget(window());
+    innerW->initialize();
 
     const auto& m = eMercenariesInfo::sMercs.get(
         merc.fMercType);
@@ -25,7 +24,7 @@ void eMercWidget::initialize(
     mInv->initialize(merc.fUnitId, merc.fEq, stats,
                      eHoverItemType::regular, places,
                      &eq.fDragged);
-    innerW->addWidget(mInv);
+    innerW->addTab(eText::text(17, 5), mInv);
 
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();
@@ -33,11 +32,8 @@ void eMercWidget::initialize(
     mStat = new eStatsWidgetBase(window());
     const auto& names = eMercenaryNames::sNames.get(merc.fMercType);
     const auto& name = names[merc.fNameId % names.size()];
-    mStat->initialize(name, mStats, merc.fEq, mAttributes);
-    innerW->addWidget(mStat);
-
-    innerW->stackVertically(p);
-    innerW->fitContent();
+    mStat->initialize(name, mStats, merc.fEq, mAttributes, true);
+    innerW->addTab(eText::text(17, 6), mStat);
 
     setup(innerW);
 }

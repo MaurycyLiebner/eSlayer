@@ -434,15 +434,16 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             hideRightMenu();
             showSkillTreesMenu();
         }
-    } else if(key == SDL_SCANCODE_RETURN) {
-        if(mMessage) {
-            const auto& text = mMessage->text();
-            if(!text.empty()) {
-                mGameWidget->sendMessage(text);
-            }
-            hideMessageBox();
+    } else if(!mMessage && key == SDL_SCANCODE_O) {
+        if(mFollowerMenu) {
+            hideInventoryConnectedMenu();
         } else {
-            showMessageBox();
+            const auto& merc = mGameWidget->merc();
+            if(merc && merc->fUnitId) {
+                hideLeftMenu();
+                hideRightMenu();
+                showFollowerMenu(merc->fUnitId);
+            }
         }
     } else if(key == SDL_SCANCODE_RETURN) {
         if(mMessage) {

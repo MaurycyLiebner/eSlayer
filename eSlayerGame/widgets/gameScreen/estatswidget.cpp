@@ -176,7 +176,8 @@ void eStatsWidgetBase::initialize(
       const std::string& name,
       eStats& stats,
       const eEquipment& eq,
-      eAttributes& attrs) {
+      eAttributes& attrs,
+      const bool merc) {
     mStats = &stats;
     mEq = &eq;
     mAttrs = &attrs;
@@ -231,10 +232,12 @@ void eStatsWidgetBase::initialize(
         }
     };
 
-    mStrIncButton = new eAttrIncButton(window());
-    mStrIncButton->setPressAction([incAttr]() {
-        incAttr(&eAttributes::fStrength);
-    });
+    if(!merc) {
+        mStrIncButton = new eAttrIncButton(window());
+        mStrIncButton->setPressAction([incAttr]() {
+            incAttr(&eAttributes::fStrength);
+        });
+    }
 
     const auto dmgWidget = new eWidget(window());
     dmgWidget->setNoPadding();
@@ -250,7 +253,7 @@ void eStatsWidgetBase::initialize(
     dmgWidget->fitContent();
 
     strW->addWidget(mStrength);
-    strW->addWidget(mStrIncButton);
+    if(mStrIncButton) strW->addWidget(mStrIncButton);
     strW->addWidget(dmgWidget);
     strW->stackHorizontally(hp);
     strW->fitContent();
@@ -261,10 +264,12 @@ void eStatsWidgetBase::initialize(
     mDexterity = new eStatWidget(window());
     mDexterity->initialize();
 
-    mDexIncButton = new eAttrIncButton(window());
-    mDexIncButton->setPressAction([incAttr]() {
-        incAttr(&eAttributes::fDexterity);
-    });
+    if(!merc) {
+        mDexIncButton = new eAttrIncButton(window());
+        mDexIncButton->setPressAction([incAttr]() {
+            incAttr(&eAttributes::fDexterity);
+        });
+    }
 
     const auto arDefenseWidget = new eWidget(window());
     arDefenseWidget->setNoPadding();
@@ -284,7 +289,7 @@ void eStatsWidgetBase::initialize(
     arDefenseWidget->fitContent();
 
     dexW->addWidget(mDexterity);
-    dexW->addWidget(mDexIncButton);
+    if(mDexIncButton) dexW->addWidget(mDexIncButton);
     dexW->addWidget(arDefenseWidget);
     dexW->stackHorizontally(hp);
     dexW->fitContent();
@@ -295,49 +300,56 @@ void eStatsWidgetBase::initialize(
     mVitality = new eStatWidget(window());
     mVitality->initialize();
 
-    mVitIncButton = new eAttrIncButton(window());
-    mVitIncButton->setPressAction([incAttr]() {
-        incAttr(&eAttributes::fVitality);
-    });
+    if(!merc) {
+        mVitIncButton = new eAttrIncButton(window());
+        mVitIncButton->setPressAction([incAttr]() {
+            incAttr(&eAttributes::fVitality);
+        });
+    }
 
     const auto staminaLifeWidget = new eWidget(window());
     staminaLifeWidget->setNoPadding();
 
-    mStamina = new eStatWidget(window());
-    mStamina->initialize(2);
+    if(!merc) {
+        mStamina = new eStatWidget(window());
+        mStamina->initialize(2);
+    }
     mLife = new eStatWidget(window());
     mLife->initialize(2);
 
-    staminaLifeWidget->addWidget(mStamina);
+    if(mStamina) staminaLifeWidget->addWidget(mStamina);
     staminaLifeWidget->addWidget(mLife);
     staminaLifeWidget->stackVertically(sp);
     staminaLifeWidget->fitContent();
 
     vitW->addWidget(mVitality);
-    vitW->addWidget(mVitIncButton);
+    if(mVitIncButton) vitW->addWidget(mVitIncButton);
     vitW->addWidget(staminaLifeWidget);
     vitW->stackHorizontally(hp);
     vitW->fitContent();
 
-    const auto eneW = new eWidget(window());
-    eneW->setNoPadding();
+    eWidget* eneW = nullptr;
+    if(!merc) {
+        eneW = new eWidget(window());
+        eneW->setNoPadding();
 
-    mEnergy = new eStatWidget(window());
-    mEnergy->initialize();
+        mEnergy = new eStatWidget(window());
+        mEnergy->initialize();
 
-    mEneIncButton = new eAttrIncButton(window());
-    mEneIncButton->setPressAction([incAttr]() {
-        incAttr(&eAttributes::fEnergy);
-    });
+        mEneIncButton = new eAttrIncButton(window());
+        mEneIncButton->setPressAction([incAttr]() {
+            incAttr(&eAttributes::fEnergy);
+        });
 
-    mMana = new eStatWidget(window());
-    mMana->initialize(2);
+        mMana = new eStatWidget(window());
+        mMana->initialize(2);
 
-    eneW->addWidget(mEnergy);
-    eneW->addWidget(mEneIncButton);
-    eneW->addWidget(mMana);
-    eneW->stackHorizontally(hp);
-    eneW->fitContent();
+        eneW->addWidget(mEnergy);
+        eneW->addWidget(mEneIncButton);
+        eneW->addWidget(mMana);
+        eneW->stackHorizontally(hp);
+        eneW->fitContent();
+    }
 
     const auto resStatPointsWidget = new eWidget(window());
     resStatPointsWidget->setNoPadding();
@@ -361,11 +373,13 @@ void eStatsWidgetBase::initialize(
     resWidget->stackVertically(sp);
     resWidget->fitContent();
 
-    mStatPointsRem = new eStatWidget(window());
-    mStatPointsRem->initialize();
+    if(!merc) {
+        mStatPointsRem = new eStatWidget(window());
+        mStatPointsRem->initialize();
+    }
 
     resStatPointsWidget->addWidget(resWidget);
-    resStatPointsWidget->addWidget(mStatPointsRem);
+    if(mStatPointsRem) resStatPointsWidget->addWidget(mStatPointsRem);
     resStatPointsWidget->stackHorizontally(hp);
     resStatPointsWidget->fitContent();
 
@@ -373,7 +387,7 @@ void eStatsWidgetBase::initialize(
     addWidget(strW);
     addWidget(dexW);
     addWidget(vitW);
-    addWidget(eneW);
+    if(eneW) addWidget(eneW);
     addWidget(resStatPointsWidget);
 
     stackVertically(hp);
@@ -398,9 +412,10 @@ void eStatsWidgetBase::updateStats() {
                        std::vector<float>{mStats->fDexterity});
     mVitality->setText({eText::text(11, 2)},
                        std::vector<float>{mStats->fVitality});
-    mEnergy->setText({eText::text(11, 3)},
-                      std::vector<float>{mStats->fEnergy});
-
+    if(mEnergy) {
+        mEnergy->setText({eText::text(11, 3)},
+                          std::vector<float>{mStats->fEnergy});
+    }
     const auto handleSkill = [&](const eSkillStats& skillStats,
                                  const eSkillChoice schoice,
                                  eStatWidget* const skillDmg,
@@ -479,13 +494,16 @@ void eStatsWidgetBase::updateStats() {
     mDefense->setText({eText::text(11, 6)},
                       std::vector<float>{mStats->fDefense});
 
-    mStamina->setText({eText::text(11, 7)},
-                      {mStats->fMaxStamina, mStats->fStaminaF});
+    if(mStamina) {
+        mStamina->setText({eText::text(11, 7)},
+                          {mStats->fMaxStamina, mStats->fStaminaF});
+    }
     mLife->setText({eText::text(11, 8)},
                    {mStats->fMaxHealth, mStats->fHealthF});
-    mMana->setText({eText::text(11, 9)},
-                    {mStats->fMaxMana, mStats->fManaF});
-
+    if(mMana) {
+        mMana->setText({eText::text(11, 9)},
+                        {mStats->fMaxMana, mStats->fManaF});
+    }
     mFireResistance->setText({eText::text(11, 10),
                               eText::text(11, 14)},
                              std::vector<float>{100*mStats->fFireResistance});
@@ -499,13 +517,14 @@ void eStatsWidgetBase::updateStats() {
                                 eText::text(11, 14)},
                                std::vector<float>{100*mStats->fPoisonResistance});
 
-    mStatPointsRem->setText({eText::text(11, 15)},
-                            std::vector<float>{float(mAttrs->fStatPoints)});
-
-    mStrIncButton->setEnabled(mAttrs->fStatPoints > 0);
-    mDexIncButton->setEnabled(mAttrs->fStatPoints > 0);
-    mVitIncButton->setEnabled(mAttrs->fStatPoints > 0);
-    mEneIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    if(mStatPointsRem) {
+        mStatPointsRem->setText({eText::text(11, 15)},
+                                std::vector<float>{float(mAttrs->fStatPoints)});
+    }
+    if(mStrIncButton) mStrIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    if(mDexIncButton) mDexIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    if(mVitIncButton) mVitIncButton->setEnabled(mAttrs->fStatPoints > 0);
+    if(mEneIncButton) mEneIncButton->setEnabled(mAttrs->fStatPoints > 0);
 }
 
 void eStatsWidget::initialize(

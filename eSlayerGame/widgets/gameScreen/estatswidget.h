@@ -17,7 +17,8 @@ public:
     void initialize(const std::string& name,
                     eStats& stats,
                     const eEquipment& eq,
-                    eAttributes& attrs);
+                    eAttributes& attrs,
+                    const bool merc = false);
 protected:
     void paintEvent(ePainter& p) override;
 private:
