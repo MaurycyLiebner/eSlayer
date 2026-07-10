@@ -71,7 +71,7 @@ private:
     void setRightSkill(const int skillId);
 
     void hotkeyPressed(const int fkey);
-    void consumePotion(const int x);
+    bool consumePotion(const int x, const bool merc);
 
     void hidePositionedMenu();
 

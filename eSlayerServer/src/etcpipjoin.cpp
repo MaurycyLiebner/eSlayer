@@ -340,10 +340,13 @@ bool eTcpIpJoin::sendMessage(
 }
 
 bool eTcpIpJoin::consumePotion(
-    const uint32_t clientId, const uint32_t itemId) {
+    const uint32_t clientId,
+    const uint32_t itemId,
+    const uint32_t unitId) {
     ePacket p;
     p << ePacketType::consumePotion;
     p << itemId;
+    p << unitId;
     const bool r = mNet.sendToServer(p);
     if(!r) failed("Disconnected", "Failed to send a potion consumption to the host.");
     return true;

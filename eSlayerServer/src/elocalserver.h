@@ -99,7 +99,8 @@ public:
     bool changeSkillLevels(const uint32_t clientId,
                            const eSkillLevels& skillLevels) override;
     bool consumePotion(const uint32_t clientId,
-                       const uint32_t itemId) override;
+                       const uint32_t itemId,
+                       const uint32_t unitId) override;
     bool pickupBody(const uint32_t clientId,
                     const uint32_t bodyId) override;
 

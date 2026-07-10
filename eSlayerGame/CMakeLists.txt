@@ -248,6 +248,8 @@ add_executable(eSlayerGame
     widgets/etexturecheckbutton.h
     widgets/ewidget.cpp
     widgets/ewidget.h
+    widgets/etabwidget.cpp
+    widgets/etabwidget.h
 
     # Widgets - Game Screen
     widgets/gameScreen/ebgwidget.cpp
@@ -340,7 +342,6 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
-    widgets/etabwidget.h widgets/etabwidget.cpp
 )
 
 include(GNUInstallDirs)

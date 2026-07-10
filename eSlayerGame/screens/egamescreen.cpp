@@ -204,7 +204,12 @@ void eGameScreen::initialize(const uint32_t clientId,
     const auto pressA = [this](const uint32_t id) {
         showFollowerMenu(id);
     };
-    mPortraits->initialize(world, w, h, pressA);
+    const auto dropA = [this](const uint32_t id) {
+        const bool r = mGameWidget->dropPortrait(id);
+        if(r) eHoverWidget::sUpdateDragItem(eItem());
+        return r;
+    };
+    mPortraits->initialize(world, w, h, pressA, dropA);
     addWidget(mPortraits);
 
     mBottomWidget = new eBottomWidget(
@@ -281,6 +286,10 @@ void eGameScreen::initialize(const uint32_t clientId,
             if(r) return;
             const bool h = mFollowerMenu->hovered();
             if(h) return;
+        }
+        {
+            const bool r = mPortraits->dropItem();
+            if(r) return;
         }
         mGameWidget->dropItem();
     });
@@ -476,17 +485,17 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     } else if(key == SDL_SCANCODE_F8) {
         hotkeyPressed(8);
     } else if(key == SDL_SCANCODE_1) {
-        consumePotion(0);
+        consumePotion(0, e.shiftPressed());
     } else if(key == SDL_SCANCODE_2) {
-        consumePotion(1);
+        consumePotion(1, e.shiftPressed());
     } else if(key == SDL_SCANCODE_3) {
-        consumePotion(2);
+        consumePotion(2, e.shiftPressed());
     } else if(key == SDL_SCANCODE_4) {
-        consumePotion(3);
+        consumePotion(3, e.shiftPressed());
     } else if(key == SDL_SCANCODE_5) {
-        consumePotion(4);
+        consumePotion(4, e.shiftPressed());
     } else if(key == SDL_SCANCODE_6) {
-        consumePotion(5);
+        consumePotion(5, e.shiftPressed());
     } else {
         return false;
     }
@@ -544,8 +553,8 @@ void eGameScreen::hotkeyPressed(const int fkey) {
     }
 }
 
-void eGameScreen::consumePotion(const int x) {
-    return mGameWidget->consumePotion(x);
+bool eGameScreen::consumePotion(const int x, const bool merc) {
+    return mGameWidget->consumePotion(x, merc);
 }
 
 void eGameScreen::hidePositionedMenu() {

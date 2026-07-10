@@ -243,10 +243,11 @@ bool eTcpIpHost::changeSkillLevels(
 
 bool eTcpIpHost::consumePotion(
     const uint32_t clientId,
-    const uint32_t itemId) {
+    const uint32_t itemId,
+    const uint32_t unitId) {
     std::unique_lock lock(mMutex);
     return eLocalServer::consumePotion(
-        clientId, itemId);
+        clientId, itemId, unitId);
 }
 
 bool eTcpIpHost::pickupBody(
@@ -861,8 +862,10 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             uint32_t itemId;
             p >> itemId;
+            uint32_t unitId;
+            p >> unitId;
             eLocalServer::consumePotion(
-                charId, itemId);
+                charId, itemId, unitId);
         }
     } break;
     case ePacketType::attributes: {

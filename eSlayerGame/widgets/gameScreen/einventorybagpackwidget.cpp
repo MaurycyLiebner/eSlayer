@@ -198,7 +198,7 @@ bool eInventoryBagpackWidget::mousePressEvent(const eMouseEvent& e) {
                 inv.erase(inv.begin() + itemId);
             }
             const auto gw = eGameWidget::sInstance;
-            gw->consumePotion(item);
+            gw->consumePotion(item, false);
         }
     } else {
         if(e.shiftPressed() && item.fType == eItemType::potion) {

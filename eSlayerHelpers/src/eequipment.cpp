@@ -83,41 +83,29 @@ bool eEquipment::add(const eItem& item,
         const bool r = addToBelt(item, pPtr);
         if(r) return true;
     } else if(reqsMet) {
-        const auto tryAdd = [&](
-            eItem& dst, const ePlaceType type) {
-            if(dst.fType != eItemType::none) return false;
-            const bool r = canPlace(item, dst);
-            if(!r) return false;
-            dst = item;
-            if(pPtr) {
-                pPtr->fType = type;
-            }
-            return true;
-        };
-
-        bool r = tryAdd(fBoots, ePlaceType::boots);
+        bool r = tryAdd(item, ePlaceType::boots, pPtr);
         if(r) return true;
-        r = tryAdd(fGloves, ePlaceType::gloves);
+        r = tryAdd(item, ePlaceType::gloves, pPtr);
         if(r) return true;
-        r = tryAdd(fHelmet, ePlaceType::helmet);
+        r = tryAdd(item, ePlaceType::helmet, pPtr);
         if(r) return true;
-        r = tryAdd(fArmor, ePlaceType::armor);
+        r = tryAdd(item, ePlaceType::armor, pPtr);
         if(r) return true;
-        r = tryAdd(fBelt, ePlaceType::belt);
+        r = tryAdd(item, ePlaceType::belt, pPtr);
         if(r) return true;
-        r = tryAdd(fRingL, ePlaceType::ringL);
+        r = tryAdd(item, ePlaceType::ringL, pPtr);
         if(r) return true;
-        r = tryAdd(fRingR, ePlaceType::ringR);
+        r = tryAdd(item, ePlaceType::ringR, pPtr);
         if(r) return true;
-        r = tryAdd(fAmulet, ePlaceType::amulet);
+        r = tryAdd(item, ePlaceType::amulet, pPtr);
         if(r) return true;
-        r = tryAdd(fWeapon1L, ePlaceType::weapon1L);
+        r = tryAdd(item, ePlaceType::weapon1L, pPtr);
         if(r) return true;
-        r = tryAdd(fWeapon1R, ePlaceType::weapon1R);
+        r = tryAdd(item, ePlaceType::weapon1R, pPtr);
         if(r) return true;
-        r = tryAdd(fWeapon2L, ePlaceType::weapon2L);
+        r = tryAdd(item, ePlaceType::weapon2L, pPtr);
         if(r) return true;
-        r = tryAdd(fWeapon2R, ePlaceType::weapon2R);
+        r = tryAdd(item, ePlaceType::weapon2R, pPtr);
         if(r) return true;
     }
     uint8_t* const x = pPtr ? &pPtr->fX : nullptr;
@@ -187,9 +175,8 @@ bool eEquipment::addToBelt(const eItem& item,
     return false;
 }
 
-bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
+bool eBodyEquipment::canPlace(const eItem& item, const eItem& dst) {
     eItemType type = eItemType::none;
-    const auto& itemData = eItemsData::get(item.fDataId);
     if(&dst == &fBoots) {
         type = eItemType::boots;
     } else if(&dst == &fGloves) {
@@ -209,6 +196,7 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
     } else if(&dst == &fTemporary) {
         return true;
     } else {
+        const auto& itemData = eItemsData::get(item.fDataId);
         if(&dst == &fWeapon1L || &dst == &fWeapon2L) {
             if(item.fType != eItemType::weapon) return false;
             if(itemData.fTwoHanded) {
@@ -252,6 +240,55 @@ bool eEquipment::canPlace(const eItem& item, const eItem& dst) {
         return false;
     }
     return item.fType == type;
+}
+
+bool eBodyEquipment::tryAdd(
+    const eItem& item,
+    eItem& dst, const ePlaceType type,
+    eEquipmentPlace* const pPtr) {
+    if(dst.fType != eItemType::none) return false;
+    const bool r = canPlace(item, dst);
+    if(!r) return false;
+    dst = item;
+    if(pPtr) pPtr->fType = type;
+    return true;
+}
+
+bool eBodyEquipment::tryAdd(
+    const eItem& item, const ePlaceType type,
+    eEquipmentPlace* const pPtr) {
+    switch(type) {
+    case ePlaceType::boots:
+        return tryAdd(item, fBoots, type, pPtr);
+    case ePlaceType::gloves:
+        return tryAdd(item, fGloves, type, pPtr);
+    case ePlaceType::helmet:
+        return tryAdd(item, fHelmet, type, pPtr);
+    case ePlaceType::armor:
+        return tryAdd(item, fArmor, type, pPtr);
+    case ePlaceType::belt:
+        return tryAdd(item, fBelt, type, pPtr);
+    case ePlaceType::ringL:
+        return tryAdd(item, fRingL, type, pPtr);
+    case ePlaceType::ringR:
+        return tryAdd(item, fRingR, type, pPtr);
+    case ePlaceType::amulet:
+        return tryAdd(item, fAmulet, type, pPtr);
+    case ePlaceType::weapon1L:
+        return tryAdd(item, fWeapon1L, type, pPtr);
+    case ePlaceType::weapon1R:
+        return tryAdd(item, fWeapon1R, type, pPtr);
+    case ePlaceType::weapon2L:
+        return tryAdd(item, fWeapon2L, type, pPtr);
+    case ePlaceType::weapon2R:
+        return tryAdd(item, fWeapon2R, type, pPtr);
+    case ePlaceType::dragged:
+        return tryAdd(item, fDragged, type, pPtr);
+    case ePlaceType::temporary:
+        return tryAdd(item, fTemporary, type, pPtr);
+    default:
+        return false;
+    }
 }
 
 void eEquipment::iterateOverAll(const eIter& iter) {

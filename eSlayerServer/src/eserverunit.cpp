@@ -192,14 +192,7 @@ void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
     }
 }
 
-void eServerUnit::consumePotion(const uint32_t itemId) {
-    const int x = mEquipment.beltX(itemId);
-    eItem item;
-    if(x != -1) {
-        item = mEquipment.takePotion(x);
-    } else {
-        item = mEquipment.take(itemId);
-    }
+void eServerUnit::consumePotion(const eItem& item) {
     if(item.fType != eItemType::potion) return;
     const auto itemType = item.fDataId;
     const auto& info = eItemsData::get(itemType);
@@ -245,6 +238,15 @@ void eServerUnit::consumePotion(const uint32_t itemId) {
         }
         addTimedBoost(mods, info.fPotionBoostType,
                       0, it.fFrameLength);
+    }
+}
+
+eItem eServerUnit::takePotion(const uint32_t itemId) {
+    const int x = mEquipment.beltX(itemId);
+    if(x != -1) {
+        return mEquipment.takePotion(x);
+    } else {
+        return mEquipment.take(itemId);
     }
 }
 

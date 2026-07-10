@@ -161,9 +161,13 @@ public:
                    uint32_t& newItemId);
     bool sellAction(const uint32_t clientId,
                    const eSellAction& a);
-    void changeAttributes(const uint32_t clientId, const eAttributes& attrs);
-    void changeSkillLevels(const uint32_t clientId, const eSkillLevels& skillLevels);
-    void consumePotion(const uint32_t clientId, const uint32_t itemId);
+    void changeAttributes(const uint32_t clientId,
+                          const eAttributes& attrs);
+    void changeSkillLevels(const uint32_t clientId,
+                           const eSkillLevels& skillLevels);
+    void consumePotion(const uint32_t clientId,
+                       const uint32_t itemId,
+                       const uint32_t unitId);
 
     void addSkillArea(const std::shared_ptr<eServerSkillArea>& a);
     void addMissile(const std::shared_ptr<eServerMissile>& m);

@@ -128,7 +128,8 @@ public:
 
     void setSkillLevels(const eSkillLevels& skillLevels,
                         const bool recalc = true);
-    void consumePotion(const uint32_t itemId);
+    void consumePotion(const eItem& item);
+    eItem takePotion(const uint32_t itemId);
 
     float itemsAttackSpeed(const eWeaponChoice wchoice) const;
     float skillsAttackSpeed(const int schoice) const;

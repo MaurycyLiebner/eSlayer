@@ -84,7 +84,8 @@ public:
     bool sendMessage(const uint32_t clientId,
                      const std::string& text) override;
     bool consumePotion(const uint32_t clientId,
-                       const uint32_t itemId) override;
+                       const uint32_t itemId,
+                       const uint32_t unitId) override;
     bool pickupBody(const uint32_t clientId,
                     const uint32_t bodyId) override;
     bool teamAction(const uint32_t clientId,

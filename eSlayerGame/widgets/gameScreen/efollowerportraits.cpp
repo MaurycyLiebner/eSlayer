@@ -36,15 +36,28 @@ private:
 void eFollowerPortraits::initialize(
     const eGameWorld& world,
     const int w, const int h,
-    const ePressAction& pressA) {
+    const ePressAction& pressA,
+    const eDropAction& dropA) {
     resize(w, h);
     mWorld = &world;
     mPressAction = pressA;
+    mDropAction = dropA;
 }
 
 void eFollowerPortraits::addFollower(
     const uint32_t follower) {
     mFollowers.emplace(follower);
+}
+
+bool eFollowerPortraits::dropItem() {
+    for(const auto& it : mPortraits) {
+        const auto p = it.second;
+        if(!p->hovered()) continue;
+        const auto unitId = it.first;
+        const bool r = mDropAction(unitId);
+        if(r) return true;
+    }
+    return false;
 }
 
 void eFollowerPortraits::paintEvent(

@@ -45,6 +45,7 @@
 #include <eSlayerHelpers/ewaypoints.h>
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/esellers.h>
+#include <eSlayerHelpers/emercenaries.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 std::vector<std::string> eGameWidget::sMessageLog;
@@ -227,6 +228,37 @@ void eGameWidget::sendSkillLevelsChanged() {
     mServer->changeSkillLevels(mClientId, skillLevels);
 }
 
+bool eGameWidget::dropPortrait(const uint32_t unitId) {
+    auto& merc = eGameWidget::merc();
+    if(!merc) return false;
+    if(merc->fUnitId != unitId) return false;
+    auto& eq = equipment();
+    auto& meq = merc->fEq;
+    auto& dragged = eq.fDragged;
+    if(dragged.fType == eItemType::none) return false;
+    if(dragged.fType == eItemType::potion) {
+        const bool r = consumePotion(dragged, unitId);
+        if(r) eq.take(dragged.fItemId);
+        return r;
+    } else {
+        const auto mtype = merc->fMercType;
+        const auto& m = eMercenariesInfo::sMercs.get(mtype);
+        for(const auto type : m.fEquipment) {
+            eEquipmentPlace p;
+            const bool r = meq.tryAdd(dragged, type, &p);
+            if(!r) continue;
+            dragged = eItem();
+            eEquipmentAction a;
+            a.fType = eEquipmentActionType::drop;
+            a.fUnitId = unitId;
+            a.fPlace = p;
+            eGameWidget::sSendEqAction(a);
+            return true;
+        }
+    }
+    return false;
+}
+
 void eGameWidget::setLeftSkill(const int s) {
     if(mLeftSkill == s) return;
     mLeftSkill = s;
@@ -319,15 +351,39 @@ void eGameWidget::sendMessage(const std::string& text) {
     mServer->sendMessage(mClientId, text);
 }
 
-void eGameWidget::consumePotion(const int x) {
-    auto& eq = equipment();
-    const auto p = eq.takePotion(x);
-    return consumePotion(p);
+bool eGameWidget::consumePotion(
+    const int x, const bool merc) {
+    if(merc) {
+        const auto& merc = eGameWidget::merc();
+        if(!merc || !merc->fUnitId) return false;
+        return consumePotion(x, merc->fUnitId);
+    } else {
+        return consumePotion(x, mClientId);
+    }
 }
 
-void eGameWidget::consumePotion(const eItem& p) {
-    if(p.fType != eItemType::potion) return;
-    mServer->consumePotion(mClientId, p.fItemId);
+bool eGameWidget::consumePotion(
+    const int x, const uint32_t unitId) {
+    auto& eq = equipment();
+    const auto p = eq.takePotion(x);
+    return consumePotion(p, unitId);
+}
+
+bool eGameWidget::consumePotion(
+    const eItem& p, const bool merc) {
+    if(merc) {
+        const auto& merc = eGameWidget::merc();
+        if(!merc || !merc->fUnitId) return false;
+        return consumePotion(p, merc->fUnitId);
+    } else {
+        return consumePotion(p, mClientId);
+    }
+}
+
+bool eGameWidget::consumePotion(
+    const eItem& p, const uint32_t unitId) {
+    if(p.fType != eItemType::potion) return false;
+    return mServer->consumePotion(mClientId, p.fItemId, unitId);
 }
 
 void eGameWidget::waypointTeleport(

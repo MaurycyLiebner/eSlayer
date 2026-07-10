@@ -65,6 +65,7 @@ struct ESLAYERHELPERS_API eBodyEquipment {
     bool fWeapons1 = true;
 
     eItem fDragged;
+    eItem fTemporary;
 
     bool bodyEmpty() const;
     eBodyEquipment takeBody();
@@ -77,6 +78,14 @@ struct ESLAYERHELPERS_API eBodyEquipment {
 
     eItem takeBodyItem(const uint32_t itemId);
     eItem bodyItem(const uint32_t itemId) const;
+
+    bool canPlace(const eItem& item, const eItem& dst);
+    bool tryAdd(const eItem& item,
+                eItem& dst, const ePlaceType type,
+                eEquipmentPlace* const pPtr);
+    bool tryAdd(const eItem& item,
+                const ePlaceType type,
+                eEquipmentPlace* const pPtr);
 
     using eIter = std::function<void(eItem& item)>;
     void iterateOverBody(const eIter& iter);
@@ -106,8 +115,6 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
                            fStashHeight};
     uint32_t fStashGold = 0;
 
-    eItem fTemporary;
-
     uint32_t totalGold() const;
     bool takeGold(const uint32_t take);
 
@@ -117,7 +124,6 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     bool add(const eItem& item, const bool reqsMet,
              eEquipmentPlace* const pPtr);
     bool addToBelt(const eItem& item, eEquipmentPlace* const pPtr);
-    bool canPlace(const eItem& item, const eItem& dst);
 
     using eIter = std::function<void(eItem& item)>;
     void iterateOverAll(const eIter& iter);

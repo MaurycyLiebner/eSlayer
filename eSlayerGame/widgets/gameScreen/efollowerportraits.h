@@ -8,17 +8,22 @@
 class eGameWorld;
 class eUnit;
 class ePortrait;
+struct eEquipment;
 
 class eFollowerPortraits : public eWidget {
 public:
     using eWidget::eWidget;
 
+    using eDropAction = std::function<bool(const uint32_t)>;
     using ePressAction = std::function<void(const uint32_t)>;
     void initialize(const eGameWorld& world,
                     const int w, const int h,
-                    const ePressAction& pressA);
+                    const ePressAction& pressA,
+                    const eDropAction& dropA);
 
     void addFollower(const uint32_t follower);
+
+    bool dropItem();
 protected:
     void paintEvent(ePainter& p) override;
 private:
@@ -31,6 +36,7 @@ private:
     const eGameWorld* mWorld = nullptr;
     std::set<uint32_t> mFollowers;
     ePressAction mPressAction;
+    eDropAction mDropAction;
 };
 
 #endif // EFOLLOWERPORTRAITS_H

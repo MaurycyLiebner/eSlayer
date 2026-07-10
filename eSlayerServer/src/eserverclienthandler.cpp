@@ -230,9 +230,10 @@ bool eServerClientHandler::changeSkillLevels(
 }
 
 bool eServerClientHandler::consumePotion(
-    const uint32_t itemId) {
+    const uint32_t itemId,
+    const uint32_t unitId) {
     if(!mArea) return false;
-    mArea->consumePotion(mClientId, itemId);
+    mArea->consumePotion(mClientId, itemId, unitId);
     return true;
 }
 

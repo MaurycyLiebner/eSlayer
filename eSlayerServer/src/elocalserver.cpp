@@ -306,10 +306,12 @@ bool eLocalServer::changeSkillLevels(
 }
 
 bool eLocalServer::consumePotion(
-    const uint32_t clientId, const uint32_t itemId) {
+    const uint32_t clientId,
+    const uint32_t itemId,
+    const uint32_t unitId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->consumePotion(itemId);
+    return h->consumePotion(itemId, unitId);
 }
 
 bool eLocalServer::pickupBody(

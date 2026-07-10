@@ -98,6 +98,8 @@ public:
     void sendAttributesChanged();
     void sendSkillLevelsChanged();
 
+    bool dropPortrait(const uint32_t unitId);
+
     void setLeftSkill(const int s);
     void setRightSkill(const int s);
 
@@ -121,8 +123,11 @@ public:
     void disconnect();
     void save();
     void sendMessage(const std::string& text);
-    void consumePotion(const int x);
-    void consumePotion(const eItem& p);
+
+    bool consumePotion(const int x, const bool merc);
+    bool consumePotion(const int x, const uint32_t unitId);
+    bool consumePotion(const eItem& p, const bool merc);
+    bool consumePotion(const eItem& p, const uint32_t unitId);
 
     void waypointTeleport(const eAreaIds& area);
     void spawnPortal();

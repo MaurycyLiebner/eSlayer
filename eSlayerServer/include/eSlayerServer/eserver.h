@@ -152,7 +152,8 @@ public:
 
     virtual bool
     consumePotion(const uint32_t clientId,
-                  const uint32_t itemId) = 0;
+                  const uint32_t itemId,
+                  const uint32_t unitId) = 0;
     virtual bool
     pickupBody(const uint32_t clientId,
                const uint32_t bodyId) = 0;
