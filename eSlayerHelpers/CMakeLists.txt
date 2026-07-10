@@ -213,6 +213,10 @@ add_library(eSlayerHelpers SHARED
     src/emercenary.cpp
     include/eSlayerHelpers/eeqoptions.h
     src/eeqoptions.cpp
+    include/eSlayerHelpers/efollowers.h
+    src/efollowers.cpp
+    include/eSlayerHelpers/eunitspecialdata.h
+    src/eunitspecialdata.cpp
 
 )
 

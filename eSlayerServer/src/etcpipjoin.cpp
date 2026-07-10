@@ -444,6 +444,13 @@ bool eTcpIpJoin::summonMerc(
     return true;
 }
 
+std::optional<eFollowersBase>
+eTcpIpJoin::followersUpdate(const uint32_t clientId) {
+    std::optional<eFollowersBase> result;
+    std::swap(result, mFollowers);
+    return result;
+}
+
 bool eTcpIpJoin::waitFor(
     const uint32_t wait,
     const std::string& error,
@@ -526,6 +533,11 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         eSlayerQuests q;
         q.read(p);
         mQuests = q;
+    } break;
+    case ePacketType::followers: {
+        eFollowersBase f;
+        f.read(p);
+        mFollowers = f;
     } break;
     case ePacketType::userEntered: {
         eSlayer slayer;

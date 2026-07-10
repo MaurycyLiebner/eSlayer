@@ -96,6 +96,9 @@ public:
                        const uint32_t sellerId) override;
     bool summonMerc(const uint32_t clientId,
                     const eMercenary& merc) override;
+
+    std::optional<eFollowersBase>
+    followersUpdate(const uint32_t clientId) override;
 private:
     void sendSlain();
     void sendMessageToAll(const uint32_t clientId, const std::string& text);

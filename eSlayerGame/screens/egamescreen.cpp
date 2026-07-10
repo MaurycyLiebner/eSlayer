@@ -337,10 +337,6 @@ void eGameScreen::sOpenHireMenu(
     return sInstance->showHireMenu(options);
 }
 
-void eGameScreen::sAddFollower(const uint32_t id) {
-    sInstance->mPortraits->addFollower(id);
-}
-
 bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
     const auto key = e.key();
     if(key == SDL_SCANCODE_ESCAPE) {

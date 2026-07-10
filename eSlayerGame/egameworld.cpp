@@ -221,12 +221,17 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             const auto it = ss.find(charId);
             if(it != ss.end()) {
                 auto& s = it->second;
-                s.fPos = u->fPos;
-                s.fMapId = u->fMapId;
-                s.fAreaId = u->fAreaId;
-                s.fHealth = u->fHealth;
-                s.fMaxHealth = u->fMaxHealth;
+                s.assign(*u);
                 s.fTeamId = u->fTeamId;
+            }
+        }
+
+        {
+            auto& ff = eFollowers::sFollowers;
+            const auto it = ff.find(charId);
+            if(it != ff.end()) {
+                auto& f = it->second;
+                f.assign(*u);
             }
         }
 

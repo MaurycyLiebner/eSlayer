@@ -290,6 +290,12 @@ bool eTcpIpHost::summonMerc(
         clientId, merc);
 }
 
+std::optional<eFollowersBase>
+eTcpIpHost::followersUpdate(const uint32_t clientId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::followersUpdate(clientId);
+}
+
 void eTcpIpHost::sendSlain() {
     auto& ss = eServerArea::sSlain;
     if(ss.empty()) return;
@@ -702,6 +708,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     ePacket p;
                     p << ePacketType::quests;
                     q->write(p);
+                    mNet.sendToClient(tcpClientId, p);
+                }
+            }
+            {
+                const auto f = eLocalServer::followersUpdate(charId);
+                if(f) {
+                    ePacket p;
+                    p << ePacketType::followers;
+                    f->write(p);
                     mNet.sendToClient(tcpClientId, p);
                 }
             }

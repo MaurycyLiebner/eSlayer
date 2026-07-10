@@ -51,6 +51,8 @@ struct eClientData {
     bool fSendQuests = false;
 
     uint32_t fMercUnitId = 0;
+
+    uint32_t fFollowersState = 0;
 };
 
 class eServerArea {
@@ -242,6 +244,9 @@ public:
                        const uint32_t sellerId,
                        eSeller& seller);
 
+    std::optional<eFollowersBase> followersUpdate(
+        const uint32_t clientId);
+
     static std::map<uint32_t, std::shared_ptr<eServerUnit>> sSlayers;
     static std::vector<uint32_t> sSlain;
 private:
@@ -257,8 +262,8 @@ private:
                    ePointF& spawnPos);
     bool addClient(const uint32_t clientId,
                    const std::shared_ptr<eServerUnit>& u,
-                   const eScreenDimensions& screenDims,
-                   const eSlayerQuests& quests,
+                   const std::vector<std::shared_ptr<eServerUnit>>& followers,
+                   const eClientData& srcData,
                    const eMoveToMapData& moveData,
                    ePointF& spawnPos);
     void iniMissileInc();
@@ -275,6 +280,11 @@ private:
                       const eModelParts& modelParts);
     void iniSetupUnit(const std::shared_ptr<eServerUnit>& u,
                       const ePointF& pos);
+    void iniSetupSlayerAction(
+        const std::shared_ptr<eServerUnit>& u);
+    void iniSetupFollowerAction(
+        const std::shared_ptr<eServerUnit>& u,
+        const std::shared_ptr<eServerUnit>& follow);
     void addGroundItem(const ePointF& pos,
                        const eItem& item);
     void generateItems(const ePointF& pos,
@@ -309,9 +319,9 @@ private:
     const int mItemTileSubdivision = 2;
     eFixedSizeSetAreas mItemTiles;
 
-    std::vector<int> mUnitsToRemove;
-    std::map<int, eClientData> mClientData;
-    std::map<int, std::vector<int>> mBodies;
+    std::vector<uint32_t> mUnitsToRemove;
+    std::map<uint32_t, eClientData> mClientData;
+    std::map<uint32_t, std::vector<uint32_t>> mBodies;
 
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;

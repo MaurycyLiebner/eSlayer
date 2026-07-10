@@ -132,6 +132,19 @@ void eServerArea::iniSetupUnit(
     iniSetupUnit(u, pos);
 }
 
+void eServerArea::iniSetupSlayerAction(
+    const std::shared_ptr<eServerUnit>& u) {
+    const auto a = std::make_shared<eClientAction>(*u, *this);
+    u->setAction(a);
+}
+
+void eServerArea::iniSetupFollowerAction(
+    const std::shared_ptr<eServerUnit>& u,
+    const std::shared_ptr<eServerUnit>& follow) {
+    const auto a = std::make_shared<eFollowerAction>(*u, *this, follow);
+    u->setAction(a);
+}
+
 void eServerArea::iniSetupUnit(
     const std::shared_ptr<eServerUnit>& u,
     const ePointF& pos) {
@@ -399,7 +412,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, type, udata, data, modelParts);
 
-                    u->setBoosts(udata.fModifiers, false);
+                    u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
 
                     auto& eq = u->equipment();
                     for(const auto itemId : udata.fItems) {
@@ -525,12 +538,11 @@ void eServerArea::increment(const float by) {
         }
 
         auto& followers = u->followers();
-        for(int i = 0; i < followers.size(); i++) {
-            const uint32_t charId = followers[i];
+        const auto followersTmp = followers;
+        for(const auto charId : followersTmp) {
             const auto u = unit(charId);
             if(!u || u->fMaxHealth <= 0) {
-                followers.erase(followers.begin() + i);
-                i--;
+                followers.remove(charId);
             } else {
                 const auto area = unitArea(*u);
                 unitAreas.emplace(area);
@@ -861,8 +873,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     teamId = eTeams::addTeam(clientId);
     iniSetupUnit(u, clientId, teamId, spawnPos,
                  typeId, udata, data, modelParts);
-    const auto a = std::make_shared<eClientAction>(*u, *this);
-    u->setAction(a);
+    iniSetupSlayerAction(u);
     auto& eq = c.equipment();
     eq.iterateOverAll([](eItem& item) {
         if(item.fType == eItemType::none) return;
@@ -905,8 +916,8 @@ bool eServerArea::addClient(const uint32_t clientId,
 bool eServerArea::addClient(
     const uint32_t clientId,
     const std::shared_ptr<eServerUnit>& u,
-    const eScreenDimensions& screenDims,
-    const eSlayerQuests& quests,
+    const std::vector<std::shared_ptr<eServerUnit>>& followers,
+    const eClientData& srcData,
     const eMoveToMapData& moveData,
     ePointF& spawnPos) {
     switch(moveData.fType) {
@@ -938,21 +949,32 @@ bool eServerArea::addClient(
 
     findPlaceForUnit(spawnPos, spawnPos);
     iniSetupUnit(u, spawnPos);
-
-    const auto a = std::make_shared<eClientAction>(*u, *this);
-    u->setAction(a);
+    iniSetupSlayerAction(u);
     u->setBlockingActionTime(0.f);
     u->updateAll();
 
-    mClientData.erase(clientId);
+    for(const auto& f : followers) {
+        findPlaceForUnit(spawnPos, spawnPos);
+        iniSetupUnit(f, spawnPos);
+        iniSetupFollowerAction(f, u);
+        f->setBlockingActionTime(0.f);
+        f->updateAll();
+    }
+
     auto& clientData = mClientData[clientId];
+    clientData.fScreen = srcData.fScreen;
+    clientData.fArea = unitArea(*u);
+    clientData.fKnownUnits.clear();
+    clientData.fKnownItems.clear();
     clientData.fLatestMissile = 0;
     clientData.fLatestNova = 0;
     clientData.fLatestSkillArea = 0;
-    clientData.fScreen = screenDims;
-    const auto area = unitArea(*u);
-    clientData.fArea = area;
-    clientData.fQuests = quests;
+    clientData.fKnownMap.clear();
+    clientData.fUpdateBoostsAuras = srcData.fUpdateBoostsAuras;
+    clientData.fQuests = srcData.fQuests;
+    clientData.fSendQuests = srcData.fSendQuests;
+    clientData.fMercUnitId = srcData.fMercUnitId;
+    clientData.fFollowersState = srcData.fFollowersState;
 
     return true;
 }
@@ -1055,6 +1077,20 @@ bool eServerArea::requestSeller(
     return true;
 }
 
+std::optional<eFollowersBase>
+eServerArea::followersUpdate(const uint32_t clientId) {
+    const auto u = unit(clientId);
+    if(!u) return std::nullopt;
+    const auto& eq = u->equipment();
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return std::nullopt;
+    auto& c = it->second;
+    const auto& src = u->followers();
+    if(src.fState <= c.fFollowersState) return std::nullopt;
+    c.fFollowersState = src.fState;
+    return src;
+}
+
 bool eServerArea::checkQuestItems(
     const uint32_t clientId) {
     const auto u = unit(clientId);
@@ -1102,12 +1138,16 @@ bool eServerArea::moveClient(
     const auto u = from.unit(clientId);
     if(!u) return false;
     const auto& clientData = from.mClientData[clientId];
-    const auto screen = clientData.fScreen;
-    const auto quests = clientData.fQuests;
-    if(&from != &to) from.clientMoved(clientId);
+    std::vector<std::shared_ptr<eServerUnit>> followers;
+    for(const auto f : u->followers()) {
+        const auto u = from.unit(f);
+        if(!u) continue;
+        followers.emplace_back(u);
+    }
     const bool r = to.addClient(
-        clientId, u, screen, quests,
-        moveData, spawnPos);
+        clientId, u, followers,
+        clientData, moveData, spawnPos);
+    if(&from != &to) from.clientMoved(clientId);
     if(!r) return false;
     if(moveData.fType == eMoveToMapType::portal) {
         goThroughPortal(clientId, moveData.fPortalId);
@@ -1916,7 +1956,7 @@ void eServerArea::summon(eServerUnit& by,
     if(maxCount > 0 && summoned.size() >= maxCount) {
         const uint32_t removeCharId = summoned[0];
         planRemoveUnit(removeCharId);
-        eVectorHelpers::remove(followers, removeCharId);
+        followers.remove(removeCharId);
     }
     const auto& udata = eUnitsInfo::sUnits.get(unitId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
@@ -1926,10 +1966,10 @@ void eServerArea::summon(eServerUnit& by,
     const auto u = std::make_shared<eServerUnit>(
         false, data, unitId, *this, map);
     const uint32_t charId = eServerUnit::sNextCharId++;
-    followers.emplace_back(charId);
+    followers.add(charId);
     iniSetupUnit(u, charId, by.fTeamId, to,
                  unitId, udata, data, modelParts);
-    u->setBoosts(mods, false);
+    u->addBoost(mods, eBoostCurseType::permanent, false);
     {
         const int schoice = u->addSkill();
         u->setSkillId(schoice, 0, false);
@@ -1938,8 +1978,7 @@ void eServerArea::summon(eServerUnit& by,
     u->recalculateAuras();
 
     const auto byPtr = unit(by.fCharId);
-    const auto a = std::make_shared<eFollowerAction>(*u, *this, byPtr);
-    u->setAction(a);
+    iniSetupFollowerAction(u, byPtr);
 }
 
 bool eServerArea::summonMerc(
@@ -1969,7 +2008,7 @@ bool eServerArea::summonMerc(
     const auto m = std::make_shared<eServerUnit>(
         false, data, unitId, *this, map);
     cMercId = eServerUnit::sNextCharId++;
-    followers.emplace_back(cMercId);
+    followers.add(cMercId);
     iniSetupUnit(m, cMercId, by->fTeamId, to,
                  unitId, udata, data, modelParts);
     {
@@ -1987,14 +2026,13 @@ bool eServerArea::summonMerc(
     const auto attrs = merc.attributes();
     m->setAttributes(attrs, false);
     const auto mods = merc.mods();
-    m->setBoosts(mods, false);
+    m->addBoost(mods, eBoostCurseType::merc, false);
     merc.fDead = false;
 
     m->recalculateStats();
     m->recalculateAuras();
 
-    const auto a = std::make_shared<eFollowerAction>(*m, *this, by);
-    m->setAction(a);
+    iniSetupFollowerAction(m, by);
     return true;
 }
 

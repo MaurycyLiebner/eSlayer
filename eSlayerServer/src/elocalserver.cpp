@@ -506,6 +506,13 @@ bool eLocalServer::summonMercImpl(
     return h->summonMerc(merc);
 }
 
+std::optional<eFollowersBase>
+eLocalServer::followersUpdate(const uint32_t clientId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return std::nullopt;
+    return h->followersUpdate();
+}
+
 bool eLocalServer::changeTeam(
     const uint32_t clientId, const eTeamId newTeam) {
     const auto h = clientHandler(clientId);

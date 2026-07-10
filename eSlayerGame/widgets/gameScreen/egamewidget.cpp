@@ -514,6 +514,14 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     auto& eq = eGameWidget::equipment();
     {
+        const auto followers = mServer->followersUpdate(mClientId);
+        if(followers) {
+            auto& f = eFollowers::sFollowers;
+            f.clear();
+            for(const auto fid : *followers) {
+                f.emplace(fid, eUnitSpecialData());
+            }
+        }
         const auto seller = mServer->receiveSeller();
         if(seller) {
             eGameScreen::sOpenSellerMenu(*seller);
@@ -524,7 +532,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         const auto merc = mServer->receiveMerc();
         if(merc) {
-            eGameScreen::sAddFollower(merc->fUnitId);
             eGameWidget::merc() = *merc;
         }
         const auto newUsers = mServer->receiveNewUsers();

@@ -20,7 +20,8 @@ void eBoostCurseTypes::load() {
         eRuntimeThrow("Failed to parse " + dir + "/boostCurseTypes.json");
     }
 
-    sTypes.add("regular", true);
+    sTypes.add("permanent_", true);
+    sTypes.add("merc_", true);
     for(const auto& type : types) {
         sTypes.add(type, true);
     }

@@ -135,6 +135,9 @@ public:
                     const eMercenary& merc) override;
     bool summonMercImpl(const uint32_t clientId,
                         eMercenary& merc);
+
+    std::optional<eFollowersBase>
+    followersUpdate(const uint32_t clientId) override;
 protected:
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);

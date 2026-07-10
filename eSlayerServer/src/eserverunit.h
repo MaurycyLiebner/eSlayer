@@ -16,6 +16,7 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/eweapontype.h>
+#include <eSlayerHelpers/efollowers.h>
 
 #include <memory>
 #include <atomic>
@@ -254,10 +255,8 @@ public:
     void setSkillId(const int schoice,
                     const int skillId,
                     const bool recalc = true);
-    void setBoosts(const std::vector<eModifier>& mods,
-                   const bool recalc = true);
     void addBoost(const std::vector<eModifier>& mods,
-                  const eBoostCurseType type = eBoostCurseType::regular,
+                  const eBoostCurseType type,
                   const bool recalc = true);
     void removeBoost(const eBoostCurseType type,
                      const bool recalc = true);
@@ -305,11 +304,11 @@ public:
 
     std::vector<int> readySkills() const;
 
-    const std::vector<uint32_t>& followers() const
+    const eFollowersBase& followers() const
     { return mFollowers; }
-    std::vector<uint32_t>& followers()
+    eFollowersBase& followers()
     { return mFollowers; }
-    std::vector<uint32_t> followers(const int unitInfoId) const;
+    eFollowersBase followers(const int unitInfoId) const;
     int countFollowers(const int unitInfoId) const;
 
     void setMoving(const bool m) { mMoving = m; }
@@ -416,7 +415,7 @@ private:
     float mPoisonHitCounter = 0.f;
     std::vector<ePoisonDamage> mPoison;
     std::map<uint8_t, std::map<uint8_t, ePotionHealing>> mPotions;
-    std::vector<uint32_t> mFollowers;
+    eFollowersBase mFollowers;
 
     eUnitType mType = eUnitType::normal;
 

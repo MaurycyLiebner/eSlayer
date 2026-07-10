@@ -21,7 +21,8 @@ enum class eExplodeType {
 };
 
 enum class eBoostCurseType : uint8_t {
-    regular
+    permanent,
+    merc
 };
 
 enum class eAuraType {

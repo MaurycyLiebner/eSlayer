@@ -22,8 +22,6 @@ public:
                     const ePressAction& pressA,
                     const eDropAction& dropA);
 
-    void addFollower(const uint32_t follower);
-
     bool dropItem();
 protected:
     void paintEvent(ePainter& p) override;

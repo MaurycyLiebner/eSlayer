@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/emercenary.h>
+#include <eSlayerHelpers/efollowers.h>
 
 #include <memory>
 
@@ -184,6 +185,9 @@ public:
     virtual bool
     summonMerc(const uint32_t clientId,
                const eMercenary& merc) = 0;
+
+    virtual std::optional<eFollowersBase>
+    followersUpdate(const uint32_t clientId) = 0;
 
     static uint32_t serverState() { return sServerState; }
     static void incServerState() { sServerState++; }

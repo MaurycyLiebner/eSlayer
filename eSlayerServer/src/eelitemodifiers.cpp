@@ -37,13 +37,13 @@ void eEliteModifiers::apply(eServerUnit& u, const bool boss) {
         }
         for(const auto& it : mBossMods) {
             const auto& mod = it.second;
-            u.addBoost({mod}, eBoostCurseType::regular, false);
+            u.addBoost({mod}, eBoostCurseType::permanent, false);
         }
     } else {
         u.fMods.emplace(0);
         for(const auto& it : mMinionMods) {
             const auto& mod = it.second;
-            u.addBoost({mod}, eBoostCurseType::regular, false);
+            u.addBoost({mod}, eBoostCurseType::permanent, false);
         }
     }
 }

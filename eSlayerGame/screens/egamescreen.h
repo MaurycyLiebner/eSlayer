@@ -62,7 +62,6 @@ public:
     static bool sInventoryMenuOpened();
     static void sOpenHireMenu(
         const std::vector<eHireInfo>& options);
-    static void sAddFollower(const uint32_t id);
 protected:
     bool keyPressEvent(const eKeyPressEvent& e) override;
     void paintEvent(ePainter&) override;

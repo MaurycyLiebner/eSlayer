@@ -105,6 +105,9 @@ public:
                      const uint8_t questId) override;
     bool summonMerc(const uint32_t clientId,
                     const eMercenary& merc) override;
+
+    std::optional<eFollowersBase>
+    followersUpdate(const uint32_t clientId) override;
 private:
     using ePacketHandler = std::function<bool(
         ePacket& p, const ePacketType type)>;
@@ -122,6 +125,7 @@ private:
     bool mInitialized = false;
 
     std::optional<eSlayerQuests> mQuests;
+    std::optional<eFollowersBase> mFollowers;
 
     eRequestData mData;
     bool mNewData = false;

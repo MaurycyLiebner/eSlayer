@@ -56,11 +56,6 @@ void eFollowerPortraits::initialize(
     mDropAction = dropA;
 }
 
-void eFollowerPortraits::addFollower(
-    const uint32_t follower) {
-    mFollowers.emplace(follower);
-}
-
 bool eFollowerPortraits::dropItem() {
     for(const auto& it : mPortraits) {
         const auto p = it.second;
@@ -78,7 +73,6 @@ void eFollowerPortraits::paintEvent(
 }
 
 void eFollowerPortraits::updateFollowers() {
-    const auto followers = mFollowers;
     const auto handleUnit = [&](const uint32_t unitId) {
         const auto u = mWorld->getUnit(unitId);
         if(u) {
@@ -87,6 +81,17 @@ void eFollowerPortraits::updateFollowers() {
             removePortrait(unitId);
         }
     };
+
+    for(const auto& it : eFollowers::sFollowers) {
+        const auto unitId = it.first;
+        const auto& f = it.second;
+        if(f.fHealth <= 0) {
+            removePortrait(unitId);
+            continue;
+        }
+        mFollowers.emplace(unitId);
+    }
+    const auto followers = mFollowers;
     for(const auto f : followers) {
         handleUnit(f);
     }

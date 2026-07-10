@@ -910,34 +910,17 @@ void eServerUnit::setSkillId(const int schoice,
     }
 }
 
-void eServerUnit::setBoosts(
-    const std::vector<eModifier>& mods,
-    const bool recalc) {
-    removeBoost(eBoostCurseType::regular, false);
-    auto& b = mStats.fBoosts;
-    for(const auto& m : mods) {
-        b.emplace(eBoostCurseType::regular, m);
-    }
-    if(recalc) {
-        recalculateStats();
-        recalculateAuras();
-    }
-}
-
 void eServerUnit::addBoost(
     const std::vector<eModifier>& mods,
     const eBoostCurseType type,
     const bool recalc) {
     auto& b = mStats.fBoosts;
     switch(type) {
-    case eBoostCurseType::regular:
+    case eBoostCurseType::permanent:
         break;
-    default: {
-        const auto it = b.find(type);
-        if(it != b.end()) {
-            b.erase(type);
-        }
-    } break;
+    default:
+        b.erase(type);
+        break;
     }
     for(const auto& mod : mods) {
         b.emplace(type, mod);
@@ -952,6 +935,7 @@ void eServerUnit::addBoost(
 void eServerUnit::removeBoost(
     const eBoostCurseType type,
     const bool recalc) {
+    if(type == eBoostCurseType::permanent) return;
     auto& b = mStats.fBoosts;
     b.erase(type);
     mArea.boostsAurasChanged(fCharId);
@@ -1048,7 +1032,7 @@ void eServerUnit::addTimedBoost(
     const int missileId,
     const float time,
     const bool recalc) {
-    if(type == eBoostCurseType::regular) return;
+    if(type == eBoostCurseType::permanent) return;
     addBoost(mods, type, recalc);
     for(int i = 0; i < mBoosts.size(); i++) {
         const auto& b = mBoosts[i];
@@ -1178,12 +1162,16 @@ std::vector<int> eServerUnit::readySkills() const {
     return result;
 }
 
-std::vector<uint32_t> eServerUnit::followers(const int unitInfoId) const {
-    std::vector<uint32_t> result;
-    for(const uint32_t charId : mFollowers) {
+eFollowersBase
+eServerUnit::followers(const int unitInfoId) const {
+    eFollowersBase result;
+    result.fState = mFollowers.fState;
+    for(const auto charId : mFollowers) {
         const auto u = mArea.unit(charId);
         if(!u) continue;
-        if(u->fUnitInfoId == unitInfoId) result.emplace_back(charId);
+        if(u->fUnitInfoId == unitInfoId) {
+            result.add(charId);
+        }
     }
     return result;
 }

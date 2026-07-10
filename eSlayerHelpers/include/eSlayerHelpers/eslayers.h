@@ -3,7 +3,7 @@
 
 #include "eslayerhelpersexport.h"
 
-#include "epoint.h"
+#include "eunitspecialdata.h"
 #include "eteamid.h"
 
 #include <cstdint>
@@ -12,14 +12,9 @@
 
 class ePacket;
 
-struct ESLAYERHELPERS_API eSlayer {
-    uint32_t fClientId;
+struct ESLAYERHELPERS_API eSlayer :
+    public eUnitSpecialData {
     std::string fName;
-    ePointF fPos;
-    uint8_t fMapId = 0;
-    uint8_t fAreaId = 0;
-    uint16_t fHealth = 100;
-    uint16_t fMaxHealth = 100;
     eTeamId fTeamId = eTeamId::playerTeam0;
 
     void write(ePacket& p) const;

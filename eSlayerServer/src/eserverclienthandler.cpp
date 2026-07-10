@@ -299,3 +299,9 @@ bool eServerClientHandler::summonMerc(
     return mArea->summonMerc(
         mClientId, merc);
 }
+
+std::optional<eFollowersBase>
+eServerClientHandler::followersUpdate() {
+    if(!mArea) return std::nullopt;
+    return mArea->followersUpdate(mClientId);
+}
