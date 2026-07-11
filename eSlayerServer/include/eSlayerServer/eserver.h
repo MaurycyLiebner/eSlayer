@@ -196,19 +196,19 @@ public:
     const std::string& name() const { return mData.fName; }
     const std::string& password() const { return mData.fPassword; }
 
-    std::vector<eSlayer> receiveNewUsers();
-    std::vector<eSlayer> receiveLeftUsers();
-    std::vector<eSlayer> receiveSlainUsers();
-    std::vector<eMessage> receiveMessages();
-    std::vector<eServerObject> receiveObjectStateChanges();
-    std::vector<eServerDoors> receiveDoorsStateChanges();
-    std::vector<uint32_t> receiveBodiesPickedUp();
-    std::vector<eBody> receiveBodiesCreated();
-    std::vector<eBodyItemsTaken> receiveBodiesChanged();
-    std::vector<eEquipmentAction> receiveEqActions();
-    std::optional<eSeller> receiveSeller();
-    std::optional<eReplaceItemId> receiveReplaceItemId();
-    std::optional<eMercenary> receiveMerc();
+    virtual std::vector<eSlayer> receiveNewUsers();
+    virtual std::vector<eSlayer> receiveLeftUsers();
+    virtual std::vector<eSlayer> receiveSlainUsers();
+    virtual std::vector<eMessage> receiveMessages();
+    virtual std::vector<eServerObject> receiveObjectStateChanges();
+    virtual std::vector<eServerDoors> receiveDoorsStateChanges();
+    virtual std::vector<uint32_t> receiveBodiesPickedUp();
+    virtual std::vector<eBody> receiveBodiesCreated();
+    virtual std::vector<eBodyItemsTaken> receiveBodiesChanged();
+    virtual std::vector<eEquipmentAction> receiveEqActions();
+    virtual std::optional<eSeller> receiveSeller();
+    virtual std::optional<eReplaceItemId> receiveReplaceItemId();
+    virtual std::optional<eMercenary> receiveMerc();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);

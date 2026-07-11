@@ -365,9 +365,9 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const auto it = mClientIdMap.find(tcpClientId);
     if(it == mClientIdMap.end()) return false;
     const uint32_t charId = it->second;
-    mClientIdMap.erase(tcpClientId);
+    mClientIdMap.erase(it);
     disconnect(charId);
-    mNet.removeClient(tcpClientId);
+    mNet.removeClientByTcpId(tcpClientId);
     {
         ePacket p;
         p << ePacketType::userLeft;
@@ -960,4 +960,82 @@ bool eTcpIpHost::synchronizeEq(
     data.write(p);
     mNet.sendToClient(tcpClientId, p);
     return true;
+}
+
+std::vector<eSlayer>
+eTcpIpHost::receiveNewUsers() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveNewUsers();
+}
+
+std::vector<eSlayer>
+eTcpIpHost::receiveLeftUsers() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveLeftUsers();
+}
+
+std::vector<eSlayer>
+eTcpIpHost::receiveSlainUsers() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveSlainUsers();
+}
+
+std::vector<eMessage>
+eTcpIpHost::receiveMessages() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveMessages();
+}
+
+std::vector<eServerObject>
+eTcpIpHost::receiveObjectStateChanges() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveObjectStateChanges();
+}
+
+std::vector<eServerDoors>
+eTcpIpHost::receiveDoorsStateChanges() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveDoorsStateChanges();
+}
+
+std::vector<uint32_t>
+eTcpIpHost::receiveBodiesPickedUp() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveBodiesPickedUp();
+}
+
+std::vector<eBody>
+eTcpIpHost::receiveBodiesCreated() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveBodiesCreated();
+}
+
+std::vector<eBodyItemsTaken>
+eTcpIpHost::receiveBodiesChanged() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveBodiesChanged();
+}
+
+std::vector<eEquipmentAction>
+eTcpIpHost::receiveEqActions() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveEqActions();
+}
+
+std::optional<eSeller>
+eTcpIpHost::receiveSeller() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveSeller();
+}
+
+std::optional<eReplaceItemId>
+eTcpIpHost::receiveReplaceItemId() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveReplaceItemId();
+}
+
+std::optional<eMercenary>
+eTcpIpHost::receiveMerc() {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::receiveMerc();
 }

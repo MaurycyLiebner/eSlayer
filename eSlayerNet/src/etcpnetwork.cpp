@@ -77,13 +77,13 @@ void eTCPNetwork::acceptClients() {
         if(!sock) return;
 
         eClient c;
-        c.fId = mNextClientID++;
+        c.fTcpId = mNextClientID++;
         c.fTimeOut = 0;
         c.fSocket = sock;
 
         mClients.push_back(c);
 
-        std::cout << "Client connected: " << c.fId << std::endl;
+        std::cout << "Client connected: " << c.fTcpId << std::endl;
     }
 }
 
@@ -95,8 +95,8 @@ std::set<int> eTCPNetwork::removeDisconnectedClients() {
         const auto status = NET_GetConnectionStatus(c.fSocket);
 
         if(status != NET_SUCCESS || c.fTimeOut > 100) {
-            result.emplace(c.fId);
-            removeClient(c.fId);
+            result.emplace(c.fTcpId);
+            removeClientByIndex(i);
             continue;
         }
 
@@ -107,7 +107,7 @@ std::set<int> eTCPNetwork::removeDisconnectedClients() {
 
 void eTCPNetwork::receiveFromClients() {
     for(auto& c : mClients) {
-        const bool r = receivePackets(c.fSocket, c.fId, c.fRecvBuffer);
+        const bool r = receivePackets(c.fSocket, c.fTcpId, c.fRecvBuffer);
         if(r) {
             c.fTimeOut = 0;
         } else {
@@ -169,16 +169,19 @@ bool eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
     return NET_WriteToStreamSocket(sock, buf.data(), buf.size());
 }
 
-void eTCPNetwork::removeClient(const int id) {
+void eTCPNetwork::removeClientByTcpId(const int tcpId) {
     for(int i = 0; i < mClients.size(); i++) {
         const auto& c = mClients[i];
-        if(c.fId == id) {
-            NET_DestroyStreamSocket(c.fSocket);
-            std::cout << "Client disconnected: " << c.fId << std::endl;
-            mClients.erase(mClients.begin() + i);
-            return;
-        }
+        if(c.fTcpId != tcpId) continue;
+        return removeClientByIndex(i);
     }
+}
+
+void eTCPNetwork::removeClientByIndex(const int id) {
+    const auto& c = mClients[id];
+    NET_DestroyStreamSocket(c.fSocket);
+    std::cout << "Client disconnected: " << c.fTcpId << std::endl;
+    mClients.erase(mClients.begin() + id);
 }
 
 bool eTCPNetwork::sendToServer(const ePacket& p) {
@@ -190,12 +193,12 @@ bool eTCPNetwork::sendToServer(const ePacket& p) {
     return false;
 }
 
-bool eTCPNetwork::sendToClient(const int id, const ePacket& p) {
+bool eTCPNetwork::sendToClient(const int tcpId, const ePacket& p) {
     for(const auto& c : mClients) {
-        if(c.fId == id) {
+        if(c.fTcpId == tcpId) {
             const bool r = sendPacket(c.fSocket, p);
             if(!r) {
-                removeClient(id);
+                removeClientByTcpId(tcpId);
                 return false;
             }
         }
@@ -208,7 +211,7 @@ void eTCPNetwork::broadcast(const ePacket& p) {
         const auto& c = mClients[i];
         const bool r = sendPacket(c.fSocket, p);
         if(!r) {
-            removeClient(c.fId);
+            removeClientByIndex(i);
             i--;
             continue;
         }

@@ -19,7 +19,7 @@ struct eNetPacket {
 };
 
 struct eClient {
-    int fId;
+    int fTcpId;
     int fTimeOut;
     NET_StreamSocket* fSocket;
     std::vector<uint8_t> fRecvBuffer;
@@ -35,10 +35,11 @@ public:
 
     void update();
     std::set<int> removeDisconnectedClients();
-    void removeClient(const int id);
+    void removeClientByTcpId(const int tcpId);
+    void removeClientByIndex(const int id);
 
     bool sendToServer(const ePacket& p);
-    bool sendToClient(const int id, const ePacket& p);
+    bool sendToClient(const int tcpId, const ePacket& p);
     void broadcast(const ePacket& p);
 
     bool pollPacket(eNetPacket& p);

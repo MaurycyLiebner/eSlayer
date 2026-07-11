@@ -99,6 +99,20 @@ public:
 
     std::optional<eFollowersBase>
     followersUpdate(const uint32_t clientId) override;
+
+    std::vector<eSlayer> receiveNewUsers() override;
+    std::vector<eSlayer> receiveLeftUsers() override;
+    std::vector<eSlayer> receiveSlainUsers() override;
+    std::vector<eMessage> receiveMessages() override;
+    std::vector<eServerObject> receiveObjectStateChanges() override;
+    std::vector<eServerDoors> receiveDoorsStateChanges() override;
+    std::vector<uint32_t> receiveBodiesPickedUp() override;
+    std::vector<eBody> receiveBodiesCreated() override;
+    std::vector<eBodyItemsTaken> receiveBodiesChanged() override;
+    std::vector<eEquipmentAction> receiveEqActions() override;
+    std::optional<eSeller> receiveSeller() override;
+    std::optional<eReplaceItemId> receiveReplaceItemId() override;
+    std::optional<eMercenary> receiveMerc() override;
 private:
     void sendSlain();
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
