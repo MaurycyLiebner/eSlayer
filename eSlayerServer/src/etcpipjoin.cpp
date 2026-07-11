@@ -14,6 +14,7 @@
 
 eTcpIpJoin::~eTcpIpJoin() {
     if(mRunning) {
+        eTcpIpJoin::disconnect(mClientId);
         mRunning = false;
         mPacketsThread.join();
     }

@@ -42,6 +42,8 @@ public:
 
     const eWindowSettings& settings() const { return mSettings; }
 private:
+    void handleSlots();
+
     eWindowSettings mSettings;
 
     bool mQuit = false;

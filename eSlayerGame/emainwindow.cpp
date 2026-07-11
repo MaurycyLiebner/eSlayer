@@ -16,6 +16,7 @@ eMainWindow::~eMainWindow() {
     if(mSdlWindow) SDL_DestroyWindow(mSdlWindow);
     if(mSdlRenderer) SDL_DestroyRenderer(mSdlRenderer);
     setWidget(nullptr);
+    handleSlots();
 }
 
 bool eMainWindow::initialize(const eWindowSettings& settings) {
@@ -88,6 +89,13 @@ void eMainWindow::setFullscreen(const bool f) {
     const int w = res.width();
     const int h = res.height();
     SDL_SetWindowSize(mSdlWindow, w, h);
+}
+
+void eMainWindow::handleSlots() {
+    for(const auto& s : mSlots) {
+        s();
+    }
+    mSlots.clear();
 }
 
 int eMainWindow::exec() {
@@ -225,10 +233,7 @@ int eMainWindow::exec() {
 
         SDL_RenderPresent(mSdlRenderer);
 
-        for(const auto& s : mSlots) {
-            s();
-        }
-        mSlots.clear();
+        handleSlots();
 
         const auto fpsEnd = high_resolution_clock::now();
         const duration<double, std::milli> fpsElapsed = fpsEnd - fpsStart;
