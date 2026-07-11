@@ -371,10 +371,10 @@ struct eSkillStatsHelper {
             fSkillStats.fManaBurn += 0.01f*mod.fValue1;
         } break;
         case eModifierType::multiShot: {
-            if(fSkillStats.fCountLW > 0) {
+            if(fSkillStats.fMissileIdLW > 0) {
                 fSkillStats.fCountLW += mod.fValue1;
             }
-            if(fSkillStats.fCountRW > 0) {
+            if(fSkillStats.fMissileIdRW > 0) {
                 fSkillStats.fCountRW += mod.fValue1;
             }
         } break;
@@ -1212,12 +1212,8 @@ void eStats::calculateSkill(eSkillStats& stats,
     }
     stats.fMissileTime = skill.fTime;
 
-    if(stats.fMissileIdLW > 0) {
-        stats.fCountLW = std::max(1, skillMods.fCount);
-    }
-    if(stats.fMissileIdRW > 0) {
-        stats.fCountRW = std::max(1, skillMods.fCount);
-    }
+    stats.fCountLW = std::max(1, skillMods.fCount);
+    stats.fCountRW = std::max(1, skillMods.fCount);
 
     stats.fManaCost = skillMods.fManaCost;
     stats.fRadius = skillMods.fRadius;
