@@ -282,7 +282,7 @@ void eInventoryWidgetBase::initialize(
     if(mBagpack) mBagpack->align(eAlignment::hcenter);
     if(mCoins) mCoins->align(eAlignment::hcenter);
 
-    updateWeapons();
+    updateWeapons(false);
 }
 
 bool eInventoryWidgetBase::dropItem() {
@@ -298,13 +298,15 @@ bool eInventoryWidgetBase::dropItem() {
     return false;
 }
 
-void eInventoryWidgetBase::updateWeapons() {
+void eInventoryWidgetBase::updateWeapons(
+    const bool setHover) {
     if(mLWeaponSwitch) mLWeaponSwitch->updateChecked();
     if(mRWeaponSwitch) mRWeaponSwitch->updateChecked();
     if(mWeapon1L) mWeapon1L->setVisible(mEq->fWeapons1);
     if(mWeapon1R) mWeapon1R->setVisible(mEq->fWeapons1);
     if(mWeapon2L) mWeapon2L->setVisible(!mEq->fWeapons1);
     if(mWeapon2R) mWeapon2R->setVisible(!mEq->fWeapons1);
+    if(!setHover) return;
     if((mWeapon1L && mWeapon1L->hovered()) ||
        (mWeapon2L && mWeapon2L->hovered())) {
         if(mEq->fWeapons1) {

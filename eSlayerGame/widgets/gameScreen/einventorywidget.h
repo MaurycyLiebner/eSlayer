@@ -42,7 +42,7 @@ public:
 
     bool dropItem();
 
-    void updateWeapons();
+    void updateWeapons(const bool setHover = true);
 
     static bool sBlocked;
 protected:
