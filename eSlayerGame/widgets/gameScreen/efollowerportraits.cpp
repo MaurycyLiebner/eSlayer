@@ -7,11 +7,14 @@
 #include "../ecolors.h"
 #include "egamewidget.h"
 
+#include <eSlayerHelpers/evectorhelpers.h>
+
 class ePortrait : public eTextureCheckButton {
 public:
     using eTextureCheckButton::eTextureCheckButton;
 
-    void initialize(const eUnit& u, const std::string& name) {
+    void initialize(const eUnit& u, const std::string& name,
+                    const bool stack) {
         const auto& ps = eUITextures::sPortraits;
         const auto it = ps.find(u.fUnitInfoId);
         if(it == ps.end()) return;
@@ -30,6 +33,16 @@ public:
     void update(const eUnit& u) {
         mHealthFrac = float(u.fHealth)/u.fMaxHealth;
     }
+
+    void incCount() {
+        mCount++;
+    }
+
+    void zeroCount() {
+        mCount = 0;
+    }
+
+    int count() const { return mCount; }
 protected:
     void paintEvent(ePainter& p) override {
         eTextureCheckButton::paintEvent(p);
@@ -37,10 +50,32 @@ protected:
         const int th = height();
         const int w = mHealthFrac*tw;
         p.fillRect(SDL_Rect{0, th, w, th/8}, eColors::sHealth);
+        if(mCount != mTexCount) {
+            if(mCount <= 1) {
+                mCountTex = nullptr;
+            } else {
+                const auto r = renderer();
+                const auto& res = resolution();
+                const int fs = res.smallFontSize();
+                const auto font = eFonts::defaultFont(fs);
+                eTextGenerator gen(r, eFontColor::white, font);
+                mCountTex = gen.generate(std::to_string(mCount));
+            }
+            mTexCount = mCount;
+        }
+        if(mCountTex) {
+            const auto rect = eWidget::rect();
+            p.drawTexture(rect, mCountTex,
+                          eAlignment::bottom | eAlignment::right);
+        }
         if(!mName) return;
         p.drawTexture(tw/2, th + th/8, mName, eAlignment::hcenter);
     }
 private:
+    bool mStack = false;
+    int mCount = 1;
+    int mTexCount = 0;
+    std::shared_ptr<eTexture> mCountTex;
     float mHealthFrac = 1.f;
     std::shared_ptr<eTexture> mName;
 };
@@ -57,7 +92,7 @@ void eFollowerPortraits::initialize(
 }
 
 bool eFollowerPortraits::dropItem() {
-    for(const auto& it : mPortraits) {
+    for(const auto& it : mUnitPortraits) {
         const auto p = it.second;
         if(!p->hovered()) continue;
         const auto unitId = it.first;
@@ -73,28 +108,63 @@ void eFollowerPortraits::paintEvent(
 }
 
 void eFollowerPortraits::updateFollowers() {
-    const auto handleUnit = [&](const uint32_t unitId) {
+    for(const auto p : mAllPortraits) {
+        p->zeroCount();
+    }
+
+    std::vector<ePortrait*> allPortraits;
+
+    std::set<uint32_t> presentUnits;
+    std::set<uint8_t> presentStack;
+    const auto handleUnit = [&](const uint32_t unitId,
+                                const bool stack) {
         const auto u = mWorld->getUnit(unitId);
-        if(u) {
-            updatePortrait(*u);
-        } else {
-            removePortrait(unitId);
+        if(!u) return;
+        presentUnits.emplace(unitId);
+        const auto infoId = u->fUnitInfoId;
+        if(stack) presentStack.emplace(infoId);
+        const auto& it = mUnitPortraits.find(unitId);
+        if(it != mUnitPortraits.end()) {
+            const auto p = it->second;
+            p->update(*u);
+            p->incCount();
+            if(p->count() == 1) {
+                allPortraits.emplace_back(p);
+            }
+            return;
+        }
+        if(stack) {
+            const auto& it = mStackPortraits.find(infoId);
+            if(it != mStackPortraits.end()) {
+                const auto p = it->second;
+                p->update(*u);
+                p->incCount();
+                if(p->count() == 1) {
+                    allPortraits.emplace_back(p);
+                }
+                mUnitPortraits.emplace(unitId, p);
+                return;
+            }
+        }
+        const auto p = new ePortrait(window());
+        const auto name = mGW->name(u);
+        p->initialize(*u, name, stack);
+        p->setCheckAction([this, unitId](const bool) {
+            mPressAction(unitId);
+        });
+        allPortraits.emplace_back(p);
+        mUnitPortraits.emplace(unitId, p);
+        if(stack) {
+            mStackPortraits.emplace(infoId, p);
         }
     };
 
-    for(const auto& it : eFollowers::sFollowers) {
-        const auto unitId = it.first;
-        const auto& f = it.second;
-        if(f.fHealth <= 0) {
-            removePortrait(unitId);
-            continue;
-        }
-        mFollowers.emplace(unitId);
-    }
-    const auto followers = mFollowers;
-    for(const auto f : followers) {
-        handleUnit(f);
-    }
+    const auto& merc = mGW->merc();
+    const auto mercId = merc ? merc->fUnitId : 0;
+
+    if(merc) handleUnit(mercId, false);
+
+    std::set<uint32_t> slayers;
     const auto clientId = mGW->clientId();
     const auto team = eTeams::playerTeam(clientId);
     for(const auto& it : eSlayers::sSlayers) {
@@ -102,54 +172,62 @@ void eFollowerPortraits::updateFollowers() {
         if(unitId == clientId) continue;
         const auto& s = it.second;
         if(s.fTeamId != team) {
-            removePortrait(unitId);
             continue;
         }
-        mSlayers.emplace(unitId);
+        slayers.emplace(unitId);
     }
-    const auto slayers = mSlayers;
     for(const auto unitId : slayers) {
-        handleUnit(unitId);
+        handleUnit(unitId, false);
     }
-}
 
-void eFollowerPortraits::updatePortrait(const eUnit& u) {
-    const auto it = mPortraits.find(u.fCharId);
-    if(it == mPortraits.end()) {
-        addPortrait(u);
-        return;
+    std::set<uint32_t> followers;
+    for(const auto& it : eFollowers::sFollowers) {
+        const auto unitId = it.first;
+        if(unitId == mercId) continue;
+        const auto& f = it.second;
+        if(f.fHealth <= 0) {
+            continue;
+        }
+        followers.emplace(unitId);
     }
-    const auto p = it->second;
-    p->update(u);
-}
+    for(const auto f : followers) {
+        handleUnit(f, true);
+    }
 
-void eFollowerPortraits::addPortrait(const eUnit& u) {
-    const auto p = new ePortrait(window());
-    const auto name = mGW->name(u);
-    p->initialize(u, name);
-    const auto id = u.fCharId;
-    p->setCheckAction([this, id](const bool) {
-        mPressAction(id);
-    });
-    addWidget(p);
-    afterChanged();
-    mPortraits[u.fCharId] = p;
-}
+    if(mAllPortraits != allPortraits) {
+        removeAllWidgets();
 
-void eFollowerPortraits::removePortrait(const uint32_t uid) {
-    mFollowers.erase(uid);
-    mSlayers.erase(uid);
-    const auto it = mPortraits.find(uid);
-    if(it == mPortraits.end()) return;
-    const auto p = it->second;
-    p->deleteLater();
-    afterChanged();
-    mPortraits.erase(it);
-}
+        for(const auto p : mAllPortraits) {
+            if(!eVectorHelpers::contains(allPortraits, p)) {
+                p->deleteLater();
+            }
+        }
+        for(const auto p : allPortraits) {
+            addWidget(p);
+        }
+        mAllPortraits = allPortraits;
 
-void eFollowerPortraits::afterChanged() {
-    const auto& res = resolution();
-    const int pp = res.largePadding();
-    stackVertically(3*pp);
-    fitContent();
+        const auto& res = resolution();
+        const int pp = res.largePadding();
+        stackVertically(3*pp);
+        fitContent();
+    }
+
+    for(auto it = mUnitPortraits.begin(); it != mUnitPortraits.end();) {
+        const auto id = it->first;
+        if(presentUnits.count(id) > 0) {
+            it++;
+            continue;
+        }
+        it = mUnitPortraits.erase(it);
+    }
+
+    for(auto it = mStackPortraits.begin(); it != mStackPortraits.end();) {
+        const auto id = it->first;
+        if(presentStack.count(id) > 0) {
+            it++;
+            continue;
+        }
+        it = mStackPortraits.erase(it);
+    }
 }

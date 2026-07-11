@@ -556,6 +556,9 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
     case ePacketType::provideSeller: {
 
     } break;
+    case ePacketType::followers: {
+
+    } break;
     case ePacketType::heardTalk: {
         const auto it = mClientIdMap.find(tcpClientId);
         if(it != mClientIdMap.end()) {

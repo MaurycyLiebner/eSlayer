@@ -3,8 +3,6 @@
 
 #include "../ewidget.h"
 
-#include <set>
-
 class eGameWorld;
 class eGameWidget;
 class eUnit;
@@ -27,16 +25,12 @@ protected:
     void paintEvent(ePainter& p) override;
 private:
     void updateFollowers();
-    void updatePortrait(const eUnit& u);
-    void addPortrait(const eUnit& u);
-    void removePortrait(const uint32_t uid);
-    void afterChanged();
 
-    std::map<uint32_t, ePortrait*> mPortraits;
+    std::vector<ePortrait*> mAllPortraits;
+    std::map<uint32_t, ePortrait*> mUnitPortraits;
+    std::map<uint8_t, ePortrait*> mStackPortraits;
     const eGameWorld* mWorld = nullptr;
     const eGameWidget* mGW = nullptr;
-    std::set<uint32_t> mFollowers;
-    std::set<uint32_t> mSlayers;
     ePressAction mPressAction;
     eDropAction mDropAction;
 };
