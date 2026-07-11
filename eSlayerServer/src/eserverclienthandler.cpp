@@ -43,6 +43,7 @@ bool eServerClientHandler::receiveData(
     const auto& stats = u->stats();
     const auto& skills = stats.fBaseSkillLevels;
     data.fRemainingSkillPoints = skills.fRemainingPoints;
+    data.fMerc = mArea->merc(mClientId);
     return true;
 }
 
@@ -294,7 +295,7 @@ bool eServerClientHandler::requestSeller(
 }
 
 bool eServerClientHandler::summonMerc(
-    eMercenary& merc) {
+    const eMercenary& merc) {
     if(!mArea) return false;
     return mArea->summonMerc(
         mClientId, merc);
@@ -304,4 +305,10 @@ std::optional<eFollowersBase>
 eServerClientHandler::followersUpdate() {
     if(!mArea) return std::nullopt;
     return mArea->followersUpdate(mClientId);
+}
+
+std::optional<eMercenary>
+eServerClientHandler::receiveMerc() {
+    if(!mArea) return std::nullopt;
+    return mArea->merc(mClientId);
 }

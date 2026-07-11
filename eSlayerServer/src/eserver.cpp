@@ -124,13 +124,6 @@ eServer::receiveReplaceItemId() {
     return result;
 }
 
-std::optional<eMercenary>
-eServer::receiveMerc() {
-    std::optional<eMercenary> result;
-    std::swap(mMerc, result);
-    return result;
-}
-
 void eServer::failed(const std::string& msg,
                      const std::string& subMsg) {
     if(mFailure) mFailure(msg, subMsg);

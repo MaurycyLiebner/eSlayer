@@ -635,14 +635,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             eMercenary merc;
             merc.read(p);
-            const bool r = eLocalServer::summonMercImpl(
-                charId, merc);
-            if(r) {
-                ePacket p;
-                p << ePacketType::summonMerc;
-                merc.write(p);
-                mNet.sendToClient(tcpClientId, p);
-            }
+            eLocalServer::summonMerc(charId, merc);
         }
     } break;
     case ePacketType::equipmentAction: {
@@ -1032,10 +1025,4 @@ std::optional<eReplaceItemId>
 eTcpIpHost::receiveReplaceItemId() {
     std::unique_lock lock(mMutex);
     return eLocalServer::receiveReplaceItemId();
-}
-
-std::optional<eMercenary>
-eTcpIpHost::receiveMerc() {
-    std::unique_lock lock(mMutex);
-    return eLocalServer::receiveMerc();
 }

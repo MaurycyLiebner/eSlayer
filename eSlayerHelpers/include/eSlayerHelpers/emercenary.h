@@ -23,8 +23,32 @@ struct ESLAYERHELPERS_API eMercenary :
     eEquipment fEq;
     bool fDead = true;
 
+    uint8_t fUpdate = std::numeric_limits<decltype(fUpdate)>::max();
+
+    enum eShift : uint8_t {
+        mercType,
+        name,
+        level,
+        unitId,
+        exp,
+        eq,
+        dead
+    };
+    bool getUpdate(const eShift shift) const;
+    void setUpdate(const eShift shift, const bool value);
+
+    static bool getUpdate(const uint8_t update, const eShift shift);
+    static void setUpdate(uint8_t& update, const eShift shift, const bool value);
+
+    void apply(eMercenary& to) const;
+
     void read(ePacket& p);
+    void readOver(ePacket& p);
     void write(ePacket& p) const;
+
+    bool setDead(const bool d);
+    bool setExp(const float exp);
+    bool setLevel(const uint8_t level);
 };
 
 #endif // EMERCENARY_H

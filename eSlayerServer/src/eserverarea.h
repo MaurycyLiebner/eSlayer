@@ -50,7 +50,7 @@ struct eClientData {
     eSlayerQuests fQuests;
     bool fSendQuests = false;
 
-    uint32_t fMercUnitId = 0;
+    std::optional<eMercenary> fMerc;
 
     uint32_t fFollowersState = 0;
 };
@@ -89,6 +89,8 @@ public:
     auras(const uint32_t clientId);
     std::optional<eSlayerQuests>
     quests(const uint32_t clientId);
+    std::optional<eMercenary>
+    merc(const uint32_t clientId);
 
     bool heardTalk(const uint32_t clientId,
                    const eConvoId& talk);
@@ -200,7 +202,7 @@ public:
                 const int maxCount,
                 const std::vector<eModifier>& mods);
     bool summonMerc(const uint32_t clientId,
-                    eMercenary& merc);
+                    eMercenary merc);
     bool castChance(eServerUnit& by,
                     const eSkillStats& skill,
                     const eWeaponChoice wchoice,

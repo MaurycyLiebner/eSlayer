@@ -115,6 +115,19 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
         }
     }
 
+    bool hasMerc;
+    p >> hasMerc;
+    if(hasMerc) {
+        if(!fMerc) {
+            fMerc = eMercenary();
+            fMerc->read(p);
+        } else {
+            fMerc->readOver(p);
+        }
+    } else {
+        fMerc = std::nullopt;
+    }
+
     return true;
 }
 
@@ -199,5 +212,11 @@ void eRequestData::write(ePacket& p) const {
             auto& mod = it.second;
             mod.write(p);
         }
+    }
+
+    const bool hasMerc = !!fMerc;
+    p << hasMerc;
+    if(hasMerc) {
+        fMerc->write(p);
     }
 }

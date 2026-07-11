@@ -11,6 +11,7 @@
 
 #include "names/eobjectnames.h"
 #include "names/etalktext.h"
+#include "names/emercenarynames.h"
 
 #include "etext.h"
 
@@ -638,17 +639,21 @@ void eMainCharAction::openMainMenu(
         };
     }
     if(type == eObjectType::mercenary) {
-        {
+        const auto gw = eGameWidget::sInstance;
+        const auto& merc = gw->merc();
+        if(merc && merc->fDead) {
             auto& resurrectAct = actionsRef.emplace_back();
             auto text = eText::text(20, 5);
-            const std::string name = "Example";
-            const uint32_t cost = 5000;
+            const auto& names = eMercenaryNames::sNames.get(merc->fMercType);
+            const auto& name = names[merc->fNameId % names.size()];
+            const uint32_t cost = merc->cost();
             const auto costStr = std::to_string(cost);
             text = eStringHelpers::replaceAll(text, "%1", name);
             text = eStringHelpers::replaceAll(text, "%2", costStr);
             resurrectAct.fText = text;
-            resurrectAct.fPress = []() {
-
+            resurrectAct.fPress = [gw]() {
+                gw->resurrectMerc();
+                eHoverWidget::sOpenMenu("", {});
             };
         }
 

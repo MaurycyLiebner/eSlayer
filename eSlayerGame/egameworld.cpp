@@ -135,6 +135,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mMap->loadPortion(mp);
     }
 
+    mResult.fMerc = data.fMerc;
     mResult.fMana = data.fMana;
     mResult.fStamina = data.fStamina;
     mResult.fAttributes = data.fAttributes;

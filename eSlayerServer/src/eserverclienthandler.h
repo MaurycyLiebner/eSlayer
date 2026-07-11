@@ -76,9 +76,10 @@ public:
 
     bool requestSeller(const uint32_t sellerId,
                        eSeller& seller);
-    bool summonMerc(eMercenary& merc);
+    bool summonMerc(const eMercenary& merc);
 
     std::optional<eFollowersBase> followersUpdate();
+    std::optional<eMercenary> receiveMerc();
 private:
     const uint32_t mClientId;
     std::shared_ptr<eServerArea> mArea;

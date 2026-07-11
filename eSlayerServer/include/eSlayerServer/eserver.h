@@ -208,7 +208,6 @@ public:
     virtual std::vector<eEquipmentAction> receiveEqActions();
     virtual std::optional<eSeller> receiveSeller();
     virtual std::optional<eReplaceItemId> receiveReplaceItemId();
-    virtual std::optional<eMercenary> receiveMerc();
 protected:
     void failed(const std::string& msg,
                 const std::string& subMsg);
@@ -225,7 +224,6 @@ protected:
     std::vector<eEquipmentAction> mEqActions;
     std::optional<eSeller> mSeller;
     std::optional<eReplaceItemId> mReplaceItemId;
-    std::optional<eMercenary> mMerc;
 
     uint32_t mClientId = 0;
 private:

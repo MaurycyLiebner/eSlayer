@@ -139,6 +139,7 @@ public:
     std::string name(const std::shared_ptr<eUnit>& u) const;
 
     bool hire(const eHireInfo& info);
+    bool resurrectMerc();
 
     void updateWantsToTalk();
 

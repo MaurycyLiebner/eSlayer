@@ -57,6 +57,7 @@ public:
         bool fUpdateBoostsAuras = false;
         std::multimap<eBoostCurseType, eModifier> fBoosts;
         std::multimap<eAuraType, eModifier> fAuras;
+        std::optional<eMercenary> fMerc;
     };
 
     eProcessResult processServerData(

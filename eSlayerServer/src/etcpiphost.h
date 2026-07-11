@@ -112,7 +112,6 @@ public:
     std::vector<eEquipmentAction> receiveEqActions() override;
     std::optional<eSeller> receiveSeller() override;
     std::optional<eReplaceItemId> receiveReplaceItemId() override;
-    std::optional<eMercenary> receiveMerc() override;
 private:
     void sendSlain();
     void sendMessageToAll(const uint32_t clientId, const std::string& text);

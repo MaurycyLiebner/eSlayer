@@ -973,7 +973,7 @@ bool eServerArea::addClient(
     clientData.fUpdateBoostsAuras = srcData.fUpdateBoostsAuras;
     clientData.fQuests = srcData.fQuests;
     clientData.fSendQuests = srcData.fSendQuests;
-    clientData.fMercUnitId = srcData.fMercUnitId;
+    clientData.fMerc = srcData.fMerc;
     clientData.fFollowersState = srcData.fFollowersState;
 
     return true;
@@ -1669,6 +1669,16 @@ eServerArea::quests(const uint32_t clientId) {
     return clientData.fQuests;
 }
 
+std::optional<eMercenary>
+eServerArea::merc(const uint32_t clientId) {
+    const auto it = mClientData.find(clientId);
+    if(it == mClientData.end()) return std::nullopt;
+    auto& clientData = it->second;
+    const auto result = clientData.fMerc;
+    clientData.fMerc->fUpdate = 0;
+    return result;
+}
+
 bool eServerArea::heardTalk(
     const uint32_t clientId,
     const eConvoId& talk) {
@@ -1983,16 +1993,16 @@ void eServerArea::summon(eServerUnit& by,
 
 bool eServerArea::summonMerc(
     const uint32_t clientId,
-    eMercenary& merc) {
+    eMercenary merc) {
     const auto by = unit(clientId);
     if(!by) return false;
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
-    auto& cMercId = clientData.fMercUnitId;
-    if(cMercId != 0) {
-        planRemoveUnit(cMercId);
-        cMercId = 0;
+    auto& cMerc = clientData.fMerc;
+    if(cMerc) {
+        planRemoveUnit(cMerc->fUnitId);
+        cMerc = std::nullopt;
     }
     ePointF to = by->fPos;
     const bool r = findPlaceForUnit(to, to);
@@ -2007,16 +2017,16 @@ bool eServerArea::summonMerc(
     auto& map = mMap->pathFinderMap();
     const auto m = std::make_shared<eServerUnit>(
         false, data, unitId, *this, map);
-    cMercId = eServerUnit::sNextCharId++;
-    followers.add(cMercId);
-    iniSetupUnit(m, cMercId, by->fTeamId, to,
+    const auto mercId = eServerUnit::sNextCharId++;
+    followers.add(mercId);
+    iniSetupUnit(m, mercId, by->fTeamId, to,
                  unitId, udata, data, modelParts);
     {
         const int schoice = m->addSkill();
         m->setSkillId(schoice, 0, false);
     }
 
-    merc.fUnitId = cMercId;
+    merc.fUnitId = mercId;
     auto& eq = merc.fEq;
     eq.iterateOverAll([](eItem& item) {
         if(item.fType == eItemType::none) return;
@@ -2028,6 +2038,7 @@ bool eServerArea::summonMerc(
     const auto mods = merc.mods();
     m->addBoost(mods, eBoostCurseType::merc, false);
     merc.fDead = false;
+    cMerc = merc;
 
     m->recalculateStats();
     m->recalculateAuras();
@@ -2242,7 +2253,25 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
     }
 
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
-    for(const auto& c : mClientData) {
+    for(auto& c : mClientData) {
+        auto& data = c.second;
+        if(data.fMerc) {
+            auto& merc = *data.fMerc;
+            if(merc.fUnitId == killed.fCharId) {
+                merc.setDead(true);
+            } else {
+                const auto m = unit(merc.fUnitId);
+                if(m) {
+                    const float dist = ePointF::distance(m->fPos, killed.fPos);
+                    if(dist <= 10.f) {
+                        m->killed(killed);
+                        const auto& attrs = m->attributes();
+                        merc.setExp(attrs.fExp);
+                        merc.setLevel(attrs.fLevel);
+                    }
+                }
+            }
+        }
         const uint32_t clientId = c.first;
         const auto u = unit(clientId);
         if(!u) continue;

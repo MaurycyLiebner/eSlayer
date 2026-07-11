@@ -8,6 +8,7 @@
 #include "egrounditem.h"
 #include "emapportion.h"
 #include "eattributes.h"
+#include "emercenary.h"
 
 class ePacket;
 
@@ -29,6 +30,7 @@ struct ESLAYERHELPERS_API eRequestData {
     uint16_t fStamina;
     std::optional<eAttributes> fAttributes;
     uint8_t fRemainingSkillPoints;
+    std::optional<eMercenary> fMerc;
 
     bool read(ePacket& p, const uint32_t currentServerState);
     void write(ePacket& p) const;

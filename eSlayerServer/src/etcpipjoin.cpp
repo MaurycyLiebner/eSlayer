@@ -612,11 +612,6 @@ void eTcpIpJoin::handlePacket(ePacket& p) {
         auto& body = mBodiesCreated.emplace_back();
         body.read(p);
     } break;
-    case ePacketType::summonMerc: {
-        eMercenary merc;
-        merc.read(p);
-        mMerc = merc;
-    } break;
     case ePacketType::disconnect: {
         failed("Disconnected", "Host closed the connection.");
     } break;

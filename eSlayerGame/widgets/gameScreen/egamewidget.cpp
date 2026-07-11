@@ -458,6 +458,16 @@ bool eGameWidget::hire(const eHireInfo& info) {
     return mServer->summonMerc(mClientId, merc);
 }
 
+bool eGameWidget::resurrectMerc() {
+    auto& merc = eGameWidget::merc();
+    if(!merc) return false;
+    auto& eq = equipment();
+    const auto cost = merc->cost();
+    if(eq.totalGold() < cost) return false;
+    eq.takeGold(cost);
+    return mServer->summonMerc(mClientId, *merc);
+}
+
 void eGameWidget::updateWantsToTalk() {
     const auto& quests = eGameWidget::quests();
     auto& talkHeard = eGameWidget::talkHeard();
@@ -529,10 +539,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto replaceItemId = mServer->receiveReplaceItemId();
         if(replaceItemId) {
             eSellerWidget::sReplaceItemId(mClientId, *replaceItemId);
-        }
-        const auto merc = mServer->receiveMerc();
-        if(merc) {
-            eGameWidget::merc() = *merc;
         }
         const auto newUsers = mServer->receiveNewUsers();
         for(const auto& u : newUsers) {
@@ -732,6 +738,17 @@ void eGameWidget::paintEvent(ePainter& p) {
             stats.fAuraBoosts = worldResult.fAuras;
             stats.calculate(attrs, eq);
             stats.calculateAuras(eq);
+        }
+
+        auto& dstMerc = merc();
+        const auto& srcMerc = worldResult.fMerc;
+        if(dstMerc && !srcMerc) {
+            dstMerc = std::nullopt;
+        } else if(!dstMerc && srcMerc) {
+            dstMerc = eMercenary();
+            srcMerc->apply(*dstMerc);
+        } else {
+            srcMerc->apply(*dstMerc);
         }
 
         auto& model = mMainChar->model();
