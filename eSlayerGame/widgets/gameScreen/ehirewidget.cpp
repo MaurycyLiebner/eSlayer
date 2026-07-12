@@ -67,6 +67,7 @@ void eHireWidget::initialize(
             };
         }
         line->resize(singleW, singleH);
+        line->setWrapWidth(singleW);
         const auto& names = eMercenaryNames::sNames.get(i.fMercType);
         const auto& name = names[i.fNameId % names.size()];
         auto lineText = eText::text(17, 4);
@@ -76,6 +77,7 @@ void eHireWidget::initialize(
         const auto& mercTypeName = eMercenaryNames::sTypeNames[i.fMercType];
         lineText = eStringHelpers::replaceAll(lineText, "%4", mercTypeName);
         line->initialize(lineText, action, false);
+        line->fitHeight();
         linesW->addWidget(line);
     }
     linesW->stackVertically(p);
