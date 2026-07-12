@@ -39,6 +39,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SDL3_ttf)
 
+if(MINGW)
+    target_link_libraries(SDL3_ttf-shared PRIVATE
+        usp10
+        gdi32
+    )
+endif()
+
 FetchContent_Declare(
     SDL3_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
