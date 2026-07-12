@@ -120,7 +120,6 @@ public:
     void respawn();
     bool switchRunning();
     bool switchWeapons();
-    void disconnect();
     void save();
     void sendMessage(const std::string& text);
 

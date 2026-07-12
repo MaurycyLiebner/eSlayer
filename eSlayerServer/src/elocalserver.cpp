@@ -73,7 +73,7 @@ bool eLocalServer::requestMap(
                 clientId, *carea, *area,
                 moveData, data.fSpawnPos);
             if(!r) {
-                disconnect(clientId);
+                eLocalServer::disconnect(clientId);
                 return;
             }
         }

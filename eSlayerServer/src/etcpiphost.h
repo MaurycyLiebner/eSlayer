@@ -12,6 +12,8 @@ public:
     using eLocalServer::eLocalServer;
     ~eTcpIpHost();
 
+    bool disconnect(const uint32_t clientId) override;
+
     bool initialize() override;
 
     void increment(const float by) override;

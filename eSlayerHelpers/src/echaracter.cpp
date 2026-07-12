@@ -420,6 +420,7 @@ bool eCharacter::load(const std::string& path,
         auto& body = c.mBodies.emplace_back();
         gReadBodyEquipment(body, eqE);
     }
+    gReadMerc(rootE, c.mMerc);
 
     const auto getWaypointIds = [](const std::string& name,
                                    eWaypoint& w) {
@@ -456,7 +457,6 @@ bool eCharacter::load(const std::string& path,
 
     gReadQuests(rootE, c.mQuests);
     gReadTalkHeard(rootE, c.mTalkHeard);
-    gReadMerc(rootE, c.mMerc);
 
     return true;
 }
@@ -787,6 +787,8 @@ bool eCharacter::write(const std::string& path) const {
         break;
     }
 
+    gWriteMerc(rootE, mMerc);
+
     const auto wE = rootE->InsertNewChildElement("waypoints");
     std::map<uint8_t, std::vector<eWaypoint>> acts;
     for(const auto& w : mWaypoints) {
@@ -809,7 +811,6 @@ bool eCharacter::write(const std::string& path) const {
 
     gWriteQuests(rootE, mQuests);
     gWriteTalkHeard(rootE, mTalkHeard);
-    gWriteMerc(rootE, mMerc);
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {

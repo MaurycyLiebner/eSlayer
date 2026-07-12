@@ -14,11 +14,13 @@
 
 eTcpIpJoin::~eTcpIpJoin() {
     if(mRunning) {
-        eTcpIpJoin::disconnect(mClientId);
         mRunning = false;
         mPacketsThread.join();
     }
-    if(mInitialized) mNet.shutdown();
+    if(mInitialized) {
+        eTcpIpJoin::disconnect(mClientId);
+        mNet.shutdown();
+    }
 }
 
 bool eTcpIpJoin::initialize() {

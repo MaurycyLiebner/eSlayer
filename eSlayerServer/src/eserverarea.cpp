@@ -896,6 +896,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     clientData.fArea = area;
     const auto& quests = c.quests();
     clientData.fQuests = quests;
+    clientData.fMerc = c.merc();
 
     for(auto& eq : c.bodies()) {
         eq.iterateOverBody([](eItem& item) {

@@ -16,39 +16,47 @@ eTcpIpHost::~eTcpIpHost() {
         mThread.join();
     }
     if(mInitialized) {
-        ePacket p;
-        p << ePacketType::disconnect;
-        for(const auto& c : mClientIdMap) {
-            const int tcpClientId = c.first;
-            mNet.sendToClient(tcpClientId, p);
-        }
-
-        uint32_t time = 0;
-        while(!mClientIdMap.empty()) {
-            mNet.update();
-
-            eNetPacket pkt;
-
-            while(mNet.pollPacket(pkt)) {
-                auto& p = pkt.fPacket;
-                const int tcpClientId = pkt.fClientID;
-                ePacketType type;
-                p >> type;
-
-                if(type == ePacketType::disconnect) {
-                    mClientIdMap.erase(tcpClientId);
-                }
-            }
-
-            SDL_Delay(16);
-            time += 16;
-            if(time > 2000) {
-                break;
-            }
-        }
-
-        mNet.shutdown();
+        eTcpIpHost::disconnect(mClientId);
     }
+}
+
+bool eTcpIpHost::disconnect(const uint32_t clientId) {
+    ePacket p;
+    p << ePacketType::disconnect;
+    for(const auto& c : mClientIdMap) {
+        const int tcpClientId = c.first;
+        mNet.sendToClient(tcpClientId, p);
+    }
+
+    uint32_t time = 0;
+    while(!mClientIdMap.empty()) {
+        mNet.update();
+
+        eNetPacket pkt;
+
+        while(mNet.pollPacket(pkt)) {
+            auto& p = pkt.fPacket;
+            const int tcpClientId = pkt.fClientID;
+            ePacketType type;
+            p >> type;
+
+            if(type == ePacketType::disconnect) {
+                mClientIdMap.erase(tcpClientId);
+            }
+        }
+
+        SDL_Delay(16);
+        time += 16;
+        if(time > 2000) {
+            break;
+        }
+    }
+
+    mNet.shutdown();
+
+    mInitialized = false;
+
+    return true;
 }
 
 bool eTcpIpHost::initialize() {
@@ -366,7 +374,7 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     if(it == mClientIdMap.end()) return false;
     const uint32_t charId = it->second;
     mClientIdMap.erase(it);
-    disconnect(charId);
+    eLocalServer::disconnect(charId);
     mNet.removeClientByTcpId(tcpClientId);
     {
         ePacket p;

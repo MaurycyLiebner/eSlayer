@@ -649,12 +649,7 @@ void eGameScreen::showESCMenu() {
     const auto return_ = [this]() {
         hideESCMenu();
     };
-    const auto exit = [this]() {
-        mGameWidget->save();
-        mGameWidget->disconnect();
-        mExitAction();
-    };
-    mESCMenu->initialize(return_, exit);
+    mESCMenu->initialize(return_, mExitAction);
 
     addWidget(mESCMenu);
     mESCMenu->align(eAlignment::center);

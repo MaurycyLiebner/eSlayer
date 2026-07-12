@@ -64,6 +64,9 @@ eGameWidget::eGameWidget(eMainWindow* const window) :
 
 eGameWidget::~eGameWidget() {
     sInstance = nullptr;
+    if(mServer) {
+        save();
+    }
 }
 
 void eGameWidget::initialize(const uint32_t clientId,
@@ -133,7 +136,7 @@ void eGameWidget::initialize(const uint32_t clientId,
     const auto& srcMerc = c.merc();
     auto& dstMerc = mMainAction->merc();
     dstMerc = srcMerc;
-    if(dstMerc) {
+    if(dstMerc && !dstMerc->fDead) {
         mServer->summonMerc(mClientId, *dstMerc);
     }
 
@@ -316,12 +319,6 @@ bool eGameWidget::switchWeapons() {
     eGameWidget::sSendEqAction(a);
 
     return eq.fWeapons1;
-}
-
-void eGameWidget::disconnect() {
-    if(mServer) {
-        mServer->disconnect(mClientId);
-    }
 }
 
 void eGameWidget::save() {
