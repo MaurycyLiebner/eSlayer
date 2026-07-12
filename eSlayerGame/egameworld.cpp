@@ -103,6 +103,7 @@ void eGameWorld::addUnit(const eUnitData& data) {
     const uint32_t charId = data.fCharId;
     const auto& pos = data.fPos;
     const auto area = mUnitAreas.posArea(pos);
+    if(!mUnitAreas.hasArea(area)) return;
     mUnitAreas.emplace(area, charId);
     mUsedUnitAreas.emplace(area);
 }

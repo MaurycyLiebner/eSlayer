@@ -1166,7 +1166,7 @@ bool eServerArea::spawnBody(const uint32_t clientId,
     const int typeId = 0;
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        true, data, typeId, *this, map);
+        false, data, typeId, *this, map);
     eEquipment bodyEq;
     static_cast<eBodyEquipment&>(bodyEq) = beq;
     u->setEquipment(bodyEq, false);
