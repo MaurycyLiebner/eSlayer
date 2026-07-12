@@ -559,6 +559,7 @@ void eGameScreen::hidePositionedMenu() {
     if(mStashMenu || mSellerMenu || mAddSocketMenu) {
         hideInventoryConnectedMenu();
     }
+    hideHireMenu();
     eHoverWidget::sOpenMenu("", {});
     eHoverWidget::sOpenTalk("");
     updateCharPos();
