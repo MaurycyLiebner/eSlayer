@@ -1,7 +1,9 @@
 #ifndef ETHREADS_H
 #define ETHREADS_H
 
-class eThreads {
+#include "eslayerhelpersexport.h"
+
+class ESLAYERHELPERS_API eThreads {
 public:
     static int sThreads;
 };

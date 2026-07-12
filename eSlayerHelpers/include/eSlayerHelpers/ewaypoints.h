@@ -1,12 +1,14 @@
 #ifndef EWAYPOINTS_H
 #define EWAYPOINTS_H
 
+#include "eslayerhelpersexport.h"
+
+#include "eareaids.h"
+
 #include <cstdint>
 #include <vector>
 
-#include "eobject.h"
-
-struct eWaypoint {
+struct ESLAYERHELPERS_API eWaypoint {
     uint8_t fActId;
     eAreaIds fArea;
     bool fKnown;

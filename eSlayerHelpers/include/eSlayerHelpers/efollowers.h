@@ -8,7 +8,8 @@
 
 class ePacket;
 
-struct eFollowersBase : public std::set<uint32_t> {
+struct ESLAYERHELPERS_API eFollowersBase :
+        public std::set<uint32_t> {
     void add(const uint32_t id);
     void remove(const uint32_t id);
 
@@ -22,7 +23,7 @@ private:
     using B::emplace;
 };
 
-struct eFollowers {
+struct ESLAYERHELPERS_API eFollowers {
     static std::map<uint32_t, eUnitSpecialData> sFollowers;
 };
 

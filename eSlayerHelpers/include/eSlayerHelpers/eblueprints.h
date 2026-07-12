@@ -24,7 +24,7 @@ struct eBlueprint {
     std::vector<eBlueprintObject> fTerrain;
 };
 
-class eBlueprints {
+class ESLAYERHELPERS_API eBlueprints {
 public:
     static eStringIdMapVector<eBlueprint> sBlueprints;
 

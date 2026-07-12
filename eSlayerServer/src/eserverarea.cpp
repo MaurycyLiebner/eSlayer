@@ -260,7 +260,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         if(typeIds.empty()) {
             continue;
         }
-        const int iMax = std::clamp(1 + typeIds.size()/3, 1lu, 3lu);
+        int iMax = 1 + typeIds.size()/3;
+        iMax = std::clamp(iMax, 1, 3);
         for(int i = 0; i < iMax; i++) {
             auto& p = s.addPage();
             bool added = false;

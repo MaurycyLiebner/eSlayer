@@ -11,7 +11,7 @@
 
 class ePacket;
 
-struct ePortal {
+struct ESLAYERHELPERS_API ePortal {
     uint32_t fCreator;
 
     eAreaIds fOutdoorArea;
