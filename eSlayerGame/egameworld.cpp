@@ -157,7 +157,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& skillAreas = data.fSkillAreas;
     const auto& newItems = data.fNewItems;
     const auto& removedItemIds = data.fRemovedItemIds;
-    std::set<int> uPresent;
+    std::set<uint32_t> uPresent;
 
     for(const auto& u : newUnits) {
         const uint32_t charId = u.fCharId;
