@@ -84,6 +84,12 @@ bool eMercenary::setLevel(const uint8_t level) {
     return true;
 }
 
+eAttributes eMercenary::attributes() const {
+    auto result = eMercenaryBase::attributes();
+    result.fExp = fExp;
+    return result;
+}
+
 eAttributes eMercenaryBase::attributes() const {
     eAttributes result;
     const auto& m = eMercenariesInfo::sMercs.get(fMercType);

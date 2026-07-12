@@ -1001,6 +1001,7 @@ void eGameScreen::showFollowerMenu(
     if(!merc) return;
     auto& mercRef = *merc;
     if(mercRef.fUnitId != id) return;
+    if(mercRef.fDead) return;
     mFollowerMenu = new eMercWidget(window());
     const int w = width();
     const int h = height();

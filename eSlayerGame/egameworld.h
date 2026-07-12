@@ -84,11 +84,11 @@ public:
     eIdMapVector<eExtendedSkillArea>& skillAreas() { return mSkillAreas; }
     const eIdMapVector<eExtendedSkillArea>& skillAreas() const { return mSkillAreas; }
 
-    std::shared_ptr<eUnit> getUnit(const int id) const {
+    std::shared_ptr<eUnit> getUnit(const uint32_t id) const {
         return mUnits.get(id);
     }
 
-    std::shared_ptr<eGroundItem> getItem(const int id) const {
+    std::shared_ptr<eGroundItem> getItem(const uint32_t id) const {
         return mGroundItems.get(id);
     }
 

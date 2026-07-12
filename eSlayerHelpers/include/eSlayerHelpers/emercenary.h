@@ -49,6 +49,10 @@ struct ESLAYERHELPERS_API eMercenary :
     bool setDead(const bool d);
     bool setExp(const float exp);
     bool setLevel(const uint8_t level);
+
+    eAttributes attributes() const;
+private:
+    using eMercenaryBase::attributes;
 };
 
 #endif // EMERCENARY_H
