@@ -26,7 +26,3 @@ eFleeAction::eFleeAction(
     }
     setTarget(targets, false);
 }
-
-void eFleeAction::increment(const float by) {
-    eMoveToTarget::increment(by);
-}

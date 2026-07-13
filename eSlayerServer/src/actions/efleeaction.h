@@ -12,8 +12,6 @@ public:
                 const int walkAnimId,
                 const int walkReadyAnimId,
                 const float maxDist = 5.f);
-
-    void increment(const float by);
 };
 
 #endif // EFLEEACTION_H
