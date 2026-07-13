@@ -9,6 +9,11 @@ enum class eUnitStrategy {
     attack, move
 };
 
+struct eFlee {
+    ePointF fFrom;
+    float fDist;
+};
+
 class eUnitBaseAction : public eComplexAction {
 public:
     eUnitBaseAction(eServerUnit& unit,
@@ -16,7 +21,7 @@ public:
 
     void increment(const float by) override;
 
-    void planFlee(const ePointF& from);
+    void planFlee(const eFlee& flee);
 protected:
     void decide() override;
 
@@ -25,7 +30,7 @@ protected:
 
     bool attacking() const { return mAttacking; }
 
-    bool flee(const ePointF& from);
+    bool flee(const eFlee& flee);
     bool checkForAttackIncrement(const float by);
     bool moveToEnemy(const float maxDist);
     void wait(const float time);
@@ -42,7 +47,8 @@ protected:
 private:
     float mAttackDist = 10.f;
     eUnitStrategy mStrategy = eUnitStrategy::attack;
-    std::optional<ePointF> mFleeFrom;
+
+    std::optional<eFlee> mFleeFrom;
 
     constexpr static const float sAttackCounterMax = 25.f;
     float mAttackCounter = eRand::randF(0.f, sAttackCounterMax);

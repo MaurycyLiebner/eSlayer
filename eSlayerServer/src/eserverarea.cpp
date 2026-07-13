@@ -2262,9 +2262,13 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         if(u->fTeamId != eTeamId::neutralFriendly &&
            u->fTeamId != eTeamId::neutralHostile &&
            u->fTeamId != eTeamId::neutral) return false;
-        const auto& a = u->action();
-        if(const auto ua = dynamic_cast<eUnitBaseAction*>(&*a)) {
-            ua->planFlee(killed.fPos);
+        const auto& info = eUnitsInfo::sUnits.get(u->fUnitInfoId);
+        if(eRand::randChance(info.fFleeChance)) {
+            const auto& a = u->action();
+            if(const auto ua = dynamic_cast<eUnitBaseAction*>(&*a)) {
+                const eFlee flee{killed.fPos, info.fFleeDistance};
+                ua->planFlee(flee);
+            }
         }
         return false;
     });

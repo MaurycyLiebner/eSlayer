@@ -13,6 +13,9 @@ struct eUnitInfo {
     int fLevel;
     eColor fColor;
 
+    float fFleeChance;
+    float fFleeDistance;
+
     std::map<uint16_t, uint16_t> fSkills;
     std::vector<eModifier> fModifiers;
     std::vector<uint8_t> fItems;

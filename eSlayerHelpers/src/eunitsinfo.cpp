@@ -77,6 +77,9 @@ void eUnitsInfo::load() {
                 u.fColor.fA = color.value("a", 1.f);
             }
 
+            u.fFleeChance = jdata.value("fleeChance", 0.f);
+            u.fFleeDistance = jdata.value("fleeDist", 0.f);
+
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
