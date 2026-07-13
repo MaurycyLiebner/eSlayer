@@ -34,7 +34,9 @@ void eWalkAroundAction::increment(const float by) {
     auto& h = mUnit.movementHandler();
     const float changePeriod = 40.f;
     mDirChangeCounter += by;
-    if(mMoveDir.length() == 0.f || mDirChangeCounter > changePeriod) {
+    if(mMoveDir.length() == 0.f ||
+       mDirChangeCounter > changePeriod ||
+       h.stuckTime() > 5.f) {
         mDirChangeCounter = 0.f;
         mMoveDir = eVec2f::random();
     }
