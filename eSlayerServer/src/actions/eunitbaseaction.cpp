@@ -62,17 +62,19 @@ void eUnitBaseAction::decide() {
         mFleeFrom = std::nullopt;
         if(r) return;
     }
-    if(mAttacking && eRand::randChance(mTanChance) && mTanDistance > 0.f) {
-        const auto u = mArea.unit(mAttacking);
-        if(u) {
-            mAttacking = 0;
-            const auto move = std::make_shared<eMoveTangentAction>(
-                mUnit, u->fPos, mArea, mRunAnimId,
-                mWalkAnimId, mWalkReadyAnimId,
-                mTanDistance);
-            setChild(move);
-            setStrategy(eUnitStrategy::move);
-            return;
+    if(mAttacking && mTanDistance > 0.f) {
+        if(eRand::randChance(mTanChance)) {
+            const auto u = mArea.unit(mAttacking);
+            if(u) {
+                mAttacking = 0;
+                const auto move = std::make_shared<eMoveTangentAction>(
+                    mUnit, u->fPos, mArea, mRunAnimId,
+                    mWalkAnimId, mWalkReadyAnimId,
+                    mTanDistance);
+                setChild(move);
+                setStrategy(eUnitStrategy::move);
+                return;
+            }
         }
     }
     setStrategy(eUnitStrategy::attack);
