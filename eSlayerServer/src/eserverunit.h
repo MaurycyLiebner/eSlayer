@@ -71,8 +71,6 @@ public:
 
     bool isSlayer() const { return mSlayer; }
 
-    int unitTypeId() const { return mUnitTypeId; }
-
     bool aggressive() const { return mAggressive; }
 
     int level() const { return mAttributes.fLevel; }
@@ -387,7 +385,6 @@ private:
     const eCharData& mData;
     eServerArea& mArea;
     const bool mSlayer;
-    const int mUnitTypeId;
 
     bool mDead = false;
 

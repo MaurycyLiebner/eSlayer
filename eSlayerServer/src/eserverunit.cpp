@@ -17,11 +17,10 @@ eServerUnit::eServerUnit(const bool slayer,
                          const int unitTypeId,
                          eServerArea& area,
                          ePathFinderMap& map) :
-    mHandler(*this, map),
     mData(data),
     mArea(area),
     mSlayer(slayer),
-    mUnitTypeId(unitTypeId) {}
+    mHandler(*this, map, unitTypeId) {}
 
 bool eServerUnit::hitData(
     const eSkillStats& skill,

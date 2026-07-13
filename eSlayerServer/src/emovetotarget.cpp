@@ -78,20 +78,12 @@ bool eMoveToTarget::setTarget(const std::vector<eUnitTarget>& targets,
     mFoundOnly = foundOnly;
     const bool a = mUnit.aggressive();
     int anim;
-    bool run = false;
     if(mRunAnimId != -1) {
         anim = mRunAnimId;
-        run = true;
     } else {
         anim = eMovementHandlerBase::sChooseAnim(
             mWalkAnimId, mWalkReadyAnimId, a);
     }
-
-    const auto& uinfo = eUnitsInfo::sUnits.get(mUnit.fUnitInfoId);
-    const float base = run ? uinfo.fRunSpeed : uinfo.fWalkSpeed;
-    const auto& stats = mUnit.stats();
-    const float speed = base*(1.f + stats.fWalkRun);
-    handler.setSpeed(speed);
 
     mUnit.setAnim(anim);
     mUnit.incAnimId(1);

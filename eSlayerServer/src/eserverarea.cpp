@@ -150,7 +150,7 @@ void eServerArea::iniSetupUnit(
     const ePointF& pos) {
     const auto charId = u->fCharId;
     const auto teamId = u->fTeamId;
-    const auto typeId = u->unitTypeId();
+    const auto typeId = u->fUnitInfoId;
     u->fPos = pos;
     const auto& uinfo = eUnitsInfo::sUnits.get(typeId);
     auto& m = u->movementHandler();
@@ -2126,7 +2126,7 @@ std::vector<uint32_t> eServerArea::summoned(
     const auto& followers = by.followers();
     for(const auto charId : followers) {
         const auto u = unit(charId);
-        const auto unitIdU = u->unitTypeId();
+        const auto unitIdU = u->fUnitInfoId;
         if(unitIdU == unitId) {
             result.emplace_back(charId);
         }
