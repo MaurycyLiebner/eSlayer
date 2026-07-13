@@ -80,6 +80,9 @@ void eUnitsInfo::load() {
             u.fFleeChance = jdata.value("fleeChance", 0.f);
             u.fFleeDistance = jdata.value("fleeDist", 0.f);
 
+            u.fTanChance = jdata.value("tanChance", 0.f);
+            u.fTanDistance = jdata.value("tanDist", 0.f);
+
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");

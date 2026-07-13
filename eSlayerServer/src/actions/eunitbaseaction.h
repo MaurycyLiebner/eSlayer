@@ -52,7 +52,10 @@ private:
 
     constexpr static const float sAttackCounterMax = 25.f;
     float mAttackCounter = eRand::randF(0.f, sAttackCounterMax);
-    bool mAttacking = false;
+    uint32_t mAttacking = 0;
+
+    float mTanChance = 0.f;
+    float mTanDistance = 0.f;
 };
 
 #endif // EUNITBASEACTION_H

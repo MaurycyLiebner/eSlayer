@@ -16,6 +16,9 @@ struct eUnitInfo {
     float fFleeChance;
     float fFleeDistance;
 
+    float fTanChance;
+    float fTanDistance;
+
     std::map<uint16_t, uint16_t> fSkills;
     std::vector<eModifier> fModifiers;
     std::vector<uint8_t> fItems;

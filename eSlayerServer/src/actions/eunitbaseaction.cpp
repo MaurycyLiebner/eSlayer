@@ -5,6 +5,7 @@
 #include "eyieldwaitaction.h"
 #include "ewalkaroundaction.h"
 #include "efleeaction.h"
+#include "emovetangentaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -19,6 +20,11 @@ eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
     mWalkReadyAnimId = data.animId("walkReady");
     mStandAnimId = data.animId("stand");
     mStandReadyAnimId = data.animId("standReady");
+
+    const auto& info = eUnitsInfo::sUnits.get(
+        unit.fUnitInfoId);
+    mTanChance = info.fTanChance;
+    mTanDistance = info.fTanDistance;
 }
 
 void eUnitBaseAction::increment(const float by) {
@@ -56,7 +62,21 @@ void eUnitBaseAction::decide() {
         mFleeFrom = std::nullopt;
         if(r) return;
     }
-    mAttacking = false;
+    if(mAttacking && eRand::randChance(mTanChance) && mTanDistance > 0.f) {
+        const auto u = mArea.unit(mAttacking);
+        if(u) {
+            mAttacking = 0;
+            const auto move = std::make_shared<eMoveTangentAction>(
+                mUnit, u->fPos, mArea, mRunAnimId,
+                mWalkAnimId, mWalkReadyAnimId,
+                mTanDistance);
+            setChild(move);
+            setStrategy(eUnitStrategy::move);
+            return;
+        }
+    }
+    setStrategy(eUnitStrategy::attack);
+    mAttacking = 0;
     mAttackCounter = 0.f;
     if(mStrategy == eUnitStrategy::attack) {
         {
@@ -109,7 +129,7 @@ void eUnitBaseAction::walkAround(const float time) {
 }
 
 bool eUnitBaseAction::lookForAttackTarget() {
-    bool attack = false;
+    mAttacking = 0;
     int maxRangeSchoice;
     const auto& stats = mUnit.stats();
     const float maxRange = stats.maxRangeSkill(
@@ -130,12 +150,12 @@ bool eUnitBaseAction::lookForAttackTarget() {
             readySkills);
         if(r) {
             const eAttackData data(u->fCharId, schoice);
-            attack = eComplexAction::attack(data);
-            return attack;
+            const bool r = eComplexAction::attack(data);
+            if(r) mAttacking = u->fCharId;
+            return r;
         }
         return false;
     };
     mArea.iterateOverUnits(mUnit.fPos, maxRange, iter);
-    mAttacking = attack;
-    return attack;
+    return mAttacking > 0;
 }
