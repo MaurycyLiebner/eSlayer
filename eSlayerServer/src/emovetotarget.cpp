@@ -22,12 +22,21 @@ void eMoveToTarget::increment(const float by) {
         return finishAction();
     }
     const bool moving = handler.moving();
+    bool handledTarget = false;
     for(const auto& t : mTargets) {
-        const auto target = mArea.unit(t.fId);
-        if(!target) continue;
-        const auto& targetPos = target->fPos;
+        ePointF targetPos;
+        float targetRadius = 0.f;
+        if(t.fId == 0) {
+            targetPos = t.fPos;
+        } else {
+            const auto target = mArea.unit(t.fId);
+            if(!target) continue;
+            targetPos = target->fPos;
+            targetRadius = target->fRadius;
+        }
+        handledTarget = true;
         const float dist = ePointF::distance(targetPos, mUnit.fPos);
-        if(dist < mArriveDist + 0.5f*(mUnit.fRadius + target->fRadius)) {
+        if(dist < mArriveDist + 0.5f*(mUnit.fRadius + targetRadius)) {
             handler.stopMoving();
             mTargets.clear();
             finishAction();
@@ -47,6 +56,10 @@ void eMoveToTarget::increment(const float by) {
                 break;
             }
         }
+    }
+    if(!handledTarget) {
+        handler.stopMoving();
+        return finishAction();
     }
 }
 

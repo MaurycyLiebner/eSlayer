@@ -2254,6 +2254,21 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
     } break;
     }
 
+    const float fleeRange = 5.f;
+    iterateOverUnits(killed.fPos, fleeRange,
+                     [&](const std::shared_ptr<eServerUnit>& u) {
+        if(u->fHealth <= 0) return false;
+        if(u->fTeamId != killed.fTeamId) return false;
+        if(u->fTeamId != eTeamId::neutralFriendly &&
+           u->fTeamId != eTeamId::neutralHostile &&
+           u->fTeamId != eTeamId::neutral) return false;
+        const auto& a = u->action();
+        if(const auto ua = dynamic_cast<eUnitBaseAction*>(&*a)) {
+            ua->planFlee(killed.fPos);
+        }
+        return false;
+    });
+
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
     for(auto& c : mClientData) {
         auto& data = c.second;

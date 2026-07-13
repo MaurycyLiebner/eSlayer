@@ -1,9 +1,10 @@
 #include "eunitbaseaction.h"
 
-#include "emovetoenemyaction.h"
 #include "../eserverarea.h"
+#include "emovetoenemyaction.h"
 #include "eyieldwaitaction.h"
 #include "ewalkaroundaction.h"
+#include "efleeaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -26,6 +27,14 @@ void eUnitBaseAction::increment(const float by) {
     eComplexAction::increment(by);
 }
 
+void eUnitBaseAction::planFlee(const ePointF& from) {
+    if(mUnit.fBlockingActionTime > 0.f) {
+        mFleeFrom = from;
+    } else {
+        flee(from);
+    }
+}
+
 bool eUnitBaseAction::checkForAttackIncrement(const float by) {
     if(mAttacking) return true;
     mAttackCounter += by;
@@ -39,6 +48,11 @@ bool eUnitBaseAction::checkForAttackIncrement(const float by) {
 void eUnitBaseAction::decide() {
     if(mUnit.fHealth <= 0) {
         mArea.planRemoveUnit(mUnit.fCharId);
+        return;
+    }
+    if(mFleeFrom) {
+        flee(*mFleeFrom);
+        mFleeFrom = std::nullopt;
         return;
     }
     mAttacking = false;
@@ -68,6 +82,14 @@ bool eUnitBaseAction::moveToEnemy(const float maxDist) {
     setChild(move);
     const bool r = move->findNewTarget();
     return r;
+}
+
+bool eUnitBaseAction::flee(const ePointF& from) {
+    const auto move = std::make_shared<eFleeAction>(
+        mUnit, from, mArea, mRunAnimId,
+        mWalkAnimId, mWalkReadyAnimId);
+    setChild(move);
+    return true;
 }
 
 void eUnitBaseAction::wait(const float time) {

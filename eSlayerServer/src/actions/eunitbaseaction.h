@@ -15,6 +15,8 @@ public:
                     eServerArea& area);
 
     void increment(const float by) override;
+
+    void planFlee(const ePointF& from);
 protected:
     void decide() override;
 
@@ -23,6 +25,7 @@ protected:
 
     bool attacking() const { return mAttacking; }
 
+    bool flee(const ePointF& from);
     bool checkForAttackIncrement(const float by);
     bool moveToEnemy(const float maxDist);
     void wait(const float time);
@@ -39,6 +42,7 @@ protected:
 private:
     float mAttackDist = 10.f;
     eUnitStrategy mStrategy = eUnitStrategy::attack;
+    std::optional<ePointF> mFleeFrom;
 
     constexpr static const float sAttackCounterMax = 25.f;
     float mAttackCounter = eRand::randF(0.f, sAttackCounterMax);
