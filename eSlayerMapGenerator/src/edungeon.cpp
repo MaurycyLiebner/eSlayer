@@ -395,6 +395,16 @@ void eDungeon::generate(ePointF& spawnPos) const {
     marea.fChambers = chambers;
     marea.fSettings = ms;
 
+    const bool wallsEnabledTL = !terrTypeInfo.fTLWalls.empty();
+    const bool wallsEnabledBR = wallsEnabledTL || !terrTypeInfo.fBRWalls.empty();
+    const bool wallsEnabledTR = !terrTypeInfo.fTRWalls.empty();
+    const bool wallsEnabledBL = wallsEnabledTR || !terrTypeInfo.fBLWalls.empty();
+
+    const bool doorsEnabledTL = !terrTypeInfo.fTLDoors.empty();
+    const bool doorsEnabledBR = doorsEnabledTL || !terrTypeInfo.fBRDoors.empty();
+    const bool doorsEnabledTR = !terrTypeInfo.fTRDoors.empty();
+    const bool doorsEnabledBL = doorsEnabledTR || !terrTypeInfo.fBLDoors.empty();
+
     ePlacementHelper helper;
     for(int i = 0; i < chambers.size(); i++) {
         const auto& sc = chambers[i];
@@ -423,18 +433,18 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
                     if(wallTL && !dst.fWallTL) {
                         const bool doors = inDoorsRect(x, y, eWallType::topLeft);
-                        const bool tl = x == minX && y != maxY + 1;
-                        const bool br = x == maxX + 1 && y != maxY + 1;
-                        if(tl || br) {
+                        const bool tl = wallsEnabledTL && x == minX && y != maxY + 1;
+                        const bool br = wallsEnabledBR && x == maxX + 1 && y != maxY + 1;
+                        if((tl || br) && (!doors || (tl && doorsEnabledTL) || (br && doorsEnabledBR))) {
                             dst.fTerrainType = terrType;
                             dst.fWallTL = eTile::encodeWall(true, doors, false, br, 0);
                         }
                     }
                     if(wallTR && !dst.fWallTR) {
                         const bool doors = inDoorsRect(x, y, eWallType::topRight);
-                        const bool tr = y == minY && x != maxX + 1;
-                        const bool bl = y == maxY + 1 && x != maxX + 1;
-                        if(tr || bl) {
+                        const bool tr = wallsEnabledTR && y == minY && x != maxX + 1;
+                        const bool bl = wallsEnabledBL && y == maxY + 1 && x != maxX + 1;
+                        if((tr || bl) && (!doors || (tr && doorsEnabledTR) || (bl && doorsEnabledBL))) {
                             dst.fTerrainType = terrType;
                             dst.fWallTR = eTile::encodeWall(true, doors, false, bl, 0);
                         }
