@@ -1139,17 +1139,17 @@ bool eServerArea::moveClient(
     ePointF& spawnPos) {
     const auto u = from.unit(clientId);
     if(!u) return false;
-    const auto& clientData = from.mClientData[clientId];
+    const auto clientData = from.mClientData[clientId];
     std::vector<std::shared_ptr<eServerUnit>> followers;
     for(const auto f : u->followers()) {
         const auto u = from.unit(f);
         if(!u) continue;
         followers.emplace_back(u);
     }
+    if(&from != &to) from.clientMoved(clientId);
     const bool r = to.addClient(
         clientId, u, followers,
         clientData, moveData, spawnPos);
-    if(&from != &to) from.clientMoved(clientId);
     if(!r) return false;
     if(moveData.fType == eMoveToMapType::portal) {
         goThroughPortal(clientId, moveData.fPortalId);
@@ -1230,6 +1230,7 @@ bool eServerArea::planRemoveUnit(const uint32_t charId) {
 
 bool eServerArea::removeUnit(const uint32_t charId) {
     const auto area = unitArea(charId);
+    if(!mUnitAreas.hasArea(area)) return false;
     mUnitAreas.erase(area, charId);
     mUnits.remove(charId);
     return true;
