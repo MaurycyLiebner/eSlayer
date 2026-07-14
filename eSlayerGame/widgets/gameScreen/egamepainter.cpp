@@ -1,5 +1,7 @@
 #include "egamepainter.h"
 
+#include "effects/edistorteffect.h"
+
 eGamePainter::eGamePainter(
     eTilesIterator& iterator,
     SDL_Renderer* const r) :
@@ -21,6 +23,10 @@ std::shared_ptr<eTexture> eGamePainter::initialize(
 
     mItemNames = std::make_shared<eTexture>();
     mItemNames->create(r, w, h, {0, 0, 0, 0});
+
+    mEffects.initialize(r, w, h);
+    const auto e = std::make_shared<eDistortEffect>();
+    mEffects.addEffect(e);
 
     return mDisplayTex;
 }
@@ -59,6 +65,7 @@ void eGamePainter::addLight(const float tx, const float ty,
 
 void eGamePainter::finish(
     const eResolution& res) {
+    applyEffects();
     const auto r = renderer();
     const auto h = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
@@ -120,4 +127,9 @@ void eGamePainter::addWallShadow(
         tx, ty, dir, wallMin, wallMax,
         minFeatherForce, maxFeatherForce);
     mLightingTex.addBlocker(b);
+}
+
+void eGamePainter::applyEffects() {
+    const auto r = renderer();
+    mEffects.apply(r, mBaseTex);
 }

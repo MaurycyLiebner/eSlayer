@@ -3,6 +3,7 @@
 
 #include "../epainter.h"
 #include "../../textures/elightinghandler.h"
+#include "effects/eeffect.h"
 
 class eGamePainter : public ePainter {
 public:
@@ -39,6 +40,8 @@ public:
                        const float wallMax,
                        const bool minFeatherForce,
                        const bool maxFeatherForce);
+
+    void applyEffects();
 private:
     std::vector<eLight> mLights;
     bool mRenderItemNames = false;
@@ -46,8 +49,10 @@ private:
     Uint8 mContrast = 140;
     std::shared_ptr<eTexture> mItemNames;
     std::shared_ptr<eTexture> mBaseTex;
+    std::shared_ptr<eTexture> mEffectTex;
     eLightingHandler mLightingTex;
     std::shared_ptr<eTexture> mDisplayTex;
+    eEffects mEffects;
 };
 
 #endif // EGAMEPAINTER_H

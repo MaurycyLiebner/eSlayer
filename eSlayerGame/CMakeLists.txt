@@ -342,6 +342,12 @@ add_executable(eSlayerGame
     widgets/gameScreen/emercwidget.cpp
     widgets/gameScreen/emercwidget.h
 
+    # Effects
+    widgets/gameScreen/effects/eeffect.cpp
+    widgets/gameScreen/effects/eeffect.h
+    widgets/gameScreen/effects/edistorteffect.cpp
+    widgets/gameScreen/effects/edistorteffect.h
+
     # Widgets - Main Menu
     widgets/mainMenu/echoosecharacterwidget.cpp
     widgets/mainMenu/echoosecharacterwidget.h
