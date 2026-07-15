@@ -17,6 +17,11 @@ protected:
                             const int w, const int h,
                             const float* centerX,
                             const float* centerY);
+    virtual void stop();
+
+    bool done() const { return mDone; }
+
+    bool mDone = false;
 
     eEffectSettings mSettings;
 

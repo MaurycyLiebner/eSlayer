@@ -159,6 +159,8 @@ void eMapsSettings::load() {
                         const auto typeStr = effect.value("type", "");
                         if(typeStr == "distort") {
                             e.fType = eEffectType::distort;
+                        } else if(typeStr == "rain") {
+                            e.fType = eEffectType::rain;
                         } else {
                             eRuntimeThrow("Unrecognized effect type \"" + typeStr + "\".");
                         }

@@ -1,9 +1,9 @@
-#ifndef EDISTORTEFFECT_H
-#define EDISTORTEFFECT_H
+#ifndef ERAINEFFECT_H
+#define ERAINEFFECT_H
 
 #include "eeffect.h"
 
-class eDistortEffect : public eEffect {
+class eRainEffect : public eEffect {
 protected:
     void apply(SDL_Renderer* const r,
                std::shared_ptr<eTexture>& to,
@@ -14,33 +14,26 @@ protected:
                     const float* centerY) override;
     void stop() override;
 private:
-    std::vector<float> generateRandomMap() const;
-    void generateRandomMap(std::vector<float>& result) const;
     void increment(const float by);
 
     bool mFade = false;
-    bool mFading = false;
 
     float mSpeed = 0.025f;
-    float mScale = 0.025f;
-
-    uint16_t mXDiv;
-    uint16_t mYDiv;
-    uint16_t mNVerts;
-
-    std::vector<float> mXTexCoords;
-    std::vector<float> mYTexCoords;
-
-    std::vector<float> mXR1;
-    std::vector<float> mYR1;
-
-    std::vector<float> mXR2;
-    std::vector<float> mYR2;
+    uint16_t mCount = 0;
+    float mLength = 0.015f;
+    float mThick = 0.001f;
+    float mTilt = 0.1f;
 
     float mTime = 0.f;
+
+    std::vector<float> mX0;
+    std::vector<float> mY0;
+
+    std::vector<float> mX;
+    std::vector<float> mY;
 
     std::vector<SDL_Vertex> mVerts;
     std::vector<int> mIndices;
 };
 
-#endif // EDISTORTEFFECT_H
+#endif // ERAINEFFECT_H

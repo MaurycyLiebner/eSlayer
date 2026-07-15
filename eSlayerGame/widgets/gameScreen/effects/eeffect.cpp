@@ -1,6 +1,7 @@
 #include "eeffect.h"
 
 #include "edistorteffect.h"
+#include "eraineffect.h"
 
 void eEffects::initialize(
     SDL_Renderer* const r,
@@ -17,8 +18,14 @@ void eEffects::initialize(
 
 void eEffects::apply(SDL_Renderer* const r,
                      std::shared_ptr<eTexture>& to) {
-    for(const auto& e : mEffects) {
-        e->apply(r, to, mTmp);
+    for(uint8_t i = 0; i < mEffects.size(); i++) {
+        const auto& e = mEffects[i];
+        if(e->done()) {
+            mEffects.erase(mEffects.begin() + i);
+            i--;
+        } else {
+            e->apply(r, to, mTmp);
+        }
     }
 }
 
@@ -28,6 +35,9 @@ void eEffects::addEffect(const eEffectSettings& settings) {
     case eEffectType::distort: {
         e = std::make_shared<eDistortEffect>();
     } break;
+    case eEffectType::rain: {
+        e = std::make_shared<eRainEffect>();
+    } break;
     }
 
     mEffects.emplace_back(e);
@@ -35,7 +45,9 @@ void eEffects::addEffect(const eEffectSettings& settings) {
 }
 
 void eEffects::clearEffects() {
-    mEffects.clear();
+    for(const auto& e : mEffects) {
+        e->stop();
+    }
 }
 
 void eEffect::initialize(
@@ -48,4 +60,8 @@ void eEffect::initialize(
     mHeight = h;
     mCenterX = centerX;
     mCenterY = centerY;
+}
+
+void eEffect::stop() {
+    mDone = true;
 }

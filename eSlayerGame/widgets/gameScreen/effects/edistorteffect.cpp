@@ -96,10 +96,14 @@ void eDistortEffect::initialize(
         }
     }
 
-    mXR1 = generateRandomMap();
-    mYR1 = generateRandomMap();
+    mXR1 = std::vector<float>(mNVerts, 0.f);
+    mYR1 = std::vector<float>(mNVerts, 0.f);
     mXR2 = generateRandomMap();
     mYR2 = generateRandomMap();
+}
+
+void eDistortEffect::stop() {
+    mFade = true;
 }
 
 void eDistortEffect::generateRandomMap(
@@ -125,7 +129,14 @@ void eDistortEffect::increment(const float by) {
         std::swap(mXR1, mXR2);
         std::swap(mYR1, mYR2);
 
-        generateRandomMap(mXR2);
-        generateRandomMap(mYR2);
+        if(mFade) {
+            if(mFading) mDone = true;
+            mFading = true;
+            mXR2 = std::vector<float>(mNVerts, 0.f);
+            mYR2 = std::vector<float>(mNVerts, 0.f);
+        } else {
+            generateRandomMap(mXR2);
+            generateRandomMap(mYR2);
+        }
     }
 }
