@@ -43,14 +43,14 @@ void eItemsTextures::loadImpl() {
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
             const auto& key = it.key();
             const auto& value = it.value();
-            if(key == "shields" || key == "questItems") {
+            if(key == "shield" || key == "questItem") {
                 for(const auto& [name, data] : value.items()) {
                     const auto path = key + "/" + name;
                     const int w = data.value("width", 2);
                     const int h = data.value("height", 2);
                     loadImpl(name, path, w, h);
                 }
-            } else if(key == "weapons") {
+            } else if(key == "weapon") {
                 for(auto& [type, items] : value.items()) {
                     for(const auto& [name, data] : items.items()) {
                         const auto path = key + "/" + type + "/" + name;
@@ -68,17 +68,17 @@ void eItemsTextures::loadImpl() {
                     if(key == "gold") {
                         w = 0;
                         h = 0;
-                    } else if(key == "amulets" || key == "rings" ||
-                              key == "potions" || key == "jewels") {
+                    } else if(key == "amulet" || key == "ring" ||
+                              key == "potion" || key == "jewel") {
                         w = 1;
                         h = 1;
                     } else if(key == "armor") {
                         w = 2;
                         h = 3;
-                    } else if(key == "belts") {
+                    } else if(key == "belt") {
                         w = 2;
                         h = 1;
-                    } else if(key == "boots" || key == "gloves") {
+                    } else if(key == "boots" || key == "gloves" || key == "helmet") {
                         w = 2;
                         h = 2;
                     } else if(key == "bolts" || key == "arrows") {

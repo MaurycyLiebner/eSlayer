@@ -151,5 +151,18 @@ void eItemsData::load(const std::string& name,
     itemData.fLevelReq = jdata.value("levelReq", 1);
     itemData.fStrengthReq = jdata.value("strReq", 0);
     itemData.fDexterityReq = jdata.value("dexReq", 0);
+
+    itemData.fDefenseMin = jdata.value("defenseMin", 0);
+    itemData.fDefenseMax = jdata.value("defenseMax", 0);
+
+    itemData.fBlockChanceMin = jdata.value("blockChanceMin", 0);
+    itemData.fBlockChanceMax = jdata.value("blockChanceMax", 0);
+
+    itemData.fMinDamageMin = jdata.value("minDamageMin", 0);
+    itemData.fMinDamageMax = jdata.value("minDamageMax", 0);
+
+    itemData.fMaxDamageMin = jdata.value("maxDamageMin", 0);
+    itemData.fMaxDamageMax = jdata.value("maxDamageMax", 0);
+
     sItems.add(name, itemData);
 }
