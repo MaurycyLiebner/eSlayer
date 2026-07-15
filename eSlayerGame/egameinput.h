@@ -38,6 +38,9 @@ public:
     bool leftPressed() const { return mLeftPressed; }
     const ePointF& mousePos() const { return mMousePos; }
 
+    const float* characterVerticalPosPtr() const { return &mCharacterVerticalPos; }
+    const float* characterHorizontalPosPtr() const { return &mCharacterHorizontalPos; }
+
     float characterVerticalPos() const { return mCharacterVerticalPos; }
     float characterHorizontalPos() const { return mCharacterHorizontalPos; }
     void setCharacterHorizontalPos(const float pos) { mCharacterHorizontalPos = pos; }

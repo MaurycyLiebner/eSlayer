@@ -767,6 +767,11 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto& areaSett = mapSett.fAreas.get(areaId);
         mGamePainter.setLightness(areaSett.fLightness);
         mGamePainter.setContrast(areaSett.fContrast);
+
+        mGamePainter.clearEffects();
+        for(const auto& e : areaSett.fEffects) {
+            mGamePainter.addEffect(e);
+        }
     }
 
     mServer->changeState(mClientId, *mMainChar);
@@ -2133,7 +2138,10 @@ void eGameWidget::initializeTextures() {
     const int h = height();
     const int tw = mInput.tileWidth();
     const int th = mInput.tileHeight();
-    const auto tex = mGamePainter.initialize(w, h, tw, th);
+    const auto centerX = mInput.characterHorizontalPosPtr();
+    const auto centerY = mInput.characterVerticalPosPtr();
+    const auto tex = mGamePainter.initialize(
+        w, h, tw, th, centerX, centerY);
     setTexture(tex);
 }
 

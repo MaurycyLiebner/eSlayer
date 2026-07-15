@@ -12,10 +12,15 @@ public:
 
     std::shared_ptr<eTexture>
     initialize(const int w, const int h,
-               const int tileW, const int tileH);
+               const int tileW, const int tileH,
+               const float* centerX,
+               const float* centerY);
 
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
+
+    void addEffect(const eEffectSettings& settings);
+    void clearEffects();
 
     void setLightness(const Uint8 light);
     void setContrast(const Uint8 cont)

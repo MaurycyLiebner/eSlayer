@@ -1,7 +1,5 @@
 #include "egamepainter.h"
 
-#include "effects/edistorteffect.h"
-
 eGamePainter::eGamePainter(
     eTilesIterator& iterator,
     SDL_Renderer* const r) :
@@ -10,7 +8,9 @@ eGamePainter::eGamePainter(
 
 std::shared_ptr<eTexture> eGamePainter::initialize(
     const int w, const int h,
-    const int tileW, const int tileH) {
+    const int tileW, const int tileH,
+    const float* centerX,
+    const float* centerY) {
     const auto r = renderer();
 
     mBaseTex = std::make_shared<eTexture>();
@@ -24,9 +24,7 @@ std::shared_ptr<eTexture> eGamePainter::initialize(
     mItemNames = std::make_shared<eTexture>();
     mItemNames->create(r, w, h, {0, 0, 0, 0});
 
-    mEffects.initialize(r, w, h);
-    const auto e = std::make_shared<eDistortEffect>();
-    mEffects.addEffect(e);
+    mEffects.initialize(r, w, h, centerX, centerY);
 
     return mDisplayTex;
 }
@@ -40,6 +38,15 @@ eRenderTargetHolder eGamePainter::switchToItemNames() {
     const auto r = renderer();
     mRenderItemNames = true;
     return mItemNames->createTargetHolder(r);
+}
+
+void eGamePainter::addEffect(
+    const eEffectSettings& settings) {
+    mEffects.addEffect(settings);
+}
+
+void eGamePainter::clearEffects() {
+    mEffects.clearEffects();
 }
 
 void eGamePainter::setLightness(const Uint8 light) {

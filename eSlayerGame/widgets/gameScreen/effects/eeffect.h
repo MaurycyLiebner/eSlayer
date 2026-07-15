@@ -3,6 +3,8 @@
 
 #include "../../../textures/etexture.h"
 
+#include <eSlayerHelpers/eeffectsettings.h>
+
 #include <vector>
 
 class eEffect {
@@ -11,21 +13,37 @@ protected:
     virtual void apply(SDL_Renderer* const r,
                        std::shared_ptr<eTexture>& to,
                        std::shared_ptr<eTexture>& tmp) = 0;
-    virtual void initialize(const int w, const int h) {};
+    virtual void initialize(const eEffectSettings& settings,
+                            const int w, const int h,
+                            const float* centerX,
+                            const float* centerY);
+
+    eEffectSettings mSettings;
+
+    int mWidth = 0;
+    int mHeight = 0;
+
+    const float* mCenterX = nullptr;
+    const float* mCenterY = nullptr;
 };
 
 class eEffects {
 public:
     void initialize(SDL_Renderer* const r,
-                    const int w, const int h);
+                    const int w, const int h,
+                    const float* centerX,
+                    const float* centerY);
     void apply(SDL_Renderer* const r,
                std::shared_ptr<eTexture>& to);
 
-    void addEffect(const std::shared_ptr<eEffect>& e);
+    void addEffect(const eEffectSettings& settings);
     void clearEffects();
 private:
     int mWidth = 0;
     int mHeight = 0;
+
+    const float* mCenterX = nullptr;
+    const float* mCenterY = nullptr;
 
     std::shared_ptr<eTexture> mTmp;
     std::vector<std::shared_ptr<eEffect>> mEffects;

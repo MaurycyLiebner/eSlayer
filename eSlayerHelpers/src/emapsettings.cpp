@@ -152,6 +152,21 @@ void eMapsSettings::load() {
                     parseBlueprints(items, area.fBlueprints);
                 }
 
+                if(jArea.contains("effects")) {
+                    const auto& effects = jArea["effects"];
+                    for(const auto& effect : effects) {
+                        auto& e = area.fEffects.emplace_back();
+                        const auto typeStr = effect.value("type", "");
+                        if(typeStr == "distort") {
+                            e.fType = eEffectType::distort;
+                        } else {
+                            eRuntimeThrow("Unrecognized effect type \"" + typeStr + "\".");
+                        }
+                        e.fScale = effect.value("scale", 1.f);
+                        e.fSpeed = effect.value("speed", 1.f);
+                    }
+                }
+
                 if(jArea.contains("connections")) {
                     const auto& items = jArea["connections"];
                     for(auto cit = items.begin(); cit != items.end(); ++cit) {

@@ -5,6 +5,8 @@
 
 #include "estringidmapvector.h"
 
+#include <eSlayerHelpers/eeffectsettings.h>
+
 #include <cstdint>
 #include <map>
 #include <string>
@@ -83,6 +85,7 @@ struct eAreaSettings {
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;
     uint16_t fSize = 0;
+    std::vector<eEffectSettings> fEffects;
     std::map<std::string, eConnectionSettings> fConnections;
 };
 
