@@ -1,0 +1,98 @@
+#include "espaceeffect.h"
+
+#include <eSlayerHelpers/erand.h>
+
+void eSpaceEffect::apply(
+    SDL_Renderer* const r,
+    std::shared_ptr<eTexture>& to,
+    std::shared_ptr<eTexture>& tmp) {
+    const auto h = to->createTargetHolder(r);
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_RenderGeometry(r, nullptr,
+                       mVerts.data(), mVerts.size(),
+                       mIndices.data(), mIndices.size());
+    increment(1.f);
+}
+
+void eSpaceEffect::initialize(
+    const eEffectSettings& settings,
+    const int w, const int h,
+    const float* centerX,
+    const float* centerY) {
+    eEffect::initialize(settings, w, h, centerX, centerY);
+
+    mSpeed = 0.025f*settings.fSpeed;
+    mCount = 500*settings.fScale;
+
+    mVerts.reserve(4*mCount);
+    mIndices.reserve(6*mCount);
+
+    const SDL_FColor color{1.f, 1.f, 1.f, 0.5f};
+
+    for(uint16_t i = 0; i < mCount; i++) {
+        mSpeed0.emplace_back(eRand::randF(0.1f, 1.f));
+
+        mX0.emplace_back(eRand::randF(-mWidth, 0.f));
+        mY0.emplace_back(eRand::randF(0.f, mHeight));
+
+        const int ishift = mVerts.size();
+        {
+            auto& v = mVerts.emplace_back();
+            v.color = color;
+        }
+        {
+            auto& v = mVerts.emplace_back();
+            v.color = color;
+        }
+        {
+            auto& v = mVerts.emplace_back();
+            v.color = color;
+        }
+        {
+            auto& v = mVerts.emplace_back();
+            v.color = color;
+        }
+        mIndices.emplace_back(ishift);
+        mIndices.emplace_back(ishift + 1);
+        mIndices.emplace_back(ishift + 2);
+        mIndices.emplace_back(ishift);
+        mIndices.emplace_back(ishift + 2);
+        mIndices.emplace_back(ishift + 3);
+    }
+
+    mX = mX0;
+}
+
+void eSpaceEffect::stop() {
+    mFade = true;
+}
+
+void eSpaceEffect::increment(const float by) {
+    mTime += by;
+
+    mDone = mFade;
+
+    const float size = mSize*mHeight;
+    for(uint16_t i = 0; i < mCount; i++) {
+        float& x = mX[i];
+        const float& y = mY0[i];
+        const uint16_t v0i = 4*i;
+        auto& v0 = mVerts[v0i];
+        auto& v1 = mVerts[v0i + 1];
+        auto& v2 = mVerts[v0i + 2];
+        auto& v3 = mVerts[v0i + 3];
+
+        const float xInc = mHeight*by*mSpeed*mSpeed0[i];
+        x += xInc;
+        if(x > mWidth && !mFade) {
+            x = mX0[i];
+        } else {
+            mDone = false;
+        }
+
+        v0.position = {x, y};
+        v1.position = {x + size, y};
+        v2.position = {x + size, y + size};
+        v3.position = {x, y + size};
+    }
+}

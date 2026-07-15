@@ -161,6 +161,8 @@ void eMapsSettings::load() {
                             e.fType = eEffectType::distort;
                         } else if(typeStr == "rain") {
                             e.fType = eEffectType::rain;
+                        } else if(typeStr == "space") {
+                            e.fType = eEffectType::space;
                         } else {
                             eRuntimeThrow("Unrecognized effect type \"" + typeStr + "\".");
                         }

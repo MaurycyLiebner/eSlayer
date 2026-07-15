@@ -2,6 +2,7 @@
 
 #include "edistorteffect.h"
 #include "eraineffect.h"
+#include "espaceeffect.h"
 
 void eEffects::initialize(
     SDL_Renderer* const r,
@@ -37,6 +38,9 @@ void eEffects::addEffect(const eEffectSettings& settings) {
     } break;
     case eEffectType::rain: {
         e = std::make_shared<eRainEffect>();
+    } break;
+    case eEffectType::space: {
+        e = std::make_shared<eSpaceEffect>();
     } break;
     }
 
