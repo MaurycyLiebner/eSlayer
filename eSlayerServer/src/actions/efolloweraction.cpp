@@ -21,10 +21,10 @@ void eFollowerAction::increment(const float by) {
             } else {
                 const bool attacking = eUnitBaseAction::attacking();
                 setStrategy(eUnitStrategy::attack);
-                if(dist > 10.f) {
+                if(dist > 7.f) {
                     setStrategy(eUnitStrategy::move);
                     moveTo(*f);
-                } else if(dist > 5.f && !attacking) {
+                } else if(dist > 3.f && !attacking) {
                     moveTo(*f);
                 }
             }
