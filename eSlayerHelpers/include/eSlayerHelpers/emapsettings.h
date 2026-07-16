@@ -85,6 +85,13 @@ struct eAreaSettings {
     uint8_t fContrast = 140;
     uint8_t fLevel = 0;
     uint16_t fSize = 0;
+
+    uint8_t fRoomSize = 6;
+    uint8_t fConnThick = 2;
+    uint8_t fConnLen = 4;
+
+    bool fMerge = true;
+
     std::vector<eEffectSettings> fEffects;
     std::map<std::string, eConnectionSettings> fConnections;
 };

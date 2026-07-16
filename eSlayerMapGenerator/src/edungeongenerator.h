@@ -1,7 +1,9 @@
 #ifndef EDUNGEONGENERATOR_H
 #define EDUNGEONGENERATOR_H
 
-#include "../include/eSlayerMapGenerator/echamber.h"
+#include "eSlayerMapGenerator/echamber.h"
+
+struct eAreaSettings;
 
 enum class eDir {
     none,
@@ -19,7 +21,7 @@ public:
         const eRect& rect,
         std::vector<eChamber>& chambers,
         std::vector<eRect>& doors,
-        const int size);
+        const eAreaSettings& settings);
 };
 
 #endif // EDUNGEONGENERATOR_H

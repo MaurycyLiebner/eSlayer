@@ -1,5 +1,7 @@
 #include "edungeongenerator.h"
 
+#include <eSlayerHelpers/emapsettings.h>
+
 eDir eDirHelpers::flip(const eDir dir) {
     switch(dir) {
     case eDir::none:
@@ -20,10 +22,12 @@ void eDungeonGenerator::generate(
     const eRect& rect,
     std::vector<eChamber>& chambers,
     std::vector<eRect>& doors,
-    const int size) {
-    const int roomSize = 6;
-    const int connThick = 2;
-    const int connLen = 4;
+    const eAreaSettings& settings) {
+    const int size = settings.fSize;
+    const int roomSize = settings.fRoomSize;
+    const int connThick = settings.fConnThick;
+    const int connLen = settings.fConnLen;
+    const bool merge = settings.fMerge;
 
     struct eRoom {
         int fRelX;
@@ -273,10 +277,12 @@ void eDungeonGenerator::generate(
     for(const auto& row : rooms) {
         for(const auto& room : row) {
             if(!room.fEnabled) continue;
-            const bool r = tryCrossMerge(room);
-            if(r) continue;
-            const bool rr = trySquareMerge(room);
-            if(rr) continue;
+            if(merge) {
+                const bool r = tryCrossMerge(room);
+                if(r) continue;
+                const bool rr = trySquareMerge(room);
+                if(rr) continue;
+            }
             addBRConn(room);
             addBLConn(room);
             const eRect rect{room.fAbsX, room.fAbsY,

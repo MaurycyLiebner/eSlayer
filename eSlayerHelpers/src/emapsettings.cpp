@@ -67,6 +67,12 @@ void eMapsSettings::load() {
                 area.fLevel = jArea.value("level", 0);
                 area.fSize = jArea.value("size", 50);
 
+                area.fRoomSize = jArea.value("roomSize", 6);
+                area.fConnThick = jArea.value("connThick", 2);
+                area.fConnLen = jArea.value("connLen", 4);
+
+                area.fMerge = jArea.value("merge", false);
+
                 if(jArea.contains("monsters")) {
                     auto& monsters = area.fMonsters;
                     auto& mtypes = monsters.fTypes;

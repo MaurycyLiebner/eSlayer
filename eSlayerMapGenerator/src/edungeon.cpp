@@ -67,7 +67,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
     case eAreaType::dungeon: {
         rectWalls = true;
         fillEmptySapces = false;
-        eDungeonGenerator::generate(rect, chambers, doors, mSettings.fSize);
+        eDungeonGenerator::generate(rect, chambers, doors, mSettings);
     } break;
     case eAreaType::open: {
         rectWalls = false;
