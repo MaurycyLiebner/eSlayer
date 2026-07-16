@@ -6,11 +6,15 @@ void eSpaceEffect::apply(
     SDL_Renderer* const r,
     std::shared_ptr<eTexture>& to,
     std::shared_ptr<eTexture>& tmp) {
-    const auto h = to->createTargetHolder(r);
+    tmp->fill(r, SDL_Color{0, 0, 0, 0});
+    const auto h = tmp->createTargetHolder(r);
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_RenderGeometry(r, nullptr,
                        mVerts.data(), mVerts.size(),
                        mIndices.data(), mIndices.size());
+    to->setBlendMode(SDL_BLENDMODE_BLEND);
+    to->render(r, 0, 0);
+    std::swap(to, tmp);
     increment(1.f);
 }
 
@@ -27,7 +31,7 @@ void eSpaceEffect::initialize(
     mVerts.reserve(4*mCount);
     mIndices.reserve(6*mCount);
 
-    const SDL_FColor color{1.f, 1.f, 1.f, 0.5f};
+    const SDL_FColor color{1.f, 1.f, 1.f, 1.f};
 
     for(uint16_t i = 0; i < mCount; i++) {
         mSpeed0.emplace_back(eRand::randF(0.1f, 1.f));

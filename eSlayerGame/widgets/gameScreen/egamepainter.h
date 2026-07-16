@@ -45,8 +45,6 @@ public:
                        const float wallMax,
                        const bool minFeatherForce,
                        const bool maxFeatherForce);
-
-    void applyEffects();
 private:
     std::vector<eLight> mLights;
     bool mRenderItemNames = false;

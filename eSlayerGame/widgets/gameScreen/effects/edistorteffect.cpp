@@ -7,8 +7,8 @@ void eDistortEffect::apply(
     SDL_Renderer* const r,
     std::shared_ptr<eTexture>& to,
     std::shared_ptr<eTexture>& tmp) {
+    tmp->fill(r, SDL_Color{0, 0, 0, 0});
     const auto h = tmp->createTargetHolder(r);
-    to->setBlendMode(SDL_BLENDMODE_BLEND);
     const ePointF c{(*mCenterX)*mWidth, (*mCenterY)*mHeight};
     for(uint16_t i = 0; i < mNVerts; i++) {
         const float x = mXTexCoords[i];
@@ -24,6 +24,7 @@ void eDistortEffect::apply(
         const float infl = std::clamp(4.f*(dist/mHeight - 0.25f), 0.f, 1.f);
         mVerts[i].tex_coord = {x + infl*xr, y + infl*yr};
     }
+    to->setBlendMode(SDL_BLENDMODE_BLEND);
     const auto sdlTex = to->tex();
     SDL_RenderGeometry(r, sdlTex,
                        mVerts.data(), mVerts.size(),

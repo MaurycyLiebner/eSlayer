@@ -14,7 +14,7 @@ std::shared_ptr<eTexture> eGamePainter::initialize(
     const auto r = renderer();
 
     mBaseTex = std::make_shared<eTexture>();
-    mBaseTex->create(r, w, h, {0, 0, 0, 255});
+    mBaseTex->create(r, w, h, {0, 0, 0, 0});
 
     mLightingTex.initialize(r, w, h, tileW, tileH);
 
@@ -56,7 +56,8 @@ void eGamePainter::setLightness(const Uint8 light) {
 
 void eGamePainter::clear() {
     const auto r = renderer();
-    mBaseTex->fill(r, SDL_Color{0, 0, 0, 255});
+    mBaseTex->fill(r, SDL_Color{0, 0, 0, 0});
+    mDisplayTex->fill(r, SDL_Color{0, 0, 0, 255});
     if(mRenderItemNames) {
         mRenderItemNames = false;
         mItemNames->fill(r, SDL_Color{0, 0, 0, 0});
@@ -72,8 +73,8 @@ void eGamePainter::addLight(const float tx, const float ty,
 
 void eGamePainter::finish(
     const eResolution& res) {
-    applyEffects();
     const auto r = renderer();
+    mEffects.apply(r, mBaseTex);
     const auto h = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
@@ -131,9 +132,4 @@ void eGamePainter::addWallShadow(
         tx, ty, dir, wallMin, wallMax,
         minFeatherForce, maxFeatherForce);
     mLightingTex.addBlocker(b);
-}
-
-void eGamePainter::applyEffects() {
-    const auto r = renderer();
-    mEffects.apply(r, mBaseTex);
 }
