@@ -3,8 +3,10 @@
 #include "../elabel.h"
 #include "../../etext.h"
 #include "../../names/eservernames.h"
+#include "../../names/edifficultynames.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 void eStatusWidget::initialize(
     const eGameSettings& settings) {
@@ -55,6 +57,18 @@ void eStatusWidget::initialize(
         addWidget(pass);
         labels.emplace_back(pass);
     }
+
+    const auto diffLabel = new eLabel(window());
+    diffLabel->setTinyFontSize();
+    diffLabel->setTinyPadding();
+    const auto diff = eDifficulties::sDifficulty;
+    const auto diffName = eDifficultyNames::name(diff);
+    auto diffStr = eText::text(14, 2);
+    diffStr = eStringHelpers::replaceAll(diffStr, "%1", diffName);
+    diffLabel->setText(diffStr);
+    diffLabel->fitContent();
+    addWidget(diffLabel);
+    labels.emplace_back(diffLabel);
 
     const auto v = new eLabel(window());
     v->setTinyFontSize();

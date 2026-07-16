@@ -35,11 +35,15 @@ public:
     eEquipment& equipment() { return mEquipment; }
     eAttributes& attributes() { return mAttributes; }
 
-    const eSlayerQuests& quests() const { return mQuests; }
-    eSlayerQuests& quests() { return mQuests; }
+    const eSlayerQuests& quests(const int diff) const
+    { return mQuests[diff]; }
+    eSlayerQuests& quests(const int diff)
+    { return mQuests[diff]; }
 
-    const eTalkHeard& talkHeard() const { return mTalkHeard; }
-    eTalkHeard& talkHeard() { return mTalkHeard; }
+    const eTalkHeard& talkHeard(const int diff) const
+    { return mTalkHeard[diff]; }
+    eTalkHeard& talkHeard(const int diff)
+    { return mTalkHeard[diff]; }
 
     const eSkillLevels& skillLevels() const { return mSkillLevels; }
     eSkillLevels& skillLevels() { return mSkillLevels; }
@@ -65,11 +69,16 @@ public:
     const std::vector<eBodyEquipment>& bodies() const { return mBodies; }
     std::vector<eBodyEquipment>& bodies() { return mBodies;}
 
-    const std::vector<eWaypoint>& waypoints() const { return mWaypoints; }
-    std::vector<eWaypoint>& waypoints() { return mWaypoints;}
+    const std::vector<eWaypoint>& waypoints(const int diff) const
+    { return mWaypoints[diff]; }
+    std::vector<eWaypoint>& waypoints(const int diff)
+    { return mWaypoints[diff];}
 
     const std::optional<eMercenary>& merc() const { return mMerc; }
     std::optional<eMercenary>& merc() { return mMerc;}
+
+    const int& latestDifficulty() const { return mLatestDifficulty; }
+    int& latestDifficulty() { return mLatestDifficulty; }
 
     void read(ePacket& p);
     void write(ePacket& p) const;
@@ -86,10 +95,11 @@ private:
     int mOtherRightSkill = 0;
     std::map<int, int> mLeftHotkeys;
     std::map<int, int> mRightHotkeys;
-    std::vector<eWaypoint> mWaypoints;
-    eSlayerQuests mQuests;
-    eTalkHeard mTalkHeard;
+    std::vector<eWaypoints> mWaypoints;
+    std::vector<eSlayerQuests> mQuests;
+    std::vector<eTalkHeard> mTalkHeard;
     std::optional<eMercenary> mMerc;
+    int mLatestDifficulty = 0;
     bool mRunning = false;
 };
 

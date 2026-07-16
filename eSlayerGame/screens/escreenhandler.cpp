@@ -12,6 +12,8 @@
 #include "etcpipjoinmenu.h"
 #include "../widgets/gameScreen/egamewidget.h"
 #include "../widgets/gameScreen/eminimap.h"
+#include "../widgets/mainMenu/edialog.h"
+#include "../widgets/mainMenu/emainmenubutton.h"
 #include "../erendersettings.h"
 
 #include "../textures/eterrstextures.h"
@@ -35,12 +37,14 @@
 #include "../names/etalktext.h"
 #include "../names/equesttext.h"
 #include "../names/emercenarynames.h"
+#include "../names/edifficultynames.h"
 #include "../etext.h"
 
 #include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/eobjectsinfo.h>
 #include <eSlayerHelpers/ethreads.h>
 #include <eSlayerHelpers/etalkheard.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -136,10 +140,49 @@ void eScreenHandler::showChooseCharacterMenu(eServerData serverData) {
         showMainMenu();
     };
 
-    const auto ok = [this, serverData](const std::string& name) {
-        const bool c = mCharacters.contains(name);
-        if(!c) return;
-        showGame(serverData, mCharacters.get(name));
+    const auto ok = [this, w, serverData](const std::string& name) {
+        const bool r = mCharacters.contains(name);
+        if(!r) return;
+        const auto& c = mCharacters.get(name);
+        const int maxDiff = c.latestDifficulty();
+        if(maxDiff > 0) {
+            const auto d = w->showDialog(
+                eText::text(3, 7),
+                nullptr, nullptr, nullptr);
+            const int width = w->dialogWidth();
+
+            const auto buttonsW = new eWidget(mWindow);
+            buttonsW->setNoPadding();
+
+            for(const auto& it : eDifficulties::sDifficulties) {
+                const int diff = it.fId;
+                if(diff > maxDiff) break;
+                const auto name = eDifficultyNames::name(diff);
+                const auto b = new eMainMenuButton(name, mWindow);
+                b->setWidth(width);
+                b->fitHeight();
+                buttonsW->addWidget(b);
+
+                b->setPressAction([this, serverData, diff, c]() {
+                    auto s = serverData;
+                    s.fDifficulty = diff;
+                    showGame(s, c);
+                });
+            }
+
+            buttonsW->stackVertically();
+            buttonsW->fitContent();
+
+            d->addWidget(buttonsW);
+            d->stackVertically();
+            d->fitContent();
+            d->align(eAlignment::center);
+            buttonsW->align(eAlignment::hcenter);
+        } else {
+            auto s = serverData;
+            s.fDifficulty = 0;
+            showGame(s, c);
+        }
     };
 
     const auto createCharacter = [this, serverData]() {
@@ -285,8 +328,13 @@ void eScreenHandler::showGame(eServerData serverData,
         });
         (*server)->initialize();
     });
-    loading.emplace_back([server, clientId]() {
+    loading.emplace_back([this, server, clientId, serverC]() {
         *clientId = (*server)->connect();
+        const int latest = serverC->latestDifficulty();
+        if(eDifficulties::sDifficulty > latest) {
+            (*server)->disconnect(*clientId);
+            showErrorMsg("Disconnected", "You cannot enter a game with a difficulty you did not reach.");
+        }
     });
     loading.emplace_back([this, server, map, clientId]() {
         eMapData data;
@@ -515,12 +563,9 @@ void eScreenHandler::finishGameShow(
         const auto c = gw->character();
         eScreenHandler::moveToMap(clientId, teamId, c, server, moveData);
     };
-    for(const auto& cw : c.waypoints()) {
-        for(auto& w : eWaypoint::sWaypoints) {
-            if(cw.fActId != w.fActId) continue;
-            if(cw.fArea != w.fArea) continue;
-            w.fKnown = cw.fKnown;
-        }
+    const int diff = eDifficulties::sDifficulty;
+    for(const auto& cw : c.waypoints(diff)) {
+        if(cw.fKnown) eWaypoints::setKnown(cw.fArea);
     }
     w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);

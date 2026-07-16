@@ -5,6 +5,7 @@
 #include "etcpipjoin.h"
 
 #include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -25,7 +26,9 @@ std::shared_ptr<eServer> eSlayerServer::generate(
 }
 
 eServer::eServer(const eServerData& data) :
-    mData(data) {}
+    mData(data) {
+    eDifficulties::sDifficulty = mData.fDifficulty;
+}
 
 void eServer::setFailureHandler(
     const eServerFailureHandler& h) {

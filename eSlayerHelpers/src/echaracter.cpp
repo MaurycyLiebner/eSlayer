@@ -8,11 +8,13 @@
 #include "eSlayerHelpers/emapsettings.h"
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/emercenaries.h"
+#include "eSlayerHelpers/edifficulties.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
 
 #include <algorithm>
+#include <iostream>
 
 eCharacter::eCharacter(const std::string& name,
                        const bool hardcore) :
@@ -62,6 +64,10 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     const auto typeName = itemE->Attribute("type");
     if(!typeName) return false;
     const int dataId = eItemsData::id(typeName);
+    if(dataId < 0) {
+        std::cout << "Unrecognized item type \"" << typeName << "\"." << std::endl;
+        return false;
+    }
     item.fDataId = dataId;
     const auto& itemData = eItemsData::get(dataId);
     item.fType = itemData.fType;
@@ -233,7 +239,6 @@ bool gReadSkill(XMLElement* const e,
 
 bool gReadQuests(const XMLElement* parentE,
                  eSlayerQuests& quests) {
-    quests.initialize();
     const auto questsE = parentE->FirstChildElement("quests");
     if(!questsE) return false;
     auto aE = questsE->FirstChildElement();
@@ -256,7 +261,6 @@ bool gReadQuests(const XMLElement* parentE,
 
 bool gReadTalkHeard(const XMLElement* parentE,
                     eTalkHeard& talkHeard) {
-    talkHeard.initialize();
     const auto talkE = parentE->FirstChildElement("talkHeard");
     if(!talkE) return false;
     auto npcE = talkE->FirstChildElement();
@@ -342,6 +346,43 @@ bool gReadMerc(const XMLElement* parentE,
     return true;
 }
 
+bool getWaypointIds(const std::string& name,
+                    eWaypoint& w) {
+    for(const auto& mit : eMapsSettings::sMaps) {
+        const auto& m = mit.fValue;
+        for(const auto& a : m.fAreas) {
+            if(name == a.fName) {
+                w.fActId = m.fActId;
+                w.fArea = eAreaIds(mit.fId, a.fId);
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+bool gReadWaypoints(const XMLElement* parentE,
+                    std::vector<eWaypoint>& waypoints) {
+    const auto wE = parentE->FirstChildElement("waypoints");
+    if(!wE) return false;
+    auto aE = wE->FirstChildElement();
+    while(aE) {
+        auto wwE = aE->FirstChildElement();
+        while(wwE) {
+            const auto name = wwE->Name();
+            eWaypoint w;
+            wwE->QueryBoolAttribute("known", &w.fKnown);
+            const bool r = getWaypointIds(name, w);
+            if(r) {
+                waypoints.emplace_back(w);
+            }
+            wwE = wwE->NextSiblingElement();
+        }
+        aE = aE->NextSiblingElement();
+    }
+    return true;
+}
+
 bool eCharacter::load(const std::string& path,
                       eCharacter& c) {
     XMLDocument doc;
@@ -369,10 +410,23 @@ bool eCharacter::load(const std::string& path,
                path.c_str());
         return false;
     }
+    const auto difficultyE = rootE->FirstChildElement("difficulty");
+    if(!difficultyE) {
+        printf("Missing difficulty element in %s.\n",
+               path.c_str());
+        return false;
+    }
 
     c.mName = nameE->GetText();
     const auto hText = hardcoreE->GetText();
     c.mHardcore = isTrue(hText);
+    const auto dText = difficultyE->GetText();
+    const auto dId = eDifficulties::sDifficulties.id(dText);
+    if(dId < 0) {
+        printf("Invalid difficulty element in %s.\n",
+               path.c_str());
+    }
+    c.mLatestDifficulty = std::max(0, dId);
 
     const auto runningE = rootE->FirstChildElement("running");
     if(runningE) {
@@ -422,41 +476,21 @@ bool eCharacter::load(const std::string& path,
     }
     gReadMerc(rootE, c.mMerc);
 
-    const auto getWaypointIds = [](const std::string& name,
-                                   eWaypoint& w) {
-        for(const auto& mit : eMapsSettings::sMaps) {
-            const auto& m = mit.fValue;
-            for(const auto& a : m.fAreas) {
-                if(name == a.fName) {
-                    w.fActId = m.fActId;
-                    w.fArea = eAreaIds(mit.fId, a.fId);
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-    if(const auto wE = rootE->FirstChildElement("waypoints")) {
-        auto aE = wE->FirstChildElement();
-        while(aE) {
-            auto wwE = aE->FirstChildElement();
-            while(wwE) {
-                const auto name = wwE->Name();
-                eWaypoint w;
-                wwE->QueryBoolAttribute("known", &w.fKnown);
-                const bool r = getWaypointIds(name, w);
-                if(r) {
-                    c.mWaypoints.emplace_back(w);
-                }
-                wwE = wwE->NextSiblingElement();
-            }
-            aE = aE->NextSiblingElement();
+    for(const auto& it : eDifficulties::sDifficulties) {
+        const auto& diffName = it.fName;
+        const auto diffE = rootE->FirstChildElement(diffName.c_str());
+        auto& waypoints = c.mWaypoints.emplace_back();
+        waypoints.initialize();
+        auto& quests = c.mQuests.emplace_back();
+        quests.initialize();
+        auto& talkHeard = c.mTalkHeard.emplace_back();
+        talkHeard.initialize();
+        if(diffE) {
+            gReadWaypoints(diffE, waypoints);
+            gReadQuests(diffE, quests);
+            gReadTalkHeard(diffE, talkHeard);
         }
     }
-
-    gReadQuests(rootE, c.mQuests);
-    gReadTalkHeard(rootE, c.mTalkHeard);
 
     return true;
 }
@@ -751,6 +785,10 @@ bool eCharacter::write(const std::string& path) const {
     const auto hardcoreE = rootE->InsertNewChildElement("hardcore");
     hardcoreE->SetText(mHardcore ? "true" : "false");
 
+    const auto difficultyE = rootE->InsertNewChildElement("difficulty");
+    const auto diffName = eDifficulties::sDifficulties.name(mLatestDifficulty);
+    difficultyE->SetText(diffName.c_str());
+
     const auto runningE = rootE->InsertNewChildElement("running");
     runningE->SetText(mRunning ? "true" : "false");
 
@@ -789,28 +827,33 @@ bool eCharacter::write(const std::string& path) const {
 
     gWriteMerc(rootE, mMerc);
 
-    const auto wE = rootE->InsertNewChildElement("waypoints");
-    std::map<uint8_t, std::vector<eWaypoint>> acts;
-    for(const auto& w : mWaypoints) {
-        acts[w.fActId].emplace_back(w);
-    }
-    for(const auto& it : acts) {
-        const auto actId = it.first;
-        const auto ar = eStringHelpers::toRoman(actId);
-        const auto aE = wE->InsertNewChildElement(ar.c_str());
-        for(const auto& w : it.second) {
-            const auto& area = w.fArea;
-            const auto mapId = area.fMapId;
-            const auto& minfo = eMapsSettings::sMaps.get(mapId);
-            const auto areaId = area.fAreaId;
-            const auto name = minfo.fAreas.name(areaId);
-            const auto wE = aE->InsertNewChildElement(name.c_str());
-            wE->SetAttribute("known", w.fKnown);
+    for(const auto& it : eDifficulties::sDifficulties) {
+        const auto& diffName = it.fName;
+        const int diffId = it.fId;
+        const auto diffE = rootE->InsertNewChildElement(diffName.c_str());
+        const auto wE = diffE->InsertNewChildElement("waypoints");
+        std::map<uint8_t, std::vector<eWaypoint>> acts;
+        for(const auto& w : mWaypoints[diffId]) {
+            acts[w.fActId].emplace_back(w);
         }
-    }
+        for(const auto& it : acts) {
+            const auto actId = it.first;
+            const auto ar = eStringHelpers::toRoman(actId);
+            const auto aE = wE->InsertNewChildElement(ar.c_str());
+            for(const auto& w : it.second) {
+                const auto& area = w.fArea;
+                const auto mapId = area.fMapId;
+                const auto& minfo = eMapsSettings::sMaps.get(mapId);
+                const auto areaId = area.fAreaId;
+                const auto name = minfo.fAreas.name(areaId);
+                const auto wE = aE->InsertNewChildElement(name.c_str());
+                wE->SetAttribute("known", w.fKnown);
+            }
+        }
 
-    gWriteQuests(rootE, mQuests);
-    gWriteTalkHeard(rootE, mTalkHeard);
+        gWriteQuests(diffE, mQuests[diffId]);
+        gWriteTalkHeard(diffE, mTalkHeard[diffId]);
+    }
 
     const auto e = doc.SaveFile(path.c_str());
     if(e) {
@@ -827,7 +870,8 @@ void eCharacter::read(ePacket& p) {
     mEquipment.read(p);
     p >> mAttributes;
     mSkillLevels.read(p);
-    mQuests.read(p);
+    const int diff = eDifficulties::sDifficulty;
+    mQuests[diff].read(p);
 
     mBodies.clear();
     uint8_t nBodies;
@@ -853,7 +897,8 @@ void eCharacter::write(ePacket& p) const {
     mEquipment.write(p);
     p << mAttributes;
     mSkillLevels.write(p);
-    mQuests.write(p);
+    const int diff = eDifficulties::sDifficulty;
+    mQuests[diff].write(p);
 
     const uint8_t nBodies = mBodies.size();
     p << nBodies;

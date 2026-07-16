@@ -27,6 +27,7 @@
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/emercenaries.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 std::vector<uint32_t> eServerArea::sSlain;
 std::map<uint32_t, std::shared_ptr<eServerUnit>>
@@ -895,7 +896,8 @@ bool eServerArea::addClient(const uint32_t clientId,
     clientData.fScreen = screenDims;
     const auto area = unitArea(*u);
     clientData.fArea = area;
-    const auto& quests = c.quests();
+    const int diff = eDifficulties::sDifficulty;
+    const auto& quests = c.quests(diff);
     clientData.fQuests = quests;
     clientData.fMerc = c.merc();
 
@@ -1324,7 +1326,8 @@ bool eServerArea::triggerObject(
     const auto mapId = area.fMapId;
     const auto areaId = area.fAreaId;
     const auto& mapSett = eMapsSettings::sMaps.get(mapId);
-    const auto& areaSett = mapSett.fAreas.get(areaId);
+    const int diff = eDifficulties::sDifficulty;
+    const auto& areaSett = mapSett.fAreas.get(areaId).fDiffs.at(diff);
     const auto level = areaSett.fLevel;
     const auto& objIds = mMap->objects(tx, ty);
     for(const auto id : objIds) {

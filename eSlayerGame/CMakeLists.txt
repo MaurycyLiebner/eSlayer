@@ -143,6 +143,8 @@ add_executable(eSlayerGame
     names/equesttext.h
     names/emercenarynames.cpp
     names/emercenarynames.h
+    names/edifficultynames.cpp
+    names/edifficultynames.h
 
     elanguage.cpp
     elanguage.h
@@ -359,6 +361,8 @@ add_executable(eSlayerGame
     widgets/mainMenu/echaracterbutton.h
     widgets/mainMenu/emainmenubutton.cpp
     widgets/mainMenu/emainmenubutton.h
+    widgets/mainMenu/edialog.cpp
+    widgets/mainMenu/edialog.h
 )
 
 include(GNUInstallDirs)

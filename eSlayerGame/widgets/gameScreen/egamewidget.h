@@ -172,6 +172,7 @@ private:
 
     static std::vector<std::string> sMessageLog;
 
+    eCharacter mC;
     std::string mCName;
     bool mHardcore;
 

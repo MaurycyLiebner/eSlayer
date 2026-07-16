@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 #include <eSlayerMapGenerator/emap.h>
 
@@ -49,6 +50,7 @@ uint32_t eTcpIpJoin::connect() {
             ePacketType type;
             p >> type;
             p >> mClientId;
+            p >> eDifficulties::sDifficulty;
             return true;
         }
         return false;
@@ -65,6 +67,7 @@ uint32_t eTcpIpJoin::connect() {
 }
 
 bool eTcpIpJoin::disconnect(const uint32_t clientId) {
+    if(!mInitialized) return false;
     ePacket p;
     p << ePacketType::disconnect;
     return mNet.sendToServer(p);

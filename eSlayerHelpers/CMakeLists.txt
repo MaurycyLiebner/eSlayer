@@ -218,6 +218,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eunitspecialdata.h
     src/eunitspecialdata.cpp
     include/eSlayerHelpers/eeffectsettings.h
+    include/eSlayerHelpers/edifficulties.h
+    src/edifficulties.cpp
 
 )
 

@@ -9,18 +9,18 @@
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eportals.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 eTcpIpHost::~eTcpIpHost() {
+    eTcpIpHost::disconnect(mClientId);
+}
+
+bool eTcpIpHost::disconnect(const uint32_t clientId) {
+    if(!mInitialized) return false;
     if(mRunning) {
         mRunning = false;
         mThread.join();
     }
-    if(mInitialized) {
-        eTcpIpHost::disconnect(mClientId);
-    }
-}
-
-bool eTcpIpHost::disconnect(const uint32_t clientId) {
     ePacket p;
     p << ePacketType::disconnect;
     for(const auto& c : mClientIdMap) {
@@ -456,6 +456,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         ePacket p;
         p << ePacketType::connect;
         p << clientId;
+        p << eDifficulties::sDifficulty;
         mNet.sendToClient(tcpClientId, p);
     } break;
     case ePacketType::map: {

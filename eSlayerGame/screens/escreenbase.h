@@ -11,11 +11,12 @@ public:
 
     void setExit(const eAction& exitA);
 
-    void showDialog(
+    eDialog* showDialog(
         const std::string& text,
         const eAction& yesAction,
         const eAction& noAction,
         const eAction& okAction);
+    int dialogWidth() const;
     void closeDialog();
 protected:
     eWidget* addInner();

@@ -7,6 +7,7 @@
 #include <eSlayerHelpers/emapsettings.h>
 #include <eSlayerHelpers/eunitsinfo.h>
 #include <eSlayerHelpers/eblueprints.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 class eMapGenerator {
 public:
@@ -240,6 +241,7 @@ private:
 
 std::shared_ptr<eMap>
 eMapGenerator::generate(const uint8_t mapId) const {
+    const int diff = eDifficulties::sDifficulty;
     const auto& name = eMapsSettings::sMaps.name(mapId);
     const auto& mapSettings = eMapsSettings::sMaps.get(mapId);
     if(mapSettings.fAreas.size() == 0) {
@@ -300,7 +302,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             if(connType != eConnectionType::plain) continue;
             const auto name = it.first;
             const int settingsId = mapSettings.fAreas.id(name);
-            const auto settings = mapSettings.fAreas.get(settingsId);
+            const auto& settings = mapSettings.fAreas.get(settingsId).fDiffs.at(diff);
             const auto connPlace = genArea(name, settings, place);
             const auto conn_ = placer.chooseConnection(
                 place, connPlace, connWidth, connHalfLen);
@@ -314,7 +316,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
     };
 
     const auto name0 = mapSettings.fAreas.name(0);
-    const eAreaSettings& settings = mapSettings.fAreas.get(0);
+    const eAreaSettings& settings = mapSettings.fAreas.get(0).fDiffs.at(diff);
     genArea(name0, settings, firstPlace);
 
     const int extMargin = 10;

@@ -34,6 +34,7 @@ struct eServerData {
     std::string fName;
     std::string fIp;
     std::string fPassword;
+    int fDifficulty = -1;
 };
 
 struct eMessage {

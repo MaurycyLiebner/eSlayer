@@ -104,7 +104,7 @@ public:
 
     struct eMonsterArea {
         std::vector<eChamber> fChambers;
-        eMapMonsterSettings fSettings;
+        eAreaMonsterSettings fSettings;
     };
 
     const std::vector<eMonsterArea>& monsterAreas() const

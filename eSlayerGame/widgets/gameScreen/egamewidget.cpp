@@ -48,6 +48,7 @@
 #include <eSlayerHelpers/esellers.h>
 #include <eSlayerHelpers/emercenaries.h>
 #include <eSlayerHelpers/evectorhelpers.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 eGameWidget* eGameWidget::sInstance = nullptr;
 std::vector<std::string> eGameWidget::sMessageLog;
@@ -75,6 +76,7 @@ void eGameWidget::initialize(const uint32_t clientId,
                              const eCharacter& c,
                              const eTeamId teamId,
                              const eMoveToMapAction& move) {
+    mC = c;
     mCName = c.name();
     mHardcore = c.hardcore();
 
@@ -125,11 +127,13 @@ void eGameWidget::initialize(const uint32_t clientId,
     dstStats.calculate(dstAttrs, dstEq);
     dstStats.calculateAuras(dstEq);
 
-    const auto& srcQuests = c.quests();
+    const int diff = eDifficulties::sDifficulty;
+
+    const auto& srcQuests = c.quests(diff);
     auto& dstQuests = mMainAction->quests();
     dstQuests = srcQuests;
 
-    const auto& srcTalkHeard = c.talkHeard();
+    const auto& srcTalkHeard = c.talkHeard(diff);
     auto& dstTalkHeard = mMainAction->talkHeard();
     dstTalkHeard = srcTalkHeard;
 
@@ -329,12 +333,20 @@ void eGameWidget::save() {
 }
 
 eCharacter eGameWidget::character() {
-    eCharacter c(mCName, mHardcore);
+    auto c = mC;
+    const int diff = eDifficulties::sDifficulty;
+    if(eDifficulties::sFinished) {
+        int& latest = c.latestDifficulty();
+        if(diff >= latest) {
+            const int max = eDifficulties::sDifficulties.size() - 1;
+            latest = std::min(max, diff + 1);
+        }
+    }
     c.setRunning(running());
     c.equipment() = equipment();
     c.attributes() = attributes();
-    c.quests() = quests();
-    c.talkHeard() = talkHeard();
+    c.quests(diff) = quests();
+    c.talkHeard(diff) = talkHeard();
     const auto& stats = eGameWidget::stats();
     c.skillLevels() = stats.fBaseSkillLevels;
     c.leftSkill() = mLeftSkill;
@@ -343,10 +355,14 @@ eCharacter eGameWidget::character() {
     c.otherRightSkill() = mOtherRightSkill;
     c.leftHotkeys() = eSkillButton::sLeftMap;
     c.rightHotkeys() = eSkillButton::sRightMap;
+
+    auto& bodies = c.bodies();
+    bodies.clear();
     for(const auto& b : eBodies::sBodies) {
-        c.bodies().emplace_back(b.fEq);
+        bodies.emplace_back(b.fEq);
     }
-    c.waypoints() = eWaypoint::sWaypoints;
+
+    c.waypoints(diff) = eWaypoints::sWaypoints;
     c.merc() = merc();
     return c;
 }
@@ -764,7 +780,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto mapId = area.fMapId;
         const auto areaId = area.fAreaId;
         const auto& mapSett = eMapsSettings::sMaps.get(mapId);
-        const auto& areaSett = mapSett.fAreas.get(areaId);
+        const int diff = eDifficulties::sDifficulty;
+        const auto& areaSett = mapSett.fAreas.get(areaId).fDiffs.at(diff);
         mGamePainter.setLightness(areaSett.fLightness);
         mGamePainter.setContrast(areaSett.fContrast);
 
@@ -1478,7 +1495,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
             const int areaId = mMap->areaAt(iPos);
             const eAreaIds area(mapId, areaId);
-            const bool known = eWaypoint::known(area);
+            const bool known = eWaypoints::known(area);
             auto& stateId = w->fState;
             stateId = known ? 1 : 2;
 

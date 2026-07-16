@@ -1,6 +1,7 @@
 #include "escreenbase.h"
 
 #include "../widgets/mainMenu/emainmenubutton.h"
+#include "../widgets/mainMenu/edialog.h"
 #include "../etext.h"
 
 void eScreenBase::setExit(const eAction& exitA) {
@@ -43,33 +44,22 @@ bool eScreenBase::keyPressEvent(const eKeyPressEvent& e) {
     return false;
 }
 
-class eDialog : public eLabel {
-public:
-    using eLabel::eLabel;
-protected:
-    void paintEvent(ePainter& p) {
-        const auto rect = eWidget::rect();
-        p.fillRect(rect, SDL_Color{0, 0, 0, 255});
-        const int lineWidth = eLabel::lineWidth();
-        p.drawRect(rect, SDL_Color{255, 255, 255, 255},
-                   lineWidth);
-    }
-};
-
-void eScreenBase::showDialog(
+eDialog* eScreenBase::showDialog(
     const std::string& text,
     const eAction& yesAction,
     const eAction& noAction,
     const eAction& okAction) {
-    if(mDialog) return;
+    if(mDialog) return nullptr;
     mDialog = new eDialog(window());
-    const int w = eWidget::width()/3;
+
+    const int w = dialogWidth();
 
     const auto ask = new eLabel(window());
     ask->setSmallFontSize();
     ask->setWrapWidth(w);
     ask->setText(text);
-    ask->fitContent();
+    ask->fitHeight();
+    ask->setWidth(w);
     mDialog->addWidget(ask);
 
     const auto buttonsW = new eWidget(window());
@@ -110,6 +100,12 @@ void eScreenBase::showDialog(
     addWidget(mDialog);
     mDialog->align(eAlignment::center);
     buttonsW->align(eAlignment::hcenter);
+
+    return mDialog;
+}
+
+int eScreenBase::dialogWidth() const {
+    return eWidget::width()/3;
 }
 
 void eScreenBase::closeDialog() {

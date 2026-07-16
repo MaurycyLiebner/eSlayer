@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/epacket.h"
+#include "eSlayerHelpers/edifficulties.h"
 
 bool eSlayerQuests::hasQuest(
     const uint8_t questId) const {
@@ -70,6 +71,12 @@ bool eSlayerQuests::nextStage(
     auto& s = it->second;
     s.fStage++;
     s.fCount = 0;
+    if(finished(questId)) {
+        const auto& quest = eQuests::sQuests.get(questId);
+        if(quest.fFinishDifficulty) {
+            eDifficulties::sFinished = true;
+        }
+    }
     mState++;
     return true;
 }

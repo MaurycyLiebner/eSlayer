@@ -1,8 +1,8 @@
 #include "eSlayerHelpers/ewaypoints.h"
 
-std::vector<eWaypoint> eWaypoint::sWaypoints;
+eWaypoints eWaypoints::sWaypoints;
 
-bool eWaypoint::known(
+bool eWaypoints::known(
     const eAreaIds& area) {
     for(const auto& w : sWaypoints) {
         if(w.fArea != area) continue;
@@ -11,7 +11,7 @@ bool eWaypoint::known(
     return false;
 }
 
-bool eWaypoint::setKnown(
+bool eWaypoints::setKnown(
     const eAreaIds& area) {
     for(auto& w : sWaypoints) {
         if(w.fArea != area) continue;
@@ -19,4 +19,8 @@ bool eWaypoint::setKnown(
         return true;
     }
     return false;
+}
+
+void eWaypoints::initialize() {
+    *this = sWaypoints;
 }

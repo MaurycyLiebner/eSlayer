@@ -23,7 +23,7 @@ void eWaypointWidget::initialize(
     std::vector<eAct> acts;
 
     uint8_t maxAct = 0;
-    for(const auto& w : eWaypoint::sWaypoints) {
+    for(const auto& w : eWaypoints::sWaypoints) {
         maxAct = std::max(maxAct, w.fActId);
     }
 
@@ -39,7 +39,7 @@ void eWaypointWidget::initialize(
         if(cActId == actId) {
             currentAct = act;
         }
-        for(const auto& way : eWaypoint::sWaypoints) {
+        for(const auto& way : eWaypoints::sWaypoints) {
             if(way.fActId != actId) continue;
             const auto& warea = way.fArea;
             const auto& mapInfo = eMapsSettings::sMaps.get(warea.fMapId);

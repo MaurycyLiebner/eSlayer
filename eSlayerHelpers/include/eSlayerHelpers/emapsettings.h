@@ -58,7 +58,7 @@ struct eMonsterCount {
     bool fElite;
 };
 
-struct eMapMonsterSettings {
+struct eAreaMonsterSettings {
     std::vector<eMonsterCount> fTypes;
 };
 
@@ -75,16 +75,16 @@ struct eConnectionSettings {
 struct eAreaSettings {
     std::string fName;
     eAreaType fType;
-    bool fWaypoint;
+    bool fWaypoint = false;
     uint8_t fTerrainType;
-    eMapMonsterSettings fMonsters;
+    eAreaMonsterSettings fMonsters;
     std::vector<eObjectCount> fObjects;
     std::vector<eObjectCount> fOutsideObjects;
     std::vector<eBlueprintCount> fBlueprints;
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
-    uint8_t fLevel = 0;
-    uint16_t fSize = 0;
+    uint8_t fLevel = 1;
+    uint16_t fSize = 50;
 
     uint8_t fRoomSize = 6;
     uint8_t fConnThick = 2;
@@ -96,8 +96,12 @@ struct eAreaSettings {
     std::map<std::string, eConnectionSettings> fConnections;
 };
 
+struct eDifficultyMapSettings {
+    std::map<int, eAreaSettings> fDiffs;
+};
+
 struct eMapSettings {
-    eStringIdMapVector<eAreaSettings> fAreas;
+    eStringIdMapVector<eDifficultyMapSettings> fAreas;
     uint8_t fRespawnMap;
     int fMaxSize = 80;
     uint8_t fActId;

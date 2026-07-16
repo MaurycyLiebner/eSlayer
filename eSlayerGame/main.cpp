@@ -28,6 +28,7 @@
 #include "names/etalktext.h"
 #include "names/equesttext.h"
 #include "names/emercenarynames.h"
+#include "names/edifficultynames.h"
 
 #include <eSlayerMissiles/emissileincrement.h>
 
@@ -53,6 +54,7 @@
 #include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/emercenaries.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -228,6 +230,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eText::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eDifficulties::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eDifficultyNames::load();
         });
 
         loadings.emplace_back([&]() {

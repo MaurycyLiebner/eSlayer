@@ -32,6 +32,7 @@ struct eQuestStep {
 
 struct ESLAYERHELPERS_API eQuest {
     uint8_t fAct = 0;
+    bool fFinishDifficulty = false;
     std::vector<eQuestStep> fSteps;
     std::vector<uint8_t> fPrerequisites;
 
