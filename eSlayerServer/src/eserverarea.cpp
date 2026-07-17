@@ -1315,6 +1315,8 @@ bool eServerArea::spawnPortal(
 
 bool eServerArea::triggerObject(
     const uint32_t clientId, eServerObject& obj) {
+    const auto u = unit(clientId);
+    if(!u) return false;
     if(obj.fMapId != mMap->id()) return false;
     const auto& pos = obj.fPos;
     const int tx = pos.fX;
@@ -1337,8 +1339,6 @@ bool eServerArea::triggerObject(
         const auto type = sobj->fObjectType;
         const auto& info = eObjectsInfo::sObjects.get(type);
         if(info.fKey >= 0) {
-            const auto u = unit(clientId);
-            if(!u) return false;
             const auto& eq = u->equipment();
             bool found = false;
             eq.iterateOverAll([&](const eItem& item) {
@@ -1365,6 +1365,9 @@ bool eServerArea::triggerObject(
             auto& state = sobj->fState;
             if(state != 0) return false;
             state = 1;
+        } break;
+        case eObjectType::healer: {
+            u->healAll();
         } break;
         default:
             break;

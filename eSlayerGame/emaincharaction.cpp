@@ -288,6 +288,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
 
                 const auto sellerId = object->fObjectId;
+                const eServerObject sobject(mapId, *object);
+                mServer->triggerObject(mClientId, sobject);
                 if(!tryOpenTalk(sellerId, baseName, name, rect, info.fType)) {
                     openMainMenu(sellerId, baseName, name, rect, info.fType);
                 }
