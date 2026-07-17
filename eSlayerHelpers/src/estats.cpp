@@ -1129,7 +1129,8 @@ void eStats::calculateSkill(eSkillStats& stats,
     };
 
     if(skill.fType == eSkillType::attack) {
-        if(leftW.fType == eItemType::weapon) {
+        if(leftW.fType == eItemType::weapon &&
+           itemReqsMet(leftW)) {
             float min;
             float max;
             gCalculateWeaponDmg(leftW, min, max);
@@ -1139,7 +1140,8 @@ void eStats::calculateSkill(eSkillStats& stats,
             helper.fDmgMinLWBase.fPhysical += minFistDmg;
             helper.fDmgMaxLWBase.fPhysical += maxFistDmg;
         }
-        if(rightW.fType == eItemType::weapon) {
+        if(rightW.fType == eItemType::weapon &&
+           itemReqsMet(rightW)) {
             float min;
             float max;
             gCalculateWeaponDmg(rightW, min, max);
@@ -1152,7 +1154,8 @@ void eStats::calculateSkill(eSkillStats& stats,
             }
         }
     } else if(skill.fType == eSkillType::smite) {
-        if(rightW.fType == eItemType::shield) {
+        if(rightW.fType == eItemType::shield &&
+           itemReqsMet(rightW)) {
             float min;
             float max;
             gCalculateWeaponDmg(rightW, min, max);
@@ -1161,7 +1164,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         }
     } else if(skill.fType == eSkillType::kick) {
         const auto& boots = eq.fBoots;
-        if(boots.fType == eItemType::boots) {
+        if(boots.fType == eItemType::boots &&
+           itemReqsMet(boots)) {
             float min;
             float max;
             gCalculateWeaponDmg(boots, min, max);
@@ -1189,9 +1193,9 @@ void eStats::calculateSkill(eSkillStats& stats,
     skillMods.collapse();
 
     if(skill.fType == eSkillType::missile ||
-        skill.fType == eSkillType::shoot ||
-        skill.fType == eSkillType::throw_ ||
-        skill.fType == eSkillType::attack) {
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_ ||
+       skill.fType == eSkillType::attack) {
         if(skill.fMissileId <= 0) {
             const auto& itemDataL = eItemsData::get(leftW.fDataId);
             stats.fMissileIdLW = itemDataL.fMissileId;
@@ -1204,9 +1208,9 @@ void eStats::calculateSkill(eSkillStats& stats,
     }
 
     if(skill.fType == eSkillType::attack ||
-        skill.fType == eSkillType::shoot ||
-        skill.fType == eSkillType::throw_) {
-        stats.fMissileRange = fWeaponRangedRange;
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_) {
+       stats.fMissileRange = fWeaponRangedRange;
     } else {
         stats.fMissileRange = skill.fRange;
     }
