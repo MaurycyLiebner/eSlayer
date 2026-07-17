@@ -154,7 +154,7 @@ bool gReadInventory(std::vector<eInventoryItem>& items,
     }
     auto placeE = invE->FirstChildElement("place");
     while(placeE) {
-        eInventoryItem inv{};
+        eInventoryItem inv;
 
         inv.fX = placeE->IntAttribute("x");
         inv.fY = placeE->IntAttribute("y");
@@ -163,12 +163,10 @@ bool gReadInventory(std::vector<eInventoryItem>& items,
 
         const auto itemE = placeE->FirstChildElement("item");
         if(itemE) {
-            gReadItem(inv.fItem, itemE);
-        } else {
-            inv.fItem = eItem{};
+            const bool r = gReadItem(inv.fItem, itemE);
+            if(r) items.push_back(inv);
         }
 
-        items.push_back(inv);
         placeE = placeE->NextSiblingElement("place");
     }
 
