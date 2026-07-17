@@ -149,6 +149,7 @@ void eScreenHandler::showChooseCharacterMenu(eServerData serverData) {
             const auto d = w->showDialog(
                 eText::text(3, 7),
                 nullptr, nullptr, nullptr);
+            if(!d) return;
             const int width = w->dialogWidth();
 
             const auto buttonsW = new eWidget(mWindow);
