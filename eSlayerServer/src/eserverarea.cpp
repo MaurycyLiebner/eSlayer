@@ -184,6 +184,9 @@ void eServerArea::iniSetupUnit(
     u->setMapId(mapId);
     const auto areaId = mMap->areaAt(pos);
     u->setAreaId(areaId);
+
+    auto& stats = u->stats();
+    stats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
 }
 
 void eServerArea::addGroundItem(

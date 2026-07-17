@@ -9,6 +9,7 @@
 #include "eSlayerHelpers/evectorhelpers.h"
 #include "eSlayerHelpers/eweaponchoice.h"
 #include "eSlayerHelpers/eweaponclass.h"
+#include "eSlayerHelpers/edifficulties.h"
 
 uint32_t eAura::sNextId = 1;
 
@@ -549,6 +550,16 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fLightningResistance = 0.f;
     fPoisonResistance = 0.f;
     fPhysicalResistance = 0.f;
+
+    if(fDifficultyPenalties) {
+        const int diffId = eDifficulties::sDifficulty;
+        const auto& diff = eDifficulties::sDifficulties.get(diffId);
+        const auto penalty = diff.fResistPenalty;
+        fFireResistance += penalty;
+        fColdResistance += penalty;
+        fLightningResistance += penalty;
+        fPoisonResistance += penalty;
+    }
 
     fMaxFireResistance = 0.75f;
     fMaxColdResistance = 0.75f;
@@ -1306,6 +1317,22 @@ void eStats::calculateSkill(eSkillStats& stats,
 
     helper.fBaseAR += baseAR;
     helper.apply();
+
+    if(fDifficultyPenalties) {
+        const int diffId = eDifficulties::sDifficulty;
+        const auto& diff = eDifficulties::sDifficulties.get(diffId);
+        const float coldLenMult = std::clamp(1.f + diff.fColdLengthPenalty, 0.f, 1.f);
+        helper.fSkillStats.fColdLengthLW *= coldLenMult;
+        helper.fSkillStats.fColdLengthRW *= coldLenMult;
+        const float freezeLenMult = std::clamp(1.f + diff.fFreezeLengthPenalty, 0.f, 1.f);
+        helper.fSkillStats.fFreezeLengthLW *= freezeLenMult;
+        helper.fSkillStats.fFreezeLengthRW *= freezeLenMult;
+        const float leechMult = std::clamp(1.f + diff.fLeechPenalty, 0.f, 1.f);
+        helper.fSkillStats.fLifeStealLW *= leechMult;
+        helper.fSkillStats.fLifeStealRW *= leechMult;
+        helper.fSkillStats.fManaStealLW *= leechMult;
+        helper.fSkillStats.fManaStealRW *= leechMult;
+    }
 }
 
 eSkillStats eStats::statsFromMod(

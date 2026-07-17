@@ -39,6 +39,7 @@ void eUnitsInfo::load() {
             u.fWalkSpeed = jdata.value("walkSpeed", 0.1f);
             u.fRunSpeed = jdata.value("runSpeed", u.fWalkSpeed);
             u.fLighting = jdata.value("lighting", 0.f);
+            u.fDifficultyPenalties = jdata.value("difficultyPenalties", false);
             const auto textures = jdata.value("textures", "none");
             u.fCharData = eCharDataInfo::id(textures);
             if(jdata.contains("modifiers")) {

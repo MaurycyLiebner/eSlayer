@@ -99,6 +99,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();
+    mStats.fDifficultyPenalties = udata.fDifficultyPenalties;
 }
 
 void eMainCharAction::setPressedUnit(

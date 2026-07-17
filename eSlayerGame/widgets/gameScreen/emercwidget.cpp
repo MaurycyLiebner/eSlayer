@@ -5,6 +5,7 @@
 #include "../../etext.h"
 
 #include <eSlayerHelpers/emercenaries.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 void eMercWidget::initialize(
     eMercenary& merc,
@@ -27,6 +28,9 @@ void eMercWidget::initialize(
                      &eq.fDragged, eqO);
     innerW->addTab(eText::text(17, 5), mInv);
 
+    const auto uid = m.fUnitType;
+    const auto& uinfo = eUnitsInfo::sUnits.get(uid);
+    mStats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();
     mStats.calculate(mAttributes, merc.fEq);
