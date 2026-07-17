@@ -8,6 +8,72 @@ bool eMercenariesInfo::sLoaded = false;
 eStringIdMapVector<eMercenaryInfo>
 eMercenariesInfo::sMercs;
 
+std::vector<eModifier> eMercenariesInfo::mods(
+    const int mercType, const uint8_t level) {
+    std::vector<eModifier> result;
+    const auto& m = eMercenariesInfo::sMercs.get(mercType);
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = level*m.fLifePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::lifeValue;
+        mod.fValue1 = level*m.fLifePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::fireResistance;
+        mod.fValue1 = level*m.fResistancePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::coldResistance;
+        mod.fValue1 = level*m.fResistancePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::lightningResistance;
+        mod.fValue1 = level*m.fResistancePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::poisonResistance;
+        mod.fValue1 = level*m.fResistancePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::damageValue;
+        mod.fValue1 = level*m.fDamagePerLevel;
+        mod.fValue2 = level*m.fDamagePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::damageFire;
+        mod.fValue1 = level*m.fFireDamagePerLevel;
+        mod.fValue2 = level*m.fFireDamagePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::damageCold;
+        mod.fValue1 = level*m.fColdDamagePerLevel;
+        mod.fValue2 = level*m.fColdDamagePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::damageLightning;
+        mod.fValue1 = level*m.fLightningDamagePerLevel;
+        mod.fValue2 = level*m.fLightningDamagePerLevel;
+    }
+    {
+        auto& mod = result.emplace_back();
+        mod.fType = eModifierType::defenseValue;
+        mod.fValue1 = level*m.fDefensePerLevel;
+    }
+    return result;
+}
+
 void eMercenariesInfo::load() {
     if(sLoaded) return;
     sLoaded = true;

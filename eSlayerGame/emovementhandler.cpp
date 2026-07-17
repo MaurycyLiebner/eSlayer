@@ -3,10 +3,8 @@
 #include <eSlayerHelpers/eunitdata.h>
 #include <eSlayerHelpers/eslayers.h>
 
-eMovementHandler::eMovementHandler(
-    eUnitData& u,
-    ePathFinderMap& map) :
-    eMovementHandlerBase(u, map),
+eMovementHandler::eMovementHandler(eUnitData& u) :
+    eMovementHandlerBase(u),
     mUnit(u) {}
 
 bool eMovementHandler::increment(const float by) {

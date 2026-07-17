@@ -41,6 +41,9 @@ struct ePotionHealing {
 
 enum eUnitType {
     slayer,
+    body,
+    mercenary,
+    summoned,
     normal,
     uniqueBoss,
     minion
@@ -63,13 +66,12 @@ class eServerUnit : public eUnitData {
 public:
     static std::atomic<uint32_t> sNextCharId;
 
-    eServerUnit(const bool slayer,
+    eServerUnit(const eUnitType type,
                 const eCharData& data,
                 const int unitTypeId,
-                eServerArea& area,
-                ePathFinderMap& map);
+                eServerArea& area);
 
-    bool isSlayer() const { return mSlayer; }
+    bool isSlayer() const { return mType == eUnitType::slayer; }
 
     bool aggressive() const { return mAggressive; }
 
@@ -313,7 +315,6 @@ public:
     bool moving() const;
 
     eUnitType unitType() const { return mType; }
-    void setUnitType(const eUnitType type) { mType = type; }
 
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);
@@ -348,6 +349,9 @@ public:
     void setStaminaPotion(const bool p);
 
     void applyBoostsTmp();
+
+    void setArea(eServerArea& area);
+    void setMercType(const int mercType);
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
@@ -383,8 +387,8 @@ private:
     std::set<uint8_t> fBoostsTmp;
 
     const eCharData& mData;
-    eServerArea& mArea;
-    const bool mSlayer;
+    const eUnitType mType;
+    eServerArea* mArea = nullptr;
 
     bool mDead = false;
 
@@ -414,7 +418,7 @@ private:
     std::map<uint8_t, std::map<uint8_t, ePotionHealing>> mPotions;
     eFollowersBase mFollowers;
 
-    eUnitType mType = eUnitType::normal;
+    int mMercType = -1;
 
     std::map<uint32_t, uint16_t> mUpdateMap;
     bool mAttributesChanged = false;

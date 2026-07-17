@@ -152,6 +152,7 @@ void eServerArea::iniSetupUnit(
     const auto charId = u->fCharId;
     const auto teamId = u->fTeamId;
     const auto typeId = u->fUnitInfoId;
+    u->setArea(*this);
     u->fPos = pos;
     const auto& uinfo = eUnitsInfo::sUnits.get(typeId);
     auto& m = u->movementHandler();
@@ -174,7 +175,8 @@ void eServerArea::iniSetupUnit(
             return false;
         });
     };
-    m.intialize(wPos, wPath, iter, charId, teamId);
+    auto& pmap = mMap->pathFinderMap();
+    m.intialize(wPos, wPath, iter, charId, teamId, pmap);
 
     mUnits.add(charId, u);
     const auto area = unitArea(*u);
@@ -412,7 +414,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                     const auto modelParts = data.randomModelParts();
                     auto& map = mMap->pathFinderMap();
                     const auto u = std::make_shared<eServerUnit>(
-                        false, data, type, *this, map);
+                        boss ? eUnitType::uniqueBoss : eUnitType::minion,
+                        data, type, *this);
                     const uint32_t charId = eServerUnit::sNextCharId++;
                     iniSetupUnit(u, charId, eTeamId::neutralHostile,
                                  pos, type, udata, data, modelParts);
@@ -431,11 +434,6 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                     if(elite) {
                         mods.apply(*u, boss);
-                        if(boss) {
-                            u->setUnitType(eUnitType::uniqueBoss);
-                        } else {
-                            u->setUnitType(eUnitType::minion);
-                        }
                         boss = false;
                     }
 
@@ -868,9 +866,8 @@ bool eServerArea::addClient(const uint32_t clientId,
     const auto modelParts = data.mapToModelParts(partsMap);
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        true, data, typeId, *this, map);
+        eUnitType::slayer, data, typeId, *this);
     sSlayers[clientId] = u;
-    u->setUnitType(eUnitType::slayer);
     u->addSkill();
     u->addSkill();
     spawnPos = mMap->spawnPos();
@@ -1170,9 +1167,8 @@ bool eServerArea::spawnBody(const uint32_t clientId,
     if(!client) return false;
     const auto& data = client->data();
     const int typeId = 0;
-    auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        false, data, typeId, *this, map);
+        eUnitType::body, data, typeId, *this);
     eEquipment bodyEq;
     static_cast<eBodyEquipment&>(bodyEq) = beq;
     u->setEquipment(bodyEq, false);
@@ -1984,9 +1980,8 @@ void eServerArea::summon(eServerUnit& by,
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const auto modelParts = data.randomModelParts();
 
-    auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        false, data, unitId, *this, map);
+        eUnitType::summoned, data, unitId, *this);
     const uint32_t charId = eServerUnit::sNextCharId++;
     followers.add(charId);
     iniSetupUnit(u, charId, by.fTeamId, to,
@@ -2026,9 +2021,9 @@ bool eServerArea::summonMerc(
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const auto modelParts = data.randomModelParts();
 
-    auto& map = mMap->pathFinderMap();
     const auto m = std::make_shared<eServerUnit>(
-        false, data, unitId, *this, map);
+        eUnitType::mercenary, data, unitId, *this);
+    m->setMercType(merc.fMercType);
     const auto mercId = eServerUnit::sNextCharId++;
     followers.add(mercId);
     iniSetupUnit(m, mercId, by->fTeamId, to,
@@ -2247,6 +2242,11 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         sSlain.emplace_back(killed.fCharId);
         return;
     } break;
+    case eUnitType::body:
+        return;
+    case eUnitType::mercenary:
+    case eUnitType::summoned:
+        break;
     case eUnitType::normal: {
         const bool gen = eRand::randChance(0.2f);
         if(gen) worth = eRand::biasedRandF(0.25f, 10.f, 8.f);
@@ -2295,8 +2295,8 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
                 if(m) {
                     const float dist = ePointF::distance(m->fPos, killed.fPos);
                     if(dist <= 10.f) {
-                        m->killed(killed);
                         const auto& attrs = m->attributes();
+                        m->killed(killed);
                         merc.setExp(attrs.fExp);
                         merc.setLevel(attrs.fLevel);
                     }

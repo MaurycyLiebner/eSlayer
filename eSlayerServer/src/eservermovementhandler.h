@@ -10,7 +10,6 @@ class eServerMovementHandler :
 public:
     eServerMovementHandler(
         eServerUnit& u,
-        ePathFinderMap& map,
         const int unitTypeId);
 
     bool increment(const float by);

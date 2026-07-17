@@ -37,6 +37,10 @@ class ESLAYERHELPERS_API eMercenariesInfo {
 public:
     static eStringIdMapVector<eMercenaryInfo> sMercs;
 
+    static std::vector<eModifier> mods(
+        const int mercType,
+        const uint8_t level);
+
     static void load();
 private:
     static bool sLoaded;

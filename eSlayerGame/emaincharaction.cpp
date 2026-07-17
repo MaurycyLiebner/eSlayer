@@ -36,7 +36,7 @@
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
     mMainChar(std::make_shared<eUnit>()),
-    mMovementHandler(*mMainChar, map) {}
+    mMovementHandler(*mMainChar) {}
 
 void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eResolution& res,
@@ -55,7 +55,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                               const ePointF& to) {
         return mMap->walkable(from, to);
     };
-    mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId);
+    auto& pmap = map->pathFinderMap();
+    mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId, pmap);
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {

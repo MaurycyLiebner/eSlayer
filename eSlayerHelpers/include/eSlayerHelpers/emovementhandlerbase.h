@@ -20,14 +20,14 @@ using eOtherIterator = std::function<void(
 
 class ESLAYERHELPERS_API eMovementHandlerBase {
 public:
-    eMovementHandlerBase(const eUnitData& u,
-                         ePathFinderMap& map);
+    eMovementHandlerBase(const eUnitData& u);
 
     void intialize(const eWalkablePos& wPos,
                    const eWalkablePath& wPath,
                    const eOtherIterator& iter,
                    const uint32_t charId,
-                   const eTeamId teamId);
+                   const eTeamId teamId,
+                   ePathFinderMap& map);
 
     uint32_t charId() const { return mCharId; }
 
@@ -60,7 +60,7 @@ private:
     const ePointF& mPos;
     const float& mAngle;
     const float& mRadius;
-    ePathFinderMap& mMap;
+    ePathFinderMap* mMap = nullptr;
 
     uint32_t mCharId = 0;
     eTeamId mTeamId = eTeamId::neutralHostile;

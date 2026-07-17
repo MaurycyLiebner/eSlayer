@@ -7,24 +7,24 @@
 #include <cstdio>
 
 eMovementHandlerBase::eMovementHandlerBase(
-    const eUnitData& u,
-    ePathFinderMap& map) :
+    const eUnitData& u) :
     mPos(u.fPos),
     mAngle(u.fAngle),
-    mRadius(u.fRadius),
-    mMap(map) {}
+    mRadius(u.fRadius) {}
 
 void eMovementHandlerBase::intialize(
     const eWalkablePos& wPos,
     const eWalkablePath& wPath,
     const eOtherIterator& iter,
     const uint32_t charId,
-    const eTeamId teamId) {
+    const eTeamId teamId,
+    ePathFinderMap& map) {
     mCharId = charId;
     mTeamId = teamId;
     mWalkablePos = wPos;
     mWalkablePath = wPath;
     mOtherIterator = iter;
+    mMap = &map;
 }
 
 bool eMovementHandlerBase::moveTo(
@@ -32,7 +32,7 @@ bool eMovementHandlerBase::moveTo(
     const bool foundOnly) {
     bool found;
     const int maxDist = 20*ePathFinderMap::sSubdivide;
-    auto path = ePathFinder::findPath(mMap, mPos, pos, maxDist, found);
+    auto path = ePathFinder::findPath(*mMap, mPos, pos, maxDist, found);
     if(foundOnly && !found) return false;
     if(path.empty()) return false;
     {

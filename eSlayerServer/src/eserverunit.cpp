@@ -9,18 +9,18 @@
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eitemsdata.h>
+#include <eSlayerHelpers/emercenaries.h>
 
 std::atomic<uint32_t> eServerUnit::sNextCharId = 1;
 
-eServerUnit::eServerUnit(const bool slayer,
+eServerUnit::eServerUnit(const eUnitType type,
                          const eCharData& data,
                          const int unitTypeId,
-                         eServerArea& area,
-                         ePathFinderMap& map) :
+                         eServerArea& area) :
     mData(data),
-    mArea(area),
-    mSlayer(slayer),
-    mHandler(*this, map, unitTypeId) {}
+    mArea(&area),
+    mType(type),
+    mHandler(*this, unitTypeId) {}
 
 bool eServerUnit::hitData(
     const eSkillStats& skill,
@@ -725,7 +725,7 @@ void eServerUnit::increment(const float by) {
 
     if(mFreezeLength > 0.f && fHealth > 0) {
         mFreezeLength = std::max(0.f, mFreezeLength - by);
-        if(mSlayer) {
+        if(isSlayer()) {
             scaledBy *= eUnitData::sColdSpeed;
             setCold(true);
         } else {
@@ -828,7 +828,7 @@ void eServerUnit::increment(const float by) {
                 const auto& onStruck = mStats.fOnStruck;
                 const auto wchoice = eWeaponChoice::left;
                 for(const auto& o : onStruck) {
-                    mArea.castChance(*this, o, wchoice, fPos);
+                    mArea->castChance(*this, o, wchoice, fPos);
                 }
             }
         }
@@ -868,7 +868,7 @@ bool eServerUnit::skillReady(const eSkillChoice schoice) const {
 }
 
 bool eServerUnit::skillReady(const int schoice) const {
-    if(mSlayer && mStats.manaCost(schoice) > mStats.fManaF) return false;
+    if(isSlayer() && mStats.manaCost(schoice) > mStats.fManaF) return false;
     const int skillId = eServerUnit::skillId(schoice);
     const auto it = mStats.fCooldowns.find(skillId);
     if(it == mStats.fCooldowns.end()) return true;
@@ -886,7 +886,7 @@ void eServerUnit::useSkill(const int schoice) {
     if(cooldown > 0.f) {
         mStats.fCooldowns[skillId] = cooldown*25.f;
     }
-    if(mSlayer) {
+    if(isSlayer()) {
         const float manaCost = mStats.manaCost(schoice);
         mStats.fManaF = std::max(0.f, mStats.fManaF - manaCost);
     }
@@ -924,7 +924,7 @@ void eServerUnit::addBoost(
     for(const auto& mod : mods) {
         b.emplace(type, mod);
     }
-    mArea.boostsAurasChanged(fCharId);
+    mArea->boostsAurasChanged(fCharId);
     if(recalc) {
         recalculateStats();
         recalculateAuras();
@@ -937,7 +937,7 @@ void eServerUnit::removeBoost(
     if(type == eBoostCurseType::permanent) return;
     auto& b = mStats.fBoosts;
     b.erase(type);
-    mArea.boostsAurasChanged(fCharId);
+    mArea->boostsAurasChanged(fCharId);
     if(recalc) {
         recalculateStats();
         recalculateAuras();
@@ -1067,6 +1067,11 @@ void eServerUnit::killed(const eServerUnit& killed) {
         mAttributes.levelUp();
         mStats.levelUp();
         healAll();
+        if(mType == eUnitType::mercenary) {
+            const auto level = mAttributes.fLevel;
+            const auto mods = eMercenariesInfo::mods(mMercType, level);
+            addBoost(mods, eBoostCurseType::merc, true);
+        }
     }
     setAttributesChanged(true);
 }
@@ -1076,14 +1081,14 @@ void eServerUnit::dieAndCast(const ePointF& from) {
     const auto& onDeath = stats.fOnDeath;
     const auto wchoice = eWeaponChoice::left;
     for(const auto& o : onDeath) {
-        mArea.castChance(*this, o, wchoice, from);
+        mArea->castChance(*this, o, wchoice, from);
     }
     die();
 }
 
 void eServerUnit::die(eExplodeType type) {
     if(mDead) return;
-    if(!mSlayer && type == eExplodeType::none) {
+    if(!isSlayer() && type == eExplodeType::none) {
         const bool f = frozen();
         if(f) type = eExplodeType::ice;
     }
@@ -1093,20 +1098,20 @@ void eServerUnit::die(eExplodeType type) {
     mStats.fHealthF = 0.f;
 
     for(const auto fId : mFollowers) {
-        const auto f = mArea.unit(fId);
+        const auto f = mArea->unit(fId);
         if(f) f->die();
     }
     mFollowers.clear();
     mPoison.clear();
     mPotions.clear();
-    mArea.unitKilled(*this);
+    mArea->unitKilled(*this);
     if(type == eExplodeType::none) {
         const auto die = std::make_shared<eDieAction>(
-            *this, mArea);
+            *this, *mArea);
         setChildAction(die);
     } else {
         const auto explode = std::make_shared<eExplodeAction>(
-            type, *this, mArea);
+            type, *this, *mArea);
         setChildAction(explode);
     }
 }
@@ -1166,7 +1171,7 @@ eServerUnit::followers(const int unitInfoId) const {
     eFollowersBase result;
     result.fState = mFollowers.fState;
     for(const auto charId : mFollowers) {
-        const auto u = mArea.unit(charId);
+        const auto u = mArea->unit(charId);
         if(!u) continue;
         if(u->fUnitInfoId == unitInfoId) {
             result.add(charId);
@@ -1178,7 +1183,7 @@ eServerUnit::followers(const int unitInfoId) const {
 int eServerUnit::countFollowers(const int unitInfoId) const {
     int result = 0;
     for(const uint32_t charId : mFollowers) {
-        const auto u = mArea.unit(charId);
+        const auto u = mArea->unit(charId);
         if(!u) continue;
         if(u->fUnitInfoId == unitInfoId) result++;
     }
@@ -1186,7 +1191,7 @@ int eServerUnit::countFollowers(const int unitInfoId) const {
 }
 
 bool eServerUnit::moving() const {
-    if(mSlayer) return mMoving;
+    if(isSlayer()) return mMoving;
     return mHandler.moving();
 }
 
@@ -1334,6 +1339,14 @@ void eServerUnit::setStaminaPotion(const bool p) {
 
 void eServerUnit::applyBoostsTmp() {
     setBoosts(fBoostsTmp);
+}
+
+void eServerUnit::setArea(eServerArea& area) {
+    mArea = &area;
+}
+
+void eServerUnit::setMercType(const int mercType) {
+    mMercType = mercType;
 }
 
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {

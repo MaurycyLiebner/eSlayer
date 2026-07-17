@@ -6,9 +6,8 @@
 
 eServerMovementHandler::eServerMovementHandler(
     eServerUnit& u,
-    ePathFinderMap& map,
     const int unitTypeId) :
-    eMovementHandlerBase(u, map),
+    eMovementHandlerBase(u),
     mUnit(u) {
     const auto& uinfo = eUnitsInfo::sUnits.get(unitTypeId);
     mRunSpeedBase = uinfo.fRunSpeed;

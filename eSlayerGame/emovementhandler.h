@@ -6,8 +6,7 @@
 class eMovementHandler :
     public eMovementHandlerBase {
 public:
-    eMovementHandler(eUnitData& u,
-                     ePathFinderMap& map);
+    eMovementHandler(eUnitData& u);
 
     bool increment(const float by);
 private:
