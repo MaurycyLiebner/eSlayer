@@ -173,11 +173,13 @@ private:
 };
 
 void eStatsWidgetBase::initialize(
+      const int unitInfoId,
       const std::string& name,
       eStats& stats,
       const eEquipment& eq,
       eAttributes& attrs,
       const bool merc) {
+    mUnitInfoId = unitInfoId;
     mStats = &stats;
     mEq = &eq;
     mAttrs = &attrs;
@@ -404,7 +406,7 @@ void eStatsWidgetBase::updateStats() {
     mExp->setValues({eText::text(11, 17),
                      std::to_string(int(mAttrs->fExp))});
     mNextLevel->setValues({eText::text(11, 18),
-                           std::to_string(mAttrs->nextLevelExp())});
+                           std::to_string(mAttrs->nextLevelExp(mUnitInfoId))});
 
     mStrength->setText({eText::text(11, 0)},
                        std::vector<float>{mStats->fStrength});
@@ -528,10 +530,11 @@ void eStatsWidgetBase::updateStats() {
 }
 
 void eStatsWidget::initialize(
+    const int unitInfoId,
     const std::string& name,
     eStats& stats, const eEquipment& eq,
     eAttributes& attrs) {
     const auto inner = new eStatsWidgetBase(window());
-    inner->initialize(name, stats, eq, attrs);
+    inner->initialize(unitInfoId, name, stats, eq, attrs);
     setup(inner);
 }

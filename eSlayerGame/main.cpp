@@ -344,10 +344,6 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eAttributes::load();
-        });
-
-        loadings.emplace_back([&]() {
             eEliteModifiersInfo::load();
         });
 

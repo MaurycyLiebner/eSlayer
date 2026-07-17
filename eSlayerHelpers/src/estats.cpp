@@ -10,14 +10,16 @@
 #include "eSlayerHelpers/eweaponchoice.h"
 #include "eSlayerHelpers/eweaponclass.h"
 #include "eSlayerHelpers/edifficulties.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 
 uint32_t eAura::sNextId = 1;
 
 eAura::eAura() : fId(sNextId++) {}
 
-void eStats::levelUp() {
+void eStats::levelUp(const int uinfoId) {
+    const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
     fBaseSkillLevels.fRemainingPoints +=
-        eAttributes::sSkillPointsPerLevel;
+        uinfo.fSkillPointsPerLevel;
 }
 
 bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {

@@ -1062,10 +1062,10 @@ std::vector<int> eServerUnit::castAnims(const int schoice) const {
 
 void eServerUnit::killed(const eServerUnit& killed) {
     mAttributes.fExp += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
-    const auto nextLevel = mAttributes.nextLevelExp();
+    const auto nextLevel = mAttributes.nextLevelExp(fUnitInfoId);
     if(nextLevel && mAttributes.fExp >= nextLevel) {
-        mAttributes.levelUp();
-        mStats.levelUp();
+        mAttributes.levelUp(fUnitInfoId);
+        mStats.levelUp(fUnitInfoId);
         healAll();
         if(mType == eUnitType::mercenary) {
             const auto level = mAttributes.fLevel;

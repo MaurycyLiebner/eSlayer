@@ -514,7 +514,7 @@ void eGameScreen::paintEvent(ePainter&) {
         stats.fManaF, stats.fMaxMana,
         stats.fStaminaF, stats.fMaxStamina,
         staminaPotion, poisoned,
-        attrs.fExp, attrs.nextLevelExp());
+        attrs.fExp, attrs.nextLevelExp(mainChar.fUnitInfoId));
 
     const auto& pos = action.pos();
     mMiniMap->setPos(pos);
@@ -742,7 +742,9 @@ void eGameScreen::showStatsMenu() {
     auto& stats = mGameWidget->stats();
     const auto& eq = mGameWidget->equipment();
     auto& attrs = mGameWidget->attributes();
-    mStatsMenu->initialize(cname, stats, eq, attrs);
+    const auto& mainChar = mGameWidget->mainChar();
+    const auto utype = mainChar.fUnitInfoId;
+    mStatsMenu->initialize(utype, cname, stats, eq, attrs);
     mMenusWidget->addWidget(mStatsMenu);
     mStatsMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();

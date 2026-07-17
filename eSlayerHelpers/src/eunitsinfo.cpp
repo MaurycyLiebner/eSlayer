@@ -79,6 +79,20 @@ void eUnitsInfo::load() {
             u.fTanChance = jdata.value("tanChance", 0.f);
             u.fTanDistance = jdata.value("tanDist", 0.f);
 
+            u.fSkillPointsPerLevel = jdata.value("skillPointsPerLevel", 1);
+            u.fStatPointsPerLevel = jdata.value("statPointsPerLevel", 5);
+
+            u.fMaxLevel = jdata.value("maxLevel", 99);
+            if(jdata.contains("levels")) {
+                const auto& jlevels = jdata["levels"];
+                auto& exps = u.fLevelExperience;
+                exps.resize(u.fMaxLevel - 1);
+                for(int i = 1; i < u.fMaxLevel; i++) {
+                    const auto iStr = std::to_string(i);
+                    exps[i - 1] = jlevels.value(iStr, i == 1 ? 0 : exps[i - 2]);
+                }
+            }
+
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");

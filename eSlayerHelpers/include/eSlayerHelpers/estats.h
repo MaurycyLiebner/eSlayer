@@ -211,7 +211,7 @@ struct ESLAYERHELPERS_API eStats {
 
     bool fDifficultyPenalties = false;
 
-    void levelUp();
+    void levelUp(const int uinfoId);
 
     bool canUseSkill(const int schoice,
                      const eWeaponChoice wchoice) const;

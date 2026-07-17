@@ -37,7 +37,7 @@ void eMercWidget::initialize(
     mStat = new eStatsWidgetBase(window());
     const auto& names = eMercenaryNames::sNames.get(merc.fMercType);
     const auto& name = names[merc.fNameId % names.size()];
-    mStat->initialize(name, mStats, merc.fEq, mAttributes, true);
+    mStat->initialize(uid, name, mStats, merc.fEq, mAttributes, true);
     innerW->addTab(eText::text(17, 6), mStat);
 
     setup(innerW);

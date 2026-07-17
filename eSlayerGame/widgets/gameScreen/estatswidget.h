@@ -14,7 +14,8 @@ class eStatsWidgetBase : public eWidget {
 public:
     using eWidget::eWidget;
 
-    void initialize(const std::string& name,
+    void initialize(const int unitInfoId,
+                    const std::string& name,
                     eStats& stats,
                     const eEquipment& eq,
                     eAttributes& attrs,
@@ -22,6 +23,7 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
 private:
+    int mUnitInfoId = -1;
     eStats* mStats = nullptr;
     const eEquipment* mEq = nullptr;
     eAttributes* mAttrs = nullptr;
@@ -61,14 +63,14 @@ private:
     eStatWidget* mPoisonResistance = nullptr;
 
     eStatWidget* mStatPointsRem = nullptr;
-
 };
 
 class eStatsWidget : public eBgWidget {
 public:
     using eBgWidget::eBgWidget;
 
-    void initialize(const std::string& name,
+    void initialize(const int unitInfoId,
+                    const std::string& name,
                     eStats& stats,
                     const eEquipment& eq,
                     eAttributes& attrs);};
