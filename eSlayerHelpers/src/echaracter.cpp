@@ -88,8 +88,9 @@ bool gReadItem(eItem& item, const XMLElement* itemE) {
     item.fRequiredLevel = itemE->IntAttribute("requiredLevel");
 
     const auto rarityName = itemE->Attribute("rarity");
-    if(!rarityName) return false;
-    item.fRarity = eItemRarityHelpers::type(rarityName);
+    if(rarityName) {
+        item.fRarity = eItemRarityHelpers::type(rarityName);
+    }
 
     item.fMinDmg = itemE->FloatAttribute("minDmg");
     item.fMaxDmg = itemE->FloatAttribute("maxDmg");
