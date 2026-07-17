@@ -4,7 +4,6 @@
 
 eStringIdMapVector<int> eDifficulties::sDifficulties;
 int eDifficulties::sDifficulty = -1;
-bool eDifficulties::sFinished = false;
 bool eDifficulties::sLoaded = false;
 
 void eDifficulties::load() {

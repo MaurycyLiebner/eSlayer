@@ -334,8 +334,9 @@ void eGameWidget::save() {
 
 eCharacter eGameWidget::character() {
     auto c = mC;
+    const auto& questsSrc = quests();
     const int diff = eDifficulties::sDifficulty;
-    if(eDifficulties::sFinished) {
+    if(questsSrc.difficultyFinished()) {
         int& latest = c.latestDifficulty();
         if(diff >= latest) {
             const int max = eDifficulties::sDifficulties.size() - 1;
@@ -345,7 +346,7 @@ eCharacter eGameWidget::character() {
     c.setRunning(running());
     c.equipment() = equipment();
     c.attributes() = attributes();
-    c.quests(diff) = quests();
+    c.quests(diff) = questsSrc;
     c.talkHeard(diff) = talkHeard();
     const auto& stats = eGameWidget::stats();
     c.skillLevels() = stats.fBaseSkillLevels;

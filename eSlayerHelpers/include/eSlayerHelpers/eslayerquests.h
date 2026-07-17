@@ -44,10 +44,16 @@ public:
     bool heardTalk(const eConvoId& talk);
     bool addedSocket(const uint8_t questId);
 
+    bool difficultyFinished() const
+    { return mDifficultyFinished; }
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
+    void updateDifficultyFinished(const uint8_t questId);
+
     uint16_t mState = 0;
+    bool mDifficultyFinished = false;
     std::map<uint8_t, eQuestState> mStages;
 };
 

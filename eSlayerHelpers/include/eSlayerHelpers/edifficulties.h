@@ -7,7 +7,6 @@ class ESLAYERHELPERS_API eDifficulties {
 public:
     static eStringIdMapVector<int> sDifficulties;
     static int sDifficulty;
-    static bool sFinished;
 
     static void load();
 private:

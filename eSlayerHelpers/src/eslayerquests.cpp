@@ -2,7 +2,6 @@
 
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/epacket.h"
-#include "eSlayerHelpers/edifficulties.h"
 
 bool eSlayerQuests::hasQuest(
     const uint8_t questId) const {
@@ -71,12 +70,7 @@ bool eSlayerQuests::nextStage(
     auto& s = it->second;
     s.fStage++;
     s.fCount = 0;
-    if(finished(questId)) {
-        const auto& quest = eQuests::sQuests.get(questId);
-        if(quest.fFinishDifficulty) {
-            eDifficulties::sFinished = true;
-        }
-    }
+    updateDifficultyFinished(questId);
     mState++;
     return true;
 }
@@ -87,6 +81,7 @@ bool eSlayerQuests::setStage(
     auto& s = mStages[questId];
     s.fStage = stageId;
     s.fCount = 0;
+    updateDifficultyFinished(questId);
     return true;
 }
 
@@ -178,6 +173,7 @@ bool eSlayerQuests::addedSocket(
 void eSlayerQuests::read(ePacket& p) {
     mStages.clear();
     p >> mState;
+    p >> mDifficultyFinished;
     uint8_t n;
     p >> n;
     for(int i = 0; i < n; i++) {
@@ -191,10 +187,21 @@ void eSlayerQuests::read(ePacket& p) {
 
 void eSlayerQuests::write(ePacket& p) const {
     p << mState;
+    p << mDifficultyFinished;
     const uint8_t n = mStages.size();
     p << n;
     for(const auto& it : mStages) {
         p << it.first;
         p << it.second;
+    }
+}
+
+void eSlayerQuests::updateDifficultyFinished(
+    const uint8_t questId) {
+    if(finished(questId)) {
+        const auto& quest = eQuests::sQuests.get(questId);
+        if(quest.fFinishDifficulty) {
+            mDifficultyFinished = true;
+        }
     }
 }
