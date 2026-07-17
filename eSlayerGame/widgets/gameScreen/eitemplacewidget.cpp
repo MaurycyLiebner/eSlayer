@@ -174,19 +174,19 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
     if(h) {
         const uint8_t nj = tex.nJewels();
         const uint8_t ns = tex.nSockets();
+        for(uint8_t i = 0; i < ns; i++) {
+            const auto& tex = eUITextures::sSocket;
+            const auto pos = eItemInstanceTexture::jewelPosition(i, ns);
+            p.drawTexture(rect.x + rect.w*pos.fX,
+                          rect.y + rect.h*pos.fY,
+                          tex, eAlignment::center);
+        }
         for(uint8_t i = 0; i < nj; i++) {
             const auto mod = tex.requestJewel(i);
             const auto pos = tex.jewelPosition(i, ns);
             p.drawTexture(rect.x + rect.w*pos.fX,
                           rect.y + rect.h*pos.fY,
                           mod.fTex, eAlignment::center);
-        }
-        for(uint8_t i = nj; i < ns; i++) {
-            const auto& tex = eUITextures::sSocket;
-            const auto pos = eItemInstanceTexture::jewelPosition(i, ns);
-            p.drawTexture(rect.x + rect.w*pos.fX,
-                          rect.y + rect.h*pos.fY,
-                          tex, eAlignment::center);
         }
     }
 }
