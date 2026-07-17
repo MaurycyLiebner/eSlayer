@@ -37,13 +37,6 @@ void eItemAffixes::load() {
         modMap.reserve(affixes.size());
         for(const auto& name : affixes) {
             try {
-                const int oldId = modMap.id(name);
-                if(oldId != -1) {
-                    eExceptions::showDialog(
-                        "Duplicate affix '" + name + "' in " +
-                        dir + "/Affixes/" + affixPath + ".json");
-                    continue;
-                }
                 eItemAffix mod;
                 const auto jdata = eFileLoaderBase::parse(
                     dir, "Affixes/" + affixFolder + "/" + name + ".json");

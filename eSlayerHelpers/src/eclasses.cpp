@@ -25,12 +25,6 @@ void eClasses::load() {
 
     for(const auto& name : classes) {
         try {
-            const int oldId = sClasses.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate class '" + name + "' in " + dir + "/classes.json");
-                continue;
-            }
-
             eClass class_;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());

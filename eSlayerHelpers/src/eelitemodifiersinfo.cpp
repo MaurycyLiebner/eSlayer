@@ -28,12 +28,6 @@ void eEliteModifiersInfo::load() {
     for(const auto& name : elites) {
         try {
             eEliteInfo elite;
-            const int oldId = sElite.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate elite '" + name +
-                                        "' in " + dir + "/Elite/modifiers.json");
-                continue;
-            }
             const auto jdata = eFileLoaderBase::parse(dir, "Elite/" + name + ".json");
             if(jdata.contains("minions")) {
                 const auto& minions = jdata["minions"];

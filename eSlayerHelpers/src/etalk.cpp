@@ -51,11 +51,6 @@ void eTalks::load() {
     for(const auto& npc : npcs) {
         try {
             eTalk talk;
-            const int oldId = sTalk.id(npc);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate NPC '" + npc + "' in " + dir + "/Talk/talk.json");
-                continue;
-            }
             const auto jdata = eFileLoaderBase::parse(dir, "Talk/" + npc + ".json");
             for(auto it = jdata.begin(); it != jdata.end(); ++it) {
                 const auto& key = it.key();

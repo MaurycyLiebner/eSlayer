@@ -26,11 +26,6 @@ void eUnitsInfo::load() {
     sUnits.reserve(units.size());
     for(const auto& name : units) {
         try {
-            const int oldId = sUnits.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/units.json");
-                continue;
-            }
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
             eUnitInfo u;

@@ -33,11 +33,6 @@ void eSkills::load() {
 
     for(const auto& name : skills) {
         try {
-            const int oldId = sSkills.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate skill '" + name + "' in " + dir + "/skills.json");
-                continue;
-            }
             std::map<eModifierType, eModifier> modifiers;
 
             eSkill skill;

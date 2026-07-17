@@ -38,12 +38,6 @@ void eCharDataInfo::loadImpl() {
     mChars.reserve(chars.size());
     for(const auto& name : chars) {
         try {
-            const int oldId = mChars.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate unit '" + name + "' in " + dir + "/units/units.json");
-                continue;
-            }
-
             eCharData texs;
             const int id = mChars.nextId();
             texs.setTypeId(id);

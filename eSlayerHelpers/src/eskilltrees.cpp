@@ -25,12 +25,6 @@ void eSkillTrees::load() {
 
     for(const auto& name : trees) {
         try {
-            const int oldId = sTrees.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate skill tree '" + name + "' in " + dir + "/skillTrees/skillTrees.json");
-                continue;
-            }
-
             eSkillTree tree;
             const auto jdata = eFileLoaderBase::parse(dir, "skillTrees/" + name + ".json");
             const auto& skills = jdata["skills"];

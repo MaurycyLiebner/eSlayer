@@ -34,12 +34,6 @@ void eCharsTextures::loadImpl() {
     mChars.reserve(chars.size());
     for(const auto& name : chars) {
         try {
-            const int oldId = mChars.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate character '" + name + "' in " + dir + "/units/units.json");
-                continue;
-            }
-
             eCharTextures texs;
             const int id = mChars.nextId();
             texs.setCharDataId(id);

@@ -25,11 +25,6 @@ void eMercenariesInfo::load() {
     sMercs.reserve(mercs.size());
     for(const auto& name : mercs) {
         try {
-            const int oldId = sMercs.id(name);
-            if(oldId != -1) {
-                eExceptions::showDialog("Duplicate mercenary '" + name + "' in " + dir + "/Mercenaries/mercenaries.json");
-                continue;
-            }
             const auto jdata = eFileLoaderBase::parse(dir, "Mercenaries/" +  name + ".json");
 
             eMercenaryInfo u;
