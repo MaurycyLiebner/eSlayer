@@ -29,33 +29,36 @@ void eRainEffect::initialize(
 
     const SDL_FColor color{1.f, 1.f, 1.f, 0.25f};
 
+    const float minX = -mTilt*mWidth;
+    const float maxX = (1.f + mTilt)*mWidth;
     for(uint16_t i = 0; i < mCount; i++) {
-        mX0.emplace_back(eRand::randF(-0.1f*mWidth, 1.1f*mWidth));
-        mY0.emplace_back(eRand::randF(-mHeight, 0.f));
+        const float x0 = eRand::randF(minX, maxX);
+        const float y0 = eRand::randF(-mHeight, 0.f);
 
-        const int ishift = mVerts.size();
-        {
-            auto& v = mVerts.emplace_back();
-            v.color = color;
-        }
-        {
-            auto& v = mVerts.emplace_back();
-            v.color = color;
-        }
-        {
-            auto& v = mVerts.emplace_back();
-            v.color = color;
-        }
-        {
-            auto& v = mVerts.emplace_back();
-            v.color = color;
-        }
-        mIndices.emplace_back(ishift);
-        mIndices.emplace_back(ishift + 1);
-        mIndices.emplace_back(ishift + 2);
-        mIndices.emplace_back(ishift);
-        mIndices.emplace_back(ishift + 2);
-        mIndices.emplace_back(ishift + 3);
+        mX0.emplace_back(x0);
+        mY0.emplace_back(y0);
+
+        const uint16_t v0i = 4*i;
+
+        auto& v0 = mVerts.emplace_back();
+        v0.color = color;
+        v0.position = {x0, y0};
+        auto& v1 = mVerts.emplace_back();
+        v1.color = color;
+        v1.position = {x0, y0};
+        auto& v2 = mVerts.emplace_back();
+        v2.color = color;
+        v2.position = {x0, y0};
+        auto& v3 = mVerts.emplace_back();
+        v3.color = color;
+        v3.position = {x0, y0};
+
+        mIndices.emplace_back(v0i);
+        mIndices.emplace_back(v0i + 1);
+        mIndices.emplace_back(v0i + 2);
+        mIndices.emplace_back(v0i);
+        mIndices.emplace_back(v0i + 2);
+        mIndices.emplace_back(v0i + 3);
     }
 
     mX = mX0;
@@ -64,11 +67,12 @@ void eRainEffect::initialize(
 
 void eRainEffect::stop() {
     mFade = true;
+    mRemTime = mCount/mFadeSpeed;
 }
 
 void eRainEffect::increment(const float by) {
     mTime += by;
-
+    if(mFade) mRemTime -= by;
     mDone = mFade;
 
     const float plen = mLength*mHeight;
@@ -82,11 +86,15 @@ void eRainEffect::increment(const float by) {
         auto& v2 = mVerts[v0i + 2];
         auto& v3 = mVerts[v0i + 3];
 
+        if(i > mTime) break;
+
         const float yInc = mHeight*by*mSpeed;
         y += yInc;
-        if(y > mHeight && !mFade) {
-            y = mY0[i];
-            x = mX0[i];
+        if(y > mHeight) {
+            if(!mFade || i < mFadeSpeed*mRemTime) {
+                y = mY0[i];
+                x = mX0[i];
+            }
         } else {
             x += yInc*mTilt;
             mDone = false;

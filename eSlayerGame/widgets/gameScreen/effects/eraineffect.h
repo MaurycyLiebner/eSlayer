@@ -23,8 +23,10 @@ private:
     float mLength = 0.015f;
     float mThick = 0.001f;
     float mTilt = 0.1f;
+    float mFadeSpeed = 5.f;
 
     float mTime = 0.f;
+    float mRemTime = 0.f;
 
     std::vector<float> mX0;
     std::vector<float> mY0;
