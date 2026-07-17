@@ -346,13 +346,12 @@ bool gReadMerc(const XMLElement* parentE,
 }
 
 bool getWaypointIds(const std::string& name,
-                    eWaypoint& w) {
+                    eAreaIds& areaIds) {
     for(const auto& mit : eMapsSettings::sMaps) {
         const auto& m = mit.fValue;
         for(const auto& a : m.fAreas) {
             if(name == a.fName) {
-                w.fActId = m.fActId;
-                w.fArea = eAreaIds(mit.fId, a.fId);
+                areaIds = eAreaIds(mit.fId, a.fId);
                 return true;
             }
         }
@@ -361,7 +360,7 @@ bool getWaypointIds(const std::string& name,
 };
 
 bool gReadWaypoints(const XMLElement* parentE,
-                    std::vector<eWaypoint>& waypoints) {
+                    eWaypoints& waypoints) {
     const auto wE = parentE->FirstChildElement("waypoints");
     if(!wE) return false;
     auto aE = wE->FirstChildElement();
@@ -369,11 +368,12 @@ bool gReadWaypoints(const XMLElement* parentE,
         auto wwE = aE->FirstChildElement();
         while(wwE) {
             const auto name = wwE->Name();
-            eWaypoint w;
-            wwE->QueryBoolAttribute("known", &w.fKnown);
-            const bool r = getWaypointIds(name, w);
-            if(r) {
-                waypoints.emplace_back(w);
+            bool known = false;
+            wwE->QueryBoolAttribute("known", &known);
+            if(known) {
+                eAreaIds areaIds;
+                const bool r = getWaypointIds(name, areaIds);
+                if(r) waypoints.setKnown(areaIds);
             }
             wwE = wwE->NextSiblingElement();
         }
@@ -715,6 +715,30 @@ bool gWriteTalkHeard(XMLElement* const rootE,
     return true;
 }
 
+bool gWriteWaypoints(XMLElement* const diffE,
+                     const std::vector<eWaypoint>& waypoints) {
+    const auto wE = diffE->InsertNewChildElement("waypoints");
+    std::map<uint8_t, std::vector<eWaypoint>> acts;
+    for(const auto& w : waypoints) {
+        acts[w.fActId].emplace_back(w);
+    }
+    for(const auto& it : acts) {
+        const auto actId = it.first;
+        const auto ar = eStringHelpers::toRoman(actId);
+        const auto aE = wE->InsertNewChildElement(ar.c_str());
+        for(const auto& w : it.second) {
+            const auto& area = w.fArea;
+            const auto mapId = area.fMapId;
+            const auto& minfo = eMapsSettings::sMaps.get(mapId);
+            const auto areaId = area.fAreaId;
+            const auto name = minfo.fAreas.name(areaId);
+            const auto wE = aE->InsertNewChildElement(name.c_str());
+            wE->SetAttribute("known", w.fKnown);
+        }
+    }
+    return true;
+}
+
 bool gWriteBodyEquipment(const eBodyEquipment& eq,
                          XMLElement* const eqE) {
     gWriteItemSlot(eq.fBoots, "boots", eqE);
@@ -830,26 +854,7 @@ bool eCharacter::write(const std::string& path) const {
         const auto& diffName = it.fName;
         const int diffId = it.fId;
         const auto diffE = rootE->InsertNewChildElement(diffName.c_str());
-        const auto wE = diffE->InsertNewChildElement("waypoints");
-        std::map<uint8_t, std::vector<eWaypoint>> acts;
-        for(const auto& w : mWaypoints[diffId]) {
-            acts[w.fActId].emplace_back(w);
-        }
-        for(const auto& it : acts) {
-            const auto actId = it.first;
-            const auto ar = eStringHelpers::toRoman(actId);
-            const auto aE = wE->InsertNewChildElement(ar.c_str());
-            for(const auto& w : it.second) {
-                const auto& area = w.fArea;
-                const auto mapId = area.fMapId;
-                const auto& minfo = eMapsSettings::sMaps.get(mapId);
-                const auto areaId = area.fAreaId;
-                const auto name = minfo.fAreas.name(areaId);
-                const auto wE = aE->InsertNewChildElement(name.c_str());
-                wE->SetAttribute("known", w.fKnown);
-            }
-        }
-
+        gWriteWaypoints(diffE, mWaypoints[diffId]);
         gWriteQuests(diffE, mQuests[diffId]);
         gWriteTalkHeard(diffE, mTalkHeard[diffId]);
     }
