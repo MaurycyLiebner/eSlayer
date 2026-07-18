@@ -86,6 +86,7 @@ public:
     eAttributes& attributes() { return mMainAction->attributes(); }
     eSlayerQuests& quests() { return mMainAction->quests(); }
     eTalkHeard& talkHeard() { return mMainAction->talkHeard(); }
+    eWaypoints& waypoints() { return mMainAction->waypoints(); }
     std::optional<eMercenary>& merc() const { return mMainAction->merc(); }
     eStats& stats() { return mMainAction->stats(); }
     eTeamId team() const { return mMainChar->fTeamId; }

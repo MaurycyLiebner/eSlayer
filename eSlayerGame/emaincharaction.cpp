@@ -270,7 +270,7 @@ void eMainCharAction::increment(const bool mousePressed,
             const auto areaId = mMap->areaAt(opos);
             const eAreaIds current(mapId, areaId);
             if(info.fType == eObjectType::waypoint) {
-                eWaypoints::setKnown(current);
+                mWaypoints.setKnown(current);
                 const auto actId = mMap->actId();
                 eGameScreen::sOpenWaypointMenu(actId, current);
             } else if(info.fType == eObjectType::stash) {

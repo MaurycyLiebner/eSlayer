@@ -137,6 +137,10 @@ void eGameWidget::initialize(const uint32_t clientId,
     auto& dstTalkHeard = mMainAction->talkHeard();
     dstTalkHeard = srcTalkHeard;
 
+    const auto& srcWaypoints = c.waypoints(diff);
+    auto& dstWaypoints = mMainAction->waypoints();
+    dstWaypoints = srcWaypoints;
+
     const auto& srcMerc = c.merc();
     auto& dstMerc = mMainAction->merc();
     dstMerc = srcMerc;
@@ -363,7 +367,7 @@ eCharacter eGameWidget::character() {
         bodies.emplace_back(b.fEq);
     }
 
-    c.waypoints(diff) = eWaypoints::sWaypoints;
+    c.waypoints(diff) = eGameWidget::waypoints();
     c.merc() = merc();
     return c;
 }
@@ -1497,7 +1501,8 @@ void eGameWidget::paintEvent(ePainter& p) {
 
             const int areaId = mMap->areaAt(iPos);
             const eAreaIds area(mapId, areaId);
-            const bool known = eWaypoints::known(area);
+            const auto& waypoints = eGameWidget::waypoints();
+            const bool known = waypoints.known(area);
             auto& stateId = w->fState;
             stateId = known ? 1 : 2;
 

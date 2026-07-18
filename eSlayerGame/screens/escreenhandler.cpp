@@ -70,7 +70,8 @@ void eScreenHandler::showMainMenu() {
         if(mBlockGameStart) {
             showBlockDialog();
         } else {
-            const eServerData serverData{"single_player", ""};
+            const eServerData serverData{
+                "single_player", "", "", true};
             showCreateOrChooseCharacterMenu(serverData);
         }
     };
@@ -118,12 +119,15 @@ void eScreenHandler::showCreateCharacterMenu(eServerData serverData) {
     };
 
     const auto ok = [this, serverData](
-                        const std::string& name,
-                        const bool hardcore) {
+            const int classId,
+            const std::string& name,
+            const bool hardcore) {
         const bool c = mCharacters.contains(name);
         if(c) return;
-        mCharacters.add(name, hardcore);
-        showGame(serverData, mCharacters.get(name));
+        auto s = serverData;
+        s.fDifficulty = 0;
+        mCharacters.add(classId, name, hardcore);
+        showGame(s, mCharacters.get(name));
     };
 
     w->initialize(exit, ok);
@@ -145,7 +149,7 @@ void eScreenHandler::showChooseCharacterMenu(eServerData serverData) {
         if(!r) return;
         const auto& c = mCharacters.get(name);
         const int maxDiff = c.latestDifficulty();
-        if(maxDiff > 0) {
+        if(serverData.fChooseDifficulty && maxDiff > 0) {
             const auto d = w->showDialog(
                 eText::text(3, 7),
                 nullptr, nullptr, nullptr);
@@ -210,7 +214,8 @@ void eScreenHandler::showTcpIpGameMenu() {
 
     const auto host = [this]() {
         const auto ip = eTCPNetwork::sGetActiveLanIP();
-        const eServerData serverData{"tcp_ip_host", ip};
+        const eServerData serverData{
+            "tcp_ip_host", ip, "", true};
         showCreateOrChooseCharacterMenu(serverData);
     };
 
@@ -233,7 +238,8 @@ void eScreenHandler::showTcpIpJoinMenu() {
     w->resize(width, height);
 
     const auto join = [this](const std::string& ip) {
-        const eServerData serverData{"tcp_ip_join", ip};
+        const eServerData serverData{
+            "tcp_ip_join", ip, "", false};
         showCreateOrChooseCharacterMenu(serverData);
     };
 
@@ -564,10 +570,6 @@ void eScreenHandler::finishGameShow(
         const auto c = gw->character();
         eScreenHandler::moveToMap(clientId, teamId, c, server, moveData);
     };
-    const int diff = eDifficulties::sDifficulty;
-    for(const auto& cw : c.waypoints(diff)) {
-        if(cw.fKnown) eWaypoints::setKnown(cw.fArea);
-    }
     w->initialize(clientId, server, map, c, teamId, moveToMap);
     mWindow->setWidget(w);
 }

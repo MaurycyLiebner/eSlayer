@@ -3,8 +3,8 @@
 eWaypoints eWaypoints::sWaypoints;
 
 bool eWaypoints::known(
-    const eAreaIds& area) {
-    for(const auto& w : sWaypoints) {
+    const eAreaIds& area) const {
+    for(const auto& w : *this) {
         if(w.fArea != area) continue;
         return w.fKnown;
     }
@@ -13,7 +13,7 @@ bool eWaypoints::known(
 
 bool eWaypoints::setKnown(
     const eAreaIds& area) {
-    for(auto& w : sWaypoints) {
+    for(auto& w : *this) {
         if(w.fArea != area) continue;
         w.fKnown = true;
         return true;

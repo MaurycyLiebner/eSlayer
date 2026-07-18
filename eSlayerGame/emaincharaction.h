@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/ewalldirection.h>
 #include <eSlayerHelpers/etalkheard.h>
 #include <eSlayerHelpers/emercenary.h>
+#include <eSlayerHelpers/ewaypoints.h>
 
 #include <SDL3/SDL_rect.h>
 
@@ -76,6 +77,7 @@ public:
     eSlayerQuests& quests() { return mQuests; }
     eTalkHeard& talkHeard() { return mTalkHeard; }
     std::optional<eMercenary>& merc() { return mMerc; }
+    eWaypoints& waypoints() { return mWaypoints; }
     void recalculateStats();
 private:
     void openMainMenu(
@@ -139,6 +141,7 @@ private:
     eSlayerQuests mQuests;
     eTalkHeard mTalkHeard;
     eStats mStats;
+    eWaypoints mWaypoints;
     std::optional<eMercenary> mMerc;
 
     bool mClickAction = false;

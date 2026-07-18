@@ -34,6 +34,7 @@ struct eServerData {
     std::string fName;
     std::string fIp;
     std::string fPassword;
+    bool fChooseDifficulty = false;
     int fDifficulty = -1;
 };
 

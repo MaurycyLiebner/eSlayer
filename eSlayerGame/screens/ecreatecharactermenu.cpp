@@ -3,9 +3,13 @@
 #include "../widgets/mainMenu/emainmenubutton.h"
 #include "../widgets/elineedit.h"
 #include "../widgets/enamedcheckbox.h"
+#include "../widgets/echeckbutton.h"
 #include "../emainwindow.h"
+#include "../names/eclassnames.h"
 
 #include "../etext.h"
+
+#include <eSlayerHelpers/eclasses.h>
 
 eCreateCharacterMenu::eCreateCharacterMenu(eMainWindow * const window) :
     eScreenBase(window) {}
@@ -14,6 +18,44 @@ eCreateCharacterMenu::~eCreateCharacterMenu() {
     const auto window = eWidget::window();
     window->stopTextInput();
 }
+
+class eClassWidget : public eWidget {
+public:
+    using eWidget::eWidget;
+
+    void initialize() {
+        setNoPadding();
+
+        for(const auto& it : eClasses::sClasses) {
+            const int id = it.fId;
+            const auto name = eClassNames::name(id);
+            const auto button = new eCheckButton(window());
+            button->setText(name);
+            button->fitContent();
+            button->setCheckAction([this, id, button](const bool) {
+                for(const auto b : mButtons) {
+                    b->setChecked(false);
+                }
+                mClassId = id;
+                button->setChecked(true);
+            });
+            mClassId = id;
+            mButtons.emplace_back(button);
+            addWidget(button);
+        }
+        if(!mButtons.empty()) {
+            mButtons.back()->setChecked(true);
+        }
+
+        stackVertically();
+        fitContent();
+    }
+
+    int classId() const { return mClassId; }
+private:
+    std::vector<eCheckButton*> mButtons;
+    int mClassId = -1;
+};
 
 void eCreateCharacterMenu::initialize(
     const eAction& exit,
@@ -24,10 +66,16 @@ void eCreateCharacterMenu::initialize(
 
     const auto inner = eScreenBase::addInner();
 
+    const auto bottomW = new eWidget(window);
+    bottomW->setNoPadding();
+
+    const auto classW = new eClassWidget(window);
+    classW->initialize();
+
     const auto e = new eMainMenuButton(
         eText::text(2, 0), window);
     e->setPressAction(exit);
-    inner->addWidget(e);
+    bottomW->addWidget(e);
 
     const auto nw = new eWidget(window);
 
@@ -49,14 +97,16 @@ void eCreateCharacterMenu::initialize(
     const int pp = res.smallPadding();
     nw->stackVertically(pp);
     nw->fitContent();
-    inner->addWidget(nw);
+    bottomW->addWidget(nw);
 
     const auto o = new eMainMenuButton(
         eText::text(2, 1), window);
-    o->setPressAction([ok, n]() {
-        ok(n->text(), false);
+    o->setPressAction([ok, n, classW]() {
+        const auto& name = n->text();
+        const int classId = classW->classId();
+        ok(classId, name, false);
     });
-    inner->addWidget(o);
+    bottomW->addWidget(o);
     o->setEnabled(false);
 
     n->setChangeAction([n, o]() {
@@ -64,9 +114,12 @@ void eCreateCharacterMenu::initialize(
         o->setEnabled(!text.empty());
     });
 
-    inner->layoutHorizontallyWithoutSpaces();
+    bottomW->setWidth(inner->width());
+    bottomW->layoutHorizontallyWithoutSpaces();
+    bottomW->fitHeight();
 
-    e->align(eAlignment::bottom);
-    nw->align(eAlignment::bottom);
-    o->align(eAlignment::bottom);
+    inner->addWidget(classW);
+    inner->addWidget(bottomW);
+    inner->layoutVerticallyWithoutSpaces();
+    classW->align(eAlignment::hcenter);
 }

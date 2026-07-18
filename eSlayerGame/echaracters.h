@@ -11,7 +11,8 @@ public:
 
     bool empty() const { return mCharacters.empty(); }
     bool contains(const std::string& name) const;
-    bool add(const std::string& name,
+    bool add(const int classId,
+             const std::string& name,
              const bool hardcore);
     bool remove(const std::string& name);
     eCharacter get(const std::string& name) const;

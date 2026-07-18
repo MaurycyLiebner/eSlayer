@@ -16,8 +16,8 @@ struct ESLAYERHELPERS_API eWaypoint {
 
 struct ESLAYERHELPERS_API eWaypoints :
         public std::vector<eWaypoint> {
-    static bool known(const eAreaIds& area);
-    static bool setKnown(const eAreaIds& area);
+    bool known(const eAreaIds& area) const;
+    bool setKnown(const eAreaIds& area);
 
     static eWaypoints sWaypoints;
 

@@ -9,6 +9,7 @@
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/emercenaries.h"
 #include "eSlayerHelpers/edifficulties.h"
+#include "eSlayerHelpers/eclasses.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -16,9 +17,20 @@ using namespace tinyxml2;
 #include <algorithm>
 #include <iostream>
 
-eCharacter::eCharacter(const std::string& name,
+eCharacter::eCharacter(const int classId,
+                       const std::string& name,
                        const bool hardcore) :
-    mName(name), mHardcore(hardcore) {}
+    mClassId(classId),
+    mName(name), mHardcore(hardcore) {
+    for(const auto& it : eDifficulties::sDifficulties) {
+        auto& waypoints = mWaypoints.emplace_back();
+        waypoints.initialize();
+        auto& quests = mQuests.emplace_back();
+        quests.initialize();
+        auto& talkHeard = mTalkHeard.emplace_back();
+        talkHeard.initialize();
+    }
+}
 
 bool isTrue(std::string value) {
     std::transform(value.begin(), value.end(),
@@ -397,6 +409,12 @@ bool eCharacter::load(const std::string& path,
                path.c_str());
         return false;
     }
+    const auto classE = rootE->FirstChildElement("class");
+    if(!classE) {
+        printf("Missing class element in %s.\n",
+               path.c_str());
+        return false;
+    }
     const auto nameE = rootE->FirstChildElement("name");
     if(!nameE) {
         printf("Missing name element in %s.\n",
@@ -416,6 +434,14 @@ bool eCharacter::load(const std::string& path,
         return false;
     }
 
+    const auto classStr = classE->GetText();
+    const int classId = eClasses::sClasses.id(classStr);
+    if(classId < 0) {
+        printf("Invalid class element in %s.\n",
+               path.c_str());
+        return false;
+    }
+    c.mClassId = classId;
     c.mName = nameE->GetText();
     const auto hText = hardcoreE->GetText();
     c.mHardcore = isTrue(hText);
@@ -801,6 +827,10 @@ bool eCharacter::write(const std::string& path) const {
 
     const auto rootE = doc.NewElement("character");
     doc.InsertEndChild(rootE);
+
+    const auto classE = rootE->InsertNewChildElement("class");
+    const auto className = eClasses::sClasses.name(mClassId);
+    classE->SetText(className.c_str());
 
     const auto nameE = rootE->InsertNewChildElement("name");
     nameE->SetText(mName.c_str());

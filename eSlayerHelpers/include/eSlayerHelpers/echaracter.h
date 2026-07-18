@@ -16,7 +16,8 @@
 class ESLAYERHELPERS_API eCharacter {
 public:
     eCharacter() {}
-    eCharacter(const std::string& name,
+    eCharacter(const int classId,
+               const std::string& name,
                const bool hardcore);
 
     static bool load(const std::string& path,
@@ -69,9 +70,9 @@ public:
     const std::vector<eBodyEquipment>& bodies() const { return mBodies; }
     std::vector<eBodyEquipment>& bodies() { return mBodies;}
 
-    const std::vector<eWaypoint>& waypoints(const int diff) const
+    const eWaypoints& waypoints(const int diff) const
     { return mWaypoints[diff]; }
-    std::vector<eWaypoint>& waypoints(const int diff)
+    eWaypoints& waypoints(const int diff)
     { return mWaypoints[diff];}
 
     const std::optional<eMercenary>& merc() const { return mMerc; }
@@ -83,6 +84,7 @@ public:
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
+    int mClassId;
     std::string mName;
     bool mHardcore;
     eEquipment mEquipment;

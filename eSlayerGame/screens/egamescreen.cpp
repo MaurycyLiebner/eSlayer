@@ -859,8 +859,9 @@ void eGameScreen::showWaypointMenu(
     const auto action = [this](const eAreaIds& area) {
         mGameWidget->waypointTeleport(area);
     };
+    const auto& waypoints = mGameWidget->waypoints();
     mWaypointMenu->initialize(
-        cActId, cArea, action);
+        cActId, cArea, action, waypoints);
     mMenusWidget->addWidget(mWaypointMenu);
     mWaypointMenu->align(eAlignment::left | eAlignment::top);
     updateCharPos();
