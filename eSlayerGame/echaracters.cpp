@@ -20,12 +20,8 @@ bool eCharacters::contains(const std::string& name) const {
 
 bool eCharacters::add(const std::string& name,
                       const bool hardcore) {
-    for(int i = 0; i < mCharacters.size(); i++) {
-        const auto& c = mCharacters[i];
-        if(c.name() == name) {
-            mCharacters.erase(mCharacters.begin() + i);
-            return false;
-        }
+    for(const auto& c : mCharacters) {
+        if(c.name() == name) return false;
     }
     auto& c = mCharacters.emplace_back(name, hardcore);
     const auto path = eGameDir::path("Save/" + name + ".xml");
