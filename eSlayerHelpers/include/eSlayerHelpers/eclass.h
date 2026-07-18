@@ -5,6 +5,7 @@
 
 struct eClass {
     std::vector<int> fSkillTrees;
+    std::vector<std::vector<int>> fIniItems;
 };
 
 #endif // ECLASS_H

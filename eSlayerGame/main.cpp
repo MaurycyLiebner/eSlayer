@@ -261,14 +261,6 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eClasses::load();
-        });
-
-        loadings.emplace_back([&]() {
-            eClassNames::load();
-        });
-
-        loadings.emplace_back([&]() {
             eCharDataInfo::load();
         });
 
@@ -294,6 +286,14 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eMercenaryNames::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eClasses::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eClassNames::load();
         });
 
         loadings.emplace_back([&]() {

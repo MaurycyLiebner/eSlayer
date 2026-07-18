@@ -10,6 +10,7 @@
 #include "eSlayerHelpers/emercenaries.h"
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/eclasses.h"
+#include "eSlayerHelpers/erand.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -29,6 +30,24 @@ eCharacter::eCharacter(const int classId,
         quests.initialize();
         auto& talkHeard = mTalkHeard.emplace_back();
         talkHeard.initialize();
+    }
+
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto& options = class_.fIniItems;
+    if(!options.empty()) {
+        const auto& choosen = eRand::randomElement(options);
+        for(const auto itemId : choosen) {
+            eItem item;
+            const auto& itemData = eItemsData::get(itemId);
+            item.fDataId = itemId;
+            item.fType = itemData.fType;
+            item.fSubType = itemData.fSubtype;
+            item.fMinDmg = itemData.fMinDamageMin;
+            item.fMaxDmg = itemData.fMaxDamageMin;
+            item.fDefense = itemData.fDefenseMin;
+            item.fBlockChance = itemData.fBlockChanceMin;
+            mEquipment.add(item, true, nullptr);
+        }
     }
 }
 

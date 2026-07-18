@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eskilltrees.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 bool eClasses::sLoaded = false;
 eStringIdMapVector<eClass>
@@ -27,11 +28,26 @@ void eClasses::load() {
         try {
             eClass class_;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
+
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
             for(const auto& skillTree : skillTrees) {
                 const int id = eSkillTrees::sTrees.id(skillTree);
                 class_.fSkillTrees.emplace_back(id);
             }
+
+            const auto iniItems = jdata.value("iniItems", std::vector<std::vector<std::string>>());
+            for(const auto& option : iniItems) {
+                std::vector<int> vec;
+                for(const auto& item : option) {
+                    const int id = eItemsData::id(item);
+                    if(id < 0) {
+                        eRuntimeThrow("Unrecognized item type \"" + item + "\".");
+                    }
+                    vec.emplace_back(id);
+                }
+                class_.fIniItems.emplace_back(vec);
+            }
+
             sClasses.add(name, class_);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
