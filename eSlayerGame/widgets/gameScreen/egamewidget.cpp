@@ -773,6 +773,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto uipos = upos.floor();
     const int areaId = mMap->areaAt(uipos);
     if(mLastArea != areaId && areaId >= 0) {
+        const bool fadeIn = mLastArea >= 0;
         mLastArea = areaId;
         const auto areaNameBase = mMap->areaName(areaId);
         const auto& area = mMap->area(areaId);
@@ -788,7 +789,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         mGamePainter.clearEffects();
         for(const auto& e : areaSett.fEffects) {
-            mGamePainter.addEffect(e);
+            mGamePainter.addEffect(e, fadeIn);
         }
     }
 

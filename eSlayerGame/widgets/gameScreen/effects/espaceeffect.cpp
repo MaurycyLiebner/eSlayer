@@ -22,8 +22,9 @@ void eSpaceEffect::initialize(
     const eEffectSettings& settings,
     const int w, const int h,
     const float* centerX,
-    const float* centerY) {
-    eEffect::initialize(settings, w, h, centerX, centerY);
+    const float* centerY,
+    const bool fadeIn) {
+    eEffect::initialize(settings, w, h, centerX, centerY, fadeIn);
 
     mSpeed = 0.025f*settings.fSpeed;
     mCount = 500*settings.fScale;
@@ -33,11 +34,13 @@ void eSpaceEffect::initialize(
 
     const SDL_FColor color{1.f, 1.f, 1.f, 1.f};
 
+    const float minX = fadeIn ? -mWidth : 0.f;
+    const float maxX = fadeIn ? 0.f : mWidth;
     for(uint16_t i = 0; i < mCount; i++) {
         mSpeed0.emplace_back(eRand::randF(0.1f, 1.f));
 
-        mX0.emplace_back(eRand::randF(-mWidth, 0.f));
-        mY0.emplace_back(eRand::randF(0.f, mHeight));
+        mX.emplace_back(eRand::randF(minX, maxX));
+        mY.emplace_back(eRand::randF(0.f, mHeight));
 
         const int ishift = mVerts.size();
         {
@@ -63,8 +66,6 @@ void eSpaceEffect::initialize(
         mIndices.emplace_back(ishift + 2);
         mIndices.emplace_back(ishift + 3);
     }
-
-    mX = mX0;
 }
 
 void eSpaceEffect::stop() {
@@ -79,7 +80,7 @@ void eSpaceEffect::increment(const float by) {
     const float size = mSize*mHeight;
     for(uint16_t i = 0; i < mCount; i++) {
         float& x = mX[i];
-        const float& y = mY0[i];
+        const float& y = mY[i];
         const uint16_t v0i = 4*i;
         auto& v0 = mVerts[v0i];
         auto& v1 = mVerts[v0i + 1];
@@ -89,7 +90,7 @@ void eSpaceEffect::increment(const float by) {
         const float xInc = mHeight*by*mSpeed*mSpeed0[i];
         x += xInc;
         if(x > mWidth && !mFade) {
-            x = mX0[i];
+            x = 0.f;
         } else {
             mDone = false;
         }

@@ -41,8 +41,9 @@ eRenderTargetHolder eGamePainter::switchToItemNames() {
 }
 
 void eGamePainter::addEffect(
-    const eEffectSettings& settings) {
-    mEffects.addEffect(settings);
+    const eEffectSettings& settings,
+    const bool fadeIn) {
+    mEffects.addEffect(settings, fadeIn);
 }
 
 void eGamePainter::clearEffects() {

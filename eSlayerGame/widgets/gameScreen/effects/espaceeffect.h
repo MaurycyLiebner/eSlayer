@@ -11,7 +11,8 @@ protected:
     void initialize(const eEffectSettings& settings,
                     const int w, const int h,
                     const float* centerX,
-                    const float* centerY) override;
+                    const float* centerY,
+                    const bool fadeIn) override;
     void stop() override;
 private:
     void increment(const float by);
@@ -26,9 +27,7 @@ private:
 
     std::vector<float> mSpeed0;
 
-    std::vector<float> mX0;
-    std::vector<float> mY0;
-
+    std::vector<float> mY;
     std::vector<float> mX;
 
     std::vector<SDL_Vertex> mVerts;

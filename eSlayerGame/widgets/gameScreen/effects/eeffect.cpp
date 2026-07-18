@@ -30,7 +30,8 @@ void eEffects::apply(SDL_Renderer* const r,
     }
 }
 
-void eEffects::addEffect(const eEffectSettings& settings) {
+void eEffects::addEffect(const eEffectSettings& settings,
+                         const bool fadeIn) {
     std::shared_ptr<eEffect> e;
     switch(settings.fType) {
     case eEffectType::distort: {
@@ -45,7 +46,8 @@ void eEffects::addEffect(const eEffectSettings& settings) {
     }
 
     mEffects.emplace_back(e);
-    e->initialize(settings, mWidth, mHeight, mCenterX, mCenterY);
+    e->initialize(settings, mWidth, mHeight,
+                  mCenterX, mCenterY, fadeIn);
 }
 
 void eEffects::clearEffects() {
@@ -58,7 +60,8 @@ void eEffect::initialize(
     const eEffectSettings& settings,
     const int w, const int h,
     const float* centerX,
-    const float* centerY) {
+    const float* centerY,
+    const bool fadeIn) {
     mSettings = settings;
     mWidth = w;
     mHeight = h;

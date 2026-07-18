@@ -38,8 +38,9 @@ void eDistortEffect::initialize(
     const eEffectSettings& settings,
     const int w, const int h,
     const float* centerX,
-    const float* centerY) {
-    eEffect::initialize(settings, w, h, centerX, centerY);
+    const float* centerY,
+    const bool fadeIn) {
+    eEffect::initialize(settings, w, h, centerX, centerY, fadeIn);
 
     mSpeed = 0.025f*settings.fSpeed;
     mScale = 0.025f*settings.fScale;
@@ -97,14 +98,19 @@ void eDistortEffect::initialize(
         }
     }
 
-    mXR1 = std::vector<float>(mNVerts, 0.f);
-    mYR1 = std::vector<float>(mNVerts, 0.f);
+    if(fadeIn) {
+        mXR1 = std::vector<float>(mNVerts, 0.f);
+        mYR1 = std::vector<float>(mNVerts, 0.f);
+    } else {
+        mXR1 = generateRandomMap();
+        mYR1 = generateRandomMap();
+    }
     mXR2 = generateRandomMap();
     mYR2 = generateRandomMap();
 }
 
 void eDistortEffect::stop() {
-    mFade = true;
+    mFadeOut = true;
 }
 
 void eDistortEffect::generateRandomMap(
@@ -130,9 +136,9 @@ void eDistortEffect::increment(const float by) {
         std::swap(mXR1, mXR2);
         std::swap(mYR1, mYR2);
 
-        if(mFade) {
-            if(mFading) mDone = true;
-            mFading = true;
+        if(mFadeOut) {
+            if(mFadingOut) mDone = true;
+            mFadingOut = true;
             mXR2 = std::vector<float>(mNVerts, 0.f);
             mYR2 = std::vector<float>(mNVerts, 0.f);
         } else {

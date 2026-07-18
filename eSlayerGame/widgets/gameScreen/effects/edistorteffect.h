@@ -11,15 +11,16 @@ protected:
     void initialize(const eEffectSettings& settings,
                     const int w, const int h,
                     const float* centerX,
-                    const float* centerY) override;
+                    const float* centerY,
+                    const bool fadeIn) override;
     void stop() override;
 private:
     std::vector<float> generateRandomMap() const;
     void generateRandomMap(std::vector<float>& result) const;
     void increment(const float by);
 
-    bool mFade = false;
-    bool mFading = false;
+    bool mFadeOut = false;
+    bool mFadingOut = false;
 
     float mSpeed = 0.025f;
     float mScale = 0.025f;

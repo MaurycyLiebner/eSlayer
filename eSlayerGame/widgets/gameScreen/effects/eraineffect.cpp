@@ -18,8 +18,9 @@ void eRainEffect::initialize(
     const eEffectSettings& settings,
     const int w, const int h,
     const float* centerX,
-    const float* centerY) {
-    eEffect::initialize(settings, w, h, centerX, centerY);
+    const float* centerY,
+    const bool fadeIn) {
+    eEffect::initialize(settings, w, h, centerX, centerY, fadeIn);
 
     mSpeed = 0.025f*settings.fSpeed;
     mCount = 500*settings.fScale;
@@ -31,12 +32,15 @@ void eRainEffect::initialize(
 
     const float minX = -mTilt*mWidth;
     const float maxX = (1.f + mTilt)*mWidth;
+    const float minY = fadeIn ? -mHeight : 0.f;
+    const float maxY = fadeIn ? 0.f : mHeight;
+    if(!fadeIn) mTime = mCount;
     for(uint16_t i = 0; i < mCount; i++) {
         const float x0 = eRand::randF(minX, maxX);
-        const float y0 = eRand::randF(-mHeight, 0.f);
+        const float y0 = eRand::randF(minY, maxY);
 
         mX0.emplace_back(x0);
-        mY0.emplace_back(y0);
+        mY.emplace_back(y0);
 
         const uint16_t v0i = 4*i;
 
@@ -62,7 +66,6 @@ void eRainEffect::initialize(
     }
 
     mX = mX0;
-    mY = mY0;
 }
 
 void eRainEffect::stop() {
@@ -92,7 +95,7 @@ void eRainEffect::increment(const float by) {
         y += yInc;
         if(y > mHeight) {
             if(!mFade || i < mFadeSpeed*mRemTime) {
-                y = mY0[i];
+                y = 0.f;
                 x = mX0[i];
             }
         } else {

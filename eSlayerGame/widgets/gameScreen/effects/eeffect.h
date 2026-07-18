@@ -16,7 +16,8 @@ protected:
     virtual void initialize(const eEffectSettings& settings,
                             const int w, const int h,
                             const float* centerX,
-                            const float* centerY);
+                            const float* centerY,
+                            const bool fadeIn);
     virtual void stop();
 
     bool done() const { return mDone; }
@@ -41,7 +42,8 @@ public:
     void apply(SDL_Renderer* const r,
                std::shared_ptr<eTexture>& to);
 
-    void addEffect(const eEffectSettings& settings);
+    void addEffect(const eEffectSettings& settings,
+                   const bool fadeIn);
     void clearEffects();
 private:
     int mWidth = 0;

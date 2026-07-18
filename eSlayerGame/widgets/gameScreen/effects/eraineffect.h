@@ -11,7 +11,8 @@ protected:
     void initialize(const eEffectSettings& settings,
                     const int w, const int h,
                     const float* centerX,
-                    const float* centerY) override;
+                    const float* centerY,
+                    const bool fadeIn) override;
     void stop() override;
 private:
     void increment(const float by);
@@ -29,7 +30,6 @@ private:
     float mRemTime = 0.f;
 
     std::vector<float> mX0;
-    std::vector<float> mY0;
 
     std::vector<float> mX;
     std::vector<float> mY;

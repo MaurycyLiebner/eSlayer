@@ -19,7 +19,8 @@ public:
     eRenderTargetHolder switchToBase();
     eRenderTargetHolder switchToItemNames();
 
-    void addEffect(const eEffectSettings& settings);
+    void addEffect(const eEffectSettings& settings,
+                   const bool fadeIn);
     void clearEffects();
 
     void setLightness(const Uint8 light);
