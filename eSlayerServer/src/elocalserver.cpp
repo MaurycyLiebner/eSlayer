@@ -9,6 +9,7 @@
 #include <thread>
 
 bool eLocalServer::initialize() {
+    eServerArea::clear();
     return true;
 }
 

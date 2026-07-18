@@ -251,6 +251,8 @@ public:
 
     static std::map<uint32_t, std::shared_ptr<eServerUnit>> sSlayers;
     static std::vector<uint32_t> sSlain;
+
+    static void clear();
 private:
     bool checkQuestItems(
         const uint32_t clientId);

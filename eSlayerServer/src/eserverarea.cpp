@@ -1095,6 +1095,11 @@ eServerArea::followersUpdate(const uint32_t clientId) {
     return src;
 }
 
+void eServerArea::clear() {
+    sSlayers.clear();
+    sSlain.clear();
+}
+
 bool eServerArea::checkQuestItems(
     const uint32_t clientId) {
     const auto u = unit(clientId);
