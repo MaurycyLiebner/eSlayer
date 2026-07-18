@@ -11,6 +11,8 @@
 #include "eSlayerHelpers/eweaponclass.h"
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/eunitsinfo.h"
+#include "eSlayerHelpers/eclasses.h"
+#include "eSlayerHelpers/eskilltrees.h"
 
 uint32_t eAura::sNextId = 1;
 
@@ -673,6 +675,22 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             const int inc = std::round(mod.fValue1);
             fEffectiveSkillLevels.incSkillLevels(inc);
         } break;
+        case eModifierType::allClassSkills: {
+            if(fClass == mod.fClassId) {
+                const int inc = std::round(mod.fValue1);
+                fEffectiveSkillLevels.incSkillLevels(fClass, inc);
+            }
+        } break;
+        case eModifierType::classSkill: {
+            if(fClass == mod.fClassId) {
+                const int inc = std::round(mod.fValue1);
+                fEffectiveSkillLevels.incSkillLevel(inc, mod.fSkillId);
+            }
+        } break;
+        case eModifierType::skill: {
+            const int inc = std::round(mod.fValue1);
+            fEffectiveSkillLevels.incSkillLevel(inc, mod.fSkillId);
+        } break;
         case eModifierType::replenishLife:
             lifeRegBonus += mod.fValue1;
             break;
@@ -1109,6 +1127,10 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::curesPoison:
         case eModifierType::curesCold:
+
+        case eModifierType::allClassSkills:
+        case eModifierType::classSkill:
+        case eModifierType::skill:
             break;
         }
     };
@@ -1576,6 +1598,24 @@ int eSkillLevels::skillLevel(const int skillId) const {
 
 void eSkillLevels::incSkillLevels(const int by) {
     for(auto& level : *this) {
+        level.second += by;
+    }
+}
+
+void eSkillLevels::incSkillLevels(const int classId, const int by) {
+    const auto& class_ = eClasses::sClasses.get(classId);
+    for(auto& level : *this) {
+        const auto skillId = level.first;
+        const bool r = class_.isClassSkill(skillId);
+        if(!r) continue;
+        level.second += by;
+    }
+}
+
+void eSkillLevels::incSkillLevel(const int by, const int skillId) {
+    for(auto& level : *this) {
+        const auto dstSkillId = level.first;
+        if(dstSkillId != skillId) continue;
         level.second += by;
     }
 }

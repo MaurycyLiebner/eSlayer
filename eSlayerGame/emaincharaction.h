@@ -40,7 +40,8 @@ public:
                     const std::shared_ptr<eMap>& map,
                     const eOtherIterator& iter,
                     const uint32_t clientId,
-                    const eTeamId teamId);
+                    const eTeamId teamId,
+                    const int classId);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);

@@ -5,11 +5,11 @@
 
 #include "ecolor.h"
 #include "emodscollection.h"
-#include "eitemdata.h"
 #include "estringidmapvector.h"
 
+#include <set>
+
 struct ESLAYERHELPERS_API eItemAffix {
-    std::vector<eItemType> fTypes;
     eModsCollectionLevels fLevels;
     eColor fColor;
 
@@ -22,9 +22,9 @@ public:
     static void load();
 
     static const int sMaxItemLevel;
-    static std::map<eItemType, std::vector<int>> sTypePrefixes;
+    static std::map<int, std::set<int>> sTypePrefixes;
     static eStringIdMapVector<eItemAffix> sPrefixes;
-    static std::map<eItemType, std::vector<int>> sTypeSuffixes;
+    static std::map<int, std::set<int>> sTypeSuffixes;
     static eStringIdMapVector<eItemAffix> sSuffixes;
 private:
     static bool sLoaded;

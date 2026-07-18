@@ -195,7 +195,8 @@ void eHoverWidget::setHoverItem(
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
             gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                         mod.fSkillId, eFontColor::blue, mod.fType);
+                         mod.fSkillId, mod.fClassId,
+                         eFontColor::blue, mod.fType);
         }
         if(itemData.fType == eItemType::potion) {
             if(itemData.fPotionFrameLength > 0.f) {
@@ -294,7 +295,8 @@ void eHoverWidget::setHoverItem(
             for(const auto& mod : itemData.fPotionMods) {
                 const int s = static_cast<int>(mod.fType);
                 gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                             mod.fSkillId, eFontColor::blue, mod.fType);
+                             mod.fSkillId, mod.fClassId,
+                             eFontColor::blue, mod.fType);
             }
         }
         if(item.fSockets > 0) {
@@ -347,7 +349,8 @@ void eHoverWidget::setHoverSkill(
                 const auto& mod = it.second;
                 const int s = static_cast<int>(mod.fType);
                 gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
-                             mod.fSkillId, eFontColor::white, mod.fType);
+                             mod.fSkillId, mod.fClassId,
+                             eFontColor::white, mod.fType);
             }
         };
 

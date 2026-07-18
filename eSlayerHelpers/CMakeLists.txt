@@ -220,6 +220,7 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eeffectsettings.h
     include/eSlayerHelpers/edifficulties.h
     src/edifficulties.cpp
+    src/eclass.cpp
 
 )
 

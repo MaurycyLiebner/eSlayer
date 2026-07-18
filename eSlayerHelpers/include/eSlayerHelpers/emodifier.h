@@ -106,6 +106,10 @@ enum class eModifierType : uint8_t {
     curesPoison,
     curesCold,
 
+    allClassSkills,
+    classSkill,
+    skill,
+
     count
 };
 
@@ -113,7 +117,8 @@ enum class eModValuesUsage {
     none = 0,
     value1 = 1,
     value2 = 2,
-    skillId = 4
+    skillId = 4,
+    classId = 8
 };
 
 inline eModValuesUsage operator|(const eModValuesUsage a, const eModValuesUsage b) {
@@ -131,6 +136,8 @@ struct ESLAYERHELPERS_API eModifier {
 
     uint16_t fSkillId = 0; // skill id
 
+    uint8_t fClassId = 0; // class Iid
+
     eModValuesUsage valuesUsed() const;
     void typeFromKey(const std::string& key);
     std::string typeName() const;
@@ -140,6 +147,7 @@ struct ESLAYERHELPERS_API eModifier {
     std::string value1Name() const;
     std::string value2Name() const;
     std::string skillName() const;
+    std::string className() const;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

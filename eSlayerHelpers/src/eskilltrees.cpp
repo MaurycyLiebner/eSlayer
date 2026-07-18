@@ -30,7 +30,7 @@ void eSkillTrees::load() {
             const auto& skills = jdata["skills"];
             for(auto& [skillName, skillData] : skills.items()) {
                 const int skillId = eSkills::sSkills.id(skillName);
-                tree.fSkills.emplace_back(skillId);
+                tree.fSkills.emplace(skillId);
             }
             sTrees.add(name, tree);
         } catch(const std::exception& e) {

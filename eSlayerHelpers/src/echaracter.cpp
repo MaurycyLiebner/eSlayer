@@ -85,6 +85,13 @@ bool gReadModifier(eModifier& mod, const XMLElement* modE) {
         if(skillId < 0) eRuntimeThrow("Skill name \"" + skillName + "\" not recognized.");
         mod.fSkillId = skillId;
     }
+    if(used & eModValuesUsage::classId) {
+        const auto name = mod.skillName();
+        const auto className = modE->Attribute(name.c_str());
+        const int classId = eClasses::sClasses.id(className);
+        if(classId < 0) eRuntimeThrow("Class name \"" + className + "\" not recognized.");
+        mod.fClassId = classId;
+    }
 
     return true;
 }
@@ -557,6 +564,11 @@ void gWriteModifier(const eModifier& mod,
         const auto name = mod.skillName();
         const auto skillName = eSkills::sSkills.name(mod.fSkillId);
         modE->SetAttribute(name.c_str(), skillName.c_str());
+    }
+    if(used & eModValuesUsage::classId) {
+        const auto name = mod.className();
+        const auto className = eClasses::sClasses.name(mod.fClassId);
+        modE->SetAttribute(name.c_str(), className.c_str());
     }
 }
 

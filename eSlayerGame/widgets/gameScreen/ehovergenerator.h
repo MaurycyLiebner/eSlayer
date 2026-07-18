@@ -27,6 +27,7 @@ public:
                   const int g, const int s,
                   const int min, const int max,
                   const int skillId,
+                  const int classId,
                   const eFontColor color,
                   const eModifierType type = eModifierType::none);
     void addValue(SDL_Renderer* const r,

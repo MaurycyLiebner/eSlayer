@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <random>
+#include <set>
 
 class ESLAYERHELPERS_API eRand {
 public:
@@ -20,10 +21,8 @@ public:
     template <typename T>
     static void randomShuffle(std::vector<T>& vec);
 
-    template <typename T>
-    static T& randomElement(std::vector<T>& vec);
-    template <typename T>
-    static const T& randomElement(const std::vector<T>& vec);
+    template <typename S>
+    static auto randomElement(S& vec);
 
     static float randF_seeded(const uint32_t seed,
                               const float min,
@@ -35,14 +34,12 @@ private:
     static std::uniform_int_distribution<int> sDist;
 };
 
-template <typename T>
-inline T& eRand::randomElement(std::vector<T>& vec) {
-    return vec[rand(0, vec.size() - 1)];
-}
-
-template <typename T>
-inline const T& eRand::randomElement(const std::vector<T>& vec) {
-    return vec[rand(0, vec.size() - 1)];
+template <typename S>
+inline auto eRand::randomElement(S& vec) {
+    const auto id = rand(0, vec.size() - 1);
+    auto it = std::begin(vec);
+    std::advance(it, id);
+    return *it;
 }
 
 template<typename T>

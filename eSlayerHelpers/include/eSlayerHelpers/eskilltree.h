@@ -3,10 +3,10 @@
 
 #include "eslayerhelpersexport.h"
 
-#include <vector>
+#include <set>
 
 struct ESLAYERHELPERS_API eSkillTree {
-    std::vector<int> fSkills;
+    std::set<int> fSkills;
 };
 
 #endif // ESKILLTREE_H

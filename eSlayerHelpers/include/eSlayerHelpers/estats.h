@@ -136,6 +136,8 @@ struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
 
     int skillLevel(const int skillId) const;
     void incSkillLevels(const int by);
+    void incSkillLevels(const int classId, const int by);
+    void incSkillLevel(const int by, const int skillId);
 };
 
 struct ESLAYERHELPERS_API eStats {
@@ -144,7 +146,7 @@ struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fOnStruck;
     std::vector<eSkillStats> fOnDeath;
 
-    int fClass = 0;
+    int fClass = -1;
     int fLevel = 1;
 
     float fDefense = 100.f;

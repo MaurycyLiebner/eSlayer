@@ -151,6 +151,9 @@
         <string id="65">Spectral Hit</string>
         <string id="66">Cures Poison</string>
         <string id="67">Cures Cold</string>
+        <string id="68">%1 to %4 Skill Levels</string>
+        <string id="69">%1 to %3 (%4 Only)</string>
+        <string id="70">%1 to %3</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

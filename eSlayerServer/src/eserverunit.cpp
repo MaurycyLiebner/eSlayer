@@ -1349,6 +1349,10 @@ void eServerUnit::setMercType(const int mercType) {
     mMercType = mercType;
 }
 
+void eServerUnit::setClass(const int classId) {
+    mStats.fClass = classId;
+}
+
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {
     fBoostsTmp.erase(id);
 }

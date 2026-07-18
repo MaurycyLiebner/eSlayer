@@ -78,8 +78,10 @@ public:
     const std::optional<eMercenary>& merc() const { return mMerc; }
     std::optional<eMercenary>& merc() { return mMerc;}
 
-    const int& latestDifficulty() const { return mLatestDifficulty; }
+    const int latestDifficulty() const { return mLatestDifficulty; }
     int& latestDifficulty() { return mLatestDifficulty; }
+
+    const int classId() const { return mClassId; }
 
     void read(ePacket& p);
     void write(ePacket& p) const;

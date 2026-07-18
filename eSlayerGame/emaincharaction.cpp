@@ -44,7 +44,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const std::shared_ptr<eMap>& map,
                                  const eOtherIterator& iter,
                                  const uint32_t clientId,
-                                 const eTeamId teamId) {
+                                 const eTeamId teamId,
+                                 const int classId) {
     mClientId = clientId;
     mServer = s;
     mMap = map;
@@ -98,6 +99,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar->fModelParts = modelParts;
     mMainChar->fTeamId = teamId;
 
+    mStats.fClass = classId;
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();
     mStats.fDifficultyPenalties = udata.fDifficultyPenalties;

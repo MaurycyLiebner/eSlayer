@@ -2,13 +2,14 @@
 
 #include "eSlayerHelpers/erand.h"
 #include "eSlayerHelpers/efileloaderbase.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 const int eItemAffixes::sMaxItemLevel = 99;
-std::map<eItemType, std::vector<int>>
+std::map<int, std::set<int>>
 eItemAffixes::sTypePrefixes;
 eStringIdMapVector<eItemAffix>
 eItemAffixes::sPrefixes;
-std::map<eItemType, std::vector<int>>
+std::map<int, std::set<int>>
 eItemAffixes::sTypeSuffixes;
 eStringIdMapVector<eItemAffix>
 eItemAffixes::sSuffixes;
@@ -23,7 +24,7 @@ void eItemAffixes::load() {
     const auto parse = [&](const std::string& affixFolder,
                            const std::string& affixName,
                            eStringIdMapVector<eItemAffix>& modMap,
-                           std::map<eItemType, std::vector<int>>& typeMap) {
+                           std::map<int, std::set<int>>& typeMap) {
         const auto affixPath = affixFolder + "/" + affixName;
         std::vector<std::string> affixes;
         try {
@@ -43,14 +44,28 @@ void eItemAffixes::load() {
                 if(jdata.contains("itemTypes")) {
                     const auto types = jdata.value(
                         "itemTypes", std::vector<std::string>());
-                    mod.fTypes.reserve(types.size());
                     for(const auto& typeStr : types) {
                         const auto type = eItemTypeHelpers::type(typeStr);
                         if(type == eItemType::none) {
                             eRuntimeThrow("Unrecognised item type \"" + typeStr + "\"");
                         }
-                        mod.fTypes.emplace_back(type);
-                        typeMap[type].emplace_back(modMap.size());
+                        for(const auto& it : eItemsData::sItems) {
+                            const auto& item = it.fValue;
+                            if(item.fType != type) continue;
+                            const auto id = it.fId;
+                            typeMap[id].emplace(modMap.size());
+                        }
+                    }
+                }
+                if(jdata.contains("items")) {
+                    const auto items = jdata.value(
+                        "items", std::vector<std::string>());
+                    for(const auto& itemStr : items) {
+                        const auto itemId = eItemsData::id(itemStr);
+                        if(itemId < 0) {
+                            eRuntimeThrow("Unrecognised item type \"" + itemStr + "\"");
+                        }
+                        typeMap[itemId].emplace(modMap.size());
                     }
                 }
                 if(jdata.contains("modifiers")) {

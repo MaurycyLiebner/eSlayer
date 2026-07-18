@@ -32,7 +32,7 @@ void eClasses::load() {
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
             for(const auto& skillTree : skillTrees) {
                 const int id = eSkillTrees::sTrees.id(skillTree);
-                class_.fSkillTrees.emplace_back(id);
+                class_.fSkillTrees.emplace(id);
             }
 
             const auto iniItems = jdata.value("iniItems", std::vector<std::vector<std::string>>());

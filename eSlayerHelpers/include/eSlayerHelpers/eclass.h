@@ -2,10 +2,13 @@
 #define ECLASS_H
 
 #include <vector>
+#include <set>
 
 struct eClass {
-    std::vector<int> fSkillTrees;
+    std::set<int> fSkillTrees;
     std::vector<std::vector<int>> fIniItems;
+
+    bool isClassSkill(const int skillId) const;
 };
 
 #endif // ECLASS_H

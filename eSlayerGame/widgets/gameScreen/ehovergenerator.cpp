@@ -95,6 +95,10 @@ bool addPlus(const float value,
     case eModifierType::manaBurn:
     case eModifierType::multiShot:
     case eModifierType::spectralHit:
+
+    case eModifierType::allClassSkills:
+    case eModifierType::classSkill:
+    case eModifierType::skill:
         return true;
 
     case eModifierType::none:
@@ -144,6 +148,7 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const int min,
                                const int max,
                                const int skillId,
+                               const int classId,
                                const eFontColor color,
                                const eModifierType type) {
     auto text = eText::text(g, s);
@@ -161,6 +166,11 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
         text = eStringHelpers::replaceAll(text, "%3", skillName);
     }
 
+    if(classId >= 0) {
+        const auto className = eSkills::sSkills.name(classId);
+        text = eStringHelpers::replaceAll(text, "%4", className);
+    }
+
     addText(r, text, color);
 }
 
@@ -170,7 +180,7 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
                                const int max,
                                const eFontColor color,
                                const eModifierType type) {
-    addValue(r, g, s, min, max, -1, color, type);
+    addValue(r, g, s, min, max, -1, -1, color, type);
 }
 
 void eHoverGenerator::addValue(SDL_Renderer* const r,

@@ -352,6 +352,7 @@ public:
 
     void setArea(eServerArea& area);
     void setMercType(const int mercType);
+    void setClass(const int classId);
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;

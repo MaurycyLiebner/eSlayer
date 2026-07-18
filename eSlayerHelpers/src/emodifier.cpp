@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/eskills.h"
+#include "eSlayerHelpers/eclasses.h"
 
 std::map<eModifierType, std::string>
 gModifierTypeToString = {
@@ -95,7 +96,11 @@ gModifierTypeToString = {
     { eModifierType::spectralHit, "spectralHit" },
 
     { eModifierType::curesPoison, "curesPoison" },
-    { eModifierType::curesCold, "curesCold" }
+    { eModifierType::curesCold, "curesCold" },
+
+    { eModifierType::allClassSkills, "allClassSkills" },
+    { eModifierType::classSkill, "classSkill" },
+    { eModifierType::skill, "skill" }
 };
 
 std::map<std::string, eModifierType>
@@ -212,6 +217,17 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::aura:
         return eModValuesUsage::value2 |
                eModValuesUsage::skillId;
+
+    case eModifierType::allClassSkills:
+        return eModValuesUsage::value1 |
+               eModValuesUsage::classId;
+    case eModifierType::classSkill:
+        return eModValuesUsage::value1 |
+               eModValuesUsage::skillId |
+               eModValuesUsage::classId;
+    case eModifierType::skill:
+        return eModValuesUsage::value1 |
+               eModValuesUsage::skillId;
     }
     return eModValuesUsage::none;
 }
@@ -315,6 +331,10 @@ std::string eModifier::value1Name() const {
 
     case eModifierType::manaBurn:
     case eModifierType::multiShot:
+
+    case eModifierType::allClassSkills:
+    case eModifierType::classSkill:
+    case eModifierType::skill:
         return "value";
 
     case eModifierType::coldLength:
@@ -418,6 +438,10 @@ std::string eModifier::value2Name() const {
 
     case eModifierType::curesPoison:
     case eModifierType::curesCold:
+
+    case eModifierType::allClassSkills:
+    case eModifierType::classSkill:
+    case eModifierType::skill:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -435,6 +459,10 @@ std::string eModifier::skillName() const {
     return "skill";
 }
 
+std::string eModifier::className() const {
+    return "class";
+}
+
 void eModifier::read(const std::string& key,
                      const json& value) {
     typeFromKey(key);
@@ -450,6 +478,9 @@ void eModifier::read(const std::string& key,
         if(used & eModValuesUsage::skillId) {
             eRuntimeThrow("No skill id provided, but needed.");
         }
+        if(used & eModValuesUsage::classId) {
+            eRuntimeThrow("No class id provided, but needed.");
+        }
     } else if(isArray) {
         const int size = value.size();
         if(size < 2) {
@@ -460,6 +491,9 @@ void eModifier::read(const std::string& key,
         fValue2 = value[1];
         if(used & eModValuesUsage::skillId) {
             eRuntimeThrow("No skill id provided, but needed.");
+        }
+        if(used & eModValuesUsage::classId) {
+            eRuntimeThrow("No class id provided, but needed.");
         }
     } else if(isObj) {
         if(used & eModValuesUsage::value1) {
@@ -474,6 +508,17 @@ void eModifier::read(const std::string& key,
             const auto siName = skillName();
             const auto skillName = value.value(siName, "");
             fSkillId = eSkills::sSkills.id(skillName);
+            if(fSkillId < 0) {
+                eRuntimeThrow("Unrecognized skill type \"" + skillName + "\".");
+            }
+        }
+        if(used & eModValuesUsage::classId) {
+            const auto cName = className();
+            const auto className = value.value(cName, "");
+            fClassId = eClasses::sClasses.id(className);
+            if(fClassId < 0) {
+                eRuntimeThrow("Unrecognized class type \"" + className + "\".");
+            }
         }
     }
 }
@@ -490,6 +535,9 @@ void eModifier::read(ePacket& p) {
     if(used & eModValuesUsage::skillId) {
         p >> fSkillId;
     }
+    if(used & eModValuesUsage::classId) {
+        p >> fClassId;
+    }
 }
 
 void eModifier::write(ePacket& p) const {
@@ -503,6 +551,9 @@ void eModifier::write(ePacket& p) const {
     }
     if(used & eModValuesUsage::skillId) {
         p << fSkillId;
+    }
+    if(used & eModValuesUsage::classId) {
+        p << fClassId;
     }
 }
 
@@ -600,6 +651,10 @@ bool eModifierHelpers::isPercent(
 
     case eModifierType::curesPoison:
     case eModifierType::curesCold:
+
+    case eModifierType::allClassSkills:
+    case eModifierType::classSkill:
+    case eModifierType::skill:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

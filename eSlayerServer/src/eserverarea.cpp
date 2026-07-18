@@ -867,6 +867,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         eUnitType::slayer, data, typeId, *this);
+    u->setClass(c.classId());
     sSlayers[clientId] = u;
     u->addSkill();
     u->addSkill();

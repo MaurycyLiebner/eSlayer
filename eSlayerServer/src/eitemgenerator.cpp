@@ -96,24 +96,22 @@ eItem eItemGenerator::generateItem(
     auto& mods = item.fModifiers;
     float remWorth = worth;
     const int maxMods = item.fRarity == eItemRarity::rare ? 8 : 4;
-    auto prefixOptions = eItemAffixes::sTypePrefixes[type];
-    auto suffixOptions = eItemAffixes::sTypeSuffixes[type];
+    auto prefixOptions = eItemAffixes::sTypePrefixes[typeId];
+    auto suffixOptions = eItemAffixes::sTypeSuffixes[typeId];
     while(remWorth >= 0.25f) {
         if(mods.size() >= maxMods) break;
         if(prefixOptions.empty() && suffixOptions.empty()) break;
         const bool suffix = !suffixOptions.empty() &&
                             (prefixOptions.empty() || eRand::randChance(0.5f));
         if(suffix) {
-            const int oid = eRand::rand(0, suffixOptions.size() - 1);
-            const int id = suffixOptions[oid];
-            suffixOptions.erase(suffixOptions.begin() + oid);
+            const auto id = eRand::randomElement(suffixOptions);
+            suffixOptions.erase(id);
             if(item.fSuffix == 0) item.fSuffix = id;
             const auto& mod = eItemAffixes::sSuffixes.get(id);
             mod.generate(level, remWorth, mods);
         } else {
-            const int oid = eRand::rand(0, prefixOptions.size() - 1);
-            const int id = prefixOptions[oid];
-            prefixOptions.erase(prefixOptions.begin() + oid);
+            const auto id = eRand::randomElement(prefixOptions);
+            prefixOptions.erase(id);
             if(item.fPrefix == 0) item.fPrefix = id;
             const auto& mod = eItemAffixes::sPrefixes.get(id);
             mod.generate(level, remWorth, mods);
