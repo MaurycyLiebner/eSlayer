@@ -162,3 +162,7 @@ eItem eItemGenerator::generateGold(
     item.fDataId = eItemsData::sGoldIds[id];
     return item;
 }
+
+void eItemGenerator::clear() {
+    sNextItemId = 1;
+}

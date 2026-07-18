@@ -1098,6 +1098,8 @@ eServerArea::followersUpdate(const uint32_t clientId) {
 void eServerArea::clear() {
     sSlayers.clear();
     sSlain.clear();
+    eServerUnit::sNextCharId = 1;
+    eItemGenerator::clear();
 }
 
 bool eServerArea::checkQuestItems(
