@@ -1281,6 +1281,12 @@ bool eServerArea::changeTeam(
     const auto u = unit(clientId);
     if(!u) return false;
     u->setTeamId(newTeam);
+    const auto& followers = u->followers();
+    for(const auto f : followers) {
+        const auto u = unit(f);
+        if(!u) continue;
+        u->setTeamId(newTeam);
+    }
     return true;
 }
 
