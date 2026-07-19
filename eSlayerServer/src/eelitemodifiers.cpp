@@ -23,10 +23,10 @@ void eEliteModifiers::initialize(const int nMods, const int level) {
         const auto& einfo = e.get(m);
 
         const auto& bossL = einfo.fBoss.skillLevel(level);
-        mBossMods = bossL.fTotalModifiers;
+        mBossMods.addBoost(bossL.fTotalModifiers);
 
         const auto& minionL = einfo.fMinions.skillLevel(level);
-        mMinionMods = minionL.fTotalModifiers;
+        mMinionMods.addBoost(minionL.fTotalModifiers);
     }
 }
 
