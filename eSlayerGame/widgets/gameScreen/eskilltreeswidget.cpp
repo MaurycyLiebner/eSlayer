@@ -40,21 +40,23 @@ void eSkillTreesWidget::initialize(
     tabWidget->setNoPadding();
 
     const auto& res = resolution();
-    const int tabWidth = 200*res.multiplier();
+    const float mult = res.multiplier();
+    const int tabWidth = 100*mult;
     tabWidget->setWidth(tabWidth);
 
-    const auto font = eFonts::textFont(res.smallFontSize());
     const auto remainingLabel = new eLabel(window());
+    remainingLabel->setNoPadding();
     remainingLabel->setWrapWidth(tabWidth);
     remainingLabel->setTextAlignment(eAlignment::center);
-    remainingLabel->setFont(font);
+    remainingLabel->setSmallFontSize();
     remainingLabel->setText(eText::text(13, 0));
     remainingLabel->fitContent();
     tabWidget->addWidget(remainingLabel);
     remainingLabel->align(eAlignment::hcenter);
 
     mRemPtsLabel = new eLabel(window());
-    mRemPtsLabel->setFont(font);
+    mRemPtsLabel->setNoPadding();
+    mRemPtsLabel->setSmallFontSize();
     const auto& levels = stats.fBaseSkillLevels;
     const int pts = levels.fRemainingPoints;
     mRemPtsLabel->setText(std::to_string(pts));
@@ -71,7 +73,6 @@ void eSkillTreesWidget::initialize(
     for(const int skillTreeId : class_.fSkillTrees) {
         const auto skillTreeW = new eSkillTreeWidget(window());
         skillTreeW->initialize(skillTreeId, stats);
-        skillTreeW->fitContent();
         skillTreeWidget->addWidget(skillTreeW);
         skillTreeW->setVisible(mWidgets.empty());
         mWidgets.emplace_back(skillTreeW);
@@ -79,6 +80,7 @@ void eSkillTreesWidget::initialize(
         const auto skillTreeName = eSkillTreeNames::name(skillTreeId);
 
         const auto tabB = new eTreeTabButton(window());
+        tabB->setSmallFontSize();
         tabB->setWrapWidth(tabWidth);
         tabB->setText(skillTreeName);
         tabB->fitContent();
@@ -100,7 +102,7 @@ void eSkillTreesWidget::initialize(
     }
     inner->addWidget(skillTreeWidget);
     inner->addWidget(tabWidget);
-    inner->stackHorizontally(0);
+    inner->stackHorizontally(p);
     inner->fitContent();
     setup(inner);
 }

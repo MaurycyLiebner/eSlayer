@@ -2,6 +2,8 @@
 
 #include "../textures/etextgenerator.h"
 
+#include <cmath>
+
 ePainter::ePainter(SDL_Renderer* const renderer) :
     mRenderer(renderer) {}
 
@@ -157,6 +159,55 @@ void ePainter::drawPolygon(std::vector<SDL_FPoint> pts,
     }
     SDL_SetRenderDrawColor(mRenderer, color.r, color.g, color.b, color.a);
     SDL_RenderLines(mRenderer, pts.data(), pts.size());
+}
+
+void ePainter::drawLine(SDL_FPoint from,
+                        SDL_FPoint to,
+                        const float thickness,
+                        const SDL_FColor& color) const {
+    from.x += mX;
+    from.y += mY;
+    to.x += mX;
+    to.y += mY;
+
+    const float dx = to.x - from.x;
+    const float dy = to.y - from.y;
+
+    const float len = std::sqrt(dx * dx + dy * dy);
+    if(len == 0.f) return;
+
+    const float nx = -dy / len;
+    const float ny =  dx / len;
+
+    const float half = thickness * 0.5f;
+
+    SDL_Vertex verts[4];
+    verts[0].position = {
+        from.x + nx * half,
+        from.y + ny * half
+    };
+
+    verts[1].position = {
+        from.x - nx * half,
+        from.y - ny * half
+    };
+
+    verts[2].position = {
+        to.x - nx * half,
+        to.y - ny * half
+    };
+
+    verts[3].position = {
+        to.x + nx * half,
+        to.y + ny * half
+    };
+
+    for(auto& v : verts) {
+        v.color = color;
+    }
+
+    static constexpr int indices[6] = { 0, 1, 2, 0, 2, 3 };
+    SDL_RenderGeometry(mRenderer, nullptr, verts, 4, indices, 6);
 }
 
 void ePainter::setClipRect(const SDL_Rect* const rect) {

@@ -20,6 +20,8 @@ public:
 
     void updateText();
 
+    SDL_FPoint center() const;
+
     static std::map<int, int> sLeftMap;
     static std::map<int, int> sRightMap;
 protected:

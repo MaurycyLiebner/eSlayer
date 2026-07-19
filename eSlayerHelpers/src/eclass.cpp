@@ -5,8 +5,9 @@
 bool eClass::isClassSkill(const int skillId) const {
     for(const auto treeId : fSkillTrees) {
         const auto& tree = eSkillTrees::sTrees.get(treeId);
-        const auto r = tree.fSkills.count(skillId);
-        if(r > 0) return true;
+        for(const auto& skill : tree.fSkills) {
+            if(skill.fSkillId == skillId) return true;
+        }
     }
     return false;
 }

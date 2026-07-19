@@ -62,6 +62,10 @@ public:
                                            eAlignment::right) const;
     void drawPolygon(std::vector<SDL_FPoint> pts,
                      const SDL_Color& color) const;
+    void drawLine(SDL_FPoint from,
+                  SDL_FPoint to,
+                  const float thickness,
+                  const SDL_FColor& color) const;
 
     void setClipRect(const SDL_Rect* const rect);
 

@@ -6,6 +6,7 @@
 struct eStats;
 struct eAttributes;
 struct eEquipment;
+class eSkillButton;
 
 class eSkillTreeWidget : public eWidget {
 public:
@@ -13,6 +14,10 @@ public:
 
     void initialize(const int skillTreeId,
                     eStats& stats);
+protected:
+    void paintEvent(ePainter& p) override;
+private:
+    std::vector<std::pair<eSkillButton*, eSkillButton*>> mPrerequisites;
 };
 
 #endif // ESKILLTREEWIDGET_H

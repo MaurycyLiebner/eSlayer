@@ -55,6 +55,13 @@ void eSkillButton::updateText() {
     }
 }
 
+SDL_FPoint eSkillButton::center() const {
+    SDL_FPoint result;
+    result.x = x() + 0.5f*width();
+    result.y = y() + 0.5f*height();
+    return result;
+}
+
 bool eSkillButton::mouseMoveEvent(const eMouseEvent& e) {
     (void)e;
     return true;
