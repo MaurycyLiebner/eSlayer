@@ -136,7 +136,7 @@ struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
 
     int skillLevel(const int skillId) const;
     void incSkillLevels(const int by);
-    void incSkillLevels(const int classId, const int by);
+    void incClassSkillLevels(const int classId, const int by);
     void incSkillLevel(const int by, const int skillId);
 };
 

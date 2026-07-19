@@ -12,7 +12,6 @@
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/eclasses.h"
-#include "eSlayerHelpers/eskilltrees.h"
 
 uint32_t eAura::sNextId = 1;
 
@@ -576,6 +575,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fEffectiveSkillLevels = fBaseSkillLevels;
 
+    int allSkillsInc = 0;
+    std::map<int, int> classSkillsInc;
+
     const auto handleItemPassiveMod = [&](const eModifier& mod,
                                           const bool lw,
                                           const bool rw) {
@@ -674,21 +676,38 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::allSkills: {
             const int inc = std::round(mod.fValue1);
             fEffectiveSkillLevels.incSkillLevels(inc);
+            allSkillsInc += inc;
         } break;
         case eModifierType::allClassSkills: {
             if(fClass == mod.fClassId) {
                 const int inc = std::round(mod.fValue1);
-                fEffectiveSkillLevels.incSkillLevels(fClass, inc);
+                fEffectiveSkillLevels.incClassSkillLevels(fClass, inc);
             }
+            classSkillsInc[fClass]++;
         } break;
         case eModifierType::classSkill: {
             if(fClass == mod.fClassId) {
-                const int inc = std::round(mod.fValue1);
+                int inc = std::round(mod.fValue1);
+                const bool ini = fEffectiveSkillLevels.count(mod.fSkillId) == 0;
+                if(ini) {
+                    inc += allSkillsInc;
+                    inc += classSkillsInc[mod.fClassId];
+                }
                 fEffectiveSkillLevels.incSkillLevel(inc, mod.fSkillId);
             }
         } break;
         case eModifierType::skill: {
-            const int inc = std::round(mod.fValue1);
+            int inc = std::round(mod.fValue1);
+            const bool ini = fEffectiveSkillLevels.count(mod.fSkillId) == 0;
+            if(ini) {
+                inc += allSkillsInc;
+                for(const auto& it : classSkillsInc) {
+                    const auto classId = it.first;
+                    const auto& class_ = eClasses::sClasses.get(classId);
+                    const bool r = class_.isClassSkill(mod.fSkillId);
+                    if(r) inc += it.second;
+                }
+            }
             fEffectiveSkillLevels.incSkillLevel(inc, mod.fSkillId);
         } break;
         case eModifierType::replenishLife:
@@ -810,6 +829,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         if(item.fType == eItemType::none) continue;
         remItems.emplace_back(&item);
     }
+
     while(!remItems.empty() && statsChanged) {
         statsChanged = false;
         for(int i = 0; i < remItems.size(); i++) {
@@ -1602,7 +1622,7 @@ void eSkillLevels::incSkillLevels(const int by) {
     }
 }
 
-void eSkillLevels::incSkillLevels(const int classId, const int by) {
+void eSkillLevels::incClassSkillLevels(const int classId, const int by) {
     const auto& class_ = eClasses::sClasses.get(classId);
     for(auto& level : *this) {
         const auto skillId = level.first;
@@ -1613,9 +1633,5 @@ void eSkillLevels::incSkillLevels(const int classId, const int by) {
 }
 
 void eSkillLevels::incSkillLevel(const int by, const int skillId) {
-    for(auto& level : *this) {
-        const auto dstSkillId = level.first;
-        if(dstSkillId != skillId) continue;
-        level.second += by;
-    }
+    (*this)[skillId] += by;
 }
