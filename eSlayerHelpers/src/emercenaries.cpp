@@ -133,6 +133,27 @@ void eMercenariesInfo::load() {
                 u.fEq.fWeaponClasses.emplace_back(classId);
             }
 
+            u.fBaseStrength = jdata.value("baseStrength", 20);
+            u.fBaseDexterity = jdata.value("baseDexterity", 20);
+            u.fBaseVitality = jdata.value("baseVitality", 20);
+            u.fBaseEnergy = jdata.value("baseEnergy", 15);
+
+            u.fStrengthPerLevel = jdata.value("strengthPerLevel", 1.5f);
+            u.fDexterityPerLevel = jdata.value("dexterityPerLevel", 1.5f);
+            u.fVitalityPerLevel = jdata.value("vitalityPerLevel", 1.5f);
+            u.fEnergyPerLevel = jdata.value("energyPerLevel", 0.5f);
+
+            u.fLifePerLevel = u.fEnergyPerLevel = jdata.value("lifePerLevel", 7.5f);
+
+            u.fResistancePerLevel = jdata.value("resistancePerLevel", 1.5f);
+
+            u.fDamagePerLevel = jdata.value("damagePerLevel", 0.f);
+            u.fFireDamagePerLevel = jdata.value("fireDamagePerLevel", 0.f);
+            u.fColdDamagePerLevel = jdata.value("coldDamagePerLevel", 0.f);
+            u.fLightningDamagePerLevel = jdata.value("lightningDamagePerLevel", 0.f);
+
+            u.fDefensePerLevel = jdata.value("defensePerLevel", 9.5f);
+
             const auto& uinfo = eUnitsInfo::sUnits.get(unitId);
             const auto maxUnitLevel = uinfo.fMaxLevel;
             if(jdata.contains("modifiers")) {
