@@ -10,6 +10,7 @@
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eversion.h>
 
 eTcpIpHost::~eTcpIpHost() {
     eTcpIpHost::disconnect(mClientId);
@@ -456,6 +457,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
         ePacket p;
         p << ePacketType::connect;
         p << clientId;
+        p << eVersion;
         p << eDifficulties::sDifficulty;
         mNet.sendToClient(tcpClientId, p);
     } break;

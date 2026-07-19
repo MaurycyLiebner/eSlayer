@@ -223,6 +223,7 @@ add_library(eSlayerHelpers SHARED
     src/eclass.cpp
     include/eSlayerHelpers/eskilllevels.h
     src/eskilllevels.cpp
+    include/eSlayerHelpers/eversion.h
 
 )
 

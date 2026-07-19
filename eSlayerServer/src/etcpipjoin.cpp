@@ -10,6 +10,7 @@
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eportals.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eversion.h>
 
 #include <eSlayerMapGenerator/emap.h>
 
@@ -50,6 +51,14 @@ uint32_t eTcpIpJoin::connect() {
             ePacketType type;
             p >> type;
             p >> mClientId;
+            std::string version;
+            p >> version;
+            if(version != eVersion) {
+                failed("Disconnected", "You have a " + eVersion +
+                       " version of the executable, but the game was created with " +
+                       version + " version.");
+                return true;
+            }
             p >> eDifficulties::sDifficulty;
             return true;
         }

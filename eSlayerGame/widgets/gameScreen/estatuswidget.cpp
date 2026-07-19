@@ -7,6 +7,7 @@
 
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eversion.h>
 
 void eStatusWidget::initialize(
     const eGameSettings& settings) {
@@ -73,7 +74,7 @@ void eStatusWidget::initialize(
     const auto v = new eLabel(window());
     v->setTinyFontSize();
     v->setTinyPadding();
-    v->setText("v 0.1");
+    v->setText("v " + eVersion);
     v->fitContent();
     addWidget(v);
     labels.emplace_back(v);
