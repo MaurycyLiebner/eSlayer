@@ -165,9 +165,39 @@ void eItemPlaceWidget::paintEvent(ePainter& p) {
         const eTextureColorHolder mod(color, mTex);
         p.drawTexture(0, 0, mTex);
     }
-    if(item.fType == eItemType::none) return;
     const auto r = renderer();
     const auto& res = resolution();
+    if(item.fType == eItemType::none) {
+        eItem otherW;
+        if(mDst == &eEquipment::fWeapon1R) {
+            otherW = mEq->fWeapon1L;
+        } else if(mDst == &eEquipment::fWeapon2R) {
+            otherW = mEq->fWeapon2L;
+        }
+        if(otherW.fType == eItemType::none) return;
+
+        const auto& itemData = eItemsData::get(otherW.fDataId);
+        if(!itemData.fTwoHanded) return;
+
+        {
+            const bool met = mStats ? mStats->itemReqsMet(otherW) : true;
+            if(met) {
+                color.set(0.4f, 0.4f, 0.4f);
+            } else {
+                color.set(0.7f, 0.f, 0.f);
+            }
+            const eTextureColorHolder mod(color, mTex);
+            p.drawTexture(0, 0, mTex);
+        }
+
+        const eItemInstanceTexture itex(r, res, otherW);
+        const auto mod = itex.request();
+        const auto& tex = mod.fTex;
+        const eTextureColorHolder h(true, 1.f, 1.f, 1.f, 0.5f, tex);
+        p.drawTexture(rect, tex, eAlignment::center);
+
+        return;
+    }
     const eItemInstanceTexture tex(r, res, item);
     const auto mod = tex.request();
     p.drawTexture(rect, mod.fTex, eAlignment::center);
