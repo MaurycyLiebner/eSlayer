@@ -164,7 +164,8 @@ void eTexture::setAlpha(const Uint8 alpha) {
 void eTexture::setAlphaF(const float alpha) {
     if(mFlipTex) mFlipTex->setAlphaF(alpha);
     else if(mAtlas) mAtlas->setAlphaF(alpha);
-    else SDL_SetTextureAlphaModFloat(mTex, alpha);}
+    else SDL_SetTextureAlphaModFloat(mTex, alpha);
+}
 
 void eTexture::clearAlphaMod() {
     setAlpha(255);
