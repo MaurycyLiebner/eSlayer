@@ -25,8 +25,13 @@ void eClasses::load() {
     sClasses.reserve(classes.size());
 
     for(const auto& name : classes) {
+        sClasses.add(name, eClass());
+    }
+
+    for(const auto& it : sClasses) {
+        const auto& name = it.fName;
         try {
-            eClass class_;
+            auto& class_ = it.fValue;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
@@ -35,22 +40,31 @@ void eClasses::load() {
                 class_.fSkillTrees.emplace(id);
             }
 
-            const auto iniItems = jdata.value("iniItems", std::vector<std::vector<std::string>>());
-            for(const auto& option : iniItems) {
-                std::vector<int> vec;
-                for(const auto& item : option) {
-                    const int id = eItemsData::id(item);
-                    if(id < 0) {
-                        eRuntimeThrow("Unrecognized item type \"" + item + "\".");
+            if(jdata.contains("iniItems")) {
+                for(const auto& option : jdata["iniItems"]) {
+                    std::vector<eIniItem> vec;
+                    for(const auto& item : option) {
+                        const auto typeStr = item.value("type", "");
+                        const int id = eItemsData::id(typeStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized item type \"" + typeStr + "\".");
+                        }
+                        eIniItem iniItem;
+                        iniItem.fItemType = id;
+                        if(item.contains("modifiers")) {
+                            const auto& mods = item["modifiers"];
+                            for(const auto& [name, modData] : mods.items()) {
+                                auto& mod = iniItem.fMods.emplace_back();
+                                mod.read(name, json(modData));
+                            }
+                        }
+                        vec.emplace_back(iniItem);
                     }
-                    vec.emplace_back(id);
+                    class_.fIniItems.emplace_back(vec);
                 }
-                class_.fIniItems.emplace_back(vec);
             }
-
-            sClasses.add(name, class_);
-        } catch(const std::exception& e) {
-            eExceptions::showDialog(e);
+        } catch(...) {
+            eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
         }
     }
 }

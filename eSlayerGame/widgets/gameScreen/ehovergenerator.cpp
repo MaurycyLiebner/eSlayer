@@ -7,6 +7,7 @@
 
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eskills.h>
+#include <eSlayerHelpers/eclasses.h>
 
 eHoverGenerator::eHoverGenerator(const eResolution& res) {
     const int fontSize = res.smallFontSize();
@@ -167,7 +168,7 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
     }
 
     if(classId >= 0) {
-        const auto className = eSkills::sSkills.name(classId);
+        const auto className = eClasses::sClasses.name(classId);
         text = eStringHelpers::replaceAll(text, "%4", className);
     }
 

@@ -36,8 +36,9 @@ eCharacter::eCharacter(const int classId,
     const auto& options = class_.fIniItems;
     if(!options.empty()) {
         const auto& choosen = eRand::randomElement(options);
-        for(const auto itemId : choosen) {
+        for(const auto& iniItem : choosen) {
             eItem item;
+            const int itemId = iniItem.fItemType;
             const auto& itemData = eItemsData::get(itemId);
             item.fDataId = itemId;
             item.fType = itemData.fType;
@@ -46,6 +47,7 @@ eCharacter::eCharacter(const int classId,
             item.fMaxDmg = itemData.fMaxDamageMin;
             item.fDefense = itemData.fDefenseMin;
             item.fBlockChance = itemData.fBlockChanceMin;
+            item.fModifiers = iniItem.fMods;
             mEquipment.add(item, true, nullptr);
         }
     }
@@ -86,7 +88,7 @@ bool gReadModifier(eModifier& mod, const XMLElement* modE) {
         mod.fSkillId = skillId;
     }
     if(used & eModValuesUsage::classId) {
-        const auto name = mod.skillName();
+        const auto name = mod.className();
         const auto className = modE->Attribute(name.c_str());
         const int classId = eClasses::sClasses.id(className);
         if(classId < 0) eRuntimeThrow("Class name \"" + className + "\" not recognized.");

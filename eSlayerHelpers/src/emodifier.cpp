@@ -507,18 +507,20 @@ void eModifier::read(const std::string& key,
         if(used & eModValuesUsage::skillId) {
             const auto siName = skillName();
             const auto skillName = value.value(siName, "");
-            fSkillId = eSkills::sSkills.id(skillName);
-            if(fSkillId < 0) {
+            const int skillId = eSkills::sSkills.id(skillName);
+            if(skillId < 0) {
                 eRuntimeThrow("Unrecognized skill type \"" + skillName + "\".");
             }
+            fSkillId = skillId;
         }
         if(used & eModValuesUsage::classId) {
             const auto cName = className();
             const auto className = value.value(cName, "");
-            fClassId = eClasses::sClasses.id(className);
-            if(fClassId < 0) {
+            const int classId = eClasses::sClasses.id(className);
+            if(classId < 0) {
                 eRuntimeThrow("Unrecognized class type \"" + className + "\".");
             }
+            fClassId = classId;
         }
     }
 }

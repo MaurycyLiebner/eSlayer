@@ -1,12 +1,18 @@
 #ifndef ECLASS_H
 #define ECLASS_H
 
-#include <vector>
 #include <set>
+
+#include "emodifier.h"
+
+struct eIniItem {
+    int fItemType;
+    std::vector<eModifier> fMods;
+};
 
 struct eClass {
     std::set<int> fSkillTrees;
-    std::vector<std::vector<int>> fIniItems;
+    std::vector<std::vector<eIniItem>> fIniItems;
 
     bool isClassSkill(const int skillId) const;
 };
