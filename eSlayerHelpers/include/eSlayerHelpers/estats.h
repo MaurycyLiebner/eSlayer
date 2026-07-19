@@ -6,8 +6,8 @@
 #include "eskillchoice.h"
 #include "eslayerhelpersexport.h"
 #include "eweapontype.h"
+#include "eskilllevels.h"
 
-#include <map>
 #include <vector>
 
 struct eEquipment;
@@ -124,20 +124,6 @@ struct eSkillStats {
     std::vector<eSkillStats> fOnKillRW;
 
     std::vector<eBoostCurse> fBoostCurse;
-};
-
-struct ESLAYERHELPERS_API eSkillLevels : public std::map<uint16_t, uint16_t> {
-    eSkillLevels() : std::map<uint16_t, uint16_t>{{0, 0}} {}
-
-    uint8_t fRemainingPoints = 0;
-
-    void read(ePacket& p);
-    void write(ePacket& p) const;
-
-    int skillLevel(const int skillId) const;
-    void incSkillLevels(const int by);
-    void incClassSkillLevels(const int classId, const int by);
-    void incSkillLevel(const int by, const int skillId);
 };
 
 struct ESLAYERHELPERS_API eStats {

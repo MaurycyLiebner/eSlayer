@@ -3,7 +3,6 @@
 #include "eSlayerHelpers/eattributes.h"
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eitemsdata.h"
-#include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/erand.h"
 #include "eSlayerHelpers/eskills.h"
 #include "eSlayerHelpers/evectorhelpers.h"
@@ -1583,55 +1582,4 @@ bool eStats::itemReqsMet(const eItem& item) const {
     if(fStrength < str) return false;
     if(fDexterity < dex) return false;
     return true;
-}
-
-void eSkillLevels::read(ePacket& p) {
-    p >> fRemainingPoints;
-    uint16_t nSkills;
-    p >> nSkills;
-    for(int i = 0; i < nSkills; i++) {
-        uint16_t skillId;
-        p >> skillId;
-        uint16_t level;
-        p >> level;
-        (*this)[skillId] = level;
-    }
-}
-
-void eSkillLevels::write(ePacket& p) const {
-    p << fRemainingPoints;
-    const uint16_t nSkills = size();
-    p << nSkills;
-    for(const auto& skill : *this) {
-        const uint16_t skillId = skill.first;
-        p << skillId;
-        const uint16_t level = skill.second;
-        p << level;
-    }
-}
-
-int eSkillLevels::skillLevel(const int skillId) const {
-    const auto it = find(skillId);
-    if(it == end()) return -1;
-    return it->second;
-}
-
-void eSkillLevels::incSkillLevels(const int by) {
-    for(auto& level : *this) {
-        level.second += by;
-    }
-}
-
-void eSkillLevels::incClassSkillLevels(const int classId, const int by) {
-    const auto& class_ = eClasses::sClasses.get(classId);
-    for(auto& level : *this) {
-        const auto skillId = level.first;
-        const bool r = class_.isClassSkill(skillId);
-        if(!r) continue;
-        level.second += by;
-    }
-}
-
-void eSkillLevels::incSkillLevel(const int by, const int skillId) {
-    (*this)[skillId] += by;
 }
