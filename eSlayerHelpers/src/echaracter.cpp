@@ -51,6 +51,8 @@ eCharacter::eCharacter(const int classId,
             mEquipment.add(item, true, nullptr);
         }
     }
+
+    mEquipment.fStashGold = class_.fIniGold;
 }
 
 bool isTrue(std::string value) {

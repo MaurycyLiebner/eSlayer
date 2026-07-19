@@ -63,6 +63,8 @@ void eClasses::load() {
                     class_.fIniItems.emplace_back(vec);
                 }
             }
+
+            class_.fIniGold = jdata.value("iniGold", 1000);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
         }
