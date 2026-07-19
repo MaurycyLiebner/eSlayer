@@ -3,6 +3,7 @@
 
 #include "estringidmapvector.h"
 #include "eeqoptions.h"
+#include "emodscollection.h"
 
 #include <cstdint>
 
@@ -31,6 +32,8 @@ struct eMercenaryInfo {
     float fLightningDamagePerLevel = 0.f;
 
     float fDefensePerLevel = 0.f;
+
+    eModsCollectionLevels fMods;
 };
 
 class ESLAYERHELPERS_API eMercenariesInfo {

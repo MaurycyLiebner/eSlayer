@@ -71,6 +71,13 @@ std::vector<eModifier> eMercenariesInfo::mods(
         mod.fType = eModifierType::defenseValue;
         mod.fValue1 = level*m.fDefensePerLevel;
     }
+
+    const auto& mercL = m.fMods.skillLevel(level);
+    for(const auto& it : mercL.fTotalModifiers) {
+        result.emplace_back(it.second);
+    }
+
+    result.emplace_back();
     return result;
 }
 
@@ -124,6 +131,18 @@ void eMercenariesInfo::load() {
                     eRuntimeThrow("Unrecognized weapon class \"" + class_ + "\".");
                 }
                 u.fEq.fWeaponClasses.emplace_back(classId);
+            }
+
+            const auto& uinfo = eUnitsInfo::sUnits.get(unitId);
+            const auto maxUnitLevel = uinfo.fMaxLevel;
+            if(jdata.contains("modifiers")) {
+                const auto& mods = jdata["modifiers"];
+                eModsCollectionLevel::parseLevels(
+                    mods, u.fMods, maxUnitLevel);
+            } else {
+                const ordered_json empty = ordered_json::object();
+                eModsCollectionLevel::parseLevels(
+                    empty, u.fMods, maxUnitLevel);
             }
 
             sMercs.add(name, u);
