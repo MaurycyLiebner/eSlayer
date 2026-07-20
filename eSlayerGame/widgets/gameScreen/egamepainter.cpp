@@ -79,8 +79,8 @@ void eGamePainter::finish(
     const auto h = mDisplayTex->createTargetHolder(r);
     mBaseTex->setBlendMode(SDL_BLENDMODE_BLEND);
     mBaseTex->render(r, 0, 0);
-    const Uint8 a = 255 - mContrast;
-    if(a != 255) {
+    if(mContrast) {
+        const Uint8 a = 255 - mContrast;
         mBaseTex->fill(r, SDL_Color{255, 255, 255, a});
         mBaseTex->setBlendMode(SDL_BLENDMODE_MUL);
         mBaseTex->render(r, 0, 0);
