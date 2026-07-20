@@ -43,7 +43,8 @@ public:
                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     void setHoverSkill(const int skillId,
                        const bool showNextLevel,
-                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+                       const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0},
+                       const int levelReq = 1, const bool levelReqMet = true);
 
     void openMenu(const std::string& name,
                   const std::vector<eHoverAction>& actions,
@@ -59,7 +60,8 @@ public:
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
     static void sSetHoverSkill(
         const int skillId, const bool showNextLevel,
-        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+        const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0},
+        const int levelReq = 1, const bool levelReqMet = true);
     static void sSetGameTooltip(
         const std::string& text,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});

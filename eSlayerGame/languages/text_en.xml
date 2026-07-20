@@ -195,6 +195,7 @@
         <string id="10">Radius %1</string>
         <string id="11">Cooldown: %1</string>
         <string id="12">Count: %1</string>
+        <string id="13">Required Level: %1</string>
     </group>
     <group id="14">
         <string id="0">IP: %1</string>

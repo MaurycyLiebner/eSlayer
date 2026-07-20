@@ -15,6 +15,9 @@ public:
     void setSkillId(const int skillId);
     int skillId() { return mSkillId; }
 
+    void setLevelReq(const int levelReq);
+    void setLevelReqMet(const bool met);
+
     void setTopRightText(const std::string& text);
     void setBottomRightText(const std::string& text);
 
@@ -43,6 +46,9 @@ private:
                            const int fkey);
 
     static std::vector<eSkillButton*> sInstances;
+
+    int mLevelReq = 1;
+    bool mLevelReqMet = true;
 
     int mSchoice = -1;
 

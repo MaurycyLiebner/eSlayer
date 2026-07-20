@@ -39,6 +39,14 @@ void eSkillButton::setSkillId(const int skillId) {
     updateText();
 }
 
+void eSkillButton::setLevelReq(const int levelReq) {
+    mLevelReq = levelReq;
+}
+
+void eSkillButton::setLevelReqMet(const bool met) {
+    mLevelReqMet = met;
+}
+
 void eSkillButton::setTopRightText(const std::string& text) {
     setText(mTopRight, text, eAlignment::top | eAlignment::right);
 }
@@ -71,7 +79,8 @@ bool eSkillButton::mouseEnterEvent(const eMouseEvent& e) {
     (void)e;
     const auto rect = globalRect();
     eHoverWidget::sSetHoverSkill(
-        mSkillId, mSchoice == -1, rect);
+        mSkillId, mSchoice == -1, rect,
+        mLevelReq, mLevelReqMet);
     return true;
 }
 

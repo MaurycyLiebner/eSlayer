@@ -1554,7 +1554,7 @@ int eStats::effectiveSkillLevel(const int skillId) const {
 
 int eStats::incSkillLevel(const int skillId) {
     const int level = baseSkillLevel(skillId);
-    uint8_t& rem = fBaseSkillLevels.fRemainingPoints;
+    uint8_t& rem = skillPoints();
     if(rem <= 0) return level;
     rem--;
     uint16_t& levelRef = fBaseSkillLevels[skillId];
@@ -1582,4 +1582,12 @@ bool eStats::itemReqsMet(const eItem& item) const {
     if(fStrength < str) return false;
     if(fDexterity < dex) return false;
     return true;
+}
+
+uint8_t& eStats::skillPoints() {
+    return fBaseSkillLevels.fRemainingPoints;
+}
+
+const uint8_t eStats::skillPoints() const {
+    return fBaseSkillLevels.fRemainingPoints;
 }

@@ -329,7 +329,8 @@ eModsCollection eHoverWidget::calculateTotalModifiers(
 
 void eHoverWidget::setHoverSkill(
     const int skillId, const bool showNextLevel,
-    const SDL_Rect& rect) {
+    const SDL_Rect& rect, const int levelReq,
+    const bool levelReqMet) {
     mHoverItemId = -1;
     mHoverRect = rect;
     if(skillId < 0) {
@@ -343,6 +344,13 @@ void eHoverWidget::setHoverSkill(
         eHoverGenerator gen(res);
         gen.addText(r, name, eFontColor::green);
         gen.addText(r, desc, eFontColor::white);
+        if(levelReq > 1) {
+            auto levelReqText = eText::text(13, 13);
+            levelReqText = eStringHelpers::replaceAll(levelReqText, "%1", levelReq);
+            const auto color = levelReqMet ?
+                eFontColor::white : eFontColor::red;
+            gen.addText(r, levelReqText, color);
+        }
 
         const auto printMods = [&](const eModsCollection& mods) {
             for(const auto& it : mods) {
@@ -707,9 +715,11 @@ void eHoverWidget::sSetHoverItem(
 
 void eHoverWidget::sSetHoverSkill(
     const int skillId, const bool showNextLevel,
-    const SDL_Rect& rect) {
+    const SDL_Rect& rect, const int levelReq,
+    const bool levelReqMet) {
     if(!sInstance) return;
-    sInstance->setHoverSkill(skillId, showNextLevel, rect);
+    sInstance->setHoverSkill(skillId, showNextLevel,
+                             rect, levelReq, levelReqMet);
 }
 
 void eHoverWidget::sSetGameTooltip(

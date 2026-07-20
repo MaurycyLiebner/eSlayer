@@ -258,6 +258,9 @@ struct ESLAYERHELPERS_API eStats {
     float manaCost(const int schoice) const;
     float cooldown(const int schoice) const;
     bool itemReqsMet(const eItem& item) const;
+
+    uint8_t& skillPoints();
+    const uint8_t skillPoints() const;
 };
 
 #endif // ESTATS_H
