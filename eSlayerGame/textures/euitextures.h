@@ -54,6 +54,10 @@ public:
     static std::shared_ptr<eTexture>
     sNewTrueIcon;
     static std::shared_ptr<eTexture>
+    sNewFalseSmallIcon;
+    static std::shared_ptr<eTexture>
+    sNewTrueSmallIcon;
+    static std::shared_ptr<eTexture>
     sSkillsIcon;
     static std::shared_ptr<eTexture>
     sLifeBar1;

@@ -46,15 +46,6 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     addWidget(mLeftSkillButton);
     mLeftSkillButton->setSkillId(leftSkillId);
 
-    mNewStats = new eTextureCheckButton(window());
-    mNewStats->initialize(eUITextures::sNewFalseIcon,
-                          eUITextures::sNewFalseIcon);
-    mNewStats->setTooltip(eText::text(18, 17));
-    mNewStats->setCheckAction([attrsA](const bool c) {
-        if(attrsA) attrsA(c);
-    });
-    addWidget(mNewStats);
-
     const auto& res = resolution();
     const int p = res.tinyPadding();
 
@@ -180,6 +171,17 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     staminaWid->stackHorizontally();
     staminaWid->fitContent();
 
+    staminaBelt->addWidget(staminaWid);
+
+    mNewStats = new eTextureCheckButton(window());
+    mNewStats->initialize(eUITextures::sNewFalseSmallIcon,
+                          eUITextures::sNewFalseSmallIcon);
+    mNewStats->setTooltip(eText::text(18, 17));
+    mNewStats->setCheckAction([attrsA](const bool c) {
+        if(attrsA) attrsA(c);
+    });
+    staminaBelt->addWidget(mNewStats);
+
     mBelt = new eInventoryBagpackWidget(window());
     mBelt->initialize(mClientId,
                       eEquipment::fBeltHPotionSlots,
@@ -187,8 +189,16 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
                       mEq, eBagpackType::belt,
                       eHoverItemType::regular);
 
-    staminaBelt->addWidget(staminaWid);
     staminaBelt->addWidget(mBelt);
+
+    mNewSkill = new eTextureCheckButton(window());
+    mNewSkill->initialize(eUITextures::sNewFalseSmallIcon,
+                          eUITextures::sNewFalseSmallIcon);
+    mNewSkill->setTooltip(eText::text(18, 18));
+    mNewSkill->setCheckAction([skillA](const bool c) {
+        if(skillA) skillA(c);
+    });
+    staminaBelt->addWidget(mNewSkill);
 
     const auto portalButton = new eTextureCheckButton(window());
     portalButton->setTooltip(eText::text(18, 0));
@@ -208,15 +218,6 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     centerWid->align(eAlignment::bottom | eAlignment::hcenter);
     addWidget(centerWid);
 
-    mNewSkill = new eTextureCheckButton(window());
-    mNewSkill->initialize(eUITextures::sNewFalseIcon,
-                          eUITextures::sNewFalseIcon);
-    mNewSkill->setTooltip(eText::text(18, 18));
-    mNewSkill->setCheckAction([skillA](const bool c) {
-        if(skillA) skillA(c);
-    });
-    addWidget(mNewSkill);
-
     mRightSkillButton = new eSkillButton(window());
     mRightSkillButton->initialize(static_cast<int>(eSkillChoice::right));
     mRightSkillButton->setPressAction(rightSkillA);
@@ -227,8 +228,6 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     fitContent();
     mLeftSkillButton->align(eAlignment::bottom);
     mRightSkillButton->align(eAlignment::bottom);
-    mNewStats->align(eAlignment::bottom);
-    mNewSkill->align(eAlignment::bottom);
 }
 
 void eBottomWidget::setLeftSkill(const int skillId) {
@@ -309,11 +308,11 @@ void eBottomWidget::paintEvent(ePainter& p) {
     if(mNewStatsEnabled != statsEnabled) {
         mNewStatsEnabled = statsEnabled;
         if(statsEnabled) {
-            mNewStats->initialize(eUITextures::sNewTrueIcon,
-                                  eUITextures::sNewTrueIcon);
+            mNewStats->initialize(eUITextures::sNewTrueSmallIcon,
+                                  eUITextures::sNewTrueSmallIcon);
         } else {
-            mNewStats->initialize(eUITextures::sNewFalseIcon,
-                                  eUITextures::sNewFalseIcon);
+            mNewStats->initialize(eUITextures::sNewFalseSmallIcon,
+                                  eUITextures::sNewFalseSmallIcon);
         }
     }
     const auto& skills = mStats.fBaseSkillLevels;
@@ -321,11 +320,11 @@ void eBottomWidget::paintEvent(ePainter& p) {
     if(mNewSkillEnabled != skillEnabled) {
         mNewSkillEnabled = skillEnabled;
         if(skillEnabled) {
-            mNewSkill->initialize(eUITextures::sNewTrueIcon,
-                                  eUITextures::sNewTrueIcon);
+            mNewSkill->initialize(eUITextures::sNewTrueSmallIcon,
+                                  eUITextures::sNewTrueSmallIcon);
         } else {
-            mNewSkill->initialize(eUITextures::sNewFalseIcon,
-                                  eUITextures::sNewFalseIcon);
+            mNewSkill->initialize(eUITextures::sNewFalseSmallIcon,
+                                  eUITextures::sNewFalseSmallIcon);
         }
     }
 }

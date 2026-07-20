@@ -40,6 +40,10 @@ std::shared_ptr<eTexture>
 eUITextures::sNewFalseIcon;
 std::shared_ptr<eTexture>
 eUITextures::sNewTrueIcon;
+std::shared_ptr<eTexture>
+eUITextures::sNewFalseSmallIcon;
+std::shared_ptr<eTexture>
+eUITextures::sNewTrueSmallIcon;
 
 std::shared_ptr<eTexture>
 eUITextures::sLifeBar1;
@@ -151,6 +155,8 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     sGameMenuIcon = eFileLoader::readTexture(r, dir, "ui/gameMenu" + suffix + ".png");
     sNewFalseIcon = eFileLoader::readTexture(r, dir, "ui/new_button_false" + suffix + ".png");
     sNewTrueIcon = eFileLoader::readTexture(r, dir, "ui/new_button_true" + suffix + ".png");
+    sNewFalseSmallIcon = eFileLoader::readTexture(r, dir, "ui/new_small_button_false" + suffix + ".png");
+    sNewTrueSmallIcon = eFileLoader::readTexture(r, dir, "ui/new_small_button_true" + suffix + ".png");
 
     sAmuletSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotAmulet" + suffix + ".png");
     sArmorSlot = eFileLoader::readTexture(r, dir, "ui/inventory/itemSlotArmor" + suffix + ".png");
