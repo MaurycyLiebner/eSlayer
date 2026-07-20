@@ -69,6 +69,7 @@ void eRainEffect::initialize(
 }
 
 void eRainEffect::stop() {
+    if(mFade) return;
     mFade = true;
     mRemTime = mCount/mFadeSpeed;
 }
