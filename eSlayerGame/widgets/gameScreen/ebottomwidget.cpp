@@ -226,8 +226,11 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
 
     stackHorizontally();
     fitContent();
+    const int hp = res.hugePadding();
     mLeftSkillButton->align(eAlignment::bottom);
+    mLeftSkillButton->setY(mLeftSkillButton->y() - hp);
     mRightSkillButton->align(eAlignment::bottom);
+    mRightSkillButton->setY(mRightSkillButton->y() - hp);
 }
 
 void eBottomWidget::setLeftSkill(const int skillId) {
