@@ -56,3 +56,12 @@ void eSkillLevels::incClassSkillLevels(const int classId, const int by) {
 void eSkillLevels::incSkillLevel(const int by, const int skillId) {
     (*this)[skillId] += by;
 }
+
+int eSkillLevels::totalPoints() const {
+    int result = fRemainingPoints;
+    for(const auto& skill : *this) {
+        if(skill.first <= 0) continue;
+        result += 1 + skill.second;
+    }
+    return result;
+}

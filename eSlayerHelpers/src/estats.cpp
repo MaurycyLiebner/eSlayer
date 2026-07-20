@@ -11,6 +11,7 @@
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/eclasses.h"
+#include "eSlayerHelpers/eskilltrees.h"
 
 uint32_t eAura::sNextId = 1;
 
@@ -1581,6 +1582,30 @@ bool eStats::itemReqsMet(const eItem& item) const {
     if(fLevel < level) return false;
     if(fStrength < str) return false;
     if(fDexterity < dex) return false;
+    return true;
+}
+
+bool eStats::validLevelsChange(const eSkillLevels& levels) const {
+    const auto fromTotal = fBaseSkillLevels.totalPoints();
+    const auto toTotal = levels.totalPoints();
+    if(fromTotal != toTotal) return false;
+    const auto& class_ = eClasses::sClasses.get(fClass);
+    for(const auto& it : levels) {
+        const auto skillId = it.first;
+        if(skillId == 0) continue;
+        const bool r = class_.isClassSkill(skillId);
+        if(!r) return false;
+        for(const auto skillTreeId : class_.fSkillTrees) {
+            const auto& skillTree = eSkillTrees::sTrees.get(skillTreeId);
+            for(const auto& skill : skillTree.fSkills) {
+                if(skill.fSkillId != skillId) continue;
+                if(skill.fLevelReq > fLevel) return false;
+                for(const auto p : skill.fPrerequisites) {
+                    if(levels.skillLevel(p) < 0) return false;
+                }
+            }
+        }
+    }
     return true;
 }
 

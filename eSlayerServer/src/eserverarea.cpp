@@ -1567,7 +1567,9 @@ void eServerArea::changeSkillLevels(
     const uint32_t clientId, const eSkillLevels& skillLevels) {
     const auto u = unit(clientId);
     if(!u) return;
-    u->setSkillLevels(skillLevels);
+    const auto& stats = u->stats();
+    const bool r = stats.validLevelsChange(skillLevels);
+    if(r) u->setSkillLevels(skillLevels);
 }
 
 void eServerArea::consumePotion(

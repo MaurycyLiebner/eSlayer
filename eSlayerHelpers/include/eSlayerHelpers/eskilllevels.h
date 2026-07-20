@@ -21,6 +21,8 @@ struct ESLAYERHELPERS_API eSkillLevels :
     void incSkillLevels(const int by);
     void incClassSkillLevels(const int classId, const int by);
     void incSkillLevel(const int by, const int skillId);
+
+    int totalPoints() const;
 };
 
 #endif // ESKILLLEVELS_H
