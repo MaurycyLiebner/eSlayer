@@ -8,32 +8,6 @@
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/eequipment.h>
 
-class eTreeColumn {
-public:
-    void add(eSkillButton* const button) {
-        mButtons.emplace_back(button);
-    }
-
-    void align() {
-        std::sort(mButtons.begin(), mButtons.end(),
-                  [](eSkillButton* const b1,
-                     eSkillButton* const b2) {
-            return b1->y() < b2->y();
-        });
-
-        int minY = 0;
-        for(const auto b : mButtons) {
-            const int y = b->y();
-            if(y < minY) {
-                b->setY(minY);
-            }
-            minY = b->y() + 1.5*b->height();
-        }
-    }
-private:
-    std::vector<eSkillButton*> mButtons;
-};
-
 void eSkillTreeWidget::initialize(
     const int skillTreeId, eStats& stats) {
     setNoPadding();
@@ -49,8 +23,8 @@ void eSkillTreeWidget::initialize(
         maxCol = std::max(maxCol, skill.fColumn);
     }
 
-    std::vector<eTreeColumn> columns;
-    columns.resize(maxCol + 1);
+    std::vector<int> columnsMinY;
+    columnsMinY.resize(maxCol + 1, 0);
 
     std::map<int, eSkillButton*> skillMap;
 
@@ -71,10 +45,13 @@ void eSkillTreeWidget::initialize(
         addWidget(button);
         const int bdim = button->width();
         const int colId = skill.fColumn;
-        auto& col = columns[colId];
-        col.add(button);
+        int& minY = columnsMinY[colId];
         button->setX(colId*(w - bdim)/maxCol);
-        button->setY(skill.fLevelReq*(h - bdim)/skillTree.fMaxLevelReq);
+        const float levelFrac = float(skill.fLevelReq)/skillTree.fMaxLevelReq;
+        int y = levelFrac*(h - bdim);
+        y = std::max(minY, y);
+        button->setY(y);
+        minY = y + 3.f*bdim/2.f;
     }
 
     for(const auto& skill : skillTree.fSkills) {
@@ -87,10 +64,6 @@ void eSkillTreeWidget::initialize(
             const auto req = it->second;
             mPrerequisites.emplace_back(b, req);
         }
-    }
-
-    for(auto& col : columns) {
-        col.align();
     }
 
     resize(w, h);
@@ -107,7 +80,8 @@ void eSkillTreeWidget::paintEvent(ePainter& p) {
         const auto from = b2->center();
         const auto to = b1->center();
         const SDL_FPoint toX{to.x, from.y};
+        const SDL_FPoint fromX{to.x, from.y - 0.5f*thick};
         p.drawLine(from, toX, thick, color);
-        p.drawLine(toX, to, thick, color);
+        p.drawLine(fromX, to, thick, color);
     }
 }
