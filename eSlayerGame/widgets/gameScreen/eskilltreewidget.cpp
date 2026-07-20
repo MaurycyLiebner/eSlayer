@@ -149,10 +149,14 @@ void eSkillTreeWidget::paintEvent(ePainter& p) {
         const auto b2 = pr.second;
         const auto from = b2->center();
         const auto to = b1->center();
-        const SDL_FPoint toX{to.x, from.y};
-        const SDL_FPoint fromX{to.x, from.y - 0.5f*thick};
-        p.drawLine(from, toX, thick, color);
-        p.drawLine(fromX, to, thick, color);
+        const auto midX = 0.5f*(to.x + from.x);
+        const SDL_FPoint to1{midX, from.y};
+        const SDL_FPoint from1{to1.x, to1.y - 0.5f*thick};
+        const SDL_FPoint to2{midX, to.y};
+        const SDL_FPoint from2{to2.x - 0.5f*thick, to2.y};
+        p.drawLine(from, to1, thick, color);
+        p.drawLine(from1, to2, thick, color);
+        p.drawLine(from2, to, thick, color);
     }
 }
 
