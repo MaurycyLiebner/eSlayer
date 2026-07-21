@@ -27,8 +27,13 @@ void eComplexAction::setChild(const std::shared_ptr<eUnitAction>& c) {
 }
 
 bool eComplexAction::attack(const eAttackData& target) {
-    if(!mUnit.skillReady(target.fSkill)) return true;
-    mUnit.useSkill(target.fSkill);
+    const bool r = attackBase(target);
+    if(r) mUnit.useSkill(target.fSkill);
+    return r;
+}
+
+bool eComplexAction::attackBase(const eAttackData& target) {
+    if(!mUnit.skillReady(target.fSkill)) return false;
     const auto& data = mUnit.data();
     const int skillId = mUnit.skillId(target.fSkill);
     const auto& uskill = data.getSkill(skillId);
@@ -354,10 +359,16 @@ bool eComplexAction::spawnNova(
     mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
+    auto toDir = dir;
+    if(toDir.length() > skill.fCastRange) {
+        toDir.normalize(skill.fCastRange);
+    }
+    const auto toReal = from + toDir;
     const float radius = mUnit.radius(schoice, wchoice);
     const bool continuousDamage = false;
     eHitData data;
     hitData(schoice, wchoice, data);
+    data.fTo = toReal;
     if(continuousDamage) {
         data.fDamage = data.fDamage/25.f;
     }
@@ -372,8 +383,6 @@ bool eComplexAction::spawnNova(
         attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
-
-    return true;
 }
 
 bool eComplexAction::summon(
@@ -389,16 +398,28 @@ bool eComplexAction::summon(
     auto& area = mArea;
     const auto mods = mUnit.skillModifiers(
         schoice, eWeaponChoice::left);
+
+    auto toDir = dir;
+    if(toDir.length() > skill.fCastRange) {
+        toDir.normalize(skill.fCastRange);
+    }
+    const auto toReal = from + toDir;
+
+    if(skill.fTargetCorpse) {
+        const auto corpseId = mArea.nearestCorpse(toReal);
+        if(!corpseId) return false;
+    }
     const auto a = [&area, charId, &skill, mods,
-                    dir, from, maxCount]() {
+                    toReal, from, maxCount]() {
         const auto unit = area.unit(charId);
         if(!unit) return;
-        auto toDir = dir;
-        if(toDir.length() > skill.fCastRange) {
-            toDir.normalize(skill.fCastRange);
+        if(skill.fTargetCorpse) {
+            const auto corpseId = area.nearestCorpse(toReal);
+            if(!corpseId) return;
+            area.summon(*unit, corpseId, skill.fUnitId, maxCount, mods);
+        } else {
+            area.summon(*unit, toReal, skill.fUnitId, maxCount, mods);
         }
-        const auto to = from + toDir;
-        area.summon(*unit, to, skill.fUnitId, maxCount, mods);
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

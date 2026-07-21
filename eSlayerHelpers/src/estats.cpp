@@ -155,6 +155,9 @@ struct eSkillStatsHelper {
     eDamage fDmgMultMin{1.f, 1.f, 1.f, 1.f, 1.f};
     eDamage fDmgMultMax{1.f, 1.f, 1.f, 1.f, 1.f};
 
+    float fHealMin = 0.f;
+    float fHealMax = 0.f;
+
     float fPoisonBitRateLW = 0.f;
     float fPoisonBitRateRW = 0.f;
     float fPoisonFrameLengthLW = 0.f;
@@ -171,6 +174,7 @@ struct eSkillStatsHelper {
         case eSkillType::missile:
         case eSkillType::wall:
         case eSkillType::nova:
+        case eSkillType::area:
         case eSkillType::summon:
             return src == eModifierSource::skill ||
                    type == eModifierType::fireSkillDamage ||
@@ -390,6 +394,16 @@ struct eSkillStatsHelper {
             if(rw) {
                 fSkillStats.fSpectralHitMinRW += 0.01f*mod.fValue1;
                 fSkillStats.fSpectralHitMaxRW += 0.01f*mod.fValue2;
+            }
+        } break;
+        case eModifierType::heal: {
+            if(lw) {
+                fSkillStats.fHealMinLW += mod.fValue1;
+                fSkillStats.fHealMaxLW += mod.fValue2;
+            }
+            if(rw) {
+                fSkillStats.fHealMinRW += mod.fValue1;
+                fSkillStats.fHealMaxRW += mod.fValue2;
             }
         } break;
         default:
@@ -796,6 +810,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         case eModifierType::curesPoison:
         case eModifierType::curesCold:
+
+        case eModifierType::heal:
             break;
         }
     };
@@ -1090,6 +1106,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::manaBurn:
         case eModifierType::multiShot:
         case eModifierType::spectralHit:
+
+        case eModifierType::heal:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

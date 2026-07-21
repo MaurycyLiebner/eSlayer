@@ -102,5 +102,11 @@ void eUnitsInfo::load() {
     for(const auto& it : eSkills::sSkills) {
         auto& skill = it.fValue;
         skill.fUnitId = sUnits.id(skill.fUnitStr);
+        if(skill.fType == eSkillType::summon) {
+            if(skill.fUnitId < 0) {
+                eRuntimeThrow("Unrecognized summon character \"" +
+                              skill.fUnitStr + "\".");
+            }
+        }
     }
 }

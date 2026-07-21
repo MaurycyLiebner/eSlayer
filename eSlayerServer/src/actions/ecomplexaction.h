@@ -21,6 +21,7 @@ struct eHitData {
     eWeaponChoice fWChoice;
 
     ePointF fFrom;
+    ePointF fTo;
     bool fKnockback = false;
 
     float fLifeSteal = 0.f;
@@ -32,6 +33,8 @@ struct eHitData {
 
     float fSplashDmg = 0.f;
     eDamage fDamage;
+
+    float fHeal = 0.f;
 
     float fColdLength = 0.f;
     float fFreezeLength = 0.f;
@@ -62,6 +65,7 @@ protected:
                      const eWeaponChoice wchoice);
     bool hasChild() const { return mChild.get(); }
 private:
+    bool attackBase(const eAttackData& target);
     bool hitData(const int schoice,
                  const eWeaponChoice wchoice,
                  eHitData& data);

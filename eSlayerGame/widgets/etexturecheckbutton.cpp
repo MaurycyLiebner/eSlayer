@@ -14,6 +14,7 @@ void eTextureCheckButton::paintEvent(ePainter& p) {
     const bool c = checked();
     const bool h = hovered();
     const auto& tex = c ? mChecked : mUnchecked;
+    if(!tex) return;
     p.drawTexture(0, 0, tex);
     if(h) {
         tex->setBlendMode(SDL_BLENDMODE_ADD);

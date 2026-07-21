@@ -100,7 +100,9 @@ gModifierTypeToString = {
 
     { eModifierType::allClassSkills, "allClassSkills" },
     { eModifierType::classSkill, "classSkill" },
-    { eModifierType::skill, "skill" }
+    { eModifierType::skill, "skill" },
+
+    { eModifierType::heal, "heal" }
 };
 
 std::map<std::string, eModifierType>
@@ -132,6 +134,8 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::dealsPhysicalDamage:
 
     case eModifierType::spectralHit:
+
+    case eModifierType::heal:
         return eModValuesUsage::value1 |
                eModValuesUsage::value2;
 
@@ -271,6 +275,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::dealsPhysicalDamage:
 
     case eModifierType::spectralHit:
+
+    case eModifierType::heal:
         return "min";
     case eModifierType::damagePoison:
         return "damage";
@@ -368,6 +374,8 @@ std::string eModifier::value2Name() const {
     case eModifierType::dealsPhysicalDamage:
 
     case eModifierType::spectralHit:
+
+    case eModifierType::heal:
         return "max";
     case eModifierType::damagePoison:
         return "duration";
@@ -657,6 +665,8 @@ bool eModifierHelpers::isPercent(
     case eModifierType::allClassSkills:
     case eModifierType::classSkill:
     case eModifierType::skill:
+
+    case eModifierType::heal:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

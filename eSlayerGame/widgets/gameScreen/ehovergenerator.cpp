@@ -139,6 +139,8 @@ bool addPlus(const float value,
 
     case eModifierType::curesPoison:
     case eModifierType::curesCold:
+
+    case eModifierType::heal:
         return false;
     }
     return false;

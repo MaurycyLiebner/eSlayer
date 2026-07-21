@@ -14,7 +14,8 @@ enum class eSkillType : uint8_t {
     summon,
     passive,
     aura,
-    boostCurse
+    boostCurse,
+    area
 };
 
 struct eSynergy {
@@ -35,6 +36,7 @@ enum class eAuraTarget;
 
 struct eSkill {
     eSkillType fType;
+    bool fTargetCorpse;
 
     std::string fIcon;
     int fIconId;

@@ -41,7 +41,7 @@ struct ePotionHealing {
 
 enum eUnitType {
     slayer,
-    body,
+    slayerBody,
     mercenary,
     summoned,
     normal,
@@ -72,6 +72,8 @@ public:
                 eServerArea& area);
 
     bool isSlayer() const { return mType == eUnitType::slayer; }
+
+    bool isCorpse() const;
 
     bool aggressive() const { return mAggressive; }
 
@@ -236,6 +238,10 @@ public:
                          const eWeaponChoice wchoice);
     static eDamage attackDamage(const eSkillStats& stats,
                                 const eWeaponChoice wchoice);
+    float heal(const int schoice,
+               const eWeaponChoice wchoice);
+    static float heal(const eSkillStats& stats,
+                      const eWeaponChoice wchoice);
 
     float mana() const { return mStats.fManaF; }
     float stamina() const { return mStats.fStaminaF; }
@@ -295,6 +301,7 @@ public:
     void dieAndCast(const ePointF& from);
 
     void die(eExplodeType type = eExplodeType::none);
+    void explodeCorpse();
     void respawn();
 
     void recalculateStats();

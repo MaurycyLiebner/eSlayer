@@ -201,6 +201,11 @@ public:
                 const int unitId,
                 const int maxCount,
                 const std::vector<eModifier>& mods);
+    void summon(eServerUnit& by,
+                const uint32_t corpseId,
+                const int unitId,
+                const int maxCount,
+                const std::vector<eModifier>& mods);
     bool summonMerc(const uint32_t clientId,
                     eMercenary merc);
     bool castChance(eServerUnit& by,
@@ -245,6 +250,8 @@ public:
     bool requestSeller(const uint32_t clientId,
                        const uint32_t sellerId,
                        eSeller& seller);
+
+    uint32_t nearestCorpse(const ePointF& pos) const;
 
     std::optional<eFollowersBase> followersUpdate(
         const uint32_t clientId);

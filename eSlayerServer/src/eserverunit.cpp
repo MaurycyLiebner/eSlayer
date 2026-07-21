@@ -5,11 +5,12 @@
 #include "actions/eexplodeaction.h"
 #include "eserverarea.h"
 
-#include <eSlayerHelpers/emovementhandlerbase.h>
-#include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eitemsdata.h>
 #include <eSlayerHelpers/emercenaries.h>
+#include <eSlayerHelpers/emovementhandlerbase.h>
+#include <eSlayerHelpers/erunsettings.h>
+#include <eSlayerHelpers/especialanim.h>
 
 std::atomic<uint32_t> eServerUnit::sNextCharId = 1;
 
@@ -21,6 +22,13 @@ eServerUnit::eServerUnit(const eUnitType type,
     mArea(&area),
     mType(type),
     mHandler(*this, unitTypeId) {}
+
+bool eServerUnit::isCorpse() const {
+    if(!mDead) return false;
+    if(mType == eUnitType::slayer) return false;
+    if(mType == eUnitType::slayerBody) return false;
+    return !eSpecialAnim::isSpecial(fAnim);
+}
 
 bool eServerUnit::hitData(
     const eSkillStats& skill,
@@ -42,6 +50,8 @@ bool eServerUnit::hitData(
 
     data.fSplashDmg = meeleSplashDamage(skill, wchoice);
     data.fDamage = attackDamage(skill, wchoice);
+
+    data.fHeal = heal(skill, wchoice);
 
     data.fColdLength = coldLength(skill, wchoice);
     data.fFreezeLength = freezeLength(skill, wchoice);
@@ -674,6 +684,23 @@ eDamage eServerUnit::attackDamage(
     return eDamage();
 }
 
+float eServerUnit::heal(const int schoice,
+                        const eWeaponChoice wchoice) {
+    const auto& skill = mStats.skill(schoice);
+    return heal(skill, wchoice);
+}
+
+float eServerUnit::heal(const eSkillStats& stats,
+                        const eWeaponChoice wchoice) {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return eRand::randF(stats.fHealMinLW, stats.fHealMaxLW);
+    case eWeaponChoice::right:
+        return eRand::randF(stats.fHealMinRW, stats.fHealMaxRW);
+    }
+    return 0.f;
+}
+
 void eServerUnit::increment(const float by) {
     {
         bool recalc = false;
@@ -1114,6 +1141,14 @@ void eServerUnit::die(eExplodeType type) {
             type, *this, *mArea);
         setChildAction(explode);
     }
+}
+
+void eServerUnit::explodeCorpse() {
+    const bool r = isCorpse();
+    if(!r) return;
+    const auto explode = std::make_shared<eExplodeAction>(
+        eExplodeType::flesh, *this, *mArea);
+    setChildAction(explode);
 }
 
 void eServerUnit::respawn() {

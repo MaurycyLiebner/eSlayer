@@ -1082,6 +1082,25 @@ bool eServerArea::requestSeller(
     return true;
 }
 
+uint32_t eServerArea::nearestCorpse(const ePointF& pos) const {
+    uint32_t result = 0;
+    const float maxDist = 3.f;
+    float minDist = maxDist;
+    const auto iter = [&](
+        const std::shared_ptr<eServerUnit>& u) {
+        const bool r = u->isCorpse();
+        if(!r) return false;
+        const auto& upos = u->fPos;
+        const float dist = ePointF::distance(upos, pos);
+        if(dist > minDist) return false;
+        minDist = dist;
+        result = u->fCharId;
+        return false;
+    };
+    iterateOverUnits(pos, maxDist, iter);
+    return result;
+}
+
 std::optional<eFollowersBase>
 eServerArea::followersUpdate(const uint32_t clientId) {
     const auto u = unit(clientId);
@@ -1176,7 +1195,7 @@ bool eServerArea::spawnBody(const uint32_t clientId,
     const auto& data = client->data();
     const int typeId = 0;
     const auto u = std::make_shared<eServerUnit>(
-        eUnitType::body, data, typeId, *this);
+        eUnitType::slayerBody, data, typeId, *this);
     eEquipment bodyEq;
     static_cast<eBodyEquipment&>(bodyEq) = beq;
     u->setEquipment(bodyEq, false);
@@ -1927,11 +1946,15 @@ void eServerArea::spawnArea(const ePointF& to,
                 const auto& u = unit(charId);
                 if(u->fHealth <= 0) continue;
                 const auto uteam = u->fTeamId;
-                if(!eTeams::areEnemies(team, uteam)) continue;
                 const auto& pos = u->fPos;
                 const float dist = ePointF::distance(pos, to);
                 if(dist > radius) continue;
-                u->getHit(data);
+                if(team == uteam) {
+                    u->restoreHealth(data.fHeal);
+                } else {
+                    if(!eTeams::areEnemies(team, uteam)) continue;
+                    u->getHit(data);
+                }
             }
         }
     }
@@ -1952,7 +1975,15 @@ void eServerArea::spawnNova(const eSkill& skill,
     const auto n = std::make_shared<eServerNova>();
     n->fTeamId = data.fAttackTeamId;
     n->fMissileType = skill.fMissileId;
-    n->fCenter = data.fFrom;
+    if(skill.fTargetCorpse) {
+        const auto corpseId = nearestCorpse(data.fTo);
+        if(!corpseId) return;
+        const auto c = unit(corpseId);
+        n->fCenter = c->fPos;
+        c->explodeCorpse();
+    } else {
+        n->fCenter = data.fFrom;
+    }
     n->fRadius = 0.f;
     n->fMaxRadius = radius;
     n->fSpeed = skill.fSpeed;
@@ -1976,6 +2007,18 @@ void eServerArea::spawnNova(const eSkill& skill,
         u.getHit(data);
     };
     addNova(n);
+}
+
+void eServerArea::summon(eServerUnit& by,
+                         const uint32_t corpseId,
+                         const int unitId,
+                         const int maxCount,
+                         const std::vector<eModifier>& mods) {
+    const auto corpse = unit(corpseId);
+    if(!corpse) return;
+    const auto& to = corpse->fPos;
+    summon(by, to, unitId, maxCount, mods);
+    planRemoveUnit(corpseId);
 }
 
 void eServerArea::summon(eServerUnit& by,
@@ -2118,6 +2161,7 @@ void eServerArea::cast(eServerUnit& by,
             summon(by, to, unitId, maxCount, {});
         }
     } break;
+    case eSkillType::area:
     case eSkillType::boostCurse: {
         const float radius = by.radius(o, wchoice);
         spawnArea(to, skill, data, radius, skill.fMissileId);
@@ -2258,7 +2302,7 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         sSlain.emplace_back(killed.fCharId);
         return;
     } break;
-    case eUnitType::body:
+    case eUnitType::slayerBody:
         return;
     case eUnitType::mercenary:
     case eUnitType::summoned:

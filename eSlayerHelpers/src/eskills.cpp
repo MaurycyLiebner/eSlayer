@@ -48,6 +48,7 @@ void eSkills::load() {
             skill.fSpeed = ePacket::toFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
             skill.fAngleAdjust = jdata.value("angleAdjust", false);
+            skill.fTargetCorpse = jdata.value("targetCorpse", false);
 
             if(typeStr == "attack") {
                 skill.fType = eSkillType::attack;
@@ -104,6 +105,13 @@ void eSkills::load() {
                     eRuntimeThrow("Invalid \"boostCurseTarget\" \"" + boostCurseTargetStr +
                                   "\" in \"" + dir + "/" + name + ".json\"");
                 }
+
+                skill.fAreaMissileStr = jdata.value("areaMissile", "none");
+            } else if(typeStr == "area") {
+                skill.fType = eSkillType::area;
+
+                const uint8_t time = jdata.value("time", 25u);
+                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
 
                 skill.fAreaMissileStr = jdata.value("areaMissile", "none");
             } else if(typeStr == "aura") {

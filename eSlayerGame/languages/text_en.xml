@@ -154,6 +154,7 @@
         <string id="68">%1 to %4 Skill Levels</string>
         <string id="69">%1 to %3 (%4 Only)</string>
         <string id="70">%1 to %3</string>
+        <string id="71">Heals %1 to %2 Life</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>
