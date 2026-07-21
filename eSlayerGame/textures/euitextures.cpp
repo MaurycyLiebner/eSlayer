@@ -208,24 +208,6 @@ void eUITextures::sLoad(SDL_Renderer* const r,
     }
 
     {
-        const auto path = "ui/skills/skills.json";
-        const auto jdata = eFileLoader::parse(dir, path);
-        const auto names = jdata.get<std::vector<std::string>>();
-
-        sSkillIcons.clear();
-        for(const auto& name : names) {
-            const auto path = "ui/skills/" + name + suffix + ".png";
-            const auto tex = eFileLoader::readTexture(r, dir, path);
-            sSkillIcons.add(name, tex);
-        }
-
-        for(const auto& it : eSkills::sSkills) {
-            auto& skill = it.fValue;
-            skill.fIconId = sSkillIcons.id(skill.fIcon);
-        }
-    }
-
-    {
         const auto path = "ui/quests/quests.json";
         const auto jdata = eFileLoader::parse(dir, path);
         const auto names = jdata.get<std::vector<std::string>>();
