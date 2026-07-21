@@ -37,6 +37,9 @@ void eClasses::load() {
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
             for(const auto& skillTree : skillTrees) {
                 const int id = eSkillTrees::sTrees.id(skillTree);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized skill tree \"" + skillTree + "\".");
+                }
                 class_.fSkillTrees.emplace(id);
             }
 
