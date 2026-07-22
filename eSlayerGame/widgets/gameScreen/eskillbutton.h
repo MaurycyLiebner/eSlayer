@@ -21,6 +21,9 @@ public:
     void setTopRightText(const std::string& text);
     void setBottomRightText(const std::string& text);
 
+    void setCooldown(const float time);
+    void setCooldownMax(const float maxTime);
+
     void updateText();
 
     SDL_FPoint center() const;
@@ -32,6 +35,7 @@ protected:
     bool mouseLeaveEvent(const eMouseEvent& e) override;
     bool mouseEnterEvent(const eMouseEvent& e) override;
     bool keyPressEvent(const eKeyPressEvent& e) override;
+    void paintEvent(ePainter& p) override;
 private:
     void setText(eLabel*& ptr,
                  const std::string& text,
@@ -56,6 +60,9 @@ private:
     eLabel* mBottomRight = nullptr;
 
     int mSkillId = 0;
+
+    float mCooldown = 0.f;
+    float mMaxCooldown = 0.f;
 };
 
 #endif // ESKILLBUTTON_H

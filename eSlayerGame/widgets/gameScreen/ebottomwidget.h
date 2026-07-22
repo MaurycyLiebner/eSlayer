@@ -71,8 +71,13 @@ private:
     const eAttributes& mAttrs;
     eEquipment& mEq;
 
+    int mLeftSkillId = 0;
+    int mRightSkillId = 0;
+
     eSkillButton* mLeftSkillButton = nullptr;
     eSkillButton* mRightSkillButton = nullptr;
+
+    std::map<int, float> mCooldown;
 
     eTextureCheckButton* mNewStats = nullptr;
     eTextureCheckButton* mNewSkill = nullptr;

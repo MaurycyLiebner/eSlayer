@@ -55,6 +55,14 @@ void eSkillButton::setBottomRightText(const std::string& text) {
     setText(mBottomRight, text, eAlignment::bottom | eAlignment::right);
 }
 
+void eSkillButton::setCooldown(const float time) {
+    mCooldown = time;
+}
+
+void eSkillButton::setCooldownMax(const float maxTime) {
+    mMaxCooldown = maxTime;
+}
+
 void eSkillButton::updateText() {
     if(mSchoice == static_cast<int>(eSkillChoice::left)) {
         updateText(sLeftMap);
@@ -113,6 +121,26 @@ bool eSkillButton::keyPressEvent(const eKeyPressEvent& e) {
         return false;
     }
     return true;
+}
+
+void eSkillButton::paintEvent(ePainter& p) {
+    if(mCooldown <= 0.f || mMaxCooldown <= 0.f) {
+        return eButtonBase::paintEvent(p);
+    }
+    const auto& tex = texture();
+    if(!tex) return;
+    const auto rect = eWidget::rect();
+    const auto align = textAlignment();
+    p.drawTexture(rect, tex, align);
+    const float frac = mCooldown/mMaxCooldown;
+    const int h = height();
+    const int w = width();
+    const int hfrac = frac*h;
+    const SDL_Rect clipRect{0, h - hfrac, w, hfrac};
+    p.setClipRect(&clipRect);
+    const eTextureColorHolder holder(true, 0.5f, 0.5f, 0.5f, 1.f, tex);
+    p.drawTexture(rect, tex, align);
+    p.setClipRect(nullptr);
 }
 
 void eSkillButton::setText(eLabel*& ptr,

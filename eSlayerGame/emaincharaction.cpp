@@ -169,6 +169,8 @@ void eMainCharAction::increment(const bool mousePressed,
 
     if(mMainChar->fHealth <= 0) return;
 
+    mStats.decCooldowns(by);
+
     float scaledBy = by;
 
     if(mMainChar->frozen() || mMainChar->cold()) {

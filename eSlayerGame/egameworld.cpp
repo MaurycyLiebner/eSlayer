@@ -155,9 +155,18 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& missiles = data.fMissiles;
     const auto& novas = data.fNovas;
     const auto& skillAreas = data.fSkillAreas;
+    const auto& usedSkills = data.fUsedSkills;
     const auto& newItems = data.fNewItems;
     const auto& removedItemIds = data.fRemovedItemIds;
     std::set<uint32_t> uPresent;
+
+    auto& stats = mainAct.stats();
+    for(const int skillId : usedSkills) {
+        const float cooldown = stats.cooldownBySkillId(skillId);
+        if(cooldown > 0.f) {
+            stats.fCooldowns[skillId] = cooldown*25.f;
+        }
+    }
 
     for(const auto& u : newUnits) {
         const uint32_t charId = u.fCharId;

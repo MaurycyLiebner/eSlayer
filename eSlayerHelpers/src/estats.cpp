@@ -1606,6 +1606,21 @@ float eStats::cooldown(const int schoice) const {
     return skillStats.fCooldown;
 }
 
+float eStats::cooldownBySkillId(const int skillId) const {
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int skillLevelId = fEffectiveSkillLevels.skillLevel(skillId);
+    if(skillLevelId < 0) return 0.f;
+    const auto& skillLevel = skill.skillLevel(skillLevelId);
+    const auto& skillMods = skillLevel.fTotalModifiers;
+    return skillMods.fCooldown;
+}
+
+void eStats::decCooldowns(const float by) {
+    for(auto& it : fCooldowns) {
+        it.second = std::max(0.f, it.second - by);
+    }
+}
+
 bool eStats::itemReqsMet(const eItem& item) const {
     const auto& data = eItemsData::get(item.fDataId);
     const int level = std::max(data.fLevelReq, item.fRequiredLevel);

@@ -368,6 +368,8 @@ public:
     void setArea(eServerArea& area);
     void setMercType(const int mercType);
     void setClass(const int classId);
+
+    std::set<int> takeUsedSkills();
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
@@ -440,6 +442,8 @@ private:
 
     std::map<uint32_t, uint16_t> mUpdateMap;
     bool mAttributesChanged = false;
+
+    std::set<int> mUsedSkills;
 };
 
 #endif // ESERVERUNIT_H

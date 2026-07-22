@@ -41,6 +41,7 @@ struct eClientData {
     eArea fArea;
     std::set<uint32_t> fKnownUnits;
     std::set<uint32_t> fKnownItems;
+    std::set<int> fUsedSkills;
     uint32_t fLatestMissile;
     uint32_t fLatestNova;
     uint32_t fLatestSkillArea;
@@ -75,6 +76,8 @@ public:
     void itemsData(const uint32_t clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);
+    void usedSkills(const uint32_t clientId,
+                    std::set<int>& usedSkills);
     std::vector<eMissile>
     missileData(const uint32_t clientId);
     std::vector<eNova>

@@ -31,6 +31,7 @@ struct ESLAYERHELPERS_API eRequestData {
     std::optional<eAttributes> fAttributes;
     uint8_t fRemainingSkillPoints;
     std::optional<eMercenary> fMerc;
+    std::set<int> fUsedSkills;
 
     bool read(ePacket& p, const uint32_t currentServerState);
     void write(ePacket& p) const;

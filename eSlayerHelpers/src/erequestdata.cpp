@@ -53,6 +53,8 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
         p >> a;
     }
 
+    p.read8(fUsedSkills);
+
     uint16_t nNewItems;
     p >> nNewItems;
     fNewItems.reserve(fNewItems.size() + nNewItems);
@@ -165,6 +167,8 @@ void eRequestData::write(ePacket& p) const {
     for(const auto& a : fSkillAreas) {
         p << a;
     }
+
+    p.write8(fUsedSkills);
 
     const uint16_t nNewItems = fNewItems.size();
     p << nNewItems;

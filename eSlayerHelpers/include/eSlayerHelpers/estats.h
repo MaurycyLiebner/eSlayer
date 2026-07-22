@@ -264,7 +264,11 @@ struct ESLAYERHELPERS_API eStats {
     int baseSkillLevel(const int skillId) const;
     int incSkillLevel(const int skillId);
     float manaCost(const int schoice) const;
+
     float cooldown(const int schoice) const;
+    float cooldownBySkillId(const int skillId) const;
+    void decCooldowns(const float by);
+
     bool itemReqsMet(const eItem& item) const;
     bool validLevelsChange(const eSkillLevels& levels) const;
 

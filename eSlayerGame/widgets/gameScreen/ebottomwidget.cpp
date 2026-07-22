@@ -45,6 +45,7 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     mLeftSkillButton->setPressAction(leftSkillA);
     addWidget(mLeftSkillButton);
     mLeftSkillButton->setSkillId(leftSkillId);
+    mLeftSkillId = leftSkillId;
 
     const auto& res = resolution();
     const int p = res.tinyPadding();
@@ -223,6 +224,7 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
     mRightSkillButton->setPressAction(rightSkillA);
     addWidget(mRightSkillButton);
     mRightSkillButton->setSkillId(rightSkillId);
+    mRightSkillId = rightSkillId;
 
     stackHorizontally();
     fitContent();
@@ -234,10 +236,12 @@ void eBottomWidget::initialize(const eAction& leftSkillA,
 }
 
 void eBottomWidget::setLeftSkill(const int skillId) {
+    mLeftSkillId = skillId;
     mLeftSkillButton->setSkillId(skillId);
 }
 
 void eBottomWidget::setRightSkill(const int skillId) {
+    mRightSkillId = skillId;
     mRightSkillButton->setSkillId(skillId);
 }
 
@@ -329,6 +333,31 @@ void eBottomWidget::paintEvent(ePainter& p) {
             mNewSkill->initialize(eUITextures::sNewFalseSmallIcon,
                                   eUITextures::sNewFalseSmallIcon);
         }
+    }
+
+    const auto& cs = mStats.fCooldowns;
+    {
+        const float maxCooldown = mStats.cooldown(static_cast<int>(eSkillChoice::left));
+        mLeftSkillButton->setCooldownMax(25.f*maxCooldown);
+
+        const auto it = cs.find(mLeftSkillId);
+        float cooldown = 0.f;
+        if(it != cs.end()) {
+            cooldown = it->second;
+        }
+        mLeftSkillButton->setCooldown(cooldown);
+    }
+
+    {
+        const float maxCooldown = mStats.cooldown(static_cast<int>(eSkillChoice::right));
+        mRightSkillButton->setCooldownMax(25.f*maxCooldown);
+
+        const auto it = cs.find(mRightSkillId);
+        float cooldown = 0.f;
+        if(it != cs.end()) {
+            cooldown = it->second;
+        }
+        mRightSkillButton->setCooldown(cooldown);
     }
 }
 

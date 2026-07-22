@@ -766,6 +766,13 @@ void eServerArea::itemsData(
     }
 }
 
+void eServerArea::usedSkills(const uint32_t clientId,
+                             std::set<int>& usedSkills) {
+    const auto client = unit(clientId);
+    if(!client) return;
+    usedSkills = client->takeUsedSkills();
+}
+
 eArea eServerArea::unitArea(const uint32_t charId) const {
     const auto u = unit(charId);
     if(!u) return {0, 0};
@@ -981,6 +988,7 @@ bool eServerArea::addClient(
     clientData.fSendQuests = srcData.fSendQuests;
     clientData.fMerc = srcData.fMerc;
     clientData.fFollowersState = srcData.fFollowersState;
+    clientData.fUsedSkills = srcData.fUsedSkills;
 
     return true;
 }

@@ -792,9 +792,8 @@ void eServerUnit::increment(const float by) {
         setCold(false);
     }
 
-    for(auto& it : mStats.fCooldowns) {
-        it.second = std::max(0.f, it.second - by);
-    }
+    mStats.decCooldowns(by);
+
     if(mAction) mAction->increment(scaledBy);
 
     if(mImmobilizeLength > 0.f) {
@@ -940,6 +939,10 @@ void eServerUnit::useSkill(const int schoice) {
     if(isSlayer()) {
         const float manaCost = mStats.manaCost(schoice);
         mStats.fManaF = std::max(0.f, mStats.fManaF - manaCost);
+
+        if(cooldown > 0.f) {
+            mUsedSkills.emplace(skillId);
+        }
     }
 }
 
@@ -1414,6 +1417,12 @@ void eServerUnit::setMercType(const int mercType) {
 
 void eServerUnit::setClass(const int classId) {
     mStats.fClass = classId;
+}
+
+std::set<int> eServerUnit::takeUsedSkills() {
+    std::set<int> result;
+    std::swap(result, mUsedSkills);
+    return std::move(result);
 }
 
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {

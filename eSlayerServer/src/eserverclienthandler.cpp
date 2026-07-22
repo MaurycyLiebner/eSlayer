@@ -25,6 +25,7 @@ bool eServerClientHandler::receiveData(
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
+    mArea->usedSkills(mClientId, data.fUsedSkills);
     const bool update = mArea->updateBoostsAuras(mClientId);
     data.fUpdateBoostsAuras = update;
     if(update) {
