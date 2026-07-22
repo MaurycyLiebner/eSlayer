@@ -1382,32 +1382,70 @@ void eGameWidget::paintEvent(ePainter& p) {
 
         auto& areas = mWorld.skillAreas();
         for(const auto& a : areas) {
+            const auto id = a->fId;
             const auto missileType = a->fMissileId;
-            if(missileType == 0) continue;
+            if(missileType == 0) {
+                areas.remove(a->fId);
+                continue;
+            }
             const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
             auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
             const int appearAnimId = missileInfo.appearAnimId();
             const int baseAnimId = missileInfo.baseAnimId();
             int animId = appearAnimId;
-            int appearFrames = 0;
-            if(appearAnimId >= 0) {
-                appearFrames = missileInfo.nFrames(appearAnimId);
-            }
-            int frame = a->fFrame++;
-            if(frame >= appearFrames) {
-                if(baseAnimId >= 0) {
-                    animId = baseAnimId;
-                    const int baseFrames = missileInfo.nFrames(baseAnimId);
-                    frame = (frame - appearFrames) % baseFrames;
-                    if(a->fRemTime < appearFrames) {
-                        animId = appearAnimId;
-                        frame = a->fRemTime;
+            int& frame = a->fFrame;
+            auto& state = a->fState;
+            switch(state) {
+            case eSkillAreaState::appear: {
+                int appearFrames = 0;
+                if(appearAnimId >= 0) {
+                    appearFrames = missileInfo.nFrames(appearAnimId);
+                }
+                if(frame >= appearFrames) {
+                    if(baseAnimId >= 0) {
+                        state = eSkillAreaState::base;
+                        frame = 0;
+                        animId = baseAnimId;
+                    } else {
+                        areas.remove(id);
+                        continue;
                     }
-                } else {
-                    areas.remove(a->fId);
+                }
+            } break;
+            case eSkillAreaState::base: {
+                animId = baseAnimId;
+                int baseFrames = 0;
+                if(baseAnimId >= 0) {
+                    baseFrames = missileInfo.nFrames(baseAnimId);
+                }
+                if(frame >= baseFrames) {
+                    int appearFrames = 0;
+                    if(appearAnimId >= 0) {
+                        appearFrames = missileInfo.nFrames(appearAnimId);
+                    }
+                    if(a->fRemTime < appearFrames) {
+                        state = eSkillAreaState::disappear;
+                        if(appearFrames > 0) {
+                            frame = appearFrames - 1;
+                            animId = appearAnimId;
+                        } else {
+                            areas.remove(id);
+                            continue;
+                        }
+                    } else {
+                        frame = 0;
+                    }
+                }
+            } break;
+            case eSkillAreaState::disappear: {
+                animId = appearAnimId;
+                if(frame <= 0) {
+                    areas.remove(id);
                     continue;
                 }
+            } break;
             }
+
             const float l = missileInfo.lighting();
             const bool lighting = l > 0.01f;
             if(lighting) {
@@ -1425,6 +1463,16 @@ void eGameWidget::paintEvent(ePainter& p) {
                                                        eRenderElementType::area,
                                                        std::static_pointer_cast<ePositioned>(a),
                                                        ftex, lighting});
+
+            switch(state) {
+            case eSkillAreaState::appear:
+            case eSkillAreaState::base:
+                frame++;
+                break;
+            case eSkillAreaState::disappear:
+                frame--;
+                break;
+            }
         }
 
         std::sort(renderElements.begin(), renderElements.end(),

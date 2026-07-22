@@ -34,8 +34,13 @@ struct eExtendedNova : public eNova {
     std::vector<std::shared_ptr<eExtendedMissile>> fMissiles;
 };
 
+enum class eSkillAreaState {
+    appear, base, disappear
+};
+
 struct eExtendedSkillArea : public eSkillArea {
     int fFrame = 0;
+    eSkillAreaState fState = eSkillAreaState::appear;
 };
 
 class eGameWorld {

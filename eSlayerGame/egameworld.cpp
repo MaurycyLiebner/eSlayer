@@ -297,8 +297,6 @@ void eGameWorld::simulateSkillAreas(const float by) {
     for(const auto& a : mSkillAreas) {
         float& time = a->fRemTime;
         time -= by;
-        if(time > 0.f) continue;
-        mSkillAreas.remove(a->fId);
     }
 }
 
