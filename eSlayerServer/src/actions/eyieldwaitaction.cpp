@@ -65,7 +65,10 @@ void eYieldWaitAction::increment(const float by) {
         shouldYield = true;
         return false;
     };
-    mArea.iterateOverUnits(mUnit.fPos, detectRadius, iter);
+    const bool immobilized = mUnit.immobilized();
+    if(!immobilized) {
+        mArea.iterateOverUnits(mUnit.fPos, detectRadius, iter);
+    }
 
     auto& h = mUnit.movementHandler();
     if(shouldYield) {
