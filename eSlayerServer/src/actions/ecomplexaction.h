@@ -39,6 +39,8 @@ struct eHitData {
     float fColdLength = 0.f;
     float fFreezeLength = 0.f;
 
+    float fImmobilizeLength = 0.f;
+
     float fManaBurn = 0.f;
 
     std::vector<eSkillStats> fOnAttack;

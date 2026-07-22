@@ -608,6 +608,7 @@ void eServerArea::increment(const float by) {
     for(const auto& a : mSkillAreas) {
         float& time = a->fRemTime;
         time -= by;
+        a->fIncrement();
         if(time > 0.f) continue;
         mSkillAreas.remove(a->fId);
     }
@@ -1926,43 +1927,34 @@ void eServerArea::spawnMissile(const ePointF& to,
 
 void eServerArea::spawnArea(const ePointF& to,
                             const eSkill& skill,
-                            const eHitData& data,
+                            eHitData data,
                             const float radius,
                             const int missileId) {
-    const int minX = to.fX - radius;
-    const int minY = to.fY - radius;
-    const int maxX = to.fX + radius;
-    const int maxY = to.fY + radius;
-    const auto minArea = mUnitAreas.posArea({minX, minY});
-    const auto maxArea = mUnitAreas.posArea({maxX, maxY});
-    const auto team = data.fAttackTeamId;
-    for(int x = minArea.fX; x <= maxArea.fX; x++) {
-        for(int y = minArea.fY; y <= maxArea.fY; y++) {
-            const eArea area{x, y};
-            const bool r = mUnitAreas.hasArea(area);
-            if(!r) continue;
-            const auto& set = mUnitAreas.at(area);
-            for(const uint32_t charId : set) {
-                const auto& u = unit(charId);
-                if(u->fHealth <= 0) continue;
-                const auto uteam = u->fTeamId;
-                const auto& pos = u->fPos;
-                const float dist = ePointF::distance(pos, to);
-                if(dist > radius) continue;
-                if(team == uteam) {
-                    u->restoreHealth(data.fHeal);
-                } else {
-                    if(!eTeams::areEnemies(team, uteam)) continue;
-                    u->getHit(data);
-                }
-            }
-        }
-    }
     const int area = skill.fAreaMissileId;
     if(area <= 0) return;
     const auto a = std::make_shared<eServerSkillArea>();
+    data.fDamage = data.fDamage/25.f;
+    data.fHeal /= 25.f;
+    a->fIncrement = [this, data, to, radius]() {
+        const auto team = data.fAttackTeamId;
+        iterateOverUnits(to, radius,
+                [&](const std::shared_ptr<eServerUnit>& u) {
+            if(u->fHealth <= 0) return false;
+            const auto uteam = u->fTeamId;
+            const auto& pos = u->fPos;
+            const float dist = ePointF::distance(pos, to);
+            if(dist > radius) return false;
+            if(team == uteam) {
+                u->restoreHealth(data.fHeal);
+            } else {
+                if(!eTeams::areEnemies(team, uteam)) return false;
+                u->getHit(data);
+            }
+            return false;
+        });
+    };
     a->fMissileId = area;
-    a->fRemTime = 25.f;
+    a->fRemTime = skill.fTime;
     a->fRadius = radius;
     a->fPos = to;
     addSkillArea(a);

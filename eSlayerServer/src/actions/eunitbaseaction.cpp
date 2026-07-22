@@ -57,12 +57,13 @@ void eUnitBaseAction::decide() {
         mArea.planRemoveUnit(mUnit.fCharId);
         return;
     }
-    if(mFleeFrom) {
+    const bool immobilized = mUnit.immobilized();
+    if(!immobilized && mFleeFrom) {
         const bool r = flee(*mFleeFrom);
         mFleeFrom = std::nullopt;
         if(r) return;
     }
-    if(mAttacking && mTanDistance > 0.f) {
+    if(!immobilized && mAttacking && mTanDistance > 0.f) {
         if(eRand::randChance(mTanChance)) {
             const auto u = mArea.unit(mAttacking);
             if(u) {
@@ -85,12 +86,12 @@ void eUnitBaseAction::decide() {
             const bool r = lookForAttackTarget();
             if(r) return;
         }
-        {
+        if(!immobilized) {
             const bool r = moveToEnemy(mAttackDist);
             if(r) return;
         }
     }
-    if(eRand::rand() % 2) {
+    if(!immobilized && eRand::rand() % 2) {
         walkAround(200.f);
     } else {
         wait(100.f);

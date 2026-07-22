@@ -181,6 +181,11 @@ public:
     static float freezeLength(const eSkillStats& stats,
                               const eWeaponChoice wchoice);
 
+    float immobilizeLength(const int schoice,
+                           const eWeaponChoice wchoice) const;
+    static float immobilizeLength(const eSkillStats& stats,
+                                  const eWeaponChoice wchoice);
+
     std::vector<eSkillStats> onAttack(
         const int schoice, const eWeaponChoice wchoice) const;
     static std::vector<eSkillStats> onAttack(
@@ -326,6 +331,9 @@ public:
     void coldFor(const float frameLen);
     void freezeFor(const float frameLen);
 
+    void immobilizeFor(const float frameLen);
+    bool immobilized() const { return mImmobilizeLength > 0.f; }
+
     uint16_t requestUpdate(const uint32_t clientId);
     void update(const eUnitData::eShift shift);
     void updateAll();
@@ -413,6 +421,8 @@ private:
 
     float mColdLength = 0.f;
     float mFreezeLength = 0.f;
+
+    float mImmobilizeLength = 0.f;
 
     const float mDealsDamagePeriod = 50.f;
     float mDealsDamageCounter = 0.f;

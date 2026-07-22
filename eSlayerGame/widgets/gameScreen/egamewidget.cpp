@@ -1387,7 +1387,12 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(frame >= appearFrames) {
                 if(baseAnimId >= 0) {
                     animId = baseAnimId;
-                    frame -= appearFrames;
+                    const int baseFrames = missileInfo.nFrames(baseAnimId);
+                    frame = std::min(baseFrames - 1, frame - appearFrames);
+                    if(a->fRemTime < appearFrames) {
+                        animId = appearAnimId;
+                        frame = a->fRemTime;
+                    }
                 } else {
                     areas.remove(a->fId);
                     continue;

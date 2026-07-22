@@ -14,12 +14,22 @@ float ePacket::toFloatU8(const uint8_t v, const float max) {
     return std::clamp(max / u8max * v, 0.f, max);
 }
 
+float ePacket::roundFloatU8(const float v, const float max) {
+    const auto uv = fromFloatU8(v, max);
+    return toFloatU8(uv, max);
+}
+
 uint16_t ePacket::fromFloatU16(const float v, const float max) {
     return std::clamp(std::round(u16max / max * v), 0.f, u16max);
 }
 
 float ePacket::toFloatU16(const uint16_t v, const float max) {
     return std::clamp(max / u16max * v, 0.f, max);
+}
+
+float ePacket::roundFloatU16(const float v, const float max) {
+    const auto uv = fromFloatU16(v, max);
+    return toFloatU16(uv, max);
 }
 
 float ePacket::readFloatU8(const float max) {

@@ -111,6 +111,7 @@ enum class eModifierType : uint8_t {
     skill,
 
     heal,
+    immobilize,
 
     count
 };

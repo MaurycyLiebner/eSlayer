@@ -189,7 +189,7 @@ public:
                       const bool continuousDamage);
     void spawnArea(const ePointF& to,
                    const eSkill& skill,
-                   const eHitData& data,
+                   eHitData data,
                    const float radius,
                    const int missileId);
     void spawnNova(const eSkill& skill,

@@ -60,7 +60,8 @@ bool eComplexAction::attackBase(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(u->fPos, schoice, wchoice);
-        } else if(skill.fType == eSkillType::boostCurse) {
+        } else if(skill.fType == eSkillType::boostCurse ||
+                  skill.fType == eSkillType::area) {
             return spawnArea(u->fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(u->fPos, schoice);
@@ -108,7 +109,8 @@ bool eComplexAction::attackBase(const eAttackData& target) {
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
             return spawnMissile(target.fPos, schoice, wchoice);
-        } else if(skill.fType == eSkillType::boostCurse) {
+        } else if(skill.fType == eSkillType::boostCurse ||
+                  skill.fType == eSkillType::area) {
             return spawnArea(target.fPos, schoice, wchoice);
         } else if(skill.fType == eSkillType::summon) {
             return summon(target.fPos, schoice);
@@ -205,6 +207,7 @@ bool eComplexAction::getHit(const eHitData& data,
             }
             mUnit.coldFor(data.fColdLength);
             mUnit.freezeFor(data.fFreezeLength);
+            mUnit.immobilizeFor(data.fImmobilizeLength);
             const float dmg = mUnit.takeDamage(data.fDamage);
             stats.fManaF = std::max(0.f, stats.fManaF - dmg*data.fManaBurn);
             if(mUnit.fHealth <= 0) {

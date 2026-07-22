@@ -87,8 +87,10 @@ void eSkills::load() {
             } else if(typeStr == "boostCurse") {
                 skill.fType = eSkillType::boostCurse;
 
-                const uint8_t time = jdata.value("time", 25u);
-                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
+                const float time = jdata.value("time", 250.f);
+                skill.fTime = ePacket::roundFloatU8(time, eSkill::sTimeMax);
+
+                skill.fBoostCurseTime = jdata.value("curseTime", 250.f);
 
                 const auto boostCurseTypeStr = jdata.value("boostCurseType", "");
                 const int id = eBoostCurseTypes::sTypes.id(boostCurseTypeStr);
@@ -110,8 +112,8 @@ void eSkills::load() {
             } else if(typeStr == "area") {
                 skill.fType = eSkillType::area;
 
-                const uint8_t time = jdata.value("time", 25u);
-                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
+                const float time = jdata.value("time", 250.f);
+                skill.fTime = ePacket::roundFloatU8(time, eSkill::sTimeMax);
 
                 skill.fAreaMissileStr = jdata.value("areaMissile", "none");
             } else if(typeStr == "aura") {

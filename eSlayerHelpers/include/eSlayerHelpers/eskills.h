@@ -69,6 +69,7 @@ struct eSkill {
     float fSpeed;
     const static float sTimeMax;
     float fTime;
+    float fBoostCurseTime;
     float fMaxAngle;
     bool fAngleAdjust;
     float fCastRange;

@@ -22,6 +22,11 @@ eWalkAroundAction::sCreate(
 }
 
 void eWalkAroundAction::increment(const float by) {
+    auto& h = mUnit.movementHandler();
+    if(mUnit.immobilized()) {
+        h.stopMoving();
+        return finishAction();
+    }
     const bool a = mUnit.aggressive();
     const int anim = eMovementHandlerBase::sChooseAnim(
         mWalkId, mWalkReadyId, a);
@@ -31,7 +36,6 @@ void eWalkAroundAction::increment(const float by) {
         mUnit.incAnimId(5);
     }
 
-    auto& h = mUnit.movementHandler();
     const float changePeriod = 40.f;
     mDirChangeCounter += by;
     if(mMoveDir.length() == 0.f ||

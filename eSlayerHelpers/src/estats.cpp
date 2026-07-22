@@ -406,6 +406,14 @@ struct eSkillStatsHelper {
                 fSkillStats.fHealMaxRW += mod.fValue2;
             }
         } break;
+        case eModifierType::immobilize: {
+            if(lw) {
+                fSkillStats.fImmobilizeLengthLW += mod.fValue1;
+            }
+            if(rw) {
+                fSkillStats.fImmobilizeLengthRW += mod.fValue1;
+            }
+        } break;
         default:
             break;
         }
@@ -812,6 +820,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::curesCold:
 
         case eModifierType::heal:
+        case eModifierType::immobilize:
             break;
         }
     };
@@ -1108,6 +1117,7 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::spectralHit:
 
         case eModifierType::heal:
+        case eModifierType::immobilize:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:
@@ -1313,7 +1323,7 @@ void eStats::calculateSkill(eSkillStats& stats,
         auto& bc = stats.fBoostCurse.emplace_back();
         bc.fType = skill.fBoostCurseType;
         bc.fMissileId = skill.fMissileId;
-        bc.fTime = skill.fTime;
+        bc.fTime = skill.fBoostCurseTime;
         for(const auto& mod : skillMods) {
             bc.fMods.emplace_back(mod.second);
         }
@@ -1455,6 +1465,7 @@ bool eStats::canUseSkill(const int schoice) const {
         return false;
     case eSkillType::aura:
         return false;
+    case eSkillType::area:
     case eSkillType::boostCurse:
         return true;
     }
@@ -1471,6 +1482,7 @@ bool eStats::rangedAttack(const int schoice) const {
     return skillType == eSkillType::missile ||
            skillType == eSkillType::nova ||
            skillType == eSkillType::wall ||
+           skillType == eSkillType::area ||
            skillType == eSkillType::boostCurse ||
            skillType == eSkillType::summon ||
            skillType == eSkillType::shoot ||
@@ -1503,6 +1515,7 @@ float eStats::attackRange(const int schoice,
         return meeleDist;
     } else if(skill.fType == eSkillType::missile ||
               skill.fType == eSkillType::wall ||
+              skill.fType == eSkillType::area ||
               skill.fType == eSkillType::boostCurse ||
               skill.fType == eSkillType::nova ||
               skill.fType == eSkillType::summon) {

@@ -56,6 +56,8 @@ bool eServerUnit::hitData(
     data.fColdLength = coldLength(skill, wchoice);
     data.fFreezeLength = freezeLength(skill, wchoice);
 
+    data.fImmobilizeLength = immobilizeLength(skill, wchoice);
+
     data.fOnAttack = onAttack(skill, wchoice);
     data.fOnStriking = onStriking(skill, wchoice);
     data.fOnKill = onKill(skill, wchoice);
@@ -441,6 +443,24 @@ float eServerUnit::freezeLength(
     return 0.f;
 }
 
+float eServerUnit::immobilizeLength(
+    const int schoice, const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return immobilizeLength(skill, wchoice);
+}
+
+float eServerUnit::immobilizeLength(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fImmobilizeLengthLW;
+    case eWeaponChoice::right:
+        return stats.fImmobilizeLengthRW;
+    }
+    return 0.f;
+}
+
 std::vector<eSkillStats> eServerUnit::onAttack(
     const int schoice, const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);
@@ -776,7 +796,11 @@ void eServerUnit::increment(const float by) {
         it.second = std::max(0.f, it.second - by);
     }
     if(mAction) mAction->increment(scaledBy);
-    if(fBlockingActionTime <= 0.f) {
+
+    if(mImmobilizeLength > 0.f) {
+        mImmobilizeLength = std::max(0.f, mImmobilizeLength - by);
+        mHandler.stopMoving();
+    } else if(fBlockingActionTime <= 0.f) {
         const auto oldPos = fPos;
         const bool r = mHandler.increment(scaledBy);
         if(r) {
@@ -1238,6 +1262,10 @@ void eServerUnit::coldFor(const float frameLen) {
 void eServerUnit::freezeFor(const float frameLen) {
     mFreezeLength = std::max(mFreezeLength, frameLen);
     if(mFreezeLength > 0.f) setCold(true);
+}
+
+void eServerUnit::immobilizeFor(const float frameLen) {
+    mImmobilizeLength = std::max(mImmobilizeLength, frameLen);
 }
 
 uint16_t eServerUnit::requestUpdate(const uint32_t clientId) {
