@@ -12,7 +12,7 @@ struct eMissileAnim {
 };
 
 enum class eMissileType {
-    regular, explosion,
+    regular, explosion, overlay,
     curse, aura
 };
 

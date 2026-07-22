@@ -831,8 +831,14 @@ void eGameWidget::paintEvent(ePainter& p) {
             area, item, wall, object, unit, missile
         };
 
+        enum class eRenderOrder {
+            floor,
+            normal,
+            overlay
+        };
+
         struct eRenderElement {
-            bool fFloor;
+            eRenderOrder fOrder;
             eRenderElementType fType;
             std::shared_ptr<ePositioned> fPtr;
             std::shared_ptr<eTexture> fTex;
@@ -890,7 +896,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     continue;
                 }
                 if(object.fTexId < 0) continue;
-                renderElements.emplace_back(eRenderElement{false,
+                renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                            eRenderElementType::object,
                                                            std::static_pointer_cast<ePositioned>(obj)});
             }
@@ -1046,7 +1052,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         minFeatherForce, maxFeatherForce);
                 }
 
-                renderElements.emplace_back(eRenderElement{false,
+                renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                            eRenderElementType::wall,
                                                            std::static_pointer_cast<ePositioned>(wall)});
 
@@ -1107,7 +1113,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(!tile) continue;
-            renderElements.emplace_back(eRenderElement{false,
+            renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                        eRenderElementType::item,
                                                        std::static_pointer_cast<ePositioned>(i)});
         }
@@ -1149,7 +1155,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto m = std::make_shared<eExtendedMissile>();
                 m->fPos = u->fPos;
                 const auto& ftex = missileTex.get(baseId, 0, frame);
-                renderElements.emplace_back(eRenderElement{floor,
+                const auto renderOrder = floor ? eRenderOrder::floor :
+                                             eRenderOrder::normal;
+                renderElements.emplace_back(eRenderElement{renderOrder,
                                                            eRenderElementType::missile,
                                                            std::static_pointer_cast<ePositioned>(m),
                                                            ftex, false});
@@ -1165,7 +1173,9 @@ void eGameWidget::paintEvent(ePainter& p) {
                         mGamePainter.addLight(pos.fX, pos.fY, l);
                     }
                 }
-                renderElements.emplace_back(eRenderElement{floor,
+                const auto renderOrder = floor ? eRenderOrder::floor :
+                                             eRenderOrder::normal;
+                renderElements.emplace_back(eRenderElement{renderOrder,
                                                            eRenderElementType::unit,
                                                            std::static_pointer_cast<ePositioned>(u)});
             }
@@ -1181,7 +1191,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(tile) {
-                renderElements.emplace_back(eRenderElement{false,
+                renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                            eRenderElementType::unit,
                                                            std::static_pointer_cast<ePositioned>(mMainChar),
                                                            nullptr, true});
@@ -1237,7 +1247,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(lighting) {
                 mGamePainter.addLight(pos.fX, pos.fY, lmult*lradius);
             }
-            renderElements.emplace_back(eRenderElement{false,
+            renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                        eRenderElementType::missile,
                                                        std::static_pointer_cast<ePositioned>(m),
                                                        ftex, lighting});
@@ -1341,7 +1351,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                         const int nFrames = missileInfo.nFrames(animId);
                         const int texFrame = frame % nFrames;
                         const auto& ftex = missileTex.get(animId, dir, texFrame);
-                        renderElements.emplace_back(eRenderElement{false,
+                        renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                                    eRenderElementType::missile,
                                                                    std::static_pointer_cast<ePositioned>(m),
                                                                    ftex, lighting});
@@ -1358,7 +1368,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 m->fAnimId = novaAnimId;
                 m->fFrame = frame;
                 const auto& ftex = missileTex.get(novaAnimId, 0, frame);
-                renderElements.emplace_back(eRenderElement{false,
+                renderElements.emplace_back(eRenderElement{eRenderOrder::normal,
                                                            eRenderElementType::missile,
                                                            std::static_pointer_cast<ePositioned>(m),
                                                            ftex, lighting});
@@ -1407,7 +1417,11 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
 
             const auto& ftex = missileTex.get(animId, 0, frame);
-            renderElements.emplace_back(eRenderElement{true,
+            const auto type = missileInfo.type();
+            const auto order = type == eMissileType::overlay ?
+                                   eRenderOrder::overlay :
+                                   eRenderOrder::floor;
+            renderElements.emplace_back(eRenderElement{order,
                                                        eRenderElementType::area,
                                                        std::static_pointer_cast<ePositioned>(a),
                                                        ftex, lighting});
@@ -1422,8 +1436,36 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(!u1) return true;
             if(!u2) return false;
 
-            if(e1.fFloor && !e2.fFloor) return true;
-            if(!e1.fFloor && e2.fFloor) return false;
+            switch(e1.fOrder) {
+            case eRenderOrder::floor: {
+                switch(e2.fOrder) {
+                case eRenderOrder::floor:
+                    break;
+                case eRenderOrder::normal:
+                case eRenderOrder::overlay:
+                    return true;
+                }
+            } break;
+            case eRenderOrder::normal: {
+                switch(e2.fOrder) {
+                case eRenderOrder::floor:
+                    return false;
+                case eRenderOrder::normal:
+                    break;
+                case eRenderOrder::overlay:
+                    return true;
+                }
+            } break;
+            case eRenderOrder::overlay: {
+                switch(e2.fOrder) {
+                case eRenderOrder::floor:
+                case eRenderOrder::normal:
+                    return false;
+                case eRenderOrder::overlay:
+                    break;
+                }
+            } break;
+            }
 
             const auto& p1 = u1->fPos;
             const auto& p2 = u2->fPos;

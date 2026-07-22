@@ -51,6 +51,8 @@ void eMissilesInfo::load() {
         eMissileType type;
         if(typeStr == "explosion") {
             type = eMissileType::explosion;
+        } else if(typeStr == "overlay") {
+            type = eMissileType::overlay;
         } else if(typeStr == "regular") {
             type = eMissileType::regular;
         } else if(typeStr == "curse") {
