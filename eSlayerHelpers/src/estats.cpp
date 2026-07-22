@@ -407,11 +407,12 @@ struct eSkillStatsHelper {
             }
         } break;
         case eModifierType::immobilize: {
+            const float framesLength = mod.fValue1*25.f;
             if(lw) {
-                fSkillStats.fImmobilizeLengthLW += mod.fValue1;
+                fSkillStats.fImmobilizeLengthLW += framesLength;
             }
             if(rw) {
-                fSkillStats.fImmobilizeLengthRW += mod.fValue1;
+                fSkillStats.fImmobilizeLengthRW += framesLength;
             }
         } break;
         default:
