@@ -16,6 +16,7 @@ void eTabWidget::addTab(
     const std::string& name,
     eWidget* const widget) {
     const auto tabButton = new eButtonBase(window());
+    tabButton->setSmallFontSize();
     tabButton->setNoPadding();
     tabButton->setText(name);
     tabButton->fitContent();

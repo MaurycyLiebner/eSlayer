@@ -22,12 +22,6 @@ void eMercWidget::initialize(
     const auto& eqO = m.fEq;
     const auto& places = eqO.fEquipment;
 
-    mInv = new eInventoryWidgetBase(window());
-    mInv->initialize(merc.fUnitId, merc.fEq, stats,
-                     eHoverItemType::regular, places,
-                     &eq.fDragged, eqO);
-    innerW->addTab(eText::text(17, 5), mInv);
-
     const auto uid = m.fUnitType;
     const auto& uinfo = eUnitsInfo::sUnits.get(uid);
     mStats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
@@ -39,6 +33,12 @@ void eMercWidget::initialize(
     const auto& name = names[merc.fNameId % names.size()];
     mStat->initialize(uid, name, mStats, merc.fEq, mAttributes, true);
     innerW->addTab(eText::text(17, 6), mStat);
+
+    mInv = new eInventoryWidgetBase(window());
+    mInv->initialize(merc.fUnitId, merc.fEq, stats,
+                     eHoverItemType::regular, places,
+                     &eq.fDragged, eqO);
+    innerW->addTab(eText::text(17, 5), mInv);
 
     setup(innerW);
 }
