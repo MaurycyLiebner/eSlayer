@@ -46,19 +46,15 @@ bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
     case eSkillType::throw_:
         return weapon == eWeaponType::throwable;
     case eSkillType::missile:
-        return true;
     case eSkillType::wall:
-        return true;
     case eSkillType::nova:
-        return true;
     case eSkillType::summon:
-        return true;
-    case eSkillType::passive:
-        return false;
-    case eSkillType::aura:
-        return false;
+    case eSkillType::area:
     case eSkillType::boostCurse:
         return true;
+    case eSkillType::passive:
+    case eSkillType::aura:
+        return false;
     }
     return false;
 }
@@ -1212,7 +1208,9 @@ void eStats::calculateSkill(eSkillStats& stats,
         rightW,
     };
 
-    if(skill.fType == eSkillType::attack) {
+    if(skill.fType == eSkillType::attack ||
+       skill.fType == eSkillType::shoot ||
+       skill.fType == eSkillType::throw_) {
         if(leftW.fType == eItemType::weapon &&
            itemReqsMet(leftW)) {
             float min;
@@ -1500,8 +1498,9 @@ float eStats::attackRange(const int schoice,
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const float meeleDist = fWeaponMeeleRange +
-                            0.75f*(unit1Radius + unit2Radius);
-    if(skill.fType == eSkillType::attack) {
+        0.75f*(unit1Radius + unit2Radius);
+    switch(skill.fType) {
+    case eSkillType::attack: {
         if(fWeaponTypeL == eWeaponType::none ||
            fWeaponTypeL == eWeaponType::meele ||
            fWeaponTypeL == eWeaponType::throwable ||
@@ -1511,21 +1510,26 @@ float eStats::attackRange(const int schoice,
         } else {
             return fWeaponRangedRange;
         }
-    } else if(skill.fType == eSkillType::smite ||
-              skill.fType == eSkillType::kick) {
+    } break;
+    case eSkillType::smite:
+    case eSkillType::kick:
         return meeleDist;
-    } else if(skill.fType == eSkillType::missile ||
-              skill.fType == eSkillType::wall ||
-              skill.fType == eSkillType::area ||
-              skill.fType == eSkillType::boostCurse ||
-              skill.fType == eSkillType::nova ||
-              skill.fType == eSkillType::summon) {
-        return skill.fCastRange;
-    } else if(skill.fType == eSkillType::throw_ ||
-              skill.fType == eSkillType::shoot) {
+    case eSkillType::missile:
+    case eSkillType::wall:
+    case eSkillType::boostCurse:
+    case eSkillType::area:
+    case eSkillType::summon:
+        return skill.fRange;
+    case eSkillType::nova:
+        return skillStats.fRadius;
+    case eSkillType::throw_:
+    case eSkillType::shoot:
         return fWeaponRangedRange;
+    case eSkillType::passive:
+    case eSkillType::aura:
+        return 0.f;
     }
-    return meeleDist;
+    return 0.f;
 }
 
 bool eStats::attackRangeSkill(const float minRange,

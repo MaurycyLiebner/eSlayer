@@ -7,7 +7,7 @@ void eModsCollection::addBoost(const eModsCollection& other) {
     fCount += other.fCount;
     fCooldown += other.fCooldown;
     fManaCost += other.fManaCost;
-    setRadiusU(fRadiusU + other.fRadiusU);
+    setRadius(fRadius + other.fRadius);
 
     for(const auto& it : other) {
         const auto& mod = it.second;
@@ -200,9 +200,9 @@ void eModsCollection::collapseSkillLevel() {
     }
 }
 
-void eModsCollection::setRadiusU(const uint8_t r) {
-    fRadiusU = r;
-    fRadius = ePacket::toFloatU8(r, eSkill::sRadiusMax);
+void eModsCollection::setRadius(const float r) {
+    fRadius = r;
+    fRadiusRound = ePacket::roundFloatU8(fRadius, eSkill::sRadiusMax);
 }
 
 eModsCollectionLevel
@@ -229,9 +229,9 @@ eModsCollectionLevel::parseLevel(
             mods.fManaCost += dm;
             totalMods.fManaCost += dm;
         } else if(key == "radius") {
-            const uint8_t dr = uint8_t(value);
-            mods.setRadiusU(mods.fRadiusU + dr);
-            totalMods.setRadiusU(totalMods.fRadiusU + dr);
+            const float dr = float(value);
+            mods.setRadius(mods.fRadius + dr);
+            totalMods.setRadius(totalMods.fRadius + dr);
         } else {
             eModifier mod;
             mod.read(key, json(value));
@@ -252,12 +252,12 @@ void eModsCollectionLevel::parseLevels(
     const int count,
     const float cooldown,
     const float manaCost,
-    const uint8_t radiusU) {
+    const float radius) {
     eModsCollection totalMods;
     totalMods.fCount = count;
     totalMods.fCooldown = cooldown;
     totalMods.fManaCost = manaCost;
-    totalMods.setRadiusU(radiusU);
+    totalMods.setRadius(radius);
 
     eModsCollection allMods;
     if(levelsJson.contains("all")) {

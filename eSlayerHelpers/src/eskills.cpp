@@ -44,44 +44,35 @@ void eSkills::load() {
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
-            const float speed = jdata.value("speed", 50u);
-            skill.fSpeed = ePacket::toFloatU8(speed, eSkill::sSpeedMax);
+            const float speed = jdata.value("speed", 0.2f);
+            skill.fSpeed = ePacket::roundFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
             skill.fAngleAdjust = jdata.value("angleAdjust", false);
             skill.fTargetCorpse = jdata.value("targetCorpse", false);
+            const float range = jdata.value("range", 8.f);
+            skill.fRange = ePacket::roundFloatU8(range, eSkill::sRangeMax);
 
             if(typeStr == "attack") {
                 skill.fType = eSkillType::attack;
-                skill.fCastRange = 0.f;
             } else if(typeStr == "smite") {
                 skill.fType = eSkillType::smite;
-                skill.fCastRange = 0.f;
             } else if(typeStr == "kick") {
                 skill.fType = eSkillType::kick;
-                skill.fCastRange = 0.f;
             } else if(typeStr == "missile") {
                 skill.fType = eSkillType::missile;
-                const uint8_t range = jdata.value("range", 75u);
-                skill.fRange = ePacket::toFloatU8(range, eSkill::sRangeMax);
-                skill.fCastRange = 8.f;
             } else if(typeStr == "nova") {
                 skill.fType = eSkillType::nova;
-                const uint8_t range = jdata.value("range", 35u);
-                skill.fRange = ePacket::toFloatU8(range, eSkill::sRangeMax);
-                skill.fCastRange = 4.f;
             } else if(typeStr == "shoot") {
                 skill.fType = eSkillType::shoot;
             } else if(typeStr == "throw") {
                 skill.fType = eSkillType::throw_;
             } else if(typeStr == "wall") {
                 skill.fType = eSkillType::wall;
-                const uint16_t time = jdata.value("time", 25u);
-                skill.fTime = ePacket::toFloatU8(time, eSkill::sTimeMax);
+                const float time = jdata.value("time", 250.f);
+                skill.fTime = ePacket::roundFloatU8(time, eSkill::sTimeMax);
                 skill.fPath = "static";
-                skill.fCastRange = 8.f;
             } else if(typeStr == "summon") {
                 skill.fType = eSkillType::summon;
-                skill.fCastRange = 8.f;
             } else if(typeStr == "passive") {
                 skill.fType = eSkillType::passive;
             } else if(typeStr == "boostCurse") {
@@ -147,7 +138,7 @@ void eSkills::load() {
             int count = jdata.value("count", 0);
             float cooldown = jdata.value("cooldown", 0.f);
             float manaCost = jdata.value("manaCost", 0.f);
-            uint8_t radius = jdata.value("radius", 0);
+            float radius = jdata.value("radius", 0.f);
 
             skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
             if(jdata.contains("levels")) {

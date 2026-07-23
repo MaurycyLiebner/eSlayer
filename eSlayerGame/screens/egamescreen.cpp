@@ -98,13 +98,13 @@ void eGameScreen::initialize(const uint32_t clientId,
 
     const auto leftSkillA = [this]() {
         const auto button = mBottomWidget->leftSkillButton();
-        openSkillMenu(eAlignment::left, button,
-                      mLeftSkill, eSkillChoice::left);
+        openSkillMenu(eAlignment::left, mLeftSkill,
+                      eSkillChoice::left);
     };
     const auto rightSkillA = [this]() {
         const auto button = mBottomWidget->rightSkillButton();
-        openSkillMenu(eAlignment::right, button,
-                      mRightSkill, eSkillChoice::right);
+        openSkillMenu(eAlignment::right, mRightSkill,
+                      eSkillChoice::right);
     };
 
     const auto runA = [this](const bool check) {
@@ -1031,7 +1031,6 @@ void eGameScreen::hideFollowerMenu() {
 
 void eGameScreen::openSkillMenu(
     const eAlignment align,
-    eSkillButton* const targetButton,
     int& targetSkillVar,
     const eSkillChoice schoice) {
     if(mSkillMenu) {
@@ -1049,11 +1048,12 @@ void eGameScreen::openSkillMenu(
         skillIds.push_back(s.first);
     }
 
-    const auto action = [this, targetButton, &targetSkillVar](const int skillId) {
-        targetButton->setSkillId(skillId);
+    const auto action = [this, &targetSkillVar](const int skillId) {
         targetSkillVar = skillId;
         mGameWidget->setLeftSkill(mLeftSkill);
         mGameWidget->setRightSkill(mRightSkill);
+        mBottomWidget->setLeftSkill(mLeftSkill);
+        mBottomWidget->setRightSkill(mRightSkill);
         mSkillMenu = nullptr;
     };
     w->initialize(skillIds, align, action, schoice);

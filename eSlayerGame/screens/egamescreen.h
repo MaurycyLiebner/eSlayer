@@ -126,7 +126,6 @@ private:
     void hideFollowerMenu();
 
     void openSkillMenu(const eAlignment align,
-                       eSkillButton* const targetButton,
                        int& targetSkillVar,
                        const eSkillChoice schoice);
     void updateCharPos();

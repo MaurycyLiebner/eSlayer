@@ -18,10 +18,10 @@ public:
     int fCount = 0;
     float fManaCost = 0.f;
     float fCooldown = 0.f;
-    uint8_t fRadiusU = 0;
     float fRadius = 0.f;
+    float fRadiusRound = 0.f;
 
-    void setRadiusU(const uint8_t r);
+    void setRadius(const float r);
 private:
     void applyMod(eModifier& mod,
                   const eModifierType multType) const;
@@ -41,7 +41,7 @@ struct ESLAYERHELPERS_API eModsCollectionLevel {
         const int count = 0,
         const float cooldown = 0.f,
         const float manaCost = 0.f,
-        const uint8_t radiusU = 0);
+        const float radius = 0.f);
 };
 
 struct ESLAYERHELPERS_API eModsCollectionLevels :
