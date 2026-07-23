@@ -1041,11 +1041,13 @@ void eGameScreen::openSkillMenu(
 
     const auto w = new eSkillSelectWidget(window());
 
-    std::vector<int> skillIds;
+    std::vector<eSkillSelect> skillIds;
     const auto& stats = mGameWidget->stats();
     const auto& skillLevels = stats.fEffectiveSkillLevels;
     for(const auto& s : skillLevels) {
-        skillIds.push_back(s.first);
+        const int skillId = s.first;
+        const bool canUse = stats.canUseSkillId(skillId);
+        skillIds.emplace_back(eSkillSelect{skillId, canUse});
     }
 
     const auto action = [this, &targetSkillVar](const int skillId) {
