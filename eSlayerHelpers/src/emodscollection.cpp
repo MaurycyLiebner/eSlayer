@@ -274,10 +274,10 @@ void eModsCollectionLevel::parseLevels(
                 ? levelsJson[levelKey]
                 : empty;
 
-        totalMods.addBoost(allMods);
+        if(i > 1) totalMods.addBoost(allMods);
         auto level = parseLevel(levelData, totalMods);
         auto& mods = level.fModifiers;
-        mods.addBoost(allMods);
+        if(i > 1) mods.addBoost(allMods);
         levels.emplace_back(level);
     }
 }
