@@ -98,6 +98,8 @@ struct eSkillStats {
     bool fAlwaysHitLW = false;
     bool fAlwaysHitRW = false;
 
+    int fAttackTargets = 0;
+
     int fCountLW = 0;
     int fCountRW = 0;
 

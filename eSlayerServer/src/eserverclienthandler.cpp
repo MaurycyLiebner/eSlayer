@@ -96,11 +96,12 @@ bool eServerClientHandler::changeState(
             unit->setMoving(false);
         }
     }
-    if(u.getUpdate(eUnitData::eShift::angle)) {
-        unit->setAngle(u.fAngle);
-    }
 
     if(unit->fBlockingActionTime <= 0.f) {
+        if(u.getUpdate(eUnitData::eShift::angle)) {
+            unit->setAngle(u.fAngle);
+        }
+
         if(u.getUpdate(eUnitData::eShift::anim)) {
             unit->setAnim(u.fAnim);
         }

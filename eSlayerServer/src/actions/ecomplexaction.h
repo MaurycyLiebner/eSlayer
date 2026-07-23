@@ -89,6 +89,12 @@ private:
                 const int schoice);
 
     std::shared_ptr<eUnitAction> mChild;
+
+    int mSchoice = 0;
+    int mSkillId = 0;
+    int mRemTargets = 0;
+    float mAttackRange = 0.f;
+    std::map<uint32_t, uint8_t> mTargetMap;
 };
 
 #endif // ECOMPLEXACTION_H

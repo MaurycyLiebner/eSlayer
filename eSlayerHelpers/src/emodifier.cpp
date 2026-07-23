@@ -107,7 +107,9 @@ gModifierTypeToString = {
     { eModifierType::alwaysHits, "alwaysHits" },
 
     { eModifierType::dealsColdLength, "dealsColdLength" },
-    { eModifierType::dealsFreezeLength, "dealsFreezeLength" }
+    { eModifierType::dealsFreezeLength, "dealsFreezeLength" },
+
+    { eModifierType::attackTargets, "attackTargets" }
 };
 
 std::map<std::string, eModifierType>
@@ -209,6 +211,8 @@ eModValuesUsage eModifier::valuesUsed() const {
 
     case eModifierType::dealsColdLength:
     case eModifierType::dealsFreezeLength:
+
+    case eModifierType::attackTargets:
         return eModValuesUsage::value1;
 
     case eModifierType::knockback:
@@ -355,6 +359,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::allClassSkills:
     case eModifierType::classSkill:
     case eModifierType::skill:
+
+    case eModifierType::attackTargets:
         return "value";
 
     case eModifierType::coldLength:
@@ -475,6 +481,8 @@ std::string eModifier::value2Name() const {
 
     case eModifierType::dealsColdLength:
     case eModifierType::dealsFreezeLength:
+
+    case eModifierType::attackTargets:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -697,6 +705,8 @@ bool eModifierHelpers::isPercent(
 
     case eModifierType::dealsColdLength:
     case eModifierType::dealsFreezeLength:
+
+    case eModifierType::attackTargets:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

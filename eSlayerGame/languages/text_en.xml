@@ -159,6 +159,7 @@
         <string id="73">Never Misses</string>
         <string id="74">Cold Length %1 Seconds</string>
         <string id="75">Freeze Length %1 Seconds</string>
+        <string id="76">Attack %1 Targets</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>

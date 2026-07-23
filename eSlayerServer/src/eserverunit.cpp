@@ -165,6 +165,12 @@ float eServerUnit::missileTime(const eSkillStats& stats,
     return stats.fMissileTime;
 }
 
+int eServerUnit::attackTargets(const int schoice,
+                               const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return skill.fAttackTargets;
+}
+
 float eServerUnit::radius(const int schoice,
                           const eWeaponChoice wchoice) const {
     const auto& skill = mStats.skill(schoice);

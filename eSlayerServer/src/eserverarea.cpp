@@ -1813,13 +1813,16 @@ void eServerArea::addNova(const std::shared_ptr<eServerNova>& n) {
 }
 
 uint32_t eServerArea::findOtherTarget(
-    const ePointF& from,
+    const eServerUnit& u,
     const float range,
     const std::set<uint32_t>& skip) {
     uint32_t result = 0;
-    iterateOverUnitsClamped(from, range, [&](
+    const auto uid = u.fCharId;
+    const auto& upos = u.fPos;
+    iterateOverUnitsClamped(upos, range, [&](
         const std::shared_ptr<eServerUnit>& u) {
         const auto id = u->fCharId;
+        if(id == uid) return false;
         if(skip.count(id) > 0) return false;
         result = id;
         return true;
@@ -1828,14 +1831,17 @@ uint32_t eServerArea::findOtherTarget(
 }
 
 uint32_t eServerArea::findMinOtherTarget(
-    const ePointF& from,
+    const eServerUnit& u,
     const float range,
     const std::map<uint32_t, uint8_t>& skip) {
     uint32_t result = 0;
     uint8_t min = 255;
-    iterateOverUnitsClamped(from, range, [&](
+    const auto uid = u.fCharId;
+    const auto& upos = u.fPos;
+    iterateOverUnitsClamped(upos, range, [&](
         const std::shared_ptr<eServerUnit>& u) {
         const auto id = u->fCharId;
+        if(id == uid) return false;
         const auto it = skip.find(id);
         if(it == skip.end()) {
             min = 0;

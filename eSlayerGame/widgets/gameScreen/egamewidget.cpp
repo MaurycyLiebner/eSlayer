@@ -749,6 +749,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainChar->fAnim = u.fAnim;
                 mMainChar->fAnimId = u.fAnimId;
                 mMainChar->fAnimSpeed = u.fAnimSpeed;
+                mMainChar->fAngle = u.fAngle;
             }
         }
 

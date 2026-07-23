@@ -14,7 +14,7 @@ enum class eAttackTargetType {
 struct eAttackData {
     eAttackData() :
         fType(eAttackTargetType::none) {}
-    eAttackData(const int c,
+    eAttackData(const uint32_t c,
                 const eSkillChoice skill) :
         fType(eAttackTargetType::character),
         fSkill(static_cast<int>(skill)),
@@ -24,7 +24,7 @@ struct eAttackData {
         fType(eAttackTargetType::position),
         fSkill(static_cast<int>(skill)),
         fPos(pos) {}
-    eAttackData(const int c,
+    eAttackData(const uint32_t c,
                 const int skill) :
         fType(eAttackTargetType::character),
         fSkill(skill),
@@ -37,7 +37,7 @@ struct eAttackData {
 
     eAttackTargetType fType;
     int fSkill;
-    int32_t fChar;
+    uint32_t fChar;
     ePointF fPos;
 
     void read(ePacket& p) {

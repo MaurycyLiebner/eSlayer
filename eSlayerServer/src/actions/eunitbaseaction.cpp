@@ -152,7 +152,8 @@ bool eUnitBaseAction::lookForAttackTarget() {
             u->fRadius, mUnit.fRadius,
             readySkills);
         if(r) {
-            const eAttackData data(u->fCharId, schoice);
+            const auto charId = u->fCharId;
+            const eAttackData data(charId, schoice);
             const auto r = eComplexAction::attack(data);
             if(r == eAttackResult::attacked) {
                 mAttacking = u->fCharId;

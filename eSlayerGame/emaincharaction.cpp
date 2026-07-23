@@ -461,6 +461,7 @@ bool eMainCharAction::consumeActionTime(
         const auto anim = mMainChar->fAnim;
         const float speed = mMainChar->fAnimSpeed;
         model.setAnimation(anim, speed);
+        model.setAngle(mMainChar->fAngle);
         return true;
     }
     return false;
@@ -485,7 +486,7 @@ bool eMainCharAction::handleUnitAttack(
     }
 
     if(mAttackData.fType == eAttackTargetType::none) {
-        const int targetId = u.fCharId;
+        const uint32_t targetId = u.fCharId;
         mAttackData = eAttackData(targetId, schoice);
 
         const auto vec = ePointF::vector(u.fPos, mMainChar->fPos);

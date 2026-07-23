@@ -17,6 +17,24 @@ void eComplexAction::increment(const float by) {
     if(mChild) {
         mChild->increment(by);
     } else {
+        if(mRemTargets > 0) {
+            const auto& upos = mUnit.fPos;
+            const auto uid = mArea.findMinOtherTarget(
+                mUnit, mAttackRange, mTargetMap);
+            if(uid == 0) {
+                mRemTargets = 0;
+            } else {
+                eAttackData target;
+                target.fSkill = mSchoice;
+                target.fType = eAttackTargetType::character;
+                target.fChar = uid;
+                const auto r = attack(target);
+                if(r == eAttackResult::attacked) {
+                    mRemTargets--;
+                    return;
+                }
+            }
+        }
         decide();
     }
 }
@@ -42,9 +60,20 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
     const auto& skill = eSkills::sSkills.get(uskill.fSkillId);
     const auto schoice = target.fSkill;
     const auto wchoice = mUnit.useWeapon(schoice);
+    if(mRemTargets <= 0) {
+        mSkillId = skillId;
+        mSchoice = target.fSkill;
+        mRemTargets = mUnit.attackTargets(schoice, wchoice);
+        mTargetMap.clear();
+        const auto& stats = mUnit.stats();
+        mAttackRange = stats.attackRange(schoice, 0.5f, 0.5f);
+    } else if(mSkillId != skillId) {
+        return eAttackResult::failed;
+    }
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
+        mTargetMap[target.fChar]++;
         if(!u) {
             return eAttackResult::failed;
         }
@@ -100,7 +129,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
                 hitData(schoice, wchoice, data);
 
                 auto& area = mArea;
-                const auto a = [&area, data, targetPos]() {
+                const auto a = [this, &area, data, targetPos]() {
                     const auto attacker = area.unit(data.fAttackerId);
                     if(!attacker) return;
                     const auto u = area.unit(targetPos, [&](const eServerUnit& u) {
@@ -110,7 +139,11 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
                         if(!eTeams::areEnemies(t1, t2)) return false;
                         return true;
                     });
-                    if(u) u->getHit(data);
+                    if(u) {
+                        u->getHit(data);
+                        const auto uid = u->fCharId;
+                        mTargetMap[uid]++;
+                    }
                 };
                 const auto attack = eAttackAction::sCreate(
                     mUnit, mArea, uskill.fCastAnimIds,

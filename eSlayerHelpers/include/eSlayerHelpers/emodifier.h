@@ -117,6 +117,8 @@ enum class eModifierType : uint8_t {
     dealsColdLength,
     dealsFreezeLength,
 
+    attackTargets,
+
     count
 };
 

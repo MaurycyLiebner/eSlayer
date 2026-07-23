@@ -111,6 +111,8 @@ public:
                       const eWeaponChoice wchoice) const;
     static float missileTime(const eSkillStats& stats,
                              const eWeaponChoice wchoice);
+    int attackTargets(const int schoice,
+                      const eWeaponChoice wchoice) const;
     float radius(const int schoice,
                  const eWeaponChoice wchoice) const;
     static float radius(const eSkillStats& stats,

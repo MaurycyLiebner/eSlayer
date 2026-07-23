@@ -180,10 +180,10 @@ public:
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void addNova(const std::shared_ptr<eServerNova>& n);
 
-    uint32_t findOtherTarget(const ePointF& from,
+    uint32_t findOtherTarget(const eServerUnit& u,
                              const float range,
                              const std::set<uint32_t>& skip);
-    uint32_t findMinOtherTarget(const ePointF& from,
+    uint32_t findMinOtherTarget(const eServerUnit& u,
                                 const float range,
                                 const std::map<uint32_t, uint8_t>& skip);
     void spawnMissile(const ePointF& to,

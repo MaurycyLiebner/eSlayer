@@ -100,6 +100,8 @@ bool addPlus(const float value,
     case eModifierType::allClassSkills:
     case eModifierType::classSkill:
     case eModifierType::skill:
+
+    case eModifierType::attackTargets:
         return true;
 
     case eModifierType::none:
