@@ -298,6 +298,14 @@ struct eSkillStatsHelper {
                 fSkillStats.fKnockbackRW = true;
             }
         } break;
+        case eModifierType::alwaysHits: {
+            if(lw) {
+                fSkillStats.fAlwaysHitLW = true;
+            }
+            if(rw) {
+                fSkillStats.fAlwaysHitRW = true;
+            }
+        } break;
         case eModifierType::fleshExplode: {
             fSkillStats.fExplode = eExplodeType::flesh;
         } break;
@@ -818,6 +826,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
         case eModifierType::heal:
         case eModifierType::immobilize:
+        case eModifierType::alwaysHits:
             break;
         }
     };
@@ -1115,6 +1124,7 @@ void eStats::calculateSkill(eSkillStats& stats,
 
         case eModifierType::heal:
         case eModifierType::immobilize:
+        case eModifierType::alwaysHits:
             helper.addMod(mod, src, lw, rw);
             break;
         case eModifierType::none:

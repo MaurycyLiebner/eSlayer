@@ -156,6 +156,7 @@
         <string id="70">%1 to %3</string>
         <string id="71">Heals %1 to %2 Life</string>
         <string id="72">Immobilizes for %1 Seconds</string>
+        <string id="73">Never Misses</string>
     </group>
     <group id="11">
         <string id="0">Strength</string>
@@ -177,6 +178,7 @@
         <string id="16">Level</string>
         <string id="17">Experience</string>
         <string id="18">Next Level</string>
+        <string id="19">Always</string>
     </group>
     <group id="12">
         <string id="0">%1 has just entered the game.</string>

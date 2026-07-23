@@ -321,10 +321,21 @@ bool eServerUnit::alwaysHit(
     const int skillId = stats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
-    return skillType == eSkillType::missile ||
-           skillType == eSkillType::wall ||
-           skillType == eSkillType::boostCurse ||
-           skillType == eSkillType::nova;
+    if(skillType == eSkillType::missile ||
+        skillType == eSkillType::wall ||
+        skillType == eSkillType::boostCurse ||
+        skillType == eSkillType::nova ||
+        skillType == eSkillType::area ||
+        skillType == eSkillType::aura) {
+        return true;
+    }
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fAlwaysHitLW;
+    case eWeaponChoice::right:
+        return stats.fAlwaysHitRW;
+    }
+    return 0.f;
 }
 
 float eServerUnit::attackRating(

@@ -112,6 +112,7 @@ enum class eModifierType : uint8_t {
 
     heal,
     immobilize,
+    alwaysHits,
 
     count
 };

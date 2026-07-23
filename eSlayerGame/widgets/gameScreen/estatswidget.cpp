@@ -140,11 +140,16 @@ public:
                  const std::vector<float>& values) {
         std::vector<std::string> valueStrs;
         for(const auto v : values) {
-            std::ostringstream oss;
-            oss << std::round(v);
-            valueStrs.emplace_back(oss.str());
+            const auto str = floatToString(v);
+            valueStrs.emplace_back(str);
         }
         setText(names, valueStrs);
+    }
+
+    static std::string floatToString(const float value) {
+        std::ostringstream oss;
+        oss << std::round(value);
+        return oss.str();
     }
 
     void setText(const std::vector<std::string>& names,
@@ -154,16 +159,8 @@ public:
             const float min = v.first;
             const float max = v.second;
             auto& str = valueStrs.emplace_back();
-            {
-                std::ostringstream oss;
-                oss << std::round(min);
-                str += oss.str();
-            }
-            {
-                std::ostringstream oss;
-                oss << std::round(max);
-                str += "-" + oss.str();
-            }
+            str += floatToString(min);
+            str += "-" + floatToString(max);
         }
         setText(names, valueStrs);
     }
@@ -467,18 +464,32 @@ void eStatsWidgetBase::updateStats() {
                            skillType == eSkillType::nova ||
                            skillType == eSkillType::summon ||
                            skillType == eSkillType::aura ||
+                           skillType == eSkillType::area ||
                            skillType == eSkillType::passive ||
                            skillType == eSkillType::boostCurse;
         if(noARL) {
             skillAR->setText(std::vector<std::string>{},
                              std::vector<std::string>{});
         } else {
-            std::vector<float> AR;
+            std::vector<std::string> AR;
+            const auto always = eText::text(11, 19);
             if(lw) {
-                AR.emplace_back(skillStats.fAttackRatingLW);
+                if(skillStats.fAlwaysHitLW) {
+                    AR.emplace_back(always);
+                } else {
+                    const auto str = eStatWidget::floatToString(
+                        skillStats.fAttackRatingLW);
+                    AR.emplace_back(str);
+                }
             }
             if(rw) {
-                AR.emplace_back(skillStats.fAttackRatingRW);
+                if(skillStats.fAlwaysHitRW) {
+                    AR.emplace_back(always);
+                } else {
+                    const auto str = eStatWidget::floatToString(
+                        skillStats.fAttackRatingRW);
+                    AR.emplace_back(str);
+                }
             }
             skillAR->setText({skillName, eText::text(11, 5)}, AR);
         }

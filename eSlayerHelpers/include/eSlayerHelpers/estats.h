@@ -95,6 +95,9 @@ struct eSkillStats {
     float fAttackRatingLW = 0.f;
     float fAttackRatingRW = 0.f;
 
+    bool fAlwaysHitLW = false;
+    bool fAlwaysHitRW = false;
+
     int fCountLW = 0;
     int fCountRW = 0;
 
