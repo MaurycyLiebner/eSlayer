@@ -26,14 +26,16 @@ void eComplexAction::setChild(const std::shared_ptr<eUnitAction>& c) {
     if(c) c->setParent(this);
 }
 
-bool eComplexAction::attack(const eAttackData& target) {
-    const bool r = attackBase(target);
-    if(r) mUnit.useSkill(target.fSkill);
+eAttackResult eComplexAction::attack(const eAttackData& target) {
+    const auto r = attackBase(target);
+    if(r == eAttackResult::attacked) {
+        mUnit.useSkill(target.fSkill);
+    }
     return r;
 }
 
-bool eComplexAction::attackBase(const eAttackData& target) {
-    if(!mUnit.skillReady(target.fSkill)) return false;
+eAttackResult eComplexAction::attackBase(const eAttackData& target) {
+    if(!mUnit.skillReady(target.fSkill)) return eAttackResult::notReady;
     const auto& data = mUnit.data();
     const int skillId = mUnit.skillId(target.fSkill);
     const auto& uskill = data.getSkill(skillId);
@@ -43,30 +45,40 @@ bool eComplexAction::attackBase(const eAttackData& target) {
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
-        if(!u) return false;
+        if(!u) {
+            return eAttackResult::failed;
+        }
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
-        if(!eTeams::areEnemies(t1, t2)) return false;
+        if(!eTeams::areEnemies(t1, t2)) {
+            return eAttackResult::failed;
+        }
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
             if(skillId == 0 && mUnit.weaponTypeL() == eWeaponType::ranged) {
-                return spawnMissile(u->fPos, schoice, wchoice);
+                const bool r = spawnMissile(u->fPos, schoice, wchoice);
+                return r ? eAttackResult::attacked : eAttackResult::failed;
             } else {
-                return meeleAttack(*u, schoice, wchoice);
+                const bool r = meeleAttack(*u, schoice, wchoice);
+                return r ? eAttackResult::attacked : eAttackResult::failed;
             }
         } else if(skill.fType == eSkillType::missile ||
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(u->fPos, schoice, wchoice);
+            const bool r = spawnMissile(u->fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::boostCurse ||
                   skill.fType == eSkillType::area) {
-            return spawnArea(u->fPos, schoice, wchoice);
+            const bool r = spawnArea(u->fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::summon) {
-            return summon(u->fPos, schoice);
+            const bool r = summon(u->fPos, schoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::nova) {
-            return spawnNova(u->fPos, schoice, wchoice);
+            const bool r = spawnNova(u->fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         }
     } break;
     case eAttackTargetType::position: {
@@ -75,7 +87,8 @@ bool eComplexAction::attackBase(const eAttackData& target) {
            skill.fType == eSkillType::kick) {
             const auto wtype = mUnit.weaponType(wchoice);
             if(skillId == 0 && wtype == eWeaponType::ranged) {
-                return spawnMissile(target.fPos, schoice, wchoice);
+                const bool r = spawnMissile(target.fPos, schoice, wchoice);
+                return r ? eAttackResult::attacked : eAttackResult::failed;
             } else {
                 auto dir = ePointF::vector(target.fPos, mUnit.fPos);
                 dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
@@ -102,28 +115,33 @@ bool eComplexAction::attackBase(const eAttackData& target) {
                     eAttackType::attack, a,
                     schoice, wchoice);
                 if(attack) setChild(attack);
-                return attack.get();
+                const bool r = attack.get();
+                return r ? eAttackResult::attacked : eAttackResult::failed;
             }
         } else if(skill.fType == eSkillType::missile ||
                   skill.fType == eSkillType::wall ||
                   skill.fType == eSkillType::shoot ||
                   skill.fType == eSkillType::throw_) {
-            return spawnMissile(target.fPos, schoice, wchoice);
+            const bool r = spawnMissile(target.fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::boostCurse ||
                   skill.fType == eSkillType::area) {
-            return spawnArea(target.fPos, schoice, wchoice);
+            const bool r = spawnArea(target.fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::summon) {
-            return summon(target.fPos, schoice);
+            const bool r = summon(target.fPos, schoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::nova) {
-            return spawnNova(target.fPos, schoice, wchoice);
+            const bool r = spawnNova(target.fPos, schoice, wchoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         }
 
     } break;
     case eAttackTargetType::none: {
-        return false;
+        return eAttackResult::failed;
     } break;
     }
-    return true;
+    return eAttackResult::attacked;
 }
 
 bool eComplexAction::meeleAttack(

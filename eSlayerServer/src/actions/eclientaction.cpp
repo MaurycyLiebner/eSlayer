@@ -12,8 +12,9 @@ void eClientAction::increment(const float by) {
 
 void eClientAction::decide() {
     if(mAttackTarget.fType != eAttackTargetType::none) {
-        const bool r = eComplexAction::attack(mAttackTarget);
-        if(!r || mStopPlanned) mAttackTarget = eAttackData();
+        const auto r = eComplexAction::attack(mAttackTarget);
+        const bool failed = r == eAttackResult::failed;
+        if(failed || mStopPlanned) mAttackTarget = eAttackData();
     }
     mStopPlanned = false;
 }

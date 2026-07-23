@@ -15,6 +15,10 @@
 struct eSkill;
 struct eUnitSkill;
 
+enum class eAttackResult {
+    notReady, attacked, failed
+};
+
 struct eHitData {
     int fAttackerId;
     eTeamId fAttackTeamId;
@@ -61,13 +65,13 @@ public:
     bool getHit(const eHitData& data, const bool splash = true);
 protected:
     virtual void decide() = 0;
-    bool attack(const eAttackData& target);
+    eAttackResult attack(const eAttackData& target);
     bool meeleAttack(const eServerUnit& u,
                      const int schoice,
                      const eWeaponChoice wchoice);
     bool hasChild() const { return mChild.get(); }
 private:
-    bool attackBase(const eAttackData& target);
+    eAttackResult attackBase(const eAttackData& target);
     bool hitData(const int schoice,
                  const eWeaponChoice wchoice,
                  eHitData& data);

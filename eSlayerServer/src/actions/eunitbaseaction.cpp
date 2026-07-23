@@ -153,9 +153,11 @@ bool eUnitBaseAction::lookForAttackTarget() {
             readySkills);
         if(r) {
             const eAttackData data(u->fCharId, schoice);
-            const bool r = eComplexAction::attack(data);
-            if(r) mAttacking = u->fCharId;
-            return r;
+            const auto r = eComplexAction::attack(data);
+            if(r == eAttackResult::attacked) {
+                mAttacking = u->fCharId;
+                return true;
+            }
         }
         return false;
     };
