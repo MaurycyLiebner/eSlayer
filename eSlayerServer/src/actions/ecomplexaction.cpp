@@ -54,6 +54,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
             return eAttackResult::failed;
         }
         if(skill.fType == eSkillType::attack ||
+           skill.fType == eSkillType::dualAttack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
             if(skillId == 0 && mUnit.weaponTypeL() == eWeaponType::ranged) {
@@ -83,6 +84,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
     } break;
     case eAttackTargetType::position: {
         if(skill.fType == eSkillType::attack ||
+           skill.fType == eSkillType::dualAttack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
             const auto wtype = mUnit.weaponType(wchoice);
@@ -333,6 +335,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     };
     const eAttackType attackType =
         skill.fType == eSkillType::attack ||
+        skill.fType == eSkillType::dualAttack ||
         skill.fType == eSkillType::smite ||
         skill.fType == eSkillType::kick ||
         skill.fType == eSkillType::shoot ||

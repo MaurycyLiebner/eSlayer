@@ -37,6 +37,11 @@ bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
         return weapon != eWeaponType::shield &&
                (weapon != eWeaponType::none ||
                 otherWeapon == eWeaponType::none);
+    case eSkillType::dualAttack:
+        return (weapon == eWeaponType::meele ||
+                weapon == eWeaponType::throwable) &&
+               (otherWeapon == eWeaponType::meele ||
+                otherWeapon == eWeaponType::throwable);
     case eSkillType::smite:
         return weapon == eWeaponType::shield;
     case eSkillType::kick:
@@ -162,6 +167,7 @@ struct eSkillStatsHelper {
     bool applyMod(const eModifierType type, const eModifierSource src) const {
         switch(fSkillType) {
         case eSkillType::attack:
+        case eSkillType::dualAttack:
         case eSkillType::kick:
         case eSkillType::smite:
         case eSkillType::shoot:
@@ -1228,6 +1234,7 @@ void eStats::calculateSkill(eSkillStats& stats,
     };
 
     if(skill.fType == eSkillType::attack ||
+       skill.fType == eSkillType::dualAttack ||
        skill.fType == eSkillType::shoot ||
        skill.fType == eSkillType::throw_) {
         if(leftW.fType == eItemType::weapon &&
@@ -1389,7 +1396,8 @@ void eStats::calculateSkill(eSkillStats& stats,
     const float baseAR = (fDexterity - 7.f)*5.f + 20.f;
     const float attrMult = 0.01f*(fStrength + fDexterity);
     const auto skillType = helper.fSkillType;
-    if(skillType == eSkillType::attack) {
+    if(skillType == eSkillType::attack ||
+       skillType == eSkillType::dualAttack) {
         helper.fDmgMultMin.fPhysical += attrMult;
         helper.fDmgMultMax.fPhysical += attrMult;
     } else if(skillType == eSkillType::smite) {
@@ -1465,6 +1473,11 @@ bool eStats::canUseSkillId(const int skillId) const {
     switch(skillType) {
     case eSkillType::attack:
         return true;
+    case eSkillType::dualAttack:
+        return (lw == eWeaponType::meele ||
+                lw == eWeaponType::throwable) &&
+               (rw == eWeaponType::meele ||
+                rw == eWeaponType::throwable);
     case eSkillType::smite:
         return lw == eWeaponType::shield ||
                rw == eWeaponType::shield;
@@ -1530,6 +1543,8 @@ float eStats::attackRange(const int schoice,
             return fWeaponRangedRange;
         }
     } break;
+    case eSkillType::dualAttack:
+        return meeleDist;
     case eSkillType::smite:
     case eSkillType::kick:
         return meeleDist;

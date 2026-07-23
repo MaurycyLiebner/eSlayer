@@ -427,6 +427,7 @@ void eStatsWidgetBase::updateStats() {
         bool rw = false;
         switch(skillType) {
         case eSkillType::attack:
+        case eSkillType::dualAttack:
         case eSkillType::throw_:
         case eSkillType::smite:
         case eSkillType::kick:

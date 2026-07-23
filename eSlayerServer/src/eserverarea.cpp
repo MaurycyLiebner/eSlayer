@@ -2170,6 +2170,7 @@ void eServerArea::cast(eServerUnit& by,
         spawnArea(to, skill, data, radius, skill.fMissileId);
     } break;
     case eSkillType::attack:
+    case eSkillType::dualAttack:
     case eSkillType::aura:
     case eSkillType::shoot:
     case eSkillType::kick:

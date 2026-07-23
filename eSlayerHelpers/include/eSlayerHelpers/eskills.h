@@ -7,7 +7,7 @@
 #include "emodscollection.h"
 
 enum class eSkillType : uint8_t {
-    attack, smite, kick,
+    attack, dualAttack, smite, kick,
     shoot, throw_,
     missile, wall,
     nova,

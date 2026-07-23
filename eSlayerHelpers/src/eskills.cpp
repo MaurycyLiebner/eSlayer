@@ -54,6 +54,8 @@ void eSkills::load() {
 
             if(typeStr == "attack") {
                 skill.fType = eSkillType::attack;
+            } else if(typeStr == "dualAttack") {
+                skill.fType = eSkillType::dualAttack;
             } else if(typeStr == "smite") {
                 skill.fType = eSkillType::smite;
             } else if(typeStr == "kick") {
