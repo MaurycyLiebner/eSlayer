@@ -496,14 +496,17 @@ void eGameWidget::updateWantsToTalk() {
 
 void eGameWidget::sSendEqAction(const eEquipmentAction& a) {
     sInstance->sendEqAction(a);
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::sSendBuyAction(const eBuyAction& a) {
     sInstance->sendBuyAction(a);
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::sSendSellAction(const eSellAction& a) {
     sInstance->sendSellAction(a);
+    sInstance->mMainAction->recalculateStats();
 }
 
 void eGameWidget::sSendSkillLevelsChanged() {

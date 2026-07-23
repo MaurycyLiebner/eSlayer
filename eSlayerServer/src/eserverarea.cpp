@@ -1547,6 +1547,7 @@ bool eServerArea::buyAction(
     const bool r = eEquipmentAction::add(
         eq, item, a.fPlace);
     if(!r) return false;
+    u->recalculateStats();
     eq.takeGold(gold);
     if(item.fType == eItemType::potion) {
         eReplaceItemId r;
