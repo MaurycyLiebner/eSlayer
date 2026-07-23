@@ -164,5 +164,7 @@ void eItemsData::load(const std::string& name,
     itemData.fMaxDamageMin = jdata.value("maxDamageMin", 0);
     itemData.fMaxDamageMax = jdata.value("maxDamageMax", 0);
 
+    itemData.fTextureStr = jdata.value("texture", name);
+
     sItems.add(name, itemData);
 }

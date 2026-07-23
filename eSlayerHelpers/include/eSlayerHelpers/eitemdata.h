@@ -87,6 +87,8 @@ struct eItemData {
     uint8_t fLevelReq = 0;
     uint8_t fStrengthReq = 0;
     uint8_t fDexterityReq = 0;
+
+    std::string fTextureStr;
 };
 
 #endif // EITEMDATA_H

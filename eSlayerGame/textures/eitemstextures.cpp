@@ -94,6 +94,20 @@ void eItemsTextures::loadImpl() {
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/ui/items/items.json");
     }
+
+    for(const auto& it : eItemsData::sItems) {
+        auto& value = it.fValue;
+        const int id = it.fId;
+        const auto& texStr = value.fTextureStr;
+        const int texId = mTexs.id(texStr);
+        if(texId < 0) {
+            eRuntimeThrow("Missing item texture for \"" + it.fName + "\".");
+        }
+        mItemDataIdToTexId[id] = texId;
+        const auto& tex = mTexs.get(texId);
+        value.fWidth = tex.fWidth;
+        value.fHeight = tex.fHeight;
+    }
 }
 
 void eItemsTextures::loadImpl(const std::string& name,
@@ -101,17 +115,10 @@ void eItemsTextures::loadImpl(const std::string& name,
                               const int width,
                               const int height) {
     eItemTexture itemTex;
-
-    const int itemDataId = eItemsData::id(name);
-    itemTex.fItemDataId = itemDataId;
+    itemTex.fWidth = width;
+    itemTex.fHeight = height;
     itemTex.fTexPath = path;
-
-    auto& itemData = eItemsData::get(itemDataId);
-    itemData.fWidth = width;
-    itemData.fHeight = height;
-
-    const int id = mTexs.add(name, itemTex);
-    mItemDataIdToTexId[itemDataId] = id;
+    mTexs.add(name, itemTex);
 }
 
 void eItemsTextures::loadTexturesImpl(

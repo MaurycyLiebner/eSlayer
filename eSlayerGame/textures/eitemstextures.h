@@ -12,10 +12,12 @@ using namespace nlohmann;
 class eResolution;
 
 struct eItemTexture {
-    int fItemDataId;
     std::string fTexPath;
     std::shared_ptr<eTexture> fTex;
     std::shared_ptr<eTexture> fTinyTex;
+
+    int fWidth;
+    int fHeight;
 
     void request(SDL_Renderer* const r,
                  const eResolution& res);
