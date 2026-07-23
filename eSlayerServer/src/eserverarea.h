@@ -180,6 +180,9 @@ public:
     void addMissile(const std::shared_ptr<eServerMissile>& m);
     void addNova(const std::shared_ptr<eServerNova>& n);
 
+    uint32_t findOtherTarget(const ePointF& from,
+                             const float range,
+                             const uint32_t skip = 0);
     void spawnMissile(const ePointF& to,
                       const eSkill& skill,
                       const eHitData& data,
@@ -234,10 +237,13 @@ public:
     bool iterateOverUnits(const eArea& areaMin,
                           const eArea& areaMax,
                           const eUnitIter& iter) const;
+    bool iterateOverUnitsClamped(
+        const ePointF& pos,
+        const float maxRadius,
+        const eUnitIter& iter) const;
     bool iterateOverUnits(const ePointF& pos,
                           const float maxRadius,
                           const eUnitIter& iter) const;
-
     void unitKilled(const eServerUnit& killed);
 
     static bool moveClient(const uint32_t clientId,

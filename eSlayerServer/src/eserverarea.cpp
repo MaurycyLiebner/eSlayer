@@ -1812,6 +1812,21 @@ void eServerArea::addNova(const std::shared_ptr<eServerNova>& n) {
     mNovas.add(n->fId, n);
 }
 
+uint32_t eServerArea::findOtherTarget(
+    const ePointF& from,
+    const float range,
+    const uint32_t skip) {
+    uint32_t result = 0;
+    iterateOverUnitsClamped(from, range, [&](
+        const std::shared_ptr<eServerUnit>& u) {
+        const auto id = u->fCharId;
+        if(id == skip) return false;
+        result = id;
+        return true;
+    });
+    return result;
+}
+
 int piercedFromPierceChance(const float p) {
     const float u = eRand::randF();
     return int(std::log(u) / std::log(p));
@@ -1948,13 +1963,11 @@ void eServerArea::spawnArea(const ePointF& to,
     data.fHeal /= 25.f;
     a->fIncrement = [this, data, to, radius]() {
         const auto team = data.fAttackTeamId;
-        iterateOverUnits(to, radius,
+        iterateOverUnitsClamped(to, radius,
                 [&](const std::shared_ptr<eServerUnit>& u) {
             if(u->fHealth <= 0) return false;
             const auto uteam = u->fTeamId;
             const auto& pos = u->fPos;
-            const float dist = ePointF::distance(pos, to);
-            if(dist > radius) return false;
             if(team == uteam) {
                 u->restoreHealth(data.fHeal);
             } else {
@@ -2222,17 +2235,12 @@ std::shared_ptr<eServerUnit> eServerArea::unit(
             const bool r = validator(*u);
             if(!r) return false;
         }
-        const auto& upos = u->fPos;
-        const float dist = ePointF::distance(pos, upos);
-        if(dist <= u->fRadius) {
-            result = u;
-            return true;
-        }
-        return false;
+        result = u;
+        return true;
     };
 
     const float maxRadius = 1.f;
-    iterateOverUnits(pos, maxRadius, iter);
+    iterateOverUnitsClamped(pos, maxRadius, iter);
     return result;
 }
 
@@ -2253,6 +2261,19 @@ bool eServerArea::iterateOverUnits(const eArea& areaMin,
         }
     }
     return false;
+}
+
+bool eServerArea::iterateOverUnitsClamped(
+    const ePointF& pos,
+    const float maxRadius,
+    const eUnitIter& iter) const {
+    return iterateOverUnits(pos, maxRadius, [&](
+        const std::shared_ptr<eServerUnit>& u) {
+        const auto& upos = u->fPos;
+        const double dist = ePointF::distance(pos, upos);
+        if(dist > maxRadius) return false;
+        return iter(u);
+    });
 }
 
 bool eServerArea::iterateOverUnits(const ePointF& pos,
@@ -2329,8 +2350,8 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
     }
 
     const float fleeRange = 5.f;
-    iterateOverUnits(killed.fPos, fleeRange,
-                     [&](const std::shared_ptr<eServerUnit>& u) {
+    iterateOverUnitsClamped(killed.fPos, fleeRange,
+        [&](const std::shared_ptr<eServerUnit>& u) {
         if(u->fHealth <= 0) return false;
         if(u->fTeamId != killed.fTeamId) return false;
         if(u->fTeamId != eTeamId::neutralFriendly &&

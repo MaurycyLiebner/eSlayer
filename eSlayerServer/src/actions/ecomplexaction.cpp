@@ -283,12 +283,10 @@ bool eComplexAction::getHit(const eHitData& data,
             const eTeamId t2 = data.fAttackTeamId;
             if(!eTeams::areEnemies(t1, t2)) return false;
             if(&*u == attacker.get()) return false;
-            const float dist = ePointF::distance(u->fPos, mUnit.fPos);
-            if(dist > splashRange) return false;
             u->getHit(newData, false);
             return false;
         };
-        mArea.iterateOverUnits(mUnit.fPos, splashRange, iter);
+        mArea.iterateOverUnitsClamped(mUnit.fPos, splashRange, iter);
     }
     return hit;
 }
