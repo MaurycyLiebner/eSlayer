@@ -18,19 +18,16 @@ using namespace tinyxml2;
 #include <algorithm>
 #include <iostream>
 
+eCharacter::eCharacter() {
+    initialize();
+}
+
 eCharacter::eCharacter(const int classId,
                        const std::string& name,
                        const bool hardcore) :
     mClassId(classId),
     mName(name), mHardcore(hardcore) {
-    for(const auto& it : eDifficulties::sDifficulties) {
-        auto& waypoints = mWaypoints.emplace_back();
-        waypoints.initialize();
-        auto& quests = mQuests.emplace_back();
-        quests.initialize();
-        auto& talkHeard = mTalkHeard.emplace_back();
-        talkHeard.initialize();
-    }
+    initialize();
 
     const auto& class_ = eClasses::sClasses.get(classId);
     const auto& options = class_.fIniItems;
@@ -53,6 +50,17 @@ eCharacter::eCharacter(const int classId,
     }
 
     mEquipment.fStashGold = class_.fIniGold;
+}
+
+void eCharacter::initialize() {
+    for(const auto& it : eDifficulties::sDifficulties) {
+        auto& waypoints = mWaypoints.emplace_back();
+        waypoints.initialize();
+        auto& quests = mQuests.emplace_back();
+        quests.initialize();
+        auto& talkHeard = mTalkHeard.emplace_back();
+        talkHeard.initialize();
+    }
 }
 
 bool isTrue(std::string value) {

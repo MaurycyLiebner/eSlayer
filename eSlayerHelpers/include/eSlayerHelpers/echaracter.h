@@ -15,10 +15,12 @@
 
 class ESLAYERHELPERS_API eCharacter {
 public:
-    eCharacter() {}
+    eCharacter();
     eCharacter(const int classId,
                const std::string& name,
                const bool hardcore);
+
+    void initialize();
 
     static bool load(const std::string& path,
                      eCharacter& c);
