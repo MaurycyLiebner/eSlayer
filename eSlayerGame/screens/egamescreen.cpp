@@ -84,7 +84,7 @@ void eGameScreen::initialize(const uint32_t clientId,
     mUnitIndicator = new eUnitIndicator(window());
     const auto& res = resolution();
     const float m = res.multiplier();
-    mUnitIndicator->resize(200*m, 40*m);
+    mUnitIndicator->resize(300*m, 40*m);
     addWidget(mUnitIndicator);
     mUnitIndicator->align(eAlignment::hcenter | eAlignment::top);
     mUnitIndicator->setY(20*m);
