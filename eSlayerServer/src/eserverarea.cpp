@@ -130,6 +130,16 @@ void eServerArea::iniSetupUnit(
     u->fBlockingActionTime = 0.f;
     u->fModelParts = modelParts;
 
+    auto& eq = u->equipment();
+    for(const auto itemId : uinfo.fItems) {
+        eItem item;
+        const auto& data = eItemsData::get(itemId);
+        item.fType = data.fType;
+        item.fSubType = data.fSubtype;
+        item.fDataId = itemId;
+        eq.add(item, true, nullptr);
+    }
+
     iniSetupUnit(u, pos);
 }
 
@@ -421,16 +431,6 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                                  pos, type, udata, data, modelParts);
 
                     u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
-
-                    auto& eq = u->equipment();
-                    for(const auto itemId : udata.fItems) {
-                        eItem item;
-                        const auto& data = eItemsData::get(itemId);
-                        item.fType = data.fType;
-                        item.fSubType = data.fSubtype;
-                        item.fDataId = itemId;
-                        eq.add(item, true, nullptr);
-                    }
 
                     if(elite) {
                         mods.apply(*u, boss);
