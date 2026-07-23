@@ -40,7 +40,7 @@ bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
     case eSkillType::smite:
         return weapon == eWeaponType::shield;
     case eSkillType::kick:
-        return true;
+        return wchoice == eWeaponChoice::right;
     case eSkillType::shoot:
         return weapon == eWeaponType::ranged;
     case eSkillType::throw_:
@@ -1181,10 +1181,10 @@ void eStats::calculateSkill(eSkillStats& stats,
     };
 
     const float minFistDmg = 1.f;
-    const float maxFistDmg = 6.f;
+    const float maxFistDmg = 2.f;
 
     const float minFootDmg = 1.f;
-    const float maxFootDmg = 6.f;
+    const float maxFootDmg = 2.f;
 
     eSkillStatsHelper helper{*this, eq, stats};
 
@@ -1196,16 +1196,16 @@ void eStats::calculateSkill(eSkillStats& stats,
                               eq.fWeapon2R);
 
     const auto items = {
-        eq.fBoots,
-        eq.fGloves,
-        eq.fHelmet,
-        eq.fArmor,
-        eq.fBelt,
-        eq.fRingL,
-        eq.fRingR,
-        eq.fAmulet,
-        leftW,
-        rightW,
+        &eq.fBoots,
+        &eq.fGloves,
+        &eq.fHelmet,
+        &eq.fArmor,
+        &eq.fBelt,
+        &eq.fRingL,
+        &eq.fRingR,
+        &eq.fAmulet,
+        &leftW,
+        &rightW,
     };
 
     if(skill.fType == eSkillType::attack ||
@@ -1335,19 +1335,20 @@ void eStats::calculateSkill(eSkillStats& stats,
     } break;
     }
 
-    for(const auto& item : items) {
-        if(!itemReqsMet(item)) continue;
-        for(const auto& mod : item.fModifiers) {
-            if(item.fType == eItemType::weapon ||
-               item.fType == eItemType::shield ||
-               item.fType == eItemType::boots) {
+    for(const auto item : items) {
+        const auto& itemRef = *item;
+        if(!itemReqsMet(itemRef)) continue;
+        for(const auto& mod : itemRef.fModifiers) {
+            if(itemRef.fType == eItemType::weapon ||
+               itemRef.fType == eItemType::shield ||
+               itemRef.fType == eItemType::boots) {
                 if(mod.fType == eModifierType::damagePercent ||
                    mod.fType == eModifierType::damageValue) {
                     continue;
                 }
             }
-            const bool lw = &item != &rightW;
-            const bool rw = &item != &leftW;
+            const bool lw = item != &rightW;
+            const bool rw = item != &leftW;
             handleSkillMod(mod, eModifierSource::item,
                            helper, lw, rw);
         }
