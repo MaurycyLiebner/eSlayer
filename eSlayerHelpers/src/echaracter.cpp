@@ -11,6 +11,7 @@
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/eclasses.h"
 #include "eSlayerHelpers/erand.h"
+#include "eSlayerHelpers/eversion.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;
@@ -447,6 +448,18 @@ bool eCharacter::load(const std::string& path,
                path.c_str());
         return false;
     }
+    const auto versionE = rootE->FirstChildElement("version");
+    if(!versionE) {
+        printf("Missing version element in %s.\n",
+               path.c_str());
+        return false;
+    }
+    const auto versionStr = versionE->GetText();
+    if(versionStr != eVersion) {
+        printf("Outdated character version in %s.\n",
+               path.c_str());
+        return false;
+    }
     const auto classE = rootE->FirstChildElement("class");
     if(!classE) {
         printf("Missing class element in %s.\n",
@@ -870,6 +883,9 @@ bool eCharacter::write(const std::string& path) const {
 
     const auto rootE = doc.NewElement("character");
     doc.InsertEndChild(rootE);
+
+    const auto versionE = rootE->InsertNewChildElement("version");
+    versionE->SetText(eVersion.c_str());
 
     const auto classE = rootE->InsertNewChildElement("class");
     const auto className = eClasses::sClasses.name(mClassId);
