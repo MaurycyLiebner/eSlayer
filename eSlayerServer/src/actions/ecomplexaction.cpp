@@ -215,13 +215,16 @@ bool eComplexAction::getHit(const eHitData& data,
                 mUnit.recalculateAuras();
             }
 
-            {
+            if(mUnit.onStructCastReady()) {
                 const auto& onStruck = stats.fOnStruck;
                 const auto to = data.fFrom;
                 const auto wchoice = eWeaponChoice::left;
+                bool casted = false;
                 for(const auto& o : onStruck) {
-                    mArea.castChance(mUnit, o, wchoice, to);
+                    const bool r = mArea.castChance(mUnit, o, wchoice, to);
+                    casted = casted || r;
                 }
+                if(casted) mUnit.onStructCast();
             }
             mUnit.coldFor(data.fColdLength);
             mUnit.freezeFor(data.fFreezeLength);

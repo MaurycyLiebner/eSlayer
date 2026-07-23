@@ -733,6 +733,7 @@ float eServerUnit::heal(const eSkillStats& stats,
 }
 
 void eServerUnit::increment(const float by) {
+    mOnStructBlock = std::max(0.f, mOnStructBlock - by);
     {
         bool recalc = false;
         if(fHealth <= 0 && !mBoosts.empty()) {
@@ -1436,6 +1437,14 @@ std::set<int> eServerUnit::takeUsedSkills() {
     std::set<int> result;
     std::swap(result, mUsedSkills);
     return std::move(result);
+}
+
+void eServerUnit::onStructCast() {
+    mOnStructBlock = 15.f;
+}
+
+bool eServerUnit::onStructCastReady() const {
+    return mOnStructBlock <= 0.f;
 }
 
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {

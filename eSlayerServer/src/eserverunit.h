@@ -370,6 +370,9 @@ public:
     void setClass(const int classId);
 
     std::set<int> takeUsedSkills();
+
+    void onStructCast();
+    bool onStructCastReady() const;
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
@@ -444,6 +447,8 @@ private:
     bool mAttributesChanged = false;
 
     std::set<int> mUsedSkills;
+
+    float mOnStructBlock = 0.f;
 };
 
 #endif // ESERVERUNIT_H
