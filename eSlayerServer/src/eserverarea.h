@@ -182,7 +182,10 @@ public:
 
     uint32_t findOtherTarget(const ePointF& from,
                              const float range,
-                             const uint32_t skip = 0);
+                             const std::set<uint32_t>& skip);
+    uint32_t findMinOtherTarget(const ePointF& from,
+                                const float range,
+                                const std::map<uint32_t, uint8_t>& skip);
     void spawnMissile(const ePointF& to,
                       const eSkill& skill,
                       const eHitData& data,
