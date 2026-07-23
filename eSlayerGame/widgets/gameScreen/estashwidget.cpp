@@ -40,13 +40,14 @@ void eStashWidget::initialize(
     inner->addWidget(mStash);
 
     mCoins = new eCoinsWidget(window());
-    const auto action = [this, &eq]() {
+    const auto action = [this, &eq, clientId]() {
         const auto q = new eCoinsQuestionWidget(window());
-        const auto goldA = [&eq](const int count) {
+        const auto goldA = [&eq, clientId](const int count) {
             eq.fInventoryGold += count;
             eq.fStashGold -= count;
             eEquipmentAction a;
             a.fType = eEquipmentActionType::gold;
+            a.fUnitId = clientId;
             a.fStashGold = eq.fStashGold;
             a.fInvGold = eq.fInventoryGold;
             eGameWidget::sSendEqAction(a);

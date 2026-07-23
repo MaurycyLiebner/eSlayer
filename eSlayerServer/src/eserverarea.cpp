@@ -1436,6 +1436,7 @@ bool eServerArea::pickupItem(
     const auto itemPtr = mItemsOnGround.get(itemId);
     if(!itemPtr) return false;
     auto& item = action.fAddItem;
+    action.fUnitId = clientId;
     item = *itemPtr;
     const auto gitem = mGroundItems.get(itemId);
     const auto area = itemArea(itemId);
@@ -1496,6 +1497,7 @@ bool eServerArea::dropGold(const uint32_t clientId,
     auto& eq = u->equipment();
     const auto pos = u->fPos;
     count = std::min(eq.fInventoryGold, count);
+    if(count <= 0) return false;
     eq.fInventoryGold -= count;
     const auto item = eItemGenerator::generateGold(count);
     addGroundItem(pos, item);

@@ -252,7 +252,7 @@ void eInventoryWidgetBase::initialize(
         const auto action = [this, stash, &eq]() {
             const auto q = new eCoinsQuestionWidget(window());
             const int s = stash ? 10 : 9;
-            const auto goldA = [stash, &eq](const int count) {
+            const auto goldA = [this, stash, &eq](const int count) {
                 eq.fInventoryGold -= count;
                 if(stash) {
                     eq.fStashGold += count;
@@ -261,6 +261,7 @@ void eInventoryWidgetBase::initialize(
                 }
                 eEquipmentAction a;
                 a.fType = eEquipmentActionType::gold;
+                a.fUnitId = mUnitId;
                 a.fStashGold = eq.fStashGold;
                 a.fInvGold = eq.fInventoryGold;
                 eGameWidget::sSendEqAction(a);
