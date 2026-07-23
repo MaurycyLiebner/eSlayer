@@ -24,6 +24,8 @@ public:
     void setCooldown(const float time);
     void setCooldownMax(const float maxTime);
 
+    void setCanUse(const bool c);
+
     void updateText();
 
     SDL_FPoint center() const;
@@ -53,6 +55,8 @@ private:
 
     int mLevelReq = 1;
     bool mLevelReqMet = true;
+
+    bool mCanUse = true;
 
     int mSchoice = -1;
 

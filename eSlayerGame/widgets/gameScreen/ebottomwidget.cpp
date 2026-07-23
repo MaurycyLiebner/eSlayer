@@ -346,6 +346,8 @@ void eBottomWidget::paintEvent(ePainter& p) {
             cooldown = it->second;
         }
         mLeftSkillButton->setCooldown(cooldown);
+
+        mLeftSkillButton->setCanUse(mStats.canUseSkill(eSkillChoice::left));
     }
 
     {
@@ -358,6 +360,8 @@ void eBottomWidget::paintEvent(ePainter& p) {
             cooldown = it->second;
         }
         mRightSkillButton->setCooldown(cooldown);
+
+        mRightSkillButton->setCanUse(mStats.canUseSkill(eSkillChoice::right));
     }
 }
 
