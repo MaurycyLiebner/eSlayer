@@ -771,6 +771,8 @@ void eServerUnit::increment(const float by) {
             if(max.total() > 0.f) {
                 eHitData data;
                 const auto& min = mStats.fDealsDamageMin;
+                data.fColdLength = mStats.fDealsColdLength;
+                data.fFreezeLength = mStats.fDealsFreezeLength;
                 data.fDamage = eDamage::sRandom(min, max);
                 data.fAlwaysHit = true;
                 data.fFrom = fPos;

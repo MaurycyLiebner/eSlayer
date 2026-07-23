@@ -760,6 +760,12 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             fDealsDamageMin.fCold += mod.fValue1;
             fDealsDamageMax.fCold += mod.fValue2;
         } break;
+        case eModifierType::dealsColdLength: {
+            fDealsColdLength = std::max(fDealsColdLength, 25.f*mod.fValue1);
+        } break;
+        case eModifierType::dealsFreezeLength: {
+            fDealsFreezeLength = std::max(fDealsFreezeLength, 25.f*mod.fValue1);
+        } break;
         case eModifierType::dealsLightningDamage: {
             fDealsDamageMin.fLightning += mod.fValue1;
             fDealsDamageMax.fLightning += mod.fValue2;
@@ -1445,6 +1451,10 @@ float eStats::attackRange(const eSkillChoice schoice,
 bool eStats::canUseSkill(const int schoice) const {
     const auto& skillStats = fSkills[schoice];
     const int skillId = skillStats.fSkillId;
+    return canUseSkillId(skillId);
+}
+
+bool eStats::canUseSkillId(const int skillId) const {
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
     const auto lw = fWeaponTypeL;
@@ -1464,19 +1474,14 @@ bool eStats::canUseSkill(const int schoice) const {
         return lw == eWeaponType::throwable ||
                rw == eWeaponType::throwable;
     case eSkillType::missile:
-        return true;
     case eSkillType::wall:
-        return true;
     case eSkillType::nova:
-        return true;
     case eSkillType::summon:
-        return true;
-    case eSkillType::passive:
-        return false;
-    case eSkillType::aura:
-        return false;
     case eSkillType::area:
     case eSkillType::boostCurse:
+        return true;
+    case eSkillType::passive:
+    case eSkillType::aura:
         return true;
     }
     return false;

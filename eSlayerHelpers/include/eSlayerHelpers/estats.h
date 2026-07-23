@@ -197,6 +197,9 @@ struct ESLAYERHELPERS_API eStats {
     eDamage fDealsDamageMin;
     eDamage fDealsDamageMax;
 
+    float fDealsColdLength = 0.f;
+    float fDealsFreezeLength = 0.f;
+
     eWeaponType fWeaponTypeL = eWeaponType::none;
     eWeaponType fWeaponTypeR = eWeaponType::none;
 
@@ -247,6 +250,7 @@ struct ESLAYERHELPERS_API eStats {
                       const float unit2Radius) const;
 
     bool canUseSkill(const int schoice) const;
+    bool canUseSkillId(const int skillId) const;
     bool rangedAttack(const int schoice) const;
     float attackRange(const int schoice,
                       const float unit1Radius,

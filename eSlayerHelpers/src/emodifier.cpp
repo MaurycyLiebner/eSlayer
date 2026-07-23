@@ -104,7 +104,10 @@ gModifierTypeToString = {
 
     { eModifierType::heal, "heal" },
     { eModifierType::immobilize, "immobilize" },
-    { eModifierType::alwaysHits, "alwaysHits" }
+    { eModifierType::alwaysHits, "alwaysHits" },
+
+    { eModifierType::dealsColdLength, "dealsColdLength" },
+    { eModifierType::dealsFreezeLength, "dealsFreezeLength" }
 };
 
 std::map<std::string, eModifierType>
@@ -203,6 +206,9 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::multiShot:
 
     case eModifierType::immobilize:
+
+    case eModifierType::dealsColdLength:
+    case eModifierType::dealsFreezeLength:
         return eModValuesUsage::value1;
 
     case eModifierType::knockback:
@@ -355,6 +361,9 @@ std::string eModifier::value1Name() const {
     case eModifierType::freezeLength:
 
     case eModifierType::immobilize:
+
+    case eModifierType::dealsColdLength:
+    case eModifierType::dealsFreezeLength:
         return "length";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -463,6 +472,9 @@ std::string eModifier::value2Name() const {
 
     case eModifierType::immobilize:
     case eModifierType::alwaysHits:
+
+    case eModifierType::dealsColdLength:
+    case eModifierType::dealsFreezeLength:
         return "";
     case eModifierType::onAttack:
     case eModifierType::onStriking:
@@ -682,6 +694,9 @@ bool eModifierHelpers::isPercent(
     case eModifierType::heal:
     case eModifierType::immobilize:
     case eModifierType::alwaysHits:
+
+    case eModifierType::dealsColdLength:
+    case eModifierType::dealsFreezeLength:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

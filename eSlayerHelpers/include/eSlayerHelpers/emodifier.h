@@ -114,6 +114,9 @@ enum class eModifierType : uint8_t {
     immobilize,
     alwaysHits,
 
+    dealsColdLength,
+    dealsFreezeLength,
+
     count
 };
 
