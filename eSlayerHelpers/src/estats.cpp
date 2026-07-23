@@ -1192,6 +1192,9 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::allClassSkills:
         case eModifierType::classSkill:
         case eModifierType::skill:
+
+        case eModifierType::dealsColdLength:
+        case eModifierType::dealsFreezeLength:
             break;
         }
     };
