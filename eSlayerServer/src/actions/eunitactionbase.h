@@ -14,7 +14,7 @@ public:
     void increment(const float by) override;
 
     void setDuration(const float d);
-protected:
+
     void setup(const int anim,
                int frames,
                bool blocking,

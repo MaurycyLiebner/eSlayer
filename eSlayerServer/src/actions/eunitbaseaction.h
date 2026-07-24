@@ -56,6 +56,9 @@ private:
 
     float mTanChance = 0.f;
     float mTanDistance = 0.f;
+
+    float mStandChance = 0.f;
+    int mStandLength = 1;
 };
 
 #endif // EUNITBASEACTION_H

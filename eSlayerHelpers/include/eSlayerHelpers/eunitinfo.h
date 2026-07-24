@@ -19,6 +19,9 @@ struct eUnitInfo {
     float fTanChance;
     float fTanDistance;
 
+    float fStandChance;
+    int fStandLength;
+
     bool fDifficultyPenalties;
 
     std::map<uint16_t, uint16_t> fSkills;

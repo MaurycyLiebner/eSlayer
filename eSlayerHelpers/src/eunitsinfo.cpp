@@ -79,6 +79,9 @@ void eUnitsInfo::load() {
             u.fTanChance = jdata.value("tanChance", 0.f);
             u.fTanDistance = jdata.value("tanDist", 0.f);
 
+            u.fStandChance = jdata.value("standChance", 0.f);
+            u.fStandLength = jdata.value("standLen", 1);
+
             u.fSkillPointsPerLevel = jdata.value("skillPointsPerLevel", 1);
             u.fStatPointsPerLevel = jdata.value("statPointsPerLevel", 5);
 

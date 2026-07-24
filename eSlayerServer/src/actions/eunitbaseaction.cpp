@@ -23,12 +23,18 @@ eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
 
     const auto& info = eUnitsInfo::sUnits.get(
         unit.fUnitInfoId);
+
     mTanChance = info.fTanChance;
     mTanDistance = info.fTanDistance;
+
+    mStandChance = info.fStandChance;
+    mStandLength = info.fStandLength;
 }
 
 void eUnitBaseAction::increment(const float by) {
-    if(mUnit.fHealth > 0 && mStrategy == eUnitStrategy::attack) {
+    if(mUnit.fHealth > 0 &&
+       mUnit.fBlockingActionTime <= 0.f &&
+       mStrategy == eUnitStrategy::attack) {
         checkForAttackIncrement(by);
     }
     eComplexAction::increment(by);
@@ -76,6 +82,21 @@ void eUnitBaseAction::decide() {
                 setStrategy(eUnitStrategy::move);
                 return;
             }
+        }
+    }
+    if(mAttacking && mStandLength > 0 && eRand::randChance(mStandChance)) {
+        const int standAnim = eMovementHandlerBase::sChooseAnim(
+            mStandAnimId, mStandReadyAnimId, true);
+        if(standAnim >= 0) {
+            const auto stand = std::make_shared<eUnitActionBase>(
+                mUnit, mArea);
+            const auto& data = mUnit.data();
+            const int frames = data.animFrames(standAnim);
+            stand->setup(standAnim, frames, true, nullptr);
+            stand->setDuration(mStandLength*frames);
+            setChild(stand);
+            mAttacking = 0;
+            return;
         }
     }
     setStrategy(eUnitStrategy::attack);
