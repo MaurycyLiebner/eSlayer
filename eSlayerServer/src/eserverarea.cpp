@@ -1867,6 +1867,8 @@ uint32_t eServerArea::findMinOtherTarget(
 }
 
 int piercedFromPierceChance(const float p) {
+    if(p <= 0.f) return 0;
+    if(p >= 1.f) return std::numeric_limits<int>::max();
     const float u = eRand::randF();
     return int(std::log(u) / std::log(p));
 }
@@ -1915,7 +1917,7 @@ void eServerArea::spawnMissile(const ePointF& to,
             auto& md = missiles.emplace_back();
             const int max = std::numeric_limits<uint8_t>::max();
             const int pierced = piercedFromPierceChance(pierceChance);
-            md.fToPierce = 1 + std::min(max, pierced);
+            md.fToPierce = std::min(max, 1 + pierced);
             md.fPos = data.fFrom;
             md.fTo = data.fFrom + dir;
             md.fMissileId = missileId;
