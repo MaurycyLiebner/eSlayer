@@ -38,6 +38,7 @@ struct ESLAYERHELPERS_API eModsCollectionLevel {
         const ordered_json& levelsJson,
         std::vector<eModsCollectionLevel>& levels,
         const int maxLevel,
+        const bool skipAll1,
         const int count = 0,
         const float cooldown = 0.f,
         const float manaCost = 0.f,

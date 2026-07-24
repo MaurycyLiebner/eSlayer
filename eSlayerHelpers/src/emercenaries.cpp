@@ -159,11 +159,11 @@ void eMercenariesInfo::load() {
             if(jdata.contains("modifiers")) {
                 const auto& mods = jdata["modifiers"];
                 eModsCollectionLevel::parseLevels(
-                    mods, u.fMods, maxUnitLevel);
+                    mods, u.fMods, maxUnitLevel, true);
             } else {
                 const ordered_json empty = ordered_json::object();
                 eModsCollectionLevel::parseLevels(
-                    empty, u.fMods, maxUnitLevel);
+                    empty, u.fMods, maxUnitLevel, true);
             }
 
             sMercs.add(name, u);

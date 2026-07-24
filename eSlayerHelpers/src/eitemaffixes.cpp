@@ -71,7 +71,7 @@ void eItemAffixes::load() {
                 if(jdata.contains("modifiers")) {
                     const auto& jmods = jdata["modifiers"];
                     eModsCollectionLevel::parseLevels(
-                        jmods, mod.fLevels, sMaxItemLevel);
+                        jmods, mod.fLevels, sMaxItemLevel, true);
                     for(auto& level : mod.fLevels) {
                         level.fModifiers.collapseSkillLevel();
                         level.fTotalModifiers.collapseSkillLevel();

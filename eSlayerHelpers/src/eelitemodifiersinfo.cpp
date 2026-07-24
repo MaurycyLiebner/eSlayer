@@ -32,20 +32,20 @@ void eEliteModifiersInfo::load() {
             if(jdata.contains("minions")) {
                 const auto& minions = jdata["minions"];
                 eModsCollectionLevel::parseLevels(
-                    minions, elite.fMinions, sMaxUnitLevel);
+                    minions, elite.fMinions, sMaxUnitLevel, true);
             } else {
                 const ordered_json empty = ordered_json::object();
                 eModsCollectionLevel::parseLevels(
-                    empty, elite.fMinions, sMaxUnitLevel);
+                    empty, elite.fMinions, sMaxUnitLevel, true);
             }
             if(jdata.contains("boss")) {
                 const auto& boss = jdata["boss"];
                 eModsCollectionLevel::parseLevels(
-                    boss, elite.fBoss, sMaxUnitLevel);
+                    boss, elite.fBoss, sMaxUnitLevel, true);
             } else {
                 const ordered_json empty = ordered_json::object();
                 eModsCollectionLevel::parseLevels(
-                    empty, elite.fBoss, sMaxUnitLevel);
+                    empty, elite.fBoss, sMaxUnitLevel, true);
             }
             elite.fBossColorMod = eColor{1.f, 1.f, 1.f, 1.f};
             if(jdata.contains("bossColorMod")) {

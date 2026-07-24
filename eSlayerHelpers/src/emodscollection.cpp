@@ -249,6 +249,7 @@ void eModsCollectionLevel::parseLevels(
     const ordered_json& levelsJson,
     std::vector<eModsCollectionLevel>& levels,
     const int maxLevel,
+    const bool skipAll1,
     const int count,
     const float cooldown,
     const float manaCost,
@@ -274,10 +275,10 @@ void eModsCollectionLevel::parseLevels(
                 ? levelsJson[levelKey]
                 : empty;
 
-        if(i > 1) totalMods.addBoost(allMods);
+        if(i > 1 || !skipAll1) totalMods.addBoost(allMods);
         auto level = parseLevel(levelData, totalMods);
         auto& mods = level.fModifiers;
-        if(i > 1) mods.addBoost(allMods);
+        if(i > 1 || !skipAll1) mods.addBoost(allMods);
         levels.emplace_back(level);
     }
 }

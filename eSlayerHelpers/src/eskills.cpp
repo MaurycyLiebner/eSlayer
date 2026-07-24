@@ -147,7 +147,7 @@ void eSkills::load() {
                 const auto& levels = jdata["levels"];
                 eModsCollectionLevel::parseLevels(
                     levels, skill.fLevels,
-                    eSkills::sMaxSkillLevel,
+                    eSkills::sMaxSkillLevel, true,
                     count, cooldown, manaCost,
                     radius);
             }
@@ -160,7 +160,7 @@ void eSkills::load() {
                     synergy.fSkillStr = name;
                     eModsCollectionLevel::parseLevels(
                         levels, synergy.fBoostLevels,
-                        eSkills::sMaxSkillLevel);
+                        eSkills::sMaxSkillLevel, false);
                 }
             }
             sSkills.add(name, skill);
