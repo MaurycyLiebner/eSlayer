@@ -38,8 +38,6 @@ void eItemsData::load() {
 
     const auto dir = "Items";
 
-    ePotionTypes::sTypes.add("", false);
-
     try {
         const auto jdata = eFileLoaderBase::parse(dir, "items.json");
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
@@ -60,6 +58,15 @@ void eItemsData::load() {
         }
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/items.json");
+    }
+
+    for(const auto& it : ePotionTypes::sTypes) {
+        auto& vec = it.fValue;
+        std::sort(vec.begin(), vec.end(), [](const int id1, const int id2) {
+            const auto& i1 = eItemsData::get(id1);
+            const auto& i2 = eItemsData::get(id2);
+            return i1.fLevelReq < i2.fLevelReq;
+        });
     }
 }
 
@@ -104,9 +111,12 @@ void eItemsData::load(const std::string& name,
         if(typeStr.empty()) {
             eRuntimeThrow("No potion type provided for \"" + name + "\"");
         }
+        const int thisItemId = sItems.nextId();
         int typeId = ePotionTypes::sTypes.id(typeStr);
         if(typeId < 0) {
-            typeId = ePotionTypes::sTypes.add(typeStr, true);
+            typeId = ePotionTypes::sTypes.add(typeStr, {thisItemId});
+        } else {
+            ePotionTypes::sTypes.get(typeId).emplace_back(thisItemId);
         }
         itemData.fSubtype = typeId;
 

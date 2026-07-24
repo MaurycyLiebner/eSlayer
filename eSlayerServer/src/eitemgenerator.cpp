@@ -5,6 +5,7 @@
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerHelpers/eitemaffixes.h>
+#include <eSlayerHelpers/epotiontype.h>
 
 uint32_t eItemGenerator::sNextItemId = 1;
 
@@ -17,12 +18,16 @@ eItem eItemGenerator::generatePotion(
     eItem item;
     eItemGenerator::applyItemId(item);
     std::vector<int> typeIds;
-    for(int i = 0; i < eItemsData::sItems.size(); i++) {
-        const auto& itemData = eItemsData::get(i);
-        if(itemData.fType != eItemType::potion) continue;
-        const int levelReq = itemData.fLevelReq;
-        if(levelReq > level) continue;
-        typeIds.emplace_back(i);
+    for(const auto& type : ePotionTypes::sTypes) {
+        const auto& vec = type.fValue;
+        for(auto it = vec.rbegin(); it != vec.rend(); it++) {
+            const int id = *it;
+            const auto& item = eItemsData::get(id);
+            if(item.fLevelReq <= level) {
+                typeIds.emplace_back(id);
+                break;
+            }
+        }
     }
     if(typeIds.empty()) return item;
     const int typeId = eRand::randomElement(typeIds);
@@ -123,9 +128,13 @@ eItem eItemGenerator::generateItem(
 eItem eItemGenerator::generateItem(
     const int level, const float worth) {
     int typeId;
-    if(worth < 1.f && eRand::randChance(0.5f)) {
-        const uint32_t count = 1 + 5.f*sqrt(level)*worth;
-        return generateGold(count);
+    if(worth < 1.f) {
+        if(eRand::randChance(0.5f)) {
+            const uint32_t count = 1 + 5.f*sqrt(level)*worth;
+            return generateGold(count);
+        } else {
+            return generatePotion(level, worth);
+        }
     } else {
         std::vector<int> typeIds;
         for(int i = 0; i < eItemsData::sItems.size(); i++) {
@@ -135,6 +144,7 @@ eItem eItemGenerator::generateItem(
             switch(itemData.fType) {
             case eItemType::gold:
             case eItemType::questItem:
+            case eItemType::potion:
                 continue;
             default:
                 break;

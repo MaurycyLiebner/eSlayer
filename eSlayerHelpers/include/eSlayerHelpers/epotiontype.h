@@ -7,7 +7,7 @@
 
 class ESLAYERHELPERS_API ePotionTypes {
 public:
-    static eStringIdMapVector<bool> sTypes;
+    static eStringIdMapVector<std::vector<int>> sTypes;
 };
 
 #endif // EPOTIONTYPE_H

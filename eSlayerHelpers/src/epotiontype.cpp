@@ -1,3 +1,3 @@
 #include "eSlayerHelpers/epotiontype.h"
 
-eStringIdMapVector<bool> ePotionTypes::sTypes;
+eStringIdMapVector<std::vector<int>> ePotionTypes::sTypes;
