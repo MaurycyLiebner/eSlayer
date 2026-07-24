@@ -154,13 +154,14 @@ bool addPlus(const float value,
 }
 
 void eHoverGenerator::addValue(SDL_Renderer* const r,
-                               const int g, const int s,
+                               int g, const int s,
                                const int min,
                                const int max,
                                const int skillId,
                                const int classId,
                                const eFontColor color,
                                const eModifierType type) {
+    if(g == 22 && min == max) g = 23;
     auto text = eText::text(g, s);
 
     std::string minStr;

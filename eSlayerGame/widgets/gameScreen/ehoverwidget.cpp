@@ -194,7 +194,7 @@ void eHoverWidget::setHoverItem(
         }
         for(const auto& mod : item.fModifiers) {
             const int s = static_cast<int>(mod.fType);
-            gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+            gen.addValue(r, 22, s, mod.fValue1, mod.fValue2,
                          mod.fSkillId, mod.fClassId,
                          eFontColor::blue, mod.fType);
         }
@@ -294,7 +294,7 @@ void eHoverWidget::setHoverItem(
             }
             for(const auto& mod : itemData.fPotionMods) {
                 const int s = static_cast<int>(mod.fType);
-                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                gen.addValue(r, 22, s, mod.fValue1, mod.fValue2,
                              mod.fSkillId, mod.fClassId,
                              eFontColor::blue, mod.fType);
             }
@@ -356,7 +356,7 @@ void eHoverWidget::setHoverSkill(
             for(const auto& it : mods) {
                 const auto& mod = it.second;
                 const int s = static_cast<int>(mod.fType);
-                gen.addValue(r, 10, s, mod.fValue1, mod.fValue2,
+                gen.addValue(r, 22, s, mod.fValue1, mod.fValue2,
                              mod.fSkillId, mod.fClassId,
                              eFontColor::white, mod.fType);
             }

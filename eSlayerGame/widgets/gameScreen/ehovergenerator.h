@@ -24,7 +24,7 @@ public:
                  const std::string& text,
                  const eFontColor color);
     void addValue(SDL_Renderer* const r,
-                  const int g, const int s,
+                  int g, const int s,
                   const int min, const int max,
                   const int skillId,
                   const int classId,

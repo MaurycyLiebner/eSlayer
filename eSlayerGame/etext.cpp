@@ -29,7 +29,7 @@ const std::string &eText::text(const int g, const int s) {
 const std::string &eText::textImpl(const int g, const int s) {
     const auto git = mText.find(g);
     if(git == mText.end()) {
-        eRuntimeThrow("Groud id " + std::to_string(g) + " missing from text.xml.");
+        eRuntimeThrow("Group id " + std::to_string(g) + " missing from text.xml.");
     }
     const auto& group = git->second;
     const auto sit = group.find(s);
