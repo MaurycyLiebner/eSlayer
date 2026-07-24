@@ -39,9 +39,9 @@ struct eObjectInfo {
     int fTexId;
     bool fObstacle;
     bool fWalkable;
-    std::vector<int> fItemTypes;
-    std::vector<int> fPotionTypes;
-    std::vector<int> fMercTypes;
+    std::map<int, std::vector<int>> fItemTypes;
+    std::map<int, std::vector<int>> fPotionTypes;
+    std::map<int, std::vector<int>> fMercTypes;
 
     int fKey = -1;
 };

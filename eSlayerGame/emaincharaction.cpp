@@ -32,6 +32,7 @@
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/ehireinfo.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -673,14 +674,20 @@ void eMainCharAction::openMainMenu(
         if(npcId >= 0) {
             std::vector<uint8_t> mtypes;
             const auto& npc = eObjectsInfo::sObjects.get(npcId);
-            for(const auto t : npc.fMercTypes) {
-                mtypes.emplace_back(t);
+            const int diff = eDifficulties::sDifficulty;
+            const auto& mercMap = npc.fMercTypes;
+            const auto it = mercMap.find(diff);
+            if(it != mercMap.end()) {
+                const auto& mercTypes = it->second;
+                for(const auto t : mercTypes) {
+                    mtypes.emplace_back(t);
+                }
+                hireAct.fPress = [mtypes, level]() {
+                    eHoverWidget::sOpenMenu("", {});
+                    const auto options = eHireInfos::generate(mtypes, level, 12);
+                    eGameScreen::sOpenHireMenu(options);
+                };
             }
-            hireAct.fPress = [mtypes, level]() {
-                eHoverWidget::sOpenMenu("", {});
-                const auto options = eHireInfos::generate(mtypes, level, 12);
-                eGameScreen::sOpenHireMenu(options);
-            };
         }
     }
     {

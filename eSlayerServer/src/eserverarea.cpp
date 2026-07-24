@@ -283,7 +283,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             bool added = false;
             do {
                 const int typeId = eRand::randomElement(typeIds);
-                const auto level = eRand::rand(1, maxLevel);
+                const auto minLevel = std::max(1, maxLevel - 10);
+                const auto level = eRand::rand(minLevel, maxLevel);
                 const float worth = eRand::biasedRandF(2.f, 4.f, 1.f);
                 const auto item = eItemGenerator::generateItem(
                     typeId, level, worth);
@@ -1396,9 +1397,16 @@ bool eServerArea::triggerObject(
             const float fx = tx + sobj->fWidth + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, level, 7.5f);
-            for(const auto typeId : info.fItemTypes) {
-                const auto item = eItemGenerator::generateItem(typeId, level, 7.5f);
-                addGroundItem(pos, item);
+
+            const int diff = eDifficulties::sDifficulty;
+            const auto& itemMap = info.fItemTypes;
+            const auto it = itemMap.find(diff);
+            if(it != itemMap.end()) {
+                const auto& items = it->second;
+                for(const auto typeId : items) {
+                    const auto item = eItemGenerator::generateItem(typeId, level, 7.5f);
+                    addGroundItem(pos, item);
+                }
             }
             state = 1;
         } break;

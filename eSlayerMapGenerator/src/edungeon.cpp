@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/eterrstexturesdata.h>
 #include <eSlayerHelpers/eblueprints.h>
 #include <eSlayerHelpers/esellers.h>
+#include <eSlayerHelpers/edifficulties.h>
 
 eDungeon::eDungeon() {}
 
@@ -279,8 +280,24 @@ void eDungeon::generate(ePointF& spawnPos) const {
             s.fLevel = mSettings.fLevel;
             s.fType = type;
             s.fMapId = mMap->id();
-            s.fSellItemTypes = info.fItemTypes;
-            s.fSellPotionTypes = info.fPotionTypes;
+
+            const int diff = eDifficulties::sDifficulty;
+
+            {
+                auto& itemMap = info.fItemTypes;
+                const auto it = itemMap.find(diff);
+                if(it != itemMap.end()) {
+                    s.fSellItemTypes = it->second;
+                }
+            }
+
+            {
+                auto& potionMap = info.fPotionTypes;
+                const auto it = potionMap.find(diff);
+                if(it != potionMap.end()) {
+                    s.fSellPotionTypes = it->second;
+                }
+            }
         };
 
         switch(info.fType) {

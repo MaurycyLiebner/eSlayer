@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/emercenaries.h"
+#include "eSlayerHelpers/edifficulties.h"
 
 bool eObjectsInfo::sLoaded = false;
 eStringIdMapVector<eObjectInfo>
@@ -85,33 +86,69 @@ void eObjectsInfo::load() {
                 info.fKey = keyId;
             }
             info.fTexStr = value.value("texture", "");
-            const auto itemTypes = value.value("itemTypes", std::vector<std::string>());
-            for(const auto& str : itemTypes) {
-                const int id = eItemsData::id(str);
-                if(id < 0) {
-                    eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
-                                  dir + "/objects.json");
+            if(value.contains("itemTypes")) {
+                const auto& types = value["itemTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
+                                      dir + "/objects.json");
+                    }
+                    auto& diffItems = info.fItemTypes[diffId];
+                    const auto itemTypes = std::vector<std::string>(types);
+                    for(const auto& str : itemTypes) {
+                        const int id = eItemsData::id(str);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
+                                          dir + "/objects.json");
+                        }
+                        diffItems.emplace_back(id);
+                    }
                 }
-                info.fItemTypes.emplace_back(id);
             }
-            const auto potionTypes = value.value("potionTypes", std::vector<std::string>());
-            for(const auto& str : potionTypes) {
-                const int id = eItemsData::id(str);
-                if(id < 0) {
-                    eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
-                                  dir + "/objects.json");
+
+            if(value.contains("potionTypes")) {
+                const auto& types = value["potionTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
+                                      dir + "/objects.json");
+                    }
+                    auto& diffItems = info.fPotionTypes[diffId];
+                    const auto itemTypes = std::vector<std::string>(types);
+                    for(const auto& str : itemTypes) {
+                        const int id = eItemsData::id(str);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized potion type \"" + str + "\" in " +
+                                          dir + "/objects.json");
+                        }
+                        diffItems.emplace_back(id);
+                    }
                 }
-                info.fPotionTypes.emplace_back(id);
             }
-            const auto mercTypes = value.value("mercTypes", std::vector<std::string>());
-            for(const auto& str : mercTypes) {
-                const int id = eMercenariesInfo::sMercs.id(str);
-                if(id < 0) {
-                    eRuntimeThrow("Unrecognized mercenary type \"" + str + "\" in " +
-                                  dir + "/objects.json");
+
+            if(value.contains("mercTypes")) {
+                const auto& types = value["mercTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
+                                      dir + "/objects.json");
+                    }
+                    auto& diffMercs = info.fMercTypes[diffId];
+                    const auto mercTypes = std::vector<std::string>(types);
+                    for(const auto& str : mercTypes) {
+                        const int id = eMercenariesInfo::sMercs.id(str);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized mercenary type \"" + str + "\" in " +
+                                          dir + "/objects.json");
+                        }
+                        diffMercs.emplace_back(id);
+                    }
                 }
-                info.fMercTypes.emplace_back(id);
             }
+
             sObjects.add(key, info);
         }
     } catch(...) {
