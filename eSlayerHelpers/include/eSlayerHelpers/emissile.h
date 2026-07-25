@@ -11,7 +11,13 @@
 
 class ePacket;
 
-struct ESLAYERHELPERS_API eMissile : public ePositioned {
+struct ESLAYERHELPERS_API eMissileUpdate {
+    uint32_t fId;
+    uint32_t fEnemy;
+};
+
+struct ESLAYERHELPERS_API eMissile :
+        public ePositioned {
     uint32_t fId;
     eTeamId fTeamId;
     uint8_t fType;
@@ -35,6 +41,10 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
 
     void read(ePacket& p);
     void write(ePacket& p) const;
+
+    bool needsUpdate() const;
+    bool applyUpdate(const eMissileUpdate& u);
+    eMissileUpdate extractUpdate() const;
 };
 
 #endif // EMISSILE_H

@@ -159,6 +159,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& newUnits = data.fNewUnits;
     const auto& updatedUnits = data.fUpdatedUnits;
     const auto& missiles = data.fMissiles;
+    const auto& missileUpdates = data.fMissileUpdates;
     const auto& novas = data.fNovas;
     const auto& skillAreas = data.fSkillAreas;
     const auto& usedSkills = data.fUsedSkills;
@@ -273,6 +274,12 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mm->fAnimId = apearId >= 0 ? apearId : baseId;
         reinterpret_cast<eMissile&>(*mm) = m;
         mMissiles.add(m.fId, mm);
+    }
+
+    for(const auto& u : missileUpdates) {
+        const auto m = mMissiles.get(u.fId);
+        if(!m) continue;
+        m->applyUpdate(u);
     }
 
     for(const auto& n : novas) {

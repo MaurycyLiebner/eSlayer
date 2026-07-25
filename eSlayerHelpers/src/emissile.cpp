@@ -38,3 +38,20 @@ void eMissile::write(ePacket& p) const {
     p.writeFloatU8(fRadius, eSkill::sRadiusMax);
     p.write8(fTwinMissiles);
 }
+
+bool eMissile::needsUpdate() const {
+    return fEnemyFindRange > 0.f;
+}
+
+bool eMissile::applyUpdate(const eMissileUpdate& u) {
+    if(u.fId != fId) return false;
+    fEnemy = u.fEnemy;
+    return true;
+}
+
+eMissileUpdate eMissile::extractUpdate() const {
+    eMissileUpdate result;
+    result.fId = fId;
+    result.fEnemy = fEnemy;
+    return result;
+}

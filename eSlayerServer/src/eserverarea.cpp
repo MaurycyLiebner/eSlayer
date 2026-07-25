@@ -1644,26 +1644,35 @@ void eServerArea::consumePotion(
     tu->consumePotion(p);
 }
 
-std::vector<eMissile>
+eMissileData
 eServerArea::missileData(const uint32_t clientId) {
-    std::vector<eMissile> result;
+    eMissileData result;
     const auto u = unit(clientId);
     if(!u) return result;
-    result.reserve(mMissiles.actualSize());
+    const auto& upos = u->fPos;
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return result;
+    auto& newMissiles = result.fNewMissiles;
+    newMissiles.reserve(mMissiles.actualSize());
     auto& clientData = it->second;
     auto& latestMissile = clientData.fLatestMissile;
     auto newLatestMissile = latestMissile;
     for(const auto& m : mMissiles) {
-        if(m->fId <= latestMissile) continue;
-        newLatestMissile = std::max(newLatestMissile, m->fId);
-        const float dist = ePointF::distance(m->fPos, u->fPos);
+        const auto& mref = *m;
+        if(mref.fId <= latestMissile) {
+            if(mref.needsUpdate()) {
+                const auto update = mref.extractUpdate();
+                result.fUpdates.emplace_back(update);
+            }
+            continue;
+        }
+        newLatestMissile = std::max(newLatestMissile, mref.fId);
+        const float dist = ePointF::distance(mref.fPos, upos);
         if(dist > 20.f) continue;
-        result.emplace_back(*m);
+        newMissiles.emplace_back(mref);
     }
     latestMissile = newLatestMissile;
-    return result;
+    return std::move(result);
 }
 
 std::vector<eNova>

@@ -37,33 +37,44 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
         const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
 
         float closestUnit = m.fEnemyFindRange + 0.1f;
-        m.fEnemy = 0;
 
         std::set<uint32_t> skip;
-        for(const auto mid : m.fTwinMissiles) {
-            const auto mptr = mGetMissile(mid);
-            if(!mptr) continue;
-            const auto& mref = *mptr;
-            if(mref.fEnemy <= 0) continue;
-            skip.emplace(mref.fEnemy);
-        }
 
-        for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
-            for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
-                const eArea area{ax, ay};
-                if(!mUnitAreas.hasArea(area)) continue;
-                const auto& units = mUnitAreas.at(area);
-                for(const uint32_t charId : units) {
-                    const auto u = mGetUnit(charId);
-                    if(!u) continue;
-                    if(u->fHealth <= 0) continue;
-                    if(!eTeams::areEnemies(u->fTeamId, m.fTeamId)) continue;
-                    if(skip.count(charId) > 0) continue;
-                    const float dist = ePointF::distance(u->fPos, m.fPos);
-                    if(dist < closestUnit) {
-                        closestUnit = dist;
-                        m.fEnemyPos = u->fPos;
-                        m.fEnemy = charId;
+        const auto tryUnit = [&](const uint32_t charId) {
+            const auto u = mGetUnit(charId);
+            if(!u) return false;
+            if(u->fHealth <= 0) return false;
+            if(!eTeams::areEnemies(u->fTeamId, m.fTeamId)) return false;
+            if(skip.count(charId) > 0) return false;
+            const float dist = ePointF::distance(u->fPos, m.fPos);
+            if(dist < closestUnit) {
+                closestUnit = dist;
+                m.fEnemyPos = u->fPos;
+                m.fEnemy = charId;
+                return true;
+            }
+            return false;
+        };
+
+        const bool r = m.fEnemy > 0 && tryUnit(m.fEnemy);
+        if(!r) {
+            m.fEnemy = 0;
+
+            for(const auto mid : m.fTwinMissiles) {
+                const auto mptr = mGetMissile(mid);
+                if(!mptr) continue;
+                const auto& mref = *mptr;
+                if(mref.fEnemy <= 0) continue;
+                skip.emplace(mref.fEnemy);
+            }
+
+            for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
+                for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
+                    const eArea area{ax, ay};
+                    if(!mUnitAreas.hasArea(area)) continue;
+                    const auto& units = mUnitAreas.at(area);
+                    for(const uint32_t charId : units) {
+                        tryUnit(charId);
                     }
                 }
             }

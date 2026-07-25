@@ -56,6 +56,11 @@ struct eClientData {
     uint32_t fFollowersState = 0;
 };
 
+struct eMissileData {
+    std::vector<eMissile> fNewMissiles;
+    std::vector<eMissileUpdate> fUpdates;
+};
+
 class eServerArea {
 public:
     eServerArea();
@@ -78,7 +83,7 @@ public:
                    std::vector<uint32_t>& removedItemIds);
     void usedSkills(const uint32_t clientId,
                     std::set<int>& usedSkills);
-    std::vector<eMissile>
+    eMissileData
     missileData(const uint32_t clientId);
     std::vector<eNova>
     novaData(const uint32_t clientId);

@@ -21,7 +21,9 @@ bool eServerClientHandler::receiveData(
     if(!mArea) return false;
     resultTime = mArea->time();
     mArea->unitsData(mClientId, data.fNewUnits, data.fUpdatedUnits);
-    data.fMissiles = mArea->missileData(mClientId);
+    const auto missileData = mArea->missileData(mClientId);
+    data.fMissiles = missileData.fNewMissiles;
+    data.fMissileUpdates = missileData.fUpdates;
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
