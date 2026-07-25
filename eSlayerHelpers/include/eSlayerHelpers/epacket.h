@@ -3,13 +3,15 @@
 
 #include "eslayerhelpersexport.h"
 
-#include "eSlayerHelpers/eexceptions.h"
+#include "eexceptions.h"
 
 #include <cstdint>
 #include <cstring>
+#include <limits>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
+
 struct eTile;
 class ESLAYERHELPERS_API ePacket {
 public:
@@ -126,7 +128,7 @@ public:
 private:
     template <typename T, typename U>
     void write(const std::vector<T>& v) {
-        const U size = v.size();
+        const U size = std::min<std::size_t>(std::numeric_limits<U>::max(), v.size());
         *this << size;
         for(U i = 0; i < size; i++) {
             *this << v[i];
@@ -145,7 +147,7 @@ private:
 
     template <typename T, typename U>
     void write(const std::set<T>& v) {
-        const U size = v.size();
+        const U size = std::min<std::size_t>(std::numeric_limits<U>::max(), v.size());
         *this << size;
         U i = 0;
         for(const auto& t : v) {
