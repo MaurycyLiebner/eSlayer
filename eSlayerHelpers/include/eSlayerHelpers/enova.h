@@ -18,6 +18,8 @@ struct ESLAYERHELPERS_API eNova {
     float fMaxRadius;
     float fSpeed;
 
+    uint8_t fNMissiles;
+
     eArcIntervals fIntervals{{0.f, 360.f}};
 
     void obstacle1(const ePointF& pos,

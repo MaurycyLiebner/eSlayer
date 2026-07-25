@@ -61,6 +61,8 @@ void eNova::read(ePacket& p) {
     fRadius = 0.f;
     fMaxRadius = p.readFloatU8(eSkill::sRadiusMax);
     fSpeed = p.readFloatU8(eSkill::sSpeedMax);
+
+    p >> fNMissiles;
 }
 
 void eNova::write(ePacket& p) const {
@@ -72,6 +74,8 @@ void eNova::write(ePacket& p) const {
 
     p.writeFloatU8(fMaxRadius, eSkill::sRadiusMax);
     p.writeFloatU8(fSpeed, eSkill::sSpeedMax);
+
+    p << fNMissiles;
 }
 
 bool eArcIntervals::angleInRange(const float angle) const {

@@ -75,6 +75,7 @@ struct eSkill {
     float fMaxAngle;
     bool fAngleAdjust;
     float fCastRange;
+    int fNovaMissiles;
     std::vector<std::string> fCastAnims;
     eModsCollectionLevels fLevels;
     std::vector<eSynergy> fSynergies;

@@ -74,6 +74,7 @@ void eSkills::load() {
                 skill.fType = eSkillType::missile;
             } else if(typeStr == "nova") {
                 skill.fType = eSkillType::nova;
+                skill.fNovaMissiles = jdata.value("novaMissiles", 100);
             } else if(typeStr == "shoot") {
                 skill.fType = eSkillType::shoot;
             } else if(typeStr == "throw") {

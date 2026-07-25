@@ -1263,7 +1263,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             const float r = n->fRadius;
             const float speed = n->fSpeed;
             const float maxR = n->fMaxRadius;
-            const int nMissiles = 180;
+            const int nMissiles = n->fNMissiles;
             const eVec2f displ{r, 0.f};
             const float mangle = 180.f;
             const float dangle = 360.f/nMissiles;

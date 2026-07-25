@@ -2100,6 +2100,7 @@ void eServerArea::spawnNova(const eSkill& skill,
     n->fRadius = 0.f;
     n->fMaxRadius = radius;
     n->fSpeed = skill.fSpeed;
+    n->fNMissiles = skill.fNovaMissiles;
 
     struct eCharSkipper {
         std::set<int> fChars;
