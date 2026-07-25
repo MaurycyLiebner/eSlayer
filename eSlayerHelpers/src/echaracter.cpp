@@ -958,6 +958,7 @@ bool eCharacter::write(const std::string& path) const {
 }
 
 void eCharacter::read(ePacket& p) {
+    p >> mClassId;
     p >> mName;
     p >> mHardcore;
     mEquipment.read(p);
@@ -985,6 +986,7 @@ void eCharacter::read(ePacket& p) {
 }
 
 void eCharacter::write(ePacket& p) const {
+    p << mClassId;
     p << mName;
     p << mHardcore;
     mEquipment.write(p);
