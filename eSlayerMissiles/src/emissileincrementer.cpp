@@ -39,19 +39,36 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
         float closestUnit = m.fEnemyFindRange + 0.1f;
 
         std::set<uint32_t> skip;
+        const bool alwaysAvoid = m.fTwinBehaviour == eTwinBehaviour::alwaysAvoid;
+        const bool tryAvoid = m.fTwinBehaviour == eTwinBehaviour::tryAvoid;
+
+        float optionalClosest = m.fEnemyFindRange + 0.1f;
+        ePointF optionalPos;
+        uint32_t optionalEnemy = 0;
 
         const auto tryUnit = [&](const uint32_t charId) {
             const auto u = mGetUnit(charId);
             if(!u) return false;
-            if(u->fHealth <= 0) return false;
-            if(!eTeams::areEnemies(u->fTeamId, m.fTeamId)) return false;
-            if(skip.count(charId) > 0) return false;
-            const float dist = ePointF::distance(u->fPos, m.fPos);
-            if(dist < closestUnit) {
-                closestUnit = dist;
-                m.fEnemyPos = u->fPos;
-                m.fEnemy = charId;
-                return true;
+            const auto& uref = *u;
+            if(uref.fHealth <= 0) return false;
+            if(!eTeams::areEnemies(uref.fTeamId, m.fTeamId)) return false;
+            const bool twinOccupied = skip.count(charId) > 0;
+            if(twinOccupied && alwaysAvoid) return false;
+            const float dist = ePointF::distance(uref.fPos, m.fPos);
+            if(twinOccupied && tryAvoid) {
+                if(dist < optionalClosest) {
+                    optionalClosest = dist;
+                    optionalPos = uref.fPos;
+                    optionalEnemy = charId;
+                    return true;
+                }
+            } else {
+                if(dist < closestUnit) {
+                    closestUnit = dist;
+                    m.fEnemyPos = uref.fPos;
+                    m.fEnemy = charId;
+                    return true;
+                }
             }
             return false;
         };
@@ -77,6 +94,13 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
                         tryUnit(charId);
                     }
                 }
+            }
+        }
+
+        if(m.fEnemy <= 0) {
+            if(optionalEnemy > 0) {
+                m.fEnemy = optionalEnemy;
+                m.fEnemyPos = optionalPos;
             }
         }
     }

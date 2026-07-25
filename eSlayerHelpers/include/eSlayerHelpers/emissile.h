@@ -5,7 +5,7 @@
 
 #include "epositioned.h"
 
-#include "eSlayerHelpers/eteamid.h"
+#include "eteamid.h"
 
 #include <set>
 
@@ -14,6 +14,10 @@ class ePacket;
 struct ESLAYERHELPERS_API eMissileUpdate {
     uint32_t fId;
     uint32_t fEnemy;
+};
+
+enum class eTwinBehaviour : uint8_t {
+    none, alwaysAvoid, tryAvoid
 };
 
 struct ESLAYERHELPERS_API eMissile :
@@ -36,6 +40,7 @@ struct ESLAYERHELPERS_API eMissile :
     ePointF fEnemyPos;
     float fTime = 0.f;
 
+    eTwinBehaviour fTwinBehaviour = eTwinBehaviour::none;
     std::set<uint32_t> fTwinMissiles;
     std::set<uint32_t> fPierced;
 

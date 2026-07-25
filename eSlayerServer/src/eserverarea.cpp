@@ -1915,7 +1915,8 @@ void eServerArea::spawnMissile(const ePointF& to,
                                const bool continuousDamage,
                                const int consecutive) {
     const auto skillType = skill.fType;
-    const bool avoid = skill.fAvoidSameEnemy;
+    const auto twinBehaviour = skill.fTwinBehaviour;
+    const bool avoid = twinBehaviour != eTwinBehaviour::none;
     auto baseDir = ePointF::vector(to, data.fFrom);
     if(baseDir.length() < 0.001f) baseDir = eVec2f::random();
     struct eMissileData {
@@ -2003,6 +2004,7 @@ void eServerArea::spawnMissile(const ePointF& to,
         mref.fContinuousDamage = continuousDamage;
         mref.fConsecutive = consecutive;
         mref.fEnemyFindRange = skill.fMissileEnemyFindRange;
+        mref.fTwinBehaviour = twinBehaviour;
         mref.fTime = 0.f;
 
         struct eCharSkipper {

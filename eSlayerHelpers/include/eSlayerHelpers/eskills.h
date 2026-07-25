@@ -5,6 +5,7 @@
 
 #include "estringidmapvector.h"
 #include "emodscollection.h"
+#include "emissile.h"
 
 enum class eSkillType : uint8_t {
     attack, dualAttack, smite, kick,
@@ -64,7 +65,7 @@ struct eSkill {
     const static float sRangeMax;
     float fRange;
     float fMissileEnemyFindRange;
-    bool fAvoidSameEnemy;
+    eTwinBehaviour fTwinBehaviour;
     static const float sRadiusMax;
     static const float sSpeedMax;
     float fSpeed;

@@ -44,7 +44,16 @@ void eSkills::load() {
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
-            skill.fAvoidSameEnemy = jdata.value("avoidSameEnemy", false);
+            const auto twinAvoidStr = jdata.value("twinAvoid", "");
+            if(twinAvoidStr == "always") {
+                skill.fTwinBehaviour = eTwinBehaviour::alwaysAvoid;
+            } else if(twinAvoidStr == "try") {
+                skill.fTwinBehaviour = eTwinBehaviour::tryAvoid;
+            } else if(twinAvoidStr == "") {
+                skill.fTwinBehaviour = eTwinBehaviour::none;
+            } else {
+                eRuntimeThrow("Unrecognized twin avoid \"" + twinAvoidStr + "\".");
+            }
             const float speed = jdata.value("speed", 0.2f);
             skill.fSpeed = ePacket::roundFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);
