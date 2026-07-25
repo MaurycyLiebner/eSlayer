@@ -137,6 +137,7 @@ void eSkills::load() {
                 eRuntimeThrow("Unrecognized skill type \"" + typeStr + "\" for " + name);
             }
 
+            int consecutive = jdata.value("consecutive", 0);
             int count = jdata.value("count", 0);
             float cooldown = jdata.value("cooldown", 0.f);
             float manaCost = jdata.value("manaCost", 0.f);
@@ -149,7 +150,7 @@ void eSkills::load() {
                     levels, skill.fLevels,
                     eSkills::sMaxSkillLevel, true,
                     count, cooldown, manaCost,
-                    radius);
+                    radius, consecutive);
             }
             if(jdata.contains("synergies")) {
                 eModsCollection totalMods;

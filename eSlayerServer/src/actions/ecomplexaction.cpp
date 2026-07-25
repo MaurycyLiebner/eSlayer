@@ -347,6 +347,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const float missileTime = mUnit.missileTime(schoice, wchoice);
     const float radius = mUnit.radius(schoice, wchoice);
     const bool continuousDamage = skill.fType == eSkillType::wall;
+    const int consecutive = mUnit.consecutive(schoice, wchoice);
 
     eHitData data;
     hitData(schoice, wchoice, data);
@@ -358,11 +359,11 @@ bool eComplexAction::spawnMissile(const ePointF& to,
     const auto a = [&area, to, &skill, data,
                     nMissiles, pierceChance, missileId,
                     missileRange, radius, missileTime,
-                    continuousDamage]() {
+                    continuousDamage, consecutive]() {
         area.spawnMissile(to, skill, data,
                           nMissiles, pierceChance, missileId,
                           missileRange, radius, missileTime,
-                          continuousDamage);
+                          continuousDamage, consecutive);
     };
     const eAttackType attackType =
         skill.fType == eSkillType::attack ||

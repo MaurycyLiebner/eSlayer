@@ -1337,6 +1337,7 @@ void eStats::calculateSkill(eSkillStats& stats,
     stats.fManaCost = skillMods.fManaCost;
     stats.fRadius = skillMods.fRadius;
     stats.fCooldown = skillMods.fCooldown;
+    stats.fConsecutive = skillMods.fConsecutive;
 
     for(const auto& it : fBoosts) {
         const auto& boost = it.second;

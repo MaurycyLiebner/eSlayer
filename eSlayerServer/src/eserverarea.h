@@ -195,7 +195,8 @@ public:
                       const float range,
                       const float radius,
                       const float time,
-                      const bool continuousDamage);
+                      const bool continuousDamage,
+                      const int consecutive);
     void spawnArea(const ePointF& to,
                    const eSkill& skill,
                    eHitData data,

@@ -8,6 +8,7 @@ void eModsCollection::addBoost(const eModsCollection& other) {
     fCooldown += other.fCooldown;
     fManaCost += other.fManaCost;
     setRadius(fRadius + other.fRadius);
+    fConsecutive += other.fConsecutive;
 
     for(const auto& it : other) {
         const auto& mod = it.second;
@@ -232,6 +233,10 @@ eModsCollectionLevel::parseLevel(
             const float dr = float(value);
             mods.setRadius(mods.fRadius + dr);
             totalMods.setRadius(totalMods.fRadius + dr);
+        } else if(key == "consecutive") {
+            const int dc = int(value);
+            mods.fConsecutive += dc;
+            totalMods.fConsecutive += dc;
         } else {
             eModifier mod;
             mod.read(key, json(value));
@@ -253,12 +258,14 @@ void eModsCollectionLevel::parseLevels(
     const int count,
     const float cooldown,
     const float manaCost,
-    const float radius) {
+    const float radius,
+    const int consecutive) {
     eModsCollection totalMods;
     totalMods.fCount = count;
     totalMods.fCooldown = cooldown;
     totalMods.fManaCost = manaCost;
     totalMods.setRadius(radius);
+    totalMods.fConsecutive = consecutive;
 
     eModsCollection allMods;
     if(levelsJson.contains("all")) {

@@ -12,8 +12,13 @@ struct eServerMissile : public eMissile {
 
     static uint32_t sNextId;
 
-    using eHitAction = std::function<void(eServerUnit&)>;
+    using eHitAction = std::function<void(
+        eServerUnit&, const eServerMissile&)>;
     eHitAction fHitAction;
+
+    int fConsecutive = 0;
+    float fTotalTime = 0.f;
+    float fTotalDist = 0.f;
 };
 
 #endif // ESERVERMISSILE_H

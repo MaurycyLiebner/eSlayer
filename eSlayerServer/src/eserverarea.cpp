@@ -57,7 +57,7 @@ void eServerArea::iniMissileInc() {
     const auto hitAction = [this](const eMissile& m, eUnitData& u) {
         const auto& sm = static_cast<const eServerMissile&>(m);
         auto& su = static_cast<eServerUnit&>(u);
-        if(sm.fHitAction) sm.fHitAction(su);
+        if(sm.fHitAction) sm.fHitAction(su, sm);
     };
 
     mMIncrementer.initialize(obstacle,
@@ -599,7 +599,22 @@ void eServerArea::increment(const float by) {
     if(recalcAura) std::swap(newAuraSources, mAuraSources);
 
     for(const auto& m : mMissiles) {
-        mMIncrementer.increment(*m, by);
+        auto& mref = *m;
+        if(mref.fConsecutive > 0 && mref.fTime > 0.5f) {
+            const auto mmPtr = std::make_shared<eServerMissile>();
+            auto& mmRef = *mmPtr;
+            const auto idTmp = mmRef.fId;
+            mmRef = mref;
+            mmRef.fId = idTmp;
+            mmRef.fPos = mmRef.fFrom;
+            mmRef.fTime = 0.f;
+            mmRef.fRemTime = mref.fTotalTime;
+            mmRef.fRemDist = mref.fTotalDist;
+            mmRef.fConsecutive = mref.fConsecutive - 1;
+            mref.fConsecutive = 0;
+            addMissile(mmPtr);
+        }
+        mMIncrementer.increment(mref, by);
     }
 
     for(const auto& n : mNovas) {
@@ -1882,7 +1897,8 @@ void eServerArea::spawnMissile(const ePointF& to,
                                const float range,
                                const float radius,
                                const float time,
-                               const bool continuousDamage) {
+                               const bool continuousDamage,
+                               const int consecutive) {
     const auto skillType = skill.fType;
     auto baseDir = ePointF::vector(to, data.fFrom);
     if(baseDir.length() < 0.001f) baseDir = eVec2f::random();
@@ -1950,35 +1966,47 @@ void eServerArea::spawnMissile(const ePointF& to,
     }
     for(const auto& md : missiles) {
         const auto m = std::make_shared<eServerMissile>();
-        m->fType = md.fMissileId;
-        m->fTeamId = data.fAttackTeamId;
-        m->fToPierce = md.fToPierce;
-        m->fSpeed = skill.fSpeed;
-        m->fRemDist = md.fRange;
-        m->fRemTime = md.fTime;
-        m->fPathType = skill.fPathId;
-        m->fFrom = data.fFrom;
-        m->fRadius = radius;
-        m->fPos = md.fPos;
-        m->fTo = md.fTo;
-        m->fContinuousDamage = continuousDamage;
-        m->fEnemyFindRange = skill.fMissileEnemyFindRange;
-        m->fTime = 0.f;
+        auto& mref = *m;
+        mref.fType = md.fMissileId;
+        mref.fTeamId = data.fAttackTeamId;
+        mref.fToPierce = md.fToPierce;
+        mref.fSpeed = skill.fSpeed;
+
+        mref.fTotalDist = md.fRange;
+        mref.fTotalTime = md.fTime;
+        mref.fRemDist = mref.fTotalDist;
+        mref.fRemTime = mref.fTotalTime;
+
+        mref.fPathType = skill.fPathId;
+        mref.fFrom = data.fFrom;
+        mref.fRadius = radius;
+        mref.fPos = md.fPos;
+        mref.fTo = md.fTo;
+        mref.fContinuousDamage = continuousDamage;
+        mref.fConsecutive = consecutive;
+        mref.fEnemyFindRange = skill.fMissileEnemyFindRange;
+        mref.fTime = 0.f;
+
         struct eCharSkipper {
+            float fTimeSkip = 0.f;
             float fTime = 0.f;
-            std::set<int> fChars;
+            std::set<uint32_t> fChars;
         };
 
-        const std::shared_ptr<eCharSkipper> skip =
-            continuousDamage ?
-                std::make_shared<eCharSkipper>() :
-                nullptr;
-        m->fHitAction = [data, m, skip](eServerUnit& u) {
+        std::shared_ptr<eCharSkipper> skip;
+        if(continuousDamage) {
+            skip = std::make_shared<eCharSkipper>();
+        } else if(consecutive > 0) {
+            skip = std::make_shared<eCharSkipper>();
+            skip->fTimeSkip = 1000.f;
+        }
+        m->fHitAction = [data, skip](
+            eServerUnit& u, const eServerMissile& m) {
             if(skip) {
                 auto& c = skip->fChars;
-                if(skip->fTime < m->fTime) {
+                if(skip->fTime < m.fTime) {
                     c.clear();
-                    skip->fTime = m->fTime;
+                    skip->fTime = m.fTime + skip->fTimeSkip;
                 } else {
                     if(c.find(u.fCharId) != c.end()) {
                         return;
@@ -2198,10 +2226,11 @@ void eServerArea::cast(eServerUnit& by,
         const float missileTime = by.missileTime(o, wchoice);
         const float radius = by.radius(o, wchoice);
         const bool continuousDamage = skill.fType == eSkillType::wall;
+        const int consecutive = by.consecutive(o, wchoice);
         spawnMissile(to, skill, data,
                      nMissiles, pierceChance, missileId,
                      missileRange, radius, missileTime,
-                     continuousDamage);
+                     continuousDamage, consecutive);
     } break;
     case eSkillType::nova: {
         const float radius = by.radius(o, wchoice);

@@ -182,6 +182,19 @@ float eServerUnit::radius(const eSkillStats& stats,
     return stats.fRadius;
 }
 
+int eServerUnit::consecutive(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return consecutive(skill, wchoice);
+}
+
+int eServerUnit::consecutive(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    return stats.fConsecutive;
+}
+
 void eServerUnit::setEquipment(const eEquipment& eq,
                                const bool recalc) {
     mEquipment = eq;

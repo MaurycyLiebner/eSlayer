@@ -30,7 +30,7 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     ePointF fEnemyPos;
     float fTime = 0.f;
 
-    std::set<int32_t> fPierced;
+    std::set<uint32_t> fPierced;
 
     void read(ePacket& p);
     void write(ePacket& p) const;

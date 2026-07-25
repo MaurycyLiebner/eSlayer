@@ -16,6 +16,7 @@ public:
     void collapseSkillLevel();
 
     int fCount = 0;
+    int fConsecutive = 0;
     float fManaCost = 0.f;
     float fCooldown = 0.f;
     float fRadius = 0.f;
@@ -42,7 +43,8 @@ struct ESLAYERHELPERS_API eModsCollectionLevel {
         const int count = 0,
         const float cooldown = 0.f,
         const float manaCost = 0.f,
-        const float radius = 0.f);
+        const float radius = 0.f,
+        const int consecutive = 0);
 };
 
 struct ESLAYERHELPERS_API eModsCollectionLevels :

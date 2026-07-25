@@ -117,6 +117,10 @@ public:
                  const eWeaponChoice wchoice) const;
     static float radius(const eSkillStats& stats,
                         const eWeaponChoice wchoice);
+    int consecutive(const int schoice,
+                    const eWeaponChoice wchoice) const;
+    static int consecutive(const eSkillStats& stats,
+                           const eWeaponChoice wchoice);
 
     float weaponRangedRange() const { return mStats.fWeaponRangedRange; }
 
