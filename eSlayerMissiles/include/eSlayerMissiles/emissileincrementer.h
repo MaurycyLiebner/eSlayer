@@ -18,10 +18,12 @@ public:
     using eObstacle = std::function<bool(const ePointF& pos)>;
     using eRemoveMissile = std::function<void(eMissile& m)>;
     using eGetUnit = std::function<eUnitData*(const uint32_t charId)>;
+    using eGetMissile = std::function<eMissile*(const uint32_t missileId)>;
     using eHitAction = std::function<void(const eMissile& m, eUnitData& u)>;
     void initialize(const eObstacle& obstacle,
                     const eRemoveMissile& removeMissile,
                     const eGetUnit& getUnit,
+                    const eGetMissile& getMissile,
                     const eHitAction& hitAction);
 
     bool increment(eMissile& m, const float by) const;
@@ -30,6 +32,7 @@ private:
     eObstacle mObstacle;
     eRemoveMissile mRemoveMissile;
     eGetUnit mGetUnit;
+    eGetMissile mGetMissile;
     eHitAction mHitAction;
 };
 

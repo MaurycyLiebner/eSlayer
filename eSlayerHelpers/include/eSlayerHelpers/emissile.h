@@ -26,10 +26,11 @@ struct ESLAYERHELPERS_API eMissile : public ePositioned {
     float fRemTime;
     float fRadius;
     float fEnemyFindRange = 0.f;
-    bool fEnemy = false;
+    uint32_t fEnemy = 0;
     ePointF fEnemyPos;
     float fTime = 0.f;
 
+    std::set<uint32_t> fTwinMissiles;
     std::set<uint32_t> fPierced;
 
     void read(ePacket& p);

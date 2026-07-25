@@ -64,6 +64,7 @@ struct eSkill {
     const static float sRangeMax;
     float fRange;
     float fMissileEnemyFindRange;
+    bool fAvoidSameEnemy;
     static const float sRadiusMax;
     static const float sSpeedMax;
     float fSpeed;

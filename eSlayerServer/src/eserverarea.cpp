@@ -54,6 +54,11 @@ void eServerArea::iniMissileInc() {
         return static_cast<eUnitData*>(u.get());
     };
 
+    const auto getMissile = [this](const uint32_t mid) {
+        const auto m = mMissiles.get(mid);
+        return static_cast<eMissile*>(m.get());
+    };
+
     const auto hitAction = [this](const eMissile& m, eUnitData& u) {
         const auto& sm = static_cast<const eServerMissile&>(m);
         auto& su = static_cast<eServerUnit&>(u);
@@ -63,6 +68,7 @@ void eServerArea::iniMissileInc() {
     mMIncrementer.initialize(obstacle,
                              removeMissile,
                              getUnit,
+                             getMissile,
                              hitAction);
 }
 
@@ -1900,6 +1906,7 @@ void eServerArea::spawnMissile(const ePointF& to,
                                const bool continuousDamage,
                                const int consecutive) {
     const auto skillType = skill.fType;
+    const bool avoid = skill.fAvoidSameEnemy;
     auto baseDir = ePointF::vector(to, data.fFrom);
     if(baseDir.length() < 0.001f) baseDir = eVec2f::random();
     struct eMissileData {
@@ -1964,8 +1971,10 @@ void eServerArea::spawnMissile(const ePointF& to,
     } else {
         spawnMissiles(missileId, range);
     }
+    std::vector<std::shared_ptr<eServerMissile>> twins;
     for(const auto& md : missiles) {
         const auto m = std::make_shared<eServerMissile>();
+        if(avoid) twins.emplace_back(m);
         auto& mref = *m;
         mref.fType = md.fMissileId;
         mref.fTeamId = data.fAttackTeamId;
@@ -2017,6 +2026,14 @@ void eServerArea::spawnMissile(const ePointF& to,
             u.getHit(data);
         };
         addMissile(m);
+    }
+
+    for(const auto& m : twins) {
+        for(const auto& twin : twins) {
+            if(m == twin) continue;
+            const auto id = twin->fId;
+            m->fTwinMissiles.emplace(id);
+        }
     }
 }
 

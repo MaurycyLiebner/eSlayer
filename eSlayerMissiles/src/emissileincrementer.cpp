@@ -16,10 +16,12 @@ void eMissileIncrementer::initialize(
     const eObstacle& obstacle,
     const eRemoveMissile& removeMissile,
     const eGetUnit& getUnit,
+    const eGetMissile& getMissile,
     const eHitAction& hitAction) {
     mObstacle = obstacle;
     mRemoveMissile = removeMissile;
     mGetUnit = getUnit;
+    mGetMissile = getMissile;
     mHitAction = hitAction;
 }
 
@@ -35,7 +37,16 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
         const auto areaMax = mUnitAreas.posArea(ePointF{aabbMaxX, aabbMaxY});
 
         float closestUnit = m.fEnemyFindRange + 0.1f;
-        m.fEnemy = false;
+        m.fEnemy = 0;
+
+        std::set<uint32_t> skip;
+        for(const auto mid : m.fTwinMissiles) {
+            const auto mptr = mGetMissile(mid);
+            if(!mptr) continue;
+            const auto& mref = *mptr;
+            if(mref.fEnemy <= 0) continue;
+            skip.emplace(mref.fEnemy);
+        }
 
         for(int ax = areaMin.fX; ax <= areaMax.fX; ax++) {
             for(int ay = areaMin.fY; ay <= areaMax.fY; ay++) {
@@ -47,11 +58,12 @@ bool eMissileIncrementer::increment(eMissile& m, const float by) const {
                     if(!u) continue;
                     if(u->fHealth <= 0) continue;
                     if(!eTeams::areEnemies(u->fTeamId, m.fTeamId)) continue;
+                    if(skip.count(charId) > 0) continue;
                     const float dist = ePointF::distance(u->fPos, m.fPos);
                     if(dist < closestUnit) {
                         closestUnit = dist;
                         m.fEnemyPos = u->fPos;
-                        m.fEnemy = true;
+                        m.fEnemy = charId;
                     }
                 }
             }

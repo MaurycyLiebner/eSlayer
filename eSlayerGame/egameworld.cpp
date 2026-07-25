@@ -43,6 +43,11 @@ void eGameWorld::iniMissileInc() {
         }
     };
 
+    const auto getMissile = [this](const uint32_t mid) {
+        const auto m = mMissiles.get(mid);
+        return static_cast<eMissile*>(m.get());
+    };
+
     const auto getUnit = [this](const uint32_t charId) {
         if(charId == mClientId) {
             return static_cast<eUnitData*>(mMainChar.get());
@@ -54,6 +59,7 @@ void eGameWorld::iniMissileInc() {
     mMIncrementer.initialize(obstacle,
                              removeMissile,
                              getUnit,
+                             getMissile,
                              nullptr);
 }
 

@@ -44,6 +44,7 @@ void eSkills::load() {
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
             skill.fMissileEnemyFindRange = jdata.value("enemyFindRange", 0.f);
+            skill.fAvoidSameEnemy = jdata.value("avoidSameEnemy", false);
             const float speed = jdata.value("speed", 0.2f);
             skill.fSpeed = ePacket::roundFloatU8(speed, eSkill::sSpeedMax);
             skill.fMaxAngle = jdata.value("maxAngle", 0.f);

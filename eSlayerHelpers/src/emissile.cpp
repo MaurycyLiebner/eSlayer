@@ -18,6 +18,7 @@ void eMissile::read(ePacket& p) {
     fRemDist = p.readFloatU8(eSkill::sRangeMax);
     fRemTime = p.readFloatU8(eSkill::sTimeMax);
     fRadius = p.readFloatU8(eSkill::sRadiusMax);
+    p.read8(fTwinMissiles);
 }
 
 void eMissile::write(ePacket& p) const {
@@ -35,4 +36,5 @@ void eMissile::write(ePacket& p) const {
     p.writeFloatU8(fRemDist, eSkill::sRangeMax);
     p.writeFloatU8(fRemTime, eSkill::sTimeMax);
     p.writeFloatU8(fRadius, eSkill::sRadiusMax);
+    p.write8(fTwinMissiles);
 }
