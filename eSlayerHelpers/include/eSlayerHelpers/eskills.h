@@ -35,6 +35,10 @@ enum class eBoostCurseTarget;
 enum class eAuraType;
 enum class eAuraTarget;
 
+enum class eTarget {
+    enemy, ally, enemyAndAlly
+};
+
 struct eSkill {
     eSkillType fType;
     bool fTargetCorpse;
@@ -55,6 +59,8 @@ struct eSkill {
 
     eAuraType fAuraType;
     eAuraTarget fAuraTarget;
+
+    eTarget fTarget;
 
     std::string fAreaMissileStr;
     int fAreaMissileId;

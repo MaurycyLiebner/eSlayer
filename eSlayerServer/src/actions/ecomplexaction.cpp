@@ -79,9 +79,21 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
         }
         const eTeamId t1 = u->fTeamId;
         const eTeamId t2 = mUnit.fTeamId;
-        if(!eTeams::areEnemies(t1, t2)) {
-            return eAttackResult::failed;
+        switch(skill.fTarget) {
+        case eTarget::enemy: {
+            if(!eTeams::areEnemies(t1, t2)) {
+                return eAttackResult::failed;
+            }
+        } break;
+        case eTarget::ally: {
+            if(t1 != t2) {
+                return eAttackResult::failed;
+            }
+        } break;
+        case eTarget::enemyAndAlly:
+            break;
         }
+
         if(skill.fType == eSkillType::attack ||
            skill.fType == eSkillType::dualAttack ||
            skill.fType == eSkillType::smite ||

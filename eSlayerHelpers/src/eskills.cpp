@@ -40,6 +40,17 @@ void eSkills::load() {
             const std::string typeStr = jdata["type"];
             skill.fIcon = jdata["icon"];
 
+            const auto targetStr = jdata.value("target", "enemy");
+            if(targetStr == "ally") {
+                skill.fTarget = eTarget::ally;
+            } else if(targetStr == "enemy") {
+                skill.fTarget = eTarget::enemy;
+            } else if(targetStr == "enemyAndAlly") {
+                skill.fTarget = eTarget::enemyAndAlly;
+            } else {
+                eRuntimeThrow("Unrecognized target \"" + targetStr + "\".");
+            }
+
             skill.fPath = jdata.value("path", "linear");
             skill.fMissileStr = jdata.value("missile", "none");
             skill.fUnitStr = jdata.value("character", "none");
