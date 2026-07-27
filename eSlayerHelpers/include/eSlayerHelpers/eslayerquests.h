@@ -47,13 +47,16 @@ public:
     bool difficultyFinished() const
     { return mDifficultyFinished; }
 
+    uint8_t receiveStatPoints();
+    uint8_t receiveSkillPoints();
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
-    void updateDifficultyFinished(const uint8_t questId);
-
     uint16_t mState = 0;
     bool mDifficultyFinished = false;
+    uint8_t mStatPoints = 0;
+    uint8_t mSkillPoints = 0;
     std::map<uint8_t, eQuestState> mStages;
 };
 

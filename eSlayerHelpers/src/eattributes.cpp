@@ -19,8 +19,12 @@ bool eAttributes::levelUp(
     if(fLevel >= maxLevel) return false;
     fLevel++;
     fExp = 0.f;
-    fStatPoints += uinfo.fStatPointsPerLevel;
+    addStatPoints(uinfo.fStatPointsPerLevel);
     return true;
+}
+
+void eAttributes::addStatPoints(const int count) {
+    fStatPoints += count;
 }
 
 uint32_t eAttributes::totalPoints() const {

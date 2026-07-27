@@ -1862,6 +1862,21 @@ bool eServerArea::heardTalk(
     qs.heardTalk(talk);
     checkQuestItems(clientId);
     clientData.fSendQuests = true;
+
+    {
+        const auto skillPoints = qs.receiveSkillPoints();
+        if(skillPoints > 0) {
+            u->addSkillPoints(skillPoints);
+        }
+    }
+    {
+        const auto statPoints = qs.receiveStatPoints();
+        if(statPoints > 0) {
+            u->addStatPoints(statPoints);
+            u->setAttributesChanged(true);
+        }
+    }
+
     return true;
 }
 

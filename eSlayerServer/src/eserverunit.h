@@ -137,6 +137,9 @@ public:
     bool attributesChanged() const { return mAttributesChanged; }
     void setAttributesChanged(const bool c) { mAttributesChanged = c; }
 
+    void addSkillPoints(const int count);
+    void addStatPoints(const int count);
+
     void setSkillLevels(const eSkillLevels& skillLevels,
                         const bool recalc = true);
     void consumePotion(const eItem& item);

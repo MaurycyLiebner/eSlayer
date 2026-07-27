@@ -213,8 +213,17 @@ void eServerUnit::setAttributes(const eAttributes& attrs,
     }
 }
 
-void eServerUnit::setSkillLevels(const eSkillLevels& skillLevels,
-                                 const bool recalc) {
+void eServerUnit::addSkillPoints(const int count) {
+    mStats.addSkillPoints(count);
+}
+
+void eServerUnit::addStatPoints(const int count) {
+    mAttributes.addStatPoints(count);
+}
+
+void eServerUnit::setSkillLevels(
+    const eSkillLevels& skillLevels,
+    const bool recalc) {
     mStats.fBaseSkillLevels = skillLevels;
     if(recalc) {
         recalculateStats();

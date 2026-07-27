@@ -36,6 +36,9 @@ struct ESLAYERHELPERS_API eQuest {
     std::vector<eQuestStep> fSteps;
     std::vector<uint8_t> fPrerequisites;
 
+    uint8_t fFinishStatPoints = 0;
+    uint8_t fFinishSkillPoints = 0;
+
     uint8_t nStages() const {
         return fSteps.size() + 2;
     }

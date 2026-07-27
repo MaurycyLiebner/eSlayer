@@ -36,6 +36,9 @@ void eQuests::load() {
 
                 q.fFinishDifficulty = value.value("finishDifficulty", false);
 
+                q.fFinishStatPoints = value.value("finishStatPoints", 0);
+                q.fFinishSkillPoints = value.value("finishSkillPoints", 0);
+
                 if(!value.contains("steps")) {
                     eRuntimeThrow("Missing quest steps in \"" + key + "\".");
                 }
