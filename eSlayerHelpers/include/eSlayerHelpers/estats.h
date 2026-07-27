@@ -56,6 +56,10 @@ struct eAura {
     float fRange;
 };
 
+enum class eAttackRangeType {
+    meele, ranged
+};
+
 struct eSkillStats {
     int fSkillId = 0;
 
@@ -74,6 +78,8 @@ struct eSkillStats {
     eDamage fDamageMaxLW;
     eDamage fDamageMinRW;
     eDamage fDamageMaxRW;
+
+    eAttackRangeType fAttackType = eAttackRangeType::meele;
 
     float fHealMinLW = 0.f;
     float fHealMaxLW = 0.f;
@@ -146,7 +152,7 @@ struct ESLAYERHELPERS_API eStats {
     std::vector<eSkillStats> fOnStruck;
     std::vector<eSkillStats> fOnDeath;
 
-    int fClass = -1;
+    int fClass = 0;
     int fLevel = 1;
 
     float fDefense = 100.f;
@@ -184,6 +190,9 @@ struct ESLAYERHELPERS_API eStats {
 
     float fWeaponMeeleRange = 0.f;
     float fWeaponRangedRange = 0.f;
+
+    float fDefaultRangedRange = 0.f;
+    int fDefaultMissileId = -1;
 
     float fFireResistance = 0.f;
     float fColdResistance = 0.f;

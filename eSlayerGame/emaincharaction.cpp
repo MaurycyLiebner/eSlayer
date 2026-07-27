@@ -180,9 +180,15 @@ void eMainCharAction::increment(const bool mousePressed,
 
     auto& model = mMainChar->model();
 
-    const eSkillChoice schoice{rightPressed ?
-                       eSkillChoice::right :
-                       eSkillChoice::left};
+    eSkillChoice schoice;
+    if(mousePressed) {
+        schoice = rightPressed ? eSkillChoice::right :
+                      eSkillChoice::left;
+        mRightPressed = rightPressed;
+    } else {
+        schoice = mRightPressed ? eSkillChoice::right :
+                      eSkillChoice::left;
+    }
 
     handleAttackStop(mousePressed, rightPressed, shiftPressed);
 

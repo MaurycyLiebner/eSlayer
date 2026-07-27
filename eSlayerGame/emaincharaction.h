@@ -150,6 +150,8 @@ private:
     bool mRunning = false;
     bool mContinueRunning = false;
 
+    bool mRightPressed = false;
+
     int mRunAnimId = -1;
     int mWalkAnimId = -1;
     int mWalkReadyAnimId = -1;

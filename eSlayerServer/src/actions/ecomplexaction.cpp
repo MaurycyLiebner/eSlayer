@@ -70,6 +70,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
     } else if(mSkillId != skillId) {
         return eAttackResult::failed;
     }
+    const auto attackType = mUnit.attackRangeType(schoice, wchoice);
     switch(target.fType) {
     case eAttackTargetType::character: {
         const auto u = mArea.unit(target.fChar);
@@ -98,7 +99,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
            skill.fType == eSkillType::dualAttack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
-            if(skillId == 0 && mUnit.weaponTypeL() == eWeaponType::ranged) {
+            if(skillId == 0 && attackType == eAttackRangeType::ranged) {
                 const bool r = spawnMissile(u->fPos, schoice, wchoice);
                 return r ? eAttackResult::attacked : eAttackResult::failed;
             } else {
@@ -128,8 +129,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
            skill.fType == eSkillType::dualAttack ||
            skill.fType == eSkillType::smite ||
            skill.fType == eSkillType::kick) {
-            const auto wtype = mUnit.weaponType(wchoice);
-            if(skillId == 0 && wtype == eWeaponType::ranged) {
+            if(skillId == 0 && attackType == eAttackRangeType::ranged) {
                 const bool r = spawnMissile(target.fPos, schoice, wchoice);
                 return r ? eAttackResult::attacked : eAttackResult::failed;
             } else {

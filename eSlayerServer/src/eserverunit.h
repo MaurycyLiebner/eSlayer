@@ -95,9 +95,12 @@ public:
 
     float weaponMeeleRange() const { return mStats.fWeaponMeeleRange; }
 
-    eWeaponType weaponTypeL() const { return mStats.fWeaponTypeL; }
-    eWeaponType weaponTypeR() const { return mStats.fWeaponTypeR; }
-    eWeaponType weaponType(const eWeaponChoice wchoice) const;
+    eAttackRangeType attackRangeType(
+        const int schoice,
+        const eWeaponChoice wchoice) const;
+    static eAttackRangeType attackRangeType(
+        const eSkillStats& stats,
+        const eWeaponChoice wchoice);
 
     int missileId(const int schoice,
                   const eWeaponChoice wchoice) const;

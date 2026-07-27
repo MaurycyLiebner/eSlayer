@@ -277,6 +277,11 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
+            eMissilesInfo::load();
+            eMissileIncrement::initialize();
+        });
+
+        loadings.emplace_back([&]() {
             eUnitsInfo::load();
         });
 
@@ -332,11 +337,6 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eObjectNames::load();
-        });
-
-        loadings.emplace_back([&]() {
-            eMissilesInfo::load();
-            eMissileIncrement::initialize();
         });
 
         loadings.emplace_back([&]() {

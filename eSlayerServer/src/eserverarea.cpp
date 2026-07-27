@@ -290,6 +290,12 @@ bool eServerArea::addUnit(
     mods.apply(*u);
 
     {
+        auto& stats = u->stats();
+        stats.fDefaultMissileId = udata.fMissile;
+        stats.fDefaultRangedRange = udata.fMissileRange;
+    }
+
+    {
         const int schoice = u->addSkill();
         u->setSkillId(schoice, 0, false);
     }

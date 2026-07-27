@@ -13,6 +13,9 @@ struct eUnitInfo {
     int fLevel;
     eColor fColor;
 
+    int fMissile;
+    float fMissileRange;
+
     float fFleeChance;
     float fFleeDistance;
 

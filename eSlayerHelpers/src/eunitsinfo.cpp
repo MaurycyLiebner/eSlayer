@@ -4,6 +4,7 @@
 #include "eSlayerHelpers/eexceptions.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/emissilesinfo.h"
 
 bool eUnitsInfo::sLoaded = false;
 eStringIdMapVector<eUnitInfo>
@@ -64,6 +65,15 @@ void eUnitsInfo::load() {
                     u.fItems.emplace_back(id);
                 }
             }
+
+            const auto missileStr = jdata.value("missile", "none");
+            const auto id = eMissilesInfo::sMissiles.id(missileStr);
+            if(id < 0) {
+                eRuntimeThrow("Unrecognized missile type \"" + missileStr + "\".");
+            }
+            u.fMissile = id;
+            u.fMissileRange = jdata.value("missileRange", 0.f);
+
             u.fColor = eColor{1.f, 1.f, 1.f, 1.f};
             if(jdata.contains("color")) {
                 const auto& color = jdata["color"];

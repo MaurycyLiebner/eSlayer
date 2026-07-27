@@ -912,7 +912,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fWeaponMeeleRange = 0.f;
     int meeleRangeDiv = 0;
-    fWeaponRangedRange = 10000.f;
+    std::optional<float> rangedRange;
     const auto handleWeapon = [&](const eItem& w, float& WSM) {
         const auto subtype = gWeaponType(w);
         const bool r = gWeaponIsRanged(subtype);
@@ -920,7 +920,11 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         WSM = itemData.fWSM;
         const float range = itemData.fRange;
         if(r) {
-            fWeaponRangedRange = std::min(range, fWeaponRangedRange);
+            if(rangedRange) {
+                rangedRange = std::min(range, *rangedRange);
+            } else {
+                rangedRange = range;
+            }
         }
         const bool m = gWeaponIsMeele(subtype);
         if(m) {
@@ -947,6 +951,12 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     } else {
         fWeaponTypeR = eWeaponType::none;
+    }
+
+    if(rangedRange) {
+        fWeaponRangedRange = *rangedRange;
+    } else {
+        fWeaponRangedRange = fDefaultRangedRange;
     }
 
     if(meeleRangeDiv > 1) {
@@ -1318,14 +1328,28 @@ void eStats::calculateSkill(eSkillStats& stats,
        skill.fType == eSkillType::throw_ ||
        skill.fType == eSkillType::attack) {
         if(skill.fMissileId <= 0) {
-            const auto& itemDataL = eItemsData::get(leftW.fDataId);
-            stats.fMissileIdLW = itemDataL.fMissileId;
-            const auto& itemDataR = eItemsData::get(rightW.fDataId);
-            stats.fMissileIdRW = itemDataR.fMissileId;
+            if(leftW.fType == eItemType::none) {
+                stats.fMissileIdLW = fDefaultMissileId;
+            } else {
+                const auto& itemDataL = eItemsData::get(leftW.fDataId);
+                stats.fMissileIdLW = itemDataL.fMissileId;
+            }
+            if(rightW.fType == eItemType::none) {
+                stats.fMissileIdRW = fDefaultMissileId;
+            } else {
+                const auto& itemDataR = eItemsData::get(rightW.fDataId);
+                stats.fMissileIdRW = itemDataR.fMissileId;
+            }
         } else {
             stats.fMissileIdLW = skill.fMissileId;
             stats.fMissileIdRW = skill.fMissileId;
         }
+    }
+
+    if(stats.fMissileIdLW > 0 || stats.fMissileIdRW > 0) {
+        stats.fAttackType = eAttackRangeType::ranged;
+    } else {
+        stats.fAttackType = eAttackRangeType::meele;
     }
 
     if(skill.fType == eSkillType::attack ||
@@ -1551,11 +1575,8 @@ float eStats::attackRange(const int schoice,
         0.75f*(unit1Radius + unit2Radius);
     switch(skill.fType) {
     case eSkillType::attack: {
-        if(fWeaponTypeL == eWeaponType::none ||
-           fWeaponTypeL == eWeaponType::meele ||
-           fWeaponTypeL == eWeaponType::throwable ||
-           fWeaponTypeR == eWeaponType::meele ||
-           fWeaponTypeR == eWeaponType::throwable) {
+        const auto attackType = skillStats.fAttackType;
+        if(attackType == eAttackRangeType::meele) {
             return meeleDist;
         } else {
             return fWeaponRangedRange;

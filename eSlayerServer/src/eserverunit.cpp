@@ -120,10 +120,17 @@ bool eServerUnit::isRunning() const {
     return fAnim == mData.runAnimId();
 }
 
-eWeaponType eServerUnit::weaponType(const eWeaponChoice wchoice) const {
-    return wchoice == eWeaponChoice::left ?
-               mStats.fWeaponTypeL :
-               mStats.fWeaponTypeR;
+eAttackRangeType eServerUnit::attackRangeType(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return attackRangeType(skill, wchoice);
+}
+
+eAttackRangeType eServerUnit::attackRangeType(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    return stats.fAttackType;
 }
 
 int eServerUnit::missileId(const int schoice,
