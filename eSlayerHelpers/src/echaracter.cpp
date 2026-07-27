@@ -28,9 +28,16 @@ eCharacter::eCharacter(const int classId,
                        const bool hardcore) :
     mClassId(classId),
     mName(name), mHardcore(hardcore) {
-    initialize();
 
     const auto& class_ = eClasses::sClasses.get(classId);
+
+    mAttributes.fStrength = class_.fIniStrength;
+    mAttributes.fDexterity = class_.fIniDexterity;
+    mAttributes.fVitality = class_.fIniVitality;
+    mAttributes.fEnergy = class_.fIniEnergy;
+
+    initialize();
+
     const auto& options = class_.fIniItems;
     if(!options.empty()) {
         const auto& choosen = eRand::randomElement(options);

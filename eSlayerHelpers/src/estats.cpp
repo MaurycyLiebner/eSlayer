@@ -946,7 +946,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         fWeaponTypeR = eWeaponType::none;
     }
 
-    if(meeleRangeDiv > 0) {
+    if(meeleRangeDiv > 1) {
         fWeaponMeeleRange /= meeleRangeDiv;
     }
 
@@ -954,13 +954,14 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         calculateSkill(schoice, eq);
     }
 
+    const auto& class_ = eClasses::sClasses.get(fClass);
 
-    baseLife += 3.f*fVitality;
-    baseMana += 1.5f*fEnergy;
-    baseStamina += 3.f*fVitality;
+    baseLife += class_.fHealthPerVitality*fVitality;
+    baseMana += class_.fManaPerEnergy*fEnergy;
+    baseStamina += class_.fStaminaPerVitality*fVitality;
 
-    fDefense = baseDef*(1.f + ed) + fDexterity/4.f;
-    fMaxHealth = baseLife*(1.f + bonusLife);
+    fDefense = baseDef*(1.f + ed) + class_.fDefensePerDexterity*fDexterity;
+    fMaxHealth = std::max(1.f, baseLife*(1.f + bonusLife));
     fHealthF = healthFrac*fMaxHealth;
     fMaxMana = baseMana*(1.f + bonusMana);
     fManaF = manaFrac*fMaxMana;
@@ -1212,11 +1213,13 @@ void eStats::calculateSkill(eSkillStats& stats,
         }
     };
 
-    const float minFistDmg = 1.f;
-    const float maxFistDmg = 2.f;
+    const auto& class_ = eClasses::sClasses.get(fClass);
 
-    const float minFootDmg = 1.f;
-    const float maxFootDmg = 2.f;
+    const float minFistDmg = class_.fMinFistDamage;
+    const float maxFistDmg = class_.fMaxFistDamage;
+
+    const float minFootDmg = class_.fMinFootDamage;
+    const float maxFootDmg = class_.fMaxFootDamage;
 
     eSkillStatsHelper helper{*this, eq, stats};
 
@@ -1401,26 +1404,30 @@ void eStats::calculateSkill(eSkillStats& stats,
         }
     }
 
-    const float baseAR = (fDexterity - 7.f)*5.f + 20.f;
-    const float attrMult = 0.01f*(fStrength + fDexterity);
+    const auto minARDex = class_.fMinARDexterity;
+    const float ARPerDex = class_.fARPerDexterity;
+    const float baseAR = std::max(0.f, fDexterity - minARDex)*ARPerDex + class_.fBaseAR;
     const auto skillType = helper.fSkillType;
+    float attrMult = 0.f;
     if(skillType == eSkillType::attack ||
        skillType == eSkillType::dualAttack) {
-        helper.fDmgMultMin.fPhysical += attrMult;
-        helper.fDmgMultMax.fPhysical += attrMult;
+        attrMult = class_.fStrengthAttackDamageMultiplier*fStrength +
+                   class_.fDexterityAttackDamageMultiplier*fDexterity;
     } else if(skillType == eSkillType::smite) {
-        helper.fDmgMultMin.fPhysical += attrMult;
-        helper.fDmgMultMax.fPhysical += attrMult;
+        attrMult = class_.fStrengthSmiteDamageMultiplier*fStrength +
+                   class_.fDexteritySmiteDamageMultiplier*fDexterity;
     } else if(skillType == eSkillType::kick) {
-        helper.fDmgMultMin.fPhysical += attrMult;
-        helper.fDmgMultMax.fPhysical += attrMult;
+        attrMult = class_.fStrengthKickDamageMultiplier*fStrength +
+                   class_.fDexterityKickDamageMultiplier*fDexterity;
     } else if(skillType == eSkillType::shoot) {
-        helper.fDmgMultMin.fPhysical += attrMult;
-        helper.fDmgMultMax.fPhysical += attrMult;
+        attrMult = class_.fStrengthShootDamageMultiplier*fStrength +
+                   class_.fDexterityShootDamageMultiplier*fDexterity;
     } else if(skillType == eSkillType::throw_) {
-        helper.fDmgMultMin.fPhysical += attrMult;
-        helper.fDmgMultMax.fPhysical += attrMult;
+        attrMult = class_.fStrengthThrowDamageMultiplier*fStrength +
+                   class_.fDexterityThrowDamageMultiplier*fDexterity;
     }
+    helper.fDmgMultMin.fPhysical += attrMult;
+    helper.fDmgMultMax.fPhysical += attrMult;
 
     helper.fBaseAR += baseAR;
     helper.apply();

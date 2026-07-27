@@ -22,7 +22,10 @@ void eClasses::load() {
         eRuntimeThrow("Failed to parse " + dir + "/classes.json");
     }
 
-    sClasses.reserve(classes.size());
+    sClasses.reserve(classes.size() + 1);
+
+    const std::string zeroClassName = "";
+    sClasses.add(zeroClassName, eClass());
 
     for(const auto& name : classes) {
         sClasses.add(name, eClass());
@@ -30,6 +33,7 @@ void eClasses::load() {
 
     for(const auto& it : sClasses) {
         const auto& name = it.fName;
+        if(name == zeroClassName) continue;
         try {
             auto& class_ = it.fValue;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
@@ -42,6 +46,41 @@ void eClasses::load() {
                 }
                 class_.fSkillTrees.emplace(id);
             }
+
+            class_.fIniStrength = jdata.value("iniStrength", 20);
+            class_.fIniDexterity = jdata.value("iniDexterity", 20);
+            class_.fIniVitality = jdata.value("iniVitality", 20);
+            class_.fIniEnergy = jdata.value("iniEnergy", 15);
+
+            class_.fHealthPerVitality = jdata.value("lifePerVitality", 3.f);
+            class_.fStaminaPerVitality = jdata.value("staminaPerVitality", 3.f);
+            class_.fManaPerEnergy = jdata.value("manaPerEnergy", 1.5f);
+
+            class_.fDefensePerDexterity = jdata.value("defensePerDexterity", 0.025f);
+
+            class_.fMinFistDamage = jdata.value("minFistDamage", 1);
+            class_.fMaxFistDamage = jdata.value("maxFistDamage", 2);
+            class_.fMinFootDamage = jdata.value("minFootDamage", 1);
+            class_.fMaxFootDamage = jdata.value("maxFootDamage", 2);
+
+            class_.fBaseAR = jdata.value("baseAR", 20.f);
+            class_.fMinARDexterity = jdata.value("minARDexterity", 7);
+            class_.fARPerDexterity = jdata.value("ARPerDexterity", 5.f);
+
+            class_.fStrengthAttackDamageMultiplier = jdata.value("strengthAttackDamageMultiplier", 0.01f);
+            class_.fDexterityAttackDamageMultiplier = jdata.value("dexterityAttackDamageMultiplier", 0.005f);
+
+            class_.fStrengthSmiteDamageMultiplier = jdata.value("strengthSmiteDamageMultiplier", 0.01f);
+            class_.fDexteritySmiteDamageMultiplier = jdata.value("dexteritySmiteDamageMultiplier", 0.005f);
+
+            class_.fStrengthKickDamageMultiplier = jdata.value("strengthKickDamageMultiplier", 0.0075f);
+            class_.fDexterityKickDamageMultiplier = jdata.value("dexterityKickDamageMultiplier", 0.0075f);
+
+            class_.fStrengthShootDamageMultiplier = jdata.value("strengthShootDamageMultiplier", 0.005f);
+            class_.fDexterityShootDamageMultiplier = jdata.value("dexterityShootDamageMultiplier", 0.01f);
+
+            class_.fStrengthThrowDamageMultiplier = jdata.value("strengthThrowDamageMultiplier", 0.0075f);
+            class_.fDexterityThrowDamageMultiplier = jdata.value("dexterityThrowDamageMultiplier", 0.0075f);
 
             if(jdata.contains("iniItems")) {
                 for(const auto& option : jdata["iniItems"]) {

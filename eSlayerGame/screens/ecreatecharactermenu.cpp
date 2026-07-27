@@ -28,6 +28,7 @@ public:
 
         for(const auto& it : eClasses::sClasses) {
             const int id = it.fId;
+            if(id == 0) continue;
             const auto name = eClassNames::name(id);
             const auto button = new eCheckButton(window());
             button->setText(name);

@@ -8,10 +8,10 @@
 struct ESLAYERHELPERS_API eAttributes {
     uint8_t fLevel = 1;
     float fExp = 0.f;
-    uint16_t fStrength = 20;
-    uint16_t fDexterity = 20;
-    uint16_t fVitality = 20;
-    uint16_t fEnergy = 15;
+    uint16_t fStrength = 0;
+    uint16_t fDexterity = 0;
+    uint16_t fVitality = 0;
+    uint16_t fEnergy = 0;
 
     uint16_t fStatPoints = 0;
 
