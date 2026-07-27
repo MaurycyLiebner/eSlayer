@@ -643,23 +643,31 @@ void eServerArea::increment(const float by) {
     }
     if(recalcAura) std::swap(newAuraSources, mAuraSources);
 
+    std::vector<uint32_t> duplicate;
     for(const auto& m : mMissiles) {
         auto& mref = *m;
-        if(mref.fConsecutive > 0 && mref.fTime > 0.5f) {
-            const auto mmPtr = std::make_shared<eServerMissile>();
-            auto& mmRef = *mmPtr;
-            const auto idTmp = mmRef.fId;
-            mmRef = mref;
-            mmRef.fId = idTmp;
-            mmRef.fPos = mmRef.fFrom;
-            mmRef.fTime = 0.f;
-            mmRef.fRemTime = mref.fTotalTime;
-            mmRef.fRemDist = mref.fTotalDist;
-            mmRef.fConsecutive = mref.fConsecutive - 1;
-            mref.fConsecutive = 0;
-            addMissile(mmPtr);
+        if(mref.fConsecutive > 0 && mref.fTime > 0.f) {
+            duplicate.emplace_back(mref.fId);
         }
         mMIncrementer.increment(mref, by);
+    }
+
+    for(const auto id : duplicate) {
+        const auto m = mMissiles.get(id);
+        if(!m) continue;
+        auto& mref = *m;
+        const auto mmPtr = std::make_shared<eServerMissile>();
+        auto& mmRef = *mmPtr;
+        const auto idTmp = mmRef.fId;
+        mmRef = mref;
+        mmRef.fId = idTmp;
+        mmRef.fPos = mmRef.fFrom;
+        mmRef.fTime = 0.f;
+        mmRef.fRemTime = mref.fTotalTime;
+        mmRef.fRemDist = mref.fTotalDist;
+        mmRef.fConsecutive = mref.fConsecutive - 1;
+        mref.fConsecutive = 0;
+        addMissile(mmPtr);
     }
 
     for(const auto& n : mNovas) {
