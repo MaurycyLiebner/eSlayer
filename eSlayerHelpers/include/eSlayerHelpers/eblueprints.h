@@ -22,6 +22,7 @@ struct eBlueprint {
 
     std::vector<eBlueprintObject> fObjects;
     std::vector<eBlueprintObject> fTerrain;
+    std::vector<eBlueprintObject> fUnits;
 };
 
 class ESLAYERHELPERS_API eBlueprints {

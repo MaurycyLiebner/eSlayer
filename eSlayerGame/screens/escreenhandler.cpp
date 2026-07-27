@@ -294,7 +294,7 @@ void loadUnitTypes(const eResolution& res,
                    SDL_Renderer* const r,
                    const std::shared_ptr<eMap>& map) {
     const auto& unitTypes = map->unitTypes();
-    for(const auto& unitType : unitTypes) {
+    for(const auto unitType : unitTypes) {
         auto& u = eCharsTextures::get(unitType);
         u.loadAll(res, r);
     }

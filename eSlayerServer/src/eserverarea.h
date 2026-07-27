@@ -5,6 +5,7 @@
 #include "eservermissile.h"
 #include "eservernova.h"
 #include "eserverskillarea.h"
+#include "eelitemodifiers.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/enovaincrementer.h>
@@ -279,6 +280,10 @@ public:
 
     static void clear();
 private:
+    bool addUnit(
+        const uint16_t type, const eUnitType utype,
+        eEliteModifiers& mods, ePointF& pos);
+
     bool checkQuestItems(
         const uint32_t clientId);
 

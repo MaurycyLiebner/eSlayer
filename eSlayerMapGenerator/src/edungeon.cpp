@@ -369,6 +369,14 @@ void eDungeon::generate(ePointF& spawnPos) const {
                       o.fWidth, o.fHeight);
         }
 
+        auto& bpus = mMap->mBlueprintUnits;
+        for(const auto& o : bp.fUnits) {
+            auto& u = bpus.emplace_back();
+            u.fPos.fX = xMax + o.fX;
+            u.fPos.fY = yMax + o.fY;
+            u.fType = o.fType;
+        }
+
         calcMaxArea(c, maxA, xMax, yMax, false);
         helper.set(id, maxA);
 

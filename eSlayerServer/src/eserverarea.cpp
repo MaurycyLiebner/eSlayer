@@ -270,6 +270,47 @@ void eServerArea::generatePotion(
     addGroundItem(pos, item);
 }
 
+bool eServerArea::addUnit(
+    const uint16_t type, const eUnitType utype,
+    eEliteModifiers& mods, ePointF& pos) {
+    const bool r = findPlaceForUnit(pos, pos);
+    if(!r) return false;
+    const auto& udata = eUnitsInfo::sUnits.get(type);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
+    const auto modelParts = data.randomModelParts();
+    auto& map = mMap->pathFinderMap();
+    const auto u = std::make_shared<eServerUnit>(
+        utype, data, type, *this);
+    const uint32_t charId = eServerUnit::sNextCharId++;
+    iniSetupUnit(u, charId, eTeamId::neutralHostile,
+                 pos, type, udata, data, modelParts);
+
+    u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
+
+    mods.apply(*u);
+
+    {
+        const int schoice = u->addSkill();
+        u->setSkillId(schoice, 0, false);
+    }
+    eSkillLevels skillLevels;
+    using sMap = std::map<uint16_t, uint16_t>;
+    reinterpret_cast<sMap&>(skillLevels) = udata.fSkills;
+    u->setSkillLevels(skillLevels, false);
+    for(const auto it : udata.fSkills) {
+        const int skillId = it.first;
+        if(skillId == 0) continue;
+        const int schoice = u->addSkill();
+        u->setSkillId(schoice, skillId, false);
+    }
+    u->recalculateStats();
+    u->recalculateAuras();
+
+    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
+    u->setAction(a);
+    return true;
+}
+
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
 
@@ -418,52 +459,24 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 }
 
                 const auto addUnit = [&]() {
-                    ePointF pos;
-                    const bool r = findPlaceForUnit({xMax, yMax}, pos);
-                    if(!r) return false;
                     auto type = us.fBaseType;
                     if(boss) {
                         type = eRand::randomElement(us.fBossTypes);
                     } else {
                         type = eRand::randomElement(us.fTypes);
                     }
-                    const auto& udata = eUnitsInfo::sUnits.get(type);
-                    const auto& data = eCharDataInfo::get(udata.fCharData);
-                    const auto modelParts = data.randomModelParts();
-                    auto& map = mMap->pathFinderMap();
-                    const auto u = std::make_shared<eServerUnit>(
-                        boss ? eUnitType::uniqueBoss : eUnitType::minion,
-                        data, type, *this);
-                    const uint32_t charId = eServerUnit::sNextCharId++;
-                    iniSetupUnit(u, charId, eTeamId::neutralHostile,
-                                 pos, type, udata, data, modelParts);
-
-                    u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
-
+                    eUnitType utype;
                     if(elite) {
-                        mods.apply(*u, boss);
-                        boss = false;
+                        if(boss) {
+                            utype = eUnitType::uniqueBoss;
+                        } else {
+                            utype = eUnitType::minion;
+                        }
+                    } else {
+                        utype = eUnitType::normal;
                     }
-
-                    {
-                        const int schoice = u->addSkill();
-                        u->setSkillId(schoice, 0, false);
-                    }
-                    eSkillLevels skillLevels;
-                    using sMap = std::map<uint16_t, uint16_t>;
-                    reinterpret_cast<sMap&>(skillLevels) = udata.fSkills;
-                    u->setSkillLevels(skillLevels, false);
-                    for(const auto it : udata.fSkills) {
-                        const int skillId = it.first;
-                        const int schoice = u->addSkill();
-                        u->setSkillId(schoice, skillId, false);
-                    }
-                    u->recalculateStats();
-                    u->recalculateAuras();
-
-                    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
-                    u->setAction(a);
-                    return true;
+                    ePointF pos{xMax, yMax};
+                    return eServerArea::addUnit(type, utype, mods, pos);
                 };
 
                 const int nUnits = us.fGroupSize;
@@ -483,6 +496,13 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 if(!r) break;
             }
         }
+    }
+
+    const auto& bpus = map->blueprintUnits();
+    eEliteModifiers mods;
+    for(const auto& bpu : bpus) {
+        auto pos = bpu.fPos;
+        addUnit(bpu.fType, eUnitType::normal, mods, pos);
     }
 }
 

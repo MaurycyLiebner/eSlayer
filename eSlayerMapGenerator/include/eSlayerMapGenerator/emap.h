@@ -110,6 +110,14 @@ public:
     const std::vector<eMonsterArea>& monsterAreas() const
     { return mMonsterAreas; }
 
+    struct eBlueprintUnit {
+        ePointF fPos;
+        uint16_t fType;
+    };
+
+    const std::vector<eBlueprintUnit>& blueprintUnits() const
+    { return mBlueprintUnits; }
+
     ePathFinderMap& pathFinderMap() { return mPathFinderMap; }
     void fillPathFinderMap();
     void triggerDoors(const eDoors& doors);
@@ -153,6 +161,7 @@ private:
     std::set<uint16_t> mUnitTypes;
 
     std::vector<eMonsterArea> mMonsterAreas;
+    std::vector<eBlueprintUnit> mBlueprintUnits;
 
     ePathFinderMap mPathFinderMap;
     eObstaclesMap mObstaclesMap;

@@ -9,8 +9,9 @@ class eEliteModifiers {
 public:
     void initialize(const int nMods, const int level);
 
-    void apply(eServerUnit& u, const bool boss);
+    void apply(eServerUnit& u);
 private:
+    bool fBoss = true;
     eModsCollection mBossMods;
     eModsCollection mMinionMods;
     std::set<uint8_t> mMods;

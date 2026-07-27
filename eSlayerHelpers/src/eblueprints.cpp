@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
 #include "eSlayerHelpers/eterrstexturesdata.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 
 eStringIdMapVector<eBlueprint>
 eBlueprints::sBlueprints;
@@ -67,6 +68,20 @@ void eBlueprints::load() {
                     terr.fY = terrData.value("y", 0.f);
                 }
             }
+            if(jdata.contains("units")) {
+                for(const auto& unitData : jdata["units"]) {
+                    const auto uname = unitData.value("type", "");
+                    const auto id = eUnitsInfo::sUnits.id(uname);
+                    if(id < 0) {
+                        eRuntimeThrow("Invalid unit name \"" + uname +
+                                      "\" in blueprint \"" + name + "\".");
+                    }
+                    auto& unit = bp.fUnits.emplace_back();
+                    unit.fType = id;
+                    unit.fX = unitData.value("x", 0.f);
+                    unit.fY = unitData.value("y", 0.f);
+                }
+            }
             if(jdata.contains("blueprints")) {
                 for(const auto& jbp : jdata["blueprints"]) {
                     const auto bpname = jbp.value("type", "");
@@ -87,6 +102,11 @@ void eBlueprints::load() {
                         auto& terr = bp.fTerrain.emplace_back(t);
                         terr.fX += dx;
                         terr.fY += dy;
+                    }
+                    for(const auto& u : b.fUnits) {
+                        auto& unit = bp.fTerrain.emplace_back(u);
+                        unit.fX += dx;
+                        unit.fY += dy;
                     }
                 }
             }

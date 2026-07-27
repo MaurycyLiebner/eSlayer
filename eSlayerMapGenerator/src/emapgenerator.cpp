@@ -264,6 +264,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
     const int connHalfLen = 4;
     auto& terrTypes = result->mTerrainTypes;
     auto& objTypes = result->mObjectTypes;
+    auto& unitTypes = result->mUnitTypes;
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {
@@ -274,6 +275,22 @@ eMapGenerator::generate(const uint8_t mapId) const {
             objTypes.emplace(o.fType);
         }
 
+        const auto addUnitType = [&](const uint16_t mtype) {
+            const auto& minfo = eUnitsInfo::sUnits.get(mtype);
+            unitTypes.emplace(minfo.fCharData);
+        };
+
+        const auto& ms = settings.fMonsters;
+        const auto& types = ms.fTypes;
+        for(const auto& type : types) {
+            for(const auto mtype : type.fTypes) {
+                addUnitType(mtype);
+            }
+            for(const auto mtype : type.fBossTypes) {
+                addUnitType(mtype);
+            }
+        }
+
         for(const auto& bpc : settings.fBlueprints) {
             const auto type = bpc.fType;
             const auto& bp = eBlueprints::sBlueprints.get(type);
@@ -282,6 +299,9 @@ eMapGenerator::generate(const uint8_t mapId) const {
             }
             for(const auto& o : bp.fTerrain) {
                 terrTypes.emplace(o.fType);
+            }
+            for(const auto& u : bp.fUnits) {
+                addUnitType(u.fType);
             }
         }
 
@@ -370,19 +390,6 @@ eMapGenerator::generate(const uint8_t mapId) const {
     for(const auto& it : areas) {
         const auto& area = it.second;
         area.generateWalls();
-    }
-
-    const auto& ms = settings.fMonsters;
-    const auto& types = ms.fTypes;
-    for(const auto& type : types) {
-        for(const auto mtype : type.fTypes) {
-            const auto& minfo = eUnitsInfo::sUnits.get(mtype);
-            result->mUnitTypes.emplace(minfo.fCharData);
-        }
-        for(const auto mtype : type.fBossTypes) {
-            const auto& minfo = eUnitsInfo::sUnits.get(mtype);
-            result->mUnitTypes.emplace(minfo.fCharData);
-        }
     }
 
     return result;
