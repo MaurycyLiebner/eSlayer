@@ -331,10 +331,6 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eBlueprints::load();
-        });
-
-        loadings.emplace_back([&]() {
             eObjectNames::load();
         });
 
@@ -349,6 +345,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eEliteModifiersNames::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eBlueprints::load();
         });
 
         loadings.emplace_back([&]() {

@@ -6,10 +6,16 @@
 #include <cstdint>
 #include <vector>
 #include <optional>
+#include <set>
 
 struct eBlueprintObject {
     uint8_t fType;
     std::optional<uint8_t> fSubtype;
+
+    // for units
+    std::set<uint8_t> fElite;
+    int fUnitCount;
+
     float fX;
     float fY;
     std::optional<float> fWidth;

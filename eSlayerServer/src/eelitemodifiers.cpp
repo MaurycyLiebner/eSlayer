@@ -4,23 +4,13 @@
 
 #include <eSlayerHelpers/eelitemodifiersinfo.h>
 
-void eEliteModifiers::initialize(const int nMods, const int level) {
-    std::vector<int> options;
-
+void eEliteModifiers::initialize(
+    const std::set<uint8_t> mods, const int level) {
     const auto& e = eEliteModifiersInfo::sElite;
-    options.reserve(e.size() - 1);
-    for(int i = 1; i < e.size(); i++) {
-        options.emplace_back(i);
-    }
+    for(const auto mod : mods) {
+        mMods.emplace(mod);
 
-    for(int i = 0; i < nMods; i++) {
-        if(options.empty()) break;
-        const int id = eRand::rand() % options.size();
-        const int m = options[id];
-        mMods.emplace(m);
-        options.erase(options.begin() + id);
-
-        const auto& einfo = e.get(m);
+        const auto& einfo = e.get(mod);
 
         const auto& bossL = einfo.fBoss.skillLevel(level);
         mBossMods.addBoost(bossL.fTotalModifiers);
@@ -30,8 +20,32 @@ void eEliteModifiers::initialize(const int nMods, const int level) {
     }
 }
 
+void eEliteModifiers::initialize(const int nMods, const int level) {
+    std::vector<int> options;
+
+    const auto& e = eEliteModifiersInfo::sElite;
+    options.reserve(e.size() - 1);
+    for(int i = 1; i < e.size(); i++) {
+        options.emplace_back(i);
+    }
+
+    eRand::randomShuffle(options);
+
+    std::set<uint8_t> mods;
+    for(int i = 0; i < nMods; i++) {
+        if(i >= options.size()) break;
+        mods.emplace(options[i]);
+    }
+
+    initialize(mods, level);
+}
+
+void eEliteModifiers::setBoss(const bool boss) {
+    mBoss = boss;
+}
+
 void eEliteModifiers::apply(eServerUnit& u) {
-    if(fBoss) {
+    if(mBoss) {
         for(const auto m : mMods) {
             u.fMods.emplace(m);
         }
@@ -39,7 +53,7 @@ void eEliteModifiers::apply(eServerUnit& u) {
             const auto& mod = it.second;
             u.addBoost({mod}, eBoostCurseType::permanent, false);
         }
-        fBoss = false;
+        mBoss = false;
     } else {
         u.fMods.emplace(0);
         for(const auto& it : mMinionMods) {

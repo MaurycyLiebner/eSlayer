@@ -499,10 +499,28 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     }
 
     const auto& bpus = map->blueprintUnits();
-    eEliteModifiers mods;
     for(const auto& bpu : bpus) {
+        eEliteModifiers mods;
+        const auto& es = bpu.fElite;
+        if(!es.empty()) {
+            const auto& uinfo = eUnitsInfo::sUnits.get(bpu.fType);
+            mods.initialize(es, uinfo.fLevel);
+            mods.setBoss(es.count(0) == 0);
+        }
         auto pos = bpu.fPos;
-        addUnit(bpu.fType, eUnitType::normal, mods, pos);
+        for(int i = 0; i < bpu.fCount; i++) {
+            eUnitType utype;
+            if(es.empty()) {
+                utype = eUnitType::normal;
+            } else {
+                if(mods.boss()) {
+                    utype = eUnitType::uniqueBoss;
+                } else {
+                    utype = eUnitType::minion;
+                }
+            }
+            addUnit(bpu.fType, utype, mods, pos);
+        }
     }
 }
 

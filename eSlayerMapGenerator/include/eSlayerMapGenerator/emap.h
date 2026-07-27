@@ -113,6 +113,8 @@ public:
     struct eBlueprintUnit {
         ePointF fPos;
         uint16_t fType;
+        std::set<uint8_t> fElite;
+        int fCount;
     };
 
     const std::vector<eBlueprintUnit>& blueprintUnits() const

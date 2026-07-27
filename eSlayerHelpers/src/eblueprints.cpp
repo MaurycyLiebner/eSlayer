@@ -4,6 +4,7 @@
 #include "eSlayerHelpers/eobjectsinfo.h"
 #include "eSlayerHelpers/eterrstexturesdata.h"
 #include "eSlayerHelpers/eunitsinfo.h"
+#include "eSlayerHelpers/eelitemodifiersinfo.h"
 
 eStringIdMapVector<eBlueprint>
 eBlueprints::sBlueprints;
@@ -78,6 +79,17 @@ void eBlueprints::load() {
                     }
                     auto& unit = bp.fUnits.emplace_back();
                     unit.fType = id;
+                    if(unitData.contains("elite")) {
+                        const auto elites = unitData.value("elite", std::vector<std::string>());
+                        for(const auto& eliteStr : elites) {
+                            const auto id = eEliteModifiersInfo::sElite.id(eliteStr);
+                            if(id < 0) {
+                                eRuntimeThrow("Unrecognized elite type \"" + eliteStr + "\".");
+                            }
+                            unit.fElite.emplace(id);
+                        }
+                    }
+                    unit.fUnitCount = unitData.value("count", 1);
                     unit.fX = unitData.value("x", 0.f);
                     unit.fY = unitData.value("y", 0.f);
                 }

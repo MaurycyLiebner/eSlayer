@@ -375,6 +375,8 @@ void eDungeon::generate(ePointF& spawnPos) const {
             u.fPos.fX = xMax + o.fX;
             u.fPos.fY = yMax + o.fY;
             u.fType = o.fType;
+            u.fElite = o.fElite;
+            u.fCount = o.fUnitCount;
         }
 
         calcMaxArea(c, maxA, xMax, yMax, false);
