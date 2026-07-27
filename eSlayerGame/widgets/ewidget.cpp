@@ -11,8 +11,6 @@ eWidget* eWidget::sLastPressed = nullptr;
 eWidget* eWidget::sMouseGrabber = nullptr;
 eWidget* eWidget::sKeyboardGrabber = nullptr;
 
-#define ReverseFor(i, cont) for(i = cont.begin(); i < cont.end(); i++)
-
 eWidget::eWidget(eMainWindow* const window) :
     mWindow(window) {
     mPadding = resolution().largePadding();
@@ -485,6 +483,10 @@ void eWidget::removeAllWidgets() {
     mChildren.clear();
 }
 
+void eWidget::setSizeHintSkipHidden(const bool s) {
+    mSizeHintSkipHidden = s;
+}
+
 void eWidget::stackVertically(const int p,
                               const bool skipHidden) {
     int y = 0;
@@ -526,9 +528,11 @@ void eWidget::layoutVerticallyWithoutSpaces() {
     }
 }
 
-void eWidget::stackHorizontally(const int p) {
+void eWidget::stackHorizontally(const int p,
+                                const bool skipHidden) {
     int x = 0;
     for(const auto w : mChildren) {
+        if(skipHidden && !w->visible()) continue;
         w->setX(x);
         x += w->width() + p;
     }
@@ -576,7 +580,7 @@ void eWidget::sizeHint(int& w, int& h) {
     w = 0;
     h = 0;
     for(const auto c : mChildren) {
-//        if(!c->visible()) continue;
+        if(mSizeHintSkipHidden && !c->visible()) continue;
         w = std::max(w, c->x() + c->width());
         h = std::max(h, c->y() + c->height());
     }

@@ -127,6 +127,7 @@ void eServerArea::iniSetupUnit(
     u->fCharId = charId;
     u->fTeamId = teamId;
     u->fState = 0;
+    u->fImmunities = 0;
     u->fUnitInfoId = unitInfoId;
     u->fRadius = uinfo.fRadius;
     u->fAnim = data.animId("stand");

@@ -8,7 +8,9 @@ enum class eFontColor {
     white, gray, blue, red, green,
     // items
     normal, magic, rare, set, unique,
-    whiteBlack, grayBlack, redBlack
+    whiteBlack, grayBlack, redBlack,
+    // immunities
+    fire, cold, lightning, poison, physical
 };
 
 namespace eFontColorHelpers {

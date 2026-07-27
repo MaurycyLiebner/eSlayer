@@ -82,6 +82,13 @@
     <group id="9">
         <string id="0">Press ESC to continue.</string>
     </group>
+    <group id="10">
+        <string id="0">Immune to Fire</string>
+        <string id="1">Immune to Cold</string>
+        <string id="2">Immune to Lightning</string>
+        <string id="3">Immune to Poison</string>
+        <string id="4">Immune to Physical</string>
+    </group>
     <group id="11">
         <string id="0">Strength</string>
         <string id="1">Dexterity</string>

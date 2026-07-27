@@ -15,10 +15,10 @@ struct ESLAYERHELPERS_API eUnitData :
     public ePositioned {
     uint32_t fCharId;
 
+    uint32_t fUpdate = std::numeric_limits<decltype(fUpdate)>::max();
+
     uint8_t fMapId;
     uint8_t fAreaId;
-
-    uint16_t fUpdate = std::numeric_limits<decltype(fUpdate)>::max();
 
     uint8_t fAnim;
     eAnimId fAnimId;
@@ -42,9 +42,15 @@ struct ESLAYERHELPERS_API eUnitData :
 
     std::set<uint8_t> fMods;
 
+    uint8_t fImmunities;
+
     eModelParts fModelParts;
 
-    eUnitData toUnitData(const uint16_t update = std::numeric_limits<decltype(update)>::max()) const;
+    eUnitData toUnitData(const uint32_t update = std::numeric_limits<decltype(update)>::max()) const;
+
+    enum eImmunity : uint8_t {
+        ifire, icold, ilightning, ipoison, iphysical
+    };
 
     enum eState : uint8_t {
         cold_,
@@ -53,8 +59,9 @@ struct ESLAYERHELPERS_API eUnitData :
         staminaPotion_
     };
 
-    enum eShift : uint16_t {
-        mapIdAreaId,
+    enum eShift : uint8_t {
+        mapId,
+        areaId,
         anim,
         animId,
         animSpeed,
@@ -69,7 +76,8 @@ struct ESLAYERHELPERS_API eUnitData :
         unitInfoId,
         radius,
         mods,
-        modelParts
+        modelParts,
+        immunities
     };
 
     bool setPosition(const ePointF& pos);
@@ -109,8 +117,11 @@ struct ESLAYERHELPERS_API eUnitData :
     bool getState(const eState state) const;
     void setState(const eState state, const bool value);
 
-    static bool getUpdate(const uint16_t update, const eShift shift);
-    static void setUpdate(uint16_t& update, const eShift shift, const bool value);
+    bool getImmunity(const eImmunity imm) const;
+    bool setImmunity(const eImmunity imm, const bool value);
+
+    static bool getUpdate(const uint32_t update, const eShift shift);
+    static void setUpdate(uint32_t& update, const eShift shift, const bool value);
 
     void apply(eUnitData& to) const;
 

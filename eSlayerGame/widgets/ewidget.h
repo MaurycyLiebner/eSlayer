@@ -112,11 +112,14 @@ public:
     void removeWidget(eWidget* const w);
     void removeAllWidgets();
 
+    void setSizeHintSkipHidden(const bool s);
+
     void stackVertically(const int p = 0,
                          const bool skipHidden = false);
     void layoutVertically(const bool skipHidden = false);
     void layoutVerticallyWithoutSpaces();
-    void stackHorizontally(const int p = 0);
+    void stackHorizontally(const int p = 0,
+                           const bool skipHidden = false);
     void layoutHorizontally();
     void layoutHorizontallyWithoutSpaces();
 
@@ -182,6 +185,7 @@ private:
     int mWidth = 0;
     int mHeight = 0;
     int mPadding = 0;
+    bool mSizeHintSkipHidden = false;
     bool mVisible = true;
     bool mDeleteLater = false;
     eWidget* mParent = nullptr;

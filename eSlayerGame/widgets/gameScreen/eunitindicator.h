@@ -3,6 +3,8 @@
 
 #include "ehealthindicator.h"
 
+#include <eSlayerHelpers/eunitdata.h>
+
 class eUnit;
 
 class eUnitIndicator : public eHealthIndicator {
@@ -20,6 +22,9 @@ private:
 
     std::weak_ptr<eUnit> mUnit;
     eLabel* mModsLabel = nullptr;
+
+    eWidget* mImmunitiesW = nullptr;
+    std::map<eUnitData::eImmunity, eLabel*> mImmunityLabels;
 };
 
 #endif // EUNITINDICATOR_H

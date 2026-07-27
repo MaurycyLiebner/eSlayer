@@ -20,14 +20,14 @@ bool eUnitData::setPosition(
 bool eUnitData::setMapId(const uint8_t mapId) {
     if(fMapId == mapId) return false;
     fMapId = mapId;
-    setUpdate(eShift::mapIdAreaId, true);
+    setUpdate(eShift::mapId, true);
     return true;
 }
 
 bool eUnitData::setAreaId(const uint8_t areaId) {
     if(fAreaId == areaId) return false;
     fAreaId = areaId;
-    setUpdate(eShift::mapIdAreaId, true);
+    setUpdate(eShift::areaId, true);
     return true;
 }
 
@@ -174,13 +174,30 @@ void eUnitData::setState(
     }
 }
 
+bool eUnitData::getImmunity(
+    const eImmunity imm) const {
+    return (fImmunities >> imm) & 1;
+}
+
+bool eUnitData::setImmunity(
+    const eImmunity imm, const bool value) {
+    if(getImmunity(imm) == value) return false;
+    if(value) {
+        fImmunities |= (1u << imm);
+    } else {
+        fImmunities &= ~(1u << imm);
+    }
+    setUpdate(eShift::immunities, true);
+    return true;
+}
+
 bool eUnitData::getUpdate(
-    const uint16_t update, const eShift shift) {
+    const uint32_t update, const eShift shift) {
     return (update >> shift) & 1;
 }
 
 void eUnitData::setUpdate(
-    uint16_t& update, const eShift shift,
+    uint32_t& update, const eShift shift,
     const bool value) {
     if(value) {
         update |= (1u << shift);
@@ -272,8 +289,11 @@ void eUnitData::read(ePacket& p) {
 
     p >> fUpdate;
 
-    if(getUpdate(eShift::mapIdAreaId)) {
+    if(getUpdate(eShift::mapId)) {
         p >> fMapId;
+    }
+
+    if(getUpdate(eShift::areaId)) {
         p >> fAreaId;
     }
 
@@ -343,8 +363,11 @@ void eUnitData::write(ePacket& p) const {
 
     p << fUpdate;
 
-    if(getUpdate(eShift::mapIdAreaId)) {
+    if(getUpdate(eShift::mapId)) {
         p << fMapId;
+    }
+
+    if(getUpdate(eShift::areaId)) {
         p << fAreaId;
     }
 
@@ -409,7 +432,7 @@ void eUnitData::write(ePacket& p) const {
     }
 }
 
-eUnitData eUnitData::toUnitData(const uint16_t update) const {
+eUnitData eUnitData::toUnitData(const uint32_t update) const {
     eUnitData result = *this;
     result.fUpdate = update;
     return result;

@@ -340,13 +340,15 @@ public:
     void immobilizeFor(const float frameLen);
     bool immobilized() const { return mImmobilizeLength > 0.f; }
 
-    uint16_t requestUpdate(const uint32_t clientId);
+    uint32_t requestUpdate(const uint32_t clientId);
     void update(const eUnitData::eShift shift);
     void updateAll();
 
     void setPosition(const ePointF& pos);
     void setMapId(const uint8_t mapId);
     void setAreaId(const uint8_t areaId);
+
+    void setImmunity(const eImmunity imm, const bool value);
 
     void setAnim(const uint8_t anim);
     void setAnimId(const eAnimId& animId);
@@ -408,6 +410,8 @@ private:
     using eUnitData::setPoisoned;
     using eUnitData::setStaminaPotion;
 
+    using eUnitData::setImmunity;
+
     void removeBoostDataTmp(const uint8_t id);
     void addBoostDataTmp(const uint8_t id);
 
@@ -449,7 +453,7 @@ private:
 
     int mMercType = -1;
 
-    std::map<uint32_t, uint16_t> mUpdateMap;
+    std::map<uint32_t, uint32_t> mUpdateMap;
     bool mAttributesChanged = false;
 
     std::set<int> mUsedSkills;

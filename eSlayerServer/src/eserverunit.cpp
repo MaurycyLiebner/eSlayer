@@ -1241,6 +1241,12 @@ void eServerUnit::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     setMaxHealth(std::ceil(mStats.fMaxHealth));
     setHealth(std::ceil(mStats.fHealthF));
+
+    setImmunity(eImmunity::ifire, mStats.fFireResistance >= 1.f);
+    setImmunity(eImmunity::icold, mStats.fColdResistance >= 1.f);
+    setImmunity(eImmunity::ilightning, mStats.fLightningResistance >= 1.f);
+    setImmunity(eImmunity::ipoison, mStats.fPoisonResistance >= 1.f);
+    setImmunity(eImmunity::iphysical, mStats.fPhysicalResistance >= 1.f);
 }
 
 void eServerUnit::recalculateAuras() {
@@ -1304,9 +1310,9 @@ void eServerUnit::immobilizeFor(const float frameLen) {
     mImmobilizeLength = std::max(mImmobilizeLength, frameLen);
 }
 
-uint16_t eServerUnit::requestUpdate(const uint32_t clientId) {
+uint32_t eServerUnit::requestUpdate(const uint32_t clientId) {
     const auto it = mUpdateMap.find(clientId);
-    uint16_t result;
+    uint32_t result;
     if(it == mUpdateMap.end()) {
         result = std::numeric_limits<decltype(result)>::max();
     } else {
@@ -1336,13 +1342,19 @@ void eServerUnit::setPosition(const ePointF& pos) {
 
 void eServerUnit::setMapId(const uint8_t mapId) {
     if(eUnitData::setMapId(mapId)) {
-        update(eUnitData::eShift::mapIdAreaId);
+        update(eUnitData::eShift::mapId);
     }
 }
 
 void eServerUnit::setAreaId(const uint8_t areaId) {
     if(eUnitData::setAreaId(areaId)) {
-        update(eUnitData::eShift::mapIdAreaId);
+        update(eUnitData::eShift::areaId);
+    }
+}
+
+void eServerUnit::setImmunity(const eImmunity imm, const bool value) {
+    if(eUnitData::setImmunity(imm, value)) {
+        update(eUnitData::eShift::immunities);
     }
 }
 
