@@ -78,6 +78,7 @@ void eMissilesInfo::load() {
         }
         missile.mAppearAnimId = missile.animId("appear");
         missile.mBaseAnimId = missile.animId("base");
+        missile.mDisappearAnimId = missile.animId("disappear");
         missile.mHitAnimId = missile.animId("hit");
         missile.mStayAnimId = missile.animId("stay");
 

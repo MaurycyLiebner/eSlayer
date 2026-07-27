@@ -1396,6 +1396,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
             const int appearAnimId = missileInfo.appearAnimId();
             const int baseAnimId = missileInfo.baseAnimId();
+            const int disappearAnimId = missileInfo.disappearAnimId();
             int animId = appearAnimId;
             int& frame = a->fFrame;
             auto& state = a->fState;
@@ -1423,29 +1424,56 @@ void eGameWidget::paintEvent(ePainter& p) {
                     baseFrames = missileInfo.nFrames(baseAnimId);
                 }
                 if(frame >= baseFrames) {
-                    int appearFrames = 0;
-                    if(appearAnimId >= 0) {
-                        appearFrames = missileInfo.nFrames(appearAnimId);
-                    }
-                    if(a->fRemTime < appearFrames) {
-                        state = eSkillAreaState::disappear;
-                        if(appearFrames > 0) {
-                            frame = appearFrames - 1;
-                            animId = appearAnimId;
+                    if(disappearAnimId >= 0) {
+                        const int disappearFrames = missileInfo.nFrames(
+                            disappearAnimId);
+                        if(a->fRemTime < disappearFrames) {
+                            state = eSkillAreaState::disappear;
+                            if(disappearFrames > 0) {
+                                frame = 0;
+                                animId = disappearAnimId;
+                            } else {
+                                areas.remove(id);
+                                continue;
+                            }
                         } else {
-                            areas.remove(id);
-                            continue;
+                            frame = 0;
                         }
                     } else {
-                        frame = 0;
+                        int appearFrames = 0;
+                        if(appearAnimId >= 0) {
+                            appearFrames = missileInfo.nFrames(appearAnimId);
+                        }
+                        if(a->fRemTime < appearFrames) {
+                            state = eSkillAreaState::disappear;
+                            if(appearFrames > 0) {
+                                frame = appearFrames - 1;
+                                animId = appearAnimId;
+                            } else {
+                                areas.remove(id);
+                                continue;
+                            }
+                        } else {
+                            frame = 0;
+                        }
                     }
                 }
             } break;
             case eSkillAreaState::disappear: {
-                animId = appearAnimId;
-                if(frame <= 0) {
-                    areas.remove(id);
-                    continue;
+                if(disappearAnimId >= 0) {
+                    const int disappearFrames = missileInfo.nFrames(
+                        disappearAnimId);
+                    animId = disappearAnimId;
+                    if(frame >= disappearFrames) {
+                        areas.remove(id);
+                        continue;
+                    }
+                } else {
+                    animId = appearAnimId;
+                    if(frame <= 0) {
+                        areas.remove(id);
+                        continue;
+                    }
                 }
             } break;
             }
@@ -1473,9 +1501,13 @@ void eGameWidget::paintEvent(ePainter& p) {
             case eSkillAreaState::base:
                 frame++;
                 break;
-            case eSkillAreaState::disappear:
-                frame--;
-                break;
+            case eSkillAreaState::disappear: {
+                if(animId == appearAnimId) {
+                    frame--;
+                } else {
+                    frame++;
+                }
+            } break;
             }
         }
 

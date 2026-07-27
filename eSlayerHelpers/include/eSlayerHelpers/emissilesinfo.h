@@ -27,6 +27,7 @@ public:
 
     int appearAnimId() const { return mAppearAnimId; }
     int baseAnimId() const { return mBaseAnimId; }
+    int disappearAnimId() const { return mDisappearAnimId; }
     int hitAnimId() const { return mHitAnimId; }
     int stayAnimId() const { return mStayAnimId; }
 
@@ -41,6 +42,7 @@ private:
 
     int mAppearAnimId = -1;
     int mBaseAnimId = -1;
+    int mDisappearAnimId = -1;
     int mHitAnimId = -1;
     int mStayAnimId = -1;
 
