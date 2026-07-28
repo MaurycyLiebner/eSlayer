@@ -195,6 +195,7 @@ bool eComplexAction::meeleAttack(
     const eServerUnit& u,
     const int schoice,
     const eWeaponChoice wchoice) {
+    if(isAtCamp()) return false;
     if(u.fHealth <= 0) return false;
     const float dist = ePointF::distance(mUnit.fPos, u.fPos);
     const auto& stats = mUnit.stats();
@@ -235,6 +236,10 @@ bool eComplexAction::meeleAttack(
 
 bool eComplexAction::getHit(const eHitData& data,
                             const bool splash) {
+    if(mUnit.fTeamId != eTeamId::neutralHostile) {
+        const bool r = isAtCamp();
+        if(r) return false;
+    }
     bool hit = false;
     const auto attacker = mArea.unit(data.fAttackerId);
     const float hitChance = eServerUnit::sHitChance(
@@ -347,6 +352,7 @@ bool eComplexAction::hitData(const int schoice,
 bool eComplexAction::spawnMissile(const ePointF& to,
                                   const int schoice,
                                   const eWeaponChoice wchoice) {
+    if(isAtCamp()) return false;
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
     mUnit.setAngle(dir.angle());
@@ -397,6 +403,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
 bool eComplexAction::spawnArea(const ePointF& to,
                                const int schoice,
                                const eWeaponChoice wchoice) {
+    if(isAtCamp()) return false;
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
     mUnit.setAngle(dir.angle());
@@ -425,6 +432,7 @@ bool eComplexAction::spawnArea(const ePointF& to,
 bool eComplexAction::spawnNova(
     const ePointF& to, const int schoice,
     const eWeaponChoice wchoice) {
+    if(isAtCamp()) return false;
     const auto& from = mUnit.fPos;
     const auto dir = ePointF::vector(to, from);
     mUnit.setAngle(dir.angle());
@@ -497,4 +505,9 @@ bool eComplexAction::summon(
         eAttackType::cast, a, schoice, eWeaponChoice::left);
     if(attack) setChild(attack);
     return attack.get();
+}
+
+bool eComplexAction::isAtCamp() const {
+    const auto& pos = mUnit.fPos;
+    return mArea.campAt(pos);
 }

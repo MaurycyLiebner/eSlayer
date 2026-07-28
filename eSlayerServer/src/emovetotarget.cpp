@@ -68,6 +68,7 @@ bool eMoveToTarget::setTarget(const std::vector<eUnitTarget>& targets,
     auto& handler = mUnit.movementHandler();
     bool canMove = false;
     for(const auto& t : targets) {
+        if(handler.campAt(t.fPos)) continue;
         const bool r = handler.moveInDirectionIfClearPath(t.fPos);
         if(r) {
             canMove = true;

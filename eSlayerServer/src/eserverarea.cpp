@@ -194,6 +194,7 @@ void eServerArea::iniSetupUnit(
     };
     auto& pmap = mMap->pathFinderMap();
     m.intialize(wPos, wPath, iter, charId, teamId, pmap);
+    m.setCanEnterCamp(u->fTeamId != eTeamId::neutralHostile);
 
     mUnits.add(charId, u);
     const auto area = unitArea(*u);
@@ -2384,6 +2385,10 @@ std::vector<uint32_t> eServerArea::summoned(
         }
     }
     return result;
+}
+
+bool eServerArea::campAt(const ePointF& pos) const {
+    return mMap->campAt(pos);
 }
 
 std::shared_ptr<eServerUnit>

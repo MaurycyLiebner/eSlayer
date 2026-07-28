@@ -235,6 +235,8 @@ public:
     std::vector<uint32_t> summoned(const eServerUnit& by,
                                    const int unitId);
 
+    bool campAt(const ePointF& pos) const;
+
     std::shared_ptr<eServerUnit>
     unit(const uint32_t charId) const;
     std::shared_ptr<eGroundItem> groundItem(

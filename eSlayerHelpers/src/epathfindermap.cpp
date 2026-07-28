@@ -103,6 +103,19 @@ void ePathFinderMap::setDistance(
     t.fDist = dist;
 }
 
+bool ePathFinderMap::campAt(const ePointF& pos) const {
+    return mCamp.campAt(pos);
+}
+
+bool ePathFinderMap::campAtLine(
+    const ePointF& from, const ePointF& to) const {
+    return mCamp.campAtLine(from, to);
+}
+
+void ePathFinderMap::addCampRect(const eRectF& rect) {
+    mCamp.addRect(rect);
+}
+
 ePoint ePathFinderMap::posToTile(const ePointF& pos) {
     ePoint result;
     result.fX = std::round(pos.fX*sSubdivide);

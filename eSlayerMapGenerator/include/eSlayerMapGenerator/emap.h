@@ -13,6 +13,7 @@
 #include <eSlayerHelpers/erect.h>
 #include <eSlayerHelpers/estringidmapvector.h>
 #include <eSlayerHelpers/edoors.h>
+#include <eSlayerHelpers/ecamprects.h>
 
 #include <memory>
 #include <vector>
@@ -135,6 +136,11 @@ public:
 
     bool waypointPosition(
         const uint8_t areaId, ePointF& pos) const;
+
+    bool campAt(const ePointF& pos) const;
+    bool campAtLine(const ePointF& from,
+                    const ePointF& to) const;
+    void addCampRect(const eRectF& rect);
 private:
     void generateTiles(const int w, const int h);
     using eIter = std::function<void(const int x, const int y)>;
@@ -142,6 +148,8 @@ private:
                                 const eIter& iter);
 
     uint8_t mId = 0;
+
+    eCampRects mCamp;
 
     ePointF mSpawnPos{0, 0};
     ePointF mPortalSpawnPos{0, 0};

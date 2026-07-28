@@ -42,14 +42,18 @@ public:
     bool moving() const { return mGoal.moving(); }
     eMovementGoalType goalType() const { return mGoal.type(); }
     void stopMoving();
-    bool moveTo(const std::vector<ePointF>& pos,
+    bool moveTo(std::vector<ePointF>& pos,
                 const bool foundOnly = false);
     void moveInDirection(const ePointF& pos);
     bool moveInDirectionIfClearPath(const ePointF& pos);
 
+    void setCanEnterCamp(const bool c);
+
     static int sChooseAnim(const int normal,
                            const int aggressive,
                            const bool isAggressive);
+
+    bool campAt(const ePointF& pos) const;
 protected:
     bool increment(const float by,
                    float& angle,
@@ -61,6 +65,8 @@ private:
     const float& mAngle;
     const float& mRadius;
     ePathFinderMap* mMap = nullptr;
+
+    bool mCanEnterCamp = true;
 
     uint32_t mCharId = 0;
     eTeamId mTeamId = eTeamId::neutralHostile;

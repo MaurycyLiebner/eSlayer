@@ -76,6 +76,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         eOpenGenerator::generate(rect, chambers, doors, mMargin);
     } break;
     case eAreaType::camp: {
+        mMap->addCampRect(rect);
         rectWalls = false;
         fillEmptySapces = true;
         eRect crect;

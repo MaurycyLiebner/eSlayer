@@ -28,8 +28,18 @@ void eMovementHandlerBase::intialize(
 }
 
 bool eMovementHandlerBase::moveTo(
-    const std::vector<ePointF>& pos,
+    std::vector<ePointF>& pos,
     const bool foundOnly) {
+    if(!mCanEnterCamp) {
+        for(int i = 0; i < pos.size(); i++) {
+            const auto& p = pos[i];
+            const bool r = campAt(p);
+            if(!r) continue;
+            pos.erase(pos.begin() + i);
+            i--;
+        }
+    }
+    if(pos.empty()) return false;
     bool found;
     const int maxDist = 20*ePathFinderMap::sSubdivide;
     auto path = ePathFinder::findPath(*mMap, mPos, pos, maxDist, found);
@@ -74,6 +84,10 @@ bool eMovementHandlerBase::moveInDirectionIfClearPath(
     return r;
 }
 
+void eMovementHandlerBase::setCanEnterCamp(const bool c) {
+    mCanEnterCamp = c;
+}
+
 int eMovementHandlerBase::sChooseAnim(
     const int normal,
     const int aggressive,
@@ -83,6 +97,12 @@ int eMovementHandlerBase::sChooseAnim(
     } else {
         return (normal != -1) ? normal : aggressive;
     }
+}
+
+bool eMovementHandlerBase::campAt(
+    const ePointF& pos) const {
+    if(mCanEnterCamp) return false;
+    return mMap->campAt(pos);
 }
 
 bool eMovementHandlerBase::walkable(
@@ -100,6 +120,8 @@ bool eMovementHandlerBase::walkable(
         walkable = walkable && (dist > minDist || dist < 0.0001f);
     });
     if(!walkable) return false;
+    const bool c = campAt(pos);
+    if(c) return false;
     return mWalkablePos(pos);
 }
 

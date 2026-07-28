@@ -545,7 +545,10 @@ void eMainCharAction::handleMovement(
     }
 
     if(!moved) {
-        if(mousePressed) mMovementHandler.moveTo({pos});
+        if(mousePressed) {
+            std::vector<ePointF> vec{pos};
+            mMovementHandler.moveTo(vec);
+        }
         moved = mMovementHandler.increment(by);
     }
 
@@ -772,7 +775,8 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
     } else if(mPressedUnit.expired() &&
               mPressedItem.expired() &&
               mPressedObject.expired()) {
-        mMovementHandler.moveTo({mousePos});
+        std::vector<ePointF> vec{mousePos};
+        mMovementHandler.moveTo(vec);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "eslayerhelpersexport.h"
 
 #include "epoint.h"
+#include "ecamprects.h"
 
 #include <vector>
 #include <functional>
@@ -47,11 +48,18 @@ public:
     int distance(const ePoint& tile) const;
     void setDistance(const ePoint& tile, const int dist);
 
+    bool campAt(const ePointF& pos) const;
+    bool campAtLine(const ePointF& from,
+                    const ePointF& to) const;
+    void addCampRect(const eRectF& rect);
+
     static const int sSubdivide;
     static ePoint posToTile(const ePointF& pos);
     static ePointF tileToPos(const ePoint& tile);
 private:
     eWalkable mWalkable;
+
+    eCampRects mCamp;
 
     int mWidth = 0;
     int mHeight = 0;

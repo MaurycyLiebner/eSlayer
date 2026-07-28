@@ -88,6 +88,8 @@ private:
     bool summon(const ePointF& to,
                 const int schoice);
 
+    bool isAtCamp() const;
+
     std::shared_ptr<eUnitAction> mChild;
 
     int mSchoice = 0;

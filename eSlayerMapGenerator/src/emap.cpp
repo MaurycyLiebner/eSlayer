@@ -409,6 +409,21 @@ bool eMap::waypointPosition(
     return false;
 }
 
+bool eMap::campAt(const ePointF& pos) const {
+    return mCamp.campAt(pos);
+}
+
+bool eMap::campAtLine(
+    const ePointF& from,
+    const ePointF& to) const {
+    return mCamp.campAtLine(from, to);
+}
+
+void eMap::addCampRect(const eRectF& rect) {
+    mCamp.addRect(rect);
+    mPathFinderMap.addCampRect(rect);
+}
+
 class eWallTL {
 public:
     eWallTL(const eMap& map) :

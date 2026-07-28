@@ -45,6 +45,8 @@ struct ESLAYERHELPERS_API eRectF {
     eRectF(const float x, const float y,
            const float w, const float h) :
         fX(x), fY(y), fW(w), fH(h) {}
+    eRectF(const eRect& r) :
+        fX(r.fX), fY(r.fY), fW(r.fW), fH(r.fH) {}
 
     float fX;
     float fY;
