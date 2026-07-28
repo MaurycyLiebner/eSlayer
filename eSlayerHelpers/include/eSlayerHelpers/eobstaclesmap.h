@@ -15,6 +15,10 @@ struct eObstacleTile {
     std::vector<eRectF> fMissile;
 };
 
+enum class eObstacleChoice {
+    missile, walk
+};
+
 class ESLAYERHELPERS_API eObstaclesMap {
 public:
     using eObstacleFiller = std::function<
@@ -38,11 +42,18 @@ public:
 
     static const int sTileSize;
 private:
-    bool check(const ePointF& pos,
-               const bool choice);
-    bool check(const ePointF& from,
-               const ePointF& to,
-               const bool choice);
+    bool hasObstacle(const ePointF& pos,
+                     const eObstacleChoice choice);
+    bool hasObstacle(const ePointF& from,
+                     const ePointF& to,
+                     const eObstacleChoice choice);
+    bool obstacleOnNull(const eObstacleChoice choice);
+
+    using eChecker = std::function<bool(const std::vector<eRectF>&)>;
+    bool hasObstacle(eObstacleTile& t,
+                     const int x, const int y,
+                     const eChecker& checker,
+                     const eObstacleChoice choice);
 
     int mWidth = 0;
     int mHeight = 0;

@@ -17,7 +17,8 @@ void eObstaclesMap::fillAll() {
     for(int x = 0 ; x < mWidth; x++) {
         for(int y = 0; y < mHeight; y++) {
             auto& t = mTiles[y][x];
-            t.fInitialized = mFiller(t.fWalk, t.fMissile, x, y);
+            t.fInitialized = mFiller(
+                t.fWalk, t.fMissile, x, y);
         }
     }
 }
@@ -47,51 +48,47 @@ void eObstaclesMap::eraseTile(
 
 bool eObstaclesMap::walkable(
     const ePointF& pos) {
-    return check(pos, true);
+    return !hasObstacle(pos, eObstacleChoice::walk);
 }
 
 bool eObstaclesMap::walkable(
     const ePointF& from, const ePointF& to) {
-    return check(from, to, true);
+    return !hasObstacle(from, to, eObstacleChoice::walk);
 }
 
 bool eObstaclesMap::obstacle(
     const ePointF& pos) {
-    return !check(pos, false);
+    return hasObstacle(pos, eObstacleChoice::missile);
 }
 
 bool eObstaclesMap::obstacle(
     const ePointF& from, const ePointF& to) {
-    return !check(from, to, false);
+    return hasObstacle(from, to, eObstacleChoice::missile);
 }
 
-bool eObstaclesMap::check(const ePointF& pos,
-                          const bool choice) {
+bool eObstaclesMap::hasObstacle(const ePointF& pos,
+                          const eObstacleChoice choice) {
     const float tileSize = static_cast<float>(sTileSize);
     const int x = static_cast<int>(std::floor(pos.fX / tileSize));
     const int y = static_cast<int>(std::floor(pos.fY / tileSize));
     const auto t = tile(x, y);
-    if(!t) return true;
+    if(!t) return obstacleOnNull(choice);
 
-    bool& ini = t->fInitialized;
-    auto& walk = t->fWalk;
-    auto& missile = t->fMissile;
-    if(!ini) {
-        ini = mFiller(walk, missile, x , y);
-    }
+    const auto checker = [&](const std::vector<eRectF>& vec) {
+        for(const auto& o : vec) {
+            const bool r = o.inside(pos);
+            if(r) return true;
+        }
+        return false;
+    };
 
-    for(const auto& o : (choice ? walk : missile)) {
-        const bool r = o.inside(pos);
-        if(r) return false;
-    }
-
-    return true;
+    return hasObstacle(*t, x, y, checker, choice);
 }
 
-bool eObstaclesMap::check(
+bool eObstaclesMap::hasObstacle(
     const ePointF& from,
     const ePointF& to,
-    const bool choice) {
+    const eObstacleChoice choice) {
     const float tileSize = static_cast<float>(sTileSize);
 
     // Convert world position to tile indices
@@ -141,21 +138,24 @@ bool eObstaclesMap::check(
         (dy != 0.f) ? ((nextBoundaryY - from.fY) / dy)
                     : std::numeric_limits<float>::infinity();
 
+    const bool onNull = obstacleOnNull(choice);
+
     while(true) {
         // Check current tile
         const auto t = tile(x, y);
-        if(!t) return false;
+        if(!t && onNull) return true;
 
-        bool& ini = t->fInitialized;
-        auto& walk = t->fWalk;
-        auto& missile = t->fMissile;
-        if(!ini) {
-            ini = mFiller(walk, missile, x , y);
-        }
+        if(t) {
+            const auto checker = [&](const std::vector<eRectF>& vec) {
+                for(const auto& o : vec) {
+                    const bool r = o.lineIntersects(from, to);
+                    if(r) return true;
+                }
+                return false;
+            };
 
-        for(const auto& o : (choice ? walk : missile)) {
-            const bool r = o.lineIntersects(from, to);
-            if(r) return false;
+            const bool r = hasObstacle(*t, x, y, checker, choice);
+            if(r) return true;
         }
 
         // Reached destination tile
@@ -173,5 +173,53 @@ bool eObstaclesMap::check(
         }
     }
 
+    return false;
+}
+
+bool eObstaclesMap::obstacleOnNull(
+    const eObstacleChoice choice) {
+    switch(choice) {
+    case eObstacleChoice::missile:
+        return false;
+    case eObstacleChoice::walk:
+        return true;
+    }
     return true;
+}
+
+bool eObstaclesMap::hasObstacle(
+    eObstacleTile& t,
+    const int x, const int y,
+    const eChecker& checker,
+    const eObstacleChoice choice) {
+
+    bool checkWalk = false;
+    bool checkMissile = false;
+    switch(choice) {
+    case eObstacleChoice::missile:
+        checkMissile = true;
+        break;
+    case eObstacleChoice::walk:
+        checkWalk = true;
+        break;
+    }
+
+    bool& ini = t.fInitialized;
+    auto& walk = t.fWalk;
+    auto& missile = t.fMissile;
+    if(!ini) {
+        ini = mFiller(walk, missile, x, y);
+    }
+
+    if(checkWalk) {
+        const bool r = checker(walk);
+        if(r) return true;
+    }
+
+    if(checkMissile) {
+        const bool r = checker(missile);
+        if(r) return true;
+    }
+
+    return false;
 }
