@@ -915,9 +915,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     std::optional<float> rangedRange;
     const auto handleWeapon = [&](const eItem& w, float& WSM) {
         const auto subtype = gWeaponType(w);
-        const bool r = gWeaponIsRanged(subtype);
         const auto& itemData = eItemsData::get(w.fDataId);
         WSM = itemData.fWSM;
+        const bool r = gWeaponIsRanged(subtype);
         const float range = itemData.fRange;
         if(r) {
             if(rangedRange) {
@@ -959,7 +959,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         fWeaponRangedRange = fDefaultRangedRange;
     }
 
-    if(meeleRangeDiv > 1) {
+    if(meeleRangeDiv == 0) {
+        fWeaponMeeleRange = fDefaultMeeleRange;
+    } else {
         fWeaponMeeleRange /= meeleRangeDiv;
     }
 

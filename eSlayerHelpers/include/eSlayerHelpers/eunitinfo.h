@@ -13,6 +13,8 @@ struct eUnitInfo {
     int fLevel;
     eColor fColor;
 
+    float fMeeleRange;
+
     int fMissile;
     float fMissileRange;
 

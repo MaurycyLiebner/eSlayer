@@ -74,6 +74,8 @@ void eUnitsInfo::load() {
             u.fMissile = id;
             u.fMissileRange = jdata.value("missileRange", 0.f);
 
+            u.fMeeleRange = jdata.value("meeleRange", 0.f);
+
             u.fColor = eColor{1.f, 1.f, 1.f, 1.f};
             if(jdata.contains("color")) {
                 const auto& color = jdata["color"];

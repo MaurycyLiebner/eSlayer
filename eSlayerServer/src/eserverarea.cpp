@@ -293,6 +293,7 @@ bool eServerArea::addUnit(
         auto& stats = u->stats();
         stats.fDefaultMissileId = udata.fMissile;
         stats.fDefaultRangedRange = udata.fMissileRange;
+        stats.fDefaultMeeleRange = udata.fMeeleRange;
     }
 
     {

@@ -191,6 +191,8 @@ struct ESLAYERHELPERS_API eStats {
     float fWeaponMeeleRange = 0.f;
     float fWeaponRangedRange = 0.f;
 
+    float fDefaultMeeleRange = 0.f;
+
     float fDefaultRangedRange = 0.f;
     int fDefaultMissileId = -1;
 
