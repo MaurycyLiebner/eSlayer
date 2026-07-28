@@ -272,7 +272,7 @@ void eServerArea::generatePotion(
 
 bool eServerArea::addUnit(
     const uint16_t type, const eUnitType utype,
-    eEliteModifiers& mods, ePointF& pos) {
+    std::optional<eEliteModifiers>& mods, ePointF& pos) {
     const bool r = findPlaceForUnit(pos, pos);
     if(!r) return false;
     const auto& udata = eUnitsInfo::sUnits.get(type);
@@ -287,7 +287,7 @@ bool eServerArea::addUnit(
 
     u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
 
-    mods.apply(*u);
+    if(mods) mods->apply(*u);
 
     {
         auto& stats = u->stats();
@@ -459,13 +459,14 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 if(maxA == 0) return false;
                 const auto& uBaseData = eUnitsInfo::sUnits.get(us.fBaseType);
                 const bool elite = us.fElite;
-                bool boss = elite;
-                eEliteModifiers mods;
+                std::optional<eEliteModifiers> mods;
                 if(elite) {
-                    mods.initialize(1, uBaseData.fLevel);
+                    mods = eEliteModifiers();
+                    mods->initialize(1, uBaseData.fLevel);
                 }
 
                 const auto addUnit = [&]() {
+                    const bool boss = mods ? mods->boss() : false;
                     auto type = us.fBaseType;
                     if(boss) {
                         type = eRand::randomElement(us.fBossTypes);
@@ -507,24 +508,25 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
     const auto& bpus = map->blueprintUnits();
     for(const auto& bpu : bpus) {
-        eEliteModifiers mods;
+        std::optional<eEliteModifiers> mods;
         const auto& es = bpu.fElite;
         if(!es.empty()) {
             const auto& uinfo = eUnitsInfo::sUnits.get(bpu.fType);
-            mods.initialize(es, uinfo.fLevel);
-            mods.setBoss(es.count(0) == 0);
+            mods = eEliteModifiers();
+            mods->initialize(es, uinfo.fLevel);
+            mods->setBoss(es.count(0) == 0);
         }
         auto pos = bpu.fPos;
         for(int i = 0; i < bpu.fCount; i++) {
             eUnitType utype;
-            if(es.empty()) {
-                utype = eUnitType::normal;
-            } else {
-                if(mods.boss()) {
+            if(mods) {
+                if(mods->boss()) {
                     utype = eUnitType::uniqueBoss;
                 } else {
                     utype = eUnitType::minion;
                 }
+            } else {
+                utype = eUnitType::normal;
             }
             addUnit(bpu.fType, utype, mods, pos);
         }

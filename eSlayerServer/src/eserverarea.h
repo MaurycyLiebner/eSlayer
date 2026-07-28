@@ -282,7 +282,7 @@ public:
 private:
     bool addUnit(
         const uint16_t type, const eUnitType utype,
-        eEliteModifiers& mods, ePointF& pos);
+        std::optional<eEliteModifiers>& mods, ePointF& pos);
 
     bool checkQuestItems(
         const uint32_t clientId);
