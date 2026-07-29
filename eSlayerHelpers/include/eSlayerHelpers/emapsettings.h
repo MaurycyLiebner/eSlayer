@@ -6,6 +6,7 @@
 #include "estringidmapvector.h"
 
 #include <eSlayerHelpers/eeffectsettings.h>
+#include <eSlayerHelpers/eitemdrop.h>
 
 #include <cstdint>
 #include <map>
@@ -56,6 +57,7 @@ struct eMonsterCount {
     int fMinArea;
     int fGroupSize;
     bool fElite;
+    std::vector<eItemDrop> fItemDrops;
 };
 
 struct eAreaMonsterSettings {

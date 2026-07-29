@@ -1494,6 +1494,13 @@ bool eServerUnit::onStructCastReady() const {
     return mOnStructBlock <= 0.f;
 }
 
+void eServerUnit::addItemDrops(
+    const std::vector<eItemDrop>& drops) {
+    for(const auto& d : drops) {
+        mItemDrops.emplace_back(d);
+    }
+}
+
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {
     fBoostsTmp.erase(id);
 }

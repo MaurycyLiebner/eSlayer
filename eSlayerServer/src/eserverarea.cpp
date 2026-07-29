@@ -257,6 +257,19 @@ void eServerArea::generateItems(
     }
 }
 
+void eServerArea::generateItems(
+    const ePointF& pos,
+    const std::vector<eItemDrop>& itemDrops) {
+    for(const auto& it : itemDrops) {
+        const bool r = eRand::randChance(it.fChance);
+        if(r) {
+            const auto typeId = it.fType;
+            const auto item = eItemGenerator::generateItem(typeId, 1, 0.f);
+            addGroundItem(pos, item);
+        }
+    }
+}
+
 void eServerArea::generateItem(
     const ePointF& pos, const int level,
     const float worth) {
@@ -271,11 +284,11 @@ void eServerArea::generatePotion(
     addGroundItem(pos, item);
 }
 
-bool eServerArea::addUnit(
+std::shared_ptr<eServerUnit> eServerArea::addUnit(
     const uint16_t type, const eUnitType utype,
     std::optional<eEliteModifiers>& mods, ePointF& pos) {
     const bool r = findPlaceForUnit(pos, pos);
-    if(!r) return false;
+    if(!r) return nullptr;
     const auto& udata = eUnitsInfo::sUnits.get(type);
     const auto& data = eCharDataInfo::get(udata.fCharData);
     const auto modelParts = data.randomModelParts();
@@ -316,7 +329,7 @@ bool eServerArea::addUnit(
 
     const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
     u->setAction(a);
-    return true;
+    return u;
 }
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
@@ -490,8 +503,9 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
                 const int nUnits = us.fGroupSize;
                 for(int i = 0; i < nUnits; i++) {
-                    const bool r = addUnit();
-                    if(!r) break;
+                    const auto u = addUnit();
+                    if(i == 0) u->addItemDrops(us.fItemDrops);
+                    if(!u) break;
                 }
 
                 calcMaxArea(c, maxA, xMax, yMax);
@@ -529,7 +543,8 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             } else {
                 utype = eUnitType::normal;
             }
-            addUnit(bpu.fType, utype, mods, pos);
+            const auto u = addUnit(bpu.fType, utype, mods, pos);
+            u->addItemDrops(bpu.fItemDrops);
         }
     }
 }
@@ -1475,17 +1490,8 @@ bool eServerArea::triggerObject(
             const float fx = tx + sobj->fWidth + 0.5f;
             const ePointF pos{fx, float(ty)};
             generateItems(pos, level, 7.5f);
+            generateItems(pos, info.fItemDrops);
 
-            const int diff = eDifficulties::sDifficulty;
-            const auto& itemMap = info.fItemTypes;
-            const auto it = itemMap.find(diff);
-            if(it != itemMap.end()) {
-                const auto& items = it->second;
-                for(const auto typeId : items) {
-                    const auto item = eItemGenerator::generateItem(typeId, level, 7.5f);
-                    addGroundItem(pos, item);
-                }
-            }
             state = 1;
         } break;
         case eObjectType::trapDoor: {
@@ -2569,6 +2575,8 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
     });
 
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
+    generateItems(killed.fPos, killed.itemDrops());
+
     for(auto& c : mClientData) {
         auto& data = c.second;
         if(data.fMerc) {

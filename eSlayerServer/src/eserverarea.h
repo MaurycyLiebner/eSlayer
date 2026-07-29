@@ -22,6 +22,7 @@
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/emercenary.h>
+#include <eSlayerHelpers/eitemdrop.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -283,7 +284,7 @@ public:
 
     static void clear();
 private:
-    bool addUnit(
+    std::shared_ptr<eServerUnit> addUnit(
         const uint16_t type, const eUnitType utype,
         std::optional<eEliteModifiers>& mods, ePointF& pos);
 
@@ -327,6 +328,8 @@ private:
     void generateItems(const ePointF& pos,
                        const int level,
                        const float worth);
+    void generateItems(const ePointF& pos,
+                       const std::vector<eItemDrop>& itemDrops);
     void generateItem(const ePointF& pos,
                       const int level,
                       const float worth);

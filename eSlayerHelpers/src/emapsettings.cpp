@@ -7,6 +7,7 @@
 #include "eSlayerHelpers/eblueprints.h"
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/edifficulties.h"
+#include "eSlayerHelpers/eitemsdata.h"
 
 eStringIdMapVector<eMapSettings>
 eMapsSettings::sMaps;
@@ -54,6 +55,14 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
                 }
                 result.fBossTypes.emplace_back(type);
             }
+
+            if(values.contains("items")) {
+                for(const auto& jitem : values["items"]) {
+                    auto& item = result.fItemDrops.emplace_back();
+                    item.read(jitem);
+                }
+            }
+
             mtypes.emplace_back(result);
         }
     }

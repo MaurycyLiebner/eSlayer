@@ -89,6 +89,12 @@ void eBlueprints::load() {
                             unit.fElite.emplace(id);
                         }
                     }
+                    if(unitData.contains("items")) {
+                        for(const auto& jitem : unitData["items"]) {
+                            auto& item = unit.fItemDrops.emplace_back();
+                            item.read(jitem);
+                        }
+                    }
                     unit.fUnitCount = unitData.value("count", 1);
                     unit.fX = unitData.value("x", 0.f);
                     unit.fY = unitData.value("y", 0.f);

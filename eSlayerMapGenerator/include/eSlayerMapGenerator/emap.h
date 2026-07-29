@@ -116,6 +116,7 @@ public:
         uint16_t fType;
         std::set<uint8_t> fElite;
         int fCount;
+        std::vector<eItemDrop> fItemDrops;
     };
 
     const std::vector<eBlueprintUnit>& blueprintUnits() const

@@ -5,6 +5,8 @@
 
 #include "estringidmapvector.h"
 
+#include "eitemdrop.h"
+
 enum class eObjectType {
     none,
     treasure,
@@ -39,9 +41,15 @@ struct eObjectInfo {
     int fTexId;
     bool fObstacle;
     bool fWalkable;
+
+    // for sellers
     std::map<int, std::vector<int>> fItemTypes;
     std::map<int, std::vector<int>> fPotionTypes;
+    // for mercenaries
     std::map<int, std::vector<int>> fMercTypes;
+
+    // for treasures
+    std::vector<eItemDrop> fItemDrops;
 
     int fKey = -1;
 };

@@ -3,6 +3,8 @@
 
 #include "estringidmapvector.h"
 
+#include "eitemdrop.h"
+
 #include <cstdint>
 #include <vector>
 #include <optional>
@@ -15,6 +17,7 @@ struct eBlueprintObject {
     // for units
     std::set<uint8_t> fElite;
     int fUnitCount;
+    std::vector<eItemDrop> fItemDrops;
 
     float fX;
     float fY;

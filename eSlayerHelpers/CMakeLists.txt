@@ -226,6 +226,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eversion.h
     include/eSlayerHelpers/ecamprects.h
     src/ecamprects.cpp
+    include/eSlayerHelpers/eitemdrop.h
+    src/eitemdrop.cpp
 
 )
 

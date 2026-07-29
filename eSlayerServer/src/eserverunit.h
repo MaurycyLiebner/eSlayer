@@ -17,6 +17,7 @@
 #include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/eweapontype.h>
 #include <eSlayerHelpers/efollowers.h>
+#include <eSlayerHelpers/eitemdrop.h>
 
 #include <memory>
 #include <atomic>
@@ -387,6 +388,10 @@ public:
 
     void onStructCast();
     bool onStructCastReady() const;
+
+    const std::vector<eItemDrop>& itemDrops() const
+    { return mItemDrops; }
+    void addItemDrops(const std::vector<eItemDrop>& drops);
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
@@ -465,6 +470,8 @@ private:
     std::set<int> mUsedSkills;
 
     float mOnStructBlock = 0.f;
+
+    std::vector<eItemDrop> mItemDrops;
 };
 
 #endif // ESERVERUNIT_H

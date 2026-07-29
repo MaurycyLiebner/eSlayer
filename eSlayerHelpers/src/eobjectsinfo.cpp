@@ -52,6 +52,13 @@ void eObjectsInfo::load() {
             const auto typeStr = value.value("type", "");
             if(typeStr == "treasure") {
                 info.fType = eObjectType::treasure;
+
+                if(value.contains("items")) {
+                    for(const auto& jitem : value["items"]) {
+                        auto& item = info.fItemDrops.emplace_back();
+                        item.read(jitem);
+                    }
+                }
             } else if(typeStr == "waypoint") {
                 info.fType = eObjectType::waypoint;
             } else if(typeStr == "portal") {
