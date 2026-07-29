@@ -1831,7 +1831,8 @@ eServerArea::merc(const uint32_t clientId) {
 
 bool eServerArea::heardTalk(
     const uint32_t clientId,
-    const eConvoId& talk) {
+    const eConvoId& talk,
+    std::vector<eEquipmentAction>& eqActions) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return false;
     auto& clientData = it->second;
@@ -1866,6 +1867,30 @@ bool eServerArea::heardTalk(
                 }
             } else {
                 return false;
+            }
+        } else if(step.fType == eQuestType::getItem) {
+            auto& eq = u->equipment();
+
+            const int typeId = step.fTargetItem;
+
+            for(int i = 0; i < step.fCount; i++) {
+                const auto item = eItemGenerator::generateItem(
+                    typeId, 1, step.fItemWorth);
+                if(item.fType == eItemType::none) {
+                    return false;
+                }
+                eEquipmentPlace place;
+                const bool r = eq.add(item, true, &place);
+                if(r) {
+                    auto& a = eqActions.emplace_back();
+                    a.fType = eEquipmentActionType::add;
+                    a.fPlace = place;
+                    a.fAddItem = item;
+                    a.fUnitId = u->fCharId;
+                } else {
+                    const auto& pos = u->fPos;
+                    addGroundItem(pos, item);
+                }
             }
         }
     }

@@ -56,6 +56,9 @@ public:
 
     bool heardTalk(const uint32_t clientId,
                    const eConvoId& talk) override;
+    bool heardTalkImpl(const uint32_t clientId,
+                       const eConvoId& talk,
+                       std::vector<eEquipmentAction>& eqActions);
     bool addedSocket(const uint32_t clientId,
                       const uint8_t questId) override;
 

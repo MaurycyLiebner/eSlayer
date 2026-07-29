@@ -145,9 +145,16 @@ eLocalServer::receiveQuests(const uint32_t clientId) {
 bool eLocalServer::heardTalk(
     const uint32_t clientId,
     const eConvoId& talk) {
+    return heardTalkImpl(clientId, talk, mEqActions);
+}
+
+bool eLocalServer::heardTalkImpl(
+    const uint32_t clientId,
+    const eConvoId& talk,
+    std::vector<eEquipmentAction>& eqActions) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->heardTalk(talk);
+    return h->heardTalk(talk, eqActions);
 }
 
 bool eLocalServer::addedSocket(

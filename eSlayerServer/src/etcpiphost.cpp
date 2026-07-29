@@ -576,7 +576,14 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             eConvoId talk;
             p >> talk;
-            eLocalServer::heardTalk(charId, talk);
+            std::vector<eEquipmentAction> eqActions;
+            eLocalServer::heardTalkImpl(charId, talk, eqActions);
+            for(const auto& a : eqActions) {
+                ePacket p;
+                p << ePacketType::equipmentAction;
+                a.write(p);
+                mNet.sendToClient(tcpClientId, p);
+            }
         }
     } break;
     case ePacketType::addedSocket: {

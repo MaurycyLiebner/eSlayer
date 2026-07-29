@@ -9,6 +9,7 @@ enum class eQuestType {
     kill,
     findItem,
     bringItem,
+    getItem,
     talkTo,
     addSocket
 };
@@ -28,6 +29,7 @@ struct eQuestStep {
     uint8_t fTargetItem = 0;
     uint8_t fTargetMonster = 0;
     uint8_t fCount = 0;
+    float fItemWorth = 0.f;
 };
 
 struct ESLAYERHELPERS_API eQuest {

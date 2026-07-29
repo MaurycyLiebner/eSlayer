@@ -90,6 +90,27 @@ void eQuests::load() {
                         }
                         step.fCount = stepData.value("count", 1);
                         step.fConvoStr = stepData.value("conversation", "");
+                    } else if(typeStr == "getItem") {
+                        step.fType = eQuestType::getItem;
+                        {
+                            const auto itemStr = stepData.value("item", "");
+                            const int id = eItemsData::sItems.id(itemStr);
+                            if(id < 0) {
+                                eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
+                            }
+                            step.fTargetItem = id;
+                        }
+                        {
+                            const auto npcStr = stepData.value("npc", "");
+                            const int id = eObjectsInfo::sObjects.id(npcStr);
+                            if(id < 0) {
+                                eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
+                            }
+                            step.fTargetNPC = id;
+                        }
+                        step.fItemWorth = stepData.value("worth", 0.f);
+                        step.fCount = stepData.value("count", 1);
+                        step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
                         const auto npcStr = stepData.value("npc", "");

@@ -65,9 +65,10 @@ eServerClientHandler::receiveQuests() {
 }
 
 bool eServerClientHandler::heardTalk(
-    const eConvoId& talk) {
+    const eConvoId& talk,
+    std::vector<eEquipmentAction>& eqActions) {
     if(!mArea) return false;
-    return mArea->heardTalk(mClientId, talk);
+    return mArea->heardTalk(mClientId, talk, eqActions);
 }
 
 bool eServerClientHandler::addedSocket(

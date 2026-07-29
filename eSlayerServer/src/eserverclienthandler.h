@@ -30,7 +30,8 @@ public:
     std::optional<eSlayerQuests>
     receiveQuests();
 
-    bool heardTalk(const eConvoId& talk);
+    bool heardTalk(const eConvoId& talk,
+                   std::vector<eEquipmentAction>& eqActions);
     bool addedSocket(const uint8_t questId);
 
     const std::shared_ptr<eServerArea>& area() const { return mArea; }
