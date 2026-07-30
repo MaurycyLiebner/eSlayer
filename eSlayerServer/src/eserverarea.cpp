@@ -3,6 +3,7 @@
 #include "actions/eclientaction.h"
 #include "actions/eunitbaseaction.h"
 #include "actions/efolloweraction.h"
+#include "actions/enpcaction.h"
 
 #include "eelitemodifiers.h"
 
@@ -286,7 +287,8 @@ void eServerArea::generatePotion(
 
 std::shared_ptr<eServerUnit> eServerArea::addUnit(
     const uint16_t type, const eUnitType utype,
-    std::optional<eEliteModifiers>& mods, ePointF& pos) {
+    std::optional<eEliteModifiers>& mods, ePointF& pos,
+    const uint8_t level) {
     const bool r = findPlaceForUnit(pos, pos);
     if(!r) return nullptr;
     const auto& udata = eUnitsInfo::sUnits.get(type);
@@ -327,24 +329,45 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
     u->recalculateStats();
     u->recalculateAuras();
 
-    const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
-    u->setAction(a);
-    return u;
-}
+    switch(udata.fNPCType) {
+    case eNPCType::none: {
+        const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
+        u->setAction(a);
+    } break;
+    default: {
+        const auto a = std::make_shared<eNPCAction>(*u, *this);
+        u->setAction(a);
+    } break;
+    }
 
-void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
-    mMap = map;
+    const auto addSeller = [&](const eSellerType type) {
+        auto& s = eSellers::sSellers[charId];
+        s.fId = charId;
+        s.fLevel = level;
+        s.fType = type;
+        s.fMapId = mMap->id();
 
-    const auto mapId = mMap->id();
+        const int diff = eDifficulties::sDifficulty;
 
-    for(auto &it : eSellers::sSellers) {
-        auto& s = it.second;
-        if(s.fMapId != mapId) continue;
+        {
+            auto& itemMap = udata.fItemTypes;
+            const auto it = itemMap.find(diff);
+            if(it != itemMap.end()) {
+                s.fSellItemTypes = it->second;
+            }
+        }
+
+        {
+            auto& potionMap = udata.fPotionTypes;
+            const auto it = potionMap.find(diff);
+            if(it != potionMap.end()) {
+                s.fSellPotionTypes = it->second;
+            }
+        }
+
         const auto maxLevel = s.fLevel;
         const auto& typeIds = s.fSellItemTypes;
-        if(typeIds.empty()) {
-            continue;
-        }
+        if(typeIds.empty()) return;
         int iMax = 1 + typeIds.size()/3;
         iMax = std::clamp(iMax, 1, 3);
         for(int i = 0; i < iMax; i++) {
@@ -360,7 +383,26 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 added = p.tryAdd(item);
             } while(added);
         }
+    };
+
+    switch(udata.fNPCType) {
+    case eNPCType::healer:
+        addSeller(eSellerType::healer);
+        break;
+    case eNPCType::trader:
+        addSeller(eSellerType::trader);
+        break;
+    default:
+        break;
     }
+
+    return u;
+}
+
+void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
+    mMap = map;
+
+    const auto mapId = mMap->id();
 
     const int w = map->width();
     const int h = map->height();
@@ -452,7 +494,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             helper.add(i, maxA);
         }
         helper.randomize();
-
+        const auto level = ma.fLevel;
         const auto& types = ma.fSettings.fTypes;
         for(const auto& us : types) {
             const auto tryAddUnits = [&]() {
@@ -498,7 +540,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                         utype = eUnitType::normal;
                     }
                     ePointF pos{xMax, yMax};
-                    return eServerArea::addUnit(type, utype, mods, pos);
+                    return eServerArea::addUnit(type, utype, mods, pos, level);
                 };
 
                 const int nUnits = us.fGroupSize;
@@ -523,6 +565,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
 
     const auto& bpus = map->blueprintUnits();
     for(const auto& bpu : bpus) {
+        const auto level = bpu.fLevel;
         std::optional<eEliteModifiers> mods;
         const auto& es = bpu.fElite;
         if(!es.empty()) {
@@ -543,7 +586,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
             } else {
                 utype = eUnitType::normal;
             }
-            const auto u = addUnit(bpu.fType, utype, mods, pos);
+            const auto u = addUnit(bpu.fType, utype, mods, pos, level);
             u->addItemDrops(bpu.fItemDrops);
         }
     }
@@ -1431,6 +1474,25 @@ bool eServerArea::spawnCampPortal(
     return spawnPortal(pos, portalId, area);
 }
 
+bool eServerArea::triggerNPC(
+    const uint32_t clientId,
+    const uint32_t npcId) {
+    const auto client = unit(clientId);
+    if(!client) return false;
+    const auto npc = unit(npcId);
+    if(!npc) return false;
+    const auto infoId = npc->fUnitInfoId;
+    const auto& info = eUnitsInfo::sUnits.get(infoId);
+    switch(info.fNPCType) {
+    case eNPCType::healer: {
+        client->healAll();
+    } break;
+    default:
+        break;
+    }
+    return true;
+}
+
 bool eServerArea::spawnPortal(
     ePointF& pos,
     uint32_t& portalId,
@@ -1498,9 +1560,6 @@ bool eServerArea::triggerObject(
             auto& state = sobj->fState;
             if(state != 0) return false;
             state = 1;
-        } break;
-        case eObjectType::healer: {
-            u->healAll();
         } break;
         default:
             break;

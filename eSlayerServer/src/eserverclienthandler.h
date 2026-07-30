@@ -52,6 +52,7 @@ public:
     bool setSkillId(const eSkillChoice schoice,
                     const int skillId);
 
+    bool triggerNPC(const uint32_t npcId);
     bool triggerObject(eServerObject& obj);
     bool triggerDoors(const eServerDoors& doors);
 

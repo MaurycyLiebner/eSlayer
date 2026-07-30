@@ -8,6 +8,16 @@
 class eSlayerQuests;
 struct eEquipment;
 
+enum class eTalkNPCType {
+    object, unit
+};
+
+struct eNPC {
+    eTalkNPCType fType;
+    uint32_t fId;
+    uint16_t fTypeId;
+};
+
 class ESLAYERHELPERS_API eTalkHeard :
     private std::map<eConvoId, bool> {
 public:
@@ -29,23 +39,26 @@ public:
         const std::string& npcName,
         const eSlayerQuests& squests);
 
-    bool wantsToTalk(const uint16_t objType,
-                     const uint32_t objectId,
+    bool wantsToTalk(const eNPC& npc,
                      const eSlayerQuests& squests,
                      const eEquipment& eq);
-    bool updateWantsToTalk(const uint16_t objType,
-                           const uint32_t objectId,
+    bool updateWantsToTalk(const eNPC& npc,
                            const eSlayerQuests& squests,
                            const eEquipment& eq);
     void updateWantsToTalk(const eSlayerQuests& squests,
                            const eEquipment& eq);
 private:
     struct eNPCWantsToTalk {
-        uint16_t fObjectType;
+        eNPC fNPC;
         bool fWantsToTalk = false;
     };
 
-    std::map<uint32_t, eNPCWantsToTalk> mNPCWantsToTalk;
+    using eNPCIdMap = std::map<uint32_t, eNPCWantsToTalk>;
+
+    std::map<eTalkNPCType, eNPCIdMap> mNPCWantsToTalk {
+        {eTalkNPCType::object, {}},
+        {eTalkNPCType::unit, {}}
+    };
 };
 
 #endif // ETALKHEARD_H

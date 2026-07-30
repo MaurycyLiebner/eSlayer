@@ -11,6 +11,7 @@ enum class ePacketType : uint8_t {
     attack, stopAttack, createBody,
     setSkillId, consumePotion,
     triggerObject, objectStateChanged,
+    triggerNPC,
     pickupItem, dropItem, dropGold,
     triggerDoors, doorsStateChanged,
     pickupBody,

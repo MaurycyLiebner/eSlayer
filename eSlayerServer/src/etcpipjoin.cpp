@@ -272,6 +272,16 @@ bool eTcpIpJoin::triggerObject(
     return true;
 }
 
+bool eTcpIpJoin::triggerNPC(
+    const uint32_t clientId, const uint32_t npcId) {
+    ePacket p;
+    p << ePacketType::triggerNPC;
+    p << npcId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send NPC trigger to the host.");
+    return true;
+}
+
 bool eTcpIpJoin::triggerDoors(
     const uint32_t clientId, const eServerDoors& doors) {
     ePacket p;

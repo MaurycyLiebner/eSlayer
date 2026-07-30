@@ -2,8 +2,6 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
-#include "eSlayerHelpers/emercenaries.h"
-#include "eSlayerHelpers/edifficulties.h"
 
 bool eObjectsInfo::sLoaded = false;
 eStringIdMapVector<eObjectInfo>
@@ -65,12 +63,6 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::portal;
             } else if(typeStr == "stash") {
                 info.fType = eObjectType::stash;
-            } else if(typeStr == "healer") {
-                info.fType = eObjectType::healer;
-            } else if(typeStr == "trader") {
-                info.fType = eObjectType::trader;
-            } else if(typeStr == "mercenary") {
-                info.fType = eObjectType::mercenary;
             } else if(typeStr == "portalArea") {
                 info.fType = eObjectType::portalArea;
             } else if(typeStr == "spawnArea") {
@@ -79,6 +71,8 @@ void eObjectsInfo::load() {
                 info.fType = eObjectType::trapDoor;
             } else if(typeStr == "portalDoor") {
                 info.fType = eObjectType::portalDoor;
+            } else if(typeStr == "message") {
+                info.fType = eObjectType::message;
             } else if(typeStr == ""){
                 info.fType = eObjectType::none;
             } else {
@@ -93,68 +87,6 @@ void eObjectsInfo::load() {
                 info.fKey = keyId;
             }
             info.fTexStr = value.value("texture", "");
-            if(value.contains("itemTypes")) {
-                const auto& types = value["itemTypes"];
-                for(const auto& [diffStr, types] : types.items()) {
-                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
-                    if(diffId < 0) {
-                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
-                                      dir + "/objects.json");
-                    }
-                    auto& diffItems = info.fItemTypes[diffId];
-                    const auto itemTypes = std::vector<std::string>(types);
-                    for(const auto& str : itemTypes) {
-                        const int id = eItemsData::id(str);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized item type \"" + str + "\" in " +
-                                          dir + "/objects.json");
-                        }
-                        diffItems.emplace_back(id);
-                    }
-                }
-            }
-
-            if(value.contains("potionTypes")) {
-                const auto& types = value["potionTypes"];
-                for(const auto& [diffStr, types] : types.items()) {
-                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
-                    if(diffId < 0) {
-                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
-                                      dir + "/objects.json");
-                    }
-                    auto& diffItems = info.fPotionTypes[diffId];
-                    const auto itemTypes = std::vector<std::string>(types);
-                    for(const auto& str : itemTypes) {
-                        const int id = eItemsData::id(str);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized potion type \"" + str + "\" in " +
-                                          dir + "/objects.json");
-                        }
-                        diffItems.emplace_back(id);
-                    }
-                }
-            }
-
-            if(value.contains("mercTypes")) {
-                const auto& types = value["mercTypes"];
-                for(const auto& [diffStr, types] : types.items()) {
-                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
-                    if(diffId < 0) {
-                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
-                                      dir + "/objects.json");
-                    }
-                    auto& diffMercs = info.fMercTypes[diffId];
-                    const auto mercTypes = std::vector<std::string>(types);
-                    for(const auto& str : mercTypes) {
-                        const int id = eMercenariesInfo::sMercs.id(str);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized mercenary type \"" + str + "\" in " +
-                                          dir + "/objects.json");
-                        }
-                        diffMercs.emplace_back(id);
-                    }
-                }
-            }
 
             sObjects.add(key, info);
         }

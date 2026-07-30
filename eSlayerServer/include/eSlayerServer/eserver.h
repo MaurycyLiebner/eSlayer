@@ -127,6 +127,10 @@ public:
                   const eServerObject& obj) = 0;
 
     virtual bool
+    triggerNPC(const uint32_t clientId,
+               const uint32_t npcId) = 0;
+
+    virtual bool
     triggerDoors(const uint32_t clientId,
                  const eServerDoors& d) = 0;
 

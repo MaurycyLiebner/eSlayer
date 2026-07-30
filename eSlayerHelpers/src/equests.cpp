@@ -2,7 +2,6 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eunitsinfo.h"
-#include "eSlayerHelpers/eobjectsinfo.h"
 #include "eSlayerHelpers/eitemsdata.h"
 
 eStringIdMapVector<eQuest> eQuests::sQuests;
@@ -82,7 +81,7 @@ void eQuests::load() {
                         }
                         {
                             const auto npcStr = stepData.value("npc", "");
-                            const int id = eObjectsInfo::sObjects.id(npcStr);
+                            const int id = eUnitsInfo::sUnits.id(npcStr);
                             if(id < 0) {
                                 eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
                             }
@@ -102,7 +101,7 @@ void eQuests::load() {
                         }
                         {
                             const auto npcStr = stepData.value("npc", "");
-                            const int id = eObjectsInfo::sObjects.id(npcStr);
+                            const int id = eUnitsInfo::sUnits.id(npcStr);
                             if(id < 0) {
                                 eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
                             }
@@ -114,7 +113,7 @@ void eQuests::load() {
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
                         const auto npcStr = stepData.value("npc", "");
-                        const int id = eObjectsInfo::sObjects.id(npcStr);
+                        const int id = eUnitsInfo::sUnits.id(npcStr);
                         if(id < 0) {
                             eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
                         }
@@ -123,7 +122,7 @@ void eQuests::load() {
                     } else if(typeStr == "addSocket") {
                         step.fType = eQuestType::addSocket;
                         const auto npcStr = stepData.value("npc", "");
-                        const int id = eObjectsInfo::sObjects.id(npcStr);
+                        const int id = eUnitsInfo::sUnits.id(npcStr);
                         if(id < 0) {
                             eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
                         }

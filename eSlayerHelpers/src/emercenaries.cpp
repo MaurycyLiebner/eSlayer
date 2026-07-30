@@ -171,4 +171,19 @@ void eMercenariesInfo::load() {
             eRuntimeThrow("Failed to parse \"" + dir + "/Mercenaries/" + name + ".json\"");
         }
     }
+
+    for(const auto& it : eUnitsInfo::sUnits) {
+        auto& unit = it.fValue;
+        for(const auto& jt : unit.fMercTypeStrs) {
+            const int diffId = jt.first;
+            auto& types = unit.fMercTypes[diffId];
+            for(const auto& str : jt.second) {
+                const int id = eMercenariesInfo::sMercs.id(str);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized mercenary type \"" + str + "\".");
+                }
+                types.emplace_back(id);
+            }
+        }
+    }
 }

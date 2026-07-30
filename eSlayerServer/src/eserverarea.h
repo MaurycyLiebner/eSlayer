@@ -154,6 +154,8 @@ public:
                          eAreaIds& area,
                          ePointF& pos);
 
+    bool triggerNPC(const uint32_t clientId,
+                    const uint32_t npcId);
     bool triggerObject(
         const uint32_t clientId, eServerObject& obj);
 
@@ -286,7 +288,8 @@ public:
 private:
     std::shared_ptr<eServerUnit> addUnit(
         const uint16_t type, const eUnitType utype,
-        std::optional<eEliteModifiers>& mods, ePointF& pos);
+        std::optional<eEliteModifiers>& mods, ePointF& pos,
+        const uint8_t level);
 
     bool checkQuestItems(
         const uint32_t clientId);

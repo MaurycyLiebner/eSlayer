@@ -359,6 +359,12 @@ bool eTcpIpHost::triggerObject(
     return triggerObjectAndSend(clientId, obj);
 }
 
+bool eTcpIpHost::triggerNPC(
+    const uint32_t clientId, const uint32_t npcId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::triggerNPC(clientId, npcId);
+}
+
 void eTcpIpHost::sendMessageToAll(
     const uint32_t clientId, const std::string& text) {
     ePacket p;
@@ -802,6 +808,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eServerObject obj;
             p >> obj;
             triggerObjectAndSend(charId, obj);
+        }
+    } break;
+    case ePacketType::triggerNPC: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            uint32_t npcId;
+            p >> npcId;
+            eLocalServer::triggerNPC(charId, npcId);
         }
     } break;
     case ePacketType::triggerDoors: {

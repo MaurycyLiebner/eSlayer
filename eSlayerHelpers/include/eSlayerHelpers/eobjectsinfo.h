@@ -13,13 +13,11 @@ enum class eObjectType {
     waypoint,
     portal,
     stash,
-    healer,
-    trader,
-    mercenary,
     trapDoor,
     portalDoor,
     portalArea,
-    spawnArea
+    spawnArea,
+    message
 };
 
 enum class eBlockLightType {
@@ -41,12 +39,6 @@ struct eObjectInfo {
     int fTexId;
     bool fObstacle;
     bool fWalkable;
-
-    // for sellers
-    std::map<int, std::vector<int>> fItemTypes;
-    std::map<int, std::vector<int>> fPotionTypes;
-    // for mercenaries
-    std::map<int, std::vector<int>> fMercTypes;
 
     // for treasures
     std::vector<eItemDrop> fItemDrops;

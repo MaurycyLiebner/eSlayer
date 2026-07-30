@@ -711,8 +711,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                 mMainChar->fPos = u.fPos;
                 mMainAction->stop();
                 setPressedUnit(nullptr);
-                setHighlightedUnit(nullptr);
-                setHighlightedObject(nullptr);
+                setPressedNPC(nullptr);
+                clearHighlighted();
                 if(mRespawnHandler) mRespawnHandler();
             } else if(u.fBlockingActionTime > 0) {
                 mMainChar->fPos = u.fPos;
@@ -1565,11 +1565,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             return static_cast<int>(e1.fType) < static_cast<int>(e2.fType);
         });
 
-        setHighlightedUnit(nullptr);
-        setHighlightedObject(nullptr);
-        setHighlightedItem(nullptr);
-        setHighlightedDoors(std::nullopt);
-        setHighlightedStairs(std::nullopt);
+        clearHighlighted();
         if(const auto p = mPressedUnit.lock()) {
             if(p->fHealth <= 0) {
                 setPressedUnit(nullptr);
@@ -1674,6 +1670,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             const auto ipixel = tilePosToIPixel(pos);
             if(e.fType == eRenderElementType::unit) {
                 const auto u = std::static_pointer_cast<eUnit>(ePtr);
+                const auto infoId = u->fUnitInfoId;
+                const auto& info = eUnitsInfo::sUnits.get(infoId);
                 auto& model = u->model();
                 const bool frozen = u->frozen();
                 const bool cold = u->cold();
@@ -1697,15 +1695,22 @@ void eGameWidget::paintEvent(ePainter& p) {
                         const SDL_Rect rect{ipixel.fX + b.x, ipixel.fY + b.y, b.w, b.h};
                         highlight = SDL_PointInRect(&p, &rect);
                         if(highlight) {
-                            setHighlightedUnit(u);
-                            mHighlightObject.reset();
-                            mHighlightItem.reset();
-                            mHighlightDoors.reset();
-                            mHighlightStairs.reset();
+                            clearHighlighted();
+
+                            switch(info.fNPCType) {
+                            case eNPCType::none: {
+                                setHighlightedUnit(u);
+                            } break;
+                            default: {
+                                setHighlightedNPC(u);
+                            } break;
+                            }
                         }
                     }
                 }
                 if(const auto p = mPressedUnit.lock()) {
+                    highlight = p == u;
+                } else if(const auto p = mPressedNPC.lock()) {
                     highlight = p == u;
                 }
                 SDL_FColor colorMod{1.f, 1.f, 1.f, 1.f};
@@ -1716,8 +1721,6 @@ void eGameWidget::paintEvent(ePainter& p) {
                     colorMod = SDL_FColor{0.f, 1.f, 0.2f, 1.f};
                 }
                 {
-                    const auto infoId = u->fUnitInfoId;
-                    const auto& info = eUnitsInfo::sUnits.get(infoId);
                     const auto& color = info.fColor;
                     colorMod.r *= color.fR;
                     colorMod.g *= color.fG;
@@ -1798,6 +1801,34 @@ void eGameWidget::paintEvent(ePainter& p) {
 
                 const int drawX = ipixel.fX + rect.x;
                 const int drawY = ipixel.fY + rect.y;
+
+                switch(info.fNPCType) {
+                case eNPCType::healer:
+                case eNPCType::trader:
+                case eNPCType::mercenary:
+                case eNPCType::message: {
+                    const auto& quests = eGameWidget::quests();
+                    auto& talkHeard = eGameWidget::talkHeard();
+                    const auto& eq = equipment();
+                    eNPC npc;
+                    npc.fType = eTalkNPCType::unit;
+                    npc.fTypeId = infoId;
+                    npc.fId = u->fCharId;
+                    const bool w = talkHeard.wantsToTalk(
+                        npc, quests, eq);
+                    if(w) {
+                        const int texW = tex->width();
+                        const auto& bubble = eUITextures::sTalk;
+                        const int x = drawX + texW/2;
+                        const int bh = bubble->height();
+                        const int y = drawY - bh;
+                        const auto a = eAlignment::hcenter | eAlignment::top;
+                        mGamePainter.drawTexture(x, y, bubble, a);
+                    }
+                } break;
+                case eNPCType::none:
+                    break;
+                }
                 eRenderCall c(eRenderCallType::unit,
                               pos.fX, pos.fY,
                               drawX, drawY, tex);
@@ -1848,6 +1879,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const SDL_Rect rect{drawX, drawY, texW, texH};
                     const bool r = SDL_PointInRect(&p, &rect);
                     if(r) {
+                        clearHighlighted();
                         setHighlightedItem(i);
                         highlight = true;
                     }
@@ -1897,14 +1929,16 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const auto t2 = eTeams::playerTeam(mClientId);
                     highlightable = t1 == t2;
                 } break;
-                case eObjectType::healer:
-                case eObjectType::trader:
-                case eObjectType::mercenary: {
+                case eObjectType::message: {
                     const auto& quests = eGameWidget::quests();
                     auto& talkHeard = eGameWidget::talkHeard();
                     const auto& eq = equipment();
+                    eNPC npc;
+                    npc.fType = eTalkNPCType::object;
+                    npc.fTypeId = objType;
+                    npc.fId = obj.fObjectId;
                     const bool w = talkHeard.wantsToTalk(
-                        objType, obj.fObjectId, quests, eq);
+                        npc, quests, eq);
                     if(w) {
                         const auto& bubble = eUITextures::sTalk;
                         const int x = drawX + texW/2;
@@ -1927,8 +1961,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                     const SDL_Rect rect{drawX, drawY, texW, texH};
                     const bool r = SDL_PointInRect(&p, &rect);
                     if(r) {
+                        clearHighlighted();
                         setHighlightedObject(objPtr);
-                        mHighlightItem.reset();
                         highlight = true;
                     }
                 }
@@ -2045,10 +2079,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                         }
 
                         if(highlight && !mHighlightDoors) {
+                            clearHighlighted();
                             setHighlightedDoors(doors);
-                            mHighlightObject.reset();
-                            mHighlightItem.reset();
-                            mHighlightStairs.reset();
                         }
                     }
 
@@ -2137,9 +2169,8 @@ void eGameWidget::paintEvent(ePainter& p) {
                             if(s) {
                                 stairs.fTo = s->fTo;
                                 if(highlight && !mHighlightStairs) {
+                                    clearHighlighted();
                                     setHighlightedStairs(stairs);
-                                    mHighlightObject.reset();
-                                    mHighlightItem.reset();
                                 }
                             }
                         }
@@ -2240,6 +2271,8 @@ bool eGameWidget::mousePressEvent(const eMouseEvent& e) {
             }
         } else if(const auto h = mHighlightUnit.lock()) {
             setPressedUnit(h);
+        } else if(const auto h = mHighlightNPC.lock()) {
+            setPressedNPC(h);
         } else if(const auto o = mHighlightObject.lock()) {
             mMainAction->setPressedObject(o);
         } else if(const auto i = mHighlightItem.lock()) {
@@ -2274,6 +2307,7 @@ bool eGameWidget::mouseReleaseEvent(const eMouseEvent& e) {
             mMainAction->mouseRelease(pos);
         }
         setPressedUnit(nullptr);
+        setPressedNPC(nullptr);
     }
     return true;
 }
@@ -2301,10 +2335,31 @@ void eGameWidget::initializeTextures() {
     setTexture(tex);
 }
 
-void eGameWidget::setHighlightedUnit(const std::shared_ptr<eUnit>& u) {
+void eGameWidget::setHighlightedUnit(
+    const std::shared_ptr<eUnit>& u) {
     mHighlightUnit = u;
     if(mUnitIndicator && !mPressedUnit.lock()) {
         setIndicatorUnit(u);
+    }
+}
+
+void eGameWidget::setHighlightedNPC(
+    const std::shared_ptr<eUnit>& u) {
+    mHighlightNPC = u;
+    if(u) {
+        const auto infoId = u->fUnitInfoId;
+        const auto name = eMonsterNames::name(infoId);
+        std::vector<std::string> lines;
+        const auto& pos = u->fPos;
+        lines.emplace_back(name);
+
+        const eVec2f d{1.25f, 1.25f};
+        const auto pixel = tilePosToPixel(pos - d);
+        const auto ipixel = pixel.floor();
+        const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+        eHoverWidget::sSetGameTooltip(lines, rect);
+    } else {
+        eHoverWidget::sSetGameTooltip("");
     }
 }
 
@@ -2430,6 +2485,22 @@ void eGameWidget::setPressedUnit(
     }
 
     if(u) mMainAction->setPressedUnit(u);
+}
+
+void eGameWidget::setPressedNPC(
+    const std::shared_ptr<eUnit>& u) {
+    mPressedNPC = u;
+    if(u) mMainAction->setPressedNPC(u);
+}
+
+void eGameWidget::clearHighlighted() {
+    mHighlightNPC.reset();
+    setHighlightedUnit(nullptr);
+    mHighlightObject.reset();
+    mHighlightItem.reset();
+    mHighlightDoors.reset();
+    mHighlightStairs.reset();
+    eHoverWidget::sSetGameTooltip("");
 }
 
 void eGameWidget::addMessage(SDL_Renderer* const r,

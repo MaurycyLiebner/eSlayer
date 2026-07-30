@@ -274,40 +274,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             mMap->mConnObjs.emplace_back(objPtr);
         }
 
-        const auto addSeller = [&](const eSellerType type) {
-            const auto id = obj.fObjectId;
-            auto& s = eSellers::sSellers[id];
-            s.fId = id;
-            s.fLevel = mSettings.fLevel;
-            s.fType = type;
-            s.fMapId = mMap->id();
-
-            const int diff = eDifficulties::sDifficulty;
-
-            {
-                auto& itemMap = info.fItemTypes;
-                const auto it = itemMap.find(diff);
-                if(it != itemMap.end()) {
-                    s.fSellItemTypes = it->second;
-                }
-            }
-
-            {
-                auto& potionMap = info.fPotionTypes;
-                const auto it = potionMap.find(diff);
-                if(it != potionMap.end()) {
-                    s.fSellPotionTypes = it->second;
-                }
-            }
-        };
-
         switch(info.fType) {
-        case eObjectType::healer:
-            addSeller(eSellerType::healer);
-            break;
-        case eObjectType::trader:
-            addSeller(eSellerType::trader);
-            break;
         case eObjectType::waypoint:
             waypointAdded = true;
             break;
@@ -373,6 +340,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         auto& bpus = mMap->mBlueprintUnits;
         for(const auto& o : bp.fUnits) {
             auto& u = bpus.emplace_back();
+            u.fLevel = mSettings.fLevel;
             u.fPos.fX = xMax + o.fX;
             u.fPos.fY = yMax + o.fY;
             u.fType = o.fType;
@@ -421,6 +389,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
     auto& mareas = mMap->mMonsterAreas;
     auto& marea = mareas.emplace_back();
+    marea.fLevel = mSettings.fLevel;
     marea.fChambers = chambers;
     marea.fSettings = ms;
 

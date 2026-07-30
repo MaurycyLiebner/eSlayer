@@ -5,6 +5,8 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/emissilesinfo.h"
+#include "eSlayerHelpers/emercenaries.h"
+#include "eSlayerHelpers/edifficulties.h"
 
 bool eUnitsInfo::sLoaded = false;
 eStringIdMapVector<eUnitInfo>
@@ -105,6 +107,73 @@ void eUnitsInfo::load() {
                 for(int i = 1; i < u.fMaxLevel; i++) {
                     const auto iStr = std::to_string(i);
                     exps[i - 1] = jlevels.value(iStr, i == 1 ? 0 : exps[i - 2]);
+                }
+            }
+
+            const auto npcTypeStr = jdata.value("NPCType", "none");
+            if(npcTypeStr == "healer") {
+                u.fNPCType = eNPCType::healer;
+            } else if(npcTypeStr == "trader") {
+                u.fNPCType = eNPCType::trader;
+            } else if(npcTypeStr == "mercenary") {
+                u.fNPCType = eNPCType::mercenary;
+            } else if(npcTypeStr == "none") {
+                u.fNPCType = eNPCType::none;
+            } else {
+                eRuntimeThrow("Unrecognized NPC type \"" + npcTypeStr + "\".");
+            }
+
+            if(jdata.contains("itemTypes")) {
+                const auto& types = jdata["itemTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\".");
+                    }
+                    auto& diffItems = u.fItemTypes[diffId];
+                    const auto itemTypes = std::vector<std::string>(types);
+                    for(const auto& str : itemTypes) {
+                        const int id = eItemsData::id(str);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized item type \"" + str + "\".");
+                        }
+                        diffItems.emplace_back(id);
+                    }
+                }
+            }
+
+            if(jdata.contains("potionTypes")) {
+                const auto& types = jdata["potionTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\" in " +
+                                      dir + "/objects.json");
+                    }
+                    auto& diffItems = u.fPotionTypes[diffId];
+                    const auto itemTypes = std::vector<std::string>(types);
+                    for(const auto& str : itemTypes) {
+                        const int id = eItemsData::id(str);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized potion type \"" + str + "\".");
+                        }
+                        diffItems.emplace_back(id);
+                    }
+                }
+            }
+
+            if(jdata.contains("mercTypes")) {
+                const auto& types = jdata["mercTypes"];
+                for(const auto& [diffStr, types] : types.items()) {
+                    const int diffId = eDifficulties::sDifficulties.id(diffStr);
+                    if(diffId < 0) {
+                        eRuntimeThrow("Unrecognized difficulty \"" + diffStr + "\".");
+                    }
+                    auto& diffMercs = u.fMercTypeStrs[diffId];
+                    const auto mercTypes = std::vector<std::string>(types);
+                    for(const auto& str : mercTypes) {
+                        diffMercs.emplace_back(str);
+                    }
                 }
             }
 

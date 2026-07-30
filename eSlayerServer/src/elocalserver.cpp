@@ -228,6 +228,13 @@ bool eLocalServer::triggerObject(
     return triggerObjectImpl(clientId, changed);
 }
 
+bool eLocalServer::triggerNPC(
+    const uint32_t clientId, const uint32_t npcId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->triggerNPC(npcId);
+}
+
 bool eLocalServer::triggerObjectImpl(
     const uint32_t clientId, eServerObject& obj) {
     const auto h = clientHandler(clientId);

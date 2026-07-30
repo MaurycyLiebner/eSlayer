@@ -187,6 +187,12 @@ bool eServerClientHandler::setSkillId(
     return true;
 }
 
+bool eServerClientHandler::triggerNPC(
+    const uint32_t npcId) {
+    if(!mArea) return false;
+    return mArea->triggerNPC(mClientId, npcId);
+}
+
 bool eServerClientHandler::triggerObject(
     eServerObject& obj) {
     if(!mArea) return false;

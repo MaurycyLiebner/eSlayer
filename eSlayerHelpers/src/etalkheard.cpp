@@ -1,6 +1,7 @@
-#include "../include/eSlayerHelpers/etalkheard.h"
+#include "eSlayerHelpers/etalkheard.h"
 
 #include "eSlayerHelpers/eslayerquests.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/eequipment.h"
@@ -155,34 +156,44 @@ std::vector<eConvoId> eTalkHeard::allRelevant(
 }
 
 bool eTalkHeard::wantsToTalk(
-    const uint16_t objType,
-    const uint32_t objectId,
+    const eNPC& npc,
     const eSlayerQuests& squests,
     const eEquipment& eq) {
-    const auto it = mNPCWantsToTalk.find(objectId);
-    if(it == mNPCWantsToTalk.end()) {
+    const auto objectId = npc.fId;
+    const auto& map = mNPCWantsToTalk[npc.fType];
+    const auto it = map.find(objectId);
+    if(it == map.end()) {
         return updateWantsToTalk(
-            objType, objectId, squests, eq);
+            npc, squests, eq);
     }
     const auto& wt = it->second;
     return wt.fWantsToTalk;
 }
 
 bool eTalkHeard::updateWantsToTalk(
-    const uint16_t objType,
-    const uint32_t objectId,
+    const eNPC& npc,
     const eSlayerQuests& squests,
     const eEquipment& eq) {
-    const auto baseName = eObjectsInfo::sObjects.name(objType);
+    auto& map = mNPCWantsToTalk[npc.fType];
+
+    std::string baseName;
+    switch(npc.fType) {
+    case eTalkNPCType::object:
+        baseName = eObjectsInfo::sObjects.name(npc.fTypeId);
+        break;
+    case eTalkNPCType::unit:
+        baseName = eUnitsInfo::sUnits.name(npc.fTypeId);
+        break;
+    }
+
     const auto npcId = eTalks::sTalk.id(baseName);
     if(npcId < 0) {
         return false;
     }
-
     const auto next = nextUnheard(
         npcId, squests, eq);
-    auto& wt = mNPCWantsToTalk[objectId];
-    wt.fObjectType = objType;
+    auto& wt = map[npc.fId];
+    wt.fNPC = npc;
     wt.fWantsToTalk = !!next;
     return !!next;
 }
@@ -190,10 +201,12 @@ bool eTalkHeard::updateWantsToTalk(
 void eTalkHeard::updateWantsToTalk(
     const eSlayerQuests& squests,
     const eEquipment& eq) {
-    for(const auto& it : mNPCWantsToTalk) {
-        const auto objId = it.first;
-        const auto& wt = it.second;
-        const auto objType = wt.fObjectType;
-        updateWantsToTalk(objType, objId, squests, eq);
+    for(const auto& map : mNPCWantsToTalk) {
+        for(const auto& it : map.second) {
+            const auto unitId = it.first;
+            const auto& wt = it.second;
+            const auto npc = wt.fNPC;
+            updateWantsToTalk(npc, squests, eq);
+        }
     }
 }

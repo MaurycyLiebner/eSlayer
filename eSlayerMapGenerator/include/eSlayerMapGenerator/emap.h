@@ -104,6 +104,7 @@ public:
     eMapArea& area(const int id);
 
     struct eMonsterArea {
+        uint8_t fLevel;
         std::vector<eChamber> fChambers;
         eAreaMonsterSettings fSettings;
     };
@@ -117,6 +118,7 @@ public:
         std::set<uint8_t> fElite;
         int fCount;
         std::vector<eItemDrop> fItemDrops;
+        uint8_t fLevel;
     };
 
     const std::vector<eBlueprintUnit>& blueprintUnits() const

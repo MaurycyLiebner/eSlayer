@@ -9,8 +9,9 @@
 #include "widgets/gameScreen/egamewidget.h"
 #include "screens/egamescreen.h"
 
-#include "names/eobjectnames.h"
+#include "names/emonsternames.h"
 #include "names/etalktext.h"
+#include "names/eobjectnames.h"
 #include "names/emercenarynames.h"
 
 #include "etext.h"
@@ -108,56 +109,37 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 
 void eMainCharAction::setPressedUnit(
     const std::shared_ptr<eUnit>& u) {
-    if(u) {
-        mPressedItem.reset();
-        mPressedObject.reset();
-        mPressedDoors.reset();
-        mPressedStairs.reset();
-    }
+    if(u) clearPressed();
     mPressedUnit = u;
+}
+
+void eMainCharAction::setPressedNPC(
+    const std::shared_ptr<eUnit>& u) {
+    if(u) clearPressed();
+    mPressedNPC = u;
 }
 
 void eMainCharAction::setPressedItem(
     const std::shared_ptr<eGroundItem>& i) {
-    if(i) {
-        mPressedUnit.reset();
-        mPressedObject.reset();
-        mPressedDoors.reset();
-        mPressedStairs.reset();
-    }
+    if(i) clearPressed();
     mPressedItem = i;
 }
 
 void eMainCharAction::setPressedObject(
     const std::shared_ptr<eObject>& o) {
-    if(o) {
-        mPressedItem.reset();
-        mPressedUnit.reset();
-        mPressedDoors.reset();
-        mPressedStairs.reset();
-    }
+    if(o) clearPressed();
     mPressedObject = o;
 }
 
 void eMainCharAction::setPressedDoors(
     const std::optional<eDoors>& d) {
-    if(d) {
-        mPressedItem.reset();
-        mPressedUnit.reset();
-        mPressedObject.reset();
-        mPressedStairs.reset();
-    }
+    if(d) clearPressed();
     mPressedDoors = d;
 }
 
 void eMainCharAction::setPressedStairs(
     const std::optional<eStairs>& s) {
-    if(s) {
-        mPressedItem.reset();
-        mPressedUnit.reset();
-        mPressedObject.reset();
-        mPressedDoors.reset();
-    }
+    if(s) clearPressed();
     mPressedStairs = s;
 }
 
@@ -232,7 +214,36 @@ void eMainCharAction::increment(const bool mousePressed,
         }
     }
 
-    if(const auto item = mPressedItem.lock()) {
+    bool npcPressed = false;
+    if(const auto u = mPressedNPC.lock()) {
+        const auto utype = u->fUnitInfoId;
+        const auto& info = eUnitsInfo::sUnits.get(utype);
+        const float r = info.fRadius;
+        const auto& upos = u->fPos;
+
+        const float dist = ePointF::distance(upos, charPos);
+        if(dist < 1.5f*r) {
+            const auto baseName = eUnitsInfo::sUnits.name(utype);
+            const auto name = eMonsterNames::name(utype);
+
+            const eVec2f d{1.25f, 1.25f};
+            const auto gw = eGameWidget::sInstance;
+            const auto pixel = gw->tilePosToPixel(upos - d);
+            const auto ipixel = pixel.floor();
+            const SDL_Rect rect{ipixel.fX, ipixel.fY, 0, 0};
+
+            const auto npcId = u->fCharId;
+            mServer->triggerNPC(mClientId, npcId);
+            if(!tryOpenTalk(npcId, baseName, name, rect, info.fNPCType)) {
+                openMainMenu(npcId, baseName, name, rect, info.fNPCType);
+            }
+            mClickAction = mousePressed;
+            stop();
+            return;
+        } else {
+            targetPos = upos;
+        }
+    } else if(const auto item = mPressedItem.lock()) {
         const auto itemId = item->fItemId;
         const auto& ipos = item->fPos;
         const float dist = ePointF::distance(ipos, charPos);
@@ -286,9 +297,7 @@ void eMainCharAction::increment(const bool mousePressed,
                 eGameScreen::sOpenWaypointMenu(actId, current);
             } else if(info.fType == eObjectType::stash) {
                 eGameScreen::sOpenStash();
-            } else if(info.fType == eObjectType::healer ||
-                      info.fType == eObjectType::trader ||
-                      info.fType == eObjectType::mercenary) {
+            } else if(info.fType == eObjectType::message) {
                 const auto baseName = eObjectsInfo::sObjects.name(type);
                 const auto name = eObjectNames::name(type);
 
@@ -303,8 +312,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 const auto sellerId = object->fObjectId;
                 const eServerObject sobject(mapId, *object);
                 mServer->triggerObject(mClientId, sobject);
-                if(!tryOpenTalk(sellerId, baseName, name, rect, info.fType)) {
-                    openMainMenu(sellerId, baseName, name, rect, info.fType);
+                if(!tryOpenTalk(sellerId, baseName, name, rect, eNPCType::none)) {
+                    openMainMenu(sellerId, baseName, name, rect, eNPCType::none);
                 }
             } else if(info.fType == eObjectType::trapDoor) {
                 if(object->fState == 0) {
@@ -601,6 +610,15 @@ void eMainCharAction::stopAttack() {
     mServer->stopAttack(mClientId);
 }
 
+void eMainCharAction::clearPressed() {
+    mPressedNPC.reset();
+    mPressedUnit.reset();
+    mPressedItem.reset();
+    mPressedObject.reset();
+    mPressedDoors.reset();
+    mPressedStairs.reset();
+}
+
 void eMainCharAction::recalculateStats() {
     mStats.calculate(mAttributes, mEquipment);
     mStats.calculateAuras(mEquipment);
@@ -612,7 +630,7 @@ void eMainCharAction::openMainMenu(
     const std::string& baseName,
     const std::string& name,
     const SDL_Rect& rect,
-    const eObjectType type) {
+    const eNPCType type) {
     const auto actions = std::make_shared<std::vector<eHoverAction>>();
     auto& actionsRef = *actions;
 
@@ -649,7 +667,7 @@ void eMainCharAction::openMainMenu(
             eHoverWidget::sOpenMenu(eText::text(20, 0), talkActions, rect);
         };
     }
-    if(type == eObjectType::healer || type == eObjectType::trader) {
+    if(type == eNPCType::healer || type == eNPCType::trader) {
         auto& tradeAct = actionsRef.emplace_back();
         tradeAct.fText = eText::text(20, 1);
         tradeAct.fPress = [sellerId]() {
@@ -657,7 +675,7 @@ void eMainCharAction::openMainMenu(
             eGameWidget::sOpenSellerMenu(sellerId);
         };
     }
-    if(type == eObjectType::mercenary) {
+    if(type == eNPCType::mercenary) {
         const auto gw = eGameWidget::sInstance;
         const auto& merc = gw->merc();
         if(merc && merc->fDead) {
@@ -679,10 +697,10 @@ void eMainCharAction::openMainMenu(
         auto& hireAct = actionsRef.emplace_back();
         hireAct.fText = eText::text(20, 4);
         const auto level = mStats.fLevel;
-        const auto npcId = eObjectsInfo::sObjects.id(baseName);
+        const auto npcId = eUnitsInfo::sUnits.id(baseName);
         if(npcId >= 0) {
             std::vector<uint8_t> mtypes;
-            const auto& npc = eObjectsInfo::sObjects.get(npcId);
+            const auto& npc = eUnitsInfo::sUnits.get(npcId);
             const int diff = eDifficulties::sDifficulty;
             const auto& mercMap = npc.fMercTypes;
             const auto it = mercMap.find(diff);
@@ -742,7 +760,7 @@ bool eMainCharAction::tryOpenTalk(
     const std::string& baseName,
     const std::string& name,
     const SDL_Rect& rect,
-    const eObjectType type) {
+    const eNPCType type) {
     const auto talk = mTalkHeard.nextUnheard(
         baseName, mQuests, mEquipment);
     if(!talk) return false;
@@ -781,11 +799,7 @@ void eMainCharAction::mouseRelease(const ePointF& mousePos) {
 }
 
 void eMainCharAction::stop() {
-    mPressedUnit.reset();
-    mPressedItem.reset();
-    mPressedObject.reset();
-    mPressedDoors.reset();
-    mPressedStairs.reset();
+    clearPressed();
     if(mAttackData.fType != eAttackTargetType::none) {
         stopAttack();
     }

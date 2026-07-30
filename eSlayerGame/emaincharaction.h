@@ -14,6 +14,7 @@
 #include <eSlayerHelpers/etalkheard.h>
 #include <eSlayerHelpers/emercenary.h>
 #include <eSlayerHelpers/ewaypoints.h>
+#include <eSlayerHelpers/enpctype.h>
 
 #include <SDL3/SDL_rect.h>
 
@@ -44,6 +45,7 @@ public:
                     const int classId);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
+    void setPressedNPC(const std::shared_ptr<eUnit>& u);
     void setPressedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedObject(const std::shared_ptr<eObject>& o);
     void setPressedDoors(const std::optional<eDoors>& d);
@@ -86,12 +88,12 @@ private:
         const std::string& baseName,
         const std::string& name,
         const SDL_Rect& rect,
-        const eObjectType type);
+        const eNPCType type);
     bool tryOpenTalk(const uint32_t sellerId,
                      const std::string& baseName,
                      const std::string& name,
                      const SDL_Rect& rect,
-                     const eObjectType type);
+                     const eNPCType type);
 
     void updateWalkRunSpeed();
     bool shouldRun() const;
@@ -122,11 +124,14 @@ private:
 
     void stopAttack();
 
+    void clearPressed();
+
     uint32_t mClientId;
     std::shared_ptr<eServer> mServer;
     std::shared_ptr<eMap> mMap;
 
     std::weak_ptr<eUnit> mPressedUnit;
+    std::weak_ptr<eUnit> mPressedNPC;
     std::weak_ptr<eGroundItem> mPressedItem;
     std::weak_ptr<eObject> mPressedObject;
     std::optional<eDoors> mPressedDoors;

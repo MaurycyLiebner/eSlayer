@@ -161,12 +161,16 @@ protected:
 private:
     void initializeTextures();
     void setHighlightedUnit(const std::shared_ptr<eUnit>& u);
+    void setHighlightedNPC(const std::shared_ptr<eUnit>& u);
     void setIndicatorUnit(const std::shared_ptr<eUnit>& u);
     void setHighlightedObject(const std::shared_ptr<eObject>& obj);
     void setHighlightedDoors(const std::optional<eDoors>& doors);
     void setHighlightedStairs(const std::optional<eStairs>& stairs);
     void setHighlightedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
+    void setPressedNPC(const std::shared_ptr<eUnit>& u);
+
+    void clearHighlighted();
 
     void addMessage(SDL_Renderer* const r,
                     const std::string& msg);
@@ -190,7 +194,9 @@ private:
     std::vector<eScreenMessage> mMessages;
 
     std::weak_ptr<eUnit> mHighlightUnit;
+    std::weak_ptr<eUnit> mHighlightNPC;
     std::weak_ptr<eUnit> mPressedUnit;
+    std::weak_ptr<eUnit> mPressedNPC;
 
     std::weak_ptr<eObject> mHighlightObject;
 

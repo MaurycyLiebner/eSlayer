@@ -82,6 +82,9 @@ public:
     bool triggerObjectImpl(const uint32_t clientId,
                            eServerObject& obj);
 
+    bool triggerNPC(const uint32_t clientId,
+                    const uint32_t npcId) override;
+
     bool triggerDoors(const uint32_t clientId,
                       const eServerDoors& doors) override;
 

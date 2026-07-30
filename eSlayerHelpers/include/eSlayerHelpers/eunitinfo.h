@@ -3,6 +3,7 @@
 
 #include "ecolor.h"
 #include "emodifier.h"
+#include "enpctype.h"
 
 struct eUnitInfo {
     int fCharData;
@@ -34,9 +35,18 @@ struct eUnitInfo {
     std::vector<uint8_t> fItems;
 
     std::vector<uint32_t> fLevelExperience;
-    uint8_t fMaxLevel = 1;
-    uint8_t fSkillPointsPerLevel = 1;
-    uint8_t fStatPointsPerLevel = 5;
+    uint8_t fMaxLevel ;
+    uint8_t fSkillPointsPerLevel;
+    uint8_t fStatPointsPerLevel;
+
+    eNPCType fNPCType;
+
+    // for sellers
+    std::map<int, std::vector<int>> fItemTypes;
+    std::map<int, std::vector<int>> fPotionTypes;
+    // for mercenaries
+    std::map<int, std::vector<std::string>> fMercTypeStrs;
+    std::map<int, std::vector<int>> fMercTypes;
 };
 
 #endif // EUNITINFO_H
