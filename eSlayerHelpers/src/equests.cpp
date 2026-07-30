@@ -45,6 +45,25 @@ void eQuests::load() {
                     const int stepId = q.fSteps.size();
                     auto& step = q.fSteps.emplace_back();
                     const auto typeStr = stepData.value("type", "");
+
+                    const auto parseItem = [&]() {
+                        const auto itemStr = stepData.value("item", "");
+                        const int id = eItemsData::sItems.id(itemStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
+                        }
+                        step.fTargetItem = id;
+                    };
+
+                    const auto parseNPC = [&]() {
+                        const auto npcStr = stepData.value("npc", "");
+                        const int id = eUnitsInfo::sUnits.id(npcStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
+                        }
+                        step.fTargetNPC = id;
+                    };
+
                     if(typeStr == "kill") {
                         step.fType = eQuestType::kill;
                         const auto monsterStr = stepData.value("monster", "");
@@ -58,75 +77,38 @@ void eQuests::load() {
                         step.fCount = stepData.value("count", 1);
                     } else if(typeStr == "findItem") {
                         step.fType = eQuestType::findItem;
-                        const auto itemStr = stepData.value("item", "");
-                        const int id = eItemsData::sItems.id(itemStr);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
-                        }
+                        parseItem();
                         const auto stageId = eQuest::stepToStage(stepId);
+                        const auto id = step.fTargetItem;
                         sFindItemQuests[id].emplace_back(questId, stageId);
-                        step.fTargetItem = id;
                         step.fCount = stepData.value("count", 1);
-                    } else if(typeStr == "bringItem") {
-                        step.fType = eQuestType::bringItem;
-                        {
-                            const auto itemStr = stepData.value("item", "");
-                            const int id = eItemsData::sItems.id(itemStr);
-                            if(id < 0) {
-                                eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
-                            }
-                            const auto stageId = eQuest::stepToStage(stepId);
-                            sBringItemQuests[id].emplace_back(questId, stageId);
-                            step.fTargetItem = id;
-                        }
-                        {
-                            const auto npcStr = stepData.value("npc", "");
-                            const int id = eUnitsInfo::sUnits.id(npcStr);
-                            if(id < 0) {
-                                eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
-                            }
-                            step.fTargetNPC = id;
-                        }
+                    } else if(typeStr == "bringItem" ||
+                              typeStr == "bringCure") {
+                        step.fType = typeStr == "bringItem" ?
+                            eQuestType::bringItem : eQuestType::bringCure;
+                        parseItem();
+
+                        const auto stageId = eQuest::stepToStage(stepId);
+                        const auto id = step.fTargetItem;
+                        sBringItemQuests[id].emplace_back(questId, stageId);
+
+                        parseNPC();
                         step.fCount = stepData.value("count", 1);
                         step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "getItem") {
                         step.fType = eQuestType::getItem;
-                        {
-                            const auto itemStr = stepData.value("item", "");
-                            const int id = eItemsData::sItems.id(itemStr);
-                            if(id < 0) {
-                                eRuntimeThrow("Unrecognized item type \"" + itemStr + "\".");
-                            }
-                            step.fTargetItem = id;
-                        }
-                        {
-                            const auto npcStr = stepData.value("npc", "");
-                            const int id = eUnitsInfo::sUnits.id(npcStr);
-                            if(id < 0) {
-                                eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
-                            }
-                            step.fTargetNPC = id;
-                        }
+                        parseItem();
+                        parseNPC();
                         step.fItemWorth = stepData.value("worth", 0.f);
                         step.fCount = stepData.value("count", 1);
                         step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
-                        const auto npcStr = stepData.value("npc", "");
-                        const int id = eUnitsInfo::sUnits.id(npcStr);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
-                        }
-                        step.fTargetNPC = id;
+                        parseNPC();
                         step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "addSocket") {
                         step.fType = eQuestType::addSocket;
-                        const auto npcStr = stepData.value("npc", "");
-                        const int id = eUnitsInfo::sUnits.id(npcStr);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized NPC type \"" + npcStr + "\".");
-                        }
-                        step.fTargetNPC = id;
+                        parseNPC();
                     } else {
                         eRuntimeThrow("Unrecognized quest type \"" + typeStr + "\".");
                     }

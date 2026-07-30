@@ -1806,6 +1806,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 case eNPCType::healer:
                 case eNPCType::trader:
                 case eNPCType::mercenary:
+                case eNPCType::wounded:
                 case eNPCType::message: {
                     const auto& quests = eGameWidget::quests();
                     auto& talkHeard = eGameWidget::talkHeard();

@@ -37,7 +37,8 @@ void eTalkHeard::justHeard(
         return;
     }
     const auto& step = q.fSteps[stepId];
-    if(step.fType == eQuestType::bringItem) {
+    if(step.fType == eQuestType::bringItem ||
+       step.fType == eQuestType::bringCure) {
         std::vector<uint32_t> items;
         eq.iterateOverAll([&](const eItem& item) {
             if(items.size() >= step.fCount) return;
@@ -97,7 +98,8 @@ eTalkHeard::nextUnheard(
                     continue;
                 }
                 const auto& step = q.fSteps[stepId];
-                if(step.fType == eQuestType::bringItem) {
+                if(step.fType == eQuestType::bringItem ||
+                   step.fType == eQuestType::bringCure) {
                     std::vector<uint32_t> items;
                     eq.iterateOverAll([&](const eItem& item) {
                         if(items.size() >= step.fCount) return;
@@ -203,7 +205,6 @@ void eTalkHeard::updateWantsToTalk(
     const eEquipment& eq) {
     for(const auto& map : mNPCWantsToTalk) {
         for(const auto& it : map.second) {
-            const auto unitId = it.first;
             const auto& wt = it.second;
             const auto npc = wt.fNPC;
             updateWantsToTalk(npc, squests, eq);

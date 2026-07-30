@@ -2,7 +2,8 @@
 #define ENPCTYPE_H
 
 enum class eNPCType {
-    none, healer, trader, mercenary, message
+    none, healer, trader, mercenary,
+    wounded, message
 };
 
 #endif // ENPCTYPE_H

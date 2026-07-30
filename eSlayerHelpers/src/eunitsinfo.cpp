@@ -117,6 +117,10 @@ void eUnitsInfo::load() {
                 u.fNPCType = eNPCType::trader;
             } else if(npcTypeStr == "mercenary") {
                 u.fNPCType = eNPCType::mercenary;
+            } else if(npcTypeStr == "wounded") {
+                u.fNPCType = eNPCType::wounded;
+            } else if(npcTypeStr == "message") {
+                u.fNPCType = eNPCType::message;
             } else if(npcTypeStr == "none") {
                 u.fNPCType = eNPCType::none;
             } else {

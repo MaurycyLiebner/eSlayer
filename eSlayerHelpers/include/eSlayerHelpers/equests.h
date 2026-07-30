@@ -11,7 +11,8 @@ enum class eQuestType {
     bringItem,
     getItem,
     talkTo,
-    addSocket
+    addSocket,
+    bringCure
 };
 
 struct eQuestStepId {

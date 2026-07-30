@@ -334,6 +334,12 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
         const auto a = std::make_shared<eUnitBaseAction>(*u, *this);
         u->setAction(a);
     } break;
+    case eNPCType::wounded: {
+        const auto animId = data.animId("wounded");
+        if(animId >= 0) {
+            u->setAnim(animId);
+        }
+    }
     default: {
         const auto a = std::make_shared<eNPCAction>(*u, *this);
         u->setAction(a);
@@ -401,8 +407,6 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
 
 void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
     mMap = map;
-
-    const auto mapId = mMap->id();
 
     const int w = map->width();
     const int h = map->height();
@@ -1910,7 +1914,8 @@ bool eServerArea::heardTalk(
         const auto& qinfo = eQuests::sQuests.get(c.fQuestId);
         const auto stepId = qinfo.stageToStep(c.fStageId);
         const auto& step = qinfo.fSteps[stepId];
-        if(step.fType == eQuestType::bringItem) {
+        if(step.fType == eQuestType::bringItem ||
+           step.fType == eQuestType::bringCure) {
             auto& eq = u->equipment();
             std::vector<uint32_t> items;
             eq.iterateOverAll([&](const eItem& item) {
@@ -1926,6 +1931,9 @@ bool eServerArea::heardTalk(
                         eq.take(itemId);
                     }
                     checkQuestItems(clientId);
+                    if(step.fType == eQuestType::bringCure) {
+
+                    }
                     clientData.fSendQuests = true;
                 } else {
                     return false;
