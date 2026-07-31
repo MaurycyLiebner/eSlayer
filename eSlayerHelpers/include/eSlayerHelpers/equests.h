@@ -4,6 +4,7 @@
 #include "estringidmapvector.h"
 
 #include <cstdint>
+#include <optional>
 
 enum class eQuestType {
     kill,
@@ -25,6 +26,12 @@ struct eQuestNPCVisibility {
 
     uint8_t fQuestId;
     uint8_t fStageId;
+};
+
+struct eQuestNPCAllowHire {
+    uint8_t fNPCId;
+
+    uint8_t fQuestId;
 };
 
 struct eQuestStepId {
@@ -50,6 +57,7 @@ struct eQuestStep {
 struct ESLAYERHELPERS_API eQuest {
     uint8_t fAct = 0;
     bool fFinishDifficulty = false;
+    std::optional<uint8_t> fAllowsHire;
     std::vector<eQuestStep> fSteps;
     std::vector<uint8_t> fPrerequisites;
 
@@ -80,6 +88,8 @@ public:
     sBringItemQuests;
     static std::map<uint8_t, std::vector<eQuestNPCVisibility>>
     sNPCVisibility;
+    static std::map<uint8_t, std::vector<eQuestNPCAllowHire>>
+    sNPCAllowHire;
 
     static void load();
 private:

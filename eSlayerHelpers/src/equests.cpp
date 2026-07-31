@@ -13,6 +13,8 @@ std::map<int, std::vector<eQuestStepId>>
 eQuests::sBringItemQuests;
 std::map<uint8_t, std::vector<eQuestNPCVisibility>>
 eQuests::sNPCVisibility;
+std::map<uint8_t, std::vector<eQuestNPCAllowHire>>
+eQuests::sNPCAllowHire;
 bool eQuests::sLoaded = false;
 
 void eQuests::load() {
@@ -36,6 +38,20 @@ void eQuests::load() {
                 q.fAct = act;
 
                 q.fFinishDifficulty = value.value("finishDifficulty", false);
+
+                const auto allowHireStr = value.value("allowHire", "");
+                if(!allowHireStr.empty()) {
+                    const auto id = eUnitsInfo::sUnits.id(allowHireStr);
+                    if(id < 0) {
+                        eRuntimeThrow("Unrecognized allow hire \"" + allowHireStr + "\".");
+                    }
+                    q.fAllowsHire = id;
+
+                    eQuestNPCAllowHire allow;
+                    allow.fQuestId = questId;
+                    allow.fNPCId = id;
+                    sNPCAllowHire[id].emplace_back(allow);
+                }
 
                 q.fFinishStatPoints = value.value("finishStatPoints", 0);
                 q.fFinishSkillPoints = value.value("finishSkillPoints", 0);

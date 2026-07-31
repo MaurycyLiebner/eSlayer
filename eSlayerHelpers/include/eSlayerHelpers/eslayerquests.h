@@ -22,6 +22,8 @@ public:
     bool npcVisible(const uint8_t npcId) const;
     bool npcHiddenInFuture(const uint8_t npcId) const;
 
+    bool npcAllowHire(const uint8_t npcId) const;
+
     bool hasQuest(const uint8_t questId) const;
     uint8_t stage(const uint8_t questId) const;
     bool finished(const uint8_t questId) const;

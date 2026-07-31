@@ -39,6 +39,17 @@ bool eSlayerQuests::npcHiddenInFuture(
     return false;
 }
 
+bool eSlayerQuests::npcAllowHire(const uint8_t npcId) const {
+    const auto& map = eQuests::sNPCAllowHire;
+    const auto it = map.find(npcId);
+    if(it == map.end()) return true;
+    for(const auto& vis : it->second) {
+        const auto questId = vis.fQuestId;
+        return finished(questId);
+    }
+    return true;
+}
+
 bool eSlayerQuests::hasQuest(const uint8_t questId) const {
     const auto it = mStages.find(questId);
     return it != mStages.end();

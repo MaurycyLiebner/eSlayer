@@ -88,12 +88,14 @@ private:
         const std::string& baseName,
         const std::string& name,
         const SDL_Rect& rect,
-        const eNPCType type);
+        const eNPCType type,
+        const int infoId);
     bool tryOpenTalk(const uint32_t sellerId,
                      const std::string& baseName,
                      const std::string& name,
                      const SDL_Rect& rect,
-                     const eNPCType type);
+                     const eNPCType type,
+                     const int infoId);
 
     void updateWalkRunSpeed();
     bool shouldRun() const;

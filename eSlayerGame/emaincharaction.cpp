@@ -234,8 +234,9 @@ void eMainCharAction::increment(const bool mousePressed,
 
             const auto npcId = u->fCharId;
             mServer->triggerNPC(mClientId, npcId);
-            if(!tryOpenTalk(npcId, baseName, name, rect, info.fNPCType)) {
-                openMainMenu(npcId, baseName, name, rect, info.fNPCType);
+            const auto infoId = u->fUnitInfoId;
+            if(!tryOpenTalk(npcId, baseName, name, rect, info.fNPCType, infoId)) {
+                openMainMenu(npcId, baseName, name, rect, info.fNPCType, infoId);
             }
             mClickAction = mousePressed;
             stop();
@@ -312,8 +313,8 @@ void eMainCharAction::increment(const bool mousePressed,
                 const auto sellerId = object->fObjectId;
                 const eServerObject sobject(mapId, *object);
                 mServer->triggerObject(mClientId, sobject);
-                if(!tryOpenTalk(sellerId, baseName, name, rect, eNPCType::none)) {
-                    openMainMenu(sellerId, baseName, name, rect, eNPCType::none);
+                if(!tryOpenTalk(sellerId, baseName, name, rect, eNPCType::none, -1)) {
+                    openMainMenu(sellerId, baseName, name, rect, eNPCType::none, -1);
                 }
             } else if(info.fType == eObjectType::trapDoor) {
                 if(object->fState == 0) {
@@ -630,7 +631,8 @@ void eMainCharAction::openMainMenu(
     const std::string& baseName,
     const std::string& name,
     const SDL_Rect& rect,
-    const eNPCType type) {
+    const eNPCType type,
+    const int infoId) {
     const auto actions = std::make_shared<std::vector<eHoverAction>>();
     auto& actionsRef = *actions;
 
@@ -694,26 +696,29 @@ void eMainCharAction::openMainMenu(
             };
         }
 
-        auto& hireAct = actionsRef.emplace_back();
-        hireAct.fText = eText::text(20, 4);
-        const auto level = mStats.fLevel;
-        const auto npcId = eUnitsInfo::sUnits.id(baseName);
-        if(npcId >= 0) {
-            std::vector<uint8_t> mtypes;
-            const auto& npc = eUnitsInfo::sUnits.get(npcId);
-            const int diff = eDifficulties::sDifficulty;
-            const auto& mercMap = npc.fMercTypes;
-            const auto it = mercMap.find(diff);
-            if(it != mercMap.end()) {
-                const auto& mercTypes = it->second;
-                for(const auto t : mercTypes) {
-                    mtypes.emplace_back(t);
+        const bool allowHire = mQuests.npcAllowHire(infoId);
+        if(allowHire) {
+            auto& hireAct = actionsRef.emplace_back();
+            hireAct.fText = eText::text(20, 4);
+            const auto level = mStats.fLevel;
+            const auto npcId = eUnitsInfo::sUnits.id(baseName);
+            if(npcId >= 0) {
+                std::vector<uint8_t> mtypes;
+                const auto& npc = eUnitsInfo::sUnits.get(npcId);
+                const int diff = eDifficulties::sDifficulty;
+                const auto& mercMap = npc.fMercTypes;
+                const auto it = mercMap.find(diff);
+                if(it != mercMap.end()) {
+                    const auto& mercTypes = it->second;
+                    for(const auto t : mercTypes) {
+                        mtypes.emplace_back(t);
+                    }
+                    hireAct.fPress = [mtypes, level]() {
+                        eHoverWidget::sOpenMenu("", {});
+                        const auto options = eHireInfos::generate(mtypes, level, 12);
+                        eGameScreen::sOpenHireMenu(options);
+                    };
                 }
-                hireAct.fPress = [mtypes, level]() {
-                    eHoverWidget::sOpenMenu("", {});
-                    const auto options = eHireInfos::generate(mtypes, level, 12);
-                    eGameScreen::sOpenHireMenu(options);
-                };
             }
         }
     }
@@ -760,18 +765,22 @@ bool eMainCharAction::tryOpenTalk(
     const std::string& baseName,
     const std::string& name,
     const SDL_Rect& rect,
-    const eNPCType type) {
+    const eNPCType type,
+    const int infoId) {
     const auto talk = mTalkHeard.nextUnheard(
         baseName, mQuests, mEquipment);
     if(!talk) return false;
     const auto& c = eTalks::get(*talk);
     const auto& text = eTalkText::text(c.fName);
     const auto closeAction =
-        [this, sellerId, baseName, name, rect, type]() {
+        [this, sellerId, baseName, name,
+         rect, type, infoId]() {
         const bool r = tryOpenTalk(
-                sellerId, baseName, name, rect, type);
+                sellerId, baseName, name,
+                rect, type, infoId);
         if(r) return;
-        openMainMenu(sellerId, baseName, name, rect, type);
+        openMainMenu(sellerId, baseName, name,
+                     rect, type, infoId);
     };
     eHoverWidget::sOpenTalk(text, closeAction, rect);
     mTalkHeard.justHeard(*talk, mEquipment);
