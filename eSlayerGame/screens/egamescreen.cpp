@@ -366,6 +366,8 @@ bool eGameScreen::keyPressEvent(const eKeyPressEvent& e) {
             mHireMenu = nullptr;
         } else if(mFollowerMenu) {
             hideInventoryConnectedMenu();
+        } else if(eHoverWidget::sMenuOpened()) {
+            eHoverWidget::sCloseMenu();
         } else if(mDeadMenu) {
             mGameWidget->respawn();
         } else {
@@ -560,12 +562,13 @@ void eGameScreen::hidePositionedMenu() {
         hideInventoryConnectedMenu();
     }
     hideHireMenu();
-    eHoverWidget::sOpenMenu("", {});
+    eHoverWidget::sCloseMenu();
     eHoverWidget::sOpenTalk("");
     updateCharPos();
 }
 
 void eGameScreen::hideLeftMenu() {
+    eHoverWidget::sCloseMenu();
     if(mPartyMenu) {
         hidePartyMenu();
     }
@@ -599,6 +602,7 @@ void eGameScreen::hideLeftMenu() {
 }
 
 void eGameScreen::hideRightMenu() {
+    eHoverWidget::sCloseMenu();
     if(mSkillTreesMenu) {
         hideSkillTreesMenu();
     }

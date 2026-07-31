@@ -743,6 +743,15 @@ void eHoverWidget::sOpenMenu(
     sInstance->openMenu(name, actions, rect);
 }
 
+void eHoverWidget::sCloseMenu() {
+    eHoverWidget::sOpenMenu("", {});
+}
+
+bool eHoverWidget::sMenuOpened() {
+    if(!sInstance) return false;
+    return sInstance->mMenu;
+}
+
 void eHoverWidget::sOpenTalk(
     const std::string& text,
     const eAction& closeAction,

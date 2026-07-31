@@ -72,6 +72,8 @@ public:
         const std::string& name,
         const std::vector<eHoverAction>& actions,
         const SDL_Rect& rect = SDL_Rect{0, 0, 0, 0});
+    static void sCloseMenu();
+    static bool sMenuOpened();
     static void sOpenTalk(
         const std::string& text,
         const eAction& closeAction = nullptr,

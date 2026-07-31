@@ -673,7 +673,7 @@ void eMainCharAction::openMainMenu(
         auto& tradeAct = actionsRef.emplace_back();
         tradeAct.fText = eText::text(20, 1);
         tradeAct.fPress = [sellerId]() {
-            eHoverWidget::sOpenMenu("", {});
+            eHoverWidget::sCloseMenu();
             eGameWidget::sOpenSellerMenu(sellerId);
         };
     }
@@ -692,7 +692,7 @@ void eMainCharAction::openMainMenu(
             resurrectAct.fText = text;
             resurrectAct.fPress = [gw]() {
                 gw->resurrectMerc();
-                eHoverWidget::sOpenMenu("", {});
+                eHoverWidget::sCloseMenu();
             };
         }
 
@@ -714,7 +714,7 @@ void eMainCharAction::openMainMenu(
                         mtypes.emplace_back(t);
                     }
                     hireAct.fPress = [mtypes, level]() {
-                        eHoverWidget::sOpenMenu("", {});
+                        eHoverWidget::sCloseMenu();
                         const auto options = eHireInfos::generate(mtypes, level, 12);
                         eGameScreen::sOpenHireMenu(options);
                     };
@@ -744,7 +744,7 @@ void eMainCharAction::openMainMenu(
             auto& addSocketAct = actionsRef.emplace_back();
             addSocketAct.fText = eText::text(20, 3);
             addSocketAct.fPress = [questId]() {
-                eHoverWidget::sOpenMenu("", {});
+                eHoverWidget::sCloseMenu();
                 eGameScreen::sOpenAddSocketMenu(questId);
             };
         }
@@ -753,7 +753,7 @@ void eMainCharAction::openMainMenu(
         auto& cancelAct = actionsRef.emplace_back();
         cancelAct.fText = eText::text(20, 2);
         cancelAct.fPress = []() {
-            eHoverWidget::sOpenMenu("", {});
+            eHoverWidget::sCloseMenu();
         };
     }
 
