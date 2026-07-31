@@ -1,7 +1,7 @@
 #ifndef EMOVETANGENTACTION_H
 #define EMOVETANGENTACTION_H
 
-#include "../emovetotarget.h"
+#include "emovetotarget.h"
 
 class eMoveTangentAction :
     public eMoveToTarget {

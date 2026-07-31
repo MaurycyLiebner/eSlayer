@@ -1,7 +1,7 @@
 #ifndef EMOVETOENEMYACTION_H
 #define EMOVETOENEMYACTION_H
 
-#include "../emovetotarget.h"
+#include "emovetotarget.h"
 
 class eMoveToEnemyAction : public eMoveToTarget {
 public:

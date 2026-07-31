@@ -1,7 +1,7 @@
 #ifndef EFLEEACTION_H
 #define EFLEEACTION_H
 
-#include "../emovetotarget.h"
+#include "emovetotarget.h"
 
 class eFleeAction : public eMoveToTarget {
 public:

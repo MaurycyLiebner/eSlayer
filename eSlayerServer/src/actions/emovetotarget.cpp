@@ -1,6 +1,6 @@
 #include "emovetotarget.h"
 
-#include "eserverarea.h"
+#include "../eserverarea.h"
 
 #include <eSlayerHelpers/eunitsinfo.h>
 

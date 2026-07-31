@@ -297,9 +297,19 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         utype, data, type, *this);
+
+    eTeamId teamId;
+    switch(udata.fNPCType) {
+    case eNPCType::none: {
+        teamId = eTeamId::neutralHostile;
+    } break;
+    default: {
+        teamId = eTeamId::neutral;
+    } break;
+    }
     const uint32_t charId = eServerUnit::sNextCharId++;
-    iniSetupUnit(u, charId, eTeamId::neutralHostile,
-                 pos, type, udata, data, modelParts);
+    iniSetupUnit(u, charId, teamId, pos, type,
+                 udata, data, modelParts);
 
     u->addBoost(udata.fModifiers, eBoostCurseType::permanent, false);
 

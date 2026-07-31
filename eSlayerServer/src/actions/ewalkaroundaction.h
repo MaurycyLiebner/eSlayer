@@ -4,8 +4,10 @@
 #include "eunitactionbase.h"
 
 #include <eSlayerHelpers/evec2.h>
+#include <eSlayerHelpers/epoint.h>
 
 #include <memory>
+#include <optional>
 
 class eWalkAroundAction : public eUnitActionBase {
 public:
@@ -16,8 +18,14 @@ public:
             const int walkId, const int walkReadyId,
             const float time);
 
+    void setMaxDist(const float maxDist);
+    void setCenterPos(const ePointF& pos);
+
     void increment(const float by) override;
 private:
+    ePointF mCenterPos;
+    std::optional<float> mMaxDist;
+
     int mCurrentAnim = -1;
     int mWalkId = -1;
     int mWalkReadyId = -1;

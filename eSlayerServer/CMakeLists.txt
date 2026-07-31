@@ -39,7 +39,7 @@ add_library(eSlayerServer SHARED
     src/etcpipjoin.h src/etcpipjoin.cpp
     src/eservermissile.h src/eservermissile.cpp
     src/actions/efolloweraction.h src/actions/efolloweraction.cpp
-    src/emovetotarget.h src/emovetotarget.cpp
+    src/actions/emovetotarget.h src/actions/emovetotarget.cpp
     src/actions/ewalkaroundaction.h src/actions/ewalkaroundaction.cpp
     src/actions/eknockbackaction.h src/actions/eknockbackaction.cpp
     src/eitemgenerator.h src/eitemgenerator.cpp
