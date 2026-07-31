@@ -80,6 +80,11 @@ bool eTcpIpHost::initialize() {
     return r;
 }
 
+bool eTcpIpHost::setupGame(const eSlayerQuests& quests) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::setupGame(quests);
+}
+
 void eTcpIpHost::increment(const float by) {
     checkMapsReady();
     sendSlain();

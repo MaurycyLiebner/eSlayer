@@ -33,6 +33,11 @@ bool eLocalServer::disconnect(const uint32_t clientId) {
     return true;
 }
 
+bool eLocalServer::setupGame(const eSlayerQuests& quests) {
+    eServerArea::sGameQuests = quests;
+    return true;
+}
+
 void eLocalServer::increment(const float by) {
     for(const auto& it : mMaps) {
         const auto& ma = it.second;

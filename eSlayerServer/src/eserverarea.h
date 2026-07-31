@@ -283,6 +283,7 @@ public:
 
     static std::map<uint32_t, std::shared_ptr<eServerUnit>> sSlayers;
     static std::vector<uint32_t> sSlain;
+    static eSlayerQuests sGameQuests;
 
     static void clear();
 private:
@@ -340,6 +341,15 @@ private:
                         const int level,
                         const float worth);
 
+    void updateGlobalQuest(const uint8_t questId,
+                           const eSlayerQuests& qs);
+
+    void setGlobalQuestStage(const uint8_t questId,
+                             const uint8_t stageId);
+
+    void hideUnit(eServerUnit& u);
+    void showUnit(eServerUnit& u);
+
     float mTime = 0.f;
 
     std::shared_ptr<eMap> mMap;
@@ -365,6 +375,9 @@ private:
     std::vector<uint32_t> mUnitsToRemove;
     std::map<uint32_t, eClientData> mClientData;
     std::map<uint32_t, std::vector<uint32_t>> mBodies;
+
+    std::set<uint32_t> mHiddenUnits;
+    std::set<uint32_t> mFutureHideUnits;
 
     eMissileIncrementer mMIncrementer;
     eNovaIncrementer mNIncrementer;

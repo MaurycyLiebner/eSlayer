@@ -63,6 +63,8 @@ public:
     virtual uint32_t connect() = 0;
     virtual bool disconnect(const uint32_t clientId) = 0;
 
+    virtual bool setupGame(const eSlayerQuests& quests) = 0;
+
     virtual void increment(const float by) = 0;
     virtual void checkMapsReady() {}
 

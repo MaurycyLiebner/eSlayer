@@ -392,6 +392,9 @@ public:
     const std::vector<eItemDrop>& itemDrops() const
     { return mItemDrops; }
     void addItemDrops(const std::vector<eItemDrop>& drops);
+
+    bool visible() const { return mVisible; }
+    void setVisible(const bool v) { mVisible = v; }
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;
@@ -431,6 +434,8 @@ private:
     const eCharData& mData;
     const eUnitType mType;
     eServerArea* mArea = nullptr;
+
+    bool mVisible = true;
 
     bool mDead = false;
 

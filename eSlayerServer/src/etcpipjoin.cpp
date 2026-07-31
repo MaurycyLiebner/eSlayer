@@ -82,6 +82,11 @@ bool eTcpIpJoin::disconnect(const uint32_t clientId) {
     return mNet.sendToServer(p);
 }
 
+bool eTcpIpJoin::setupGame(const eSlayerQuests& quests) {
+    (void)quests;
+    return true;
+}
+
 void eTcpIpJoin::increment(const float by) {
     std::vector<ePacket> packets;
     mPackets.with_lock([&](std::vector<ePacket>& ps) {

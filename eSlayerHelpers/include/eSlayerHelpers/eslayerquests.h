@@ -19,6 +19,9 @@ class ESLAYERHELPERS_API eSlayerQuests {
 public:
     uint16_t state() const { return mState; }
 
+    bool npcVisible(const uint8_t npcId) const;
+    bool npcHiddenInFuture(const uint8_t npcId) const;
+
     bool hasQuest(const uint8_t questId) const;
     uint8_t stage(const uint8_t questId) const;
     bool finished(const uint8_t questId) const;

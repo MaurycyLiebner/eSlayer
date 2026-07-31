@@ -343,6 +343,13 @@ void eScreenHandler::showGame(eServerData serverData,
             showErrorMsg("Disconnected", "You cannot enter a game with a difficulty you did not reach.");
         }
     });
+
+    loading.emplace_back([server, serverC]() {
+        const auto diff = eDifficulties::sDifficulty;
+        const auto& quests = serverC->quests(diff);
+        (*server)->setupGame(quests);
+    });
+
     loading.emplace_back([this, server, map, clientId]() {
         eMapData data;
 

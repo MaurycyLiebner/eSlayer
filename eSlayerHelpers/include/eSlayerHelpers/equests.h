@@ -15,6 +15,18 @@ enum class eQuestType {
     bringCure
 };
 
+enum class eQuestNPCVisibilityType {
+    appear, disappear
+};
+
+struct eQuestNPCVisibility {
+    eQuestNPCVisibilityType fType;
+    uint8_t fNPCId;
+
+    uint8_t fQuestId;
+    uint8_t fStageId;
+};
+
 struct eQuestStepId {
     eQuestStepId(const uint8_t qid,
                  const uint8_t sid) :
@@ -31,6 +43,8 @@ struct eQuestStep {
     uint8_t fTargetMonster = 0;
     uint8_t fCount = 0;
     float fItemWorth = 0.f;
+
+    std::vector<eQuestNPCVisibility> fNPCVisilibty;
 };
 
 struct ESLAYERHELPERS_API eQuest {
@@ -64,6 +78,8 @@ public:
     sFindItemQuests;
     static std::map<int, std::vector<eQuestStepId>>
     sBringItemQuests;
+    static std::map<uint8_t, std::vector<eQuestNPCVisibility>>
+    sNPCVisibility;
 
     static void load();
 private:

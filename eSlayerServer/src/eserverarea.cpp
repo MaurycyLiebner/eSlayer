@@ -33,6 +33,7 @@
 std::vector<uint32_t> eServerArea::sSlain;
 std::map<uint32_t, std::shared_ptr<eServerUnit>>
 eServerArea::sSlayers;
+eSlayerQuests eServerArea::sGameQuests;
 
 eServerArea::eServerArea() :
     mMIncrementer(mUnitAreas),
@@ -189,6 +190,8 @@ void eServerArea::iniSetupUnit(
         iterateOverUnits(pos, dist, [handler, charId](
             const std::shared_ptr<eServerUnit>& u) {
             if(charId == u->fCharId) return false;
+            const bool visible = u->visible();
+            if(!visible) return false;
             handler(*u);
             return false;
         });
@@ -285,6 +288,67 @@ void eServerArea::generatePotion(
     addGroundItem(pos, item);
 }
 
+void eServerArea::updateGlobalQuest(
+    const uint8_t questId,
+    const eSlayerQuests& qs) {
+    const auto stageId = qs.stage(questId);
+    setGlobalQuestStage(questId, stageId);
+}
+
+void eServerArea::setGlobalQuestStage(
+    const uint8_t questId,
+    const uint8_t stageId) {
+    sGameQuests.setStage(questId, stageId);
+
+    {
+        std::set<uint32_t> show;
+        for(const auto uid : mHiddenUnits) {
+            const auto u = unit(uid);
+            if(!u) continue;
+            const auto infoId = u->fUnitInfoId;
+            const bool v = sGameQuests.npcVisible(infoId);
+            if(v) show.emplace(uid);
+        }
+
+        for(const auto uid : show) {
+            const auto u = unit(uid);
+            if(!u) continue;
+            showUnit(*u);
+        }
+    }
+
+    {
+        std::set<uint32_t> hide;
+        for(const auto uid : mFutureHideUnits) {
+            const auto u = unit(uid);
+            if(!u) continue;
+            const auto infoId = u->fUnitInfoId;
+            const bool v = sGameQuests.npcVisible(infoId);
+            if(!v) hide.emplace(uid);
+        }
+
+        for(const auto uid : hide) {
+            mFutureHideUnits.erase(uid);
+            const auto u = unit(uid);
+            if(!u) continue;
+            hideUnit(*u);
+        }
+    }
+}
+
+void eServerArea::hideUnit(eServerUnit& u) {
+    u.setVisible(false);
+    const auto id = u.fCharId;
+    mHiddenUnits.emplace(id);
+}
+
+void eServerArea::showUnit(eServerUnit& u) {
+    findPlaceForUnit(u.fPos, u.fPos);
+    u.setVisible(true);
+    const auto id = u.fCharId;
+    mHiddenUnits.erase(id);
+}
+
 std::shared_ptr<eServerUnit> eServerArea::addUnit(
     const uint16_t type, const eUnitType utype,
     std::optional<eEliteModifiers>& mods, ePointF& pos,
@@ -292,12 +356,9 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
     const bool r = findPlaceForUnit(pos, pos);
     if(!r) return nullptr;
     const auto& udata = eUnitsInfo::sUnits.get(type);
-    const auto& data = eCharDataInfo::get(udata.fCharData);
-    const auto modelParts = data.randomModelParts();
-    auto& map = mMap->pathFinderMap();
-    const auto u = std::make_shared<eServerUnit>(
-        utype, data, type, *this);
 
+    bool visible = true;
+    bool hideInFuture = false;
     eTeamId teamId;
     switch(udata.fNPCType) {
     case eNPCType::none: {
@@ -305,8 +366,17 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
     } break;
     default: {
         teamId = eTeamId::neutral;
+        visible = sGameQuests.npcVisible(type);
+        hideInFuture = sGameQuests.npcHiddenInFuture(type);
     } break;
     }
+
+    const auto& data = eCharDataInfo::get(udata.fCharData);
+    const auto modelParts = data.randomModelParts();
+    auto& map = mMap->pathFinderMap();
+    const auto u = std::make_shared<eServerUnit>(
+        utype, data, type, *this);
+
     const uint32_t charId = eServerUnit::sNextCharId++;
     iniSetupUnit(u, charId, teamId, pos, type,
                  udata, data, modelParts);
@@ -410,6 +480,13 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
         break;
     default:
         break;
+    }
+
+    if(!visible) {
+        hideUnit(*u);
+    }
+    if(hideInFuture) {
+        mFutureHideUnits.emplace(charId);
     }
 
     return u;
@@ -805,6 +882,8 @@ void eServerArea::unitsData(
             const eHandleType htype) {
         const bool slayer = htype == eHandleType::slayers;
         if(u.isSlayer() != slayer) return;
+        const bool v = u.visible();
+        if(!v) return;
         const auto charId = u.fCharId;
         const auto it = visible.emplace(charId);
         if(!it.second) return;
@@ -1155,7 +1234,7 @@ bool eServerArea::findPlaceForUnit(
             const float dy = eRand::randF(-dist, dist);
             const ePointF tryPos{x + dx, y + dy};
             const auto u = unit(tryPos, [](const eServerUnit& u) {
-                return u.fHealth > 0;
+                return u.fHealth > 0 && u.visible();
             });
             if(u) continue;
             const bool w = walkable(tryPos);
@@ -1300,10 +1379,16 @@ bool eServerArea::checkQuestItems(
         });
 
         const auto& qids = it.second;
+        auto& qs = c.fQuests;
         for(const auto& qid : qids) {
-            const bool r = c.fQuests.setCount(
-                qid.fQuestId, qid.fStageId, count);
-            if(r) c.fSendQuests = true;
+            const auto questId = qid.fQuestId;
+            const auto stageId = qid.fStageId;
+            const bool r = qs.setCount(
+                questId, stageId, count);
+            if(r) {
+                c.fSendQuests = true;
+                updateGlobalQuest(questId, qs);
+            }
         }
     }
     return true;
@@ -1919,67 +2004,69 @@ bool eServerArea::heardTalk(
     if(!u) return false;
     auto& qs = clientData.fQuests;
 
-    {
-        const auto& c = eTalks::get(talk);
-        const auto& qinfo = eQuests::sQuests.get(c.fQuestId);
-        const auto stepId = qinfo.stageToStep(c.fStageId);
-        const auto& step = qinfo.fSteps[stepId];
-        if(step.fType == eQuestType::bringItem ||
-           step.fType == eQuestType::bringCure) {
-            auto& eq = u->equipment();
-            std::vector<uint32_t> items;
-            eq.iterateOverAll([&](const eItem& item) {
-                if(items.size() >= step.fCount) return;
-                if(item.fDataId == step.fTargetItem) {
-                    items.emplace_back(item.fItemId);
+    const auto& c = eTalks::get(talk);
+    const auto questId = c.fQuestId;
+    const auto& qinfo = eQuests::sQuests.get(questId);
+    const auto stepId = qinfo.stageToStep(c.fStageId);
+    const auto& step = qinfo.fSteps[stepId];
+    if(step.fType == eQuestType::bringItem ||
+       step.fType == eQuestType::bringCure) {
+        auto& eq = u->equipment();
+        std::vector<uint32_t> items;
+        eq.iterateOverAll([&](const eItem& item) {
+            if(items.size() >= step.fCount) return;
+            if(item.fDataId == step.fTargetItem) {
+                items.emplace_back(item.fItemId);
+            }
+        });
+        if(items.size() >= step.fCount) {
+            const bool r = qs.nextStage(questId);
+            if(r) {
+                for(const auto itemId : items) {
+                    eq.take(itemId);
                 }
-            });
-            if(items.size() >= step.fCount) {
-                const bool r = qs.nextStage(c.fQuestId);
-                if(r) {
-                    for(const auto itemId : items) {
-                        eq.take(itemId);
-                    }
-                    checkQuestItems(clientId);
-                    if(step.fType == eQuestType::bringCure) {
+                checkQuestItems(clientId);
+                if(step.fType == eQuestType::bringCure) {
 
-                    }
-                    clientData.fSendQuests = true;
-                } else {
-                    return false;
                 }
+                clientData.fSendQuests = true;
+                updateGlobalQuest(questId, qs);
             } else {
                 return false;
             }
-        } else if(step.fType == eQuestType::getItem) {
-            auto& eq = u->equipment();
+        } else {
+            return false;
+        }
+    } else if(step.fType == eQuestType::getItem) {
+        auto& eq = u->equipment();
 
-            const int typeId = step.fTargetItem;
+        const int typeId = step.fTargetItem;
 
-            for(int i = 0; i < step.fCount; i++) {
-                const auto item = eItemGenerator::generateItem(
-                    typeId, 1, step.fItemWorth);
-                if(item.fType == eItemType::none) {
-                    return false;
-                }
-                eEquipmentPlace place;
-                const bool r = eq.add(item, true, &place);
-                if(r) {
-                    auto& a = eqActions.emplace_back();
-                    a.fType = eEquipmentActionType::add;
-                    a.fPlace = place;
-                    a.fAddItem = item;
-                    a.fUnitId = u->fCharId;
-                } else {
-                    const auto& pos = u->fPos;
-                    addGroundItem(pos, item);
-                }
+        for(int i = 0; i < step.fCount; i++) {
+            const auto item = eItemGenerator::generateItem(
+                typeId, 1, step.fItemWorth);
+            if(item.fType == eItemType::none) {
+                return false;
+            }
+            eEquipmentPlace place;
+            const bool r = eq.add(item, true, &place);
+            if(r) {
+                auto& a = eqActions.emplace_back();
+                a.fType = eEquipmentActionType::add;
+                a.fPlace = place;
+                a.fAddItem = item;
+                a.fUnitId = u->fCharId;
+            } else {
+                const auto& pos = u->fPos;
+                addGroundItem(pos, item);
             }
         }
     }
+
     qs.heardTalk(talk);
     checkQuestItems(clientId);
     clientData.fSendQuests = true;
+    updateGlobalQuest(questId, qs);
 
     {
         const auto skillPoints = qs.receiveSkillPoints();
@@ -2014,6 +2101,7 @@ bool eServerArea::addedSocket(
     qs.addedSocket(questId);
     checkQuestItems(clientId);
     clientData.fSendQuests = true;
+    updateGlobalQuest(questId, qs);
     return true;
 }
 
@@ -2591,11 +2679,14 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
                 if(dist > 15.f) continue;
 
                 for(const auto& q : qs) {
-                    const bool r = c.fQuests.incCount(
-                        q.fQuestId, q.fStageId);
+                    const auto questId = q.fQuestId;
+                    auto& qs = c.fQuests;
+                    const bool r = qs.incCount(
+                        questId, q.fStageId);
                     if(r) {
                         checkQuestItems(clientId);
                         c.fSendQuests = true;
+                        updateGlobalQuest(questId, qs);
                     }
                 }
             }

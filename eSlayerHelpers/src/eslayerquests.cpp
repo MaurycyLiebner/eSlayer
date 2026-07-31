@@ -3,8 +3,43 @@
 #include "eSlayerHelpers/equests.h"
 #include "eSlayerHelpers/epacket.h"
 
-bool eSlayerQuests::hasQuest(
-    const uint8_t questId) const {
+bool eSlayerQuests::npcVisible(
+    const uint8_t npcId) const {
+    const auto& map = eQuests::sNPCVisibility;
+    const auto it = map.find(npcId);
+    if(it == map.end()) return true;
+    for(const auto& vis : it->second) {
+        const auto questId = vis.fQuestId;
+        const auto s = stage(questId);
+        switch(vis.fType) {
+        case eQuestNPCVisibilityType::appear:
+            return s > vis.fStageId;
+        case eQuestNPCVisibilityType::disappear:
+            return s <= vis.fStageId;
+        }
+    }
+    return true;
+}
+
+bool eSlayerQuests::npcHiddenInFuture(
+    const uint8_t npcId) const {
+    const auto& map = eQuests::sNPCVisibility;
+    const auto it = map.find(npcId);
+    if(it == map.end()) return true;
+    for(const auto& vis : it->second) {
+        const auto questId = vis.fQuestId;
+        const auto s = stage(questId);
+        switch(vis.fType) {
+        case eQuestNPCVisibilityType::appear:
+            break;
+        case eQuestNPCVisibilityType::disappear:
+            return s <= vis.fStageId;
+        }
+    }
+    return false;
+}
+
+bool eSlayerQuests::hasQuest(const uint8_t questId) const {
     const auto it = mStages.find(questId);
     return it != mStages.end();
 }

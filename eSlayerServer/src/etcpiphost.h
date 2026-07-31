@@ -16,6 +16,8 @@ public:
 
     bool initialize() override;
 
+    bool setupGame(const eSlayerQuests& quests) override;
+
     void increment(const float by) override;
 
     bool sendMessage(const uint32_t clientId,
