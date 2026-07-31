@@ -15,11 +15,11 @@ struct ESLAYERHELPERS_API ePortal {
     uint32_t fCreator;
 
     eAreaIds fOutdoorArea;
-    uint32_t fOutdoorPortalId;
+    uint32_t fOutdoorPortalId = 0;
     ePointF fOutdoorPos;
 
     eAreaIds fCampArea;
-    uint32_t fCampPortalId;
+    uint32_t fCampPortalId = 0;
     ePointF fCampPos;
 
     static std::optional<ePortal> portal(const uint32_t portalId);

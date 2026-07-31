@@ -331,7 +331,12 @@ void eServerArea::setGlobalQuestStage(
             mFutureHideUnits.erase(uid);
             const auto u = unit(uid);
             if(!u) continue;
-            hideUnit(*u);
+            const auto a = u->action();
+            if(const auto npcA = dynamic_cast<eNPCAction*>(a.get())) {
+                npcA->cure();
+            } else {
+                hideUnit(*u);
+            }
         }
     }
 }
@@ -415,11 +420,10 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
         u->setAction(a);
     } break;
     case eNPCType::wounded: {
-        const auto animId = data.animId("wounded");
-        if(animId >= 0) {
-            u->setAnim(animId);
-        }
-    }
+        const auto a = std::make_shared<eNPCAction>(*u, *this);
+        a->layWounded();
+        u->setAction(a);
+    } break;
     default: {
         const auto a = std::make_shared<eNPCAction>(*u, *this);
         u->setAction(a);

@@ -687,12 +687,16 @@ void eGameWidget::paintEvent(ePainter& p) {
         };
 
         for(const auto& p : ePortal::sPortals) {
-            addPortal(p.fCampPortalId,
-                      p.fCampArea,
-                      p.fCampPos);
-            addPortal(p.fOutdoorPortalId,
-                      p.fOutdoorArea,
-                      p.fOutdoorPos);
+            if(p.fCampPortalId > 0) {
+                addPortal(p.fCampPortalId,
+                          p.fCampArea,
+                          p.fCampPos);
+            }
+            if(p.fOutdoorPortalId > 0) {
+                addPortal(p.fOutdoorPortalId,
+                          p.fOutdoorArea,
+                          p.fOutdoorPos);
+            }
         }
 
         for(const auto pid : mPortals) {
