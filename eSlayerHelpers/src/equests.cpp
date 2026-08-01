@@ -66,6 +66,7 @@ void eQuests::load() {
                     const auto typeStr = stepData.value("type", "");
 
                     step.fAlwaysTrack = stepData.value("alwaysTrack", true);
+                    step.fAllClientsFulfill = stepData.value("allClientsFulfill", false);
 
                     const auto parseItem = [&]() {
                         const auto itemStr = stepData.value("item", "");
@@ -85,6 +86,8 @@ void eQuests::load() {
                         step.fTargetNPC = id;
                     };
 
+                    step.fCount = stepData.value("count", 1);
+                    step.fConvoStr = stepData.value("conversation", "");
                     if(typeStr == "kill") {
                         step.fType = eQuestType::kill;
                         const auto monsterStr = stepData.value("monster", "");
@@ -94,36 +97,27 @@ void eQuests::load() {
                         }
                         sKillMonsterQuests[id].emplace_back(questId, stageId);
                         step.fTargetMonster = id;
-                        step.fCount = stepData.value("count", 1);
                     } else if(typeStr == "findItem") {
                         step.fType = eQuestType::findItem;
                         parseItem();
                         const auto id = step.fTargetItem;
                         sFindItemQuests[id].emplace_back(questId, stageId);
-                        step.fCount = stepData.value("count", 1);
-                    } else if(typeStr == "bringItem" ||
-                              typeStr == "bringCure") {
-                        step.fType = typeStr == "bringItem" ?
-                            eQuestType::bringItem : eQuestType::bringCure;
+                    } else if(typeStr == "bringItem") {
+                        step.fType = eQuestType::bringItem;
                         parseItem();
 
                         const auto id = step.fTargetItem;
                         sBringItemQuests[id].emplace_back(questId, stageId);
 
                         parseNPC();
-                        step.fCount = stepData.value("count", 1);
-                        step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "getItem") {
                         step.fType = eQuestType::getItem;
                         parseItem();
                         parseNPC();
                         step.fItemWorth = stepData.value("worth", 0.f);
-                        step.fCount = stepData.value("count", 1);
-                        step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "talkTo") {
                         step.fType = eQuestType::talkTo;
                         parseNPC();
-                        step.fConvoStr = stepData.value("conversation", "");
                     } else if(typeStr == "addSocket") {
                         step.fType = eQuestType::addSocket;
                         parseNPC();

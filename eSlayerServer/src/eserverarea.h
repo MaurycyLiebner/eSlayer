@@ -23,6 +23,7 @@
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/emercenary.h>
 #include <eSlayerHelpers/eitemdrop.h>
+#include <eSlayerHelpers/equests.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -293,6 +294,12 @@ public:
 
     static void clear();
 private:
+    using eIter = std::function<bool(const uint32_t, eClientData&)>;
+    bool iterateOverClients(const eIter& iter);
+    bool iterateOverClients(const ePointF& pos,
+                            const float maxDist,
+                            const eIter& iter);
+
     std::shared_ptr<eServerUnit> addUnit(
         const uint16_t type, const eUnitType utype,
         std::optional<eEliteModifiers>& mods, ePointF& pos,
@@ -344,11 +351,8 @@ private:
                         const int level,
                         const float worth);
 
-    void updateGlobalQuest(const uint8_t questId,
-                           const eSlayerQuests& qs);
-
-    void setGlobalQuestStage(const uint8_t questId,
-                             const uint8_t stageId);
+    void updateGlobalQuestCount(const eQuestStepId step,
+                                const uint8_t count);
 
     float mTime = 0.f;
 

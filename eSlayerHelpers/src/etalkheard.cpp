@@ -37,8 +37,7 @@ void eTalkHeard::justHeard(
         return;
     }
     const auto& step = q.fSteps[stepId];
-    if(step.fType == eQuestType::bringItem ||
-       step.fType == eQuestType::bringCure) {
+    if(step.fType == eQuestType::bringItem) {
         std::vector<uint32_t> items;
         eq.iterateOverAll([&](const eItem& item) {
             if(items.size() >= step.fCount) return;
@@ -100,8 +99,7 @@ eTalkHeard::nextUnheard(
                     continue;
                 }
                 const auto& step = q.fSteps[stepId];
-                if(step.fType == eQuestType::bringItem ||
-                   step.fType == eQuestType::bringCure) {
+                if(step.fType == eQuestType::bringItem) {
                     std::vector<uint32_t> items;
                     eq.iterateOverAll([&](const eItem& item) {
                         if(items.size() >= step.fCount) return;

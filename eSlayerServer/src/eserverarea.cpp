@@ -288,17 +288,14 @@ void eServerArea::generatePotion(
     addGroundItem(pos, item);
 }
 
-void eServerArea::updateGlobalQuest(
-    const uint8_t questId,
-    const eSlayerQuests& qs) {
-    const auto stageId = qs.stage(questId);
-    setGlobalQuestStage(questId, stageId);
-}
-
-void eServerArea::setGlobalQuestStage(
-    const uint8_t questId,
-    const uint8_t stageId) {
-    sGameQuests.setStage(questId, stageId);
+void eServerArea::updateGlobalQuestCount(
+    const eQuestStepId step, const uint8_t count) {
+    const auto questId = step.fQuestId;
+    const auto stage = step.fStageId;
+    const auto current = sGameQuests.count(
+        questId, stage);
+    if(current >= count) return;
+    sGameQuests.setCount(questId, stage, count);
 
     {
         std::set<uint32_t> show;
@@ -311,6 +308,7 @@ void eServerArea::setGlobalQuestStage(
         }
 
         for(const auto uid : show) {
+            mHiddenUnits.erase(uid);
             const auto u = unit(uid);
             if(!u) continue;
             showUnit(*u);
@@ -343,15 +341,11 @@ void eServerArea::setGlobalQuestStage(
 
 void eServerArea::hideUnit(eServerUnit& u) {
     u.setVisible(false);
-    const auto id = u.fCharId;
-    mHiddenUnits.emplace(id);
 }
 
 void eServerArea::showUnit(eServerUnit& u) {
     findPlaceForUnit(u.fPos, u.fPos);
     u.setVisible(true);
-    const auto id = u.fCharId;
-    mHiddenUnits.erase(id);
 }
 
 std::shared_ptr<eServerUnit> eServerArea::addUnit(
@@ -488,6 +482,7 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
 
     if(!visible) {
         hideUnit(*u);
+        mHiddenUnits.emplace(charId);
     }
     if(hideInFuture) {
         mFutureHideUnits.emplace(charId);
@@ -1365,6 +1360,34 @@ void eServerArea::clear() {
     eItemGenerator::clear();
 }
 
+bool eServerArea::iterateOverClients(
+    const eIter& iter) {
+    for(auto& it : mClientData) {
+        const auto clientId = it.first;
+        auto& data = it.second;
+        const bool r = iter(clientId, data);
+        if(r) return true;
+    }
+    return false;
+}
+
+bool eServerArea::iterateOverClients(
+    const ePointF& pos,
+    const float maxDist,
+    const eIter& iter) {
+    return iterateOverClients([&](
+            const uint32_t clientId,
+            eClientData& data) {
+        const auto u = unit(clientId);
+        if(!u) return false;
+        if(u->fHealth <= 0) return false;
+        const auto upos = u->fPos;
+        const float dist = ePointF::distance(upos, pos);
+        if(dist > maxDist) return false;
+        return iter(clientId, data);
+    });
+}
+
 bool eServerArea::checkQuestItems(
     const uint32_t clientId) {
     const auto u = unit(clientId);
@@ -1389,10 +1412,8 @@ bool eServerArea::checkQuestItems(
             const auto stageId = qid.fStageId;
             const bool r = qs.setCount(
                 questId, stageId, count);
-            if(r) {
-                c.fSendQuests = true;
-                updateGlobalQuest(questId, qs);
-            }
+            updateGlobalQuestCount(qid, count);
+            if(r) c.fSendQuests = true;
         }
     }
     return true;
@@ -2009,82 +2030,103 @@ bool eServerArea::heardTalk(
     auto& qs = clientData.fQuests;
 
     const auto& c = eTalks::get(talk);
+    switch(c.fType) {
+    case eConvoType::intro:
+        return false;
+    default:
+        break;
+    }
+
     const auto questId = c.fQuestId;
     const auto& qinfo = eQuests::sQuests.get(questId);
-    const auto stepId = qinfo.stageToStep(c.fStageId);
-    const auto& step = qinfo.fSteps[stepId];
-    if(step.fType == eQuestType::bringItem ||
-       step.fType == eQuestType::bringCure) {
-        auto& eq = u->equipment();
-        std::vector<uint32_t> items;
-        eq.iterateOverAll([&](const eItem& item) {
-            if(items.size() >= step.fCount) return;
-            if(item.fDataId == step.fTargetItem) {
-                items.emplace_back(item.fItemId);
-            }
-        });
-        if(items.size() >= step.fCount) {
-            const bool r = qs.nextStage(questId);
-            if(r) {
+    const auto stage = c.fStageId;
+    const bool intro = qinfo.introStage(stage);
+    const bool outro = qinfo.outroStage(stage);
+    uint8_t count;
+    bool allClientsFulfill;
+    if(intro || outro) {
+        count = 1;
+        allClientsFulfill = false;
+    } else {
+        const auto stepId = qinfo.stageToStep(stage);
+        const auto& step = qinfo.fSteps[stepId];
+        const auto count = step.fCount;
+        allClientsFulfill = step.fAllClientsFulfill;
+        if(step.fType == eQuestType::bringItem) {
+            auto& eq = u->equipment();
+            std::vector<uint32_t> items;
+            eq.iterateOverAll([&](const eItem& item) {
+                if(items.size() >= step.fCount) return;
+                if(item.fDataId == step.fTargetItem) {
+                    items.emplace_back(item.fItemId);
+                }
+            });
+            if(items.size() >= step.fCount) {
                 for(const auto itemId : items) {
                     eq.take(itemId);
                 }
-                checkQuestItems(clientId);
-                if(step.fType == eQuestType::bringCure) {
+            } else {
+                return false;
+            }
+        } else if(step.fType == eQuestType::getItem) {
+            auto& eq = u->equipment();
 
+            const int typeId = step.fTargetItem;
+
+            for(int i = 0; i < step.fCount; i++) {
+                const auto item = eItemGenerator::generateItem(
+                    typeId, 1, step.fItemWorth);
+                if(item.fType == eItemType::none) {
+                    return false;
                 }
-                clientData.fSendQuests = true;
-                updateGlobalQuest(questId, qs);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else if(step.fType == eQuestType::getItem) {
-        auto& eq = u->equipment();
-
-        const int typeId = step.fTargetItem;
-
-        for(int i = 0; i < step.fCount; i++) {
-            const auto item = eItemGenerator::generateItem(
-                typeId, 1, step.fItemWorth);
-            if(item.fType == eItemType::none) {
-                return false;
-            }
-            eEquipmentPlace place;
-            const bool r = eq.add(item, true, &place);
-            if(r) {
-                auto& a = eqActions.emplace_back();
-                a.fType = eEquipmentActionType::add;
-                a.fPlace = place;
-                a.fAddItem = item;
-                a.fUnitId = u->fCharId;
-            } else {
-                const auto& pos = u->fPos;
-                addGroundItem(pos, item);
+                eEquipmentPlace place;
+                const bool r = eq.add(item, true, &place);
+                if(r) {
+                    auto& a = eqActions.emplace_back();
+                    a.fType = eEquipmentActionType::add;
+                    a.fPlace = place;
+                    a.fAddItem = item;
+                    a.fUnitId = u->fCharId;
+                } else {
+                    const auto& pos = u->fPos;
+                    addGroundItem(pos, item);
+                }
             }
         }
     }
 
-    qs.heardTalk(talk);
-    checkQuestItems(clientId);
-    clientData.fSendQuests = true;
-    updateGlobalQuest(questId, qs);
+    const auto iter = [&](const uint32_t clientId, eClientData& data) {
+        auto& qs = data.fQuests;
+        qs.setCount(questId, stage, count);
 
-    {
-        const auto skillPoints = qs.receiveSkillPoints();
-        if(skillPoints > 0) {
-            u->addSkillPoints(skillPoints);
+        const auto u = unit(clientId);
+        if(u) {
+            const auto skillPoints = qs.receiveSkillPoints();
+            if(skillPoints > 0) {
+                u->addSkillPoints(skillPoints);
+            }
+
+            const auto statPoints = qs.receiveStatPoints();
+            if(statPoints > 0) {
+                u->addStatPoints(statPoints);
+                u->setAttributesChanged(true);
+            }
         }
+
+        data.fSendQuests = true;
+        checkQuestItems(clientId);
+        return false;
+    };
+
+    if(allClientsFulfill) {
+        const auto& upos = u->fPos;
+        iterateOverClients(upos, 15.f, iter);
+    } else {
+        iter(clientId, clientData);
     }
-    {
-        const auto statPoints = qs.receiveStatPoints();
-        if(statPoints > 0) {
-            u->addStatPoints(statPoints);
-            u->setAttributesChanged(true);
-        }
-    }
+
+    const eQuestStepId qsId{questId, stage};
+    updateGlobalQuestCount(qsId, count);
 
     return true;
 }
@@ -2096,16 +2138,21 @@ bool eServerArea::addedSocket(
     if(it == mClientData.end()) return false;
     const auto u = unit(clientId);
     if(!u) return false;
-    auto& eq = u->equipment();
-    auto& tmp = eq.fTemporary;
-    const bool r = tmp.addSocket();
-    if(!r) return false;
     auto& clientData = it->second;
     auto& qs = clientData.fQuests;
-    qs.addedSocket(questId);
+    const bool r = qs.isAddSocketStage(questId);
+    if(!r) return false;
+    auto& eq = u->equipment();
+    auto& tmp = eq.fTemporary;
+    const bool rr = tmp.addSocket();
+    if(!rr) return false;
+    const auto stage = qs.stage(questId);
+    uint8_t count = 0;
+    qs.incCount(questId, stage, &count);
     checkQuestItems(clientId);
     clientData.fSendQuests = true;
-    updateGlobalQuest(questId, qs);
+    const eQuestStepId qsId{questId, stage};
+    updateGlobalQuestCount(qsId, count);
     return true;
 }
 
@@ -2671,29 +2718,47 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
         const auto it = mqs.find(id);
         if(it != mqs.end()) {
             const auto& qs = it->second;
-            for(auto& cit : mClientData) {
-                auto& c = cit.second;
-
-                const uint32_t clientId = cit.first;
-                const auto u = unit(clientId);
-                if(!u) continue;
-                if(u->fHealth <= 0) continue;
-                const float dist = ePointF::distance(
-                    u->fPos, killed.fPos);
-                if(dist > 15.f) continue;
-
+            iterateOverClients(killed.fPos, 15.f, [&](
+                    const uint32_t clientId, eClientData& data) {
                 for(const auto& q : qs) {
                     const auto questId = q.fQuestId;
-                    auto& qs = c.fQuests;
+                    auto& qs = data.fQuests;
+                    uint8_t count = 0;
                     const bool r = qs.incCount(
-                        questId, q.fStageId);
+                        questId, q.fStageId, &count);
+                    updateGlobalQuestCount(q, count);
                     if(r) {
                         checkQuestItems(clientId);
-                        c.fSendQuests = true;
-                        updateGlobalQuest(questId, qs);
+                        data.fSendQuests = true;
                     }
                 }
-            }
+
+                if(data.fMerc) {
+                    auto& merc = *data.fMerc;
+                    if(merc.fUnitId == killed.fCharId) {
+                        merc.setDead(true);
+                    } else {
+                        const auto m = unit(merc.fUnitId);
+                        if(m) {
+                            const float dist = ePointF::distance(m->fPos, killed.fPos);
+                            if(dist <= 15.f) {
+                                const auto& attrs = m->attributes();
+                                m->killed(killed);
+                                merc.setExp(attrs.fExp);
+                                merc.setLevel(attrs.fLevel);
+                            }
+                        }
+                    }
+                }
+
+                const auto u = unit(clientId);
+                if(!u) return false;
+                const eTeamId t1 = u->fTeamId;
+                const eTeamId t2 = killed.fTeamId;
+                if(!eTeams::areEnemies(t1, t2)) return false;
+                u->killed(killed);
+                return false;
+            });
         }
     }
 
@@ -2748,37 +2813,6 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
 
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
     generateItems(killed.fPos, killed.itemDrops());
-
-    for(auto& c : mClientData) {
-        auto& data = c.second;
-        if(data.fMerc) {
-            auto& merc = *data.fMerc;
-            if(merc.fUnitId == killed.fCharId) {
-                merc.setDead(true);
-            } else {
-                const auto m = unit(merc.fUnitId);
-                if(m) {
-                    const float dist = ePointF::distance(m->fPos, killed.fPos);
-                    if(dist <= 10.f) {
-                        const auto& attrs = m->attributes();
-                        m->killed(killed);
-                        merc.setExp(attrs.fExp);
-                        merc.setLevel(attrs.fLevel);
-                    }
-                }
-            }
-        }
-        const uint32_t clientId = c.first;
-        const auto u = unit(clientId);
-        if(!u) continue;
-        if(u->fHealth <= 0) continue;
-        const eTeamId t1 = u->fTeamId;
-        const eTeamId t2 = killed.fTeamId;
-        if(!eTeams::areEnemies(t1, t2)) continue;
-        const float dist = ePointF::distance(u->fPos, killed.fPos);
-        if(dist > 10.f) continue;
-        u->killed(killed);
-    }
 }
 
 void eServerArea::removePlannedUnits() {

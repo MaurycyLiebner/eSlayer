@@ -44,13 +44,15 @@ public:
     bool nextStage(const uint8_t questId);
     bool setStage(const uint8_t questId,
                   const uint8_t stageId);
+    uint8_t count(const uint8_t questId,
+                  const uint8_t stage) const;
     bool incCount(const uint8_t questId,
-                  const uint8_t stage);
+                  const uint8_t stage,
+                  uint8_t * const count = nullptr);
     bool setCount(const uint8_t questId,
                   const uint8_t stage,
                   const uint8_t count);
-    bool heardTalk(const eConvoId& talk);
-    bool addedSocket(const uint8_t questId);
+    bool isAddSocketStage(const uint8_t questId) const;
 
     bool difficultyFinished() const
     { return mDifficultyFinished; }

@@ -12,8 +12,7 @@ enum class eQuestType {
     bringItem,
     getItem,
     talkTo,
-    addSocket,
-    bringCure
+    addSocket
 };
 
 enum class eQuestNPCVisibilityType {
@@ -51,6 +50,7 @@ struct eQuestStep {
     uint8_t fCount = 0;
     float fItemWorth = 0.f;
     bool fAlwaysTrack = true;
+    bool fAllClientsFulfill = false;
 
     std::vector<eQuestNPCVisibility> fNPCVisilibty;
 };
@@ -67,6 +67,14 @@ struct ESLAYERHELPERS_API eQuest {
 
     uint8_t nStages() const {
         return fSteps.size() + 2;
+    }
+
+    bool introStage(const uint8_t stage) const {
+        return stage == 0;
+    }
+
+    bool outroStage(const uint8_t stage) const {
+        return stage == nStages() - 1;
     }
 
     static uint8_t stageToStep(const uint8_t stage) {
