@@ -10,9 +10,17 @@
 
 class ePacket;
 
-struct eQuestState {
+struct eQuestStage {
     uint8_t fStage = 0;
     uint8_t fCount = 0;
+};
+
+struct ESLAYERHELPERS_API eQuestState {
+    std::vector<eQuestStage> fStages;
+    uint8_t fStage = 0;
+
+    void read(ePacket& p);
+    void write(ePacket& p) const;
 };
 
 class ESLAYERHELPERS_API eSlayerQuests {
@@ -33,19 +41,14 @@ public:
 
     void initialize();
 
-    bool addQuest(const uint8_t questId);
     bool nextStage(const uint8_t questId);
     bool setStage(const uint8_t questId,
                   const uint8_t stageId);
     bool incCount(const uint8_t questId,
                   const uint8_t stage);
-    bool resetCount(const uint8_t questId,
-                   const uint8_t stage);
     bool setCount(const uint8_t questId,
                   const uint8_t stage,
                   const uint8_t count);
-    int countNeeded(const uint8_t questId,
-                   const uint8_t stage);
     bool heardTalk(const eConvoId& talk);
     bool addedSocket(const uint8_t questId);
 
@@ -58,11 +61,13 @@ public:
     void read(ePacket& p);
     void write(ePacket& p) const;
 private:
+    bool tryProgressQuest(const uint8_t questId);
+
     uint16_t mState = 0;
     bool mDifficultyFinished = false;
     uint8_t mStatPoints = 0;
     uint8_t mSkillPoints = 0;
-    std::map<uint8_t, eQuestState> mStages;
+    std::map<uint8_t, eQuestState> mQuests;
 };
 
 #endif // ESLAYERQUESTS_H

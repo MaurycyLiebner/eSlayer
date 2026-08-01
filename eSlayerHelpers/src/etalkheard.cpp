@@ -91,6 +91,8 @@ eTalkHeard::nextUnheard(
         } break;
         case eConvoType::questStep: {
             const auto s = squests.stage(qid);
+            const bool r = s == convo.fStageId;
+            if(!r) continue;
             {
                 const auto& q = eQuests::sQuests.get(qid);
                 const auto stepId = q.stageToStep(s);
@@ -112,8 +114,7 @@ eTalkHeard::nextUnheard(
                     }
                 }
             }
-            const bool r = s == convo.fStageId;
-            if(r) return cid;
+            return cid;
         } break;
         case eConvoType::questOutro: {
             const bool r = squests.outroStage(qid);

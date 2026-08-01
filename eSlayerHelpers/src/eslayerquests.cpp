@@ -51,15 +51,15 @@ bool eSlayerQuests::npcAllowHire(const uint8_t npcId) const {
 }
 
 bool eSlayerQuests::hasQuest(const uint8_t questId) const {
-    const auto it = mStages.find(questId);
-    return it != mStages.end();
+    const auto it = mQuests.find(questId);
+    return it != mQuests.end();
 }
 
 uint8_t eSlayerQuests::stage(
     const uint8_t questId) const {
     const bool r = hasQuest(questId);
     if(!r) return 0;
-    return mStages.at(questId).fStage;
+    return mQuests.at(questId).fStage;
 }
 
 bool eSlayerQuests::finished(
@@ -95,27 +95,30 @@ bool eSlayerQuests::prerequisitesMet(
 }
 
 void eSlayerQuests::initialize() {
-    mStages.clear();
-    for(const auto& q : eQuests::sQuests) {
-        setStage(q.fId, 0);
-    }
-}
+    mQuests.clear();
+    for(const auto& it : eQuests::sQuests) {
+        const auto id = it.fId;
+        const auto& q = it.fValue;
+        eQuestState qs;
 
-bool eSlayerQuests::addQuest(
-    const uint8_t questId) {
-    const bool r = hasQuest(questId);
-    if(r) return false;
-    mStages[questId];
-    return true;
+        auto& ss = qs.fStages;
+        ss.emplace_back(); // intro
+        for(const auto& s : q.fSteps) {
+            ss.emplace_back();
+        }
+        ss.emplace_back(); // outro
+
+        mQuests.emplace(id, qs);
+    }
 }
 
 bool eSlayerQuests::nextStage(
     const uint8_t questId) {
-    auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
+    if(finished(questId)) return false;
+    auto it = mQuests.find(questId);
+    if(it == mQuests.end()) return false;
     auto& s = it->second;
     s.fStage++;
-    s.fCount = 0;
     if(finished(questId)) {
         const auto& quest = eQuests::sQuests.get(questId);
         if(quest.fFinishDifficulty) {
@@ -123,6 +126,8 @@ bool eSlayerQuests::nextStage(
         }
         mSkillPoints += quest.fFinishSkillPoints;
         mStatPoints += quest.fFinishStatPoints;
+    } else {
+        tryProgressQuest(questId);
     }
     mState++;
     return true;
@@ -131,72 +136,48 @@ bool eSlayerQuests::nextStage(
 bool eSlayerQuests::setStage(
     const uint8_t questId,
     const uint8_t stageId) {
-    auto& s = mStages[questId];
-    s.fStage = stageId;
-    s.fCount = 0;
+    auto& q = mQuests[questId];
+    q.fStage = stageId;
     return true;
 }
 
 bool eSlayerQuests::incCount(
     const uint8_t questId,
     const uint8_t stage) {
-    auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
-    auto& s = it->second;
-    if(s.fStage != stage) return false;
-    return setCount(questId, stage, s.fCount + 1);
-}
+    const auto& q = eQuests::sQuests.get(questId);
+    const auto stepId = q.stageToStep(stage);
+    if(stepId >= q.fSteps.size()) return false;
+    const auto& step = q.fSteps[stepId];
 
-bool eSlayerQuests::resetCount(
-    const uint8_t questId,
-    const uint8_t stage) {
-    auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
-    auto& s = it->second;
-    if(s.fStage != stage) return false;
-    s.fCount = 0;
-    return true;
+    auto it = mQuests.find(questId);
+    if(it == mQuests.end()) return false;
+    auto& qq = it->second;
+    if(!step.fAlwaysTrack) {
+        if(qq.fStage != stage) return false;
+    }
+    const auto& s = qq.fStages[stage];
+    return setCount(questId, stage, s.fCount + 1);
 }
 
 bool eSlayerQuests::setCount(
     const uint8_t questId,
     const uint8_t stage,
     const uint8_t count) {
-    auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
-    auto& s = it->second;
-    if(s.fStage != stage) return false;
-    s.fCount = count;
     const auto& q = eQuests::sQuests.get(questId);
     const auto stepId = q.stageToStep(stage);
     if(stepId >= q.fSteps.size()) return false;
     const auto& step = q.fSteps[stepId];
-    switch(step.fType) {
-    case eQuestType::talkTo:
-    case eQuestType::addSocket:
-        return false;
-    default:
-        break;
-    }
-    if(step.fCount <= s.fCount) {
-        return nextStage(questId);
-    } else {
-        return false;
-    }
-}
 
-int eSlayerQuests::countNeeded(
-    const uint8_t questId,
-    const uint8_t stage) {
-    auto it = mStages.find(questId);
-    if(it == mStages.end()) return 0;
-    auto& s = it->second;
-    if(s.fStage != stage) return 0;
-    const auto& q = eQuests::sQuests.get(questId);
-    const auto stepId = q.stageToStep(stage);
-    if(stepId >= q.fSteps.size()) return 0;
-    const auto& step = q.fSteps[stepId];
-    return step.fCount;
+    auto it = mQuests.find(questId);
+    if(it == mQuests.end()) return false;
+    auto& qq = it->second;
+    if(!step.fAlwaysTrack) {
+        if(qq.fStage != stage) return false;
+    }
+    auto& s = qq.fStages[stage];
+    s.fCount = count;
+
+    return tryProgressQuest(questId);
 }
 
 bool eSlayerQuests::heardTalk(
@@ -205,15 +186,15 @@ bool eSlayerQuests::heardTalk(
     if(!r) return false;
     const auto& c = eTalks::get(talk);
     if(c.fType == eConvoType::intro) return false;
-    auto& s = mStages[c.fQuestId];
+    auto& s = mQuests[c.fQuestId];
     if(s.fStage != c.fStageId) return false;
     return nextStage(c.fQuestId);
 }
 
 bool eSlayerQuests::addedSocket(
     const uint8_t questId) {
-    const auto it = mStages.find(questId);
-    if(it == mStages.end()) return false;
+    const auto it = mQuests.find(questId);
+    if(it == mQuests.end()) return false;
     const auto& s = it->second;
     const auto& q = eQuests::sQuests.get(questId);
     const auto stepId = q.stageToStep(s.fStage);
@@ -235,27 +216,65 @@ uint8_t eSlayerQuests::receiveSkillPoints() {
 }
 
 void eSlayerQuests::read(ePacket& p) {
-    mStages.clear();
     p >> mState;
     p >> mDifficultyFinished;
-    uint8_t n;
-    p >> n;
-    for(int i = 0; i < n; i++) {
-        uint8_t questId;
-        p >> questId;
-        eQuestState state;
-        p >> state;
-        mStages[questId] = state;
+    initialize();
+    for(auto& it : mQuests) {
+        auto& qs = it.second;
+        qs.read(p);
     }
 }
 
 void eSlayerQuests::write(ePacket& p) const {
     p << mState;
     p << mDifficultyFinished;
-    const uint8_t n = mStages.size();
-    p << n;
-    for(const auto& it : mStages) {
-        p << it.first;
-        p << it.second;
+    for(const auto& it : mQuests) {
+        const auto& qs = it.second;
+        qs.write(p);
+    }
+}
+
+bool eSlayerQuests::tryProgressQuest(
+    const uint8_t questId) {
+    auto it = mQuests.find(questId);
+    if(it == mQuests.end()) return false;
+    const auto& qq = it->second;
+    const auto stage = qq.fStage;
+
+    const auto& q = eQuests::sQuests.get(questId);
+    const auto stepId = q.stageToStep(stage);
+    if(stepId >= q.fSteps.size()) return false;
+    const auto& step = q.fSteps[stepId];
+
+    const auto& s = qq.fStages[stage];
+
+    switch(step.fType) {
+    case eQuestType::talkTo:
+    case eQuestType::getItem:
+    case eQuestType::bringItem:
+    case eQuestType::bringCure:
+    case eQuestType::addSocket:
+        return false;
+    default:
+        break;
+    }
+    if(step.fCount <= s.fCount) {
+        return nextStage(questId);
+    } else {
+        return false;
+    }
+}
+
+void eQuestState::read(ePacket& p) {
+    p >> fStage;
+    for(auto& s : fStages) {
+        p >> s;
+    }
+}
+
+void eQuestState::write(ePacket& p) const {
+    p << fStage;
+    for(const auto& s : fStages) {
+        p << s;
     }
 }

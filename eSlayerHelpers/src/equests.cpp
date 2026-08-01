@@ -65,6 +65,8 @@ void eQuests::load() {
                     auto& step = q.fSteps.emplace_back();
                     const auto typeStr = stepData.value("type", "");
 
+                    step.fAlwaysTrack = stepData.value("alwaysTrack", true);
+
                     const auto parseItem = [&]() {
                         const auto itemStr = stepData.value("item", "");
                         const int id = eItemsData::sItems.id(itemStr);

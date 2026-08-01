@@ -734,7 +734,7 @@ void eMainCharAction::openMainMenu(
             if(stepId >= steps.size()) continue;
             const auto& step = steps[stepId];
             if(step.fType != eQuestType::addSocket) continue;
-            const auto npcId = eObjectsInfo::sObjects.id(baseName);
+            const auto npcId = eUnitsInfo::sUnits.id(baseName);
             if(step.fTargetNPC != npcId) continue;
             questId = id;
             add = true;

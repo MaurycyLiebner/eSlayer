@@ -50,6 +50,7 @@ struct eQuestStep {
     uint8_t fTargetMonster = 0;
     uint8_t fCount = 0;
     float fItemWorth = 0.f;
+    bool fAlwaysTrack = true;
 
     std::vector<eQuestNPCVisibility> fNPCVisilibty;
 };
