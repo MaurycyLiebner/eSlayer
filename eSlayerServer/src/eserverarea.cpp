@@ -2758,10 +2758,12 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
                 if(data.fMerc) {
                     auto& merc = *data.fMerc;
                     const auto m = unit(merc.fUnitId);
-                    const auto& attrs = m->attributes();
-                    m->killed(killed);
-                    merc.setExp(attrs.fExp);
-                    merc.setLevel(attrs.fLevel);
+                    if(m) {
+                        const auto& attrs = m->attributes();
+                        m->killed(killed);
+                        merc.setExp(attrs.fExp);
+                        merc.setLevel(attrs.fLevel);
+                    }
                 }
 
                 return false;
