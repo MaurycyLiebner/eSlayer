@@ -93,10 +93,11 @@ eAttributes eMercenary::attributes() const {
 eAttributes eMercenaryBase::attributes() const {
     eAttributes result;
     const auto& m = eMercenariesInfo::sMercs.get(fMercType);
-    result.fStrength = m.fBaseStrength + fLevel*m.fStrengthPerLevel;
-    result.fDexterity = m.fBaseDexterity + fLevel*m.fDexterityPerLevel;
-    result.fVitality = m.fBaseVitality + fLevel*m.fVitalityPerLevel;
-    result.fEnergy = m.fBaseEnergy + fLevel*m.fEnergyPerLevel;
+    const auto levelMult = fLevel - 1;
+    result.fStrength = m.fBaseStrength + levelMult*m.fStrengthPerLevel;
+    result.fDexterity = m.fBaseDexterity + levelMult*m.fDexterityPerLevel;
+    result.fVitality = m.fBaseVitality + levelMult*m.fVitalityPerLevel;
+    result.fEnergy = m.fBaseEnergy + levelMult*m.fEnergyPerLevel;
     result.fLevel = fLevel;
     return result;
 }

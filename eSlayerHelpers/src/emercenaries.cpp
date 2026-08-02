@@ -10,66 +10,67 @@ eMercenariesInfo::sMercs;
 
 std::vector<eModifier> eMercenariesInfo::mods(
     const int mercType, const uint8_t level) {
+    const auto levelMult = level - 1;
     std::vector<eModifier> result;
     const auto& m = eMercenariesInfo::sMercs.get(mercType);
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = level*m.fLifePerLevel;
+        mod.fValue1 = levelMult*m.fLifePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::lifeValue;
-        mod.fValue1 = level*m.fLifePerLevel;
+        mod.fValue1 = levelMult*m.fLifePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::fireResistance;
-        mod.fValue1 = level*m.fResistancePerLevel;
+        mod.fValue1 = levelMult*m.fResistancePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::coldResistance;
-        mod.fValue1 = level*m.fResistancePerLevel;
+        mod.fValue1 = levelMult*m.fResistancePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::lightningResistance;
-        mod.fValue1 = level*m.fResistancePerLevel;
+        mod.fValue1 = levelMult*m.fResistancePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::poisonResistance;
-        mod.fValue1 = level*m.fResistancePerLevel;
+        mod.fValue1 = levelMult*m.fResistancePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::damageValue;
-        mod.fValue1 = level*m.fDamagePerLevel;
-        mod.fValue2 = level*m.fDamagePerLevel;
+        mod.fValue1 = levelMult*m.fDamagePerLevel;
+        mod.fValue2 = levelMult*m.fDamagePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::damageFire;
-        mod.fValue1 = level*m.fFireDamagePerLevel;
-        mod.fValue2 = level*m.fFireDamagePerLevel;
+        mod.fValue1 = levelMult*m.fFireDamagePerLevel;
+        mod.fValue2 = levelMult*m.fFireDamagePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::damageCold;
-        mod.fValue1 = level*m.fColdDamagePerLevel;
-        mod.fValue2 = level*m.fColdDamagePerLevel;
+        mod.fValue1 = levelMult*m.fColdDamagePerLevel;
+        mod.fValue2 = levelMult*m.fColdDamagePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::damageLightning;
-        mod.fValue1 = level*m.fLightningDamagePerLevel;
-        mod.fValue2 = level*m.fLightningDamagePerLevel;
+        mod.fValue1 = levelMult*m.fLightningDamagePerLevel;
+        mod.fValue2 = levelMult*m.fLightningDamagePerLevel;
     }
     {
         auto& mod = result.emplace_back();
         mod.fType = eModifierType::defenseValue;
-        mod.fValue1 = level*m.fDefensePerLevel;
+        mod.fValue1 = levelMult*m.fDefensePerLevel;
     }
 
     const auto& mercL = m.fMods.skillLevel(level);
@@ -143,7 +144,7 @@ void eMercenariesInfo::load() {
             u.fVitalityPerLevel = jdata.value("vitalityPerLevel", 1.5f);
             u.fEnergyPerLevel = jdata.value("energyPerLevel", 0.5f);
 
-            u.fLifePerLevel = u.fEnergyPerLevel = jdata.value("lifePerLevel", 7.5f);
+            u.fLifePerLevel = jdata.value("lifePerLevel", 7.5f);
 
             u.fResistancePerLevel = jdata.value("resistancePerLevel", 1.5f);
 
