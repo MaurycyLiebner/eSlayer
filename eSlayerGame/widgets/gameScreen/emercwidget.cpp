@@ -22,8 +22,15 @@ void eMercWidget::initialize(
     const auto& eqO = m.fEq;
     const auto& places = eqO.fEquipment;
 
+    auto& b = mStats.fBoosts;
+    const auto mods = merc.mods();
+    for(const auto& mod : mods) {
+        b.emplace(eBoostCurseType::merc, mod);
+    }
+
     const auto uid = m.fUnitType;
     const auto& uinfo = eUnitsInfo::sUnits.get(uid);
+    mStats.fClass = uinfo.fClassId;
     mStats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
     mStats.fSkills.emplace_back();
     mStats.fSkills.emplace_back();

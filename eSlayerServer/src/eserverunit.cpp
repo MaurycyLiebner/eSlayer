@@ -11,6 +11,7 @@
 #include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/erunsettings.h>
 #include <eSlayerHelpers/especialanim.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 std::atomic<uint32_t> eServerUnit::sNextCharId = 1;
 
@@ -21,7 +22,10 @@ eServerUnit::eServerUnit(const eUnitType type,
     mData(data),
     mArea(&area),
     mType(type),
-    mHandler(*this, unitTypeId) {}
+    mHandler(*this, unitTypeId) {
+    const auto& uinfo = eUnitsInfo::sUnits.get(unitTypeId);
+    setClass(uinfo.fClassId);
+}
 
 bool eServerUnit::isCorpse() const {
     if(!mDead) return false;

@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eskilltrees.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 
 bool eClasses::sLoaded = false;
 eStringIdMapVector<eClass>
@@ -37,6 +38,8 @@ void eClasses::load() {
         try {
             auto& class_ = it.fValue;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
+
+            class_.fSlayerClass = jdata.value("slayerClass", false);
 
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
             for(const auto& skillTree : skillTrees) {
@@ -110,5 +113,10 @@ void eClasses::load() {
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");
         }
+    }
+
+    for(const auto& it : eUnitsInfo::sUnits) {
+        auto& info = it.fValue;
+        info.fClassId = sClasses.id(info.fClassName);
     }
 }

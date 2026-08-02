@@ -41,6 +41,9 @@ struct eUnitInfo {
 
     eNPCType fNPCType;
 
+    std::string fClassName;
+    int fClassId;
+
     // for sellers
     std::map<int, std::vector<int>> fItemTypes;
     std::map<int, std::vector<int>> fPotionTypes;

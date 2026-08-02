@@ -5,7 +5,6 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
 #include "eSlayerHelpers/emissilesinfo.h"
-#include "eSlayerHelpers/emercenaries.h"
 #include "eSlayerHelpers/edifficulties.h"
 
 bool eUnitsInfo::sLoaded = false;
@@ -32,6 +31,7 @@ void eUnitsInfo::load() {
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
             eUnitInfo u;
+            u.fClassName = jdata.value("class", "");
             u.fRadius = jdata.value("radius", 0.4f);
             u.fLevel = jdata.value("level", 1);
             u.fWalkSpeed = jdata.value("walkSpeed", 0.1f);
