@@ -5,7 +5,8 @@
 
 eCharData::eCharData() {}
 
-void eCharData::load(const ordered_json& jdata) {
+void eCharData::load(const std::string& name,
+                     const ordered_json& jdata) {
     mDirs = jdata["directions"];
     const auto& anims = jdata["animations"];
     for(const auto& [name, animData] : anims.items()) {
@@ -28,19 +29,28 @@ void eCharData::load(const ordered_json& jdata) {
         anim.fClampId = animId(anim.fClamp);
     }
 
-    const auto groups = jdata["groups"];
-    for(const auto& groupJson : groups) {
-        auto& group = mGroups.emplace_back();
-        for(auto& [key, valueArray] : groupJson.items()) {
-            const auto values = valueArray.get<std::vector<std::string>>();
-            eStringIdMapVector<bool> equipment;
-            for(const auto& v : values) {
-                equipment.add(v, true);
+    if(jdata.contains("groups")) {
+        const auto groups = jdata["groups"];
+        for(const auto& groupJson : groups) {
+            auto& group = mGroups.emplace_back();
+            for(auto& [key, valueArray] : groupJson.items()) {
+                const auto values = valueArray.get<std::vector<std::string>>();
+                eStringIdMapVector<bool> equipment;
+                for(const auto& v : values) {
+                    equipment.add(v, true);
+                }
+                const int id = mParts.add(key, equipment);
+                group.emplace_back(id);
+                mNParts++;
             }
-            const int id = mParts.add(key, equipment);
-            group.emplace_back(id);
-            mNParts++;
         }
+    } else {
+        auto& group = mGroups.emplace_back();
+        eStringIdMapVector<bool> equipment;
+        equipment.add("whole", true);
+        const int id = mParts.add(name, equipment);
+        group.emplace_back(id);
+        mNParts++;
     }
 
     for(const auto& it : eSkills::sSkills) {

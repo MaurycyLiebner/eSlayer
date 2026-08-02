@@ -42,8 +42,9 @@ void eCharDataInfo::loadImpl() {
             const int id = mChars.nextId();
             texs.setTypeId(id);
             texs.setName(name);
-            auto jdata = eFileLoaderBase::parse(dir, "units/" + name + "/" + name + ".json");
-            texs.load(jdata);
+            const auto path = "units/" + name + "/" + name + ".json";
+            auto jdata = eFileLoaderBase::parse(dir, path);
+            texs.load(name, jdata);
             mChars.add(name, texs);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
