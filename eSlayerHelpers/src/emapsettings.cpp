@@ -1,13 +1,12 @@
 #include "eSlayerHelpers/emapsettings.h"
 
 #include "eSlayerHelpers/eterrstexturesdata.h"
-#include "eSlayerHelpers/echardatainfo.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eobjectsinfo.h"
 #include "eSlayerHelpers/eblueprints.h"
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/edifficulties.h"
-#include "eSlayerHelpers/eitemsdata.h"
 
 eStringIdMapVector<eMapSettings>
 eMapsSettings::sMaps;
@@ -31,7 +30,7 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
         for(const auto& values : jArea["monsters"]) {
             eMonsterCount result;
             const auto mname = values.value("type", "");
-            result.fBaseType = eCharDataInfo::id(mname);
+            result.fBaseType = eUnitsInfo::sUnits.id(mname);
             if(result.fBaseType < 0) {
                 eRuntimeThrow("Invalid monster type \"" + mname + "\".");
             }
@@ -41,7 +40,7 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
             result.fMinArea = values.value("minArea", 0);
             const auto typeNames = values.value("types", std::vector<std::string>({mname}));
             for(const auto& typeName : typeNames) {
-                const auto type = eCharDataInfo::id(typeName);
+                const auto type = eUnitsInfo::sUnits.id(typeName);
                 if(type < 0) {
                     eRuntimeThrow("Invalid monster type \"" + typeName + "\".");
                 }
@@ -49,7 +48,7 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
             }
             const auto bossTypeNames = values.value("bossTypes", typeNames);
             for(const auto& typeName : bossTypeNames) {
-                const auto type = eCharDataInfo::id(typeName);
+                const auto type = eUnitsInfo::sUnits.id(typeName);
                 if(type < 0) {
                     eRuntimeThrow("Invalid monster type \"" + typeName + "\".");
                 }
