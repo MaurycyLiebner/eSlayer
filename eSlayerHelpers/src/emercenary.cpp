@@ -70,6 +70,13 @@ bool eMercenary::setDead(const bool d) {
     return true;
 }
 
+bool eMercenary::setUnitId(const uint32_t id) {
+    if(id == fUnitId) return false;
+    fUnitId = id;
+    setUpdate(eShift::unitId, true);
+    return true;
+}
+
 bool eMercenary::setExp(const float exp) {
     if(exp == fExp) return false;
     fExp = exp;

@@ -47,6 +47,7 @@ struct ESLAYERHELPERS_API eMercenary :
     void write(ePacket& p) const;
 
     bool setDead(const bool d);
+    bool setUnitId(const uint32_t id);
     bool setExp(const float exp);
     bool setLevel(const uint8_t level);
 

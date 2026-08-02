@@ -2713,40 +2713,37 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
     {
-        const auto id = killed.fUnitInfoId;
-        const auto& mqs = eQuests::sKillMonsterQuests;
-        const auto it = mqs.find(id);
-        if(it != mqs.end()) {
-            const auto& qs = it->second;
-            iterateOverClients(killed.fPos, 15.f, [&](
-                    const uint32_t clientId, eClientData& data) {
-                for(const auto& q : qs) {
-                    const auto questId = q.fQuestId;
-                    auto& qs = data.fQuests;
-                    uint8_t count = 0;
-                    const bool r = qs.incCount(
-                        questId, q.fStageId, &count);
-                    updateGlobalQuestCount(q, count);
-                    if(r) {
-                        checkQuestItems(clientId);
-                        data.fSendQuests = true;
-                    }
-                }
-
+        const bool merc = killed.isMercenary();
+        if(merc) {
+            iterateOverClients([&](const uint32_t clientId, eClientData& data) {
                 if(data.fMerc) {
                     auto& merc = *data.fMerc;
                     if(merc.fUnitId == killed.fCharId) {
                         merc.setDead(true);
-                    } else {
-                        const auto m = unit(merc.fUnitId);
-                        if(m) {
-                            const float dist = ePointF::distance(m->fPos, killed.fPos);
-                            if(dist <= 15.f) {
-                                const auto& attrs = m->attributes();
-                                m->killed(killed);
-                                merc.setExp(attrs.fExp);
-                                merc.setLevel(attrs.fLevel);
-                            }
+                        merc.setUnitId(0);
+                        return true;
+                    }
+                }
+                return false;
+            });
+        } else {
+            const auto id = killed.fUnitInfoId;
+            const auto& mqs = eQuests::sKillMonsterQuests;
+            const auto it = mqs.find(id);
+            iterateOverClients(killed.fPos, 15.f, [&](
+                    const uint32_t clientId, eClientData& data) {
+                if(it != mqs.end()) {
+                    const auto& qs = it->second;
+                    for(const auto& q : qs) {
+                        const auto questId = q.fQuestId;
+                        auto& qs = data.fQuests;
+                        uint8_t count = 0;
+                        const bool r = qs.incCount(
+                            questId, q.fStageId, &count);
+                        updateGlobalQuestCount(q, count);
+                        if(r) {
+                            checkQuestItems(clientId);
+                            data.fSendQuests = true;
                         }
                     }
                 }
@@ -2757,6 +2754,16 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
                 const eTeamId t2 = killed.fTeamId;
                 if(!eTeams::areEnemies(t1, t2)) return false;
                 u->killed(killed);
+
+                if(data.fMerc) {
+                    auto& merc = *data.fMerc;
+                    const auto m = unit(merc.fUnitId);
+                    const auto& attrs = m->attributes();
+                    m->killed(killed);
+                    merc.setExp(attrs.fExp);
+                    merc.setLevel(attrs.fLevel);
+                }
+
                 return false;
             });
         }

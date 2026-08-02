@@ -72,6 +72,7 @@ public:
                 const int unitTypeId,
                 eServerArea& area);
 
+    bool isMercenary() const { return mType == eUnitType::mercenary; }
     bool isSlayer() const { return mType == eUnitType::slayer; }
 
     bool isCorpse() const;
