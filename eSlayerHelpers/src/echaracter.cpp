@@ -560,14 +560,12 @@ bool eCharacter::load(const std::string& path,
     gReadMerc(rootE, c.mMerc);
 
     for(const auto& it : eDifficulties::sDifficulties) {
+        const auto id = it.fId;
         const auto& diffName = it.fName;
         const auto diffE = rootE->FirstChildElement(diffName.c_str());
-        auto& waypoints = c.mWaypoints.emplace_back();
-        waypoints.initialize();
-        auto& quests = c.mQuests.emplace_back();
-        quests.initialize();
-        auto& talkHeard = c.mTalkHeard.emplace_back();
-        talkHeard.initialize();
+        auto& waypoints = c.mWaypoints[id];
+        auto& quests = c.mQuests[id];
+        auto& talkHeard = c.mTalkHeard[id];
         if(diffE) {
             gReadWaypoints(diffE, waypoints);
             gReadQuests(diffE, quests);
