@@ -22,6 +22,7 @@ void eBoostCurseTypes::load() {
 
     sTypes.add("permanent_", true);
     sTypes.add("merc_", true);
+    sTypes.add("summon_", true);
     for(const auto& type : types) {
         sTypes.add(type, true);
     }

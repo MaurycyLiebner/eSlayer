@@ -10,6 +10,7 @@
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
 #include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
                                  eServerArea& area) :
@@ -159,6 +160,48 @@ bool eUnitBaseAction::lookForAttackTarget() {
     const float maxRange = stats.maxRangeSkill(
         maxRangeSchoice, 1.f, mUnit.fRadius);
     auto readySkills = mUnit.readySkills();
+    std::vector<int> raiseSkills;
+    for(const auto skillId : readySkills) {
+        const auto& skill = eSkills::sSkills.get(skillId);
+        const bool r = skill.fType == eSkillType::raise;
+        if(r) raiseSkills.emplace_back(skillId);
+    }
+    if(!raiseSkills.empty()) {
+        bool raising = false;
+        const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+            const bool c = u->isCorpse();
+            if(!c) return false;
+            bool canRaise = false;
+            int raiseSkillId = 0;
+            for(const auto skillId : raiseSkills) {
+                const auto& skill = eSkills::sSkills.get(skillId);
+                const int infoId = u->fUnitInfoId;
+                const bool r = eVectorHelpers::contains(
+                    skill.fUnits, infoId);
+                if(!r) continue;
+                canRaise = true;
+                raiseSkillId = skillId;
+                break;
+            }
+            if(!canRaise) return false;
+            if(u->fHealth <= 0) return false;
+            const bool obstacle = mArea.obstacle(mUnit.fPos, u->fPos);
+            if(obstacle) return false;
+            const auto schoice = stats.schoiceForSkill(raiseSkillId);
+            if(schoice >= 0) {
+                const auto charId = u->fCharId;
+                const eAttackData data(charId, schoice);
+                const auto r = eComplexAction::attack(data);
+                if(r == eAttackResult::attacked) {
+                    raising = true;
+                    return true;
+                }
+            }
+            return false;
+        };
+        mArea.iterateOverUnitsClamped(mUnit.fPos, maxRange, iter);
+        if(raising) return true;
+    }
     const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
         if(u->fHealth <= 0) return false;
         const eTeamId t1 = u->fTeamId;
@@ -183,6 +226,6 @@ bool eUnitBaseAction::lookForAttackTarget() {
         }
         return false;
     };
-    mArea.iterateOverUnits(mUnit.fPos, maxRange, iter);
+    mArea.iterateOverUnitsClamped(mUnit.fPos, maxRange, iter);
     return mAttacking > 0;
 }

@@ -13,6 +13,7 @@ enum class eSkillType : uint8_t {
     missile, wall,
     nova,
     summon,
+    raise,
     passive,
     aura,
     boostCurse,
@@ -53,6 +54,11 @@ struct eSkill {
     int fUnitId;
     std::string fPath;
     int fPathId;
+
+    // for raise
+    bool fFollow;
+    std::vector<std::string> fUnitStrs;
+    std::vector<int> fUnits;
 
     eBoostCurseType fBoostCurseType;
     eBoostCurseTarget fBoostCurseTarget;

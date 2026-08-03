@@ -38,7 +38,7 @@ void eSkills::load() {
             eSkill skill;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
             const std::string typeStr = jdata["type"];
-            skill.fIcon = jdata["icon"];
+            skill.fIcon = jdata.value("icon", "");
 
             const auto targetStr = jdata.value("target", "enemy");
             if(targetStr == "ally") {
@@ -97,6 +97,10 @@ void eSkills::load() {
                 skill.fPath = "static";
             } else if(typeStr == "summon") {
                 skill.fType = eSkillType::summon;
+            } else if(typeStr == "raise") {
+                skill.fType = eSkillType::raise;
+                skill.fUnitStrs = jdata.value("units", std::vector<std::string>());
+                skill.fFollow = jdata.value("follow", true);
             } else if(typeStr == "passive") {
                 skill.fType = eSkillType::passive;
             } else if(typeStr == "boostCurse") {

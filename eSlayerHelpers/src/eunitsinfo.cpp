@@ -196,5 +196,12 @@ void eUnitsInfo::load() {
                               skill.fUnitStr + "\".");
             }
         }
+        for(const auto& unitStr : skill.fUnitStrs) {
+            const auto id = sUnits.id(unitStr);
+            if(id < 0) {
+                eRuntimeThrow("Unrecognized unit \"" + unitStr + "\".");
+            }
+            skill.fUnits.emplace_back(id);
+        }
     }
 }

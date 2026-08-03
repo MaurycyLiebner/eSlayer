@@ -34,6 +34,10 @@ bool eServerUnit::isCorpse() const {
     return !eSpecialAnim::isSpecial(fAnim);
 }
 
+bool eServerUnit::isRaised() const {
+    return mRaised;
+}
+
 bool eServerUnit::hitData(
     const eSkillStats& skill,
     const eWeaponChoice wchoice,
@@ -1232,6 +1236,19 @@ void eServerUnit::explodeCorpse() {
 }
 
 void eServerUnit::respawn() {
+    mDead = false;
+    setHealth(fMaxHealth);
+    mStats.fHealthF = mStats.fMaxHealth;
+    mStats.fManaF = mStats.fMaxMana;
+    mStats.fStaminaF = mStats.fMaxStamina;
+    mAction->setChild(nullptr);
+    setBlockingActionTime(0.f);
+    updateAll();
+}
+
+void eServerUnit::raise() {
+    mRaised = true;
+    mDead = false;
     setHealth(fMaxHealth);
     mStats.fHealthF = mStats.fMaxHealth;
     mStats.fManaF = mStats.fMaxMana;

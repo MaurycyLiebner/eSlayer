@@ -464,6 +464,7 @@ void eStatsWidgetBase::updateStats() {
                            skillType == eSkillType::wall ||
                            skillType == eSkillType::nova ||
                            skillType == eSkillType::summon ||
+                           skillType == eSkillType::raise ||
                            skillType == eSkillType::aura ||
                            skillType == eSkillType::area ||
                            skillType == eSkillType::passive ||

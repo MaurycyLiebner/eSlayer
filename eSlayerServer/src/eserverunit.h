@@ -76,6 +76,7 @@ public:
     bool isSlayer() const { return mType == eUnitType::slayer; }
 
     bool isCorpse() const;
+    bool isRaised() const;
 
     bool aggressive() const { return mAggressive; }
 
@@ -322,6 +323,7 @@ public:
     void die(eExplodeType type = eExplodeType::none);
     void explodeCorpse();
     void respawn();
+    void raise();
 
     void recalculateStats();
     void recalculateAuras();
@@ -439,6 +441,7 @@ private:
     bool mVisible = true;
 
     bool mDead = false;
+    bool mRaised = false;
 
     bool mMoving = false;
     bool mAggressive = false;

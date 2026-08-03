@@ -12,6 +12,7 @@
 #include <eSlayerHelpers/eskills.h>
 #include <eSlayerMissiles/emissileincrement.h>
 #include <eSlayerMissiles/enovaincrementer.h>
+#include <eSlayerHelpers/evectorhelpers.h>
 
 void eComplexAction::increment(const float by) {
     if(mChild) {
@@ -119,6 +120,9 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
         } else if(skill.fType == eSkillType::summon) {
             const bool r = summon(u->fPos, schoice);
             return r ? eAttackResult::attacked : eAttackResult::failed;
+        } else if(skill.fType == eSkillType::raise) {
+            const bool r = raise(u->fPos, schoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::nova) {
             const bool r = spawnNova(u->fPos, schoice, wchoice);
             return r ? eAttackResult::attacked : eAttackResult::failed;
@@ -177,6 +181,9 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
             return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::summon) {
             const bool r = summon(target.fPos, schoice);
+            return r ? eAttackResult::attacked : eAttackResult::failed;
+        } else if(skill.fType == eSkillType::raise) {
+            const bool r = raise(target.fPos, schoice);
             return r ? eAttackResult::attacked : eAttackResult::failed;
         } else if(skill.fType == eSkillType::nova) {
             const bool r = spawnNova(target.fPos, schoice, wchoice);
@@ -499,6 +506,54 @@ bool eComplexAction::summon(
         } else {
             area.summon(*unit, toReal, skill.fUnitId, maxCount, mods);
         }
+    };
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, mUnit.castAnims(schoice),
+        eAttackType::cast, a, schoice, eWeaponChoice::left);
+    if(attack) setChild(attack);
+    return attack.get();
+}
+
+bool eComplexAction::raise(
+    const ePointF& to, const int schoice) {
+    const auto& from = mUnit.fPos;
+    const auto dir = ePointF::vector(to, from);
+    mUnit.setAngle(dir.angle());
+    const int skillId = mUnit.skillId(schoice);
+    const auto& skill = eSkills::sSkills.get(skillId);
+    const int maxCount = mUnit.skillCount(
+        schoice, eWeaponChoice::left);
+    const uint32_t charId = mUnit.fCharId;
+    auto& area = mArea;
+    const auto mods = mUnit.skillModifiers(
+        schoice, eWeaponChoice::left);
+
+    auto toDir = dir;
+    if(toDir.length() > skill.fCastRange) {
+        toDir.normalize(skill.fCastRange);
+    }
+    const auto toReal = from + toDir;
+
+    if(!skill.fTargetCorpse) return false;
+
+    const auto validator = [&skill](const eServerUnit& u) {
+        const int infoId = u.fUnitInfoId;
+        return eVectorHelpers::contains(skill.fUnits, infoId);
+    };
+
+    const auto corpseId = mArea.nearestCorpse(toReal, validator);
+    if(!corpseId) return false;
+
+    const bool follow = skill.fFollow;
+
+    const auto a = [&area, charId, &skill, mods,
+                    toReal, from, maxCount,
+                    validator, follow]() {
+        const auto unit = area.unit(charId);
+        if(!unit) return;
+        const auto corpseId = area.nearestCorpse(toReal, validator);
+        if(!corpseId) return;
+        area.raise(*unit, corpseId, maxCount, mods, follow);
     };
     const auto attack = eAttackAction::sCreate(
         mUnit, mArea, mUnit.castAnims(schoice),

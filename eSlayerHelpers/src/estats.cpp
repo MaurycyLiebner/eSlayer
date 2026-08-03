@@ -57,6 +57,7 @@ bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
     case eSkillType::wall:
     case eSkillType::nova:
     case eSkillType::summon:
+    case eSkillType::raise:
     case eSkillType::area:
     case eSkillType::boostCurse:
         return true;
@@ -181,6 +182,7 @@ struct eSkillStatsHelper {
         case eSkillType::nova:
         case eSkillType::area:
         case eSkillType::summon:
+        case eSkillType::raise:
             return src == eModifierSource::skill ||
                    type == eModifierType::fireSkillDamage ||
                    type == eModifierType::coldSkillDamage ||
@@ -1503,6 +1505,16 @@ float eStats::attackRange(const eSkillChoice schoice,
                        unit1Radius, unit2Radius);
 }
 
+int eStats::schoiceForSkill(const int skillId) const {
+    int schoice = 0;
+    for(const auto& s : fSkills) {
+        if(s.fSkillId == skillId) return schoice;
+        schoice++;
+    }
+
+    return -1;
+}
+
 bool eStats::canUseSkill(const int schoice) const {
     const auto& skillStats = fSkills[schoice];
     const int skillId = skillStats.fSkillId;
@@ -1537,6 +1549,7 @@ bool eStats::canUseSkillId(const int skillId) const {
     case eSkillType::wall:
     case eSkillType::nova:
     case eSkillType::summon:
+    case eSkillType::raise:
     case eSkillType::area:
     case eSkillType::boostCurse:
         return true;
@@ -1560,6 +1573,7 @@ bool eStats::rangedAttack(const int schoice) const {
            skillType == eSkillType::area ||
            skillType == eSkillType::boostCurse ||
            skillType == eSkillType::summon ||
+           skillType == eSkillType::raise ||
            skillType == eSkillType::shoot ||
            skillType == eSkillType::throw_ ||
            (skillId == 0 &&
@@ -1594,6 +1608,7 @@ float eStats::attackRange(const int schoice,
     case eSkillType::boostCurse:
     case eSkillType::area:
     case eSkillType::summon:
+    case eSkillType::raise:
         return skill.fRange;
     case eSkillType::nova:
         return skillStats.fRadius;

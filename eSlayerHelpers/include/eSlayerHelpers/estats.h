@@ -22,7 +22,8 @@ enum class eExplodeType {
 
 enum class eBoostCurseType : uint8_t {
     permanent,
-    merc
+    merc,
+    summon
 };
 
 enum class eAuraType {
@@ -264,6 +265,7 @@ struct ESLAYERHELPERS_API eStats {
                       const float unit1Radius,
                       const float unit2Radius) const;
 
+    int schoiceForSkill(const int skillId) const;
     bool canUseSkill(const int schoice) const;
     bool canUseSkillId(const int skillId) const;
     bool rangedAttack(const int schoice) const;

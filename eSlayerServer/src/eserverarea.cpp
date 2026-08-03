@@ -1320,14 +1320,17 @@ bool eServerArea::requestSeller(
     return true;
 }
 
-uint32_t eServerArea::nearestCorpse(const ePointF& pos) const {
+uint32_t eServerArea::nearestCorpse(
+    const ePointF& pos,
+    const eValidator& v) const {
     uint32_t result = 0;
     const float maxDist = 3.f;
     float minDist = maxDist;
     const auto iter = [&](
         const std::shared_ptr<eServerUnit>& u) {
-        const bool r = u->isCorpse();
-        if(!r) return false;
+        const bool c = u->isCorpse();
+        if(!c) return false;
+        if(v && !v(*u)) return false;
         const auto& upos = u->fPos;
         const float dist = ePointF::distance(upos, pos);
         if(dist > minDist) return false;
@@ -2454,6 +2457,31 @@ void eServerArea::summon(eServerUnit& by,
     planRemoveUnit(corpseId);
 }
 
+void eServerArea::raise(eServerUnit& by,
+                        const uint32_t corpseId,
+                        const int maxCount,
+                        const std::vector<eModifier>& mods,
+                        const bool follow) {
+    const auto corpse = unit(corpseId);
+    if(!corpse) return;
+    const bool c = corpse->isCorpse();
+    if(!c) return;
+    auto& followers = by.followers();
+    const auto raised = eServerArea::raised(by);
+    if(maxCount > 0 && raised.size() >= maxCount) {
+        const uint32_t removeCharId = raised[0];
+        planRemoveUnit(removeCharId);
+        followers.remove(removeCharId);
+    }
+    corpse->raise();
+    corpse->setTeamId(by.fTeamId);
+    corpse->addBoost(mods, eBoostCurseType::summon, true);
+    if(follow) {
+        const auto byPtr = unit(by.fCharId);
+        iniSetupFollowerAction(corpse, byPtr);
+    }
+}
+
 void eServerArea::summon(eServerUnit& by,
                          ePointF to,
                          const int unitId,
@@ -2595,6 +2623,19 @@ void eServerArea::cast(eServerUnit& by,
             summon(by, to, unitId, maxCount, {});
         }
     } break;
+    case eSkillType::raise: {
+        const int maxCount = by.skillCount(
+            o, eWeaponChoice::left);
+        uint32_t corpseId = 0;
+        const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
+            const bool c = u->isCorpse();
+            if(!c) return false;
+            corpseId = u->fCharId;
+            return true;
+        };
+        iterateOverUnitsClamped(by.fPos, 5.f, iter);
+        raise(by, corpseId, maxCount, {}, true);
+    } break;
     case eSkillType::area:
     case eSkillType::boostCurse: {
         const float radius = by.radius(o, wchoice);
@@ -2630,6 +2671,19 @@ std::vector<uint32_t> eServerArea::summoned(
         if(unitIdU == unitId) {
             result.emplace_back(charId);
         }
+    }
+    return result;
+}
+
+std::vector<uint32_t> eServerArea::raised(
+    const eServerUnit& by) {
+    std::vector<uint32_t> result;
+    const auto& followers = by.followers();
+    for(const auto charId : followers) {
+        const auto u = unit(charId);
+        const bool r = u->isRaised();
+        if(!r) continue;
+        result.emplace_back(charId);
     }
     return result;
 }

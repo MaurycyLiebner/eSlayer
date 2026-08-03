@@ -87,6 +87,8 @@ private:
                    const eWeaponChoice wchoice);
     bool summon(const ePointF& to,
                 const int schoice);
+    bool raise(const ePointF& to,
+               const int schoice);
 
     bool isAtCamp() const;
 
