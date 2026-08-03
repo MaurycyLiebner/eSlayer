@@ -50,6 +50,9 @@ void eDungeon::setExtendedRect(const eRect& rect) {
 }
 
 void eDungeon::generate(ePointF& spawnPos) const {
+    const auto diff = eDifficulties::sDifficulty;
+    const auto& templ = mSettings.template_(diff);
+
     const auto rect = eDungeon::rect();
     std::vector<eChamber> chambers;
     std::vector<eRect> doors;
@@ -340,7 +343,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         auto& bpus = mMap->mBlueprintUnits;
         for(const auto& o : bp.fUnits) {
             auto& u = bpus.emplace_back();
-            u.fLevel = mSettings.fLevel;
+            u.fLevel = templ.fLevel;
             u.fPos.fX = xMax + o.fX;
             u.fPos.fY = yMax + o.fY;
             u.fType = o.fType;
@@ -385,11 +388,11 @@ void eDungeon::generate(ePointF& spawnPos) const {
         return true;
     };
 
-    const auto& ms = mSettings.fMonsters;
+    const auto& ms = templ.fMonsters;
 
     auto& mareas = mMap->mMonsterAreas;
     auto& marea = mareas.emplace_back();
-    marea.fLevel = mSettings.fLevel;
+    marea.fLevel = templ.fLevel;
     marea.fChambers = chambers;
     marea.fSettings = ms;
 
@@ -453,7 +456,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
     }
     helper.randomize();
 
-    const auto& bps = mSettings.fBlueprints;
+    const auto& bps = templ.fBlueprints;
     for(const auto& bp : bps) {
         for(int i = 0; i < bp.fCount; i++) {
             const bool r = tryAddBlueprint(helper, chambers, bp);
@@ -461,7 +464,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
     }
 
-    const auto& objs = mSettings.fObjects;
+    const auto& objs = templ.fObjects;
     if(mSettings.fWaypoint && !waypointAdded) {
         const auto id = eObjectsInfo::sObjects.id("waypoint");
         const eObjectCount os(id, std::nullopt, 1, 2);
@@ -501,7 +504,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             helper.add(id, maxA);
         }
         helper.randomize();
-        const auto& objs = mSettings.fOutsideObjects;
+        const auto& objs = templ.fOutsideObjects;
         for(const auto& os : objs) {
             for(int i = 0; i < os.fCount; i++) {
                 const bool r = tryAddObject(helper, ochambers, os);

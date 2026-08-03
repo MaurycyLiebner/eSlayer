@@ -268,10 +268,12 @@ eMapGenerator::generate(const uint8_t mapId) const {
     genArea = [&](const std::string& name,
                   const eAreaSettings& settings,
                   const eAreaPlace& nextTo) {
+        const auto& templ = settings.template_(diff);
+
         const auto terrType = settings.fTerrainType;
         terrTypes.emplace(terrType);
 
-        for(const auto& o : settings.fObjects) {
+        for(const auto& o : templ.fObjects) {
             objTypes.emplace(o.fType);
         }
 
@@ -280,7 +282,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             unitTypes.emplace(minfo.fCharData);
         };
 
-        const auto& ms = settings.fMonsters;
+        const auto& ms = templ.fMonsters;
         for(const auto& type : ms) {
             for(const auto mtype : type.fTypes) {
                 addUnitType(mtype);
@@ -290,7 +292,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             }
         }
 
-        for(const auto& bpc : settings.fBlueprints) {
+        for(const auto& bpc : templ.fBlueprints) {
             const auto type = bpc.fType;
             const auto& bp = eBlueprints::sBlueprints.get(type);
             for(const auto& o : bp.fObjects) {
@@ -321,7 +323,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
             if(connType != eConnectionType::plain) continue;
             const auto name = it.first;
             const int settingsId = mapSettings.fAreas.id(name);
-            const auto& settings = mapSettings.fAreas.get(settingsId).fDiffs.at(diff);
+            const auto& settings = mapSettings.fAreas.get(settingsId);
             const auto connPlace = genArea(name, settings, place);
             const auto conn_ = placer.chooseConnection(
                 place, connPlace, connWidth, connHalfLen);
@@ -335,7 +337,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
     };
 
     const auto name0 = mapSettings.fAreas.name(0);
-    const eAreaSettings& settings = mapSettings.fAreas.get(0).fDiffs.at(diff);
+    const eAreaSettings& settings = mapSettings.fAreas.get(0);
     genArea(name0, settings, firstPlace);
 
     const int extMargin = 10;

@@ -795,8 +795,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto mapId = area.fMapId;
         const auto areaId = area.fAreaId;
         const auto& mapSett = eMapsSettings::sMaps.get(mapId);
-        const int diff = eDifficulties::sDifficulty;
-        const auto& areaSett = mapSett.fAreas.get(areaId).fDiffs.at(diff);
+        const auto& areaSett = mapSett.fAreas.get(areaId);
         mGamePainter.setLightness(areaSett.fLightness);
         mGamePainter.setContrast(areaSett.fContrast);
 

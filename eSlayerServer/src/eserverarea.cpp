@@ -1650,8 +1650,8 @@ bool eServerArea::triggerObject(
     const auto areaId = area.fAreaId;
     const auto& mapSett = eMapsSettings::sMaps.get(mapId);
     const int diff = eDifficulties::sDifficulty;
-    const auto& areaSett = mapSett.fAreas.get(areaId).fDiffs.at(diff);
-    const auto level = areaSett.fLevel;
+    const auto& areaSett = mapSett.fAreas.get(areaId);
+    const auto level = areaSett.template_(diff).fLevel;
     const auto& objIds = mMap->objects(tx, ty);
     for(const auto id : objIds) {
         const auto& sobj = mMap->object(id);
@@ -2050,7 +2050,7 @@ bool eServerArea::heardTalk(
     } else {
         const auto stepId = qinfo.stageToStep(stage);
         const auto& step = qinfo.fSteps[stepId];
-        const auto count = step.fCount;
+        count = step.fCount;
         allClientsFulfill = step.fAllClientsFulfill;
         if(step.fType == eQuestType::bringItem) {
             auto& eq = u->equipment();

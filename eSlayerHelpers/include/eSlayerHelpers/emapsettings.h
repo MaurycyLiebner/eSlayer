@@ -70,20 +70,27 @@ struct eConnectionSettings {
     std::string fMap;
 };
 
+struct eAreaTemplate {
+    uint8_t fLevel;
+    std::vector<eMonsterCount> fMonsters;
+    std::vector<eObjectCount> fObjects;
+    std::vector<eObjectCount> fOutsideObjects;
+    std::vector<eBlueprintCount> fBlueprints;
+};
+
 struct eAreaSettings {
     std::string fName;
     eAreaType fType;
     bool fWaypoint = false;
     uint8_t fTerrainType;
 
-    std::vector<eMonsterCount> fMonsters;
-    std::vector<eObjectCount> fObjects;
-    std::vector<eObjectCount> fOutsideObjects;
-    std::vector<eBlueprintCount> fBlueprints;
+    eAreaTemplate fBase;
+    std::map<int, eAreaTemplate> fDifficulties;
+
+    const eAreaTemplate& template_(const int diff) const;
 
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
-    uint8_t fLevel = 1;
     uint16_t fSize = 50;
 
     uint8_t fRoomSize = 6;
@@ -96,12 +103,8 @@ struct eAreaSettings {
     std::map<std::string, eConnectionSettings> fConnections;
 };
 
-struct eDifficultyMapSettings {
-    std::map<int, eAreaSettings> fDiffs;
-};
-
 struct eMapSettings {
-    eStringIdMapVector<eDifficultyMapSettings> fAreas;
+    eStringIdMapVector<eAreaSettings> fAreas;
     uint8_t fRespawnMap;
     int fMaxSize = 80;
     uint8_t fActId;
