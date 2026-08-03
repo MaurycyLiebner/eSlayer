@@ -106,7 +106,7 @@ public:
     struct eMonsterArea {
         uint8_t fLevel;
         std::vector<eChamber> fChambers;
-        eAreaMonsterSettings fSettings;
+        std::vector<eMonsterCount> fSettings;
     };
 
     const std::vector<eMonsterArea>& monsterAreas() const

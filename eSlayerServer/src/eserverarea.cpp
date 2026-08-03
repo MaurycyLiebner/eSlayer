@@ -585,7 +585,7 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         }
         helper.randomize();
         const auto level = ma.fLevel;
-        const auto& types = ma.fSettings.fTypes;
+        const auto& types = ma.fSettings;
         for(const auto& us : types) {
             const auto tryAddUnits = [&]() {
                 int area;

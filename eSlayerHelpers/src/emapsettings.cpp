@@ -24,10 +24,9 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
 
     area.fMerge = jArea.value("merge", area.fMerge);
 
-    if(jArea.contains("monsters")) {
-        auto& monsters = area.fMonsters;
-        auto& mtypes = monsters.fTypes;
-        for(const auto& values : jArea["monsters"]) {
+    const auto parseMonsters = [](const ordered_json& items,
+                                  std::vector<eMonsterCount>& vec) {
+        for(const auto& values : items) {
             eMonsterCount result;
             const auto mname = values.value("type", "");
             result.fBaseType = eUnitsInfo::sUnits.id(mname);
@@ -62,12 +61,17 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
                 }
             }
 
-            mtypes.emplace_back(result);
+            vec.emplace_back(result);
         }
+    };
+
+    if(jArea.contains("monsters")) {
+        const auto& monsters = jArea["monsters"];
+        parseMonsters(monsters, area.fMonsters);
     }
 
-    const auto parseObjects = [&](const ordered_json& items,
-                                  std::vector<eObjectCount>& vec) {
+    const auto parseObjects = [](const ordered_json& items,
+                                 std::vector<eObjectCount>& vec) {
         for(const auto& values : items) {
             const auto oname = values.value("type", "");
             const int type = eObjectsInfo::sObjects.id(oname);
@@ -94,8 +98,8 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
         parseObjects(items, area.fOutsideObjects);
     }
 
-    const auto parseBlueprints = [&](const ordered_json& items,
-                                     std::vector<eBlueprintCount>& vec) {
+    const auto parseBlueprints = [](const ordered_json& items,
+                                    std::vector<eBlueprintCount>& vec) {
         for(const auto& values : items) {
             const auto bpname = values.value("type", "");
             const int type = eBlueprints::sBlueprints.id(bpname);

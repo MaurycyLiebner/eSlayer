@@ -60,10 +60,6 @@ struct eMonsterCount {
     std::vector<eItemDrop> fItemDrops;
 };
 
-struct eAreaMonsterSettings {
-    std::vector<eMonsterCount> fTypes;
-};
-
 enum class eConnectionDir : uint8_t {
     up, down
 };
@@ -79,10 +75,12 @@ struct eAreaSettings {
     eAreaType fType;
     bool fWaypoint = false;
     uint8_t fTerrainType;
-    eAreaMonsterSettings fMonsters;
+
+    std::vector<eMonsterCount> fMonsters;
     std::vector<eObjectCount> fObjects;
     std::vector<eObjectCount> fOutsideObjects;
     std::vector<eBlueprintCount> fBlueprints;
+
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint8_t fLevel = 1;

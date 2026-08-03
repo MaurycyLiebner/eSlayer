@@ -281,8 +281,7 @@ eMapGenerator::generate(const uint8_t mapId) const {
         };
 
         const auto& ms = settings.fMonsters;
-        const auto& types = ms.fTypes;
-        for(const auto& type : types) {
+        for(const auto& type : ms) {
             for(const auto mtype : type.fTypes) {
                 addUnitType(mtype);
             }
