@@ -18,6 +18,8 @@ public:
     static std::shared_ptr<eWaitAction>
     sCreateDeath(eServerUnit& unit, eServerArea& area);
     static std::shared_ptr<eWaitAction>
+    sCreateRaise(eServerUnit& unit, eServerArea& area);
+    static std::shared_ptr<eWaitAction>
     sCreateBody(eServerUnit& unit, eServerArea& area);
     static std::shared_ptr<eWaitAction>
     sCreateExplode(const eExplodeType type,

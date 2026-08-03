@@ -27,6 +27,14 @@ eWaitAction::sCreateDeath(
 }
 
 std::shared_ptr<eWaitAction>
+eWaitAction::sCreateRaise(
+    eServerUnit& unit, eServerArea& area) {
+    const auto& data = unit.data();
+    const int anim = data.raiseAnimId();
+    return sCreate(unit, area, anim, true);
+}
+
+std::shared_ptr<eWaitAction>
 eWaitAction::sCreateBody(
     eServerUnit& unit, eServerArea& area) {
     const auto& data = unit.data();

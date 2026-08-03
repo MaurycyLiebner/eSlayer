@@ -38,6 +38,7 @@ public:
     int hitRecoveryAnimId() const { return mHitRecoveryId; }
     int blockAnimId() const { return mBlockId; }
     int deathAnimId() const { return mDeathId; }
+    int raiseAnimId() const { return mRaiseId; }
     int bodyAnimId() const { return mBodyId; }
 
     int animFrames(const int id) const;
@@ -65,6 +66,7 @@ protected:
     int mBlockId = -1;
     int mDeathId = -1;
     int mBodyId = -1;
+    int mRaiseId = -1;
     std::map<std::string, int> mAnimIds;
 
     struct eAnimation {

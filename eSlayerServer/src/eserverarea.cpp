@@ -4,6 +4,7 @@
 #include "actions/eunitbaseaction.h"
 #include "actions/efolloweraction.h"
 #include "actions/enpcaction.h"
+#include "actions/ewaitaction.h"
 
 #include "eelitemodifiers.h"
 
@@ -2445,16 +2446,26 @@ void eServerArea::spawnNova(const eSkill& skill,
     addNova(n);
 }
 
-void eServerArea::summon(eServerUnit& by,
-                         const uint32_t corpseId,
-                         const int unitId,
-                         const int maxCount,
-                         const std::vector<eModifier>& mods) {
+std::shared_ptr<eServerUnit>
+eServerArea::summon(eServerUnit& by,
+                    const uint32_t corpseId,
+                    const int unitId,
+                    const int maxCount,
+                    const std::vector<eModifier>& mods) {
     const auto corpse = unit(corpseId);
-    if(!corpse) return;
+    if(!corpse) return nullptr;
     const auto& to = corpse->fPos;
-    summon(by, to, unitId, maxCount, mods);
+
+    const auto u = summon(by, to, unitId, maxCount, mods);
+    if(u) {
+        const auto raise = eWaitAction::sCreateRaise(
+            *u, *this);
+        if(raise) u->setChildAction(raise);
+    }
+
     planRemoveUnit(corpseId);
+
+    return u;
 }
 
 void eServerArea::raise(eServerUnit& by,
@@ -2480,15 +2491,19 @@ void eServerArea::raise(eServerUnit& by,
         const auto byPtr = unit(by.fCharId);
         iniSetupFollowerAction(corpse, byPtr);
     }
+    const auto raise = eWaitAction::sCreateRaise(
+        *corpse, *this);
+    if(raise) corpse->setChildAction(raise);
 }
 
-void eServerArea::summon(eServerUnit& by,
+std::shared_ptr<eServerUnit>
+eServerArea::summon(eServerUnit& by,
                          ePointF to,
                          const int unitId,
                          const int maxCount,
                          const std::vector<eModifier>& mods) {
     const bool r = findPlaceForUnit(to, to);
-    if(!r) return;
+    if(!r) return nullptr;
     auto& followers = by.followers();
     const auto summoned = eServerArea::summoned(by, unitId);
     if(maxCount > 0 && summoned.size() >= maxCount) {
@@ -2516,6 +2531,8 @@ void eServerArea::summon(eServerUnit& by,
 
     const auto byPtr = unit(by.fCharId);
     iniSetupFollowerAction(u, byPtr);
+
+    return u;
 }
 
 bool eServerArea::summonMerc(

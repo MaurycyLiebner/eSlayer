@@ -220,16 +220,18 @@ public:
                    const eHitData& data,
                    const float radius,
                    const bool continuousDamage);
-    void summon(eServerUnit& by,
-                ePointF to,
-                const int unitId,
-                const int maxCount,
-                const std::vector<eModifier>& mods);
-    void summon(eServerUnit& by,
-                const uint32_t corpseId,
-                const int unitId,
-                const int maxCount,
-                const std::vector<eModifier>& mods);
+    std::shared_ptr<eServerUnit>
+    summon(eServerUnit& by,
+           ePointF to,
+           const int unitId,
+           const int maxCount,
+           const std::vector<eModifier>& mods);
+    std::shared_ptr<eServerUnit>
+    summon(eServerUnit& by,
+           const uint32_t corpseId,
+           const int unitId,
+           const int maxCount,
+           const std::vector<eModifier>& mods);
     void raise(eServerUnit& by,
                const uint32_t corpseId,
                const int maxCount,

@@ -145,6 +145,7 @@ void eCharData::setAnimId(const std::string& name, const int id) {
     else if(name == "block") mBlockId = id;
     else if(name == "death") mDeathId = id;
     else if(name == "body") mBodyId = id;
+    else if(name == "raise") mRaiseId = id;
     mAnimIds[name] = id;
 }
 
