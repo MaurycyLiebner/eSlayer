@@ -1340,7 +1340,7 @@ void eServerUnit::coldFor(const float frameLen) {
 
 void eServerUnit::freezeFor(const float frameLen) {
     mFreezeLength = std::max(mFreezeLength, frameLen);
-    if(mFreezeLength > 0.f) setCold(true);
+    if(mFreezeLength > 0.f) setFrozen(true);
 }
 
 void eServerUnit::immobilizeFor(const float frameLen) {
