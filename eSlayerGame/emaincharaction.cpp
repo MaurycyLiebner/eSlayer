@@ -150,7 +150,7 @@ void eMainCharAction::increment(const bool mousePressed,
                                 const float by) {
     if(mClickAction) return;
 
-    if(mMainChar->fHealth <= 0) return;
+    const bool dead = mMainChar->fHealth <= 0;
 
     mStats.decCooldowns(by);
 
@@ -172,9 +172,13 @@ void eMainCharAction::increment(const bool mousePressed,
                       eSkillChoice::left;
     }
 
-    handleAttackStop(mousePressed, rightPressed, shiftPressed);
+    if(!dead) {
+        handleAttackStop(mousePressed, rightPressed, shiftPressed);
+    }
 
     if(consumeActionTime(scaledBy, model)) return;
+
+    if(dead) return;
 
     const bool canUseSkill = mStats.canUseSkill(schoice);
     const bool rangeAttack = mStats.rangedAttack(schoice);

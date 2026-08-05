@@ -5,9 +5,8 @@
 void eClientAction::increment(const float by) {
     if(mUnit.fHealth <= 0) {
         mAttackTarget = eAttackData();
-    } else {
-        eComplexAction::increment(by);
     }
+    eComplexAction::increment(by);
 }
 
 void eClientAction::decide() {

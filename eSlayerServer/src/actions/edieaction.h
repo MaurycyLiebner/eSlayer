@@ -9,7 +9,6 @@ class eDieAction : public eComplexAction {
         collapse,
         body
     };
-
 public:
     using eComplexAction::eComplexAction;
 
