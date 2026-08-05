@@ -1689,25 +1689,19 @@ void eGameWidget::paintEvent(ePainter& p) {
                 if(!mHighlightUnit.lock() && u != mMainChar &&
                     (u->fHealth > 0 || u->isSlayerBody())) {
                     const SDL_Point p{int(mpos.fX), int(mpos.fY)};
-                    const int w = 0.75*u->fRadius*tileW;
-                    const int h = 2*w;
-                    const SDL_Rect rect{ipixel.fX - w/2, ipixel.fY - h, w, h};
+                    const auto b = model.requestBoundingRect();
+                    const SDL_Rect rect{ipixel.fX + b.x, ipixel.fY + b.y, b.w, b.h};
                     highlight = SDL_PointInRect(&p, &rect);
                     if(highlight) {
-                        const auto b = model.requestBoundingRect();
-                        const SDL_Rect rect{ipixel.fX + b.x, ipixel.fY + b.y, b.w, b.h};
-                        highlight = SDL_PointInRect(&p, &rect);
-                        if(highlight) {
-                            clearHighlighted();
+                        clearHighlighted();
 
-                            switch(info.fNPCType) {
-                            case eNPCType::none: {
-                                setHighlightedUnit(u);
-                            } break;
-                            default: {
-                                setHighlightedNPC(u);
-                            } break;
-                            }
+                        switch(info.fNPCType) {
+                        case eNPCType::none: {
+                            setHighlightedUnit(u);
+                        } break;
+                        default: {
+                            setHighlightedNPC(u);
+                        } break;
                         }
                     }
                 }
