@@ -35,10 +35,9 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     return tex;
 }
 
-std::shared_ptr<eTexture> eSpriteLoader::load(const int i,
-                                              eTextureCollection &coll) {
+std::shared_ptr<eTexture> eSpriteLoader::load(
+    const int i, eTextureCollection &coll) {
     const auto tex = load(i);
-    if(!tex) return nullptr;
     coll.addTexture(tex);
     return tex;
 }
