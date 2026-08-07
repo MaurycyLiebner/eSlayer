@@ -19,6 +19,11 @@ void eClientAction::decide() {
 }
 
 void eClientAction::attack(const eAttackData& target) {
+    if(target.fType == eAttackTargetType::position) {
+        const auto vec = ePointF::vector(target.fPos, mUnit.fPos);
+        const float angle = vec.angle();
+        mUnit.setAngle(angle);
+    }
     if(mAttackTarget.fType != eAttackTargetType::none &&
        target.fType == eAttackTargetType::none) {
         const bool stop = hasChild();
