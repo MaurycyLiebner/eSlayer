@@ -100,11 +100,8 @@ int eCharData::animClamp(const std::string& name) const {
 
 eModelParts eCharData::mapToModelParts(
     const std::map<std::string, std::string>& m) const {
-    if(m.size() != mNParts) {
-        eRuntimeThrow("Insufficient unit equipment information.");
-    }
     eModelParts result;
-    result.fValues.resize(mNParts);
+    result.fValues.resize(mNParts, 255);
     for(const auto& part : m) {
         const auto& partName = part.first;
         const int partId = mParts.id(partName);
@@ -124,12 +121,14 @@ eModelParts eCharData::mapToModelParts(
 
 eModelParts eCharData::randomModelParts() const {
     eModelParts result;
-    result.fValues.resize(mNParts);
+    result.fValues.resize(mNParts, 255);
     for(const auto& part : mParts) {
         const auto& partName = part.fName;
         const int partId = part.fId;
         const auto& partData = mParts.get(partId);
-        const int eqId = eRand::rand() % partData.size();
+        const auto nEq = partData.size();
+        if(nEq == 0) continue;
+        const int eqId = eRand::rand() % nEq;
         result.fValues[partId] = eqId;
     }
     return result;

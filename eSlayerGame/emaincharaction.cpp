@@ -63,7 +63,9 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMovementHandler.setMoveRandom(0.f);
 
     const std::map<std::string, std::string> partsMap {
-        {"whole", "light"}
+        {"legs", "legs"},
+        {"body", "spear"},
+        {"weaponR", "spear"}
     };
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);

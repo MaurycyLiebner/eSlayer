@@ -23,11 +23,13 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
             mDir + "/" + mPath + ".");
         return nullptr;
     }
-    const auto tex = std::make_shared<eTexture>();
     auto& row = mSprites[i];
+    const int atlasId = row.fAtlasId;
+    const auto& rect = row.fCoords;
+    if(atlasId < 0) return nullptr;
+    const auto tex = std::make_shared<eTexture>();
     const auto& off = row.fOffset;
     tex->setOffset(off.x, off.y);
-    const int atlasId = row.fAtlasId;
     const auto& atlas = mAtlases[atlasId];
     tex->setAtlas(row.fCoords, atlas);
     return tex;
@@ -90,16 +92,6 @@ void eSpriteLoader::initialize() {
 
         atlasId = row[0];
 
-        if(atlasId < 0) {
-            eRuntimeThrow("Atlas id less than 0 in \"" + mDir + "/" + csvPath + "\".");
-        } else if(atlasId > mAtlases.size()) {
-            eRuntimeThrow("Atlases not in order in \"" + mDir + "/" + csvPath + "\".");
-        } else if(atlasId == mAtlases.size()) {
-            const auto idStr = "_" + std::to_string(atlasId);
-            const auto atlas = eFileLoader::readTexture(mRenderer, mDir, mPath + suffix + idStr + ".png", mColorKey);
-            mAtlases.emplace_back(atlas);
-        }
-
         rect.x = row[1];
         rect.y = row[2];
         rect.w = row[3];
@@ -107,5 +99,14 @@ void eSpriteLoader::initialize() {
 
         offset.x = row[5];
         offset.y = row[6];
+
+        if(atlasId < 0) {
+        } else if(atlasId > mAtlases.size()) {
+            eRuntimeThrow("Atlases not in order in \"" + mDir + "/" + csvPath + "\".");
+        } else if(atlasId == mAtlases.size()) {
+            const auto idStr = "_" + std::to_string(atlasId);
+            const auto atlas = eFileLoader::readTexture(mRenderer, mDir, mPath + suffix + idStr + ".png", mColorKey);
+            mAtlases.emplace_back(atlas);
+        }
     }
 }

@@ -14,7 +14,9 @@ void eCharacterButton::initialize(const eCharacter& c) {
     // };
     // const auto texs = eCharsTextures::get("char");
     const std::map<std::string, std::string> partsMap {
-        {"whole", "light"}
+        {"legs", "legs"},
+        {"body", "spear"},
+        {"weaponR", "spear"}
     };
     const auto& data = eCharsTextures::get("slayer");
     const auto modelParts = data.mapToModelParts(partsMap);

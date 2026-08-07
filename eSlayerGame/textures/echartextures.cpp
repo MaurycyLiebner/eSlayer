@@ -49,22 +49,24 @@ eCharTextures::generateModel(
             for(const int partId : parts) {
                 const auto& partOptions = info.mParts.get(partId);
                 const auto partName = info.mParts.name(partId);
-                const int eqId = modelParts.fValues[partId];
+                const uint8_t eqId = modelParts.fValues[partId];
                 const auto eqName = partOptions.name(eqId);
                 auto& rpart = rparts.emplace_back();
                 const eCharTextureKey key{animId, partId, eqId};
                 const auto it = mTexMap.find(key);
                 if(it == mTexMap.end()) {
                     auto& partMap = mTexMap[key];
-                    partMap.reserve(info.mDirs);
-                    const auto partPath = animPath + partName + "_" + eqName;
-                    eSpriteLoader loader(dir, partPath, res, r, mColorKey);
-                    for(int i = 0; i < info.mDirs; i++) {
-                        const auto coll = std::make_shared<eTextureCollection>();
-                        for(int f = 0; f < nFrames; f++) {
-                            loader.load(i*nFrames + f, *coll);
+                    partMap.resize(info.mDirs, nullptr);
+                    if(eqId != 255) {
+                        const auto partPath = animPath + partName + "_" + eqName;
+                        eSpriteLoader loader(dir, partPath, res, r, mColorKey);
+                        for(int i = 0; i < info.mDirs; i++) {
+                            const auto coll = std::make_shared<eTextureCollection>();
+                            for(int f = 0; f < nFrames; f++) {
+                                loader.load(i*nFrames + f, *coll);
+                            }
+                            partMap[i] = coll;
                         }
-                        partMap.emplace_back(coll);
                     }
                     rpart = partMap;
                 } else {

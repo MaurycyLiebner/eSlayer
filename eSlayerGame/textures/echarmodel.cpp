@@ -5,11 +5,13 @@
 eCharModel::eCharModel(const eCharTextures& data)
     : mData(data) {}
 
-const eTextureSptr& eCharModel::get(
+std::shared_ptr<eTexture> eCharModel::get(
     const int anim, const int group,
     const int part, const int dir,
     const int frame) const {
-    return mAnims[anim].fGroups[group][part][dir]->getTexture(frame);
+    const auto& coll = mAnims[anim].fGroups[group][part][dir];
+    if(!coll) return nullptr;
+    return coll->getTexture(frame);
 }
 
 int eCharModel::nParts(const int group) const {
@@ -41,6 +43,7 @@ eCharModel::requestTexture(
             const int ppMax = nParts(g);
             for(int pp = 0; pp < ppMax; pp++) {
                 const auto tex = get(key.fAnim, g, pp, key.fDir, key.fFrame);
+                if(!tex) continue;
                 sp.drawTexture(0, 0, tex);
             }
         }
@@ -64,8 +67,8 @@ SDL_Rect eCharModel::boundingRect(const eTextureKey& key) const {
     for(int g = 0; g < mNGroups; g++) {
         const int ppMax = nParts(g);
         for(int pp = 0; pp < ppMax; pp++) {
-            const auto& tex = get(key.fAnim, g, pp, key.fDir, key.fFrame);
-
+            const auto tex = get(key.fAnim, g, pp, key.fDir, key.fFrame);
+            if(!tex) continue;
             const int newX = std::min(texRect.x, tex->offsetX());
             texRect.w += texRect.x - newX;
             texRect.x = newX;

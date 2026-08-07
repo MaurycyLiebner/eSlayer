@@ -1100,7 +1100,11 @@ bool eServerArea::addClient(const uint32_t clientId,
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
-    const std::map<std::string, std::string> partsMap{{"whole", "light"}};
+    const std::map<std::string, std::string> partsMap {
+        {"legs", "legs"},
+        {"body", "spear"},
+        {"weaponR", "spear"}
+    };
     const auto modelParts = data.mapToModelParts(partsMap);
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(

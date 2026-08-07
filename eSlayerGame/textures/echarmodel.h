@@ -17,8 +17,6 @@ struct eCharTextureAnim {
     eCharTextureGroups fGroups;
 };
 
-using eTextureSptr = std::shared_ptr<eTexture>;
-
 class eCharTextures;
 
 struct eTextureKey {
@@ -42,11 +40,12 @@ class eCharModel {
 public:
     eCharModel(const eCharTextures& data);
 
-    const eTextureSptr& get(const int anim,
-                            const int group,
-                            const int part,
-                            const int dir,
-                            const int frame) const;
+    std::shared_ptr<eTexture> get(
+        const int anim,
+        const int group,
+        const int part,
+        const int dir,
+        const int frame) const;
 
     const eCharTextures& data() const { return mData; }
 
