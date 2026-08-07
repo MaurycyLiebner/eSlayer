@@ -191,6 +191,14 @@ bool eUnitData::setImmunity(
     return true;
 }
 
+bool eUnitData::setModelParts(
+    const eModelParts& modelParts) {
+    if(modelParts == fModelParts) return false;
+    fModelParts = modelParts;
+    setUpdate(eShift::modelParts, true);
+    return true;
+}
+
 bool eUnitData::getUpdate(
     const uint32_t update, const eShift shift) {
     return (update >> shift) & 1;

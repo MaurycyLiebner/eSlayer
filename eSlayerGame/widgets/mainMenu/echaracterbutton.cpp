@@ -13,11 +13,8 @@ void eCharacterButton::initialize(const eCharacter& c) {
     //     {"tr", "bare"}
     // };
     // const auto texs = eCharsTextures::get("char");
-    const std::map<std::string, std::string> partsMap {
-        {"legs", "legs"},
-        {"body", "spear"},
-        {"weaponR", "spear"}
-    };
+    const auto& eq = c.equipment();
+    const auto partsMap = eq.partsMap();
     const auto& data = eCharsTextures::get("slayer");
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto& res = resolution();

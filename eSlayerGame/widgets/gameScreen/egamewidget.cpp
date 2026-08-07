@@ -105,7 +105,7 @@ void eGameWidget::initialize(const uint32_t clientId,
     auto& pathFinderMap = map->pathFinderMap();
     mMainAction = std::make_shared<eMainCharAction>(pathFinderMap);
     mMainAction->initialize(mServer, res, r, mMap, iter,
-                            clientId, teamId, c.classId());
+                            clientId, teamId, c);
     mMainChar = mMainAction->unit();
     mMainChar->fPos = map->spawnPos();
 

@@ -47,7 +47,8 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
                                  const eOtherIterator& iter,
                                  const uint32_t clientId,
                                  const eTeamId teamId,
-                                 const int classId) {
+                                 const eCharacter& c) {
+    const int classId = c.classId();
     mClientId = clientId;
     mServer = s;
     mMap = map;
@@ -62,16 +63,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMovementHandler.intialize(wPos, wPath, iter, clientId, teamId, pmap);
     mMovementHandler.setMoveRandom(0.f);
 
-    const std::map<std::string, std::string> partsMap {
-        {"legs", "legs"},
-        {"body", "spear"},
-        {"weaponR", "spear"}
-    };
+    const auto& eq = c.equipment();
+    const auto partsMap = eq.partsMap();
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
     mMainCharTexs = &eCharsTextures::get(typeId);
-    const float radius = udata.fRadius;
     const auto modelParts = mMainCharTexs->mapToModelParts(partsMap);
 
     mRunAnimId = data.animId("run");
@@ -98,7 +95,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     // umodel.generatePreview(r);
 
     mMainChar->setModel(umodel);
-    mMainChar->fRadius = radius;
+    mMainChar->fRadius = udata.fRadius;
     mMainChar->fUnitInfoId = typeId;
     mMainChar->fModelParts = modelParts;
     mMainChar->fTeamId = teamId;

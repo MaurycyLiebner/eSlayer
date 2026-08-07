@@ -428,6 +428,24 @@ bool eEquipment::insertJewel(
     return true;
 }
 
+eStrMap eBodyEquipment::partsMap() const {
+    std::vector<eItemPlaceItem> items;
+
+    const auto itemId = [](const eItem& item) -> int {
+        if(item.fType == eItemType::none) return -1;
+        return item.fDataId;
+    };
+
+    const auto& wL = fWeapons1 ? fWeapon1L : fWeapon2L;
+    items.emplace_back(eItemPlaceItem{eItemPlace::weaponR,
+                                      itemId(wL)});
+    const auto& wR = fWeapons1 ? fWeapon1R : fWeapon2R;
+    items.emplace_back(eItemPlaceItem{eItemPlace::weaponL,
+                                      itemId(wR)});
+
+    return eItemPartsMap::get(items);
+}
+
 bool eBodyEquipment::bodyEmpty() const {
     bool empty = true;
     iterateOverBody([&](eItem eBodyEquipment::*it) {

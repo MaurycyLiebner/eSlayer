@@ -209,11 +209,26 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     for(const auto& u : updatedUnits) {
         const uint32_t charId = u.fCharId;
         uPresent.emplace(charId);
+        const bool partsUpdate = u.getUpdate(
+            eUnitData::eShift::modelParts);
+        const auto tryUpdateParts = [&](const std::shared_ptr<eUnit>& unit) {
+            if(!unit) return;
+            auto& unitRef = *unit;
+            auto& model = unitRef.model();
+            if(partsUpdate) {
+                const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
+                const auto& texs = eCharsTextures::get(uinfo.fCharData);
+                const auto unitModel = texs.requestModel(
+                    u.fModelParts, res, r);
+                model.setCharModel(unitModel);
+            }
+        };
         if(charId == clientId) {
             mResult.fHasMainCharData = true;
             auto& d = mResult.fMainCharData;
             u.apply(d);
             addUnit(d);
+            tryUpdateParts(mMainChar);
             continue;
         }
         const auto unit = mUnits.get(charId);
@@ -222,6 +237,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         u.apply(unitRef);
         addUnit(unitRef);
         auto& model = unitRef.model();
+        tryUpdateParts(unit);
         model.setAngle(unitRef.fAngle);
         model.setAnimation(unitRef.fAnim, unitRef.fAnimId,
                            unitRef.fAnimSpeed, false);

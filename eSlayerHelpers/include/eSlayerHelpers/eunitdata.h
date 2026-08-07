@@ -120,6 +120,8 @@ struct ESLAYERHELPERS_API eUnitData :
     bool getImmunity(const eImmunity imm) const;
     bool setImmunity(const eImmunity imm, const bool value);
 
+    bool setModelParts(const eModelParts& modelParts);
+
     static bool getUpdate(const uint32_t update, const eShift shift);
     static void setUpdate(uint32_t& update, const eShift shift, const bool value);
 

@@ -1097,18 +1097,19 @@ bool eServerArea::addClient(const uint32_t clientId,
                             ePointF& spawnPos,
                             std::vector<eBody>& bodies,
                             const eScreenDimensions& screenDims) {
+    auto& eq = c.equipment();
     const int typeId = 0;
     const auto& udata = eUnitsInfo::sUnits.get(typeId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
-    const std::map<std::string, std::string> partsMap {
-        {"legs", "legs"},
-        {"body", "spear"},
-        {"weaponR", "spear"}
-    };
-    const auto modelParts = data.mapToModelParts(partsMap);
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
         eUnitType::slayer, data, typeId, *this);
+    eq.iterateOverAll([](eItem& item) {
+        if(item.fType == eItemType::none) return;
+        eItemGenerator::applyItemId(item);
+    });
+    u->setEquipment(eq, false);
+    u->refreshModelParts();
     u->setClass(c.classId());
     sSlayers[clientId] = u;
     u->addSkill();
@@ -1116,10 +1117,10 @@ bool eServerArea::addClient(const uint32_t clientId,
     spawnPos = mMap->spawnPos();
     findPlaceForUnit(spawnPos, spawnPos);
     teamId = eTeams::addTeam(clientId);
+    const auto& modelParts = u->fModelParts;
     iniSetupUnit(u, clientId, teamId, spawnPos,
                  typeId, udata, data, modelParts);
     iniSetupSlayerAction(u);
-    auto& eq = c.equipment();
     eq.iterateOverAll([](eItem& item) {
         if(item.fType == eItemType::none) return;
         eItemGenerator::applyItemId(item);
@@ -1570,6 +1571,7 @@ bool eServerArea::pickupBody(
     }
     u->recalculateStats();
     u->recalculateAuras();
+    u->refreshModelParts();
     return true;
 }
 
@@ -1745,6 +1747,7 @@ bool eServerArea::pickupItem(
             if(!r) return false;
             u->recalculateStats();
             u->recalculateAuras();
+            u->refreshModelParts();
         }
 
         checkQuestItems(clientId);
@@ -1803,6 +1806,7 @@ bool eServerArea::equipmentAction(
     if(a.fUnitId == clientId) {
         const bool r = a.apply(eq, eq.fDragged);
         u->recalculateStats();
+        u->refreshModelParts();
         return r;
     } else {
         const auto u = unit(a.fUnitId);
@@ -1831,6 +1835,7 @@ bool eServerArea::buyAction(
         eq, item, a.fPlace);
     if(!r) return false;
     u->recalculateStats();
+    u->refreshModelParts();
     eq.takeGold(gold);
     if(item.fType == eItemType::potion) {
         eReplaceItemId r;

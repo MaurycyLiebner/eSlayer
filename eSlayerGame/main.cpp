@@ -55,6 +55,7 @@
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/emercenaries.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eitempartsmap.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -373,6 +374,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eQuestText::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eItemPartsMap::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

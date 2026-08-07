@@ -1,0 +1,32 @@
+#ifndef EITEMPARTSMAP_H
+#define EITEMPARTSMAP_H
+
+#include <map>
+#include <string>
+#include <vector>
+
+enum class eItemPlace {
+    weaponR,
+    weaponL
+};
+
+using eStrMap = std::map<std::string, std::string>;
+using eItemStrMap = std::map<int, eStrMap>;
+
+struct eItemPlaceItem {
+    eItemPlace fPlace;
+    int fItemId;
+};
+
+class eItemPartsMap {
+public:
+    static void load();
+
+    static const eStrMap& get(const eItemPlaceItem item);
+    static eStrMap get(const std::vector<eItemPlaceItem> items);
+    static std::map<eItemPlace, eItemStrMap> sMap;
+private:
+    static bool sLoaded;
+};
+
+#endif // EITEMPARTSMAP_H

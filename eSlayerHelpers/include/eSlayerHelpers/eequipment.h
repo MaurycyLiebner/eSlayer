@@ -5,6 +5,7 @@
 
 #include "eitem.h"
 #include "eequipmentplace.h"
+#include "eitempartsmap.h"
 
 struct eBodyEqAction;
 
@@ -66,6 +67,8 @@ struct ESLAYERHELPERS_API eBodyEquipment {
 
     eItem fDragged;
     eItem fTemporary;
+
+    eStrMap partsMap() const;
 
     bool bodyEmpty() const;
     eBodyEquipment takeBody();

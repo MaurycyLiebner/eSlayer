@@ -15,6 +15,10 @@ class ePacket;
 struct eModelParts {
     std::vector<uint8_t> fValues;
 
+    bool operator==(const eModelParts& other) const {
+        return fValues == other.fValues;
+    }
+
     void read(ePacket& p);
     void write(ePacket& p) const;
 };

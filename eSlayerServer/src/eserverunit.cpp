@@ -217,6 +217,7 @@ void eServerUnit::setEquipment(const eEquipment& eq,
         recalculateStats();
         recalculateAuras();
     }
+    refreshModelParts();
 }
 
 void eServerUnit::setAttributes(const eAttributes& attrs,
@@ -1290,6 +1291,14 @@ void eServerUnit::recalculateAuras() {
     mStats.calculateAuras(mEquipment);
 }
 
+void eServerUnit::refreshModelParts() {
+    const auto partsMap = mEquipment.partsMap();
+    const auto& udata = eUnitsInfo::sUnits.get(fUnitInfoId);
+    const auto& data = eCharDataInfo::get(udata.fCharData);
+    const auto modelParts = data.mapToModelParts(partsMap);
+    setModelParts(modelParts);
+}
+
 int eServerUnit::addSkill() {
     mStats.fSkills.emplace_back();
     return mStats.fSkills.size() - 1;
@@ -1386,6 +1395,12 @@ void eServerUnit::setMapId(const uint8_t mapId) {
 void eServerUnit::setAreaId(const uint8_t areaId) {
     if(eUnitData::setAreaId(areaId)) {
         update(eUnitData::eShift::areaId);
+    }
+}
+
+void eServerUnit::setModelParts(const eModelParts& modelParts) {
+    if(eUnitData::setModelParts(modelParts)) {
+        update(eUnitData::eShift::modelParts);
     }
 }
 

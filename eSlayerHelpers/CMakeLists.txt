@@ -229,6 +229,8 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/eitemdrop.h
     src/eitemdrop.cpp
     include/eSlayerHelpers/enpctype.h
+    include/eSlayerHelpers/eitempartsmap.h
+    src/eitempartsmap.cpp
 
 )
 

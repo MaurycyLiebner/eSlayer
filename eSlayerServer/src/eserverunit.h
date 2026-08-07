@@ -328,6 +328,8 @@ public:
     void recalculateStats();
     void recalculateAuras();
 
+    void refreshModelParts();
+
     int addSkill();
 
     std::vector<int> readySkills() const;
@@ -357,6 +359,8 @@ public:
     void setPosition(const ePointF& pos);
     void setMapId(const uint8_t mapId);
     void setAreaId(const uint8_t areaId);
+
+    void setModelParts(const eModelParts& modelParts);
 
     void setImmunity(const eImmunity imm, const bool value);
 
@@ -426,6 +430,8 @@ private:
     using eUnitData::setFrozen;
     using eUnitData::setPoisoned;
     using eUnitData::setStaminaPotion;
+
+    using eUnitData::setModelParts;
 
     using eUnitData::setImmunity;
 

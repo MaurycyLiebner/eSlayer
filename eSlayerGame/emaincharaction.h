@@ -28,6 +28,7 @@ class eServer;
 class eCharUnitModel;
 class eSkill;
 class eResolution;
+class eCharacter;
 
 enum class eObjectType;
 
@@ -42,7 +43,7 @@ public:
                     const eOtherIterator& iter,
                     const uint32_t clientId,
                     const eTeamId teamId,
-                    const int classId);
+                    const eCharacter& c);
 
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedNPC(const std::shared_ptr<eUnit>& u);
