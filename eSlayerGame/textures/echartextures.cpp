@@ -3,6 +3,7 @@
 #include "espriteloader.h"
 
 #include <eSlayerHelpers/echardatainfo.h>
+#include <eSlayerHelpers/eitempartsmap.h>
 
 std::shared_ptr<eCharModel>
 eCharTextures::requestModel(
@@ -47,17 +48,35 @@ eCharTextures::generateModel(
             auto& rparts = ranim.fGroups.emplace_back();
             rparts.reserve(parts.size());
             for(const int partId : parts) {
-                const auto& partOptions = info.mParts.get(partId);
-                const auto partName = info.mParts.name(partId);
                 const uint8_t eqId = modelParts.fValues[partId];
-                const auto eqName = partOptions.name(eqId);
                 auto& rpart = rparts.emplace_back();
-                const eCharTextureKey key{animId, partId, eqId};
+
+                int basePartId = -1;
+                uint8_t baseEqId = 255;
+                const auto& partsBase = eItemPartsMap::sPartsBase;
+                const auto partName = info.mParts.name(partId);
+                const auto pit = partsBase.find(partName);
+                if(pit != partsBase.end()) {
+                    const auto& baseName = pit->second;
+                    basePartId = info.mParts.id(baseName);
+                    baseEqId = modelParts.fValues[basePartId];
+                }
+
+                const eCharTextureKey key{animId, partId, eqId, baseEqId};
                 const auto it = mTexMap.find(key);
                 if(it == mTexMap.end()) {
                     auto& partMap = mTexMap[key];
                     partMap.resize(info.mDirs, nullptr);
                     if(eqId != 255) {
+                        const auto& partOptions = info.mParts.get(partId);
+
+                        auto eqName = partOptions.name(eqId);
+                        if(basePartId >= 0) {
+                            const auto& basePartOptions = info.mParts.get(basePartId);
+                            const auto baseEqName = basePartOptions.name(baseEqId);
+                            eqName += "_" + baseEqName;
+                        }
+
                         const auto partPath = animPath + partName + "_" + eqName;
                         eSpriteLoader loader(dir, partPath, res, r, mColorKey);
                         for(int i = 0; i < info.mDirs; i++) {
@@ -115,21 +134,41 @@ void eCharTextures::loadAll(const eResolution& res,
             for(const int partId : parts) {
                 const auto& partOptions = info.mParts.get(partId);
                 const auto partName = info.mParts.name(partId);
+
+                int basePartId = -1;
+                const auto& partsBase = eItemPartsMap::sPartsBase;
+                const auto pit = partsBase.find(partName);
+                if(pit != partsBase.end()) {
+                    basePartId = info.mParts.id(pit->second);
+                }
+
+                const int nBaseOptions = basePartId >= 0 ?
+                    info.mParts.get(basePartId).size() : 1;
+
                 for(int eqId = 0; eqId < partOptions.size(); ++eqId) {
-                    const auto eqName = partOptions.name(eqId);
-                    const eCharTextureKey key{anim.fId, partId, eqId};
-                    const auto it = mTexMap.find(key);
-                    if(it == mTexMap.end()) {
-                        auto& partMap = mTexMap[key];
-                        partMap.reserve(info.mDirs);
-                        const auto partPath = animPath + partName + "_" + eqName;
-                        eSpriteLoader loader(dir, partPath, res, r, mColorKey);
-                        for(int i = 0; i < info.mDirs; i++) {
-                            const auto coll = std::make_shared<eTextureCollection>();
-                            for(int f = 0; f < nFrames; f++) {
-                                loader.load(i*nFrames + f, *coll);
+                    for(int baseEqId = 0; baseEqId < nBaseOptions; baseEqId++) {
+                        const auto baseEqIdV = basePartId >= 0 ? baseEqId : 255;
+                        const eCharTextureKey key{anim.fId, partId, eqId, baseEqIdV};
+                        const auto it = mTexMap.find(key);
+                        if(it == mTexMap.end()) {
+                            auto& partMap = mTexMap[key];
+                            partMap.reserve(info.mDirs);
+
+                            auto eqName = partOptions.name(eqId);
+                            if(basePartId >= 0) {
+                                const auto& basePartOptions = info.mParts.get(basePartId);
+                                eqName += "_" + basePartOptions.name(baseEqId);
                             }
-                            partMap.emplace_back(coll);
+
+                            const auto partPath = animPath + partName + "_" + eqName;
+                            eSpriteLoader loader(dir, partPath, res, r, mColorKey);
+                            for(int i = 0; i < info.mDirs; i++) {
+                                const auto coll = std::make_shared<eTextureCollection>();
+                                for(int f = 0; f < nFrames; f++) {
+                                    loader.load(i*nFrames + f, *coll);
+                                }
+                                partMap.emplace_back(coll);
+                            }
                         }
                     }
                 }

@@ -443,6 +443,11 @@ eStrMap eBodyEquipment::partsMap() const {
     items.emplace_back(eItemPlaceItem{eItemPlace::weaponL,
                                       itemId(wR)});
 
+    items.emplace_back(eItemPlaceItem{eItemPlace::helmet,
+                                      itemId(fHelmet)});
+    items.emplace_back(eItemPlaceItem{eItemPlace::armor,
+                                      itemId(fArmor)});
+
     return eItemPartsMap::get(items);
 }
 

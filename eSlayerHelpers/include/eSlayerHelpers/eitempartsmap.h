@@ -7,7 +7,9 @@
 
 enum class eItemPlace {
     weaponR,
-    weaponL
+    weaponL,
+    helmet,
+    armor
 };
 
 using eStrMap = std::map<std::string, std::string>;
@@ -22,10 +24,12 @@ class eItemPartsMap {
 public:
     static void load();
 
-    static const eStrMap& get(const eItemPlaceItem item);
     static eStrMap get(const std::vector<eItemPlaceItem> items);
     static std::map<eItemPlace, eItemStrMap> sMap;
+    static eStrMap sPartsBase;
 private:
+    static const eStrMap& get(const eItemPlaceItem item);
+
     static bool sLoaded;
 };
 

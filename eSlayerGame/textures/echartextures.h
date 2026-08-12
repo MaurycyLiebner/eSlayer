@@ -11,10 +11,11 @@ struct eCharTextureKey {
     int fAnimId;
     int fPartId;
     int fEqId;
+    int fBaseId;
 
     bool operator<(const eCharTextureKey& other) const {
-        return std::tie(fAnimId, fPartId, fEqId) <
-               std::tie(other.fAnimId, other.fPartId, other.fEqId);
+        return std::tie(fAnimId, fPartId, fEqId, fBaseId) <
+               std::tie(other.fAnimId, other.fPartId, other.fEqId, other.fBaseId);
     }
 };
 
