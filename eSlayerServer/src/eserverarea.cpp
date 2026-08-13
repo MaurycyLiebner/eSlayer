@@ -1108,8 +1108,6 @@ bool eServerArea::addClient(const uint32_t clientId,
         if(item.fType == eItemType::none) return;
         eItemGenerator::applyItemId(item);
     });
-    u->setEquipment(eq, false);
-    u->refreshModelParts();
     u->setClass(c.classId());
     sSlayers[clientId] = u;
     u->addSkill();

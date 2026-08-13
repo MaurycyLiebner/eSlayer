@@ -23,6 +23,7 @@ eServerUnit::eServerUnit(const eUnitType type,
     mArea(&area),
     mType(type),
     mHandler(*this, unitTypeId) {
+    fUnitInfoId = unitTypeId;
     const auto& uinfo = eUnitsInfo::sUnits.get(unitTypeId);
     setClass(uinfo.fClassId);
 }
