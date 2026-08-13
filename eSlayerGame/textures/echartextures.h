@@ -36,11 +36,15 @@ public:
     int animClamp(const int a) const;
 
     eCharData& charData() const;
+
+    const std::vector<int>& partsOrder(const int dir) const;
 private:
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
         const eResolution& res,
         SDL_Renderer* const r) const;
+
+    std::vector<std::vector<int>> mDirPartsOrder;
 
     int mCharDataId;
     SDL_Color mColorKey;

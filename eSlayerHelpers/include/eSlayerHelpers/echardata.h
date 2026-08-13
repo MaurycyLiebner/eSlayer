@@ -12,6 +12,14 @@ using namespace nlohmann;
 
 class ePacket;
 
+enum class ePartPlace {
+    regular,
+    left,
+    right,
+    front,
+    back
+};
+
 struct eModelParts {
     std::vector<uint8_t> fValues;
 
@@ -78,14 +86,6 @@ protected:
         std::string fClamp;
         int fClampId;
         int fActionFrame;
-    };
-
-    enum class ePartPlace {
-        regular,
-        left,
-        right,
-        front,
-        back
     };
 
     struct ePart {

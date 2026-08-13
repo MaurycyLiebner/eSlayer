@@ -33,6 +33,20 @@ void eCharData::load(const std::string& name,
         const auto& parts = jdata["parts"];
         for(const auto& jpart : parts) {
             ePart part;
+            const auto placeStr = jpart.value("place", "regular");
+            if(placeStr == "regular") {
+                part.fPlace = ePartPlace::regular;
+            } else if(placeStr == "left") {
+                part.fPlace = ePartPlace::left;
+            } else if(placeStr == "right") {
+                part.fPlace = ePartPlace::right;
+            } else if(placeStr == "front") {
+                part.fPlace = ePartPlace::front;
+            } else if(placeStr == "back") {
+                part.fPlace = ePartPlace::back;
+            } else {
+                eRuntimeThrow("Unrecognized part place \"" + placeStr + "\".");
+            }
             const auto key = jpart.value("name", "");
             const auto values = jpart.value("eq", std::vector<std::string>());
             for(const auto& v : values) {

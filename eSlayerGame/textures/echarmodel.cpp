@@ -1,9 +1,10 @@
 #include "echarmodel.h"
 
 #include "../widgets/epainter.h"
+#include "echartextures.h"
 
-eCharModel::eCharModel(const eCharTextures& data)
-    : mData(data) {}
+eCharModel::eCharModel(const eCharTextures& data) :
+    mData(data) {}
 
 std::shared_ptr<eTexture> eCharModel::get(
     const int anim, const int part,
@@ -34,7 +35,8 @@ eCharModel::requestTexture(
         ePainter sp(r);
         sp.translate(-texRect.x, -texRect.y);
         const auto holder = tex->createTargetHolder(r);
-        for(int pp = 0; pp < mNParts; pp++) {
+        const auto& parts = mData.partsOrder(key.fDir);
+        for(const int pp : parts) {
             const auto tex = get(key.fAnim, pp, key.fDir, key.fFrame);
             if(!tex) continue;
             sp.drawTexture(0, 0, tex);

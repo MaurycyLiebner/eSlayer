@@ -106,14 +106,99 @@ eCharData& eCharTextures::charData() const {
     return eCharDataInfo::get(mCharDataId);;
 }
 
+const std::vector<int>&
+eCharTextures::partsOrder(const int dir) const {
+    return mDirPartsOrder[dir];
+}
+
 void eCharTextures::setCharDataId(const int id) {
     mCharDataId = id;
 }
+
+struct ePartToOrder {
+    int fId;
+    ePartPlace fPlace;
+};
 
 void eCharTextures::load(const ordered_json& jdata) {
     const auto colorKey = jdata.value("colorKey", std::vector<Uint8>{0, 0, 0, 0});
     if(colorKey.size() == 3) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
+    }
+
+    const auto& info = eCharDataInfo::get(mCharDataId);
+
+    std::vector<ePartToOrder> parts;
+    parts.reserve(info.mNParts);
+    for(const auto& p : info.mParts) {
+        auto& po = parts.emplace_back();
+        po.fId = p.fId;
+        po.fPlace = p.fValue.fPlace;
+    }
+
+    mDirPartsOrder.reserve(info.mDirs);
+    for(int d = 0; d < info.mDirs; d++) {
+        const int angle = (d*360 + info.mDirs/2)/info.mDirs;
+
+        int fw;
+        int bw;
+        if(angle == 90 || angle == 270) {
+            fw = 1;
+            bw = 1;
+        } else if(angle < 90 || angle > 270) {
+            fw = 2;
+            bw = 1;
+        } else {
+            fw = 1;
+            bw = 2;
+        }
+
+        int rw;
+        int lw;
+        if(angle == 0) {
+            rw = 3;
+            lw = 3;
+        } else if(angle == 180) {
+            rw = 0;
+            lw = 0;
+        } else if(angle < 180) {
+            rw = 0;
+            lw = 3;
+        } else {
+            rw = 3;
+            lw = 0;
+        }
+
+        const auto wGetter = [&](const ePartToOrder& p) {
+            switch(p.fPlace) {
+            case ePartPlace::regular:
+                return 0;
+            case ePartPlace::front:
+                return fw;
+            case ePartPlace::back:
+                return bw;
+            case ePartPlace::right:
+                return rw;
+            case ePartPlace::left:
+                return lw;
+            }
+            return 0;
+        };
+
+        const auto sorter = [&](const ePartToOrder& p1,
+                                const ePartToOrder& p2) {
+            const auto w1 = wGetter(p1);
+            const auto w2 = wGetter(p2);
+            if(w1 == w2) return p1.fId < p2.fId;
+            return w1 < w2;
+        };
+        std::sort(parts.begin(), parts.end(), sorter);
+
+        auto& iparts = mDirPartsOrder.emplace_back();
+        iparts.reserve(info.mNParts);
+        for(const auto& p : parts) {
+            iparts.emplace_back(p.fId);
+        }
     }
 }
 
