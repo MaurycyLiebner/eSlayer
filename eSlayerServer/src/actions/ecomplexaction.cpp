@@ -162,7 +162,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
                     }
                 };
                 const auto attack = eAttackAction::sCreate(
-                    mUnit, mArea, uskill.fCastAnimIds,
+                    mUnit, mArea, mUnit.castAnims(schoice, wchoice),
                     eAttackType::attack, a,
                     schoice, wchoice);
                 if(attack) setChild(attack);
@@ -234,7 +234,7 @@ bool eComplexAction::meeleAttack(
         target->getHit(data);
     };
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
         eAttackType::attack, a,
         schoice, wchoice);
     if(attack) setChild(attack);
@@ -399,7 +399,7 @@ bool eComplexAction::spawnMissile(const ePointF& to,
         skill.fType == eSkillType::throw_ ?
             eAttackType::attack : eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
         attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
@@ -428,7 +428,7 @@ bool eComplexAction::spawnArea(const ePointF& to,
     };
     const eAttackType attackType = eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
         attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
@@ -465,7 +465,7 @@ bool eComplexAction::spawnNova(
     };
     const eAttackType attackType = eAttackType::cast;
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
         attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
@@ -474,16 +474,17 @@ bool eComplexAction::spawnNova(
 bool eComplexAction::summon(
     const ePointF& to, const int schoice) {
     const auto& from = mUnit.fPos;
+    const auto wchoice = eWeaponChoice::left;
     const auto dir = ePointF::vector(to, from);
     mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int maxCount = mUnit.skillCount(
-        schoice, eWeaponChoice::left);
+        schoice, wchoice);
     const uint32_t charId = mUnit.fCharId;
     auto& area = mArea;
     const auto mods = mUnit.skillModifiers(
-        schoice, eWeaponChoice::left);
+        schoice, wchoice);
 
     auto toDir = dir;
     if(toDir.length() > skill.fCastRange) {
@@ -508,8 +509,8 @@ bool eComplexAction::summon(
         }
     };
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
-        eAttackType::cast, a, schoice, eWeaponChoice::left);
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
+        eAttackType::cast, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
 }
@@ -517,16 +518,17 @@ bool eComplexAction::summon(
 bool eComplexAction::raise(
     const ePointF& to, const int schoice) {
     const auto& from = mUnit.fPos;
+    const auto wchoice = eWeaponChoice::left;
     const auto dir = ePointF::vector(to, from);
     mUnit.setAngle(dir.angle());
     const int skillId = mUnit.skillId(schoice);
     const auto& skill = eSkills::sSkills.get(skillId);
     const int maxCount = mUnit.skillCount(
-        schoice, eWeaponChoice::left);
+        schoice, wchoice);
     const uint32_t charId = mUnit.fCharId;
     auto& area = mArea;
     const auto mods = mUnit.skillModifiers(
-        schoice, eWeaponChoice::left);
+        schoice, wchoice);
 
     auto toDir = dir;
     if(toDir.length() > skill.fCastRange) {
@@ -556,8 +558,8 @@ bool eComplexAction::raise(
         area.raise(*unit, corpseId, maxCount, mods, follow);
     };
     const auto attack = eAttackAction::sCreate(
-        mUnit, mArea, mUnit.castAnims(schoice),
-        eAttackType::cast, a, schoice, eWeaponChoice::left);
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
+        eAttackType::cast, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
 }

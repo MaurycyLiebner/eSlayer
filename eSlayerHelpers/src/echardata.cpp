@@ -66,10 +66,15 @@ void eCharData::load(const std::string& name,
         auto& uskill = mSkills.emplace_back();
         uskill.fSkillId = it.fId;
         auto& skill = it.fValue;
-        for(const auto& a : skill.fCastAnims) {
+        for(const auto& a : skill.fCastAnimsR) {
             const int aid = animId(a);
             if(aid == -1) continue;
-            uskill.fCastAnimIds.push_back(aid);
+            uskill.fCastAnimIdsR.push_back(aid);
+        }
+        for(const auto& a : skill.fCastAnimsL) {
+            const int aid = animId(a);
+            if(aid == -1) continue;
+            uskill.fCastAnimIdsL.push_back(aid);
         }
     }
 }

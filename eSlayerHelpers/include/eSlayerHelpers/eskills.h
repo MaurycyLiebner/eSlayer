@@ -88,7 +88,8 @@ struct eSkill {
     bool fAngleAdjust;
     float fCastRange;
     int fNovaMissiles;
-    std::vector<std::string> fCastAnims;
+    std::vector<std::string> fCastAnimsR;
+    std::vector<std::string> fCastAnimsL;
     eModsCollectionLevels fLevels;
     std::vector<eSynergy> fSynergies;
 
@@ -99,7 +100,8 @@ struct eSkill {
 
 struct eUnitSkill {
     int fSkillId;
-    std::vector<int> fCastAnimIds;
+    std::vector<int> fCastAnimIdsR;
+    std::vector<int> fCastAnimIdsL;
 };
 
 class ESLAYERHELPERS_API eSkills {

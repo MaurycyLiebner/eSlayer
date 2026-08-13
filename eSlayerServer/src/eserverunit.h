@@ -313,7 +313,9 @@ public:
 
     const eCharData& data() const { return mData; }
 
-    std::vector<int> castAnims(const int schoice) const;
+    std::vector<int> castAnims(
+        const int schoice,
+        const eWeaponChoice wchoice) const;
 
     eWeaponChoice useWeapon(const int schoice);
 

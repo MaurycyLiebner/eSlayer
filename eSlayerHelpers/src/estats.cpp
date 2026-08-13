@@ -39,7 +39,8 @@ bool eStats::canUseSkill(const int schoice, const eWeaponChoice wchoice) const {
     case eSkillType::attack:
         return weapon != eWeaponType::shield &&
                (weapon != eWeaponType::none ||
-                otherWeapon == eWeaponType::none);
+                otherWeapon == eWeaponType::none ||
+                otherWeapon == eWeaponType::shield);
     case eSkillType::dualAttack:
         return (weapon == eWeaponType::meele ||
                 weapon == eWeaponType::throwable) &&

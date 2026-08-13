@@ -169,7 +169,17 @@ void eSkills::load() {
             float manaCost = jdata.value("manaCost", 0.f);
             float radius = jdata.value("radius", 0.f);
 
-            skill.fCastAnims = jdata.value("castAnimations", std::vector<std::string>());
+            if(jdata.contains("castAnimations")) {
+                const auto castAnims = jdata.value(
+                    "castAnimations", std::vector<std::string>());
+                skill.fCastAnimsR = castAnims;
+                skill.fCastAnimsL = castAnims;
+            } else {
+                skill.fCastAnimsR = jdata.value(
+                    "castAnimationsR", std::vector<std::string>());
+                skill.fCastAnimsL = jdata.value(
+                    "castAnimationsL", std::vector<std::string>());
+            }
             if(jdata.contains("levels")) {
                 const auto& levels = jdata["levels"];
                 eModsCollectionLevel::parseLevels(

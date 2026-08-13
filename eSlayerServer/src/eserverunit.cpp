@@ -1166,11 +1166,13 @@ void eServerUnit::setChildAction(const std::shared_ptr<eUnitAction>& a) {
     if(mAction) mAction->setChild(a);
 }
 
-std::vector<int> eServerUnit::castAnims(const int schoice) const {
+std::vector<int> eServerUnit::castAnims(
+    const int schoice, const eWeaponChoice wchoice) const {
     const int skillId = eServerUnit::skillId(schoice);
     if(skillId == -1) return {};
     const auto& uskill = mData.getSkill(skillId);
-    return uskill.fCastAnimIds;
+    return wchoice == eWeaponChoice::left ? uskill.fCastAnimIdsR :
+        uskill.fCastAnimIdsL;
 }
 
 void eServerUnit::killed(const eServerUnit& killed) {
