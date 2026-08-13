@@ -29,27 +29,22 @@ void eCharData::load(const std::string& name,
         anim.fClampId = animId(anim.fClamp);
     }
 
-    if(jdata.contains("groups")) {
-        const auto groups = jdata["groups"];
-        for(const auto& groupJson : groups) {
-            auto& group = mGroups.emplace_back();
-            for(auto& [key, valueArray] : groupJson.items()) {
-                const auto values = valueArray.get<std::vector<std::string>>();
-                eStringIdMapVector<bool> equipment;
-                for(const auto& v : values) {
-                    equipment.add(v, true);
-                }
-                const int id = mParts.add(key, equipment);
-                group.emplace_back(id);
-                mNParts++;
+    if(jdata.contains("parts")) {
+        const auto& parts = jdata["parts"];
+        for(const auto& jpart : parts) {
+            ePart part;
+            const auto key = jpart.value("name", "");
+            const auto values = jpart.value("eq", std::vector<std::string>());
+            for(const auto& v : values) {
+                part.fEq.add(v, true);
             }
+            mParts.add(key, part);
+            mNParts++;
         }
     } else {
-        auto& group = mGroups.emplace_back();
-        eStringIdMapVector<bool> equipment;
-        equipment.add("whole", true);
-        const int id = mParts.add(name, equipment);
-        group.emplace_back(id);
+        ePart part;
+        part.fEq.add("whole", true);
+        mParts.add(name, part);
         mNParts++;
     }
 
@@ -110,7 +105,7 @@ eModelParts eCharData::mapToModelParts(
         }
         const auto& partData = mParts.get(partId);
         const auto& eqName = part.second;
-        const int eqId = partData.id(eqName);
+        const int eqId = partData.fEq.id(eqName);
         if(eqId == -1) {
             eRuntimeThrow("Part \"" + partName + "\" does not have \"" + eqName + "\".");
         }
@@ -126,7 +121,7 @@ eModelParts eCharData::randomModelParts() const {
         const auto& partName = part.fName;
         const int partId = part.fId;
         const auto& partData = mParts.get(partId);
-        const auto nEq = partData.size();
+        const auto nEq = partData.fEq.size();
         if(nEq == 0) continue;
         const int eqId = eRand::rand() % nEq;
         result.fValues[partId] = eqId;

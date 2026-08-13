@@ -80,9 +80,21 @@ protected:
         int fActionFrame;
     };
 
+    enum class ePartPlace {
+        regular,
+        left,
+        right,
+        front,
+        back
+    };
+
+    struct ePart {
+        ePartPlace fPlace;
+        eStringIdMapVector<bool> fEq;
+    };
+
     eStringIdMapVector<eAnimation> mAnims;
-    std::vector<std::vector<int>> mGroups;
-    eStringIdMapVector<eStringIdMapVector<bool>> mParts;
+    eStringIdMapVector<ePart> mParts;
     int mNParts = 0;
 
     std::vector<eUnitSkill> mSkills;
