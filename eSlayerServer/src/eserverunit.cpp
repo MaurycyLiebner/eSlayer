@@ -1171,8 +1171,9 @@ std::vector<int> eServerUnit::castAnims(
     const int skillId = eServerUnit::skillId(schoice);
     if(skillId == -1) return {};
     const auto& uskill = mData.getSkill(skillId);
-    return wchoice == eWeaponChoice::left ? uskill.fCastAnimIdsR :
-        uskill.fCastAnimIdsL;
+    const auto& r = uskill.fCastAnimIdsR;
+    const auto& l = uskill.fCastAnimIdsL;
+    return wchoice == eWeaponChoice::left ? r : l;
 }
 
 void eServerUnit::killed(const eServerUnit& killed) {
