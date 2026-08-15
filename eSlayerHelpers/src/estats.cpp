@@ -545,25 +545,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     const float manaFrac = fManaF/fMaxMana;
     const float staminaFrac = fStaminaF/fMaxStamina;
 
-    const auto& leftW = (eq.fWeapons1 ?
-                             eq.fWeapon1L :
-                             eq.fWeapon2L);
-    const auto& rightW = (eq.fWeapons1 ?
-                              eq.fWeapon1R :
-                              eq.fWeapon2R);
-
-    const auto items = {
-        eq.fBoots,
-        eq.fGloves,
-        eq.fHelmet,
-        eq.fArmor,
-        eq.fBelt,
-        eq.fRingL,
-        eq.fRingR,
-        eq.fAmulet,
-        leftW,
-        rightW,
-    };
+    const auto& leftW = eq.fWeapons1 ?
+        eq.fWeapon1L : eq.fWeapon2L;
+    const auto& rightW = eq.fWeapons1 ?
+        eq.fWeapon1R : eq.fWeapon2R;
 
     // defense
     float baseDef = 0.f;
@@ -878,10 +863,25 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     }
 
     std::vector<const eItem*> remItems;
-    remItems.reserve(items.size());
-    for(const auto& item : items) {
-        if(item.fType == eItemType::none) continue;
-        remItems.emplace_back(&item);
+    {
+        const auto items = {
+            &eq.fBoots,
+            &eq.fGloves,
+            &eq.fHelmet,
+            &eq.fArmor,
+            &eq.fBelt,
+            &eq.fRingL,
+            &eq.fRingR,
+            &eq.fAmulet,
+            &leftW,
+            &rightW,
+        };
+
+        remItems.reserve(items.size());
+        for(const auto item : items) {
+            if(item->fType == eItemType::none) continue;
+            remItems.emplace_back(item);
+        }
     }
 
     while(!remItems.empty() && statsChanged) {
