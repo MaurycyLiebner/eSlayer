@@ -1,25 +1,25 @@
 #include "echaracterbutton.h"
 
-#include "eSlayerHelpers/echaracter.h"
 #include "../../textures/echarstextures.h"
 
+#include <eSlayerHelpers/echaracter.h>
+
 void eCharacterButton::initialize(const eCharacter& c) {
+    const auto ready = std::make_shared<bool>(false);
+    mReady = ready;
+
     mCharName = c.name();
-    // const eCharTextures::eModelParts modelParts {
-    //     {"hd", "bare"},
-    //     {"la", "bare"},
-    //     {"lg", "bare"},
-    //     {"ra", "bare"},
-    //     {"tr", "bare"}
-    // };
-    // const auto texs = eCharsTextures::get("char");
     const auto& eq = c.equipment();
     const auto partsMap = eq.partsMap();
     const auto& data = eCharsTextures::get("slayer");
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto& res = resolution();
     const auto r = renderer();
-    const auto model = data.requestModel(modelParts, res, r);
+    const auto finished = [ready](const std::shared_ptr<eCharModel>&) {
+        *ready = true;
+    };
+    const auto model = data.requestModel(
+        modelParts, res, r, finished);
     mModel.setCharModel(model);
     mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);
@@ -32,12 +32,14 @@ void eCharacterButton::initialize(const eCharacter& c) {
 }
 
 void eCharacterButton::paintEvent(ePainter& p) {
-    p.save();
-    p.translate(width()/5, 3*height()/4);
-    mModel.incFrame(1.f);
-    const auto& res = resolution();
-    mModel.draw(p);
-    p.restore();
+    if(*mReady) {
+        p.save();
+        p.translate(width()/5, 3*height()/4);
+        mModel.incFrame(1.f);
+        const auto& res = resolution();
+        mModel.draw(p);
+        p.restore();
+        mFrame++;
+    }
     eCheckButton::paintEvent(p);
-    mFrame++;
 }

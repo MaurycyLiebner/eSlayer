@@ -26,7 +26,23 @@ std::shared_ptr<eTexture> eFileLoader::readTexture(
     const std::string& dir,
     const std::string& path,
     const SDL_Color& colorKey) {
+    const auto surf = loadSurface(dir, path);
+    if(!surf) {
+        eRuntimeThrow("Failed to load image \"" + dir + "/" + path + "\"." +
+                      SDL_GetError());
+    }
     const auto tex = std::make_shared<eTexture>();
+    tex->load(r, surf, colorKey);
+    if(!tex->tex()) {
+        eRuntimeThrow("Failed to load image \"" + dir + "/" + path + "\".\n" +
+                      SDL_GetError());
+    }
+    return tex;
+}
+
+SDL_Surface* eFileLoader::loadSurface(
+    const std::string& dir,
+    const std::string& path) {
     if(eRunSettings::sUseZip) {
         const auto data = sInstance.load(dir, path);
         const auto io = SDL_IOFromConstMem(
@@ -35,17 +51,12 @@ std::shared_ptr<eTexture> eFileLoader::readTexture(
             );
 
         if(io) {
-            const auto surf = IMG_Load_IO(io, true);
-            tex->load(r, surf, colorKey);
+            return IMG_Load_IO(io, true);
         }
     } else {
-        tex->load(r, sFilePath(dir, path), colorKey);
+        return IMG_Load(sFilePath(dir, path).c_str());
     }
-    if(!tex->tex()) {
-        printf("Failed to load texture '%s'!\n SDL Error: %s\n",
-               path.c_str(), SDL_GetError());
-    }
-    return tex;
+    return nullptr;
 }
 
 MIX_Audio* eFileLoader::loadAudio(MIX_Mixer * const mixer,

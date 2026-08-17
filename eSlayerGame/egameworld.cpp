@@ -187,7 +187,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
         const auto& texs = eCharsTextures::get(uinfo.fCharData);
         const auto unitModel = texs.requestModel(
-            u.fModelParts, res, r);
+            u.fModelParts, res, r, nullptr);
 
         const auto unit = std::make_shared<eUnit>();
         for(const auto& b : eBodies::sBodies) {
@@ -212,16 +212,19 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const bool partsUpdate = u.getUpdate(
             eUnitData::eShift::modelParts);
         const auto tryUpdateParts = [&](const std::shared_ptr<eUnit>& unit) {
+            if(!partsUpdate) return;
             if(!unit) return;
-            auto& unitRef = *unit;
-            auto& model = unitRef.model();
-            if(partsUpdate) {
-                const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
-                const auto& texs = eCharsTextures::get(uinfo.fCharData);
-                const auto unitModel = texs.requestModel(
-                    u.fModelParts, res, r);
-                model.setCharModel(unitModel);
-            }
+            const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
+            const auto& texs = eCharsTextures::get(uinfo.fCharData);
+            const std::weak_ptr<eUnit> wuint(unit);
+            const auto finished = [wuint](const std::shared_ptr<eCharModel>& unitModel) {
+                if(const auto unit = wuint.lock()) {
+                    auto& unitRef = *unit;
+                    auto& model = unitRef.model();
+                    model.setCharModel(unitModel);
+                }
+            };
+            texs.requestModel(u.fModelParts, res, r, finished);
         };
         if(charId == clientId) {
             mResult.fHasMainCharData = true;

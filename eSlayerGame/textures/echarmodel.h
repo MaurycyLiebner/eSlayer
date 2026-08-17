@@ -56,6 +56,8 @@ public:
         SDL_Renderer* const r,
         const eTextureKey& key);
     SDL_Rect requestBoundingRect(const eTextureKey& key);
+
+    void clearCache();
 private:
     SDL_Rect boundingRect(const eTextureKey& key) const;
     const eCharTextures& mData;

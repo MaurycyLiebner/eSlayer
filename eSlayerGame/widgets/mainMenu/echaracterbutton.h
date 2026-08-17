@@ -17,6 +17,7 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
 private:
+    std::shared_ptr<bool> mReady;
     std::string mCharName;
     eCharUnitModel mModel;
     int mFrame = 0;

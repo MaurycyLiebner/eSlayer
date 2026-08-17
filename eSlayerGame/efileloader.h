@@ -22,6 +22,9 @@ public:
         const std::string& dir,
         const std::string& path,
         const SDL_Color& colorKey = {0, 0, 0, 0});
+    static SDL_Surface* loadSurface(
+        const std::string& dir,
+        const std::string& path);
     static MIX_Audio* loadAudio(MIX_Mixer * const mixer,
                                 const std::string& dir,
                                 const std::string& path);

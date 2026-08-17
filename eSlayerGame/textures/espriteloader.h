@@ -1,7 +1,7 @@
 #ifndef ESPRITELOADER_H
 #define ESPRITELOADER_H
 
-#include "etexture.h"
+#include "eatlas.h"
 
 #include <SDL3/SDL_rect.h>
 
@@ -20,13 +20,13 @@ public:
                   SDL_Renderer* const r,
                   const SDL_Color &colorKey = {0, 0, 0, 0});
 
+    void initialize();
+
     std::shared_ptr<eTexture> load(const int i);
     std::shared_ptr<eTexture> load(const int i,
                                    eTextureCollection& coll);
     int loadAll(eTextureCollection& coll);
 private:
-    void initialize();
-
     const std::string mDir;
     const std::string mPath;
     const eResolution& mRes;
@@ -41,7 +41,7 @@ private:
     };
 
     std::vector<eCsvData> mSprites;
-    std::vector<std::shared_ptr<eTexture>> mAtlases;
+    std::vector<std::shared_ptr<eAtlas>> mAtlases;
 };
 
 #endif // ESPRITELOADER_H

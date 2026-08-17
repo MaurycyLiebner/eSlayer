@@ -18,10 +18,9 @@ eSpriteLoader::eSpriteLoader(const std::string& dir,
 std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     initialize();
     if(mSprites.size() <= i) {
-        eExceptions::logError(
-            "Texture " + std::to_string(i) + " out of range " +
-            mDir + "/" + mPath + ".");
-        return nullptr;
+        eRuntimeThrow("Texture " + std::to_string(i) +
+                      " out of range " +
+                      mDir + "/" + mPath + ".");
     }
     auto& row = mSprites[i];
     const int atlasId = row.fAtlasId;
@@ -31,7 +30,8 @@ std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     const auto& off = row.fOffset;
     tex->setOffset(off.x, off.y);
     const auto& atlas = mAtlases[atlasId];
-    tex->setAtlas(row.fCoords, atlas);
+    const auto& atex = atlas->requestTex(mRenderer);
+    tex->setAtlas(row.fCoords, atex);
     return tex;
 }
 
@@ -73,20 +73,9 @@ void eSpriteLoader::initialize() {
         auto& offset = sprite.fOffset;
         const auto row = doc.GetRow<int>(i);
         if(row.size() != 7) {
-            eExceptions::logError(
-                "Invalid atlas rect/offset at line " +
-                std::to_string(i + 1) + " in " +
-                csvPath + ".");
-            atlasId = 0;
-
-            rect.x = 0;
-            rect.y = 0;
-            rect.w = 0;
-            rect.h = 0;
-
-            offset.x = 0;
-            offset.y = 0;
-            continue;
+            eRuntimeThrow("Invalid atlas rect/offset at line " +
+                          std::to_string(i + 1) + " in " +
+                          csvPath + ".");
         }
 
         atlasId = row[0];
@@ -104,7 +93,9 @@ void eSpriteLoader::initialize() {
             eRuntimeThrow("Atlases not in order in \"" + mDir + "/" + csvPath + "\".");
         } else if(atlasId == mAtlases.size()) {
             const auto idStr = "_" + std::to_string(atlasId);
-            const auto atlas = eFileLoader::readTexture(mRenderer, mDir, mPath + suffix + idStr + ".png", mColorKey);
+            const auto atlas = std::make_shared<eAtlas>(mColorKey);
+            const auto path = mPath + suffix + idStr + ".png";
+            atlas->loadSurf(mDir, path);
             mAtlases.emplace_back(atlas);
         }
     }

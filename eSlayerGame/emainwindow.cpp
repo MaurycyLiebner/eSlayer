@@ -1,6 +1,7 @@
 #include "emainwindow.h"
 
 #include "audio/emusic.h"
+#include "textures/echartextures.h"
 
 #include <eSlayerHelpers/egamedir.h>
 #include <eSlayerHelpers/eexceptions.h>
@@ -234,6 +235,7 @@ int eMainWindow::exec() {
         SDL_RenderPresent(mSdlRenderer);
 
         handleSlots();
+        eCharTextures::handleLoaded();
 
         const auto fpsEnd = high_resolution_clock::now();
         const duration<double, std::milli> fpsElapsed = fpsEnd - fpsStart;

@@ -115,6 +115,8 @@ add_executable(eSlayerGame
     ewindowsettings.h
     emovementhandler.cpp
     emovementhandler.h
+    ethreadpool.cpp
+    ethreadpool.h
 
     # Names
     names/eareanames.cpp
@@ -216,6 +218,10 @@ add_executable(eSlayerGame
     textures/etexturecolorholder.h
     textures/eiteminstancetexture.cpp
     textures/eiteminstancetexture.h
+    textures/eatlas.cpp
+    textures/eatlas.h
+    textures/echarmodelloader.cpp
+    textures/echarmodelloader.h
 
     # Units
     units/eunit.cpp

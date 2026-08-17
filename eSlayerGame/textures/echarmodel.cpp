@@ -9,7 +9,9 @@ eCharModel::eCharModel(const eCharTextures& data) :
 std::shared_ptr<eTexture> eCharModel::get(
     const int anim, const int part,
     const int dir, const int frame) const {
-    const auto& coll = mAnims[anim].fParts[part][dir];
+    const auto& dirs = mAnims[anim].fParts[part];
+    if(dirs.empty()) return nullptr;
+    const auto& coll = dirs[dir];
     if(!coll) return nullptr;
     return coll->getTexture(frame);
 }
@@ -53,6 +55,11 @@ SDL_Rect eCharModel::requestBoundingRect(const eTextureKey& key) {
     const auto texRect = boundingRect(key);
     mRectCache[key] = texRect;
     return texRect;
+}
+
+void eCharModel::clearCache() {
+    mRectCache.clear();
+    mTexCache.clear();
 }
 
 SDL_Rect eCharModel::boundingRect(const eTextureKey& key) const {

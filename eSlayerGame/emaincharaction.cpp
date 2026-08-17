@@ -81,7 +81,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mRunSpeed = udata.fRunSpeed;
 
     const auto model = mMainCharTexs->requestModel(
-        modelParts, res, r);
+        modelParts, res, r, nullptr);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
     const int animId = eMovementHandler::sChooseAnim(

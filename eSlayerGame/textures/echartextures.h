@@ -2,6 +2,8 @@
 #define ECHARTEXTURES_H
 
 #include "echarmodel.h"
+#include "echarmodelloader.h"
+#include "../ethreadpool.h"
 
 #include <eSlayerHelpers/echardata.h>
 
@@ -29,7 +31,8 @@ public:
     std::shared_ptr<eCharModel> requestModel(
         const eModelParts& modelParts,
         const eResolution& res,
-        SDL_Renderer* const r) const;
+        SDL_Renderer* const r,
+        const eFinished& finished) const;
     using eStringMap = std::map<std::string, std::string>;
     eModelParts mapToModelParts(const eStringMap& m) const;
 
@@ -38,11 +41,16 @@ public:
     eCharData& charData() const;
 
     const std::vector<int>& partsOrder(const int dir) const;
+
+    static void handleLoaded();
 private:
+    static eThreadPool sTexturesThread;
+
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
         const eResolution& res,
-        SDL_Renderer* const r) const;
+        SDL_Renderer* const r,
+        const eFinished& finished) const;
 
     std::vector<std::vector<int>> mDirPartsOrder;
 
@@ -51,7 +59,12 @@ private:
     using eTexMap = std::map<eCharTextureKey, std::vector<std::shared_ptr<eTextureCollection>>>;
     mutable eTexMap mTexMap;
     using eModelMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModel>>;
-    mutable eModelMap mModelMap;
+    mutable eModelMap mReadyModelMap;
+
+    using eTexLoaderMap = std::map<eCharTextureKey, std::shared_ptr<eSpriteLoaderLoader>>;
+    mutable eTexLoaderMap mTexLoaderMap;
+    using eModelLoaderMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModelLoader>>;
+    mutable eModelLoaderMap mModelLoaderMap;
 };
 
 #endif // ECHARTEXTURES_H

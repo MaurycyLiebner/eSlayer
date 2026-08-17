@@ -1,21 +1,33 @@
 #include "echartextures.h"
 
 #include "espriteloader.h"
+#include "../eresolution.h"
 
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eitempartsmap.h>
+
+eThreadPool eCharTextures::sTexturesThread(1);
 
 std::shared_ptr<eCharModel>
 eCharTextures::requestModel(
     const eModelParts& modelParts,
     const eResolution& res,
-    SDL_Renderer* const r) const {
-    const auto it = mModelMap.find(modelParts.fValues);
-    if(it == mModelMap.end()) {
-        const auto model = generateModel(modelParts, res, r);
-        mModelMap[modelParts.fValues] = model;
+    SDL_Renderer* const r,
+    const eFinished& finished) const {
+    const auto it = mReadyModelMap.find(modelParts.fValues);
+    if(it == mReadyModelMap.end()) {
+        const auto lit = mModelLoaderMap.find(modelParts.fValues);
+        if(lit != mModelLoaderMap.end()) {
+            const auto& loader = lit->second;
+            loader->addFinish(finished);
+            return loader->model();
+        }
+
+        const auto model = generateModel(
+            modelParts, res, r, finished);
         return model;
     } else {
+        if(finished) finished(it->second);
         return it->second;
     }
 }
@@ -24,11 +36,14 @@ std::shared_ptr<eCharModel>
 eCharTextures::generateModel(
     const eModelParts& modelParts,
     const eResolution& res,
-    SDL_Renderer* const r) const {
+    SDL_Renderer* const r,
+    const eFinished& finished) const {
+    const auto result = std::make_shared<eCharModel>(*this);
+    const auto modelLoader = std::make_shared<eCharModelLoader>(result);
+
     const auto& info = eCharDataInfo::get(mCharDataId);
     const auto dir = "Textures";
     const auto path = "units/" + info.mName + "/";
-    const auto result = std::make_shared<eCharModel>(*this);
     result->mNAnims = info.mAnims.size();
     result->mNParts = info.mNParts;
     result->mNDirs = info.mDirs;
@@ -61,9 +76,17 @@ eCharTextures::generateModel(
             const eCharTextureKey key{animId, partId, eqId, baseEqId};
             const auto it = mTexMap.find(key);
             if(it == mTexMap.end()) {
-                auto& partMap = mTexMap[key];
-                partMap.resize(info.mDirs, nullptr);
                 if(eqId != 255) {
+                    std::shared_ptr<eSpriteLoaderLoader> loader;
+                    const auto lit = mTexLoaderMap.find(key);
+                    if(lit != mTexLoaderMap.end()) {
+                        loader = lit->second;
+                    } else {
+                        loader = std::make_shared<eSpriteLoaderLoader>();
+                        mTexLoaderMap[key] = loader;
+                    }
+                    modelLoader->addLoader(loader);
+
                     const auto& part = info.mParts.get(partId);
 
                     auto eqName = part.fEq.name(eqId);
@@ -74,20 +97,63 @@ eCharTextures::generateModel(
                     }
 
                     const auto partPath = animPath + partName + "_" + eqName;
-                    eSpriteLoader loader(dir, partPath, res, r, mColorKey);
-                    for(int i = 0; i < info.mDirs; i++) {
-                        const auto coll = std::make_shared<eTextureCollection>();
-                        for(int f = 0; f < nFrames; f++) {
-                            loader.load(i*nFrames + f, *coll);
+
+                    const auto sloader = std::make_shared<eSpriteLoader>(
+                        dir, partPath, res, r, mColorKey);
+                    loader->set(sloader);
+
+                    loader->addFinish([this, result, key, &info,
+                                       sloader, nFrames, &rpart]() {
+                        auto& partMap = mTexMap[key];
+                        partMap.resize(info.mDirs, nullptr);
+
+                        for(int i = 0; i < info.mDirs; i++) {
+                            const auto coll = std::make_shared<eTextureCollection>();
+                            for(int f = 0; f < nFrames; f++) {
+                                sloader->load(i*nFrames + f, *coll);
+                            }
+                            partMap[i] = coll;
                         }
-                        partMap[i] = coll;
-                    }
+
+                        rpart = partMap;
+
+                        mTexLoaderMap.erase(key);
+                    });
+
+                    const auto work = [loader]() {
+                        loader->load();
+                    };
+                    const auto finish = [loader](const std::exception_ptr& e) {
+                        if(e) {
+                            try {
+                                std::rethrow_exception(e);
+                            } catch(const std::exception& e) {
+                                eRuntimeThrow("Error loading image " + e.what());
+                            }
+                        }
+                        loader->finish();
+                    };
+                    sTexturesThread.submit(work, finish);
+
+                    modelLoader->addLoader(loader);
                 }
-                rpart = partMap;
             } else {
                 rpart = it->second;
             }
         }
+    }
+
+    const bool e = modelLoader->empty();
+    if(e) {
+        if(finished) finished(result);
+    } else {
+        if(finished) modelLoader->addFinish(finished);
+        modelLoader->addFinish([this, modelParts](
+                const std::shared_ptr<eCharModel>& model) {
+            mReadyModelMap[modelParts.fValues] = model;
+            mModelLoaderMap.erase(modelParts.fValues);
+        });
+        mModelLoaderMap[modelParts.fValues] = modelLoader;
     }
     return result;
 }
@@ -109,6 +175,10 @@ eCharData& eCharTextures::charData() const {
 const std::vector<int>&
 eCharTextures::partsOrder(const int dir) const {
     return mDirPartsOrder[dir];
+}
+
+void eCharTextures::handleLoaded() {
+    sTexturesThread.update();
 }
 
 void eCharTextures::setCharDataId(const int id) {
