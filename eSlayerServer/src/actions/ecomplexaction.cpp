@@ -430,8 +430,6 @@ bool eComplexAction::spawnArea(const ePointF& to,
         attackType, a, schoice, wchoice);
     if(attack) setChild(attack);
     return attack.get();
-
-    return true;
 }
 
 bool eComplexAction::spawnNova(
