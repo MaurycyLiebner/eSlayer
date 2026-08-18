@@ -34,6 +34,7 @@
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/ehireinfo.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eclasses.h>
 
 eMainCharAction::eMainCharAction(
     ePathFinderMap& map) :
@@ -65,11 +66,12 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 
     const auto& eq = c.equipment();
     const auto partsMap = eq.partsMap();
-    const int typeId = 0;
-    const auto& udata = eUnitsInfo::sUnits.get(typeId);
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto uinfoId = class_.fUnitInfoId;
+    const auto& udata = eUnitsInfo::sUnits.get(uinfoId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
-    mMainCharTexs = &eCharsTextures::get(typeId);
-    const auto modelParts = mMainCharTexs->mapToModelParts(partsMap);
+    const auto& texs = eCharsTextures::get(udata.fCharData);
+    const auto modelParts = texs.mapToModelParts(partsMap);
 
     mRunAnimId = data.animId("run");
     mWalkAnimId = data.animId("walk");
@@ -80,7 +82,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mWalkSpeed = udata.fWalkSpeed;
     mRunSpeed = udata.fRunSpeed;
 
-    const auto model = mMainCharTexs->requestModel(
+    const auto model = texs.requestModel(
         modelParts, res, r, nullptr);
     eCharUnitModel umodel;
     umodel.setCharModel(model);
@@ -96,7 +98,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
 
     mMainChar->setModel(umodel);
     mMainChar->fRadius = udata.fRadius;
-    mMainChar->fUnitInfoId = typeId;
+    mMainChar->fUnitInfoId = uinfoId;
     mMainChar->fModelParts = modelParts;
     mMainChar->fTeamId = teamId;
 

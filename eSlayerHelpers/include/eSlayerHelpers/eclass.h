@@ -13,6 +13,8 @@ struct eIniItem {
 struct eClass {
     bool fSlayerClass = false;
 
+    int fUnitInfoId = -1;
+
     std::set<int> fSkillTrees;
     std::vector<std::vector<eIniItem>> fIniItems;
     uint32_t fIniGold = 0;

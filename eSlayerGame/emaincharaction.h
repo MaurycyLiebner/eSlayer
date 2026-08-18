@@ -141,7 +141,6 @@ private:
     std::optional<eStairs> mPressedStairs;
 
     std::shared_ptr<eUnit> mMainChar;
-    eCharTextures* mMainCharTexs = nullptr;
     eMovementHandler mMovementHandler;
     eAttackData mAttackData;
 

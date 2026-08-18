@@ -3,6 +3,8 @@
 #include "../../textures/echarstextures.h"
 
 #include <eSlayerHelpers/echaracter.h>
+#include <eSlayerHelpers/eclasses.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 void eCharacterButton::initialize(const eCharacter& c) {
     const auto ready = std::make_shared<bool>(false);
@@ -11,7 +13,11 @@ void eCharacterButton::initialize(const eCharacter& c) {
     mCharName = c.name();
     const auto& eq = c.equipment();
     const auto partsMap = eq.partsMap();
-    const auto& data = eCharsTextures::get("slayer");
+    const int classId = c.classId();
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto uinfoId = class_.fUnitInfoId;
+    const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
+    const auto& data = eCharsTextures::get(uinfo.fCharData);
     const auto modelParts = data.mapToModelParts(partsMap);
     const auto& res = resolution();
     const auto r = renderer();

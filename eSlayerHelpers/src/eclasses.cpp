@@ -39,7 +39,17 @@ void eClasses::load() {
             auto& class_ = it.fValue;
             const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
-            class_.fSlayerClass = jdata.value("slayerClass", false);
+            const bool isSlayer = jdata.value("slayerClass", false);
+            class_.fSlayerClass = isSlayer;
+            if(isSlayer) {
+                const auto unitInfoStr = jdata.value("unit", "");
+                const int id = eUnitsInfo::sUnits.id(unitInfoStr);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized unit type \"" + unitInfoStr +
+                                  "\" for slayer class.");
+                }
+                class_.fUnitInfoId = id;
+            }
 
             const auto skillTrees = jdata.value("skillTrees", std::vector<std::string>());
             for(const auto& skillTree : skillTrees) {

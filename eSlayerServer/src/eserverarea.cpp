@@ -30,6 +30,7 @@
 #include <eSlayerHelpers/equests.h>
 #include <eSlayerHelpers/emercenaries.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eclasses.h>
 
 std::vector<uint32_t> eServerArea::sSlain;
 std::map<uint32_t, std::shared_ptr<eServerUnit>>
@@ -1098,12 +1099,14 @@ bool eServerArea::addClient(const uint32_t clientId,
                             std::vector<eBody>& bodies,
                             const eScreenDimensions& screenDims) {
     auto& eq = c.equipment();
-    const int typeId = 0;
-    const auto& udata = eUnitsInfo::sUnits.get(typeId);
+    const int classId = c.classId();
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto uinfoId = class_.fUnitInfoId;
+    const auto& udata = eUnitsInfo::sUnits.get(uinfoId);
     const auto& data = eCharDataInfo::get(udata.fCharData);
     auto& map = mMap->pathFinderMap();
     const auto u = std::make_shared<eServerUnit>(
-        eUnitType::slayer, data, typeId, *this);
+        eUnitType::slayer, data, uinfoId, *this);
     eq.iterateOverAll([](eItem& item) {
         if(item.fType == eItemType::none) return;
         eItemGenerator::applyItemId(item);
@@ -1117,7 +1120,7 @@ bool eServerArea::addClient(const uint32_t clientId,
     teamId = eTeams::addTeam(clientId);
     const auto& modelParts = u->fModelParts;
     iniSetupUnit(u, clientId, teamId, spawnPos,
-                 typeId, udata, data, modelParts);
+                 uinfoId, udata, data, modelParts);
     iniSetupSlayerAction(u);
     eq.iterateOverAll([](eItem& item) {
         if(item.fType == eItemType::none) return;
