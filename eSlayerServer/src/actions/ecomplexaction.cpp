@@ -137,36 +137,7 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
                 const bool r = spawnMissile(target.fPos, schoice, wchoice);
                 return r ? eAttackResult::attacked : eAttackResult::failed;
             } else {
-                auto dir = ePointF::vector(target.fPos, mUnit.fPos);
-                dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
-                const auto targetPos = mUnit.fPos + dir;
-
-                eHitData data;
-                hitData(schoice, wchoice, data);
-
-                auto& area = mArea;
-                const auto a = [this, &area, data, targetPos]() {
-                    const auto attacker = area.unit(data.fAttackerId);
-                    if(!attacker) return;
-                    const auto u = area.unit(targetPos, [&](const eServerUnit& u) {
-                        if(u.fHealth <= 0) return false;
-                        const eTeamId t1 = u.fTeamId;
-                        const eTeamId t2 = attacker->fTeamId;
-                        if(!eTeams::areEnemies(t1, t2)) return false;
-                        return true;
-                    });
-                    if(u) {
-                        u->getHit(data);
-                        const auto uid = u->fCharId;
-                        mTargetMap[uid]++;
-                    }
-                };
-                const auto attack = eAttackAction::sCreate(
-                    mUnit, mArea, mUnit.castAnims(schoice, wchoice),
-                    eAttackType::attack, a,
-                    schoice, wchoice);
-                if(attack) setChild(attack);
-                const bool r = attack.get();
+                const bool r = meeleAttack(target.fPos, schoice, wchoice);
                 return r ? eAttackResult::attacked : eAttackResult::failed;
             }
         } else if(skill.fType == eSkillType::missile ||
@@ -196,6 +167,43 @@ eAttackResult eComplexAction::attackBase(const eAttackData& target) {
     } break;
     }
     return eAttackResult::attacked;
+}
+
+bool eComplexAction::meeleAttack(
+    ePointF targetPos,
+    const int schoice,
+    const eWeaponChoice wchoice) {
+    if(isAtCamp()) return false;
+    auto dir = ePointF::vector(targetPos, mUnit.fPos);
+    dir.normalize(mUnit.fRadius + 0.2f + mUnit.weaponMeeleRange());
+    targetPos = mUnit.fPos + dir;
+
+    eHitData data;
+    hitData(schoice, wchoice, data);
+
+    auto& area = mArea;
+    const auto a = [this, &area, data, targetPos]() {
+        const auto attacker = area.unit(data.fAttackerId);
+        if(!attacker) return;
+        const auto u = area.unit(targetPos, [&](const eServerUnit& u) {
+            if(u.fHealth <= 0) return false;
+            const eTeamId t1 = u.fTeamId;
+            const eTeamId t2 = attacker->fTeamId;
+            if(!eTeams::areEnemies(t1, t2)) return false;
+            return true;
+        });
+        if(u) {
+            u->getHit(data);
+            const auto uid = u->fCharId;
+            mTargetMap[uid]++;
+        }
+    };
+    const auto attack = eAttackAction::sCreate(
+        mUnit, mArea, mUnit.castAnims(schoice, wchoice),
+        eAttackType::attack, a,
+        schoice, wchoice);
+    if(attack) setChild(attack);
+    return attack.get();
 }
 
 bool eComplexAction::meeleAttack(

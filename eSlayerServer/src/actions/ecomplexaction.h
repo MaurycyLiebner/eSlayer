@@ -66,9 +66,6 @@ public:
 protected:
     virtual void decide() = 0;
     eAttackResult attack(const eAttackData& target);
-    bool meeleAttack(const eServerUnit& u,
-                     const int schoice,
-                     const eWeaponChoice wchoice);
     bool hasChild() const { return mChild.get(); }
 private:
     eAttackResult attackBase(const eAttackData& target);
@@ -76,6 +73,12 @@ private:
                  const eWeaponChoice wchoice,
                  eHitData& data);
 
+    bool meeleAttack(ePointF targetPos,
+                     const int schoice,
+                     const eWeaponChoice wchoice);
+    bool meeleAttack(const eServerUnit& u,
+                     const int schoice,
+                     const eWeaponChoice wchoice);
     bool spawnMissile(const ePointF& to,
                       const int schoice,
                       const eWeaponChoice wchoice);
