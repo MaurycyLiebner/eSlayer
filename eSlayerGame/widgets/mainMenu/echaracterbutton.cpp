@@ -19,7 +19,7 @@ void eCharacterButton::initialize(const eCharacter& c) {
         *ready = true;
     };
     const auto model = data.requestModel(
-        modelParts, res, r, finished);
+        modelParts, res, r, finished, true);
     mModel.setCharModel(model);
     mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);

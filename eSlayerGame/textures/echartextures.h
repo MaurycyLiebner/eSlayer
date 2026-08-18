@@ -22,9 +22,26 @@ struct eCharTextureKey {
 };
 
 class eCharTextures {
+    struct eMaps {
+        using eTexMap = std::map<eCharTextureKey, std::vector<std::shared_ptr<eTextureCollection>>>;
+        eTexMap fTexMap;
+        using eModelMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModel>>;
+        eModelMap fReadyModelMap;
+
+        using eTexLoaderMap = std::map<eCharTextureKey, std::shared_ptr<eSpriteLoaderLoader>>;
+        eTexLoaderMap fTexLoaderMap;
+        using eModelLoaderMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModelLoader>>;
+        eModelLoaderMap fModelLoaderMap;
+
+        void clear() {
+            fTexMap.clear();
+        }
+    };
 public:
     void setCharDataId(const int id);
     void load(const ordered_json& jdata);
+
+    void clear(const bool forButton);
 
     void loadAll(const eResolution& res,
                  SDL_Renderer* const r);
@@ -32,7 +49,8 @@ public:
         const eModelParts& modelParts,
         const eResolution& res,
         SDL_Renderer* const r,
-        const eFinished& finished) const;
+        const eFinished& finished,
+        const bool forButton = false) const;
     using eStringMap = std::map<std::string, std::string>;
     eModelParts mapToModelParts(const eStringMap& m) const;
 
@@ -46,25 +64,28 @@ public:
 private:
     static eThreadPool sTexturesThread;
 
+    std::shared_ptr<eCharModel> requestModel(
+        const eModelParts& modelParts,
+        const eResolution& res,
+        SDL_Renderer* const r,
+        const eFinished& finished,
+        eMaps& maps,
+        const bool forButton = false) const;
     std::shared_ptr<eCharModel> generateModel(
         const eModelParts& modelParts,
         const eResolution& res,
         SDL_Renderer* const r,
-        const eFinished& finished) const;
+        const eFinished& finished,
+        eMaps& maps,
+        const bool forButton) const;
 
     std::vector<std::vector<int>> mDirPartsOrder;
 
     int mCharDataId;
     SDL_Color mColorKey;
-    using eTexMap = std::map<eCharTextureKey, std::vector<std::shared_ptr<eTextureCollection>>>;
-    mutable eTexMap mTexMap;
-    using eModelMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModel>>;
-    mutable eModelMap mReadyModelMap;
 
-    using eTexLoaderMap = std::map<eCharTextureKey, std::shared_ptr<eSpriteLoaderLoader>>;
-    mutable eTexLoaderMap mTexLoaderMap;
-    using eModelLoaderMap = std::map<std::vector<uint8_t>, std::shared_ptr<eCharModelLoader>>;
-    mutable eModelLoaderMap mModelLoaderMap;
+    mutable eMaps mMaps;
+    mutable eMaps mButtonMaps;
 };
 
 #endif // ECHARTEXTURES_H

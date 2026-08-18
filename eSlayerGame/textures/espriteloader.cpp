@@ -11,9 +11,11 @@ eSpriteLoader::eSpriteLoader(const std::string& dir,
                              const std::string& path,
                              const eResolution& res,
                              SDL_Renderer* const r,
-                             const SDL_Color& colorKey) :
+                             const SDL_Color& colorKey,
+                             const int maxRows) :
     mDir(dir), mPath(path), mRes(res),
-    mRenderer(r), mColorKey(colorKey) {}
+    mRenderer(r), mColorKey(colorKey),
+    mMaxRows(maxRows) {}
 
 std::shared_ptr<eTexture> eSpriteLoader::load(const int i) {
     initialize();
@@ -64,7 +66,10 @@ void eSpriteLoader::initialize() {
         eRuntimeThrow("Failed to read \"" + mDir + "/" + csvPath + "\".");
     }
 
-    const int nrows = doc.GetRowCount();
+    int nrows = doc.GetRowCount();
+    if(mMaxRows > 0) {
+        nrows = std::min(nrows, mMaxRows);
+    }
     mSprites.reserve(nrows);
     for(int i = 0; i < nrows; i++) {
         auto& sprite = mSprites.emplace_back();

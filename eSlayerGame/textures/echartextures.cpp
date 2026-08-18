@@ -13,18 +13,31 @@ eCharTextures::requestModel(
     const eModelParts& modelParts,
     const eResolution& res,
     SDL_Renderer* const r,
-    const eFinished& finished) const {
-    const auto it = mReadyModelMap.find(modelParts.fValues);
-    if(it == mReadyModelMap.end()) {
-        const auto lit = mModelLoaderMap.find(modelParts.fValues);
-        if(lit != mModelLoaderMap.end()) {
+    const eFinished& finished,
+    const bool forButton) const {
+    auto& maps = forButton ? mButtonMaps : mMaps;
+    return requestModel(modelParts, res, r, finished, maps, forButton);
+}
+
+std::shared_ptr<eCharModel>
+eCharTextures::requestModel(
+    const eModelParts& modelParts,
+    const eResolution& res,
+    SDL_Renderer* const r,
+    const eFinished& finished,
+    eMaps& maps,
+    const bool forButton) const {
+    const auto it = maps.fReadyModelMap.find(modelParts.fValues);
+    if(it == maps.fReadyModelMap.end()) {
+        const auto lit = maps.fModelLoaderMap.find(modelParts.fValues);
+        if(lit != maps.fModelLoaderMap.end()) {
             const auto& loader = lit->second;
             loader->addFinish(finished);
             return loader->model();
         }
 
         const auto model = generateModel(
-            modelParts, res, r, finished);
+            modelParts, res, r, finished, maps, forButton);
         return model;
     } else {
         if(finished) finished(it->second);
@@ -37,7 +50,9 @@ eCharTextures::generateModel(
     const eModelParts& modelParts,
     const eResolution& res,
     SDL_Renderer* const r,
-    const eFinished& finished) const {
+    const eFinished& finished,
+    eMaps& maps,
+    const bool forButton) const {
     const auto result = std::make_shared<eCharModel>(*this);
     const auto modelLoader = std::make_shared<eCharModelLoader>(result);
 
@@ -48,6 +63,7 @@ eCharTextures::generateModel(
     result->mNParts = info.mNParts;
     result->mNDirs = info.mDirs;
     result->mAnims.reserve(info.mAnims.size());
+    bool loadAnim = true;
     for(const auto& anim : info.mAnims) {
         const int nFrames = anim.fValue.fFrames;
         const auto animPath = path + anim.fName + "/";
@@ -58,9 +74,9 @@ eCharTextures::generateModel(
         auto& rparts = ranim.fParts;
         rparts.reserve(info.mNParts);
         for(const auto& ipit : info.mParts) {
-            const int partId = ipit.fId;
-            const uint8_t eqId = modelParts.fValues[partId];
             auto& rpart = rparts.emplace_back();
+
+            if(!loadAnim) continue;
 
             int basePartId = -1;
             uint8_t baseEqId = 255;
@@ -73,17 +89,19 @@ eCharTextures::generateModel(
                 baseEqId = modelParts.fValues[basePartId];
             }
 
+            const int partId = ipit.fId;
+            const uint8_t eqId = modelParts.fValues[partId];
             const eCharTextureKey key{animId, partId, eqId, baseEqId};
-            const auto it = mTexMap.find(key);
-            if(it == mTexMap.end()) {
+            const auto it = maps.fTexMap.find(key);
+            if(it == maps.fTexMap.end()) {
                 if(eqId != 255) {
                     std::shared_ptr<eSpriteLoaderLoader> loader;
-                    const auto lit = mTexLoaderMap.find(key);
-                    if(lit != mTexLoaderMap.end()) {
+                    const auto lit = maps.fTexLoaderMap.find(key);
+                    if(lit != maps.fTexLoaderMap.end()) {
                         loader = lit->second;
                     } else {
                         loader = std::make_shared<eSpriteLoaderLoader>();
-                        mTexLoaderMap[key] = loader;
+                        maps.fTexLoaderMap[key] = loader;
                     }
                     modelLoader->addLoader(loader);
 
@@ -98,13 +116,15 @@ eCharTextures::generateModel(
 
                     const auto partPath = animPath + partName + "_" + eqName;
 
+                    const int maxRows = forButton ? nFrames : 0;
                     const auto sloader = std::make_shared<eSpriteLoader>(
-                        dir, partPath, res, r, mColorKey);
+                        dir, partPath, res, r, mColorKey, maxRows);
                     loader->set(sloader);
 
                     loader->addFinish([this, result, key, &info,
-                                       sloader, nFrames, &rpart]() {
-                        auto& partMap = mTexMap[key];
+                                       sloader, nFrames, &rpart,
+                                       &maps, forButton]() {
+                        auto& partMap = maps.fTexMap[key];
                         partMap.resize(info.mDirs, nullptr);
 
                         for(int i = 0; i < info.mDirs; i++) {
@@ -113,11 +133,12 @@ eCharTextures::generateModel(
                                 sloader->load(i*nFrames + f, *coll);
                             }
                             partMap[i] = coll;
+                            if(forButton) break;
                         }
 
                         rpart = partMap;
 
-                        mTexLoaderMap.erase(key);
+                        maps.fTexLoaderMap.erase(key);
                     });
 
                     const auto work = [loader]() {
@@ -141,6 +162,8 @@ eCharTextures::generateModel(
                 rpart = it->second;
             }
         }
+
+        if(forButton) loadAnim = false;
     }
 
     const bool e = modelLoader->empty();
@@ -148,12 +171,12 @@ eCharTextures::generateModel(
         if(finished) finished(result);
     } else {
         if(finished) modelLoader->addFinish(finished);
-        modelLoader->addFinish([this, modelParts](
+        modelLoader->addFinish([this, modelParts, &maps](
                 const std::shared_ptr<eCharModel>& model) {
-            mReadyModelMap[modelParts.fValues] = model;
-            mModelLoaderMap.erase(modelParts.fValues);
+            maps.fReadyModelMap[modelParts.fValues] = model;
+            maps.fModelLoaderMap.erase(modelParts.fValues);
         });
-        mModelLoaderMap[modelParts.fValues] = modelLoader;
+        maps.fModelLoaderMap[modelParts.fValues] = modelLoader;
     }
     return result;
 }
@@ -272,6 +295,11 @@ void eCharTextures::load(const ordered_json& jdata) {
     }
 }
 
+void eCharTextures::clear(const bool forButton) {
+    auto& maps = forButton ? mButtonMaps : mMaps;
+    maps.clear();
+}
+
 void eCharTextures::loadAll(const eResolution& res,
                             SDL_Renderer* const r) {
     const auto& info = eCharDataInfo::get(mCharDataId);
@@ -299,9 +327,9 @@ void eCharTextures::loadAll(const eResolution& res,
                 for(int baseEqId = 0; baseEqId < nBaseOptions; baseEqId++) {
                     const auto baseEqIdV = basePartId >= 0 ? baseEqId : 255;
                     const eCharTextureKey key{anim.fId, partId, eqId, baseEqIdV};
-                    const auto it = mTexMap.find(key);
-                    if(it == mTexMap.end()) {
-                        auto& partMap = mTexMap[key];
+                    const auto it = mMaps.fTexMap.find(key);
+                    if(it == mMaps.fTexMap.end()) {
+                        auto& partMap = mMaps.fTexMap[key];
                         partMap.reserve(info.mDirs);
 
                         auto eqName = partOptions.fEq.name(eqId);

@@ -18,7 +18,8 @@ public:
                   const std::string& path,
                   const eResolution& res,
                   SDL_Renderer* const r,
-                  const SDL_Color &colorKey = {0, 0, 0, 0});
+                  const SDL_Color &colorKey = {0, 0, 0, 0},
+                  const int maxRows = 0);
 
     void initialize();
 
@@ -33,6 +34,7 @@ private:
     SDL_Renderer* const mRenderer;
     const SDL_Color mColorKey = {0, 0, 0, 0};
     bool mInitialized = false;
+    int mMaxRows = 0;
 
     struct eCsvData {
         int fAtlasId;
