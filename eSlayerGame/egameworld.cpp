@@ -217,14 +217,19 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
             const auto& texs = eCharsTextures::get(uinfo.fCharData);
             const std::weak_ptr<eUnit> wuint(unit);
-            const auto finished = [wuint](const std::shared_ptr<eCharModel>& unitModel) {
+            const auto& modelParts = u.fModelParts;
+            unit->fModelParts = modelParts;
+            const auto finished = [wuint, modelParts](
+                    const std::shared_ptr<eCharModel>& unitModel) {
                 if(const auto unit = wuint.lock()) {
                     auto& unitRef = *unit;
-                    auto& model = unitRef.model();
-                    model.setCharModel(unitModel);
+                    if(unitRef.fModelParts == modelParts) {
+                        auto& model = unitRef.model();
+                        model.setCharModel(unitModel);
+                    }
                 }
             };
-            texs.requestModel(u.fModelParts, res, r, finished);
+            texs.requestModel(modelParts, res, r, finished);
         };
         if(charId == clientId) {
             mResult.fHasMainCharData = true;
