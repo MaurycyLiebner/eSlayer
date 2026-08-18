@@ -17,6 +17,16 @@ void eCharsTextures::load() {
     return sInstance.loadImpl();
 }
 
+void eCharsTextures::clear(const bool forButton) {
+    sInstance.clearImpl(forButton);
+}
+
+void eCharsTextures::clearImpl(const bool forButton) {
+    for(const auto& it : mChars) {
+        it.fValue.clear(forButton);
+    }
+}
+
 void eCharsTextures::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;

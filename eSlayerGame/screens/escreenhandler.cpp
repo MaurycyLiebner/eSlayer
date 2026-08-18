@@ -448,8 +448,11 @@ void eScreenHandler::showSettings() {
     const auto applyAction = [this](const eWindowSettings& sett) {
         mWindow->setFullscreen(sett.fFullscreen);
         const auto& res = mWindow->resolution();
-        if(mGameStarted && res != sett.fRes) {
-            mBlockGameStart = true;
+        if(res != sett.fRes) {
+            eCharsTextures::clear(true);
+            if(mGameStarted) {
+                mBlockGameStart = true;
+            }
         }
         mWindow->setResolution(sett.fRes);
         const auto& oldL = eLanguage::sLanguage.fName;

@@ -35,6 +35,9 @@ class eCharTextures {
 
         void clear() {
             fTexMap.clear();
+            fReadyModelMap.clear();
+            fTexLoaderMap.clear();
+            fModelLoaderMap.clear();
         }
     };
 public:
