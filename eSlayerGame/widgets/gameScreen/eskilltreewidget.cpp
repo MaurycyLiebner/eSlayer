@@ -107,7 +107,8 @@ void eSkillTreeWidget::initialize(
         button->setPressAction([this, &stats, &skill, button, skillId]() {
             const bool e = button->enabled();
             if(!e) return;
-            const int level = stats.incSkillLevel(skillId);
+            stats.incSkillLevel(skillId);
+            const int level = stats.effectiveSkillLevel(skillId);
             button->setLevel(level);
             eGameWidget::sSendSkillLevelsChanged();
             updateEnabled();
@@ -157,6 +158,13 @@ void eSkillTreeWidget::paintEvent(ePainter& p) {
         p.drawLine(from, to1, thick, color);
         p.drawLine(from1, to2, thick, color);
         p.drawLine(from2, to, thick, color);
+    }
+
+    for(const auto b : mButtons) {
+        const int skillId = b->skillId();
+        const int level = mStats->effectiveSkillLevel(skillId);
+        b->setLevel(level);
+        b->updateEnabled(*mStats);
     }
 }
 

@@ -54,7 +54,17 @@ void eSkillLevels::incClassSkillLevels(const int classId, const int by) {
 }
 
 void eSkillLevels::incSkillLevel(const int by, const int skillId) {
-    (*this)[skillId] += by;
+    if(count(skillId) == 0) {
+        if(by <= 0) return;
+        (*this)[skillId] = by - 1;
+    } else {
+        auto& levelRef = (*this)[skillId];
+        if(-by > levelRef) {
+            erase(skillId);
+        } else {
+            levelRef += by;
+        }
+    }
 }
 
 int eSkillLevels::totalPoints() const {

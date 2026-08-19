@@ -701,20 +701,20 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             fEnergy += mod.fValue1;
             break;
         case eModifierType::allSkills: {
-            const int inc = std::round(mod.fValue1);
+            const int inc = mod.fValue1;
             fEffectiveSkillLevels.incSkillLevels(inc);
             allSkillsInc += inc;
         } break;
         case eModifierType::allClassSkills: {
             if(fClass == mod.fClassId) {
-                const int inc = std::round(mod.fValue1);
+                const int inc = mod.fValue1;
                 fEffectiveSkillLevels.incClassSkillLevels(fClass, inc);
             }
             classSkillsInc[fClass]++;
         } break;
         case eModifierType::classSkill: {
             if(fClass == mod.fClassId) {
-                int inc = std::round(mod.fValue1);
+                int inc = mod.fValue1;
                 const bool ini = fEffectiveSkillLevels.count(mod.fSkillId) == 0;
                 if(ini) {
                     inc += allSkillsInc;
@@ -724,7 +724,7 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
             }
         } break;
         case eModifierType::skill: {
-            int inc = std::round(mod.fValue1);
+            int inc = mod.fValue1;
             const bool ini = fEffectiveSkillLevels.count(mod.fSkillId) == 0;
             if(ini) {
                 inc += allSkillsInc;
