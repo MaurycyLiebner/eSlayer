@@ -1900,7 +1900,10 @@ void eGameWidget::paintEvent(ePainter& p) {
                 const auto& types = objectTex.fTypes;
                 const auto typeId = obj.fSubtype % types.size();
                 const auto& type = types[typeId];
-                const auto& tex = type[obj.fState].fTexs.getTexture(0);
+                const auto state = obj.fState;
+                const auto& stateAnim = state >= type.size() ?
+                    type[0] : type[state];
+                const auto& tex = stateAnim.fTexs.getTexture(0);
                 const int h = 0.5f*(object.fWidth + object.fHeight)*tileH;
 
                 bool highlight = false;
