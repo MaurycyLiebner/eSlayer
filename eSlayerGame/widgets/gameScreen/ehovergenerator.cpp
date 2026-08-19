@@ -4,6 +4,8 @@
 #include "../epainter.h"
 #include "../../etext.h"
 #include "../ecolors.h"
+#include "../../names/eskillnames.h"
+#include "../../names/eclassnames.h"
 
 #include <eSlayerHelpers/estringhelpers.h>
 #include <eSlayerHelpers/eskills.h>
@@ -173,12 +175,12 @@ void eHoverGenerator::addValue(SDL_Renderer* const r,
     text = eStringHelpers::replaceAll(text, "%2", maxStr);
 
     if(skillId >= 0) {
-        const auto skillName = eSkills::sSkills.name(skillId);
+        const auto skillName = eSkillNames::name(skillId);
         text = eStringHelpers::replaceAll(text, "%3", skillName);
     }
 
     if(classId >= 0) {
-        const auto className = eClasses::sClasses.name(classId);
+        const auto className = eClassNames::name(classId);
         text = eStringHelpers::replaceAll(text, "%4", className);
     }
 
