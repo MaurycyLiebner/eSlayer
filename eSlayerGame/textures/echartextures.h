@@ -64,6 +64,7 @@ public:
     const std::vector<int>& partsOrder(const int dir) const;
 
     static void handleLoaded();
+    static void waitUntilAllLoaded();
 private:
     static eThreadPool sTexturesThread;
 

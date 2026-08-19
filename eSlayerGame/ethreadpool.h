@@ -22,6 +22,7 @@ public:
     void submit(const eFunc& work, const eFinish& finish);
 
     void update();
+    void wait();
     void shutdown();
 private:
     void workerLoop();
@@ -37,6 +38,8 @@ private:
     std::vector<std::thread> mWorkers;
 
     bool mStopping = false;
+
+    int mNTasks = 0;
 };
 
 #endif // ETHREADPOOL_H

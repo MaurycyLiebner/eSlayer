@@ -45,6 +45,8 @@
 #include <eSlayerHelpers/ethreads.h>
 #include <eSlayerHelpers/etalkheard.h>
 #include <eSlayerHelpers/edifficulties.h>
+#include <eSlayerHelpers/eclasses.h>
+#include <eSlayerHelpers/eunitsinfo.h>
 
 #include <eSlayerNet/etcpnetwork.h>
 
@@ -360,6 +362,17 @@ void eScreenHandler::showGame(eServerData serverData,
         const bool r = requestMap(**server, *clientId, moveData, data);
         if(r) map->loadData(data);
     });
+    loading.emplace_back([&res, r, serverC]() {
+        const int classId = serverC->classId();
+        const auto& eq = serverC->equipment();
+        const auto partsMap = eq.partsMap();
+        const auto& class_ = eClasses::sClasses.get(classId);
+        const auto uinfoId = class_.fUnitInfoId;
+        const auto& udata = eUnitsInfo::sUnits.get(uinfoId);
+        const auto& texs = eCharsTextures::get(udata.fCharData);
+        const auto modelParts = texs.mapToModelParts(partsMap);
+        texs.requestModel(modelParts, res, r, nullptr);
+    });
     loading.emplace_back([&res, r]() {
         eMissilesTextures::load(res, r);
     });
@@ -396,6 +409,9 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([]() {
         eRenderSettings::read();
+    });
+    loading.emplace_back([]() {
+        eCharTextures::waitUntilAllLoaded();
     });
     showLoadingScreen(loading, finish);
 }

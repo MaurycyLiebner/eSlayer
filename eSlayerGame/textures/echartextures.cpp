@@ -204,6 +204,10 @@ void eCharTextures::handleLoaded() {
     sTexturesThread.update();
 }
 
+void eCharTextures::waitUntilAllLoaded() {
+    sTexturesThread.wait();
+}
+
 void eCharTextures::setCharDataId(const int id) {
     mCharDataId = id;
 }

@@ -21,19 +21,21 @@ void eThreadPool::submit(const eFunc& work, const eFinish& finish) {
             eRuntimeThrow("ThreadPool is shutting down");
         }
 
-        mWorkQueue.emplace([work, finish, this] {
+        mWorkQueue.emplace([this, work, finish] {
             std::exception_ptr error;
 
             try {
-                work();
+                if(work) work();
             } catch (...) {
                 error = std::current_exception();
             }
 
-            enqueueFinish([finish, error]() {
-                finish(error);
+            enqueueFinish([this, finish, error]() {
+                if(finish) finish(error);
+                mNTasks--;
             });
         });
+        mNTasks++;
     }
 
     mWorkCondition.notify_one();
@@ -100,4 +102,14 @@ void eThreadPool::workerLoop() {
 void eThreadPool::enqueueFinish(const eFunc& callback) {
     std::lock_guard lock(mFinishMutex);
     mFinishQueue.push(callback);
+}
+
+void eThreadPool::wait() {
+    while(mNTasks > 0) {
+        update();
+
+        if(mNTasks > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
 }
