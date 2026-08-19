@@ -1177,7 +1177,18 @@ std::vector<int> eServerUnit::castAnims(
 }
 
 void eServerUnit::killed(const eServerUnit& killed) {
-    mAttributes.fExp += 25.f*std::pow(killed.mAttributes.fLevel, 1.5f);
+    const auto killedLevel = killed.mAttributes.fLevel;
+    float expGain = 25.f*std::pow(killedLevel, 1.5f);
+    switch(mType) {
+    case eUnitType::minion:
+    case eUnitType::uniqueBoss:
+        expGain *= 5;
+        break;
+    default:
+        break;
+    }
+
+    mAttributes.fExp += expGain;
     const auto nextLevel = mAttributes.nextLevelExp(fUnitInfoId);
     if(nextLevel && mAttributes.fExp >= nextLevel) {
         mAttributes.levelUp(fUnitInfoId);
