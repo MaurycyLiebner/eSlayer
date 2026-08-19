@@ -266,12 +266,16 @@ void eServerArea::generateItems(
 void eServerArea::generateItems(
     const ePointF& pos,
     const std::vector<eItemDrop>& itemDrops) {
-    for(const auto& it : itemDrops) {
-        const bool r = eRand::randChance(it.fChance);
-        if(r) {
-            const auto typeId = it.fType;
-            const auto item = eItemGenerator::generateItem(typeId, 1, 0.f);
-            addGroundItem(pos, item);
+    const int nSlayers = mClientData.size();
+    for(const auto& drop : itemDrops) {
+        const int n = drop.fOnePerSlayer ? nSlayers : 1;
+        for(int i = 0; i < n; i++) {
+            const bool r = eRand::randChance(drop.fChance);
+            if(r) {
+                const auto typeId = drop.fType;
+                const auto item = eItemGenerator::generateItem(typeId, 1, 0.f);
+                addGroundItem(pos, item);
+            }
         }
     }
 }

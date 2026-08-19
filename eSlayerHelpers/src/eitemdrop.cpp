@@ -10,4 +10,5 @@ void eItemDrop::read(const json& jitem) {
     }
     fType = id;
     fChance = jitem.value("chance", 1.f);
+    fOnePerSlayer = jitem.value("onePerSlayer", false);
 }
