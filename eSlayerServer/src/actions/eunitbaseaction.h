@@ -44,6 +44,7 @@ protected:
     int mWalkReadyAnimId;
     int mStandAnimId;
     int mStandReadyAnimId;
+    bool mCanMove;
 private:
     float mAttackDist = 10.f;
     eUnitStrategy mStrategy = eUnitStrategy::attack;

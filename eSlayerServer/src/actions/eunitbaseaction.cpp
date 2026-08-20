@@ -6,6 +6,7 @@
 #include "ewalkaroundaction.h"
 #include "efleeaction.h"
 #include "emovetangentaction.h"
+#include "ewaitaction.h"
 
 #include <eSlayerHelpers/echardata.h>
 #include <eSlayerHelpers/erand.h>
@@ -21,6 +22,10 @@ eUnitBaseAction::eUnitBaseAction(eServerUnit& unit,
     mWalkReadyAnimId = data.animId("walkReady");
     mStandAnimId = data.animId("stand");
     mStandReadyAnimId = data.animId("standReady");
+
+    mCanMove = mWalkAnimId != -1 ||
+               mWalkReadyAnimId != -1 ||
+               mRunAnimId != -1;
 
     const auto& info = eUnitsInfo::sUnits.get(
         unit.fUnitInfoId);
@@ -121,6 +126,7 @@ void eUnitBaseAction::decide() {
 }
 
 bool eUnitBaseAction::moveToEnemy(const float maxDist) {
+    if(!mCanMove) return false;
     const auto move = std::make_shared<eMoveToEnemyAction>(
         mUnit, mArea, mRunAnimId,
         mWalkAnimId, mWalkReadyAnimId,
@@ -131,6 +137,7 @@ bool eUnitBaseAction::moveToEnemy(const float maxDist) {
 }
 
 bool eUnitBaseAction::flee(const eFlee& flee) {
+    if(!mCanMove) return false;
     if(flee.fDist <= 0.f) return false;
     const auto move = std::make_shared<eFleeAction>(
         mUnit, flee.fFrom, mArea, mRunAnimId,
@@ -141,13 +148,21 @@ bool eUnitBaseAction::flee(const eFlee& flee) {
 }
 
 void eUnitBaseAction::wait(const float time) {
-    const auto wait = eYieldWaitAction::sCreateStand(
-        mUnit, mArea, mStandAnimId, mStandReadyAnimId,
-        mWalkAnimId, mWalkReadyAnimId, time);
-    setChild(wait);
+    if(mCanMove) {
+        const auto wait = eYieldWaitAction::sCreateStand(
+            mUnit, mArea, mStandAnimId, mStandReadyAnimId,
+            mWalkAnimId, mWalkReadyAnimId, time);
+        setChild(wait);
+    } else {
+        const auto wait = eWaitAction::sCreateStand(
+            mUnit, mArea, mStandAnimId, mStandReadyAnimId,
+            time);
+        setChild(wait);
+    }
 }
 
 void eUnitBaseAction::walkAround(const float time) {
+    if(!mCanMove) return;
     const auto walkAround = eWalkAroundAction::sCreate(
         mUnit, mArea, mWalkAnimId, mWalkReadyAnimId, time);
     setChild(walkAround);

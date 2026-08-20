@@ -9,10 +9,11 @@ eWalkAroundAction::sCreate(
     const int walkId,
     const int walkReadyId,
     const float time) {
-    const auto result = std::make_shared<eWalkAroundAction>(unit, area);
     const bool a = unit.aggressive();
     const int anim = eMovementHandlerBase::sChooseAnim(
         walkId, walkReadyId, a);
+    if(anim == -1) return nullptr;
+    const auto result = std::make_shared<eWalkAroundAction>(unit, area);
     result->mCenterPos = unit.fPos;
     result->mCurrentAnim = anim;
     result->mWalkId = walkId;
