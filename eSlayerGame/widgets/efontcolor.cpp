@@ -45,6 +45,10 @@ void eFontColorHelpers::colors(const eFontColor c,
         col1 = SDL_Color{188, 160, 75, 255};
         col2 = SDL_Color{0, 0, 0, 0};
         break;
+    case eFontColor::quest:
+        col1 = SDL_Color{255, 160, 75, 255};
+        col2 = SDL_Color{0, 0, 0, 0};
+        break;
 
     case eFontColor::fire:
         col1 = SDL_Color{255, 0, 0, 255};
@@ -80,4 +84,22 @@ void eFontColorHelpers::colors(const eFontColor c,
         col2 = SDL_Color{0, 0, 0, 255};
         break;
     }
+}
+
+eFontColor eFontColorHelpers::rarityColor(const eItemRarity rarity) {
+    switch(rarity) {
+    case eItemRarity::normal:
+        return eFontColor::normal;
+    case eItemRarity::magic:
+        return eFontColor::magic;
+    case eItemRarity::rare:
+        return eFontColor::rare;
+    case eItemRarity::set:
+        return eFontColor::set;
+    case eItemRarity::unique:
+        return eFontColor::unique;
+    case eItemRarity::quest:
+        return eFontColor::quest;
+    }
+    return eFontColor::normal;
 }

@@ -41,25 +41,7 @@ eGroundItemNames::requestTexture(
     const auto it = mTexs.find(item.fItemId);
     if(it != mTexs.end()) return it->second;
     const auto name = eItemNames::name(item);
-    eFontColor color{eFontColor::normal};
-    switch(item.fRarity) {
-    case eItemRarity::normal:
-        color = eFontColor::normal;
-        break;
-    case eItemRarity::magic:
-        color = eFontColor::magic;
-        break;
-    case eItemRarity::rare:
-        color = eFontColor::rare;
-        break;
-    case eItemRarity::set:
-        color = eFontColor::set;
-        break;
-    case eItemRarity::unique:
-        color = eFontColor::unique;
-        break;
-    }
-
+    const auto color = eFontColorHelpers::rarityColor(item.fRarity);
     eTextGenerator gen(mR, color, mFont);
     const auto tex = gen.generate(name);
     mTexs[item.fItemId] = tex;

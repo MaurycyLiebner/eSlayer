@@ -50,6 +50,7 @@ eItem eItemGenerator::generateItem(
     item.fType = type;
     item.fSubType = itemData.fSubtype;
     if(type == eItemType::questItem) {
+        item.fRarity = eItemRarity::quest;
         return item;
     } else if(type == eItemType::gold) {
         item.fCount = 1 + 5.f*sqrt(level)*worth;

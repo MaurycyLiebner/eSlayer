@@ -8,7 +8,8 @@ gRarityTypeToString = {
     {eItemRarity::magic, "magic"},
     {eItemRarity::rare, "rare"},
     {eItemRarity::set, "set"},
-    {eItemRarity::unique, "unique"}
+    {eItemRarity::unique, "unique"},
+    {eItemRarity::quest, "quest"}
 };
 
 std::map<std::string, eItemRarity>

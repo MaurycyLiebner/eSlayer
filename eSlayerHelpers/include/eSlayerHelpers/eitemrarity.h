@@ -11,7 +11,8 @@ enum class eItemRarity : uint8_t {
     magic,
     rare,
     set,
-    unique
+    unique,
+    quest
 };
 
 namespace eItemRarityHelpers {
