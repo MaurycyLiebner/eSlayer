@@ -294,6 +294,49 @@ void eServerArea::generatePotion(
     addGroundItem(pos, item);
 }
 
+void eServerArea::setQuestStageCount(const uint32_t clientId, eClientData& data,
+                                     const uint8_t questId, const uint8_t stageId,
+                                     const int count) {
+    auto& qs = data.fQuests;
+    qs.setCount(questId, stageId, count);
+
+    const auto u = unit(clientId);
+    if(u) {
+        const auto skillPoints = qs.receiveSkillPoints();
+        if(skillPoints > 0) {
+            u->addSkillPoints(skillPoints);
+        }
+
+        const auto statPoints = qs.receiveStatPoints();
+        if(statPoints > 0) {
+            u->addStatPoints(statPoints);
+            u->setAttributesChanged(true);
+        }
+    }
+
+    data.fSendQuests = true;
+    checkQuestItems(clientId);
+}
+
+void eServerArea::checkEnterArea(const uint32_t clientId) {
+    const auto cit = mClientData.find(clientId);
+    if(cit == mClientData.end()) return;
+    auto& clientData = cit->second;
+    const auto u = unit(clientId);
+    if(!u) return;
+    const auto& upos = u->fPos;
+    const auto areaId = mMap->areaAt(upos);
+    const auto& qs = eQuests::sEnterAreaQuests;
+    const auto it = qs.find(areaId);
+    if(it == qs.end()) return;
+    for(const auto& q : it->second) {
+        auto& qs = clientData.fQuests;
+        const auto stage = qs.stage(q.fQuestId);
+        if(stage > q.fStageId) continue;
+        setQuestStageCount(clientId, clientData, q.fQuestId, q.fStageId, 1);
+    }
+}
+
 void eServerArea::updateGlobalQuestCount(
     const eQuestStepId step, const uint8_t count) {
     const auto questId = step.fQuestId;
@@ -722,7 +765,7 @@ void eServerArea::increment(const float by) {
 
     std::set<eArea> unitAreas;
     for(auto& it : mClientData) {
-        const int i = it.first;
+        const uint32_t i = it.first;
         const auto u = unit(i);
         if(!u) continue;
         auto& clientData = it.second;
@@ -732,6 +775,7 @@ void eServerArea::increment(const float by) {
             mUnitAreas.erase(oldArea, i);
             mUnitAreas.emplace(newArea, i);
             oldArea = newArea;
+            checkEnterArea(i);
         }
 
         const auto& screenDims = clientData.fScreen;
@@ -1163,6 +1207,8 @@ bool eServerArea::addClient(const uint32_t clientId,
 
     checkQuestItems(clientId);
 
+    checkEnterArea(clientId);
+
     return true;
 }
 
@@ -1229,6 +1275,8 @@ bool eServerArea::addClient(
     clientData.fMerc = srcData.fMerc;
     clientData.fFollowersState = srcData.fFollowersState;
     clientData.fUsedSkills = srcData.fUsedSkills;
+
+    checkEnterArea(clientId);
 
     return true;
 }
@@ -2110,25 +2158,7 @@ bool eServerArea::heardTalk(
     }
 
     const auto iter = [&](const uint32_t clientId, eClientData& data) {
-        auto& qs = data.fQuests;
-        qs.setCount(questId, stage, count);
-
-        const auto u = unit(clientId);
-        if(u) {
-            const auto skillPoints = qs.receiveSkillPoints();
-            if(skillPoints > 0) {
-                u->addSkillPoints(skillPoints);
-            }
-
-            const auto statPoints = qs.receiveStatPoints();
-            if(statPoints > 0) {
-                u->addStatPoints(statPoints);
-                u->setAttributesChanged(true);
-            }
-        }
-
-        data.fSendQuests = true;
-        checkQuestItems(clientId);
+        setQuestStageCount(clientId, data, questId, stage, count);
         return false;
     };
 

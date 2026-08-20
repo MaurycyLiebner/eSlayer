@@ -12,7 +12,8 @@ enum class eQuestType {
     bringItem,
     getItem,
     talkTo,
-    addSocket
+    addSocket,
+    enterArea
 };
 
 enum class eQuestNPCVisibilityType {
@@ -37,6 +38,7 @@ struct eQuestStepId {
     eQuestStepId(const uint8_t qid,
                  const uint8_t sid) :
         fQuestId(qid), fStageId(sid) {}
+
     uint8_t fQuestId;
     uint8_t fStageId;
 };
@@ -46,6 +48,7 @@ struct eQuestStep {
     eQuestType fType;
     uint8_t fTargetNPC = 0;
     uint8_t fTargetItem = 0;
+    uint8_t fTargetAreaId = 0;
     std::vector<uint8_t> fTargetMonsters;
     uint8_t fCount = 0;
     float fItemWorth = 0.f;
@@ -95,6 +98,8 @@ public:
     sFindItemQuests;
     static std::map<int, std::vector<eQuestStepId>>
     sBringItemQuests;
+    static std::map<int, std::vector<eQuestStepId>>
+    sEnterAreaQuests;
     static std::map<uint8_t, std::vector<eQuestNPCVisibility>>
     sNPCVisibility;
     static std::map<uint8_t, std::vector<eQuestNPCAllowHire>>

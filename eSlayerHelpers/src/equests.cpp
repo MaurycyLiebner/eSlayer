@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eunitsinfo.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/emapsettings.h"
 
 eStringIdMapVector<eQuest> eQuests::sQuests;
 std::map<int, std::vector<eQuestStepId>>
@@ -11,6 +12,8 @@ std::map<int, std::vector<eQuestStepId>>
 eQuests::sFindItemQuests;
 std::map<int, std::vector<eQuestStepId>>
 eQuests::sBringItemQuests;
+std::map<int, std::vector<eQuestStepId>>
+eQuests::sEnterAreaQuests;
 std::map<uint8_t, std::vector<eQuestNPCVisibility>>
 eQuests::sNPCVisibility;
 std::map<uint8_t, std::vector<eQuestNPCAllowHire>>
@@ -140,6 +143,17 @@ void eQuests::load() {
                     } else if(typeStr == "addSocket") {
                         step.fType = eQuestType::addSocket;
                         parseNPC();
+                    } else if(typeStr == "enterArea") {
+                        step.fType = eQuestType::enterArea;
+
+                        const auto areaStr = stepData.value("area", "");
+                        const int id = eMapsSettings::sAreas.id(areaStr);
+                        if(id < 0) {
+                            eRuntimeThrow("Unrecognized area \"" + areaStr + "\".");
+                        }
+                        step.fTargetAreaId = id;
+
+                        sEnterAreaQuests[id].emplace_back(questId, stageId);
                     } else {
                         eRuntimeThrow("Unrecognized quest type \"" + typeStr + "\".");
                     }

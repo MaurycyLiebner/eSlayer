@@ -360,6 +360,11 @@ private:
                         const int level,
                         const float worth);
 
+    void setQuestStageCount(const uint32_t clientId, eClientData& data,
+                            const uint8_t questId, const uint8_t stageId,
+                            const int count);
+    void checkEnterArea(const uint32_t clientId);
+
     void updateGlobalQuestCount(const eQuestStepId step,
                                 const uint8_t count);
 
