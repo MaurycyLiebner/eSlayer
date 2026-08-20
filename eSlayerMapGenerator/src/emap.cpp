@@ -289,19 +289,12 @@ int eMap::areaAt(const ePointF& pos) const {
 }
 
 int eMap::areaAt(const ePoint& pos) const {
-    for(const auto& it : mAreas) {
-        const auto& a = it.fValue;
-        if(a.fRect.contains(pos)) return it.fId;
+    for(const auto& area : mAreas) {
+        if(area.fRect.contains(pos)) {
+            return area.fAreaId;
+        }
     }
     return -1;
-}
-
-std::string eMap::areaName(const int id) {
-    return mAreas.name(id);
-}
-
-eMapArea& eMap::area(const int id) {
-    return mAreas.get(id);
 }
 
 void eMap::fillPathFinderMap() {

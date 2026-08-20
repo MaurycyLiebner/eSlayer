@@ -67,7 +67,7 @@ struct ESLAYERHELPERS_API eMapData {
 
     ePointF fSpawnPos;
 
-    eStringIdMapVector<eMapArea> fAreas;
+    std::vector<eMapArea> fAreas;
 
     std::vector<eMapStairs> fStairs;
 

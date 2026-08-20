@@ -322,8 +322,8 @@ eMapGenerator::generate(const uint8_t mapId) const {
             const auto connType = conn.fType;
             if(connType != eConnectionType::plain) continue;
             const auto name = it.first;
-            const int settingsId = mapSettings.fAreas.id(name);
-            const auto& settings = mapSettings.fAreas.get(settingsId);
+            const int settingsId = eMapsSettings::sAreas.id(name);
+            const auto& settings = eMapsSettings::sAreas.get(settingsId);
             const auto connPlace = genArea(name, settings, place);
             const auto conn_ = placer.chooseConnection(
                 place, connPlace, connWidth, connHalfLen);
@@ -336,8 +336,9 @@ eMapGenerator::generate(const uint8_t mapId) const {
         return place;
     };
 
-    const auto name0 = mapSettings.fAreas.name(0);
-    const eAreaSettings& settings = mapSettings.fAreas.get(0);
+    const auto id0 = mapSettings.fAreas[0];
+    const auto name0 = eMapsSettings::sAreas.name(id0);
+    const eAreaSettings& settings = eMapsSettings::sAreas.get(id0);
     genArea(name0, settings, firstPlace);
 
     const int extMargin = 10;
@@ -370,19 +371,18 @@ eMapGenerator::generate(const uint8_t mapId) const {
     result->generateTiles(rect.fW + 2*extMargin + 1,
                           rect.fH + 2*extMargin + 1);
     const auto& sareas = mapSettings.fAreas;
-    for(int i = 0; i < sareas.size(); i++) {
+    for(const auto areaId : sareas) {
+        const auto& aname = eMapsSettings::sAreas.name(areaId);
         for(const auto& it : areas) {
             const auto& area = it.second;
             const auto& name = area.name();
-            const int id = sareas.id(name);
-            if(id != i) continue;
-            const auto& settings = sareas.get(id);
+            if(name != aname) continue;
             eMapArea mapArea;
             mapArea.fMapId = mapId;
-            mapArea.fAreaId = id;
+            mapArea.fAreaId = areaId;
             const auto rect = area.rect();
             mapArea.fRect = rect;
-            result->mAreas.add(name, mapArea);
+            result->mAreas.emplace_back(mapArea);
             area.generate(result->mSpawnPos);
             break;
         }

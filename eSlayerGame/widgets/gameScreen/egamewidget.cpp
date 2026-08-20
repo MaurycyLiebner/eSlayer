@@ -788,14 +788,10 @@ void eGameWidget::paintEvent(ePainter& p) {
     if(mLastArea != areaId && areaId >= 0) {
         const bool fadeIn = mLastArea >= 0;
         mLastArea = areaId;
-        const auto areaNameBase = mMap->areaName(areaId);
-        const auto& area = mMap->area(areaId);
-        const auto areaName = eAreaNames::name(areaNameBase);
+        const auto& areaSett = eMapsSettings::sAreas.get(areaId);
+        const auto& areaNameBase = areaSett.fName;
+        const auto& areaName = eAreaNames::name(areaNameBase);
         eMiniMap::sShowAreaName(areaName);
-        const auto mapId = area.fMapId;
-        const auto areaId = area.fAreaId;
-        const auto& mapSett = eMapsSettings::sMaps.get(mapId);
-        const auto& areaSett = mapSett.fAreas.get(areaId);
         mGamePainter.setLightness(areaSett.fLightness);
         mGamePainter.setContrast(areaSett.fContrast);
 
@@ -2365,10 +2361,8 @@ void eGameWidget::setHighlightedNPC(
 }
 
 const std::string& areaName(const eAreaIds& area) {
-    const auto mapId = area.fMapId;
     const auto areaId = area.fAreaId;
-    const auto& map = eMapsSettings::sMaps.get(mapId);
-    const auto areaBaseName = map.fAreas.name(areaId);
+    const auto areaBaseName = eMapsSettings::sAreas.name(areaId);
     const auto& areaName = eAreaNames::name(areaBaseName);
     return areaName;
 }

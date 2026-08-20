@@ -100,8 +100,6 @@ public:
 
     int areaAt(const ePointF& pos) const;
     int areaAt(const ePoint& pos) const;
-    std::string areaName(const int id);
-    eMapArea& area(const int id);
 
     struct eMonsterArea {
         uint8_t fLevel;
@@ -160,7 +158,7 @@ private:
     uint16_t mWidth = 0;
     uint16_t mHeight = 0;
 
-    eStringIdMapVector<eMapArea> mAreas;
+    std::vector<eMapArea> mAreas;
 
     bool mAllPresent = false;
     std::vector<std::vector<bool>> mPresent;

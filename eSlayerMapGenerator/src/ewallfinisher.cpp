@@ -423,8 +423,7 @@ void eWallFinisher::finish(
             eRuntimeThrow("Unrecognized map connection \"" + name + "\".");
         }
         if(stairsOptions.empty()) continue;
-        const auto& info = eMapsSettings::sMaps.get(mapId);
-        const int areaId = info.fAreas.id(areaName);
+        const int areaId = eMapsSettings::sAreas.id(areaName);
         if(areaId < 0) {
             eRuntimeThrow("Unrecognized area connection \"" + areaName + "\".");
         }

@@ -407,9 +407,10 @@ bool getWaypointIds(const std::string& name,
                     eAreaIds& areaIds) {
     for(const auto& mit : eMapsSettings::sMaps) {
         const auto& m = mit.fValue;
-        for(const auto& a : m.fAreas) {
+        for(const auto aid : m.fAreas) {
+            const auto& a = eMapsSettings::sAreas.get(aid);
             if(name == a.fName) {
-                areaIds = eAreaIds(mit.fId, a.fId);
+                areaIds = eAreaIds(mit.fId, aid);
                 return true;
             }
         }
@@ -815,10 +816,8 @@ bool gWriteWaypoints(XMLElement* const diffE,
         const auto aE = wE->InsertNewChildElement(ar.c_str());
         for(const auto& w : it.second) {
             const auto& area = w.fArea;
-            const auto mapId = area.fMapId;
-            const auto& minfo = eMapsSettings::sMaps.get(mapId);
             const auto areaId = area.fAreaId;
-            const auto name = minfo.fAreas.name(areaId);
+            const auto name = eMapsSettings::sAreas.name(areaId);
             const auto wE = aE->InsertNewChildElement(name.c_str());
             wE->SetAttribute("known", w.fKnown);
         }

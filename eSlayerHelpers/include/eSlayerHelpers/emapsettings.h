@@ -104,7 +104,7 @@ struct eAreaSettings {
 };
 
 struct eMapSettings {
-    eStringIdMapVector<eAreaSettings> fAreas;
+    std::vector<uint8_t> fAreas;
     uint8_t fRespawnMap;
     int fMaxSize = 80;
     uint8_t fActId;
@@ -113,6 +113,7 @@ struct eMapSettings {
 struct ESLAYERHELPERS_API eMapsSettings {
     static void load();
 
+    static eStringIdMapVector<eAreaSettings> sAreas;
     static eStringIdMapVector<eMapSettings> sMaps;
 private:
     static bool sLoaded;

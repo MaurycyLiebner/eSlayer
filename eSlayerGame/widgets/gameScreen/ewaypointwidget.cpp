@@ -43,9 +43,8 @@ void eWaypointWidget::initialize(
         for(const auto& way : waypoints) {
             if(way.fActId != actId) continue;
             const auto& warea = way.fArea;
-            const auto& mapInfo = eMapsSettings::sMaps.get(warea.fMapId);
-            const auto nameBase = mapInfo.fAreas.name(warea.fAreaId);
-            const auto name = eAreaNames::name(nameBase);
+            const auto nameBase = eMapsSettings::sAreas.name(warea.fAreaId);
+            const auto& name = eAreaNames::name(nameBase);
 
             const auto line = new eWaypointLine(window());
             const bool current = warea == area;

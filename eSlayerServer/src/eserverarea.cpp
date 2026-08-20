@@ -1658,14 +1658,10 @@ bool eServerArea::triggerObject(
     const int tx = pos.fX;
     const int ty = pos.fY;
     if(!mMap->inside(tx, ty)) return false;
-    const int areaMId = mMap->areaAt(pos);
-    if(areaMId < 0) return false;
-    const auto& area = mMap->area(areaMId);
-    const auto mapId = area.fMapId;
-    const auto areaId = area.fAreaId;
-    const auto& mapSett = eMapsSettings::sMaps.get(mapId);
+    const int areaId = mMap->areaAt(pos);
+    if(areaId < 0) return false;
+    const auto& areaSett = eMapsSettings::sAreas.get(areaId);
     const int diff = eDifficulties::sDifficulty;
-    const auto& areaSett = mapSett.fAreas.get(areaId);
     const auto level = areaSett.template_(diff).fLevel;
     const auto& objIds = mMap->objects(tx, ty);
     for(const auto id : objIds) {

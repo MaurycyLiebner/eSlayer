@@ -524,8 +524,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
             if(mapId < 0) {
                 eRuntimeThrow("Unrecognized connection map name \"" + mname + "\".");
             }
-            const auto& map = eMapsSettings::sMaps.get(mapId);
-            const int areaId = map.fAreas.id(aname);
+            const int areaId = eMapsSettings::sAreas.id(aname);
             if(areaId < 0) {
                 eRuntimeThrow("Unrecognized connection area name \"" + aname + "\".");
             }

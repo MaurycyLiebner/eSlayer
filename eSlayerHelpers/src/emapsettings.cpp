@@ -8,6 +8,8 @@
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/edifficulties.h"
 
+eStringIdMapVector<eAreaSettings>
+eMapsSettings::sAreas;
 eStringIdMapVector<eMapSettings>
 eMapsSettings::sMaps;
 bool eMapsSettings::sLoaded = false;
@@ -263,7 +265,8 @@ void eMapsSettings::load() {
 
                 parseArea(area, jArea);
 
-                const auto areaId = map.fAreas.add(areaName, area);
+                const auto areaId = eMapsSettings::sAreas.add(areaName, area);
+                map.fAreas.emplace_back(areaId);
 
                 if(area.fWaypoint) {
                     auto& w = eWaypoints::sWaypoints.emplace_back();
