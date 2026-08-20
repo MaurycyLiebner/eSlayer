@@ -110,7 +110,11 @@ void eQuests::load() {
                                     sKillMonsterQuests[id].emplace_back(questId, stageId);
                                     step.fTargetMonsters.emplace_back(id);
                                 }
+                            } else {
+                                eRuntimeThrow("Unrecognized kill quest monster");
                             }
+                        } else {
+                            eRuntimeThrow("No kill quest monster specified");
                         }
                     } else if(typeStr == "findItem") {
                         step.fType = eQuestType::findItem;
