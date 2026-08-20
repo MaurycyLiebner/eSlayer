@@ -36,9 +36,23 @@ public:
         fitContent();
     }
 protected:
-    bool mousePressEvent(const eMouseEvent& e) {
+    bool mousePressEvent(const eMouseEvent& e) override {
         if(mPressAction) mPressAction();
         return true;
+    }
+
+    void paintEvent(ePainter& p) override {
+        const auto& tex = texture();
+        if(!tex) return;
+        p.drawTexture(0, 0, tex);
+        const bool hovered = eWidget::hovered();
+        if(hovered) {
+            tex->setBlendMode(SDL_BLENDMODE_ADD);
+            tex->setAlpha(128);
+            p.drawTexture(0, 0, tex);
+            tex->setBlendMode(SDL_BLENDMODE_BLEND);
+            tex->clearAlphaMod();
+        }
     }
 private:
     eAction mPressAction;
