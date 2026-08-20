@@ -50,6 +50,8 @@ void eDungeon::setExtendedRect(const eRect& rect) {
 }
 
 void eDungeon::generate(ePointF& spawnPos) const {
+    std::map<std::pair<int, int>, int> unitMap;
+
     const auto diff = eDifficulties::sDifficulty;
     const auto& templ = mSettings.template_(diff);
 
@@ -200,6 +202,8 @@ void eDungeon::generate(ePointF& spawnPos) const {
                     const auto& tile = mMap->tile(xx, yy);
                     const auto& overlays = tile.fOverlays;
                     if(!overlays.empty()) return dim;
+                    const auto it = unitMap.find({xx, yy});
+                    if(it != unitMap.end()) return dim;
                 }
             }
         }
@@ -233,7 +237,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
                     const bool r = checkMargin(x, y, c);
                     if(!r) continue;
                     const int a = calcArea(x, y, c);
-                    if(a <= maxA) continue;
+                    if(a < maxA) continue;
                     maxA = a;
                     xMax = x;
                     yMax = y;
@@ -317,14 +321,14 @@ void eDungeon::generate(ePointF& spawnPos) const {
 
         const auto& bp = eBlueprints::sBlueprints.get(bpc.fType);
 
-        xMax -= bp.fWidth/2;
-        yMax -= bp.fHeight/2;
+        const int x0Max = xMax - bp.fWidth/2;
+        const int y0Max = yMax - bp.fHeight/2;
 
         for(const auto& o : bp.fTerrain) {
             const auto& info = eTerrsTexturesData::get(o.fType);
             uint8_t tileType = 1;
-            const int x0 = xMax + o.fX;
-            const int y0 = yMax + o.fY;
+            const int x0 = x0Max + o.fX;
+            const int y0 = y0Max + o.fY;
             for(int dy = 0; dy < info.fHeight; dy++) {
                 for(int dx = 0; dx < info.fWidth; dx++) {
                     auto& tile = mMap->tile(x0 + dx, y0 + dy);
@@ -335,7 +339,7 @@ void eDungeon::generate(ePointF& spawnPos) const {
         }
 
         for(const auto& o : bp.fObjects) {
-            addObject(xMax + o.fX, yMax + o.fY,
+            addObject(x0Max + o.fX, y0Max + o.fY,
                       o.fType, o.fSubtype,
                       o.fWidth, o.fHeight);
         }
@@ -344,8 +348,11 @@ void eDungeon::generate(ePointF& spawnPos) const {
         for(const auto& o : bp.fUnits) {
             auto& u = bpus.emplace_back();
             u.fLevel = templ.fLevel;
-            u.fPos.fX = xMax + o.fX;
-            u.fPos.fY = yMax + o.fY;
+            const float x = x0Max + o.fX;
+            u.fPos.fX = x;
+            const float y = y0Max + o.fY;
+            u.fPos.fY = y;
+            unitMap[{int(x), int(y)}]++;
             u.fType = o.fType;
             u.fElite = o.fElite;
             u.fCount = o.fUnitCount;

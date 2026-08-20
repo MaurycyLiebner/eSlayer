@@ -621,6 +621,34 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
         }
     };
 
+    const auto& bpus = map->blueprintUnits();
+    for(const auto& bpu : bpus) {
+        const auto level = bpu.fLevel;
+        std::optional<eEliteModifiers> mods;
+        const auto& es = bpu.fElite;
+        if(!es.empty()) {
+            const auto& uinfo = eUnitsInfo::sUnits.get(bpu.fType);
+            mods = eEliteModifiers();
+            mods->initialize(es, uinfo.fLevel);
+            mods->setBoss(es.count(0) == 0);
+        }
+        auto pos = bpu.fPos;
+        for(int i = 0; i < bpu.fCount; i++) {
+            eUnitType utype;
+            if(mods) {
+                if(mods->boss()) {
+                    utype = eUnitType::uniqueBoss;
+                } else {
+                    utype = eUnitType::minion;
+                }
+            } else {
+                utype = eUnitType::normal;
+            }
+            const auto u = addUnit(bpu.fType, utype, mods, pos, level);
+            u->addItemDrops(bpu.fItemDrops);
+        }
+    }
+
     for(const auto& ma : mareas) {
         const auto& chambers = ma.fChambers;
         ePlacementHelper helper;
@@ -699,34 +727,6 @@ void eServerArea::initialize(const std::shared_ptr<eMap>& map) {
                 const bool r = tryAddUnits();
                 if(!r) break;
             }
-        }
-    }
-
-    const auto& bpus = map->blueprintUnits();
-    for(const auto& bpu : bpus) {
-        const auto level = bpu.fLevel;
-        std::optional<eEliteModifiers> mods;
-        const auto& es = bpu.fElite;
-        if(!es.empty()) {
-            const auto& uinfo = eUnitsInfo::sUnits.get(bpu.fType);
-            mods = eEliteModifiers();
-            mods->initialize(es, uinfo.fLevel);
-            mods->setBoss(es.count(0) == 0);
-        }
-        auto pos = bpu.fPos;
-        for(int i = 0; i < bpu.fCount; i++) {
-            eUnitType utype;
-            if(mods) {
-                if(mods->boss()) {
-                    utype = eUnitType::uniqueBoss;
-                } else {
-                    utype = eUnitType::minion;
-                }
-            } else {
-                utype = eUnitType::normal;
-            }
-            const auto u = addUnit(bpu.fType, utype, mods, pos, level);
-            u->addItemDrops(bpu.fItemDrops);
         }
     }
 }
