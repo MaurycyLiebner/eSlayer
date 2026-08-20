@@ -90,13 +90,28 @@ void eQuests::load() {
                     step.fConvoStr = stepData.value("conversation", "");
                     if(typeStr == "kill") {
                         step.fType = eQuestType::kill;
-                        const auto monsterStr = stepData.value("monster", "");
-                        const int id = eUnitsInfo::sUnits.id(monsterStr);
-                        if(id < 0) {
-                            eRuntimeThrow("Unrecognized monster type \"" + monsterStr + "\".");
+                        if(stepData.contains("monster")) {
+                            const auto& jmonster = stepData["monster"];
+                            if(jmonster.is_string()) {
+                                const auto monsterStr = stepData.value("monster", "");
+                                const int id = eUnitsInfo::sUnits.id(monsterStr);
+                                if(id < 0) {
+                                    eRuntimeThrow("Unrecognized monster type \"" + monsterStr + "\".");
+                                }
+                                sKillMonsterQuests[id].emplace_back(questId, stageId);
+                                step.fTargetMonsters.emplace_back(id);
+                            } else if(jmonster.is_array()) {
+                                const auto monsterStrs = stepData.value("monster", std::vector<std::string>());
+                                for(const auto& monsterStr : monsterStrs) {
+                                    const int id = eUnitsInfo::sUnits.id(monsterStr);
+                                    if(id < 0) {
+                                        eRuntimeThrow("Unrecognized monster type \"" + monsterStr + "\".");
+                                    }
+                                    sKillMonsterQuests[id].emplace_back(questId, stageId);
+                                    step.fTargetMonsters.emplace_back(id);
+                                }
+                            }
                         }
-                        sKillMonsterQuests[id].emplace_back(questId, stageId);
-                        step.fTargetMonster = id;
                     } else if(typeStr == "findItem") {
                         step.fType = eQuestType::findItem;
                         parseItem();

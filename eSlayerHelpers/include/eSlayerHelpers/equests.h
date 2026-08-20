@@ -46,7 +46,7 @@ struct eQuestStep {
     eQuestType fType;
     uint8_t fTargetNPC = 0;
     uint8_t fTargetItem = 0;
-    uint8_t fTargetMonster = 0;
+    std::vector<uint8_t> fTargetMonsters;
     uint8_t fCount = 0;
     float fItemWorth = 0.f;
     bool fAlwaysTrack = true;
