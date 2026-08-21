@@ -31,10 +31,15 @@ void eCharModelLoader::addLoader(const std::shared_ptr<eSpriteLoaderLoader>& loa
             for(const auto& f : mFinished) {
                 f(mModel);
             }
+            if(mFinishDelete) mFinishDelete(mModel);
         }
     });
 }
 
 void eCharModelLoader::addFinish(const eFinished& finish) {
     mFinished.emplace_back(finish);
+}
+
+void eCharModelLoader::setFinishDelete(const eFinished& finish) {
+    mFinishDelete = finish;
 }

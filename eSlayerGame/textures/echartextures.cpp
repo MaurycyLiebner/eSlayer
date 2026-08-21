@@ -103,7 +103,6 @@ eCharTextures::generateModel(
                         loader = std::make_shared<eSpriteLoaderLoader>();
                         maps.fTexLoaderMap[key] = loader;
                     }
-                    modelLoader->addLoader(loader);
 
                     const auto& part = info.mParts.get(partId);
 
@@ -141,6 +140,8 @@ eCharTextures::generateModel(
                         maps.fTexLoaderMap.erase(key);
                     });
 
+                    modelLoader->addLoader(loader);
+
                     const auto work = [loader]() {
                         loader->load();
                     };
@@ -155,8 +156,6 @@ eCharTextures::generateModel(
                         loader->finish();
                     };
                     sTexturesThread.submit(work, finish);
-
-                    modelLoader->addLoader(loader);
                 }
             } else {
                 rpart = it->second;
@@ -171,7 +170,7 @@ eCharTextures::generateModel(
         if(finished) finished(result);
     } else {
         if(finished) modelLoader->addFinish(finished);
-        modelLoader->addFinish([this, modelParts, &maps](
+        modelLoader->setFinishDelete([this, modelParts, &maps](
                 const std::shared_ptr<eCharModel>& model) {
             maps.fReadyModelMap[modelParts.fValues] = model;
             maps.fModelLoaderMap.erase(modelParts.fValues);

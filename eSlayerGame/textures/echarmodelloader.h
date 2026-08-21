@@ -31,11 +31,13 @@ public:
     bool empty() const { return mRemaining <= 0; }
 
     void addFinish(const eFinished& finish);
+    void setFinishDelete(const eFinished& finish);
 private:
     int mRemaining = 0;
 
     std::shared_ptr<eCharModel> mModel;
     std::vector<eFinished> mFinished;
+    eFinished mFinishDelete;
 };
 
 #endif // ECHARMODELLOADER_H
