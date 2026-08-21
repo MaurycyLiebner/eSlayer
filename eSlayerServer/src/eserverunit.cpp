@@ -218,7 +218,7 @@ void eServerUnit::setEquipment(const eEquipment& eq,
         recalculateStats();
         recalculateAuras();
     }
-    refreshModelParts();
+    if(isSlayer()) refreshModelParts();
 }
 
 void eServerUnit::setAttributes(const eAttributes& attrs,
