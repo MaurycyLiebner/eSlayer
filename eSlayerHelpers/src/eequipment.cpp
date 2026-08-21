@@ -123,15 +123,14 @@ bool eEquipment::add(const eItem& item,
 bool eEquipment::addToBelt(const eItem& item,
                            eEquipmentPlace* const pPtr) {
     if(item.fType != eItemType::potion) return false;
-    const auto typeAt = [&](const int x, const int y)
-        -> uint8_t {
+    const auto typeAt = [&](const int x, const int y) -> int {
         eInventoryItem* at = nullptr;
         if(y == fBeltVPotionSlots - 1) {
             at = fBeltPotions.at(x, 0);
         } else {
             at = fBeltHiddenPotions.at(x, y);
         }
-        if(!at) return 0;
+        if(!at) return -1;
         const auto& item = at->fItem;
         const auto subtype = item.fSubType;
         return subtype;
@@ -141,10 +140,10 @@ bool eEquipment::addToBelt(const eItem& item,
     for(int x = 0; x < fBeltHPotionSlots; x++) {
         const auto colType = typeAt(x, fBeltVPotionSlots - 1);
         const bool same = colType == type;
-        if(same || colType == 0) {
+        if(same || colType == -1) {
             for(int y = fBeltVPotionSlots - 1; y >= 0; y--) {
                 const auto slotType = typeAt(x, y);
-                if(slotType == 0) {
+                if(slotType == -1) {
                     eInventoryItem* iitem = nullptr;
                     if(y == fBeltVPotionSlots - 1) {
                         iitem = &fBeltPotions.emplace_back();
