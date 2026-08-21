@@ -303,6 +303,8 @@ public:
 
     static void clear();
 private:
+    void addUnits();
+
     using eIter = std::function<bool(const uint32_t, eClientData&)>;
     bool iterateOverClients(const eIter& iter);
     bool iterateOverClients(const ePointF& pos,

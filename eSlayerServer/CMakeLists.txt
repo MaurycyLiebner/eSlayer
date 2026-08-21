@@ -12,13 +12,18 @@ else()
 endif()
 
 add_library(eSlayerServer SHARED
-    include/eSlayerServer/eserver.h src/eserver.cpp
     include/eSlayerServer/eslayerserverexport.h
-    src/eserverunit.h
-    src/esingleplayerserver.h src/esingleplayerserver.cpp
+    include/eSlayerServer/eserver.h src/eserver.cpp
+
+    src/eserverunit.h src/eserverunit.cpp
     src/eserverclienthandler.h src/eserverclienthandler.cpp
-    src/eserverarea.h src/eserverarea.cpp
-    src/eserverunit.cpp
+    src/eserverarea.h src/eserverarea.cpp src/eserverarea_addunits.cpp
+
+    src/esingleplayerserver.h src/esingleplayerserver.cpp
+    src/elocalserver.h src/elocalserver.cpp
+    src/etcpiphost.h src/etcpiphost.cpp
+    src/etcpipjoin.h src/etcpipjoin.cpp
+
     src/actions/eunitaction.h src/actions/eunitaction.cpp
     src/actions/eunitbaseaction.h src/actions/eunitbaseaction.cpp
     src/actions/emovetoenemyaction.h src/actions/emovetoenemyaction.cpp
@@ -26,36 +31,30 @@ add_library(eSlayerServer SHARED
     src/actions/eattackaction.h src/actions/eattackaction.cpp
     src/actions/ewaitaction.h src/actions/ewaitaction.cpp
     src/actions/eyieldwaitaction.h src/actions/eyieldwaitaction.cpp
-
-    src/eserverfileloader.h src/eserverfileloader.cpp
     src/actions/edieaction.h src/actions/edieaction.cpp
     src/actions/ehitrecoveryaction.h src/actions/ehitrecoveryaction.cpp
     src/actions/eunitactionbase.h src/actions/eunitactionbase.cpp
     src/actions/eblockaction.h src/actions/eblockaction.cpp
     src/actions/eclientaction.h src/actions/eclientaction.cpp
-    src/elocalserver.h src/elocalserver.cpp
-    src/etcpiphost.h src/etcpiphost.cpp
-    src/epacketdata.h
-    src/etcpipjoin.h src/etcpipjoin.cpp
-    src/eservermissile.h src/eservermissile.cpp
     src/actions/efolloweraction.h src/actions/efolloweraction.cpp
     src/actions/emovetotarget.h src/actions/emovetotarget.cpp
     src/actions/ewalkaroundaction.h src/actions/ewalkaroundaction.cpp
     src/actions/eknockbackaction.h src/actions/eknockbackaction.cpp
-    src/eitemgenerator.h src/eitemgenerator.cpp
-    src/eelitemodifiers.h src/eelitemodifiers.cpp
-    src/eservernova.h src/eservernova.cpp
     src/actions/eexplodeaction.h src/actions/eexplodeaction.cpp
-    src/eserverskillarea.h src/eserverskillarea.cpp
-    src/ethreadsafe.h
-    src/eservermovementhandler.h src/eservermovementhandler.cpp
     src/actions/efleeaction.h src/actions/efleeaction.cpp
     src/actions/emovetangentaction.h src/actions/emovetangentaction.cpp
     src/actions/enpcaction.h src/actions/enpcaction.cpp
 
+    src/eservermissile.h src/eservermissile.cpp
+    src/eservernova.h src/eservernova.cpp
+    src/eserverskillarea.h src/eserverskillarea.cpp
 
-
-
+    src/eserverfileloader.h src/eserverfileloader.cpp
+    src/epacketdata.h
+    src/eitemgenerator.h src/eitemgenerator.cpp
+    src/eelitemodifiers.h src/eelitemodifiers.cpp
+    src/ethreadsafe.h
+    src/eservermovementhandler.h src/eservermovementhandler.cpp
 )
 
 target_include_directories(eSlayerServer
