@@ -47,7 +47,8 @@ enum eUnitType {
     summoned,
     normal,
     uniqueBoss,
-    minion
+    minion,
+    superUniqueBoss
 };
 
 struct eTimedBoost {

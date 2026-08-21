@@ -17,6 +17,9 @@ struct eBlueprintObject {
     // for units
     std::set<uint8_t> fElite;
     int fUnitCount;
+    bool fSuperUnique;
+
+    // for units and treasures
     std::vector<eItemDrop> fItemDrops;
 
     float fX;

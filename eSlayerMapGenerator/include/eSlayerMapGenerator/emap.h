@@ -115,6 +115,7 @@ public:
         uint16_t fType;
         std::set<uint8_t> fElite;
         int fCount;
+        bool fSuperUnique;
         std::vector<eItemDrop> fItemDrops;
         uint8_t fLevel;
     };

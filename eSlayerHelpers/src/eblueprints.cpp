@@ -89,6 +89,7 @@ void eBlueprints::load() {
                             unit.fElite.emplace(id);
                         }
                     }
+                    unit.fSuperUnique = unitData.value("superUnique", false);
                     if(unitData.contains("items")) {
                         for(const auto& jitem : unitData["items"]) {
                             auto& item = unit.fItemDrops.emplace_back();

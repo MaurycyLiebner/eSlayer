@@ -350,14 +350,19 @@ void eServerArea::addUnits() {
         auto pos = bpu.fPos;
         for(int i = 0; i < bpu.fCount; i++) {
             eUnitType utype;
-            if(mods) {
-                if(mods->boss()) {
-                    utype = eUnitType::uniqueBoss;
-                } else {
-                    utype = eUnitType::minion;
-                }
+            if(bpu.fSuperUnique) {
+                utype = eUnitType::superUniqueBoss;
             } else {
-                utype = eUnitType::normal;
+                if(mods) {
+                    const bool boss = mods->boss();
+                    if(boss) {
+                        utype = eUnitType::uniqueBoss;
+                    } else {
+                        utype = eUnitType::minion;
+                    }
+                } else {
+                    utype = eUnitType::normal;
+                }
             }
             const auto u = addUnit(bpu.fType, utype, mods, pos, level);
             u->addItemDrops(bpu.fItemDrops);

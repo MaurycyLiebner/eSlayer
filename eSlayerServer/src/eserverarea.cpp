@@ -561,6 +561,9 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
             generatePotion(killed.fPos, level, pworth);
         }
     } break;
+    case eUnitType::superUniqueBoss: {
+        worth = eRand::biasedRandF(10.f, 20.f, 3.f);
+    } break;
     }
 
     const float fleeRange = 5.f;

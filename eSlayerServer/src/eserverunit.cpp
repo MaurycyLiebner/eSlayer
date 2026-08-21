@@ -1184,6 +1184,9 @@ void eServerUnit::killed(const eServerUnit& killed) {
     case eUnitType::uniqueBoss:
         expGain *= 5;
         break;
+    case eUnitType::superUniqueBoss:
+        expGain *= 10;
+        break;
     default:
         break;
     }
