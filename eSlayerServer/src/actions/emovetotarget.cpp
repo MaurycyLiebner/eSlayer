@@ -43,7 +43,6 @@ void eMoveToTarget::increment(const float by) {
             break;
         } else {
             const float targetChange = ePointF::distance(targetPos, t.fPos);
-            const float dist = ePointF::distance(targetPos, mUnit.fPos);
             if(targetChange > 0.5f*dist || !moving) {
                 std::vector<eUnitTarget> targets;
                 for(auto& t : mTargets) {
