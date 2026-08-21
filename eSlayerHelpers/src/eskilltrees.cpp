@@ -49,7 +49,16 @@ void eSkillTrees::load() {
 
                 tree.fSkills.emplace_back(skill);
             }
-            tree.fMaxLevelReq = jdata.value("maxLevelReq", 30);
+
+            auto& maxReq = tree.fMaxLevelReq;
+            if(jdata.contains("maxLevelReq")) {
+                maxReq = jdata.value("maxLevelReq", 30);
+            } else {
+                maxReq = 1;
+                for(const auto& s : tree.fSkills) {
+                    maxReq = std::max(maxReq, s.fLevelReq);
+                }
+            }
             sTrees.add(name, tree);
         } catch(const std::exception& e) {
             eExceptions::showDialog(e);
