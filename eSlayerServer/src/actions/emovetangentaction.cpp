@@ -19,14 +19,9 @@ eMoveTangentAction::eMoveTangentAction(
     const eVec2f tan1{-dir.y, dir.x};
     const eVec2f tan2{dir.y, -dir.x};
     for(const auto& tan : {tan1, tan2}) {
-        const float range = 15.f;
-        const int div = 1;
-        for(int i = -div; i <= div; i++) {
-            auto vec = tan;
-            if(i != 0) vec.rotate(i*range/div);
-            vec.normalize(maxDist);
-            targets.emplace_back(0, pos + vec);
-        }
+        auto vec = tan;
+        vec.normalize(maxDist);
+        targets.emplace_back(0, pos + vec);
     }
     setTarget(targets, false);
 }
