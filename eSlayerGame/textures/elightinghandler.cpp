@@ -268,8 +268,8 @@ void drawShadow(
 
     const float skewOffset = h * skew;
 
-    const float x = drawX - skewOffset;
-    const float y = drawY - h;
+    const float x = drawX - skewOffset + tex.offsetX();
+    const float y = drawY - h + tex.offsetY();
 
     SDL_Vertex verts[4];
 
