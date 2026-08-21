@@ -95,67 +95,73 @@ eCharTextures::generateModel(
             const auto it = maps.fTexMap.find(key);
             if(it == maps.fTexMap.end()) {
                 if(eqId != 255) {
-                    std::shared_ptr<eSpriteLoaderLoader> loader;
                     const auto lit = maps.fTexLoaderMap.find(key);
                     if(lit != maps.fTexLoaderMap.end()) {
-                        loader = lit->second;
+                        const auto& loader = lit->second;
+                        loader->addFinish([&rpart, key, &maps]() {
+                            const auto it = maps.fTexMap.find(key);
+                            if(it != maps.fTexMap.end()) {
+                                rpart = it->second;
+                            }
+                        });
+                        modelLoader->addLoader(loader);
                     } else {
-                        loader = std::make_shared<eSpriteLoaderLoader>();
+                        const auto loader = std::make_shared<eSpriteLoaderLoader>();
                         maps.fTexLoaderMap[key] = loader;
-                    }
 
-                    const auto& part = info.mParts.get(partId);
+                        const auto& part = info.mParts.get(partId);
 
-                    auto eqName = part.fEq.name(eqId);
-                    if(basePartId >= 0) {
-                        const auto& basePart = info.mParts.get(basePartId);
-                        const auto baseEqName = basePart.fEq.name(baseEqId);
-                        eqName += "_" + baseEqName;
-                    }
-
-                    const auto partPath = animPath + partName + "_" + eqName;
-
-                    const int maxRows = forButton ? nFrames : 0;
-                    const auto sloader = std::make_shared<eSpriteLoader>(
-                        dir, partPath, res, r, mColorKey, maxRows);
-                    loader->set(sloader);
-
-                    loader->addFinish([this, result, key, &info,
-                                       sloader, nFrames, &rpart,
-                                       &maps, forButton]() {
-                        auto& partMap = maps.fTexMap[key];
-                        partMap.resize(info.mDirs, nullptr);
-
-                        for(int i = 0; i < info.mDirs; i++) {
-                            const auto coll = std::make_shared<eTextureCollection>();
-                            for(int f = 0; f < nFrames; f++) {
-                                sloader->load(i*nFrames + f, *coll);
-                            }
-                            partMap[i] = coll;
-                            if(forButton) break;
+                        auto eqName = part.fEq.name(eqId);
+                        if(basePartId >= 0) {
+                            const auto& basePart = info.mParts.get(basePartId);
+                            const auto baseEqName = basePart.fEq.name(baseEqId);
+                            eqName += "_" + baseEqName;
                         }
 
-                        rpart = partMap;
+                        const auto partPath = animPath + partName + "_" + eqName;
 
-                        maps.fTexLoaderMap.erase(key);
-                    });
+                        const int maxRows = forButton ? nFrames : 0;
+                        const auto sloader = std::make_shared<eSpriteLoader>(
+                            dir, partPath, res, r, mColorKey, maxRows);
+                        loader->set(sloader);
 
-                    modelLoader->addLoader(loader);
+                        loader->addFinish([this, result, key, &info,
+                                           sloader, nFrames, &rpart,
+                                           &maps, forButton]() {
+                            auto& partMap = maps.fTexMap[key];
+                            partMap.resize(info.mDirs, nullptr);
 
-                    const auto work = [loader]() {
-                        loader->load();
-                    };
-                    const auto finish = [loader](const std::exception_ptr& e) {
-                        if(e) {
-                            try {
-                                std::rethrow_exception(e);
-                            } catch(const std::exception& e) {
-                                eRuntimeThrow("Error loading image " + e.what());
+                            for(int i = 0; i < info.mDirs; i++) {
+                                const auto coll = std::make_shared<eTextureCollection>();
+                                for(int f = 0; f < nFrames; f++) {
+                                    sloader->load(i*nFrames + f, *coll);
+                                }
+                                partMap[i] = coll;
+                                if(forButton) break;
                             }
-                        }
-                        loader->finish();
-                    };
-                    sTexturesThread.submit(work, finish);
+
+                            rpart = partMap;
+
+                            maps.fTexLoaderMap.erase(key);
+                        });
+
+                        modelLoader->addLoader(loader);
+
+                        const auto work = [loader]() {
+                            loader->load();
+                        };
+                        const auto finish = [loader](const std::exception_ptr& e) {
+                            if(e) {
+                                try {
+                                    std::rethrow_exception(e);
+                                } catch(const std::exception& e) {
+                                    eRuntimeThrow("Error loading image " + e.what());
+                                }
+                            }
+                            loader->finish();
+                        };
+                        sTexturesThread.submit(work, finish);
+                    }
                 }
             } else {
                 rpart = it->second;
