@@ -6,22 +6,18 @@
 #include "eservernova.h"
 #include "eserverskillarea.h"
 #include "eelitemodifiers.h"
+#include "eclientdata.h"
 
 #include <eSlayerMissiles/emissileincrementer.h>
 #include <eSlayerMissiles/enovaincrementer.h>
 
 #include <eSlayerHelpers/emovementhandlerbase.h>
 #include <eSlayerHelpers/eidmapvector.h>
-#include <eSlayerHelpers/earea.h>
-#include <eSlayerHelpers/eareas.h>
 #include <eSlayerHelpers/esetareas.h>
-#include <eSlayerHelpers/escreendimensions.h>
 #include <eSlayerHelpers/efixedsizesetareas.h>
 #include <eSlayerHelpers/ebody.h>
 #include <eSlayerHelpers/eequipmentaction.h>
-#include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/etalk.h>
-#include <eSlayerHelpers/emercenary.h>
 #include <eSlayerHelpers/eitemdrop.h>
 #include <eSlayerHelpers/equests.h>
 
@@ -36,28 +32,6 @@ struct eUnitInfo;
 struct eServerDoors;
 struct eMoveToMapData;
 struct eSeller;
-
-struct eClientData {
-    eClientData();
-    // in tile dimensions
-    eScreenDimensions fScreen;
-    eArea fArea;
-    std::set<uint32_t> fKnownUnits;
-    std::set<uint32_t> fKnownItems;
-    std::set<int> fUsedSkills;
-    uint32_t fLatestMissile;
-    uint32_t fLatestNova;
-    uint32_t fLatestSkillArea;
-    eAreas fKnownMap;
-    bool fUpdateBoostsAuras = false;
-
-    eSlayerQuests fQuests;
-    bool fSendQuests = false;
-
-    std::optional<eMercenary> fMerc;
-
-    uint32_t fFollowersState = 0;
-};
 
 struct eMissileData {
     std::vector<eMissile> fNewMissiles;

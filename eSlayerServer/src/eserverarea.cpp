@@ -2512,6 +2512,3 @@ void eServerArea::removePlannedUnits() {
     }
     mUnitsToRemove.clear();
 }
-
-eClientData::eClientData() :
-    fKnownMap(eMapPortion::sBaseDim) {}

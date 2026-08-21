@@ -55,6 +55,7 @@ add_library(eSlayerServer SHARED
     src/eelitemodifiers.h src/eelitemodifiers.cpp
     src/ethreadsafe.h
     src/eservermovementhandler.h src/eservermovementhandler.cpp
+    src/eclientdata.h src/eclientdata.cpp
 )
 
 target_include_directories(eSlayerServer
