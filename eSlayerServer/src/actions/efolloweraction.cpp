@@ -46,6 +46,7 @@ void eFollowerAction::teleportTo(eServerUnit& follow) {
     if(!r) return;
     mUnit.setPosition(pos);
     setChild(nullptr);
+    mUnit.setBlockingActionTime(0.f);
 }
 
 void eFollowerAction::moveTo(eServerUnit& follow) {
