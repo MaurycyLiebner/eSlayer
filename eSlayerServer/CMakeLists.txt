@@ -28,6 +28,7 @@ add_library(eSlayerServer SHARED
     src/eserverarea_body.cpp
     src/eserverarea_cast.cpp
     src/eserverarea_portal.cpp
+    src/eserverarea_clientactions.cpp
 
     src/esingleplayerserver.h src/esingleplayerserver.cpp
     src/elocalserver.h src/elocalserver.cpp
