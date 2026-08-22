@@ -114,7 +114,7 @@ std::vector<eModifier> eMercenaryBase::mods() const {
 }
 
 uint32_t eMercenaryBase::cost() const {
-    return fLevel*1000;
+    return std::pow(fLevel, 0.66f)*1000;
 }
 
 bool eMercenary::getUpdate(
