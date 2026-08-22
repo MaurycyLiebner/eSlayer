@@ -474,6 +474,16 @@ bool eTcpIpJoin::summonMerc(
     return true;
 }
 
+bool eTcpIpJoin::resetSkillStats(
+    const uint32_t clientId, const uint8_t npcId) {
+    ePacket p;
+    p << ePacketType::resetSkillStats;
+    p << npcId;
+    const bool r = mNet.sendToServer(p);
+    if(!r) failed("Disconnected", "Failed to send reset skill/stats request to the host.");
+    return true;
+}
+
 std::optional<eFollowersBase>
 eTcpIpJoin::followersUpdate(const uint32_t clientId) {
     std::optional<eFollowersBase> result;

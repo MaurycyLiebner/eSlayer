@@ -478,6 +478,18 @@ bool eServerArea::summonMerc(
     return true;
 }
 
+bool eServerArea::resetSkillStats(
+    const uint32_t clientId, const uint8_t npcId) {
+    const auto u = unit(clientId);
+    if(!u) return false;
+    if(npcId < 0) return false;
+    const auto& npc = eUnitsInfo::sUnits.get(npcId);
+    if(!npc.fResetSkillStats) return false;
+    u->resetSkillStats();
+    u->setAttributesChanged(true);
+    return true;
+}
+
 bool eServerArea::requestSeller(
     const uint32_t clientId,
     const uint32_t sellerId,

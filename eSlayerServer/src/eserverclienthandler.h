@@ -79,6 +79,7 @@ public:
     bool requestSeller(const uint32_t sellerId,
                        eSeller& seller);
     bool summonMerc(const eMercenary& merc);
+    bool resetSkillStats(const uint8_t npcId);
 
     std::optional<eFollowersBase> followersUpdate();
     std::optional<eMercenary> receiveMerc();

@@ -516,6 +516,14 @@ bool eLocalServer::summonMerc(
     return h->summonMerc(merc);
 }
 
+bool eLocalServer::resetSkillStats(
+    const uint32_t clientId,
+    const uint8_t npcId) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->resetSkillStats(npcId);
+}
+
 std::optional<eFollowersBase>
 eLocalServer::followersUpdate(const uint32_t clientId) {
     const auto h = clientHandler(clientId);

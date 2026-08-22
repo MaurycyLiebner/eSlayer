@@ -638,6 +638,10 @@ void eMainCharAction::openMainMenu(
     const SDL_Rect& rect,
     const eNPCType type,
     const int infoId) {
+    const auto npcId = eUnitsInfo::sUnits.id(baseName);
+    if(npcId < 0) return;
+    const auto& npc = eUnitsInfo::sUnits.get(npcId);
+
     const auto actions = std::make_shared<std::vector<eHoverAction>>();
     auto& actionsRef = *actions;
 
@@ -706,10 +710,8 @@ void eMainCharAction::openMainMenu(
             auto& hireAct = actionsRef.emplace_back();
             hireAct.fText = eText::text(20, 4);
             const auto level = mStats.fLevel;
-            const auto npcId = eUnitsInfo::sUnits.id(baseName);
             if(npcId >= 0) {
                 std::vector<uint8_t> mtypes;
-                const auto& npc = eUnitsInfo::sUnits.get(npcId);
                 const int diff = eDifficulties::sDifficulty;
                 const auto& mercMap = npc.fMercTypes;
                 const auto it = mercMap.find(diff);
@@ -739,7 +741,6 @@ void eMainCharAction::openMainMenu(
             if(stepId >= steps.size()) continue;
             const auto& step = steps[stepId];
             if(step.fType != eQuestType::addSocket) continue;
-            const auto npcId = eUnitsInfo::sUnits.id(baseName);
             if(step.fTargetNPC != npcId) continue;
             questId = id;
             add = true;
@@ -754,6 +755,16 @@ void eMainCharAction::openMainMenu(
             };
         }
     }
+
+    if(npc.fResetSkillStats) {
+        auto& resetAct = actionsRef.emplace_back();
+        resetAct.fText = eText::text(20, 6);
+        resetAct.fPress = [npcId]() {
+            eHoverWidget::sCloseMenu();
+            eGameWidget::sResetSkillStats(npcId);
+        };
+    }
+
     {
         auto& cancelAct = actionsRef.emplace_back();
         cancelAct.fText = eText::text(20, 2);

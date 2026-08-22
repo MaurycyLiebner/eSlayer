@@ -17,6 +17,18 @@ uint32_t eAura::sNextId = 1;
 
 eAura::eAura() : fId(sNextId++) {}
 
+void eStats::resetSkillStats() {
+    const bool had0 = fBaseSkillLevels.count(0);
+    for(const auto& skill : fBaseSkillLevels) {
+        const auto skillId = skill.first;
+        if(skillId == 0) continue;
+        const auto level = skill.second;
+        fBaseSkillLevels.fRemainingPoints += level + 1;
+    }
+    fBaseSkillLevels.clear();
+    if(had0) fBaseSkillLevels[0] = 0;
+}
+
 void eStats::levelUp(const int uinfoId) {
     const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
     addSkillPoints(uinfo.fSkillPointsPerLevel);

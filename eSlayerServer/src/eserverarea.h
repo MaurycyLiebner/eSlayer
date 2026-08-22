@@ -213,6 +213,8 @@ public:
                const bool follow);
     bool summonMerc(const uint32_t clientId,
                     eMercenary merc);
+    bool resetSkillStats(const uint32_t clientId,
+                         const uint8_t npcId);
     bool castChance(eServerUnit& by,
                     const eSkillStats& skill,
                     const eWeaponChoice wchoice,

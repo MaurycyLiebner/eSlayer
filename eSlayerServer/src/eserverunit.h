@@ -405,6 +405,8 @@ public:
 
     bool visible() const { return mVisible; }
     void setVisible(const bool v) { mVisible = v; }
+
+    void resetSkillStats();
 private:
     using eUnitData::setUpdate;
     using eUnitData::fUpdate;

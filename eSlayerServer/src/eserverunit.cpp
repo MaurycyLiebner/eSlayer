@@ -1202,6 +1202,7 @@ void eServerUnit::killed(const eServerUnit& killed) {
             const auto mods = eMercenariesInfo::mods(mMercType, level);
             addBoost(mods, eBoostCurseType::merc, true);
         }
+        recalculateStats();
     }
     setAttributesChanged(true);
 }
@@ -1553,6 +1554,11 @@ void eServerUnit::addItemDrops(
     for(const auto& d : drops) {
         mItemDrops.emplace_back(d);
     }
+}
+
+void eServerUnit::resetSkillStats() {
+    mAttributes.resetSkillStats(fUnitInfoId);
+    mStats.resetSkillStats();
 }
 
 void eServerUnit::removeBoostDataTmp(const uint8_t id) {

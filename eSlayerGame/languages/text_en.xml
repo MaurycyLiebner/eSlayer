@@ -201,6 +201,7 @@
         <string id="3">Add Socket</string>
         <string id="4">Hire</string>
         <string id="5">Resurrect %1: %2</string>
+        <string id="6">Reset Stat/Skill Points</string>
     </group>
     <group id="21">
         <string id="0">You completed this quest</string>

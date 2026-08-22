@@ -304,6 +304,13 @@ bool eTcpIpHost::summonMerc(
         clientId, merc);
 }
 
+bool eTcpIpHost::resetSkillStats(
+    const uint32_t clientId, const uint8_t npcId) {
+    std::unique_lock lock(mMutex);
+    return eLocalServer::resetSkillStats(
+        clientId, npcId);
+}
+
 std::optional<eFollowersBase>
 eTcpIpHost::followersUpdate(const uint32_t clientId) {
     std::unique_lock lock(mMutex);
@@ -665,6 +672,15 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             eMercenary merc;
             merc.read(p);
             eLocalServer::summonMerc(charId, merc);
+        }
+    } break;
+    case ePacketType::resetSkillStats: {
+        const auto it = mClientIdMap.find(tcpClientId);
+        if(it != mClientIdMap.end()) {
+            const uint32_t charId = it->second;
+            uint8_t npcId;
+            p >> npcId;
+            eLocalServer::resetSkillStats(charId, npcId);
         }
     } break;
     case ePacketType::equipmentAction: {

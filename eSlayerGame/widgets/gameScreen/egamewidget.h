@@ -153,6 +153,7 @@ public:
     static void sDropGold(const int gold);
     static void sOpenSellerMenu(const uint32_t sellerId);
     static void sAddSocket(const uint8_t questId);
+    static void sResetSkillStats(const uint8_t npcId);
 protected:
     void paintEvent(ePainter& p) override;
     bool mousePressEvent(const eMouseEvent& e) override;
@@ -169,6 +170,8 @@ private:
     void setHighlightedItem(const std::shared_ptr<eGroundItem>& i);
     void setPressedUnit(const std::shared_ptr<eUnit>& u);
     void setPressedNPC(const std::shared_ptr<eUnit>& u);
+
+    void resetSkillStats(const uint8_t npcId);
 
     void clearHighlighted();
 

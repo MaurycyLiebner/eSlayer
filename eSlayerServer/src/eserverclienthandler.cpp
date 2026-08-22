@@ -312,6 +312,13 @@ bool eServerClientHandler::summonMerc(
         mClientId, merc);
 }
 
+bool eServerClientHandler::resetSkillStats(
+    const uint8_t npcId) {
+    if(!mArea) return false;
+    return mArea->resetSkillStats(
+        mClientId, npcId);
+}
+
 std::optional<eFollowersBase>
 eServerClientHandler::followersUpdate() {
     if(!mArea) return std::nullopt;

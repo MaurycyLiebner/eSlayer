@@ -40,6 +40,7 @@ struct eUnitInfo {
     uint8_t fStatPointsPerLevel;
 
     eNPCType fNPCType;
+    bool fResetSkillStats;
 
     std::string fClassName;
     int fClassId;

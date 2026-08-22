@@ -141,6 +141,9 @@ public:
 
     bool summonMerc(const uint32_t clientId,
                     const eMercenary& merc) override;
+    bool resetSkillStats(const uint32_t clientId,
+                         const uint8_t npcId) override;
+
     std::optional<eFollowersBase>
     followersUpdate(const uint32_t clientId) override;
 protected:

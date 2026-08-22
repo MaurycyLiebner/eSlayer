@@ -539,6 +539,10 @@ void eGameWidget::sAddSocket(const uint8_t questId) {
     sInstance->addSocket(questId);
 }
 
+void eGameWidget::sResetSkillStats(const uint8_t npcId) {
+    sInstance->resetSkillStats(npcId);
+}
+
 void eGameWidget::paintEvent(ePainter& p) {
     mGamePainter.clear();
 
@@ -2489,6 +2493,13 @@ void eGameWidget::setPressedNPC(
     const std::shared_ptr<eUnit>& u) {
     mPressedNPC = u;
     if(u) mMainAction->setPressedNPC(u);
+}
+
+void eGameWidget::resetSkillStats(const uint8_t npcId) {
+    mServer->resetSkillStats(mClientId, npcId);
+    auto& stats = eGameWidget::stats();
+    stats.resetSkillStats();
+    mMainAction->recalculateStats();
 }
 
 void eGameWidget::clearHighlighted() {

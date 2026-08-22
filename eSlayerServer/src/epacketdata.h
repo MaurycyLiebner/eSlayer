@@ -22,7 +22,7 @@ enum class ePacketType : uint8_t {
     sellAction,
     replaceItemId, requestSeller,
     provideSeller,
-    summonMerc,
+    summonMerc, resetSkillStats,
     followers,
     body, bodyPickedUp,
     teamsAction, spawnPortal,

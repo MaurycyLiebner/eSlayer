@@ -18,6 +18,7 @@ struct ESLAYERHELPERS_API eAttributes {
     uint32_t nextLevelExp(const int uinfoId) const;
     bool levelUp(const int uinfoId);
     void addStatPoints(const int count);
+    void resetSkillStats(const int uinfoId);
 
     uint32_t totalPoints() const;
 

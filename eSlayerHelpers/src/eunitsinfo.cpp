@@ -181,6 +181,8 @@ void eUnitsInfo::load() {
                 }
             }
 
+            u.fResetSkillStats = jdata.value("resetSkillStats", false);
+
             sUnits.add(name, u);
         } catch(...) {
             eRuntimeThrow("Failed to parse \"" + dir + "/" + name + ".json\"");

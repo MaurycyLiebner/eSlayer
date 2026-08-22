@@ -194,6 +194,10 @@ public:
     summonMerc(const uint32_t clientId,
                const eMercenary& merc) = 0;
 
+    virtual bool
+    resetSkillStats(const uint32_t clientId,
+                    const uint8_t npcId) = 0;
+
     virtual std::optional<eFollowersBase>
     followersUpdate(const uint32_t clientId) = 0;
 
