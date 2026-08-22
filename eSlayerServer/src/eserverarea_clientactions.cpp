@@ -537,7 +537,13 @@ bool eServerArea::moveClient(
         if(!u) continue;
         followers.emplace_back(u);
     }
-    if(&from != &to) from.clientMoved(clientId);
+    if(&from != &to) {
+        from.clientMoved(clientId);
+        for(const auto& f : followers) {
+            const auto uid = f->fCharId;
+            from.removeUnit(uid);
+        }
+    }
     const bool r = to.addClient(
         clientId, u, followers,
         clientData, moveData, spawnPos);

@@ -338,8 +338,9 @@ bool eServerArea::planRemoveUnit(const uint32_t charId) {
 
 bool eServerArea::removeUnit(const uint32_t charId) {
     const auto area = unitArea(charId);
-    if(!mUnitAreas.hasArea(area)) return false;
-    mUnitAreas.erase(area, charId);
+    if(mUnitAreas.hasArea(area)) {
+        mUnitAreas.erase(area, charId);
+    }
     mUnits.remove(charId);
     return true;
 }

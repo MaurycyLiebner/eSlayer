@@ -72,7 +72,7 @@ void eServerArea::iniSetupUnit(
                           const float dist,
                           const eOtherHandler& handler) {
         iterateOverUnits(pos, dist, [handler, charId](
-                                        const std::shared_ptr<eServerUnit>& u) {
+                const std::shared_ptr<eServerUnit>& u) {
             if(charId == u->fCharId) return false;
             const bool visible = u->visible();
             if(!visible) return false;
