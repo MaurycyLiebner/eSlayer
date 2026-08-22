@@ -277,6 +277,7 @@ add_executable(eSlayerGame
     widgets/gameScreen/eescmenubutton.h
     widgets/gameScreen/egamepainter.cpp
     widgets/gameScreen/egamepainter.h
+    widgets/gameScreen/egamewidget_paint.cpp
     widgets/gameScreen/egamewidget.cpp
     widgets/gameScreen/egamewidget.h
     widgets/gameScreen/egrounditemnames.cpp
