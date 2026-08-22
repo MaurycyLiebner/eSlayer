@@ -10,6 +10,7 @@
 #include <set>
 
 struct ESLAYERHELPERS_API eItemAffix {
+    int fLevelReq;
     eModsCollectionLevels fLevels;
     eColor fColor;
 

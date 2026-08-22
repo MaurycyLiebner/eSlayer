@@ -102,8 +102,23 @@ eItem eItemGenerator::generateItem(
     auto& mods = item.fModifiers;
     float remWorth = worth;
     const int maxMods = item.fRarity == eItemRarity::rare ? 8 : 4;
-    auto prefixOptions = eItemAffixes::sTypePrefixes[typeId];
-    auto suffixOptions = eItemAffixes::sTypeSuffixes[typeId];
+
+    const auto extractLevelReq = [level, typeId](const bool suffix) {
+        std::set<int> result;
+        const auto& affixes = suffix ? eItemAffixes::sTypeSuffixes[typeId] :
+            eItemAffixes::sTypePrefixes[typeId];
+        const auto& mods = suffix ? eItemAffixes::sSuffixes :
+            eItemAffixes::sPrefixes;
+        for(const auto affix : affixes) {
+            const auto& mod = mods.get(affix);
+            if(level < mod.fLevelReq) continue;
+            result.emplace(affix);
+        }
+        return result;
+    };
+
+    auto prefixOptions = extractLevelReq(false);
+    auto suffixOptions = extractLevelReq(true);
     while(remWorth >= 0.25f) {
         if(mods.size() >= maxMods) break;
         if(prefixOptions.empty() && suffixOptions.empty()) break;

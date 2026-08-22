@@ -85,6 +85,7 @@ void eItemAffixes::load() {
                     mod.fColor.fB = color.value("b", 1.f);
                     mod.fColor.fA = color.value("a", 1.f);
                 }
+                mod.fLevelReq = jdata.value("levelReq", 1);
                 modMap.add(name, mod);
             } catch(...) {
                 eRuntimeThrow("Failed to parse affix \"" + name + "\".");
