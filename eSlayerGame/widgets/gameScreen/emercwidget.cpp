@@ -8,9 +8,7 @@
 #include <eSlayerHelpers/eunitsinfo.h>
 
 void eMercWidget::initialize(
-    eMercenary& merc,
-    eEquipment& eq,
-    const eStats& stats) {
+    eMercenary& merc, eEquipment& eq) {
     mMerc = &merc;
     mAttributes = merc.attributes();
 
@@ -42,7 +40,7 @@ void eMercWidget::initialize(
     innerW->addTab(eText::text(17, 6), mStat);
 
     mInv = new eInventoryWidgetBase(window());
-    mInv->initialize(merc.fUnitId, merc.fEq, stats,
+    mInv->initialize(merc.fUnitId, merc.fEq, mStats,
                      eHoverItemType::regular, places,
                      &eq.fDragged, eqO);
     innerW->addTab(eText::text(17, 5), mInv);

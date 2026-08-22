@@ -1017,9 +1017,8 @@ void eGameScreen::showFollowerMenu(
     auto& eq = mGameWidget->equipment();
     const auto mtype = mercRef.fMercType;
     const auto& m = eMercenariesInfo::sMercs.get(mtype);
-    const auto& stats = mGameWidget->stats();
     mMenusWidget->addWidget(mFollowerMenu);
-    mFollowerMenu->initialize(mercRef, eq, stats);
+    mFollowerMenu->initialize(mercRef, eq);
     mFollowerMenu->align(eAlignment::left | eAlignment::top);
 
     showInventoryMenu();

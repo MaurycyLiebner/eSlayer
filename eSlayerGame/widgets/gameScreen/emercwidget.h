@@ -11,9 +11,7 @@ class eMercWidget : public eBgWidget {
 public:
     using eBgWidget::eBgWidget;
 
-    void initialize(eMercenary& merc,
-                    eEquipment& eq,
-                    const eStats& stats);
+    void initialize(eMercenary& merc, eEquipment& eq);
 
     bool dropItem();
 protected:
