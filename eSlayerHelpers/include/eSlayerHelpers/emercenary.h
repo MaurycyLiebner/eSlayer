@@ -5,6 +5,7 @@
 
 #include "eSlayerHelpers/eequipment.h"
 #include "eSlayerHelpers/eattributes.h"
+#include "eSlayerHelpers/estats.h"
 
 struct ESLAYERHELPERS_API eMercenaryBase {
     uint8_t fMercType = 0;
@@ -24,6 +25,8 @@ struct ESLAYERHELPERS_API eMercenary :
     bool fDead = true;
 
     uint8_t fUpdate = std::numeric_limits<decltype(fUpdate)>::max();
+
+    eStats stats() const;
 
     enum eShift : uint8_t {
         mercType,

@@ -249,7 +249,6 @@ bool eGameWidget::dropPortrait(const uint32_t unitId) {
     if(!merc) return false;
     if(merc->fUnitId != unitId) return false;
     auto& eq = equipment();
-    auto& meq = merc->fEq;
     auto& dragged = eq.fDragged;
     if(dragged.fType == eItemType::none) return false;
     if(dragged.fType == eItemType::potion) {
@@ -262,8 +261,12 @@ bool eGameWidget::dropPortrait(const uint32_t unitId) {
         const auto& eqO = m.fEq;
         const bool r = eqO.validateItem(dragged);
         if(!r) return false;
+        const auto stats = merc->stats();
+        const bool met = stats.itemReqsMet(dragged);
+        if(!met) return false;;
         for(const auto type : eqO.fEquipment) {
             eEquipmentPlace p;
+            auto& meq = merc->fEq;
             const bool r = meq.tryAdd(dragged, type, &p);
             if(!r) continue;
             dragged = eItem();

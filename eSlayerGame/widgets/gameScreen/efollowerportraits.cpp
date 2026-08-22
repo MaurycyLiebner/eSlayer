@@ -96,8 +96,8 @@ bool eFollowerPortraits::dropItem() {
         const auto p = it.second;
         if(!p->hovered()) continue;
         const auto unitId = it.first;
-        const bool r = mDropAction(unitId);
-        if(r) return true;
+        mDropAction(unitId);
+        return true;
     }
     return false;
 }

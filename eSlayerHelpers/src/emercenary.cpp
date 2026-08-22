@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/epacket.h"
 #include "eSlayerHelpers/emercenaries.h"
+#include "eSlayerHelpers/eunitsinfo.h"
 
 void eMercenary::read(ePacket& p) {
     p >> fUpdate;
@@ -95,6 +96,27 @@ eAttributes eMercenary::attributes() const {
     auto result = eMercenaryBase::attributes();
     result.fExp = fExp;
     return result;
+}
+
+eStats eMercenary::stats() const {
+    eStats stats;
+    auto& b = stats.fBoosts;
+    const auto mods = eMercenaryBase::mods();
+    for(const auto& mod : mods) {
+        b.emplace(eBoostCurseType::merc, mod);
+    }
+
+    const auto& m = eMercenariesInfo::sMercs.get(
+        fMercType);
+    const auto uid = m.fUnitType;
+    const auto& uinfo = eUnitsInfo::sUnits.get(uid);
+    stats.fClass = uinfo.fClassId;
+    stats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
+    stats.fSkills.emplace_back();
+    stats.fSkills.emplace_back();
+    const auto attributes = eMercenaryBase::attributes();
+    stats.calculate(attributes, fEq);
+    return stats;
 }
 
 eAttributes eMercenaryBase::attributes() const {

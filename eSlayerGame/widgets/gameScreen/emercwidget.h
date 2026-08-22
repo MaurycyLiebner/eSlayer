@@ -17,6 +17,7 @@ public:
 protected:
     void paintEvent(ePainter& p) override;
 private:
+    uint32_t mUpdateCounter = 0;
     eMercenary* mMerc = nullptr;
     eStats mStats;
     eAttributes mAttributes;

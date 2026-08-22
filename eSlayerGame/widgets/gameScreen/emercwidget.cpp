@@ -17,22 +17,11 @@ void eMercWidget::initialize(
 
     const auto& m = eMercenariesInfo::sMercs.get(
         merc.fMercType);
+    const auto uid = m.fUnitType;
     const auto& eqO = m.fEq;
     const auto& places = eqO.fEquipment;
 
-    auto& b = mStats.fBoosts;
-    const auto mods = merc.mods();
-    for(const auto& mod : mods) {
-        b.emplace(eBoostCurseType::merc, mod);
-    }
-
-    const auto uid = m.fUnitType;
-    const auto& uinfo = eUnitsInfo::sUnits.get(uid);
-    mStats.fClass = uinfo.fClassId;
-    mStats.fDifficultyPenalties = uinfo.fDifficultyPenalties;
-    mStats.fSkills.emplace_back();
-    mStats.fSkills.emplace_back();
-    mStats.calculate(mAttributes, merc.fEq);
+    mStats = merc.stats();
     mStat = new eStatsWidgetBase(window());
     const auto& names = eMercenaryNames::sNames.get(merc.fMercType);
     const auto& name = names[merc.fNameId % names.size()];
@@ -56,5 +45,8 @@ bool eMercWidget::dropItem() {
 
 void eMercWidget::paintEvent(ePainter& p) {
     eBgWidget::paintEvent(p);
-    mStats.calculate(mAttributes, mMerc->fEq);
+    if(mUpdateCounter++ % 5 == 0) {
+        const auto& eq = mMerc->fEq;
+        mStats.calculate(mAttributes, eq);
+    }
 }
