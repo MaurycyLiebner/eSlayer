@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <memory>
+#include <cstdint>
 
 struct eNova;
 class eFixedSizeSetAreas;

@@ -4,6 +4,7 @@
 #include "eslayermapgeneratorexport.h"
 
 #include <memory>
+#include <cstdint>
 
 class eMap;
 

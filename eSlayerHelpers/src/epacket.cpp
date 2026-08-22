@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 const float u8max = std::numeric_limits<uint8_t>::max();
 const float u16max = std::numeric_limits<uint16_t>::max();
