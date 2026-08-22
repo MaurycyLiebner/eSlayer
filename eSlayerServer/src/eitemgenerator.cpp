@@ -146,7 +146,7 @@ eItem eItemGenerator::generateItem(
     int typeId;
     if(worth < 1.f) {
         if(eRand::randChance(0.5f)) {
-            const uint32_t count = 1 + 5.f*sqrt(level)*worth;
+            const uint32_t count = 1 + 25.f*sqrt(level)*worth;
             return generateGold(count);
         } else {
             return generatePotion(level, worth);
