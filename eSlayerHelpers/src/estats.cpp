@@ -602,6 +602,9 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
 
     fEffectiveSkillLevels = fBaseSkillLevels;
 
+    fOnStruck.clear();
+    fOnDeath.clear();
+
     int allSkillsInc = 0;
     std::map<int, int> classSkillsInc;
 
