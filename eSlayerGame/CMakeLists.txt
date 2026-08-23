@@ -374,8 +374,8 @@ add_executable(eSlayerGame
 
 include(GNUInstallDirs)
 install(TARGETS eSlayerGame
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION bin/lib
+    RUNTIME DESTINATION bin
 )
 
 target_link_libraries(eSlayerGame PRIVATE SDL3::SDL3)

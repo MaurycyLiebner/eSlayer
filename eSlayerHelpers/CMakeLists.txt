@@ -22,6 +22,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(nlohmann_json)
 
+# for libzip
+set(BUILD_TOOLS OFF CACHE BOOL "Build tools" FORCE)
+set(BUILD_REGRESS OFF CACHE BOOL "Build regression tests" FORCE)
+set(BUILD_OSSFUZZ OFF CACHE BOOL "Build fuzzers for ossfuzz" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples" FORCE)
+set(BUILD_DOC OFF CACHE BOOL "Build documentation" FORCE)
+
 FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
@@ -30,6 +37,9 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(libzip)
+
+# for tinyxml2
+set(tinyxml2_BUILD_TESTING OFF CACHE BOOL "Build tests for tinyxml2" FORCE)
 
 FetchContent_Declare(
     tinyxml2

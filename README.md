@@ -57,16 +57,16 @@ Compile (replace **6** with the number of CPU cores):
 cmake --build . -j 6
 ```
 
-After the build is finished you should have **build/eSlayerGame/eSlayerGame** executable file.
-Put the executable in **Bin/Bin/** directory of the downloaded release files and run it.
+After the build is finished you should have **build/bin/** folder with eSlayerGame executable and libraries.
+Copy the content of the **build/bin/** to **Bin/Bin/** directory of the downloaded release files and run eSlayerGame (the path of the executable should be **eSlayer/Bin/Bin/eSlayerGame**).
 
 ## Dependencies
 
-eSlayer is build using following libraries:
+eSlayer uses following libraries:
 
 [SDL3](https://github.com/libsdl-org/SDL)
 [nlohmann/json](https://github.com/nlohmann/json)
-[RapidCSV](https://github.com/d99kris/rapidcsv.git)
+[Rapidcsv](https://github.com/d99kris/rapidcsv.git)
 [libzip](https://github.com/nih-at/libzip.git)
 [tinyxml2](https://github.com/leethomason/tinyxml2.git)
 
@@ -78,7 +78,7 @@ The code was written without the use of AI.
 
 The Slayer character was created using [Blender 5.2](https://www.blender.org/) and [MakeHuman](http://www.makehumancommunity.org).
 
-The remaining graphics is AI generated with varying amount of editing.
+The remaining graphics are AI-generated, with varying amount of editing.
 
 ## Audio
 
