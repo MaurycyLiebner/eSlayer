@@ -284,6 +284,8 @@
         <string id="74">Cold Length %1 Seconds</string>
         <string id="75">Freeze Length %1 Seconds</string>
         <string id="76">Attack %1 Targets</string>
+        <string id="77">Attacks Deal %1% Splash Damage</string>
+        <string id="78">%1 Splash Range</string>
     </group>
     <group id="23">
         <string id="0"></string>
@@ -363,5 +365,7 @@
         <string id="74">Cold Length %1 Seconds</string>
         <string id="75">Freeze Length %1 Seconds</string>
         <string id="76">Attack %1 Targets</string>
+        <string id="77">Attacks Deal %1% Splash Damage</string>
+        <string id="78">%1 Splash Range</string>
     </group>
 </strings>

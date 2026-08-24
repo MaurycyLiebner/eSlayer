@@ -306,12 +306,21 @@ struct eSkillStatsHelper {
                 fSkillStats.fManaStealRW += 0.01f*mod.fValue1;
             }
         } break;
+        case eModifierType::splashDamage:
         case eModifierType::meeleSplashDamage: {
             if(lw) {
                 fSkillStats.fMeeleSplashDamageLW += 0.01f*mod.fValue1;
             }
             if(rw) {
                 fSkillStats.fMeeleSplashDamageRW += 0.01f*mod.fValue1;
+            }
+        } break;
+        case eModifierType::splashRange: {
+            if(lw) {
+                fSkillStats.fSplashRangeLW += 0.01f*mod.fValue1;
+            }
+            if(rw) {
+                fSkillStats.fSplashRangeRW += 0.01f*mod.fValue1;
             }
         } break;
         case eModifierType::knockback: {
@@ -818,6 +827,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
 
+        case eModifierType::splashRange:
+        case eModifierType::splashDamage:
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
 
@@ -1149,6 +1160,8 @@ void eStats::calculateSkill(eSkillStats& stats,
         case eModifierType::lifeSteal:
         case eModifierType::manaSteal:
 
+        case eModifierType::splashRange:
+        case eModifierType::splashDamage:
         case eModifierType::meeleSplashDamage:
         case eModifierType::knockback:
 

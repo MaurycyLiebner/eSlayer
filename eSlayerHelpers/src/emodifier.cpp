@@ -109,7 +109,10 @@ gModifierTypeToString = {
     { eModifierType::dealsColdLength, "dealsColdLength" },
     { eModifierType::dealsFreezeLength, "dealsFreezeLength" },
 
-    { eModifierType::attackTargets, "attackTargets" }
+    { eModifierType::attackTargets, "attackTargets" },
+
+    { eModifierType::splashDamage, "splashDamage" },
+    { eModifierType::splashRange, "splashRange" }
 };
 
 std::map<std::string, eModifierType>
@@ -187,6 +190,8 @@ eModValuesUsage eModifier::valuesUsed() const {
     case eModifierType::lifeSteal:
     case eModifierType::manaSteal:
 
+    case eModifierType::splashDamage:
+    case eModifierType::splashRange:
     case eModifierType::meeleSplashDamage:
 
     case eModifierType::allSkills:
@@ -339,6 +344,8 @@ std::string eModifier::value1Name() const {
     case eModifierType::lifeSteal:
     case eModifierType::manaSteal:
 
+    case eModifierType::splashDamage:
+    case eModifierType::splashRange:
     case eModifierType::meeleSplashDamage:
 
     case eModifierType::allSkills:
@@ -445,6 +452,8 @@ std::string eModifier::value2Name() const {
     case eModifierType::lifeSteal:
     case eModifierType::manaSteal:
 
+    case eModifierType::splashDamage:
+    case eModifierType::splashRange:
     case eModifierType::meeleSplashDamage:
     case eModifierType::knockback:
 
@@ -636,6 +645,7 @@ bool eModifierHelpers::isPercent(
     case eModifierType::lifeSteal:
     case eModifierType::manaSteal:
 
+    case eModifierType::splashDamage:
     case eModifierType::meeleSplashDamage:
     case eModifierType::knockback:
 
@@ -707,6 +717,8 @@ bool eModifierHelpers::isPercent(
     case eModifierType::dealsFreezeLength:
 
     case eModifierType::attackTargets:
+
+    case eModifierType::splashRange:
         return false;
     case eModifierType::onAttack:
     case eModifierType::onStriking:

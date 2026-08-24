@@ -58,6 +58,7 @@ bool eServerUnit::hitData(
     data.fALvl = level();
 
     data.fSplashDmg = meeleSplashDamage(skill, wchoice);
+    data.fSplashRange = splashRange(skill, wchoice);
     data.fDamage = attackDamage(skill, wchoice);
 
     data.fHeal = heal(skill, wchoice);
@@ -592,6 +593,25 @@ float eServerUnit::meeleSplashDamage(
         return stats.fMeeleSplashDamageLW;
     case eWeaponChoice::right:
         return stats.fMeeleSplashDamageRW;
+    }
+    return 0.f;
+}
+
+float eServerUnit::splashRange(
+    const int schoice,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = mStats.skill(schoice);
+    return splashRange(skill, wchoice);
+}
+
+float eServerUnit::splashRange(
+    const eSkillStats& stats,
+    const eWeaponChoice wchoice) {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return stats.fSplashRangeLW;
+    case eWeaponChoice::right:
+        return stats.fSplashRangeRW;
     }
     return 0.f;
 }

@@ -126,6 +126,9 @@ struct eSkillStats {
     float fMeeleSplashDamageLW = 0.f;
     float fMeeleSplashDamageRW = 0.f;
 
+    float fSplashRangeLW = 0.f;
+    float fSplashRangeRW = 0.f;
+
     float fColdLengthLW = 0.f;
     float fColdLengthRW = 0.f;
 

@@ -224,6 +224,11 @@ public:
     static float meeleSplashDamage(const eSkillStats& stats,
                                    const eWeaponChoice wchoice);
 
+    float splashRange(const int schoice,
+                      const eWeaponChoice wchoice) const;
+    static float splashRange(const eSkillStats& stats,
+                             const eWeaponChoice wchoice);
+
     float manaBurn(const int schoice,
                    const eWeaponChoice wchoice) const;
     static float manaBurn(const eSkillStats& stats,

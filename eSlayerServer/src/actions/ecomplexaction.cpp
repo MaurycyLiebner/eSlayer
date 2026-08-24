@@ -338,8 +338,7 @@ bool eComplexAction::getHit(const eHitData& data,
         attacker->restoreMana(manaStolen);
     }
 
-    if(splash && data.fSplashDmg > 0.f) {
-        const float splashRange = 1.f;
+    if(splash && data.fSplashDmg > 0.f && data.fSplashRange > 0.f) {
         auto newData = data;
         newData.fDamage = newData.fDamage*data.fSplashDmg;
         const auto iter = [&](const std::shared_ptr<eServerUnit>& u) {
@@ -347,11 +346,11 @@ bool eComplexAction::getHit(const eHitData& data,
             const eTeamId t1 = u->fTeamId;
             const eTeamId t2 = data.fAttackTeamId;
             if(!eTeams::areEnemies(t1, t2)) return false;
-            if(&*u == attacker.get()) return false;
             u->getHit(newData, false);
             return false;
         };
-        mArea.iterateOverUnitsClamped(mUnit.fPos, splashRange, iter);
+        mArea.iterateOverUnitsClamped(
+            mUnit.fPos, data.fSplashRange, iter);
     }
     return hit;
 }

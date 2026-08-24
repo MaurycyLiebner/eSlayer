@@ -79,6 +79,8 @@ bool addPlus(const float value,
     case eModifierType::energy:
     case eModifierType::vitality:
 
+    case eModifierType::splashRange:
+    case eModifierType::splashDamage:
     case eModifierType::meeleSplashDamage:
 
     case eModifierType::allSkills:

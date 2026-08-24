@@ -119,6 +119,9 @@ enum class eModifierType : uint8_t {
 
     attackTargets,
 
+    splashDamage,
+    splashRange,
+
     count
 };
 
