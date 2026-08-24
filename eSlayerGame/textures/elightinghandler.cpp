@@ -368,9 +368,13 @@ void eLightingHandler::render(
                     }
                 };
 
-                const auto& tex = *c.fTex;
-                const int tox = tex.offsetX();
-                const int tw = tex.width();
+                int tox = 0;
+                int tw = 0;
+                if(c.fTex) {
+                    const auto& tex = *c.fTex;
+                    tox = tex.offsetX();
+                    tw = tex.width();
+                }
                 const float left = tox + 0.5f*(mBaseTileW - tw);
                 const float xMin = 2.f*left/mBaseTileW;
                 const int dxMin = -mTileDiv*(c.fObjSize - xMin);
@@ -482,8 +486,10 @@ void eLightingHandler::render(
         } break;
         }
     }
-    const float opacity = c.fTransparent ? 0.5f : 1.f;
-    ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod, opacity, c.fScale);
+    if(c.fTex) {
+        const float opacity = c.fTransparent ? 0.5f : 1.f;
+        ::render(r, c.fX, c.fY, *c.fTex, lightness, c.fColorMod, opacity, c.fScale);
+    }
 }
 
 void eLightingHandler::workerLoop(
