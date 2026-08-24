@@ -20,6 +20,9 @@ void eServerArea::iniMissileInc() {
     };
 
     const auto removeMissile = [this](const eMissile& m) {
+        const auto& mptr = mMissiles.get(m.fId);
+        mRemovedMissiles.add(m.fId, mptr);
+        mRemovedMissilesRemTime[m.fId] = 10;
         mMissiles.remove(m.fId);
     };
 

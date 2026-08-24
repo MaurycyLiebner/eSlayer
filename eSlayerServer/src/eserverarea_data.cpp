@@ -254,8 +254,14 @@ eServerArea::missileData(const uint32_t clientId) {
             continue;
         }
         newLatestMissile = std::max(newLatestMissile, mref.fId);
-        const float dist = ePointF::distance(mref.fPos, upos);
-        if(dist > 20.f) continue;
+        newMissiles.emplace_back(mref);
+    }
+    for(const auto& m : mRemovedMissiles) {
+        const auto& mref = *m;
+        if(mref.fId <= latestMissile) {
+            continue;
+        }
+        newLatestMissile = std::max(newLatestMissile, mref.fId);
         newMissiles.emplace_back(mref);
     }
     latestMissile = newLatestMissile;

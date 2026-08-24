@@ -124,6 +124,18 @@ void eServerArea::increment(const float by) {
     }
     if(recalcAura) std::swap(newAuraSources, mAuraSources);
 
+    std::vector<uint32_t> finalRemove;
+    for(auto& it : mRemovedMissilesRemTime) {
+        auto& rem = it.second;
+        if(rem-- == 0) {
+            finalRemove.emplace_back(it.first);
+        }
+    }
+    for(const auto id : finalRemove) {
+        mRemovedMissilesRemTime.erase(id);
+        mRemovedMissiles.remove(id);
+    }
+
     std::vector<uint32_t> duplicate;
     for(const auto& m : mMissiles) {
         auto& mref = *m;

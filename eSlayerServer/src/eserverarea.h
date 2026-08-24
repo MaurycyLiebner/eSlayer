@@ -351,6 +351,8 @@ private:
     std::shared_ptr<eMap> mMap;
 
     eIdMapVector<eServerMissile> mMissiles;
+    eIdMapVector<eServerMissile> mRemovedMissiles;
+    std::unordered_map<uint32_t, uint8_t> mRemovedMissilesRemTime;
     eIdMapVector<eServerSkillArea> mSkillAreas;
     eIdMapVector<eServerNova> mNovas;
     eIdMapVector<eServerUnit> mUnits;
