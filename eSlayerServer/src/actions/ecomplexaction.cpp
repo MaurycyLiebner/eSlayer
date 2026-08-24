@@ -293,8 +293,10 @@ bool eComplexAction::getHit(const eHitData& data,
                 }
                 if(casted) mUnit.onStructCast();
             }
-            mUnit.coldFor(data.fColdLength);
-            mUnit.freezeFor(data.fFreezeLength);
+            if(!mUnit.getImmunity(eUnitData::eImmunity::icold)) {
+                mUnit.coldFor(data.fColdLength);
+                mUnit.freezeFor(data.fFreezeLength);
+            }
             mUnit.immobilizeFor(data.fImmobilizeLength);
             const float dmg = mUnit.takeDamage(data.fDamage);
             stats.fManaF = std::max(0.f, stats.fManaF - dmg*data.fManaBurn);
