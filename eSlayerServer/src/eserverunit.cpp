@@ -726,10 +726,12 @@ float eServerUnit::takeDamage(const eDamage& dmg) {
     totalDmg += dmg.fCold*(1.f - mStats.fColdResistance);
     totalDmg += dmg.fLightning*(1.f - mStats.fLightningResistance);
 
-    const float ppf = dmg.fPoisonPerFrame;
-    const float pfl = dmg.fPoisonFrameLength;
-    if(ppf > 0.f && pfl > 0.f) {
-        mPoison.emplace_back(ePoisonDamage{ppf, pfl});
+    if(!getImmunity(eUnitData::eImmunity::ipoison)) {
+        const float ppf = dmg.fPoisonPerFrame;
+        const float pfl = dmg.fPoisonFrameLength;
+        if(ppf > 0.f && pfl > 0.f) {
+            mPoison.emplace_back(ePoisonDamage{ppf, pfl});
+        }
     }
     mStats.fHealthF = std::max(0.f, mStats.fHealthF - totalDmg);
     setHealth(std::ceil(mStats.fHealthF));
