@@ -19,10 +19,16 @@ struct eClass {
     std::vector<std::vector<eIniItem>> fIniItems;
     uint32_t fIniGold = 0;
 
+    std::vector<uint32_t> fLevelExperience;
+    uint8_t fMaxLevel = 1;
+
     uint8_t fIniStrength = 0;
     uint8_t fIniDexterity = 0;
     uint8_t fIniVitality = 0;
     uint8_t fIniEnergy = 0;
+
+    uint8_t fSkillPointsPerLevel = 0;
+    uint8_t fStatPointsPerLevel = 0;
 
     float fHealthPerVitality = 0;
     float fStaminaPerVitality = 0;

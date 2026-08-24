@@ -31,7 +31,9 @@ void eStats::resetSkillStats() {
 
 void eStats::levelUp(const int uinfoId) {
     const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
-    addSkillPoints(uinfo.fSkillPointsPerLevel);
+    const auto classId = uinfo.fClassId;
+    const auto& class_ = eClasses::sClasses.get(classId);
+    addSkillPoints(class_.fSkillPointsPerLevel);
 }
 
 void eStats::addSkillPoints(const int count) {

@@ -60,10 +60,24 @@ void eClasses::load() {
                 class_.fSkillTrees.emplace(id);
             }
 
+            class_.fMaxLevel = jdata.value("maxLevel", 99);
+            if(jdata.contains("levels")) {
+                const auto& jlevels = jdata["levels"];
+                auto& exps = class_.fLevelExperience;
+                exps.resize(class_.fMaxLevel - 1);
+                for(int i = 1; i < class_.fMaxLevel; i++) {
+                    const auto iStr = std::to_string(i);
+                    exps[i - 1] = jlevels.value(iStr, i == 1 ? 0 : exps[i - 2]);
+                }
+            }
+
             class_.fIniStrength = jdata.value("iniStrength", 20);
             class_.fIniDexterity = jdata.value("iniDexterity", 20);
             class_.fIniVitality = jdata.value("iniVitality", 20);
             class_.fIniEnergy = jdata.value("iniEnergy", 15);
+
+            class_.fSkillPointsPerLevel = jdata.value("skillPointsPerLevel", 1);
+            class_.fStatPointsPerLevel = jdata.value("statPointsPerLevel", 5);
 
             class_.fHealthPerVitality = jdata.value("lifePerVitality", 3.f);
             class_.fStaminaPerVitality = jdata.value("staminaPerVitality", 3.f);

@@ -3,6 +3,7 @@
 #include "eSlayerHelpers/eweaponclass.h"
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eunitsinfo.h"
+#include "eSlayerHelpers/eclasses.h"
 
 bool eMercenariesInfo::sLoaded = false;
 eStringIdMapVector<eMercenaryInfo>
@@ -156,7 +157,9 @@ void eMercenariesInfo::load() {
             u.fDefensePerLevel = jdata.value("defensePerLevel", 9.5f);
 
             const auto& uinfo = eUnitsInfo::sUnits.get(unitId);
-            const auto maxUnitLevel = uinfo.fMaxLevel;
+            const auto classId = uinfo.fClassId;
+            const auto& class_ = eClasses::sClasses.get(classId);
+            const auto maxUnitLevel = class_.fMaxLevel;
             if(jdata.contains("modifiers")) {
                 const auto& mods = jdata["modifiers"];
                 eModsCollectionLevel::parseLevels(

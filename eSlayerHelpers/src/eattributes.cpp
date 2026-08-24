@@ -8,7 +8,9 @@ uint32_t eAttributes::nextLevelExp(
     if(fLevel == 0) return 0;
     const auto id = fLevel - 1;
     const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
-    const auto& exps = uinfo.fLevelExperience;
+    const auto classId = uinfo.fClassId;
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto& exps = class_.fLevelExperience;
     if(id >= exps.size()) return 0;
     return exps[id];
 }
@@ -16,11 +18,13 @@ uint32_t eAttributes::nextLevelExp(
 bool eAttributes::levelUp(
     const int uinfoId) {
     const auto& uinfo = eUnitsInfo::sUnits.get(uinfoId);
-    const auto maxLevel = uinfo.fMaxLevel;
+    const auto classId = uinfo.fClassId;
+    const auto& class_ = eClasses::sClasses.get(classId);
+    const auto maxLevel = class_.fMaxLevel;
     if(fLevel >= maxLevel) return false;
     fLevel++;
     fExp = 0.f;
-    addStatPoints(uinfo.fStatPointsPerLevel);
+    addStatPoints(class_.fStatPointsPerLevel);
     return true;
 }
 

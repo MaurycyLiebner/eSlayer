@@ -34,11 +34,6 @@ struct eUnitInfo {
     std::vector<eModifier> fModifiers;
     std::vector<uint8_t> fItems;
 
-    std::vector<uint32_t> fLevelExperience;
-    uint8_t fMaxLevel ;
-    uint8_t fSkillPointsPerLevel;
-    uint8_t fStatPointsPerLevel;
-
     eNPCType fNPCType;
     bool fResetSkillStats;
 

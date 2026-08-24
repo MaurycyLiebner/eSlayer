@@ -287,15 +287,15 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
+            eClasses::load();
+        });
+
+        loadings.emplace_back([&]() {
             eMercenariesInfo::load();
         });
 
         loadings.emplace_back([&]() {
             eMercenaryNames::load();
-        });
-
-        loadings.emplace_back([&]() {
-            eClasses::load();
         });
 
         loadings.emplace_back([&]() {
