@@ -7,35 +7,35 @@
 
 struct eUnitInfo {
     int fCharData;
-    float fRadius;
-    float fWalkSpeed;
-    float fRunSpeed;
-    float fLighting;
-    int fLevel;
+    float fRadius = 0.4f;
+    float fWalkSpeed = 0.1f;
+    float fRunSpeed = 0.1f;
+    float fLighting = 0.f;
+    int fLevel = 1;
     eColor fColor;
 
-    float fMeeleRange;
+    float fMeeleRange = 0.f;
 
-    int fMissile;
-    float fMissileRange;
+    int fMissile = 0;
+    float fMissileRange = 0.f;
 
-    float fFleeChance;
-    float fFleeDistance;
+    float fFleeChance = 0.f;
+    float fFleeDistance = 0.f;
 
-    float fTanChance;
-    float fTanDistance;
+    float fTanChance = 0.f;
+    float fTanDistance = 0.f;
 
-    float fStandChance;
-    int fStandLength;
+    float fStandChance = 0.f;
+    int fStandLength = 1;
 
-    bool fDifficultyPenalties;
+    bool fDifficultyPenalties = false;
 
     std::map<uint16_t, uint16_t> fSkills;
     std::vector<eModifier> fModifiers;
     std::vector<uint8_t> fItems;
 
-    eNPCType fNPCType;
-    bool fResetSkillStats;
+    eNPCType fNPCType = eNPCType::none;
+    bool fResetSkillStats = false;
 
     std::string fClassName;
     int fClassId;
