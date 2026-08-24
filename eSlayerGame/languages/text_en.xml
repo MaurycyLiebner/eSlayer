@@ -23,6 +23,7 @@
         <string id="5">Yes</string>
         <string id="6">No</string>
         <string id="7">Choose Difficulty</string>
+        <string id="8">Level %1 %2</string>
     </group>
     <group id="4">
         <string id="0">Ok</string>

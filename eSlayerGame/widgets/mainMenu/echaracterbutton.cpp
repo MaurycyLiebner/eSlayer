@@ -1,10 +1,13 @@
 #include "echaracterbutton.h"
 
 #include "../../textures/echarstextures.h"
+#include "../../etext.h"
+#include "../../names/eclassnames.h"
 
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/eclasses.h>
 #include <eSlayerHelpers/eunitsinfo.h>
+#include <eSlayerHelpers/estringhelpers.h>
 
 void eCharacterButton::initialize(const eCharacter& c) {
     const auto ready = std::make_shared<bool>(false);
@@ -30,11 +33,29 @@ void eCharacterButton::initialize(const eCharacter& c) {
     mModel.setAnimation(0, 1.f);
     mModel.setDirection(0);
 
-    const auto label = new eLabel(c.name(), window());
-    addWidget(label);
-    label->fitContent();
-    label->align(eAlignment::vcenter);
-    label->setX(width()/3);
+    const auto labelsW = new eWidget(window());
+    labelsW->setNoPadding();
+
+    const auto nameLabel = new eLabel(c.name(), window());
+    nameLabel->setSmallFontSize();
+    labelsW->addWidget(nameLabel);
+    nameLabel->fitContent();
+
+    auto levelClass = eText::text(3, 8);
+    levelClass = eStringHelpers::replaceAll(levelClass, "%1", c.level());
+    const auto className = eClassNames::name(classId);
+    levelClass = eStringHelpers::replaceAll(levelClass, "%2", className);
+
+    const auto levelClassLabel = new eLabel(levelClass, window());
+    levelClassLabel->setSmallFontSize();
+    labelsW->addWidget(levelClassLabel);
+    levelClassLabel->fitContent();
+
+    addWidget(labelsW);
+    labelsW->stackVertically();
+    labelsW->fitContent();
+    labelsW->setX(width()/3);
+    labelsW->align(eAlignment::vcenter);
 }
 
 void eCharacterButton::paintEvent(ePainter& p) {

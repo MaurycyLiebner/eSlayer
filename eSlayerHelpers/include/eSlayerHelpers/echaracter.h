@@ -26,6 +26,8 @@ public:
                      eCharacter& c);
     bool write(const std::string& path) const;
 
+    int level() const { return mAttributes.fLevel; }
+
     const std::string& name() const { return mName; }
     bool hardcore() const { return mHardcore; }
 
