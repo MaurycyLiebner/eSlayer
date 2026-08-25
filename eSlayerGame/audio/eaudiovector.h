@@ -1,27 +1,42 @@
 #ifndef EAUDIOVECTOR_H
 #define EAUDIOVECTOR_H
 
+#include "../ethreadpool.h"
+
 #include <string>
 #include <vector>
+#include <map>
 
 #include <SDL3_mixer/SDL_mixer.h>
+
+using eFinishAudio = std::function<void(MIX_Audio* const audio)>;
+
+struct eAudioLoader {
+    std::vector<eFinishAudio> fFinish;
+};
 
 class eAudioVector {
 public:
     eAudioVector();
+    eAudioVector(const std::vector<std::string>& paths);
     ~eAudioVector();
 
-    int soundCount() const { return mPaths.size(); }
+    int count() const { return mPaths.size(); }
+    bool loading(const int id);
+    MIX_Audio* audio(const int id) const;
 
-    void addPath(MIX_Mixer * const mixer,
-                 const std::string& path,
-                 const bool load = false);
-protected:
-    MIX_Audio* loadAudio(
+    void loadAudio(
         MIX_Mixer * const mixer,
-        const std::string& path);
+        const int id,
+        const eFinishAudio& finish);
+
+    static void handleLoaded();
+    static void waitUntilAllLoaded();
+private:
+    static eThreadPool sThreadPool;
 
     std::vector<std::pair<MIX_Audio*, std::string>> mPaths;
+    std::map<int, std::shared_ptr<eAudioLoader>> mLoaders;
 };
 
 #endif // EAUDIOVECTOR_H

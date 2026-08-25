@@ -241,7 +241,10 @@ add_library(eSlayerHelpers SHARED
     include/eSlayerHelpers/enpctype.h
     include/eSlayerHelpers/eitempartsmap.h
     src/eitempartsmap.cpp
-
+    include/eSlayerHelpers/esoundsbase.h
+    src/esoundsbase.cpp
+    include/eSlayerHelpers/emusicbase.h
+    src/emusicbase.cpp
 )
 
 target_include_directories(eSlayerHelpers

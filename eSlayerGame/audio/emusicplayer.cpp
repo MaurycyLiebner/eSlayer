@@ -1,5 +1,7 @@
 ﻿#include "emusicplayer.h"
 
+#include "emusic.h"
+
 eMusicPlayer* eMusicPlayer::sInstance = nullptr;
 
 eMusicPlayer::eMusicPlayer(MIX_Mixer * const mixer) :
@@ -16,56 +18,35 @@ bool eMusicPlayer::initialize() {
     return mMusicTrack;
 }
 
-void eMusicPlayer::loadMenu() {
-    sInstance->loadMenuImpl();
-}
-
-void eMusicPlayer::load() {
-    sInstance->loadImpl();
-}
-
-bool eMusicPlayer::loaded() {
-    return sInstance->mLoaded;
-}
-
 void eMusicPlayer::incTime() {
     sInstance->incTimeImpl();
 }
 
-void eMusicPlayer::playMenuMusic() {
-    sInstance->playMenuMusicImpl();
+void eMusicPlayer::playMusic(const int type) {
+    sInstance->playMusicImpl(type);
 }
 
 void eMusicPlayer::incTimeImpl() {
     if(MIX_TrackPlaying(mMusicTrack)) return;
-    switch(mMusicType) {
-    case eMusicType::none:
-        break;
-    case eMusicType::intro:
-        playMenuMusicImpl();
-        break;
-    }
+    playMusicImpl(mMusicType);
 }
 
-void eMusicPlayer::playMenuMusicImpl() {
-    const bool change = mMusicType != eMusicType::intro;
-    mMusicType = eMusicType::intro;
+void eMusicPlayer::playMusicImpl(const int type) {
+    const bool change = mMusicType != type;
+    if(!change && mLoading) return;
+    mMusicType = type;
     if(MIX_TrackPlaying(mMusicTrack)) {
         if(!change) return;
         MIX_StopTrack(mMusicTrack, 1000);
         return;
     }
-    mIntroMusic.playRandomSound(mMixer, mMusicTrack);
-}
-
-void eMusicPlayer::loadImpl() {
-    if(mLoaded) return;
-    mLoaded = true;
-}
-
-void eMusicPlayer::loadMenuImpl() {
-    if(mMenuLoaded) return;
-    mMenuLoaded = true;
-    const std::string dir = "Music/";
-    mIntroMusic.addPath(mMixer, dir + "intro.mp3");
+    if(type < 0) return;
+    mLoading = true;
+    const auto tryPlay = [this, type]() {
+        if(mMusicType != type) return false;
+        mLoading = false;
+        return true;
+    };
+    auto& m = eMusic::sMusic.get(type);
+    m.playRandomSound(mMixer, mMusicTrack, tryPlay);
 }

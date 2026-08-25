@@ -1,6 +1,9 @@
 #include "audio/emusicplayer.h"
 #include "audio/esoundplayer.h"
 
+#include "audio/esounds.h"
+#include "audio/emusic.h"
+
 #include "emainwindow.h"
 #include "eresolution.h"
 #include "ewindowsettings.h"
@@ -56,6 +59,8 @@
 #include <eSlayerHelpers/emercenaries.h>
 #include <eSlayerHelpers/edifficulties.h>
 #include <eSlayerHelpers/eitempartsmap.h>
+#include <eSlayerHelpers/esoundsbase.h>
+#include <eSlayerHelpers/emusicbase.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -213,20 +218,34 @@ int main(int argc, char* argv[]) {
         std::vector<eAction> loadings;
 
         loadings.emplace_back([&]() {
+            eMusicBase::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eMusic::load();
+        });
+
+        loadings.emplace_back([&]() {
+            const auto introId = eMusic::sMusic.id("intro");
+            if(introId < 0) return;
+            music.playMusic(introId);
+            eAudioVector::waitUntilAllLoaded();
+        });
+
+        loadings.emplace_back([&]() {
+            eSoundsBase::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eSounds::load();
+        });
+
+        loadings.emplace_back([&]() {
             eLanguage::load();
         });
 
         loadings.emplace_back([&]() {
             eLanguageNames::load();
-        });
-
-        loadings.emplace_back([&]() {
-            eMusicPlayer::loadMenu();
-            music.playMenuMusic();
-        });
-
-        loadings.emplace_back([&]() {
-            eSoundPlayer::loadButtonSound();
         });
 
         loadings.emplace_back([&]() {

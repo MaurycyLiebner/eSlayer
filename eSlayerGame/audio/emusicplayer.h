@@ -1,11 +1,7 @@
 #ifndef EMUSICPLAYER_H
 #define EMUSICPLAYER_H
 
-#include "emusicvector.h"
-
-enum class eMusicType {
-    none, intro
-};
+#include <SDL3_mixer/SDL_mixer.h>
 
 class eMusicPlayer {
 public:
@@ -13,17 +9,12 @@ public:
 
     bool initialize();
 
-    static void loadMenu();
-    static void load();
-    static bool loaded();
-
     static void incTime();
-
-    static void playMenuMusic();
+    static void playMusic(const int type);
 private:
     void incTimeImpl();
 
-    void playMenuMusicImpl();
+    void playMusicImpl(const int type);
 
     void loadImpl();
     void loadMenuImpl();
@@ -32,11 +23,8 @@ private:
     MIX_Mixer* const mMixer;
     MIX_Track* mMusicTrack = nullptr;
 
-    bool mLoaded{false};
-    bool mMenuLoaded{false};
-    eMusicType mMusicType{eMusicType::none};
-
-    eMusicVector mIntroMusic;
+    bool mLoading = false;
+    int mMusicType = -1;
 };
 
 #endif // EMUSICPLAYER_H

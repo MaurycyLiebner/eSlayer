@@ -1,6 +1,7 @@
 #include "emainwindow.h"
 
 #include "audio/emusicplayer.h"
+#include "audio/eaudiovector.h"
 #include "textures/echartextures.h"
 
 #include <eSlayerHelpers/egamedir.h>
@@ -236,6 +237,7 @@ int eMainWindow::exec() {
 
         handleSlots();
         eCharTextures::handleLoaded();
+        eAudioVector::handleLoaded();
 
         const auto fpsEnd = high_resolution_clock::now();
         const duration<double, std::milli> fpsElapsed = fpsEnd - fpsStart;
