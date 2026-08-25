@@ -2,8 +2,9 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 
-#include <eSlayerHelpers/eskills.h>
-#include <eSlayerHelpers/eitemsdata.h>
+#include "eSlayerHelpers/eskills.h"
+#include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/esoundsbase.h"
 
 eStringIdMapVector<eMissileInfo>
 eMissilesInfo::sMissiles;
@@ -81,6 +82,11 @@ void eMissilesInfo::load() {
         missile.mDisappearAnimId = missile.animId("disappear");
         missile.mHitAnimId = missile.animId("hit");
         missile.mStayAnimId = missile.animId("stay");
+
+        const auto appearSoundStr = jdata.value("appearSound", "");
+        missile.mAppearSoundId = eSoundsBase::sSounds.id(appearSoundStr);
+        const auto hitSoundStr = jdata.value("hitSound", "");
+        missile.mHitSoundId = eSoundsBase::sSounds.id(hitSoundStr);
 
         const int id = sMissiles.add(name, missile);
         if(name == "flesh") {

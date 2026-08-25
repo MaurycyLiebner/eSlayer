@@ -10,6 +10,7 @@ public:
     eSoundPlayer(MIX_Mixer* const mixer);
 
     static void playButtonSound();
+    static void playSound(const int id);
 private:
     MIX_Track* requestChannel(MIX_Mixer * const mixer,
                               const int channel);

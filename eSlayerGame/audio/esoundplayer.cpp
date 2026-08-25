@@ -12,6 +12,10 @@ eSoundPlayer::eSoundPlayer(MIX_Mixer * const mixer) :
 void eSoundPlayer::playButtonSound() {
     const auto id = eSounds::sSounds.id("button");
     if(id < 0) return;
+    playSound(id);
+}
+
+void eSoundPlayer::playSound(const int id) {
     auto& b = eSounds::sSounds.get(id);
     b.playRandomSound(sInstance->mMixer);
 }

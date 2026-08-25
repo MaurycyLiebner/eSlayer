@@ -31,6 +31,9 @@ public:
     int hitAnimId() const { return mHitAnimId; }
     int stayAnimId() const { return mStayAnimId; }
 
+    int appearSoundId() const { return mAppearSoundId; }
+    int hitSoundId() const { return mHitSoundId; }
+
     float lighting() const { return mLighting; }
     float radius() const { return mRadius; }
 
@@ -45,6 +48,9 @@ private:
     int mDisappearAnimId = -1;
     int mHitAnimId = -1;
     int mStayAnimId = -1;
+
+    int mAppearSoundId = -1;
+    int mHitSoundId = -1;
 
     float mLighting = 0.f;
     float mRadius = 0.f;

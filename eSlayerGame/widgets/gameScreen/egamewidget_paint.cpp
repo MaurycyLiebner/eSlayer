@@ -15,6 +15,8 @@
 #include "../../textures/emissilestextures.h"
 #include "../../textures/eitemstextures.h"
 
+#include "../../audio/esoundplayer.h"
+
 #include "../../names/eareanames.h"
 
 #include <eSlayerHelpers/erunsettings.h>
@@ -702,6 +704,19 @@ void eGameWidget::paintEvent(ePainter& p) {
             int& frame = m->fFrame;
             int& animId = m->fAnimId;
             int nFrames = missileInfo.nFrames(animId);
+            if(frame == 0) {
+                if(animId == appearId) {
+                    const int appearSound = missileInfo.appearSoundId();
+                    if(appearSound >= 0) {
+                        eSoundPlayer::playSound(appearSound);
+                    }
+                } else if(animId == hitId) {
+                    const int hitSound = missileInfo.hitSoundId();
+                    if(hitSound >= 0) {
+                        eSoundPlayer::playSound(hitSound);
+                    }
+                }
+            }
             if(frame >= nFrames) {
                 if(animId == appearId) {
                     animId = baseId;
