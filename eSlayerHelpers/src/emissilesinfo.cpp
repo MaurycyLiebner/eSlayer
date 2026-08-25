@@ -87,6 +87,8 @@ void eMissilesInfo::load() {
         missile.mAppearSoundId = eSoundsBase::sSounds.id(appearSoundStr);
         const auto hitSoundStr = jdata.value("hitSound", "");
         missile.mHitSoundId = eSoundsBase::sSounds.id(hitSoundStr);
+        const auto disappearSoundStr = jdata.value("disappearSound", "");
+        missile.mDisappearSoundId = eSoundsBase::sSounds.id(disappearSoundStr);
 
         const int id = sMissiles.add(name, missile);
         if(name == "flesh") {
