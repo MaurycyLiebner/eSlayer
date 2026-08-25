@@ -691,9 +691,6 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
         for(const auto& m : mWorld.missiles()) {
             const auto& pos = m->fPos;
-            const auto pixel = tilePosToPixel(pos);
-            const bool outside = pixel.fX < -margin || pixel.fY < -margin ||
-                                 pixel.fX > w + margin || pixel.fY > h + margin;
             const auto ipos = pos.floor();
             const auto tile = mTileIterator.getTile(ipos.fX, ipos.fY);
             if(!tile) continue;
@@ -704,12 +701,6 @@ void eGameWidget::paintEvent(ePainter& p) {
             const int hitId = missileInfo.hitAnimId();
             int& frame = m->fFrame;
             int& animId = m->fAnimId;
-            if(outside) {
-                if(animId == hitId) {
-                    mWorld.removeMissile(*m);
-                }
-                continue;
-            }
             int nFrames = missileInfo.nFrames(animId);
             if(frame >= nFrames) {
                 if(animId == appearId) {
