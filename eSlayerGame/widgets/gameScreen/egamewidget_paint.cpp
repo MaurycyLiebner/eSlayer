@@ -628,20 +628,26 @@ void eGameWidget::paintEvent(ePainter& p) {
                                  animId == sIceExplBody;
             if(fleshExpl || iceExpl) {
                 auto& model = u->model();
-                model.incFrame(by);
                 const auto missileType = fleshExpl ?
-                                             eMissilesInfo::sFleshId :
-                                             eMissilesInfo::sIceId;
+                    eMissilesInfo::sFleshId :
+                    eMissilesInfo::sIceId;
                 const auto& missileInfo = eMissilesInfo::sMissiles.get(missileType);
                 auto& missileTex = eMissilesTextures::sMissiles.get(missileType);
                 const bool body = animId == sFleshExplBody ||
                                   animId == sIceExplBody;
                 const int baseId = body ?
-                                       missileInfo.stayAnimId() :
-                                       missileInfo.baseAnimId();
+                    missileInfo.stayAnimId() :
+                    missileInfo.baseAnimId();
                 const int nFrames = missileInfo.nFrames(baseId);
                 bool floor = body;
                 int frame = model.frame();
+                model.incFrame(by);
+                if(frame == 0) {
+                    const int appearSound = missileInfo.appearSoundId();
+                    if(appearSound >= 0) {
+                        eSoundPlayer::playSound(appearSound);
+                    }
+                }
                 if(frame >= nFrames) {
                     floor = true;
                     frame = nFrames - 1;
