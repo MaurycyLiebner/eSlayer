@@ -79,12 +79,12 @@ add_executable(eSlayerGame
     # Audio
     audio/eaudiovector.cpp
     audio/eaudiovector.h
-    audio/emusic.cpp
-    audio/emusic.h
+    audio/emusicplayer.cpp
+    audio/emusicplayer.h
     audio/emusicvector.cpp
     audio/emusicvector.h
-    audio/esounds.cpp
-    audio/esounds.h
+    audio/esoundplayer.cpp
+    audio/esoundplayer.h
     audio/esoundvector.cpp
     audio/esoundvector.h
 

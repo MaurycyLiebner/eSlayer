@@ -1,35 +1,35 @@
-﻿#include "esounds.h"
+﻿#include "esoundplayer.h"
 
-eSounds* eSounds::sInstance = nullptr;
+eSoundPlayer* eSoundPlayer::sInstance = nullptr;
 
-eSounds::eSounds(MIX_Mixer * const mixer) :
+eSoundPlayer::eSoundPlayer(MIX_Mixer * const mixer) :
     mMixer(mixer) {
     sInstance = this;
 }
 
-void eSounds::loadButtonSound() {
+void eSoundPlayer::loadButtonSound() {
     const std::string wavsDir = "Wavs/";
     sInstance->mButton.addPath(sInstance->mMixer, wavsDir + "button.wav");
 }
 
-void eSounds::load() {
+void eSoundPlayer::load() {
     sInstance->loadImpl();
 }
 
-bool eSounds::loaded() {
+bool eSoundPlayer::loaded() {
     return sInstance->mLoaded;
 }
 
-void eSounds::playButtonSound() {
+void eSoundPlayer::playButtonSound() {
     sInstance->mButton.playRandomSound(sInstance->mMixer);
 }
 
-void eSounds::loadImpl() {
+void eSoundPlayer::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
 }
 
-MIX_Track* eSounds::requestChannel(MIX_Mixer * const mixer,
+MIX_Track* eSoundPlayer::requestChannel(MIX_Mixer * const mixer,
                                    const int channel) {
     const auto it = mChannels.find(channel);
     if(it == mChannels.end()) {

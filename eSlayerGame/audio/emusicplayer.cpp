@@ -1,13 +1,13 @@
-﻿#include "emusic.h"
+﻿#include "emusicplayer.h"
 
-eMusic* eMusic::sInstance = nullptr;
+eMusicPlayer* eMusicPlayer::sInstance = nullptr;
 
-eMusic::eMusic(MIX_Mixer * const mixer) :
+eMusicPlayer::eMusicPlayer(MIX_Mixer * const mixer) :
     mMixer(mixer) {
     sInstance = this;
 }
 
-bool eMusic::initialize() {
+bool eMusicPlayer::initialize() {
     mMusicTrack = MIX_CreateTrack(mMixer);
     if(!mMusicTrack) {
         SDL_Log("Failed to create music track! SDL_mixer Error: %s\n",
@@ -16,27 +16,27 @@ bool eMusic::initialize() {
     return mMusicTrack;
 }
 
-void eMusic::loadMenu() {
+void eMusicPlayer::loadMenu() {
     sInstance->loadMenuImpl();
 }
 
-void eMusic::load() {
+void eMusicPlayer::load() {
     sInstance->loadImpl();
 }
 
-bool eMusic::loaded() {
+bool eMusicPlayer::loaded() {
     return sInstance->mLoaded;
 }
 
-void eMusic::incTime() {
+void eMusicPlayer::incTime() {
     sInstance->incTimeImpl();
 }
 
-void eMusic::playMenuMusic() {
+void eMusicPlayer::playMenuMusic() {
     sInstance->playMenuMusicImpl();
 }
 
-void eMusic::incTimeImpl() {
+void eMusicPlayer::incTimeImpl() {
     if(MIX_TrackPlaying(mMusicTrack)) return;
     switch(mMusicType) {
     case eMusicType::none:
@@ -47,7 +47,7 @@ void eMusic::incTimeImpl() {
     }
 }
 
-void eMusic::playMenuMusicImpl() {
+void eMusicPlayer::playMenuMusicImpl() {
     const bool change = mMusicType != eMusicType::intro;
     mMusicType = eMusicType::intro;
     if(MIX_TrackPlaying(mMusicTrack)) {
@@ -58,12 +58,12 @@ void eMusic::playMenuMusicImpl() {
     mIntroMusic.playRandomSound(mMixer, mMusicTrack);
 }
 
-void eMusic::loadImpl() {
+void eMusicPlayer::loadImpl() {
     if(mLoaded) return;
     mLoaded = true;
 }
 
-void eMusic::loadMenuImpl() {
+void eMusicPlayer::loadMenuImpl() {
     if(mMenuLoaded) return;
     mMenuLoaded = true;
     const std::string dir = "Music/";

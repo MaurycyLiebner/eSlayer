@@ -1,6 +1,6 @@
 #include "ebuttonbase.h"
 
-#include "../audio/esounds.h"
+#include "../audio/esoundplayer.h"
 
 void eButtonBase::setPressAction(const eAction& a) {
     mPressAction = a;
@@ -54,12 +54,12 @@ bool eButtonBase::mouseReleaseEvent(const eMouseEvent& e) {
     const auto b = e.button();
     if(b == eMouseButton::left) {
         mPressed = false;
-        eSounds::playButtonSound();
+        eSoundPlayer::playButtonSound();
         if(mPressAction) mPressAction();
         return true;
     } else if(b == eMouseButton::right) {
         mPressed = false;
-        eSounds::playButtonSound();
+        eSoundPlayer::playButtonSound();
         if(mRightPressAction) mRightPressAction();
         return true;
     } else {

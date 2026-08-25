@@ -1,6 +1,6 @@
 #include "emainwindow.h"
 
-#include "audio/emusic.h"
+#include "audio/emusicplayer.h"
 #include "textures/echartextures.h"
 
 #include <eSlayerHelpers/egamedir.h>
@@ -222,7 +222,7 @@ int eMainWindow::exec() {
 
         ePainter p(mSdlRenderer);
 
-        eMusic::incTime();
+        eMusicPlayer::incTime();
         if(mWidget) {
             mWidget->paint(p);
         }

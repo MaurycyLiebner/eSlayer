@@ -1,5 +1,5 @@
-#include "audio/emusic.h"
-#include "audio/esounds.h"
+#include "audio/emusicplayer.h"
+#include "audio/esoundplayer.h"
 
 #include "emainwindow.h"
 #include "eresolution.h"
@@ -201,10 +201,10 @@ int main(int argc, char* argv[]) {
         const bool i = w.initialize(settings);
         if(!i) return 1;
 
-        eMusic music(mixer);
+        eMusicPlayer music(mixer);
         const bool m = music.initialize();
         if(!m) return 1;
-        eSounds sounds(mixer);
+        eSoundPlayer sounds(mixer);
 
         const auto showMainMenu = [&]() {
             sh.showMainMenu();
@@ -221,12 +221,12 @@ int main(int argc, char* argv[]) {
         });
 
         loadings.emplace_back([&]() {
-            eMusic::loadMenu();
+            eMusicPlayer::loadMenu();
             music.playMenuMusic();
         });
 
         loadings.emplace_back([&]() {
-            eSounds::loadButtonSound();
+            eSoundPlayer::loadButtonSound();
         });
 
         loadings.emplace_back([&]() {

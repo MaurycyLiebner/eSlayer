@@ -1,5 +1,5 @@
-#ifndef EMUSIC_H
-#define EMUSIC_H
+#ifndef EMUSICPLAYER_H
+#define EMUSICPLAYER_H
 
 #include "emusicvector.h"
 
@@ -7,9 +7,9 @@ enum class eMusicType {
     none, intro
 };
 
-class eMusic {
+class eMusicPlayer {
 public:
-    eMusic(MIX_Mixer* const mixer);
+    eMusicPlayer(MIX_Mixer* const mixer);
 
     bool initialize();
 
@@ -27,7 +27,7 @@ private:
 
     void loadImpl();
     void loadMenuImpl();
-    static eMusic* sInstance;
+    static eMusicPlayer* sInstance;
 
     MIX_Mixer* const mMixer;
     MIX_Track* mMusicTrack = nullptr;
@@ -39,4 +39,4 @@ private:
     eMusicVector mIntroMusic;
 };
 
-#endif // EMUSIC_H
+#endif // EMUSICPLAYER_H

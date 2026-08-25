@@ -1,13 +1,13 @@
-﻿#ifndef ESOUNDS_H
-#define ESOUNDS_H
+#ifndef ESOUNDPLAYER_H
+#define ESOUNDPLAYER_H
 
 #include "esoundvector.h"
 
 #include <map>
 
-class eSounds {
+class eSoundPlayer {
 public:
-    eSounds(MIX_Mixer* const mixer);
+    eSoundPlayer(MIX_Mixer* const mixer);
 
     static void loadButtonSound();
 
@@ -21,7 +21,7 @@ private:
     MIX_Track* requestChannel(MIX_Mixer * const mixer,
                               const int channel);
 
-    static eSounds* sInstance;
+    static eSoundPlayer* sInstance;
 
     MIX_Mixer* const mMixer;
 
@@ -32,4 +32,4 @@ private:
     eSoundVector mButton;
 };
 
-#endif // ESOUNDS_H
+#endif // ESOUNDPLAYER_H
