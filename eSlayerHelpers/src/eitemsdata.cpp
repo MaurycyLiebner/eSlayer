@@ -75,12 +75,6 @@ void eItemsData::load(const std::string& name,
                       const std::string& class_) {
     const auto dir = "Items";
 
-    // {
-    //     const auto filePath = eFileLoaderBase::sFilePath(dir, name + ".json");
-    //     std::ofstream output(filePath);
-    //     output << "{" << std::endl << std::endl << "}";
-    // }
-
     const auto jdata = eFileLoaderBase::parse(dir, name + ".json");
 
     eItemData itemData;
