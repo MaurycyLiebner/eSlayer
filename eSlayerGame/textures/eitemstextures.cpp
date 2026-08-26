@@ -61,8 +61,8 @@ void eItemsTextures::loadImpl() {
                 }
             } else {
                 const std::vector<std::string> names = value;
-                for(const auto& name : value) {
-                    const auto path = key + "/" + name.get<std::string>();
+                for(const auto& name : names) {
+                    const auto path = key + "/" + name;
                     int w;
                     int h;
                     if(key == "gold") {
