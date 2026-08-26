@@ -346,7 +346,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     for(const auto& m : missiles) {
         const auto mm = std::make_shared<eExtendedMissile>();
         const auto missileType = m.fType;
-        auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
+        const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
         const int apearId = missileTex.appearAnimId();
         const int baseId = missileTex.baseAnimId();
         mm->fAnimId = apearId >= 0 ? apearId : baseId;
@@ -378,7 +378,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mSkillAreas.add(a.fId, aa);
     }
 
-    if(mSoundCounter % 100 == 0) {
+    if(mUnitSoundCounter % 100 == 0) {
         const int n = mUnits.size();
         if(n > 0) {
             const int id = eRand::rand(0, n - 1);
@@ -390,7 +390,24 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
                 const int baseSoundId = texs.baseSoundId();
                 if(baseSoundId >= 0) {
                     eSoundPlayer::playSound(baseSoundId);
-                    mSoundCounter++;
+                    mUnitSoundCounter++;
+                }
+            }
+        }
+    }
+
+    if(mMissileSoundCounter % 100 == 0) {
+        const int n = mMissiles.size();
+        if(n > 0) {
+            const int id = eRand::rand(0, n - 1);
+            const auto& m = mMissiles.get()[id];
+            if(m) {
+                const auto missileType = m->fType;
+                const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
+                const int baseSoundId = missileTex.baseSoundId();
+                if(baseSoundId >= 0) {
+                    eSoundPlayer::playSound(baseSoundId);
+                    mMissileSoundCounter++;
                 }
             }
         }

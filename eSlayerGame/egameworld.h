@@ -123,7 +123,8 @@ private:
 
     eProcessResult mResult;
 
-    uint32_t mSoundCounter = 0;
+    uint32_t mUnitSoundCounter = 0;
+    uint32_t mMissileSoundCounter = 0;
 };
 
 #endif // EGAMEWORLD_H

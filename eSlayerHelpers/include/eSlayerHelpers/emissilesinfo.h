@@ -33,6 +33,7 @@ public:
 
     int appearSoundId() const { return mAppearSoundId; }
     int hitSoundId() const { return mHitSoundId; }
+    int baseSoundId() const { return mBaseSoundId; }
     int disappearSoundId() const { return mDisappearSoundId; }
 
     float lighting() const { return mLighting; }
@@ -52,6 +53,7 @@ private:
 
     int mAppearSoundId = -1;
     int mHitSoundId = -1;
+    int mBaseSoundId = -1;
     int mDisappearSoundId = -1;
 
     float mLighting = 0.f;
