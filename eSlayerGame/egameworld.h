@@ -100,8 +100,9 @@ public:
     eIdMapVector<eGroundItem>& groundItems() { return mGroundItems; }
     const eIdMapVector<eGroundItem>& groundItems() const { return mGroundItems; }
 
-    void removeMissile(const eMissile& m);;
+    void removeMissile(const eMissile& m);
 private:
+    void removeMissileHit(eMissile& m);
     void iniMissileInc();
     void iniNovaInc();
 

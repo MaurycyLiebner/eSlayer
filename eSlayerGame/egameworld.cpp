@@ -30,17 +30,7 @@ void eGameWorld::iniMissileInc() {
     };
 
     const auto removeMissile = [this](eMissile& m) {
-        auto& em = static_cast<eExtendedMissile&>(m);
-        const auto missileType = em.fType;
-        const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
-        const int hitId = missileTex.hitAnimId();
-        if(hitId < 0) {
-            eGameWorld::removeMissile(m);
-        } else {
-            em.fAnimId = hitId;
-            em.fFrame = 0;
-            em.fHit = true;
-        }
+        removeMissileHit(m);
     };
 
     const auto getMissile = [this](const uint32_t mid) {
@@ -160,6 +150,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     const auto& updatedUnits = data.fUpdatedUnits;
     const auto& missiles = data.fMissiles;
     const auto& missileUpdates = data.fMissileUpdates;
+    const auto& missileRemoved = data.fRemovedMissiles;
     const auto& novas = data.fNovas;
     const auto& skillAreas = data.fSkillAreas;
     const auto& usedSkills = data.fUsedSkills;
@@ -306,6 +297,12 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         m->applyUpdate(u);
     }
 
+    for(const auto mid : missileRemoved) {
+        const auto m = mMissiles.get(mid);
+        if(!m) continue;
+        removeMissileHit(*m);
+    }
+
     for(const auto& n : novas) {
         const auto nn = std::make_shared<eExtendedNova>();
         static_cast<eNova&>(*nn) = n;
@@ -348,4 +345,19 @@ void eGameWorld::simulateSkillAreas(const float by) {
 
 void eGameWorld::removeMissile(const eMissile& m) {
     mMissiles.remove(m.fId);
+}
+
+void eGameWorld::removeMissileHit(eMissile& m) {
+    auto& em = static_cast<eExtendedMissile&>(m);
+    if(em.fHit) return;
+    const auto missileType = em.fType;
+    const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
+    const int hitId = missileTex.hitAnimId();
+    if(hitId < 0) {
+        eGameWorld::removeMissile(m);
+    } else {
+        em.fAnimId = hitId;
+        em.fFrame = 0;
+        em.fHit = true;
+    }
 }

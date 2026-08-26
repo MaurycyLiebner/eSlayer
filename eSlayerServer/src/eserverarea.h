@@ -36,6 +36,7 @@ struct eSeller;
 struct eMissileData {
     std::vector<eMissile> fNewMissiles;
     std::vector<eMissileUpdate> fUpdates;
+    std::vector<uint32_t> fRemoved;
 };
 
 class eServerArea {

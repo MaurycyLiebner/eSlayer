@@ -201,8 +201,8 @@ eServerArea::novaData(const uint32_t clientId) {
     for(const auto& n : mNovas) {
         if(n->fId <= latestNova) continue;
         newLatestNova = std::max(newLatestNova, n->fId);
-        const float dist = ePointF::distance(n->fCenter, u->fPos);
-        if(dist > 20.f) continue;
+        // const float dist = ePointF::distance(n->fCenter, u->fPos);
+        // if(dist > 20.f) continue;
         result.emplace_back(*n);
     }
     latestNova = newLatestNova;
@@ -223,8 +223,8 @@ eServerArea::skillAreaData(const uint32_t clientId) {
     for(const auto& a : mSkillAreas) {
         if(a->fId <= latestSkillArea) continue;
         newLatestSkillArea = std::max(newLatestSkillArea, a->fId);
-        const float dist = ePointF::distance(a->fPos, u->fPos);
-        if(dist > 20.f) continue;
+        // const float dist = ePointF::distance(a->fPos, u->fPos);
+        // if(dist > 20.f) continue;
         result.emplace_back(*a);
     }
     latestSkillArea = newLatestSkillArea;
@@ -258,6 +258,7 @@ eServerArea::missileData(const uint32_t clientId) {
     }
     for(const auto& m : mRemovedMissiles) {
         const auto& mref = *m;
+        result.fRemoved.emplace_back(mref.fId);
         if(mref.fId <= latestMissile) {
             continue;
         }

@@ -39,6 +39,7 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
 
     fMissileUpdates.clear();
     p.read16(fMissileUpdates);
+    p.read16(fRemovedMissiles);
 
     uint16_t nNovas;
     p >> nNovas;
@@ -160,6 +161,7 @@ void eRequestData::write(ePacket& p) const {
     }
 
     p.write16(fMissileUpdates);
+    p.write16(fRemovedMissiles);
 
     const uint16_t nNovas = fNovas.size();
     p << nNovas;

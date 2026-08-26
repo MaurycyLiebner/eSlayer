@@ -24,6 +24,7 @@ bool eServerClientHandler::receiveData(
     const auto missileData = mArea->missileData(mClientId);
     data.fMissiles = missileData.fNewMissiles;
     data.fMissileUpdates = missileData.fUpdates;
+    data.fRemovedMissiles = missileData.fRemoved;
     data.fNovas = mArea->novaData(mClientId);
     data.fSkillAreas = mArea->skillAreaData(mClientId);
     mArea->itemsData(mClientId, data.fNewItems, data.fRemovedItemIds);
