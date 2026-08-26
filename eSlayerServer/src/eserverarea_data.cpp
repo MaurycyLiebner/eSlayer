@@ -256,7 +256,7 @@ eServerArea::missileData(const uint32_t clientId) {
         newLatestMissile = std::max(newLatestMissile, mref.fId);
         newMissiles.emplace_back(mref);
     }
-    for(const auto& m : mRemovedMissiles) {
+    for(const auto& m : clientData.fRemovedMissiles) {
         const auto& mref = *m;
         result.fRemoved.emplace_back(mref.fId);
         if(mref.fId <= latestMissile) {
@@ -265,6 +265,7 @@ eServerArea::missileData(const uint32_t clientId) {
         newLatestMissile = std::max(newLatestMissile, mref.fId);
         newMissiles.emplace_back(mref);
     }
+    clientData.fRemovedMissiles.clear();
     latestMissile = newLatestMissile;
     return std::move(result);
 }

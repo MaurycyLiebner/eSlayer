@@ -147,6 +147,7 @@ bool eServerArea::addClient(
     clientData.fLatestNova = 0;
     clientData.fLatestSkillArea = 0;
     clientData.fKnownMap.clear();
+    clientData.fRemovedMissiles.clear();
     clientData.fUpdateBoostsAuras = srcData.fUpdateBoostsAuras;
     clientData.fQuests = srcData.fQuests;
     clientData.fSendQuests = srcData.fSendQuests;
