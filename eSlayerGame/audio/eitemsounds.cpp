@@ -15,15 +15,11 @@ void eItemSounds::load() {
     const auto dir = "Audio";
 
     try {
-        std::map<int, int> map;
+        std::map<std::string, int> map;
         const auto jdata = eFileLoaderBase::parse(dir, "itemSounds.json");
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
             const auto& key = it.key();
             const auto& value = it.value();
-            const int itemId = eItemsData::sItems.id(key);
-            if(itemId < 0) {
-                eRuntimeThrow("Unrecognized item \"" + key + "\".");
-            }
             std::string name;
             if(value.is_boolean()) {
                 const bool r = value;
@@ -33,12 +29,13 @@ void eItemSounds::load() {
                 name = value;
             }
             const int soundId = eSounds::sSounds.id(name);
-            map[itemId] = soundId;
+            map[key] = soundId;
         }
 
         for(const auto& it : eItemsData::sItems) {
             int soundId = -1;
-            const auto sit = map.find(it.fId);
+            const auto& value = it.fValue;
+            const auto sit = map.find(value.fTextureStr);
             if(sit != map.end()) {
                 soundId = sit->second;
             }
