@@ -52,34 +52,50 @@ void eItemPartsMap::load() {
                 for(auto it = value.begin(); it != value.end(); ++it) {
                     const auto& key = it.key();
                     const auto& value = it.value();
-                    int itemId = -1;
+                    std::vector<int> itemIds;
                     if(key == "") {
-                        itemId = -1;
+                        itemIds.emplace_back(-1);
                     } else {
-                        itemId = eItemsData::id(key);
+                        for(const auto& it : eItemsData::sItems) {
+                            const auto& value = it.fValue;
+                            const auto& name = value.fTextureStr;
+                            if(name != key) continue;
+                            const int itemId = it.fId;
+                            itemIds.emplace_back(itemId);
+                        }
                     }
-                    auto& item = items[itemId];
-                    for(auto it = value.begin(); it != value.end(); ++it) {
-                        const auto& key = it.key();
-                        const auto& value = it.value();
-                        item[key] = value;
+                    for(const int itemId : itemIds) {
+                        auto& item = items[itemId];
+                        for(auto it = value.begin(); it != value.end(); ++it) {
+                            const auto& key = it.key();
+                            const auto& value = it.value();
+                            item[key] = value;
+                        }
                     }
                 }
             } break;
             case eItemPlace::helmet:
             case eItemPlace::armor: {
+                const std::string key = itemPlace == eItemPlace::helmet ?
+                    "helmet" : "armor";
                 const std::vector<std::string> types = value;
                 for(const auto& type : types) {
-                    int itemId = -1;
+                    std::vector<int> itemIds;
                     if(key == "") {
-                        itemId = -1;
+                        itemIds.emplace_back(-1);
                     } else {
-                        itemId = eItemsData::id(type);
+                        for(const auto& it : eItemsData::sItems) {
+                            const auto& value = it.fValue;
+                            const auto& name = value.fTextureStr;
+                            if(name != type) continue;
+                            const int itemId = it.fId;
+                            itemIds.emplace_back(itemId);
+                        }
                     }
-                    auto& item = items[itemId];
-                    const std::string key = itemPlace == eItemPlace::helmet ?
-                        "helmet" : "armor";
-                    item[key] = type;
+                    for(const int itemId : itemIds) {
+                        auto& item = items[itemId];
+                        item[key] = type;
+                    }
                 }
             } break;
             };
