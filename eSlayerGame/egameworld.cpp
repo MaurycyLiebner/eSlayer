@@ -378,6 +378,24 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mSkillAreas.add(a.fId, aa);
     }
 
+    if(mSoundCounter % 100 == 0) {
+        const int n = mUnits.size();
+        if(n > 0) {
+            const int id = eRand::rand(0, n - 1);
+            const auto& u = mUnits.get()[id];
+            if(u) {
+                const auto infoId = u->fUnitInfoId;
+                const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
+                const auto& texs = eCharsTextures::get(uinfo.fCharData);
+                const int baseSoundId = texs.baseSoundId();
+                if(baseSoundId >= 0) {
+                    eSoundPlayer::playSound(baseSoundId);
+                    mSoundCounter++;
+                }
+            }
+        }
+    }
+
     return mResult;
 }
 

@@ -122,6 +122,8 @@ private:
     eNovaIncrementer mNIncrementer;
 
     eProcessResult mResult;
+
+    uint32_t mSoundCounter = 0;
 };
 
 #endif // EGAMEWORLD_H
