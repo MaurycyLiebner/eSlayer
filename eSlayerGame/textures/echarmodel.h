@@ -58,6 +58,8 @@ public:
     SDL_Rect requestBoundingRect(const eTextureKey& key);
 
     void clearCache();
+
+    int weaponHitSoundId() const { return mWeaponHitSoundId; }
 private:
     SDL_Rect boundingRect(const eTextureKey& key) const;
     const eCharTextures& mData;
@@ -69,6 +71,8 @@ private:
     std::vector<eCharTextureAnim> mAnims;
     std::unordered_map<eTextureKey, SDL_Rect, eTextureKeyHash> mRectCache;
     std::unordered_map<eTextureKey, std::shared_ptr<eTexture>, eTextureKeyHash> mTexCache;
+
+    int mWeaponHitSoundId = -1;
 };
 
 #endif // ECHARMODEL_H

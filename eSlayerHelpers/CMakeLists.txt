@@ -245,6 +245,7 @@ add_library(eSlayerHelpers SHARED
     src/esoundsbase.cpp
     include/eSlayerHelpers/emusicbase.h
     src/emusicbase.cpp
+    include/eSlayerHelpers/eunithit.h
 )
 
 target_include_directories(eSlayerHelpers

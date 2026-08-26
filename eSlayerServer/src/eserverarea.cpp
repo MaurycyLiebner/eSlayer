@@ -475,6 +475,10 @@ bool eServerArea::iterateOverUnits(const ePointF& pos,
 }
 
 void eServerArea::unitKilled(const eServerUnit& killed) {
+    for(auto& it : mClientData) {
+        auto& data = it.second;
+        data.fUnitsDied.emplace_back(killed.fCharId);
+    }
     {
         const bool merc = killed.isMercenary();
         if(merc) {
@@ -588,6 +592,13 @@ void eServerArea::unitKilled(const eServerUnit& killed) {
 
     if(worth > 0.f) generateItem(killed.fPos, level, worth);
     generateItems(killed.fPos, killed.itemDrops());
+}
+
+void eServerArea::unitHit(const eUnitHit& hit) {
+    for(auto& it : mClientData) {
+        auto& data = it.second;
+        data.fUnitsHit.emplace_back(hit);
+    }
 }
 
 void eServerArea::removePlannedUnits() {

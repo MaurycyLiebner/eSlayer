@@ -967,6 +967,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fWSMLW = 0.f;
     if(itemReqsMet(leftW)) {
         fWeaponTypeL = gWeaponType(leftW);
+        fWeaponTypeIdL = leftW.fType == eItemType::none ?
+            0 : leftW.fDataId;
         if(leftW.fType == eItemType::weapon) {
             handleWeapon(leftW, fWSMLW);
         }
@@ -977,6 +979,8 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
     fWSMRW = 0.f;
     if(itemReqsMet(rightW)) {
         fWeaponTypeR = gWeaponType(rightW);
+        fWeaponTypeIdR = rightW.fType == eItemType::none ?
+            0 : rightW.fDataId;
         if(rightW.fType == eItemType::weapon) {
             handleWeapon(rightW, fWSMRW);
         }
@@ -1593,6 +1597,10 @@ bool eStats::canUseSkillId(const int skillId) const {
 
 bool eStats::rangedAttack(const int schoice) const {
     const auto& skillStats = fSkills[schoice];
+    return rangedAttack(skillStats);
+}
+
+bool eStats::rangedAttack(const eSkillStats& skillStats) const {
     const int skillId = skillStats.fSkillId;
     const auto& skill = eSkills::sSkills.get(skillId);
     const auto skillType = skill.fType;
@@ -1610,6 +1618,16 @@ bool eStats::rangedAttack(const int schoice) const {
            (skillId == 0 &&
             (lw == eWeaponType::ranged ||
              rw == eWeaponType::ranged));
+}
+
+uint8_t eStats::weaponType(const eWeaponChoice wchoice) const {
+    switch(wchoice) {
+    case eWeaponChoice::left:
+        return fWeaponTypeIdL;
+    case eWeaponChoice::right:
+        return fWeaponTypeIdR;
+    }
+    return fWeaponTypeIdL;
 }
 
 float eStats::attackRange(const int schoice,

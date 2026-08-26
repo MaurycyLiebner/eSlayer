@@ -2,6 +2,7 @@
 
 #include "espriteloader.h"
 #include "../eresolution.h"
+#include "../audio/esounds.h"
 
 #include <eSlayerHelpers/echardatainfo.h>
 #include <eSlayerHelpers/eitempartsmap.h>
@@ -227,6 +228,19 @@ void eCharTextures::load(const ordered_json& jdata) {
     if(colorKey.size() == 3) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
     }
+
+    const auto baseSoundStr = jdata.value("baseSound", "");
+    mBaseSoundId = eSounds::sSounds.id(baseSoundStr);
+    const auto hitSoundStr = jdata.value("hitSound", "");
+    mHitSoundId = eSounds::sSounds.id(hitSoundStr);
+    const auto blockSoundStr = jdata.value("blockSound", "");
+    mBlockSoundId = eSounds::sSounds.id(blockSoundStr);
+    const auto missSoundStr = jdata.value("missSound", "");
+    mMissSoundId = eSounds::sSounds.id(missSoundStr);
+    const auto dieSoundStr = jdata.value("dieSound", "");
+    mDieSoundId = eSounds::sSounds.id(dieSoundStr);
+    const auto attackSoundStr = jdata.value("attackSound", "");
+    mAttackSoundId = eSounds::sSounds.id(attackSoundStr);
 
     const auto& info = eCharDataInfo::get(mCharDataId);
 

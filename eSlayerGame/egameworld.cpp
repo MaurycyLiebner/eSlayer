@@ -3,6 +3,8 @@
 #include "emaincharaction.h"
 #include "textures/echarstextures.h"
 #include "textures/emissilestextures.h"
+#include "audio/esoundplayer.h"
+#include "audio/eitemsounds.h"
 
 #include <eSlayerMapGenerator/emap.h>
 
@@ -130,6 +132,67 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     mResult.fAggressive = false;
     for(const auto& mp : data.fMapPortions) {
         mMap->loadPortion(mp);
+    }
+
+    for(const auto& hit : data.fUnitsHit) {
+        const auto u = mUnits.get(hit.fUnitId);
+        if(!u) continue;
+        const auto infoId = u->fUnitInfoId;
+        const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
+        const auto& texs = eCharsTextures::get(uinfo.fCharData);
+        int soundId = -1;
+        bool playWeaponSound = false;
+        switch(hit.fType) {
+        case eHitType::hit:
+            soundId = texs.hitSoundId();
+            playWeaponSound = true;
+            break;
+        case eHitType::block:
+            soundId = texs.blockSoundId();
+            playWeaponSound = true;
+            break;
+        case eHitType::miss:
+            soundId = texs.missSoundId();
+            break;
+        }
+        if(soundId >= 0) {
+            eSoundPlayer::playSound(soundId);
+        }
+
+        if(playWeaponSound) {
+            int soundId = -1;
+            switch(hit.fSource) {
+            case eSourceType::meele: {
+                if(hit.fWeaponType == 0) {
+                    const auto u = mUnits.get(hit.fUnitId);
+                    if(!u) continue;
+                    const auto infoId = u->fUnitInfoId;
+                    const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
+                    const auto& texs = eCharsTextures::get(uinfo.fCharData);
+                    soundId = texs.attackSoundId();
+                } else {
+                    soundId = eItemSounds::sSoundIds.get(
+                        hit.fWeaponType);
+                }
+            } break;
+            case eSourceType::other: {
+            } break;
+            }
+            if(soundId >= 0) {
+                eSoundPlayer::playSound(soundId);
+            }
+        }
+    }
+
+    for(const auto& uid : data.fUnitsDied) {
+        const auto u = mUnits.get(uid);
+        if(!u) continue;
+        const auto infoId = u->fUnitInfoId;
+        const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
+        const auto& texs = eCharsTextures::get(uinfo.fCharData);
+        const int dieSoundId = texs.dieSoundId();
+        if(dieSoundId < 0) continue;
+        eSoundPlayer::playSound(dieSoundId);
     }
 
     mResult.fMerc = data.fMerc;

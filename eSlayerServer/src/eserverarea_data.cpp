@@ -5,13 +5,17 @@
 void eServerArea::unitsData(
     const uint32_t clientId,
     std::vector<eUnitData>& newUnits,
-    std::vector<eUnitData>& updatedUnits) {
+    std::vector<eUnitData>& updatedUnits,
+    std::vector<eUnitHit>& hit,
+    std::vector<uint32_t>& killed) {
     const auto it = mClientData.find(clientId);
     if(it == mClientData.end()) return;
     const auto clientU = unit(clientId);
     if(!clientU) return;
     const auto& clientPos = clientU->fPos;
     auto& clientData = it->second;
+    std::swap(clientData.fUnitsHit, hit);
+    std::swap(clientData.fUnitsDied, killed);
     auto& known = clientData.fKnownUnits;
     std::set<uint32_t> visible;
     const auto& clientArea = clientData.fArea;

@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/eteamid.h>
 #include <eSlayerHelpers/eweaponchoice.h>
 #include <eSlayerHelpers/estats.h>
+#include <eSlayerHelpers/eunithit.h>
 
 #include <memory>
 
@@ -20,9 +21,12 @@ enum class eAttackResult {
 };
 
 struct eHitData {
-    int fAttackerId;
+    uint32_t fAttackerId;
     eTeamId fAttackTeamId;
     eWeaponChoice fWChoice;
+
+    eSourceType fSource = eSourceType::other;
+    uint8_t fWeaponType = 0;
 
     ePointF fFrom;
     ePointF fTo;

@@ -255,20 +255,28 @@ bool eComplexAction::getHit(const eHitData& data,
         const bool r = isAtCamp();
         if(r) return false;
     }
+    eUnitHit unitHit;
+    unitHit.fUnitId = mUnit.fCharId;
+    unitHit.fSourceId = data.fAttackerId;
+    unitHit.fSource = data.fSource;
+    unitHit.fWeaponType = data.fWeaponType;
     bool hit = false;
     const auto attacker = mArea.unit(data.fAttackerId);
     const float hitChance = eServerUnit::sHitChance(
         mUnit, data.fALvl, data.fAttackRating);
     if(!data.fAlwaysHit && eRand::randF() > hitChance) {
         hit = false;
+        unitHit.fType = eHitType::miss;
     } else {
         const float blockChance = mUnit.blockChance();
         if(!data.fAlwaysHit && eRand::randF() < blockChance) {
             hit = false;
+            unitHit.fType = eHitType::block;
             const auto a = eBlockAction::sCreate(mUnit, mArea);
             if(a) mUnit.setChildAction(a);
         } else {
             hit = true;
+            unitHit.fType = eHitType::hit;
 
             auto& stats = mUnit.stats();
 
@@ -354,6 +362,12 @@ bool eComplexAction::getHit(const eHitData& data,
         mArea.iterateOverUnitsClamped(
             mUnit.fPos, data.fSplashRange, iter);
     }
+
+    if(mUnit.sendHitReady()) {
+        mArea.unitHit(unitHit);
+        mUnit.sendHit();
+    }
+
     return hit;
 }
 

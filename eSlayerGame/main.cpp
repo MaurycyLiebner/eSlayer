@@ -3,6 +3,7 @@
 
 #include "audio/esounds.h"
 #include "audio/emusic.h"
+#include "audio/eitemsounds.h"
 
 #include "emainwindow.h"
 #include "eresolution.h"
@@ -397,6 +398,10 @@ int main(int argc, char* argv[]) {
 
         loadings.emplace_back([&]() {
             eItemPartsMap::load();
+        });
+
+        loadings.emplace_back([&]() {
+            eItemSounds::load();
         });
 
         sh.showLoadingScreen(loadings, showMainMenu);

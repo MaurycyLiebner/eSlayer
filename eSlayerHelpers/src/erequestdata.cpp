@@ -29,6 +29,9 @@ bool eRequestData::read(ePacket& p, const uint32_t currentServerState) {
         u.read(p);
     }
 
+    p.read16(fUnitsHit);
+    p.read16(fUnitsDied);
+
     uint16_t nMissiles;
     p >> nMissiles;
     fMissiles.reserve(fMissiles.size() + nMissiles);
@@ -153,6 +156,9 @@ void eRequestData::write(ePacket& p) const {
     for(const auto& u : fUpdatedUnits) {
         u.write(p);
     }
+
+    p.write16(fUnitsHit);
+    p.write16(fUnitsDied);
 
     const uint16_t nMissiles = fMissiles.size();
     p << nMissiles;

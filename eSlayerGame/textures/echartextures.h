@@ -63,6 +63,13 @@ public:
 
     const std::vector<int>& partsOrder(const int dir) const;
 
+    int baseSoundId() const { return mBaseSoundId; }
+    int hitSoundId() const { return mHitSoundId; }
+    int blockSoundId() const { return mBlockSoundId; }
+    int missSoundId() const { return mMissSoundId; }
+    int dieSoundId() const { return mDieSoundId; }
+    int attackSoundId() const { return mAttackSoundId; }
+
     static void handleLoaded();
     static void waitUntilAllLoaded();
 private:
@@ -87,6 +94,13 @@ private:
 
     int mCharDataId;
     SDL_Color mColorKey;
+
+    int mBaseSoundId = -1;
+    int mHitSoundId = -1;
+    int mBlockSoundId = -1;
+    int mMissSoundId = -1;
+    int mDieSoundId = -1;
+    int mAttackSoundId = -1;
 
     mutable eMaps mMaps;
     mutable eMaps mButtonMaps;

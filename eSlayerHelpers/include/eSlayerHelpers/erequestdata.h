@@ -9,6 +9,7 @@
 #include "emapportion.h"
 #include "eattributes.h"
 #include "emercenary.h"
+#include "eunithit.h"
 
 class ePacket;
 
@@ -17,6 +18,8 @@ struct ESLAYERHELPERS_API eRequestData {
     uint32_t fServerState;
     std::vector<eUnitData> fNewUnits;
     std::vector<eUnitData> fUpdatedUnits;
+    std::vector<eUnitHit> fUnitsHit;
+    std::vector<uint32_t> fUnitsDied;
     std::vector<eMissile> fMissiles;
     std::vector<eMissileUpdate> fMissileUpdates;
     std::vector<uint32_t> fRemovedMissiles;

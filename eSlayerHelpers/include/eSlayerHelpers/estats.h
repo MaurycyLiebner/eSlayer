@@ -221,6 +221,9 @@ struct ESLAYERHELPERS_API eStats {
     eWeaponType fWeaponTypeL = eWeaponType::none;
     eWeaponType fWeaponTypeR = eWeaponType::none;
 
+    uint8_t fWeaponTypeIdL = 0;
+    uint8_t fWeaponTypeIdR = 0;
+
     std::map<int, float> fCooldowns;
     eSkillLevels fBaseSkillLevels;
     eSkillLevels fEffectiveSkillLevels;
@@ -274,6 +277,8 @@ struct ESLAYERHELPERS_API eStats {
     bool canUseSkill(const int schoice) const;
     bool canUseSkillId(const int skillId) const;
     bool rangedAttack(const int schoice) const;
+    bool rangedAttack(const eSkillStats& skillStats) const;
+    uint8_t weaponType(const eWeaponChoice wchoice) const;
     float attackRange(const int schoice,
                       const float unit1Radius,
                       const float unit2Radius) const;

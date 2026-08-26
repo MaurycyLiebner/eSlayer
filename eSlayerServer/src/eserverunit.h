@@ -161,6 +161,12 @@ public:
                    const eWeaponChoice wchoice) const;
     static bool knockback(const eSkillStats& stats,
                           const eWeaponChoice wchoice);
+
+    eSourceType source(const eSkillStats& skill,
+                       const eWeaponChoice wchoice) const;
+    uint8_t weaponType(const eSkillStats& skill,
+                       const eWeaponChoice wchoice) const;
+
     bool alwaysHit(const int schoice,
                    const eWeaponChoice wchoice) const;
     static bool alwaysHit(const eSkillStats& stats,
@@ -404,6 +410,9 @@ public:
     void onStructCast();
     bool onStructCastReady() const;
 
+    void sendHit();
+    bool sendHitReady() const;
+
     const std::vector<eItemDrop>& itemDrops() const
     { return mItemDrops; }
     void addItemDrops(const std::vector<eItemDrop>& drops);
@@ -495,6 +504,7 @@ private:
     std::set<int> mUsedSkills;
 
     float mOnStructBlock = 0.f;
+    float mSendHitBlock = 0.f;
 
     std::vector<eItemDrop> mItemDrops;
 };

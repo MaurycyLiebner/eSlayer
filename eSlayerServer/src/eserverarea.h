@@ -20,6 +20,7 @@
 #include <eSlayerHelpers/etalk.h>
 #include <eSlayerHelpers/eitemdrop.h>
 #include <eSlayerHelpers/equests.h>
+#include <eSlayerHelpers/eunithit.h>
 
 #include <eSlayerMapGenerator/emapgenerator.h>
 
@@ -55,7 +56,9 @@ public:
 
     void unitsData(const uint32_t clientId,
                    std::vector<eUnitData>& newUnits,
-                   std::vector<eUnitData>& updatedUnits);
+                   std::vector<eUnitData>& updatedUnits,
+                   std::vector<eUnitHit>& hit,
+                   std::vector<uint32_t>& killed);
     void itemsData(const uint32_t clientId,
                    std::vector<eGroundItem>& newItems,
                    std::vector<uint32_t>& removedItemIds);
@@ -250,6 +253,7 @@ public:
                           const float maxRadius,
                           const eUnitIter& iter) const;
     void unitKilled(const eServerUnit& killed);
+    void unitHit(const eUnitHit& hit);
 
     static bool moveClient(const uint32_t clientId,
                            eServerArea& from,

@@ -9,6 +9,7 @@
 #include <eSlayerHelpers/eareas.h>
 #include <eSlayerHelpers/earea.h>
 #include <eSlayerHelpers/eidmapvector.h>
+#include <eSlayerHelpers/eunithit.h>
 
 struct eClientData {
     eClientData();
@@ -19,6 +20,8 @@ struct eClientData {
     std::set<uint32_t> fKnownItems;
     std::set<int> fUsedSkills;
     eIdMapVector<eServerMissile> fRemovedMissiles;
+    std::vector<eUnitHit> fUnitsHit;
+    std::vector<uint32_t> fUnitsDied;
     uint32_t fLatestMissile;
     uint32_t fLatestNova;
     uint32_t fLatestSkillArea;

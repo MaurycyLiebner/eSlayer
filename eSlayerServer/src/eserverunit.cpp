@@ -50,6 +50,9 @@ bool eServerUnit::hitData(
     data.fFrom = fPos;
     data.fKnockback = knockback(skill, wchoice);
 
+    data.fSource = source(skill, wchoice);
+    data.fWeaponType = weaponType(skill, wchoice);
+
     data.fLifeSteal = lifeSteal(skill, wchoice);
     data.fManaSteal = manaSteal(skill, wchoice);
 
@@ -352,6 +355,19 @@ bool eServerUnit::knockback(
         return stats.fKnockbackRW;
     }
     return false;
+}
+
+eSourceType eServerUnit::source(
+    const eSkillStats& skill,
+    const eWeaponChoice wchoice) const {
+    const bool r = mStats.rangedAttack(skill);
+    return r ? eSourceType::other : eSourceType::meele;
+}
+
+uint8_t eServerUnit::weaponType(
+    const eSkillStats& skill,
+    const eWeaponChoice wchoice) const {
+    return mStats.weaponType(wchoice);
 }
 
 bool eServerUnit::alwaysHit(
@@ -801,6 +817,7 @@ float eServerUnit::heal(const eSkillStats& stats,
 
 void eServerUnit::increment(const float by) {
     mOnStructBlock = std::max(0.f, mOnStructBlock - by);
+    mSendHitBlock = std::max(0.f, mSendHitBlock - by);
     {
         bool recalc = false;
         if(fHealth <= 0 && !mBoosts.empty()) {
@@ -1569,6 +1586,14 @@ void eServerUnit::onStructCast() {
 
 bool eServerUnit::onStructCastReady() const {
     return mOnStructBlock <= 0.f;
+}
+
+void eServerUnit::sendHit() {
+    mSendHitBlock = 10.f;
+}
+
+bool eServerUnit::sendHitReady() const {
+    return mSendHitBlock <= 0.f;
 }
 
 void eServerUnit::addItemDrops(
