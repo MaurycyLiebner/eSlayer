@@ -394,6 +394,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
                 }
             }
         }
+    } else {
+        mUnitSoundCounter++;
     }
 
     if(mMissileSoundCounter % 100 == 0) {
@@ -411,6 +413,8 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
                 }
             }
         }
+    } else {
+        mMissileSoundCounter++;
     }
 
     return mResult;
