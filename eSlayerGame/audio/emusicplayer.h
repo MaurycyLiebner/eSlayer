@@ -5,13 +5,16 @@
 
 class eMusicPlayer {
 public:
-    eMusicPlayer(MIX_Mixer* const mixer);
+    eMusicPlayer();
+    ~eMusicPlayer();
 
     bool initialize();
 
+    static void setVolume(const float volume);
     static void incTime();
     static void playMusic(const int type);
 private:
+    void setVolumeImpl(const float volume);
     void incTimeImpl();
 
     void playMusicImpl(const int type);
@@ -20,7 +23,7 @@ private:
     void loadMenuImpl();
     static eMusicPlayer* sInstance;
 
-    MIX_Mixer* const mMixer;
+    MIX_Mixer* mMixer = nullptr;
     MIX_Track* mMusicTrack = nullptr;
 
     bool mLoading = false;

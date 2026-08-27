@@ -15,6 +15,35 @@ struct eAudioLoader {
     std::vector<eFinishAudio> fFinish;
 };
 
+class eTrack {
+    friend struct eTrackHolder;
+public:
+    void initialize(MIX_Mixer* const mixer) {
+        fTrack = MIX_CreateTrack(mixer);
+    }
+
+    bool used() const {
+        return mUsed || MIX_TrackPlaying(fTrack);
+    }
+
+    MIX_Track* fTrack = nullptr;
+private:
+    bool mUsed = false;
+};
+
+struct eTrackHolder {
+    eTrackHolder(const std::shared_ptr<eTrack>& track) {
+        fTrack = track;
+        fTrack->mUsed = true;
+    }
+
+    ~eTrackHolder() {
+        fTrack->mUsed = false;
+    }
+
+    std::shared_ptr<eTrack> fTrack;
+};
+
 class eAudioVector {
 public:
     eAudioVector();

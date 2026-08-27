@@ -183,15 +183,6 @@ int main(int argc, char* argv[]) {
     std::sort(eResolutionBase::sResolutions.begin(),
               eResolutionBase::sResolutions.end());
 
-    const auto mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
-    if(!mixer) {
-        eExceptions::logError(
-            "SDL_mixer could not create mixer!",
-            SDL_GetError());
-        close();
-        return 1;
-    }
-
     eResolution::load();
 
     eWindowSettings settings;
@@ -207,10 +198,12 @@ int main(int argc, char* argv[]) {
         const bool i = w.initialize(settings);
         if(!i) return 1;
 
-        eMusicPlayer music(mixer);
+        eMusicPlayer music;
         const bool m = music.initialize();
         if(!m) return 1;
-        eSoundPlayer sounds(mixer);
+        eSoundPlayer sounds;
+        const bool s = sounds.initialize();
+        if(!s) return 1;
 
         const auto showMainMenu = [&]() {
             sh.showMainMenu();

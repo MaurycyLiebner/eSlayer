@@ -3,19 +3,20 @@
 #include <eSlayerHelpers/erand.h>
 
 void eSoundVector::play(MIX_Mixer * const mixer,
+                        const std::shared_ptr<eTrackHolder>& track,
                         const int id,
-                        MIX_Track * const channel) {
+                        const float volume,
+                        const int loop) {
     const int count = eAudioVector::count();
     if(id < 0 || id >= count) return;
     const auto& a = audio(id);
-
-    const auto playAudio = [mixer, channel](MIX_Audio * const audio) {
-        if(channel) {
-            MIX_SetTrackAudio(channel, audio);
-            MIX_PlayTrack(channel, 0);
-        } else {
-            MIX_PlayAudio(mixer, audio);
-        }
+    const auto playAudio = [mixer, track, loop, volume](
+            MIX_Audio * const audio) {
+        const auto mtrack = track->fTrack->fTrack;
+        MIX_SetTrackAudio(mtrack, audio);
+        MIX_SetTrackGain(mtrack, volume);
+        MIX_SetTrackLoops(mtrack, loop);
+        MIX_PlayTrack(mtrack, 0);
     };
 
     if(a) {
@@ -25,10 +26,13 @@ void eSoundVector::play(MIX_Mixer * const mixer,
     }
 }
 
-void eSoundVector::playRandomSound(MIX_Mixer * const mixer,
-                                   MIX_Track * const channel) {
+int eSoundVector::playRandomSound(MIX_Mixer * const mixer,
+                                  const std::shared_ptr<eTrackHolder>& track,
+                                  const float volume,
+                                  const int loop) {
     const int sc = count();
-    if(sc <= 0) return;
+    if(sc <= 0) return -1;
     const int id = eRand::rand() % sc;
-    play(mixer, id, channel);
+    play(mixer, track, id, volume, loop);
+    return id;
 }
