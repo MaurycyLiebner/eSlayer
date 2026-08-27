@@ -15,6 +15,10 @@
 #include "../widgets/mainMenu/edialog.h"
 #include "../widgets/mainMenu/emainmenubutton.h"
 #include "../erendersettings.h"
+#include "../esoundoptions.h"
+
+#include "../audio/emusicplayer.h"
+#include "../audio/esoundplayer.h"
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
@@ -409,6 +413,11 @@ void eScreenHandler::showGame(eServerData serverData,
     });
     loading.emplace_back([]() {
         eRenderSettings::read();
+    });
+    loading.emplace_back([]() {
+        eSoundOptions::read();
+        eMusicPlayer::setVolume(0.01f*eSoundOptions::sMusicVolume);
+        eSoundPlayer::setVolume(0.01f*eSoundOptions::sSoundVolume);
     });
     loading.emplace_back([]() {
         eCharTextures::waitUntilAllLoaded();

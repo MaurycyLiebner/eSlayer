@@ -2,6 +2,10 @@
 
 #include "../../etext.h"
 #include "../../erendersettings.h"
+#include "../../widgets/eslider.h"
+#include "../../audio/emusicplayer.h"
+#include "../../audio/esoundplayer.h"
+#include "../../esoundoptions.h"
 #include "eescmenubutton.h"
 
 #include <eSlayerHelpers/evectorhelpers.h>
@@ -90,9 +94,34 @@ void eESCMenu::showOptions() {
 void eESCMenu::showSoundOptions() {
     removeChildren();
 
+    const auto musicOptionsB = new eESCMenuButton(
+        eText::text(5, 12), window());
+    addWidget(musicOptionsB);
+    const int h = musicOptionsB->height()/2;
+
+    const auto musicSlider = new eSlider(window());
+    addWidget(musicSlider);
+    musicSlider->setValue(eSoundOptions::sMusicVolume);
+    musicSlider->setHeight(h);
+    musicSlider->setSetter([](const int value) {
+        eMusicPlayer::setVolume(0.01f*value);
+        eSoundOptions::sMusicVolume = value;
+        eSoundOptions::write();
+    });
+
     const auto soundOptionsB = new eESCMenuButton(
-        eText::text(5, 6), window());
+        eText::text(5, 13), window());
     addWidget(soundOptionsB);
+
+    const auto soundSlider = new eSlider(window());
+    addWidget(soundSlider);
+    soundSlider->setValue(eSoundOptions::sSoundVolume);
+    soundSlider->setHeight(h);
+    soundSlider->setSetter([](const int value) {
+        eSoundPlayer::setVolume(0.01f*value);
+        eSoundOptions::sSoundVolume = value;
+        eSoundOptions::write();
+    });
 
     const auto previousB = new eESCMenuButton(
         eText::text(5, 5), window());
@@ -106,7 +135,12 @@ void eESCMenu::showSoundOptions() {
     stackVertically(p);
     fitContent();
 
+    const int w = width();
+    musicSlider->setWidth(w);
+    soundSlider->setWidth(w);
+
     soundOptionsB->align(eAlignment::hcenter);
+    musicOptionsB->align(eAlignment::hcenter);
     previousB->align(eAlignment::hcenter);
 
     align(eAlignment::center);

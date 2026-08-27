@@ -115,6 +115,8 @@ add_executable(eSlayerGame
     emainwindow.h
     erendersettings.cpp
     erendersettings.h
+    esoundoptions.cpp
+    esoundoptions.h
     eresolution.cpp
     eresolution.h
     ewindowsettings.cpp
@@ -271,6 +273,8 @@ add_executable(eSlayerGame
     widgets/ewidget.h
     widgets/etabwidget.cpp
     widgets/etabwidget.h
+    widgets/eslider.cpp
+    widgets/eslider.h
 
     # Widgets - Game Screen
     widgets/gameScreen/ebgwidget.cpp
