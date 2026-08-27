@@ -1,21 +1,21 @@
 #ifndef EGAMEWORLD_H
 #define EGAMEWORLD_H
 
+#include "audio/eaudiovector.h"
 #include "units/eunit.h"
 
-#include <eSlayerMissiles/emissileincrementer.h>
-#include <eSlayerMissiles/enovaincrementer.h>
-
-#include <eSlayerHelpers/eunitdata.h>
-#include <eSlayerHelpers/eidmapvector.h>
-#include <eSlayerHelpers/emissile.h>
+#include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/efixedsizesetareas.h>
-#include <eSlayerServer/eserver.h>
-#include <eSlayerHelpers/eitem.h>
 #include <eSlayerHelpers/egrounditem.h>
+#include <eSlayerHelpers/eidmapvector.h>
+#include <eSlayerHelpers/eitem.h>
+#include <eSlayerHelpers/emissile.h>
 #include <eSlayerHelpers/enova.h>
 #include <eSlayerHelpers/eskillarea.h>
-#include <eSlayerHelpers/eattributes.h>
+#include <eSlayerHelpers/eunitdata.h>
+#include <eSlayerMissiles/emissileincrementer.h>
+#include <eSlayerMissiles/enovaincrementer.h>
+#include <eSlayerServer/eserver.h>
 
 struct eBody;
 class eMap;
@@ -124,7 +124,12 @@ private:
     eProcessResult mResult;
 
     uint32_t mUnitSoundCounter = 0;
-    uint32_t mMissileSoundCounter = 0;
+    struct eMissileSound {
+        float fVolume;
+        std::shared_ptr<eTrackHolder> fHolder;
+    };
+
+    std::map<int, eMissileSound> mLoops;
 };
 
 #endif // EGAMEWORLD_H

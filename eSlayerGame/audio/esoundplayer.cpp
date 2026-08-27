@@ -37,8 +37,8 @@ void eSoundPlayer::playSound(const int id) {
 }
 
 std::shared_ptr<eTrackHolder> eSoundPlayer::playLoopSound(
-    const int id, const float volume) {
-    return sInstance->playLoopSoundImpl(id, volume);
+    const int id, const float volume, const bool fadeIn) {
+    return sInstance->playLoopSoundImpl(id, volume, fadeIn);
 }
 
 void eSoundPlayer::setVolumeImpl(const float volume) {
@@ -64,9 +64,9 @@ void eSoundPlayer::playSoundImpl(const int id) {
 }
 
 std::shared_ptr<eTrackHolder> eSoundPlayer::playLoopSoundImpl(
-    const int id, const float volume) {
+    const int id, const float volume, const bool fadeIn) {
     auto& b = eSounds::sSounds.get(id);
     const auto track = requestTrack();
-    b.playRandomSound(mMixer, track, volume, 1);
+    b.playRandomSound(mMixer, track, volume, 1, fadeIn);
     return track;
 }

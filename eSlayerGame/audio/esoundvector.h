@@ -11,11 +11,13 @@ public:
               const std::shared_ptr<eTrackHolder>& track,
               const int id,
               const float volume = 1.f,
-              const int loop = 0);
+              const int loop = 0,
+              const bool fadeIn = false);
     int playRandomSound(MIX_Mixer * const mixer,
                         const std::shared_ptr<eTrackHolder>& track,
                         const float volume = 1.f,
-                        const int loop = 0);
+                        const int loop = 0,
+                        const bool fadeIn = false);
 };
 
 #endif // ESOUNDVECTOR_H

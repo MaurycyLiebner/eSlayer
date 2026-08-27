@@ -83,14 +83,20 @@ void eMissilesInfo::load() {
         missile.mHitAnimId = missile.animId("hit");
         missile.mStayAnimId = missile.animId("stay");
 
-        const auto appearSoundStr = jdata.value("appearSound", "");
-        missile.mAppearSoundId = eSoundsBase::sSounds.id(appearSoundStr);
-        const auto hitSoundStr = jdata.value("hitSound", "");
-        missile.mHitSoundId = eSoundsBase::sSounds.id(hitSoundStr);
-        const auto baseSoundStr = jdata.value("baseSound", "");
-        missile.mBaseSoundId = eSoundsBase::sSounds.id(baseSoundStr);
-        const auto disappearSoundStr = jdata.value("disappearSound", "");
-        missile.mDisappearSoundId = eSoundsBase::sSounds.id(disappearSoundStr);
+        const auto parseSound = [&](const std::string& name) {
+            const auto soundStr = jdata.value(name, "");
+            if(soundStr.empty()) return -1;
+            const int id = eSoundsBase::sSounds.id(soundStr);
+            if(id < 0) {
+                eRuntimeThrow("Unrecognized sound \"" + soundStr + "\".");
+            }
+            return id;
+        };
+
+        missile.mAppearSoundId = parseSound("appearSound");
+        missile.mHitSoundId = parseSound("hitSound");
+        missile.mLoopSoundId = parseSound("loopSound");
+        missile.mDisappearSoundId = parseSound("disappearSound");
 
         const int id = sMissiles.add(name, missile);
         if(name == "flesh") {

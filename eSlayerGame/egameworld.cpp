@@ -401,24 +401,61 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mUnitSoundCounter++;
     }
 
-    if(mMissileSoundCounter % 100 == 0) {
-        const int n = mMissiles.size();
-        if(n > 0) {
-            const int id = eRand::rand(0, n - 1);
-            const auto& m = mMissiles.get()[id];
-            if(m) {
-                const auto missileType = m->fType;
-                const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
-                const int baseSoundId = missileTex.baseSoundId();
-                if(baseSoundId >= 0) {
-                    eSoundPlayer::playSound(baseSoundId);
-                    mMissileSoundCounter++;
-                }
+    const auto missileVolume = [&](const ePointF& pos) {
+        const float dist = ePointF::distance(mainChar.fPos, pos);
+        return std::clamp(12.f/(10.f + dist), 0.25f, 1.f);
+    };
+
+    std::map<int, eMissileSound> newLoops;
+    for(const auto& m : mMissiles) {
+        const auto missileType = m->fType;
+        const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
+        const int loopSoundId = missileTex.loopSoundId();
+        if(loopSoundId < 0) continue;
+        const float volume = missileVolume(m->fPos);
+        const auto nit = newLoops.find(loopSoundId);
+        if(nit == newLoops.end()) {
+            const auto it = mLoops.find(loopSoundId);
+            if(it == mLoops.end()) {
+                newLoops[loopSoundId] = {volume, nullptr};
+            } else {
+                const auto h = it->second;
+                newLoops[loopSoundId] = {volume, h.fHolder};
             }
+        } else {
+            auto& sound = nit->second;
+            float& svolume = sound.fVolume;
+            svolume = std::max(svolume, volume);
         }
-    } else {
-        mMissileSoundCounter++;
     }
+
+    for(auto& it : newLoops) {
+        const int soundId = it.first;
+        auto& sound = it.second;
+        const float volume = sound.fVolume;
+        auto& holder = sound.fHolder;
+        if(holder) {
+            const auto track = holder->fTrack->fTrack;
+            MIX_SetTrackLoops(track, 1);
+            MIX_SetTrackGain(track, volume);
+        } else {
+            holder = eSoundPlayer::playLoopSound(soundId, volume, true);
+        }
+    }
+
+    for(const auto& it : mLoops) {
+        const int soundId = it.first;
+        const auto nit = newLoops.find(soundId);
+        if(nit == newLoops.end()) {
+            const auto& sound = it.second;
+            auto& holder = sound.fHolder;
+            if(!holder) continue;
+            const auto track = holder->fTrack->fTrack;
+            MIX_StopTrack(track, 500);
+        }
+    }
+
+    mLoops = newLoops;
 
     return mResult;
 }
