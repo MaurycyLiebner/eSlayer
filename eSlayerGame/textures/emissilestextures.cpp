@@ -46,7 +46,12 @@ void eMissileTextures::load(const eResolution& res,
         const auto& name = it.fName;
         const auto& ainfo = it.fValue;
         eMissileAnimTextures texs;
-        texs.load(res, r, ainfo);
+        if(ainfo.fOverwriteId == -1) {
+            texs.load(res, r, ainfo);
+        } else {
+            const auto& src = mAnims.get(ainfo.fOverwriteId);
+            texs = src;
+        }
         mAnims.add(name, texs);
     }
 }

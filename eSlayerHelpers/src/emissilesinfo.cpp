@@ -71,10 +71,17 @@ void eMissilesInfo::load() {
         missile.mRadius = radius;
         for(auto& [aname, animData] : anims.items()) {
             eMissileAnim anim;
-            const int nFrames = animData.value("frames", 0);
-            anim.fNFrames = nFrames;
+            anim.fNFrames = animData.value("frames", 0);
             anim.fNDirs = dirs;
             anim.fPath = pathBase + "_" + aname;
+            if(animData.contains("overwrite")) {
+                const auto overwriteStr = animData.value("overwrite", "");
+                const int id = missile.mAnims.id(overwriteStr);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized overwrite \"" + overwriteStr + "\".");
+                }
+                anim.fOverwriteId = id;
+            }
             missile.mAnims.add(aname, anim);
         }
         missile.mAppearAnimId = missile.animId("appear");

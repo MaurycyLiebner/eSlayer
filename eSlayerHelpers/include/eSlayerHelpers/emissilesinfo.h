@@ -9,6 +9,7 @@ struct eMissileAnim {
     int fNDirs = 0;
     int fNFrames = 0;
     std::string fPath;
+    int fOverwriteId = -1;
 };
 
 enum class eMissileType {
