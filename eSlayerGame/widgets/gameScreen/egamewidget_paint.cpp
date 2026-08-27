@@ -35,6 +35,14 @@ void eGameWidget::paintEvent(ePainter& p) {
 
     const auto r = renderer();
 
+    std::set<int> played;
+    const auto playSound = [&](const int soundId) {
+        if(soundId < 0) return;
+        if(played.count(soundId) > 0) return;
+        eSoundPlayer::playSound(soundId);
+        played.emplace(soundId);
+    };
+
     auto& eq = eGameWidget::equipment();
     {
         const auto followers = mServer->followersUpdate(mClientId);
@@ -644,9 +652,7 @@ void eGameWidget::paintEvent(ePainter& p) {
                 model.incFrame(by);
                 if(frame == 0) {
                     const int appearSound = missileInfo.appearSoundId();
-                    if(appearSound >= 0) {
-                        eSoundPlayer::playSound(appearSound);
-                    }
+                    playSound(appearSound);
                 }
                 if(frame >= nFrames) {
                     floor = true;
@@ -713,14 +719,10 @@ void eGameWidget::paintEvent(ePainter& p) {
             if(frame == 0) {
                 if(animId == appearId) {
                     const int appearSound = missileInfo.appearSoundId();
-                    if(appearSound >= 0) {
-                        eSoundPlayer::playSound(appearSound);
-                    }
+                    playSound(appearSound);
                 } else if(animId == hitId) {
                     const int hitSound = missileInfo.hitSoundId();
-                    if(hitSound >= 0) {
-                        eSoundPlayer::playSound(hitSound);
-                    }
+                    playSound(hitSound);
                 }
             }
             if(frame >= nFrames) {
@@ -781,9 +783,7 @@ void eGameWidget::paintEvent(ePainter& p) {
 
             if(novaFrame == 0) {
                 const int appearSound = missileInfo.appearSoundId();
-                if(appearSound >= 0) {
-                    eSoundPlayer::playSound(appearSound);
-                }
+                playSound(appearSound);
             }
             bool playHitSound = false;
 
@@ -894,9 +894,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             }
 
             if(playHitSound) {
-                if(hitSound >= 0) {
-                    eSoundPlayer::playSound(hitSound);
-                }
+                playSound(hitSound);
             }
 
             n->fFrame++;
@@ -922,9 +920,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             case eSkillAreaState::appear: {
                 if(frame == 0) {
                     const int appearSound = missileInfo.appearSoundId();
-                    if(appearSound >= 0) {
-                        eSoundPlayer::playSound(appearSound);
-                    }
+                    playSound(appearSound);
                 }
                 int appearFrames = 0;
                 if(appearAnimId >= 0) {
@@ -986,9 +982,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             case eSkillAreaState::disappear: {
                 if(frame == 0) {
                     const int disappearSound = missileInfo.disappearSoundId();
-                    if(disappearSound >= 0) {
-                        eSoundPlayer::playSound(disappearSound);
-                    }
+                    playSound(disappearSound);
                 }
                 if(disappearAnimId >= 0) {
                     const int disappearFrames = missileInfo.nFrames(

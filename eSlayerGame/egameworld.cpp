@@ -134,6 +134,14 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         mMap->loadPortion(mp);
     }
 
+    std::set<int> played;
+    const auto playSound = [&](const int soundId) {
+        if(soundId < 0) return;
+        if(played.count(soundId) > 0) return;
+        eSoundPlayer::playSound(soundId);
+        played.emplace(soundId);
+    };
+
     for(const auto& hit : data.fUnitsHit) {
         const auto u = mUnits.get(hit.fUnitId);
         if(!u) continue;
@@ -155,9 +163,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             soundId = texs.missSoundId();
             break;
         }
-        if(soundId >= 0) {
-            eSoundPlayer::playSound(soundId);
-        }
+        playSound(soundId);
 
         if(playWeaponSound) {
             int soundId = -1;
@@ -178,9 +184,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             case eSourceType::other: {
             } break;
             }
-            if(soundId >= 0) {
-                eSoundPlayer::playSound(soundId);
-            }
+            playSound(soundId);
         }
     }
 
@@ -191,8 +195,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
         const auto& texs = eCharsTextures::get(uinfo.fCharData);
         const int dieSoundId = texs.dieSoundId();
-        if(dieSoundId < 0) continue;
-        eSoundPlayer::playSound(dieSoundId);
+        playSound(dieSoundId);
     }
 
     mResult.fMerc = data.fMerc;
