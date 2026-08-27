@@ -717,7 +717,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             int& animId = m->fAnimId;
             int nFrames = missileInfo.nFrames(animId);
             if(frame == 0) {
-                if(animId == appearId) {
+                if(animId == appearId && !m->fDuplicate) {
                     const int appearSound = missileInfo.appearSoundId();
                     playSound(appearSound);
                 } else if(animId == hitId) {

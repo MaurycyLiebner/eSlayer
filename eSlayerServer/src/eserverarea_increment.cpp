@@ -141,6 +141,7 @@ void eServerArea::increment(const float by) {
         auto& mmRef = *mmPtr;
         const auto idTmp = mmRef.fId;
         mmRef = mref;
+        mmRef.fDuplicate = true;
         mmRef.fId = idTmp;
         mmRef.fPos = mmRef.fFrom;
         mmRef.fTime = 0.f;

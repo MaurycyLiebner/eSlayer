@@ -32,6 +32,7 @@ struct ESLAYERHELPERS_API eMissile :
     // number of obstacles missile can hit (0 - infinity)
     uint8_t fToPierce;
     bool fContinuousDamage;
+    bool fDuplicate = false;
     float fRemDist;
     float fRemTime;
     float fRadius;
