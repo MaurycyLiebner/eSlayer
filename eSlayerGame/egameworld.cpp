@@ -408,7 +408,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
                 const auto& texs = eCharsTextures::get(uinfo.fCharData);
                 const int baseSoundId = texs.baseSoundId();
                 if(baseSoundId >= 0) {
-                    eSoundPlayer::playSound(baseSoundId);
+                    playSound(baseSoundId, u->fPos);
                     mUnitSoundCounter++;
                 }
             }
