@@ -239,6 +239,7 @@ void eCharTextures::load(const ordered_json& jdata) {
         return id;
     };
 
+    mAppearSoundId = parseSound("appearSound");
     mBaseSoundId = parseSound("baseSound");
     mHitSoundId = parseSound("hitSound");
     mBlockSoundId = parseSound("blockSound");

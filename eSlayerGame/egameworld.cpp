@@ -259,6 +259,10 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         }
         const auto& uinfo = eUnitsInfo::sUnits.get(u.fUnitInfoId);
         const auto& texs = eCharsTextures::get(uinfo.fCharData);
+
+        const int appearSound = texs.appearSoundId();
+        playSound(appearSound, u.fPos);
+
         const auto unitModel = texs.requestModel(
             u.fModelParts, res, r, nullptr);
 

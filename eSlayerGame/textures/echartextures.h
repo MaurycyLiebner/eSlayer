@@ -63,6 +63,7 @@ public:
 
     const std::vector<int>& partsOrder(const int dir) const;
 
+    int appearSoundId() const { return mAppearSoundId; }
     int baseSoundId() const { return mBaseSoundId; }
     int hitSoundId() const { return mHitSoundId; }
     int blockSoundId() const { return mBlockSoundId; }
@@ -96,6 +97,7 @@ private:
     int mCharDataId;
     SDL_Color mColorKey;
 
+    int mAppearSoundId = -1;
     int mBaseSoundId = -1;
     int mHitSoundId = -1;
     int mBlockSoundId = -1;
