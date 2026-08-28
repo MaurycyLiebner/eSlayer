@@ -89,6 +89,8 @@ struct eAreaSettings {
 
     const eAreaTemplate& template_(const int diff) const;
 
+    int fMusic = -1;
+
     uint8_t fLightness = 180;
     uint8_t fContrast = 140;
     uint16_t fSize = 50;

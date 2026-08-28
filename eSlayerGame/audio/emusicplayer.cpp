@@ -55,7 +55,7 @@ void eMusicPlayer::playMusicImpl(const int type) {
     mMusicType = type;
     if(MIX_TrackPlaying(mMusicTrack)) {
         if(!change) return;
-        MIX_StopTrack(mMusicTrack, 1000);
+        MIX_StopTrack(mMusicTrack, 60000);
         return;
     }
     if(type < 0) return;

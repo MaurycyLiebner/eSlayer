@@ -16,6 +16,7 @@
 #include "../../textures/eitemstextures.h"
 
 #include "../../audio/esoundplayer.h"
+#include "../../audio/emusicplayer.h"
 
 #include "../../names/eareanames.h"
 
@@ -308,6 +309,8 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& e : areaSett.fEffects) {
             mGamePainter.addEffect(e, fadeIn);
         }
+
+        eMusicPlayer::playMusic(areaSett.fMusic);
     }
 
     mServer->changeState(mClientId, *mMainChar);

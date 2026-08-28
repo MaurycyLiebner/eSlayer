@@ -7,6 +7,7 @@
 #include "eSlayerHelpers/eblueprints.h"
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/edifficulties.h"
+#include "eSlayerHelpers/emusicbase.h"
 
 eStringIdMapVector<eAreaSettings>
 eMapsSettings::sAreas;
@@ -15,6 +16,17 @@ eMapsSettings::sMaps;
 bool eMapsSettings::sLoaded = false;
 
 void parseArea(eAreaSettings& area, const ordered_json& jArea) {
+    const auto musicStr = jArea.value("music", "");
+    if(musicStr.empty()) {
+        area.fMusic = -1;
+    } else {
+        const int id = eMusicBase::sMusic.id(musicStr);
+        if(id < 0) {
+            eRuntimeThrow("Unrecognized music \"" + musicStr + "\".");
+        }
+        area.fMusic = id;
+    }
+
     area.fLightness = jArea.value("lightness", area.fLightness);
     area.fContrast = jArea.value("contrast", area.fContrast);
     area.fSize = jArea.value("size", area.fSize);

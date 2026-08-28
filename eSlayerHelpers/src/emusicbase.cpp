@@ -23,6 +23,11 @@ void eMusicBase::load() {
                 } else {
                     continue;
                 }
+            } else if(value.is_number_integer()) {
+                const int n = value;
+                for(int i = 1; i <= n; i++) {
+                    values.emplace_back(key + std::to_string(i));
+                }
             } else if(value.is_string()) {
                 values.emplace_back(value);
             } else {
