@@ -14,14 +14,15 @@ public:
 
     static void setVolume(const float volume);
     static void playButtonSound();
-    static void playSound(const int id);
+    static void playSound(const int id, const float volume = 1.f);
     static std::shared_ptr<eTrackHolder> playLoopSound(
         const int id, const float volume = 1.f,
         const bool fadeIn = false);
+    static float volumeFromDist(const float dist);
 private:
     void setVolumeImpl(const float volume);
     std::shared_ptr<eTrackHolder> requestTrack();
-    void playSoundImpl(const int id);
+    void playSoundImpl(const int id, const float volume = 1.f);
     std::shared_ptr<eTrackHolder> playLoopSoundImpl(
         const int id, const float volume = 1.f,
         const bool fadeIn = false);

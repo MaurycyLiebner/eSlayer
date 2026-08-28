@@ -32,13 +32,17 @@ void eSoundPlayer::playButtonSound() {
     playSound(id);
 }
 
-void eSoundPlayer::playSound(const int id) {
-    sInstance->playSoundImpl(id);
+void eSoundPlayer::playSound(const int id, const float volume) {
+    sInstance->playSoundImpl(id, volume);
 }
 
 std::shared_ptr<eTrackHolder> eSoundPlayer::playLoopSound(
     const int id, const float volume, const bool fadeIn) {
     return sInstance->playLoopSoundImpl(id, volume, fadeIn);
+}
+
+float eSoundPlayer::volumeFromDist(const float dist) {
+    return std::clamp(7.f/(5.f + dist), 0.25f, 1.f);
 }
 
 void eSoundPlayer::setVolumeImpl(const float volume) {
@@ -57,10 +61,10 @@ std::shared_ptr<eTrackHolder> eSoundPlayer::requestTrack() {
     return std::make_shared<eTrackHolder>(track);
 }
 
-void eSoundPlayer::playSoundImpl(const int id) {
+void eSoundPlayer::playSoundImpl(const int id, const float volume) {
     auto& b = eSounds::sSounds.get(id);
     const auto track = requestTrack();
-    b.playRandomSound(mMixer, track);
+    b.playRandomSound(mMixer, track, volume);
 }
 
 std::shared_ptr<eTrackHolder> eSoundPlayer::playLoopSoundImpl(

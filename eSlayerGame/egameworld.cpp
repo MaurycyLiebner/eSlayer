@@ -413,7 +413,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
 
     const auto missileVolume = [&](const ePointF& pos) {
         const float dist = ePointF::distance(mainChar.fPos, pos);
-        return std::clamp(12.f/(10.f + dist), 0.25f, 1.f);
+        return eSoundPlayer::volumeFromDist(dist);
     };
 
     std::map<int, eMissileSound> newLoops;
