@@ -53,6 +53,16 @@ eAttackResult eComplexAction::attack(const eAttackData& target) {
     return r;
 }
 
+void eComplexAction::emptyMiss(const eHitData& data) {
+    eUnitHit unitHit;
+    unitHit.fUnitId = 0;
+    unitHit.fType = eHitType::miss;
+    unitHit.fSourceId = data.fAttackerId;
+    unitHit.fSource = data.fSource;
+    unitHit.fWeaponType = data.fWeaponType;
+    mArea.unitHit(unitHit);
+}
+
 eAttackResult eComplexAction::attackBase(const eAttackData& target) {
     if(!mUnit.skillReady(target.fSkill)) return eAttackResult::notReady;
     const auto& data = mUnit.data();
@@ -196,6 +206,8 @@ bool eComplexAction::meeleAttack(
             u->getHit(data);
             const auto uid = u->fCharId;
             mTargetMap[uid]++;
+        } else {
+            emptyMiss(data);
         }
     };
     const auto attack = eAttackAction::sCreate(
@@ -216,12 +228,15 @@ bool eComplexAction::meeleAttack(
     const auto& stats = mUnit.stats();
     const float attackRange = 1.01f*stats.attackRange(
         schoice, mUnit.fRadius, u.fRadius);
-    if(dist > attackRange) return false;
+    eHitData data;
+    hitData(schoice, wchoice, data);
+    if(dist > attackRange) {
+        emptyMiss(data);
+        return false;
+    }
     const auto dir = ePointF::vector(u.fPos, mUnit.fPos);
     mUnit.setAngle(dir.angle());
     const int targetId = u.fCharId;
-    eHitData data;
-    hitData(schoice, wchoice, data);
     auto& area = mArea;
     const auto a = [&area, wchoice, targetId, data, attackRange]() {
         const auto attacker = area.unit(data.fAttackerId);

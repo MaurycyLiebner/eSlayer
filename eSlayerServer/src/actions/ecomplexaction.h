@@ -73,6 +73,7 @@ protected:
     eAttackResult attack(const eAttackData& target);
     bool hasChild() const { return mChild.get(); }
 private:
+    void emptyMiss(const eHitData& data);
     eAttackResult attackBase(const eAttackData& target);
     bool hitData(const int schoice,
                  const eWeaponChoice wchoice,

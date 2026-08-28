@@ -159,26 +159,28 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     for(const auto& hit : data.fUnitsHit) {
         const auto u = hit.fUnitId == mClientId ?
             mMainChar : mUnits.get(hit.fUnitId);
-        if(!u) continue;
-        const auto infoId = u->fUnitInfoId;
-        const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
-        const auto& texs = eCharsTextures::get(uinfo.fCharData);
-        int soundId = -1;
-        switch(hit.fType) {
-        case eHitType::hit:
-            soundId = texs.hitSoundId();
-            break;
-        case eHitType::block:
-            soundId = texs.blockSoundId();
-            break;
-        case eHitType::miss:
-            soundId = texs.evadeSoundId();
-            break;
+        if(u) {
+            const auto infoId = u->fUnitInfoId;
+            const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
+            const auto& texs = eCharsTextures::get(uinfo.fCharData);
+            int soundId = -1;
+            switch(hit.fType) {
+            case eHitType::hit:
+                soundId = texs.hitSoundId();
+                break;
+            case eHitType::block:
+                soundId = texs.blockSoundId();
+                break;
+            case eHitType::miss:
+                soundId = texs.evadeSoundId();
+                break;
+            }
+            playSound(soundId, u->fPos);
         }
-        playSound(soundId, u->fPos);
 
         {
-            const auto u = mUnits.get(hit.fUnitId);
+            const auto u = hit.fSourceId == mClientId ?
+                mMainChar : mUnits.get(hit.fSourceId);
             if(!u) continue;
             int soundId = -1;
             switch(hit.fSource) {
