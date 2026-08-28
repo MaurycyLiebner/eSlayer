@@ -15,14 +15,14 @@ void eWindowSettings::write() const {
     const auto path = eGameDir::windowSettingsPath();
     std::ofstream file;
     file.open(path);
-    file << "fullscreen" << " " <<
-        (fFullscreen ? "\"true\"" : "\"false\"") << "\n";
+    file << "fullscreen \"" <<
+        (fFullscreen ? "true\"" : "false\"") << std::endl;
     const auto wStr = std::to_string(fRes.width());
-    file << "width" << " " << "\"" << wStr << "\"" << "\n";
+    file << "width \"" << wStr << "\"" << std::endl;
     const auto hStr = std::to_string(fRes.height());
-    file << "height" << " " << "\"" << hStr << "\"" << "\n";
-    file << "language" << " " << "\"" << fLanguage.fName << "\"" << "\n";
-    file << "threads" << " " << "\"" << fThreads << "\"";
+    file << "height \"" << hStr << "\"" << std::endl;
+    file << "language \"" << fLanguage.fName << "\"" << std::endl;
+    file << "threads \"" << fThreads << "\"";
     file.close();
 }
 
@@ -37,9 +37,13 @@ bool eWindowSettings::read() {
     const auto widthStr = settings["width"];
     const auto heightStr = settings["height"];
     if(!widthStr.empty() && !heightStr.empty()) {
-        const int width = std::stoi(widthStr);
-        const int height = std::stoi(heightStr);
-        fRes = eResolution(width, height);
+        try {
+            const int width = std::stoi(widthStr);
+            const int height = std::stoi(heightStr);
+            fRes = eResolution(width, height);
+        } catch(...) {
+            fRes = eResolution(1280, 720);
+        }
     }
     const auto languageStr = settings["language"];
     if(!languageStr.empty()) {
@@ -48,7 +52,12 @@ bool eWindowSettings::read() {
     }
     const auto threadsStr = settings["threads"];
     if(!threadsStr.empty()) {
-        fThreads = std::clamp(std::stoi(threadsStr), -1, 16);
+        try {
+            fThreads = std::clamp(std::stoi(threadsStr), -1, 16);
+        } catch(...) {
+            fThreads = -1;
+        }
+
         eThreads::sThreads = fThreads;
     }
     return true;

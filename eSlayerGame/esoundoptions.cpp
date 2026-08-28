@@ -16,9 +16,9 @@ void eSoundOptions::write() {
     const auto path = eGameDir::soundSettingsPath();
     std::ofstream file;
     file.open(path);
-    file << "musicVolume" << " \"" << sMusicVolume << "\"" << std::endl;
-    file << "soundVolume" << " \"" << sSoundVolume << "\"" << std::endl;;
-    file << "effectsVolume" << " \"" << sEffectsVolume << "\"";
+    file << "musicVolume \"" << sMusicVolume << "\"" << std::endl;
+    file << "soundVolume \"" << sSoundVolume << "\"" << std::endl;;
+    file << "effectsVolume \"" << sEffectsVolume << "\"";
     file.close();
 }
 
@@ -31,7 +31,7 @@ bool eSoundOptions::read() {
     if(!r) return false;
 
     const auto get = [&](const std::string& name) {
-        const auto str = settings["name"];
+        const auto str = settings[name];
         try {
             return std::clamp(std::stoi(str), 0, 100);
         } catch(...) {
