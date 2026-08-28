@@ -423,12 +423,13 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     };
 
     std::map<int, eMissileSound> newLoops;
-    for(const auto& m : mMissiles) {
-        const auto missileType = m->fType;
+
+    const auto handleSoundId = [&](
+            const uint8_t missileType, const ePointF& pos) {
         const auto& missileTex = eMissilesInfo::sMissiles.get(missileType);
         const int loopSoundId = missileTex.loopSoundId();
-        if(loopSoundId < 0) continue;
-        const float volume = missileVolume(m->fPos);
+        if(loopSoundId < 0) return;
+        const float volume = missileVolume(pos);
         const auto nit = newLoops.find(loopSoundId);
         if(nit == newLoops.end()) {
             const auto it = mLoops.find(loopSoundId);
@@ -443,6 +444,16 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
             float& svolume = sound.fVolume;
             svolume = std::max(svolume, volume);
         }
+    };
+
+    for(const auto& m : mMissiles) {
+        const auto missileType = m->fType;
+        handleSoundId(missileType, m->fPos);
+    }
+
+    for(const auto& m : mSkillAreas) {
+        const auto missileType = m->fMissileId;
+        handleSoundId(missileType, m->fPos);
     }
 
     for(auto& it : newLoops) {
