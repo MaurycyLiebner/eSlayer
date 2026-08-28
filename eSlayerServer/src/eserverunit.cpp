@@ -23,6 +23,17 @@ eServerUnit::eServerUnit(const eUnitType type,
     mArea(&area),
     mType(type),
     mHandler(*this, unitTypeId) {
+    switch(type) {
+    case eUnitType::slayer:
+    case eUnitType::uniqueBoss:
+    case eUnitType::superUniqueBoss:
+        mImmoEffect = eImmobilizeEffect::partial;
+        break;
+    default:
+        mImmoEffect = eImmobilizeEffect::total;
+        break;
+    }
+
     fUnitInfoId = unitTypeId;
     const auto& uinfo = eUnitsInfo::sUnits.get(unitTypeId);
     setClass(uinfo.fClassId);
@@ -894,12 +905,16 @@ void eServerUnit::increment(const float by) {
 
     if(mAction) mAction->increment(scaledBy);
 
+    const bool imm = immobilized();
     if(mImmobilizeLength > 0.f) {
         mImmobilizeLength = std::max(0.f, mImmobilizeLength - by);
+    }
+    if(totallyImmobilized()) {
         mHandler.stopMoving();
     } else if(fBlockingActionTime <= 0.f) {
         const auto oldPos = fPos;
-        const bool r = mHandler.increment(scaledBy);
+        const float moveBy = imm ? 0.5f*scaledBy : scaledBy;
+        const bool r = mHandler.increment(moveBy);
         if(r) {
             const auto newPos = mHandler.pos();
             const auto dir = ePointF::vector(newPos, oldPos);
@@ -1412,6 +1427,17 @@ void eServerUnit::freezeFor(const float frameLen) {
 
 void eServerUnit::immobilizeFor(const float frameLen) {
     mImmobilizeLength = std::max(mImmobilizeLength, frameLen);
+}
+
+bool eServerUnit::totallyImmobilized() const {
+    switch(mImmoEffect) {
+    case eImmobilizeEffect::total:
+        return immobilized();
+    case eImmobilizeEffect::partial:
+        return false;
+    }
+
+    return false;
 }
 
 uint32_t eServerUnit::requestUpdate(const uint32_t clientId) {

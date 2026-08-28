@@ -51,6 +51,11 @@ enum eUnitType {
     superUniqueBoss
 };
 
+enum eImmobilizeEffect {
+    total,
+    partial
+};
+
 struct eTimedBoost {
     eTimedBoost(const eBoostCurseType type,
                 const int missileId,
@@ -365,6 +370,7 @@ public:
 
     void immobilizeFor(const float frameLen);
     bool immobilized() const { return mImmobilizeLength > 0.f; }
+    bool totallyImmobilized() const;
 
     uint32_t requestUpdate(const uint32_t clientId);
     void update(const eUnitData::eShift shift);
@@ -483,6 +489,7 @@ private:
     float mFreezeLength = 0.f;
 
     float mImmobilizeLength = 0.f;
+    eImmobilizeEffect mImmoEffect = eImmobilizeEffect::total;
 
     const float mDealsDamagePeriod = 50.f;
     float mDealsDamageCounter = 0.f;

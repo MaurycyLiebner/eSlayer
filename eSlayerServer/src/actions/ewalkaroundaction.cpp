@@ -38,7 +38,7 @@ bool pointsToward(const eVec2f& v, const eVec2f& direction) {
 
 void eWalkAroundAction::increment(const float by) {
     auto& h = mUnit.movementHandler();
-    if(mUnit.immobilized()) {
+    if(mUnit.totallyImmobilized()) {
         h.stopMoving();
         return finishAction();
     }

@@ -69,7 +69,7 @@ void eUnitBaseAction::decide() {
         mArea.planRemoveUnit(mUnit.fCharId);
         return;
     }
-    const bool immobilized = mUnit.immobilized();
+    const bool immobilized = mUnit.totallyImmobilized();
     if(!immobilized && mFleeFrom) {
         const bool r = flee(*mFleeFrom);
         mFleeFrom = std::nullopt;

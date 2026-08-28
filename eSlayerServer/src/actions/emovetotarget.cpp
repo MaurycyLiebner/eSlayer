@@ -17,7 +17,7 @@ eMoveToTarget::eMoveToTarget(
 
 void eMoveToTarget::increment(const float by) {
     auto& handler = mUnit.movementHandler();
-    if(mUnit.immobilized() || handler.stuckTime() > 10.f) {
+    if(mUnit.totallyImmobilized() || handler.stuckTime() > 10.f) {
         handler.stopMoving();
         return finishAction();
     }
