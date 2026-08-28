@@ -221,6 +221,7 @@ struct ESLAYERHELPERS_API eStats {
     eWeaponType fWeaponTypeL = eWeaponType::none;
     eWeaponType fWeaponTypeR = eWeaponType::none;
 
+    uint8_t fBootsTypeId = 0;
     uint8_t fWeaponTypeIdL = 0;
     uint8_t fWeaponTypeIdR = 0;
 
@@ -278,7 +279,8 @@ struct ESLAYERHELPERS_API eStats {
     bool canUseSkillId(const int skillId) const;
     bool rangedAttack(const int schoice) const;
     bool rangedAttack(const eSkillStats& skillStats) const;
-    uint8_t weaponType(const eWeaponChoice wchoice) const;
+    uint8_t weaponType(const eSkillStats& skillStats,
+                       const eWeaponChoice wchoice) const;
     float attackRange(const int schoice,
                       const float unit1Radius,
                       const float unit2Radius) const;

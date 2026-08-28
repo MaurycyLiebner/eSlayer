@@ -964,6 +964,10 @@ void eStats::calculate(const eAttributes& attr, const eEquipment& eq) {
         }
     };
 
+    const auto& boots = eq.fBoots;
+    fBootsTypeId = boots.fType == eItemType::none ?
+        0 : boots.fDataId;
+
     fWSMLW = 0.f;
     if(itemReqsMet(leftW)) {
         fWeaponTypeL = gWeaponType(leftW);
@@ -1620,12 +1624,24 @@ bool eStats::rangedAttack(const eSkillStats& skillStats) const {
              rw == eWeaponType::ranged));
 }
 
-uint8_t eStats::weaponType(const eWeaponChoice wchoice) const {
-    switch(wchoice) {
-    case eWeaponChoice::left:
-        return fWeaponTypeIdL;
-    case eWeaponChoice::right:
-        return fWeaponTypeIdR;
+uint8_t eStats::weaponType(
+    const eSkillStats& skillStats,
+    const eWeaponChoice wchoice) const {
+    const auto& skill = eSkills::sSkills.get(skillStats.fSkillId);
+    switch(skill.fType) {
+    case eSkillType::kick:
+        return fBootsTypeId;
+    case eSkillType::smite:
+    case eSkillType::attack: {
+        switch(wchoice) {
+        case eWeaponChoice::left:
+            return fWeaponTypeIdL;
+        case eWeaponChoice::right:
+            return fWeaponTypeIdR;
+        }
+    } break;
+    default:
+        break;
     }
     return fWeaponTypeIdL;
 }

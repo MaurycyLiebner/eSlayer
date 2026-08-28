@@ -378,7 +378,7 @@ eSourceType eServerUnit::source(
 uint8_t eServerUnit::weaponType(
     const eSkillStats& skill,
     const eWeaponChoice wchoice) const {
-    return mStats.weaponType(wchoice);
+    return mStats.weaponType(skill, wchoice);
 }
 
 bool eServerUnit::alwaysHit(
