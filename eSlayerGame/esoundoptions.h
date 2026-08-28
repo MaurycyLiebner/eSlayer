@@ -5,6 +5,7 @@ class eSoundOptions {
 public:
     static int sMusicVolume;
     static int sSoundVolume;
+    static int sEffectsVolume;
 
     static void write();
     static bool read();

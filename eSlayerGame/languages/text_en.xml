@@ -48,6 +48,7 @@
         <string id="11">Low</string>
         <string id="12">Music</string>
         <string id="13">Sound</string>
+        <string id="14">Effects</string>
     </group>
     <group id="6">
         <string id="0">Defense: %1</string>

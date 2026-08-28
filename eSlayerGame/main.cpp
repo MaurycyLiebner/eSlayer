@@ -1,5 +1,6 @@
 #include "audio/emusicplayer.h"
 #include "audio/esoundplayer.h"
+#include "audio/esoundeffectplayer.h"
 
 #include "audio/esounds.h"
 #include "audio/emusic.h"
@@ -204,6 +205,9 @@ int main(int argc, char* argv[]) {
         eSoundPlayer sounds;
         const bool s = sounds.initialize();
         if(!s) return 1;
+        eSoundEffectPlayer effects;
+        const bool e = effects.initialize();
+        if(!e) return 1;
 
         const auto showMainMenu = [&]() {
             sh.showMainMenu();

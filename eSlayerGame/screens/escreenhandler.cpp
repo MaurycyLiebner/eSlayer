@@ -19,6 +19,7 @@
 
 #include "../audio/emusicplayer.h"
 #include "../audio/esoundplayer.h"
+#include "../audio/esoundeffectplayer.h"
 
 #include "../textures/eterrstextures.h"
 #include "../textures/eobjstextures.h"
@@ -418,6 +419,7 @@ void eScreenHandler::showGame(eServerData serverData,
         eSoundOptions::read();
         eMusicPlayer::setVolume(0.01f*eSoundOptions::sMusicVolume);
         eSoundPlayer::setVolume(0.01f*eSoundOptions::sSoundVolume);
+        eSoundEffectPlayer::setVolume(0.01f*eSoundOptions::sEffectsVolume);
     });
     loading.emplace_back([]() {
         eCharTextures::waitUntilAllLoaded();

@@ -17,6 +17,7 @@
 
 #include "../../audio/esoundplayer.h"
 #include "../../audio/emusicplayer.h"
+#include "../../audio/esoundeffectplayer.h"
 
 #include "../../names/eareanames.h"
 
@@ -311,6 +312,7 @@ void eGameWidget::paintEvent(ePainter& p) {
         }
 
         eMusicPlayer::playMusic(areaSett.fMusic);
+        eSoundEffectPlayer::playEffect(areaSett.fEffectSound);
     }
 
     mServer->changeState(mClientId, *mMainChar);

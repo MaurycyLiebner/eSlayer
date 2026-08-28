@@ -5,6 +5,7 @@
 #include "../../widgets/eslider.h"
 #include "../../audio/emusicplayer.h"
 #include "../../audio/esoundplayer.h"
+#include "../../audio/esoundeffectplayer.h"
 #include "../../esoundoptions.h"
 #include "eescmenubutton.h"
 
@@ -123,6 +124,20 @@ void eESCMenu::showSoundOptions() {
         eSoundOptions::write();
     });
 
+    const auto effectsOptionsB = new eESCMenuButton(
+        eText::text(5, 14), window());
+    addWidget(effectsOptionsB);
+
+    const auto effectsSlider = new eSlider(window());
+    addWidget(effectsSlider);
+    effectsSlider->setValue(eSoundOptions::sSoundVolume);
+    effectsSlider->setHeight(h);
+    effectsSlider->setSetter([](const int value) {
+        eSoundEffectPlayer::setVolume(0.01f*value);
+        eSoundOptions::sEffectsVolume = value;
+        eSoundOptions::write();
+    });
+
     const auto previousB = new eESCMenuButton(
         eText::text(5, 5), window());
     addWidget(previousB);
@@ -138,9 +153,11 @@ void eESCMenu::showSoundOptions() {
     const int w = width();
     musicSlider->setWidth(w);
     soundSlider->setWidth(w);
+    effectsSlider->setWidth(w);
 
     soundOptionsB->align(eAlignment::hcenter);
     musicOptionsB->align(eAlignment::hcenter);
+    effectsOptionsB->align(eAlignment::hcenter);
     previousB->align(eAlignment::hcenter);
 
     align(eAlignment::center);

@@ -93,6 +93,8 @@ add_executable(eSlayerGame
     audio/emusic.h
     audio/eitemsounds.cpp
     audio/eitemsounds.h
+    audio/esoundeffectplayer.cpp
+    audio/esoundeffectplayer.h
 
     # Core
     echaracters.cpp

@@ -8,6 +8,7 @@
 #include "eSlayerHelpers/ewaypoints.h"
 #include "eSlayerHelpers/edifficulties.h"
 #include "eSlayerHelpers/emusicbase.h"
+#include "eSlayerHelpers/esoundsbase.h"
 
 eStringIdMapVector<eAreaSettings>
 eMapsSettings::sAreas;
@@ -25,6 +26,17 @@ void parseArea(eAreaSettings& area, const ordered_json& jArea) {
             eRuntimeThrow("Unrecognized music \"" + musicStr + "\".");
         }
         area.fMusic = id;
+    }
+
+    const auto effectStr = jArea.value("effectSound", "");
+    if(effectStr.empty()) {
+        area.fEffectSound = -1;
+    } else {
+        const int id = eSoundsBase::sSounds.id(effectStr);
+        if(id < 0) {
+            eRuntimeThrow("Unrecognized effect sound \"" + effectStr + "\".");
+        }
+        area.fEffectSound = id;
     }
 
     area.fLightness = jArea.value("lightness", area.fLightness);

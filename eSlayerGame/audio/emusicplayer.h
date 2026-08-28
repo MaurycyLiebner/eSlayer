@@ -19,8 +19,6 @@ private:
 
     void playMusicImpl(const int type);
 
-    void loadImpl();
-    void loadMenuImpl();
     static eMusicPlayer* sInstance;
 
     MIX_Mixer* mMixer = nullptr;
