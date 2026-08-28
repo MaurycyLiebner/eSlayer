@@ -5,7 +5,7 @@
 #include <eSlayerHelpers/efileloaderbase.h>
 #include <eSlayerHelpers/eitemsdata.h>
 
-eStringIdMapVector<int> eItemSounds::sSoundIds;
+eStringIdMapVector<eItemSound> eItemSounds::sSoundIds;
 bool eItemSounds::sLoaded = false;
 
 void eItemSounds::load() {
@@ -15,7 +15,7 @@ void eItemSounds::load() {
     const auto dir = "Audio";
 
     try {
-        std::map<std::string, int> map;
+        std::map<std::string, eItemSound> map;
         const auto jdata = eFileLoaderBase::parse(dir, "itemSounds.json");
         for(auto it = jdata.begin(); it != jdata.end(); ++it) {
             const auto& key = it.key();
@@ -28,18 +28,23 @@ void eItemSounds::load() {
             } else {
                 name = value;
             }
-            const int soundId = eSounds::sSounds.id(name);
-            map[key] = soundId;
+            eItemSound sound;
+            sound.fHit = eSounds::sSounds.id(name + "Hit");
+            sound.fMiss = eSounds::sSounds.id(name + "Miss");
+            if(sound.fMiss == -1) {
+                sound.fMiss = eSounds::sSounds.id("miss");
+            }
+            map[key] = sound;
         }
 
         for(const auto& it : eItemsData::sItems) {
-            int soundId = -1;
+            eItemSound sound;
             const auto& value = it.fValue;
             const auto sit = map.find(value.fTextureStr);
             if(sit != map.end()) {
-                soundId = sit->second;
+                sound = sit->second;
             }
-            sSoundIds.add(it.fName, soundId);
+            sSoundIds.add(it.fName, sound);
         }
     } catch(...) {
         eRuntimeThrow("Failed to parse " + dir + "/itemSounds.json");

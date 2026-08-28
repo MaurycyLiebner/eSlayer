@@ -145,56 +145,60 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
     }
 
     std::set<int> played;
-    const auto playSound = [&](const int soundId) {
+    const auto playSound = [&](
+            const int soundId, const ePointF& pos) {
         if(soundId < 0) return;
         if(played.count(soundId) > 0) return;
-        eSoundPlayer::playSound(soundId);
+        const float dist = ePointF::distance(mMainChar->fPos, pos);
+        const float volume = eSoundPlayer::volumeFromDist(dist);
+        if(volume <= 0.f) return;
+        eSoundPlayer::playSound(soundId, volume);
         played.emplace(soundId);
     };
 
     for(const auto& hit : data.fUnitsHit) {
-        const auto u = mUnits.get(hit.fUnitId);
+        const auto u = hit.fUnitId == mClientId ?
+            mMainChar : mUnits.get(hit.fUnitId);
         if(!u) continue;
         const auto infoId = u->fUnitInfoId;
         const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
         const auto& texs = eCharsTextures::get(uinfo.fCharData);
         int soundId = -1;
-        bool playWeaponSound = false;
         switch(hit.fType) {
         case eHitType::hit:
             soundId = texs.hitSoundId();
-            playWeaponSound = true;
             break;
         case eHitType::block:
             soundId = texs.blockSoundId();
-            playWeaponSound = true;
             break;
         case eHitType::miss:
-            soundId = texs.missSoundId();
+            soundId = texs.evadeSoundId();
             break;
         }
-        playSound(soundId);
+        playSound(soundId, u->fPos);
 
-        if(playWeaponSound) {
+        {
+            const auto u = mUnits.get(hit.fUnitId);
+            if(!u) continue;
             int soundId = -1;
             switch(hit.fSource) {
             case eSourceType::meele: {
+                const bool miss = hit.fType == eHitType::miss;
                 if(hit.fWeaponType == 0) {
-                    const auto u = mUnits.get(hit.fUnitId);
-                    if(!u) continue;
                     const auto infoId = u->fUnitInfoId;
                     const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
                     const auto& texs = eCharsTextures::get(uinfo.fCharData);
-                    soundId = texs.attackSoundId();
+                    soundId = miss ? texs.missSoundId() : texs.attackSoundId();
                 } else {
-                    soundId = eItemSounds::sSoundIds.get(
+                    const auto& sounds = eItemSounds::sSoundIds.get(
                         hit.fWeaponType);
+                    soundId = miss ? sounds.fMiss : sounds.fHit;
                 }
             } break;
             case eSourceType::other: {
             } break;
             }
-            playSound(soundId);
+            playSound(soundId, u->fPos);
         }
     }
 
@@ -205,7 +209,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         const auto& uinfo = eUnitsInfo::sUnits.get(infoId);
         const auto& texs = eCharsTextures::get(uinfo.fCharData);
         const int dieSoundId = texs.dieSoundId();
-        playSound(dieSoundId);
+        playSound(dieSoundId, u->fPos);
     }
 
     mResult.fMerc = data.fMerc;

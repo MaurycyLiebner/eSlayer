@@ -66,9 +66,10 @@ public:
     int baseSoundId() const { return mBaseSoundId; }
     int hitSoundId() const { return mHitSoundId; }
     int blockSoundId() const { return mBlockSoundId; }
-    int missSoundId() const { return mMissSoundId; }
+    int evadeSoundId() const { return mEvadeSoundId; }
     int dieSoundId() const { return mDieSoundId; }
     int attackSoundId() const { return mAttackSoundId; }
+    int missSoundId() const { return mMissSoundId; }
 
     static void handleLoaded();
     static void waitUntilAllLoaded();
@@ -98,9 +99,10 @@ private:
     int mBaseSoundId = -1;
     int mHitSoundId = -1;
     int mBlockSoundId = -1;
-    int mMissSoundId = -1;
+    int mEvadeSoundId = -1;
     int mDieSoundId = -1;
     int mAttackSoundId = -1;
+    int mMissSoundId = -1;
 
     mutable eMaps mMaps;
     mutable eMaps mButtonMaps;

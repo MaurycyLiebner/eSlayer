@@ -229,18 +229,23 @@ void eCharTextures::load(const ordered_json& jdata) {
         mColorKey = SDL_Color{colorKey[0], colorKey[1], colorKey[2], 255};
     }
 
-    const auto baseSoundStr = jdata.value("baseSound", "");
-    mBaseSoundId = eSounds::sSounds.id(baseSoundStr);
-    const auto hitSoundStr = jdata.value("hitSound", "");
-    mHitSoundId = eSounds::sSounds.id(hitSoundStr);
-    const auto blockSoundStr = jdata.value("blockSound", "");
-    mBlockSoundId = eSounds::sSounds.id(blockSoundStr);
-    const auto missSoundStr = jdata.value("missSound", "");
-    mMissSoundId = eSounds::sSounds.id(missSoundStr);
-    const auto dieSoundStr = jdata.value("dieSound", "");
-    mDieSoundId = eSounds::sSounds.id(dieSoundStr);
-    const auto attackSoundStr = jdata.value("attackSound", "");
-    mAttackSoundId = eSounds::sSounds.id(attackSoundStr);
+    const auto parseSound = [&](const std::string& name) {
+        const auto soundStr = jdata.value(name, "");
+        if(soundStr.empty()) return -1;
+        const int id = eSounds::sSounds.id(soundStr);
+        if(id < 0) {
+            eRuntimeThrow("Unrecognized sound \"" + soundStr + "\".");
+        }
+        return id;
+    };
+
+    mBaseSoundId = parseSound("baseSound");
+    mHitSoundId = parseSound("hitSound");
+    mBlockSoundId = parseSound("blockSound");
+    mEvadeSoundId = parseSound("evadeSound");
+    mDieSoundId = parseSound("dieSound");
+    mAttackSoundId = parseSound("attackSound");
+    mMissSoundId = parseSound("missSound");
 
     const auto& info = eCharDataInfo::get(mCharDataId);
 
