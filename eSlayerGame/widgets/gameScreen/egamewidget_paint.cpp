@@ -660,12 +660,12 @@ void eGameWidget::paintEvent(ePainter& p) {
                                   animId == sIceExplBody;
                 const int baseId = body ?
                     missileInfo.stayAnimId() :
-                    missileInfo.baseAnimId();
+                    missileInfo.appearAnimId();
                 const int nFrames = missileInfo.nFrames(baseId);
                 bool floor = body;
                 int frame = model.frame();
                 model.incFrame(by);
-                if(frame == 0) {
+                if(!body && frame == 0) {
                     const int appearSound = missileInfo.appearSoundId();
                     playSound(appearSound, pos);
                 }
