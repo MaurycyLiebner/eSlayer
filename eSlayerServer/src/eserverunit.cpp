@@ -1615,7 +1615,7 @@ bool eServerUnit::onStructCastReady() const {
 }
 
 void eServerUnit::sendHit() {
-    mSendHitBlock = 10.f;
+    mSendHitBlock = 20.f;
 }
 
 bool eServerUnit::sendHitReady() const {
