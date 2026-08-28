@@ -46,6 +46,7 @@ struct eExtendedSkillArea : public eSkillArea {
 class eGameWorld {
 public:
     eGameWorld(const std::shared_ptr<eMap>& map);
+    ~eGameWorld();
 
     void initialize(const uint32_t clientId,
                     const std::shared_ptr<eUnit>& mainChar);

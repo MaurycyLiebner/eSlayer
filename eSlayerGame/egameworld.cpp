@@ -26,6 +26,16 @@ eGameWorld::eGameWorld(const std::shared_ptr<eMap>& map) :
     iniNovaInc();
 }
 
+eGameWorld::~eGameWorld() {
+    for(const auto& it : mLoops) {
+        const auto& sound = it.second;
+        auto& holder = sound.fHolder;
+        if(!holder) continue;
+        const auto track = holder->fTrack->fTrack;
+        MIX_StopTrack(track, 500);
+    }
+}
+
 void eGameWorld::iniMissileInc() {
     const auto obstacle = [this](const ePointF& pos) {
         return mMap->obstacle(pos);
@@ -455,7 +465,7 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         }
     }
 
-    mLoops = newLoops;
+    std::swap(mLoops, newLoops);
 
     return mResult;
 }
