@@ -1,20 +1,21 @@
 #ifndef EMAINCHARACTION_H
 #define EMAINCHARACTION_H
 
+#include "audio/eaudiovector.h"
 #include "emovementhandler.h"
 
 #include <eSlayerHelpers/eattackdata.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/edoors.h>
 #include <eSlayerHelpers/eequipment.h>
+#include <eSlayerHelpers/emercenary.h>
+#include <eSlayerHelpers/enpctype.h>
 #include <eSlayerHelpers/erequestdata.h>
 #include <eSlayerHelpers/eslayerquests.h>
 #include <eSlayerHelpers/estats.h>
-#include <eSlayerHelpers/ewalldirection.h>
 #include <eSlayerHelpers/etalkheard.h>
-#include <eSlayerHelpers/emercenary.h>
+#include <eSlayerHelpers/ewalldirection.h>
 #include <eSlayerHelpers/ewaypoints.h>
-#include <eSlayerHelpers/enpctype.h>
 
 #include <SDL3/SDL_rect.h>
 
@@ -126,6 +127,13 @@ private:
                                  eCharUnitModel& model);
 
     void stopAttack();
+    void stopRunWalkSounds();
+    void stopSounds(std::shared_ptr<eTrackHolder>& h);
+    void incRunSounds();
+    void incWalkSounds();
+    void incRunWalkSounds(const int enableId,
+                          std::shared_ptr<eTrackHolder>& enableH,
+                          std::shared_ptr<eTrackHolder>& disableH);
 
     void clearPressed();
 
@@ -164,6 +172,11 @@ private:
     int mWalkReadyAnimId = -1;
     int mStandAnimId = -1;
     int mStandReadyAnimId = -1;
+
+    int mWalkSoundId = -1;
+    std::shared_ptr<eTrackHolder> mWalkHolder;
+    int mRunSoundId = -1;
+    std::shared_ptr<eTrackHolder> mRunHolder;
 
     float mWalkSpeed = 0.07f;
     float mRunSpeed = 0.1f;

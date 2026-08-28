@@ -14,6 +14,9 @@
 #include "names/eobjectnames.h"
 #include "names/emercenarynames.h"
 
+#include "audio/esoundplayer.h"
+#include "audio/esounds.h"
+
 #include "etext.h"
 
 #include <eSlayerServer/eserver.h>
@@ -78,6 +81,9 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mWalkReadyAnimId = data.animId("walkReady");
     mStandAnimId = data.animId("stand");
     mStandReadyAnimId = data.animId("standReady");
+
+    mWalkSoundId = eSounds::sSounds.id("walk");
+    mRunSoundId = eSounds::sSounds.id("run");
 
     mWalkSpeed = udata.fWalkSpeed;
     mRunSpeed = udata.fRunSpeed;
@@ -149,7 +155,10 @@ void eMainCharAction::increment(const bool mousePressed,
                                 const bool shiftPressed,
                                 const ePointF& mousePos,
                                 const float by) {
-    if(mClickAction) return;
+    if(mClickAction) {
+        stopRunWalkSounds();
+        return;
+    }
 
     const bool dead = mMainChar->fHealth <= 0;
 
@@ -177,9 +186,15 @@ void eMainCharAction::increment(const bool mousePressed,
         handleAttackStop(mousePressed, rightPressed, shiftPressed);
     }
 
-    if(consumeActionTime(scaledBy, model)) return;
+    if(consumeActionTime(scaledBy, model)) {
+        stopRunWalkSounds();
+        return;
+    }
 
-    if(dead) return;
+    if(dead) {
+        stopRunWalkSounds();
+        return;
+    }
 
     const bool canUseSkill = mStats.canUseSkill(schoice);
     const bool rangeAttack = mStats.rangedAttack(schoice);
@@ -392,7 +407,10 @@ void eMainCharAction::increment(const bool mousePressed,
         stopAttack();
     }
 
-    if(mAttackData.fType != eAttackTargetType::none) return;
+    if(mAttackData.fType != eAttackTargetType::none) {
+        stopRunWalkSounds();
+        return;
+    }
 
     const bool hasPressedUnit = !mPressedUnit.expired();
     handleMovement(mousePressed || hasPressedUnit, targetPos, scaledBy, model);
@@ -569,6 +587,13 @@ void eMainCharAction::handleMovement(
 
     if(moved) {
         eGameScreen::sCloseObjectMenu();
+        if(run) {
+            incRunSounds();
+        } else {
+            incWalkSounds();
+        }
+    } else {
+        stopRunWalkSounds();
     }
 
     updateMovementAnimation(moved, run, by, model);
@@ -614,6 +639,39 @@ void eMainCharAction::stopAttack() {
     mPressedUnit.reset();
     mAttackData = eAttackData();
     mServer->stopAttack(mClientId);
+}
+
+void eMainCharAction::stopRunWalkSounds() {
+    stopSounds(mWalkHolder);
+    stopSounds(mRunHolder);
+}
+
+void eMainCharAction::stopSounds(std::shared_ptr<eTrackHolder>& h) {
+    if(!h) return;
+    MIX_StopTrack(h->fTrack->fTrack, 10000);
+    h.reset();
+}
+
+void eMainCharAction::incRunSounds() {
+    incRunWalkSounds(mRunSoundId, mRunHolder, mWalkHolder);
+}
+
+void eMainCharAction::incWalkSounds() {
+    incRunWalkSounds(mWalkSoundId, mWalkHolder, mRunHolder);
+}
+
+void eMainCharAction::incRunWalkSounds(
+    const int soundId,
+    std::shared_ptr<eTrackHolder>& enableH,
+    std::shared_ptr<eTrackHolder>& disableH) {
+    stopSounds(disableH);
+    if(soundId < 0) return;
+    if(enableH) {
+        const auto track = enableH->fTrack->fTrack;
+        MIX_SetTrackLoops(track, 1);
+    } else {
+        enableH = eSoundPlayer::playLoopSound(soundId);
+    }
 }
 
 void eMainCharAction::clearPressed() {
@@ -829,6 +887,7 @@ void eMainCharAction::stop() {
         stopAttack();
     }
     mMovementHandler.stopMoving();
+    stopRunWalkSounds();
 }
 
 bool eMainCharAction::rangedAttack(const eSkillChoice schoice) const {
