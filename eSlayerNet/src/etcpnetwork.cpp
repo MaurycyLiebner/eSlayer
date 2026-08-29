@@ -94,7 +94,7 @@ std::set<int> eTCPNetwork::removeDisconnectedClients() {
 
         const auto status = NET_GetConnectionStatus(c.fSocket);
 
-        if(c.fDisconnected || status != NET_SUCCESS || c.fTimeOut > 100) {
+        if(c.fDisconnected || status != NET_SUCCESS || c.fTimeOut > 200) {
             result.emplace(c.fTcpId);
 
             NET_DestroyStreamSocket(c.fSocket);
