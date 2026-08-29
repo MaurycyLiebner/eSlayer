@@ -17,6 +17,7 @@
 #include "../erendersettings.h"
 #include "../esoundoptions.h"
 
+#include "../audio/emusic.h"
 #include "../audio/emusicplayer.h"
 #include "../audio/esoundplayer.h"
 #include "../audio/esoundeffectplayer.h"
@@ -59,6 +60,10 @@ eScreenHandler::eScreenHandler(eMainWindow * const window) :
     mWindow(window) {}
 
 void eScreenHandler::showMainMenu() {
+    const auto introId = eMusic::sMusic.id("intro");
+    eMusicPlayer::playMusic(introId);
+    eSoundEffectPlayer::playEffect(-1);
+
     const auto w = new eMainMenu(mWindow);
     const int width = mWindow->width();
     const int height = mWindow->height();

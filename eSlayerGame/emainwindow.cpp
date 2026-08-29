@@ -1,6 +1,7 @@
 #include "emainwindow.h"
 
 #include "audio/emusicplayer.h"
+#include "audio/esoundeffectplayer.h"
 #include "audio/eaudiovector.h"
 #include "textures/echartextures.h"
 
@@ -224,6 +225,7 @@ int eMainWindow::exec() {
         ePainter p(mSdlRenderer);
 
         eMusicPlayer::incTime();
+        eSoundEffectPlayer::incTime();
         if(mWidget) {
             mWidget->paint(p);
         }

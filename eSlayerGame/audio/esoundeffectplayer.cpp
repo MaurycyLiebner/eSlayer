@@ -48,13 +48,12 @@ void eSoundEffectPlayer::setVolumeImpl(const float volume) {
 }
 
 void eSoundEffectPlayer::incTimeImpl() {
-    if(MIX_TrackPlaying(mTrack)) return;
     playEffectImpl(mEffectType);
 }
 
 void eSoundEffectPlayer::playEffectImpl(const int type) {
     const bool change = mEffectType != type;
-    if(!change & !mStopping) {
+    if(!change && !mStopping) {
         MIX_SetTrackLoops(mTrack, 1);
         return;
     }
