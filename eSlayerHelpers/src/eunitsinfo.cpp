@@ -65,15 +65,17 @@ void eUnitsInfo::load() {
             }
         }
 
-        const auto missileStr = jdata.value("missile", "none");
-        const auto id = eMissilesInfo::sMissiles.id(missileStr);
-        if(id < 0) {
-            eRuntimeThrow("Unrecognized missile type \"" + missileStr + "\".");
+        if(jdata.contains("missile")) {
+            const auto missileStr = jdata.value("missile", "");
+            const auto id = eMissilesInfo::sMissiles.id(missileStr);
+            if(id < 0) {
+                eRuntimeThrow("Unrecognized missile type \"" + missileStr + "\".");
+            }
+            u.fMissile = id;
         }
-        u.fMissile = id;
-        u.fMissileRange = jdata.value("missileRange", 0.f);
+        u.fMissileRange = jdata.value("missileRange", u.fMissileRange);
 
-        u.fMeeleRange = jdata.value("meeleRange", 0.f);
+        u.fMeeleRange = jdata.value("meeleRange", u.fMeeleRange);
 
         u.fColor = eColor{1.f, 1.f, 1.f, 1.f};
         if(jdata.contains("color")) {
