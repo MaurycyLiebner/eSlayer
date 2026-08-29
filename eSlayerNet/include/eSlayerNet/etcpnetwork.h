@@ -26,6 +26,12 @@ struct eClient {
     bool fDisconnected = false;
 };
 
+enum class eReceiveResult {
+    noData,
+    received,
+    failed
+};
+
 class ESLAYERNET_API eTCPNetwork {
 public:
     bool init();
@@ -50,9 +56,9 @@ private:
     void receiveFromClients();
     void receiveFromServer();
 
-    bool receivePackets(NET_StreamSocket* const sock,
-                        const int id,
-                        std::vector<uint8_t>& buffer);
+    eReceiveResult receivePackets(
+        NET_StreamSocket* const sock,
+        const int id, std::vector<uint8_t>& buffer);
     bool sendPacket(NET_StreamSocket* const sock, const ePacket& p);
 private:
     NET_Server* mServer = nullptr;

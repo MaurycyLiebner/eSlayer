@@ -111,11 +111,19 @@ std::set<int> eTCPNetwork::removeDisconnectedClients() {
 
 void eTCPNetwork::receiveFromClients() {
     for(auto& c : mClients) {
-        const bool r = receivePackets(c.fSocket, c.fTcpId, c.fRecvBuffer);
-        if(r) {
+        if(c.fDisconnected) continue;
+        const auto r = receivePackets(
+            c.fSocket, c.fTcpId, c.fRecvBuffer);
+        switch(r) {
+        case eReceiveResult::received: {
             c.fTimeOut = 0;
-        } else {
+        } break;
+        case eReceiveResult::noData: {
             c.fTimeOut++;
+        } break;
+        case eReceiveResult::failed: {
+            c.fDisconnected = true;
+        } break;
         }
     }
 }
@@ -125,27 +133,28 @@ void eTCPNetwork::receiveFromServer() {
     receivePackets(mClientSocket, 0, buffer);
 }
 
-bool eTCPNetwork::receivePackets(NET_StreamSocket* const sock,
-                                 const int id,
-                                 std::vector<uint8_t>& buffer) {
+eReceiveResult eTCPNetwork::receivePackets(
+    NET_StreamSocket* const sock,
+    const int id, std::vector<uint8_t>& buffer) {
     uint8_t temp[65536];
 
     const int len = NET_ReadFromStreamSocket(sock, temp, sizeof(temp));
 
-    if(len <= 0) return false;
+    if(len == 0) return eReceiveResult::noData;
+    if(len < 0) return eReceiveResult::failed;
 
     buffer.insert(buffer.end(), temp, temp + len);
 
     while(true) {
         if(buffer.size() < sizeof(uint32_t)) {
-            return true;
+            return eReceiveResult::received;
         }
 
         uint32_t size;
         memcpy(&size, buffer.data(), sizeof(uint32_t));
 
         if(buffer.size() < sizeof(uint32_t) + size) {
-            return true;
+            return eReceiveResult::received;
         }
 
         ePacket p;
