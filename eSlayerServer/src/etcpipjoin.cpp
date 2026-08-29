@@ -123,7 +123,7 @@ bool eTcpIpJoin::requestMap(
         }
         return false;
     };
-    return waitFor(10000, "Map request timed out.", handler);
+    return waitFor(20000, "Map request timed out.", handler);
 }
 
 bool eTcpIpJoin::spawn(
@@ -157,7 +157,7 @@ bool eTcpIpJoin::spawn(
         }
         return false;
     };
-    return waitFor(10000, "Character request timed out.", handler);
+    return waitFor(20000, "Character request timed out.", handler);
 }
 
 bool eTcpIpJoin::requestData(const uint32_t clientId,
