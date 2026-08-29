@@ -82,7 +82,7 @@ The remaining graphics are AI-generated, with varying amount of editing.
 
 ## Audio
 
-eSlayer currently has no audio.
+The audio is AI-generated.
 
 ## Authors
 **Maurycy Liebner** - 2026 - [MaurycyLiebner](https://github.com/MaurycyLiebner)
