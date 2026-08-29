@@ -15,6 +15,7 @@ void eSpriteLoaderLoader::finish() {
 }
 
 void eSpriteLoaderLoader::addFinish(const std::function<void()>& finish) {
+    if(!finish) return;
     mFinished.emplace_back(finish);
 }
 
@@ -37,6 +38,7 @@ void eCharModelLoader::addLoader(const std::shared_ptr<eSpriteLoaderLoader>& loa
 }
 
 void eCharModelLoader::addFinish(const eFinished& finish) {
+    if(!finish) return;
     mFinished.emplace_back(finish);
 }
 

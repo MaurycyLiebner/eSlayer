@@ -33,7 +33,7 @@ eCharTextures::requestModel(
         const auto lit = maps.fModelLoaderMap.find(modelParts.fValues);
         if(lit != maps.fModelLoaderMap.end()) {
             const auto& loader = lit->second;
-            loader->addFinish(finished);
+            if(finished) loader->addFinish(finished);
             return loader->model();
         }
 
