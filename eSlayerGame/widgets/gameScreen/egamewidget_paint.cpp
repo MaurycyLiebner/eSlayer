@@ -18,6 +18,7 @@
 #include "../../audio/esoundplayer.h"
 #include "../../audio/emusicplayer.h"
 #include "../../audio/esoundeffectplayer.h"
+#include "../../audio/esounds.h"
 
 #include "../../names/eareanames.h"
 
@@ -105,10 +106,18 @@ void eGameWidget::paintEvent(ePainter& p) {
         for(const auto& obj : objs) {
             const auto o = mMap->object(obj.fPos, obj.fObjectId);
             if(!o) continue;
+
+            const auto type = obj.fObjectType;
+            const auto& info = eObjectsInfo::sObjects.get(type);
+            playSound(info.fTriggerSound, obj.fPos);
+
             o->fState = obj.fState;
         }
         const auto doors = mServer->receiveDoorsStateChanges();
         for(const auto& d : doors) {
+            const int soundId = eSounds::sSounds.id("doorsOpen");
+            playSound(soundId, d.pos());
+
             mMap->triggerDoors(d);
         }
         const auto bodiesChanged = mServer->receiveBodiesChanged();
@@ -176,9 +185,9 @@ void eGameWidget::paintEvent(ePainter& p) {
         const auto mapId = mMap->id();
         std::set<uint32_t> newPortals;
         const auto addPortal = [&](
-                                   const uint32_t objId,
-                                   const eAreaIds& area,
-                                   const ePointF& pos) {
+               const uint32_t objId,
+               const eAreaIds& area,
+               const ePointF& pos) {
             if(area.fMapId != mapId) return;
             const int n = mPortals.count(objId);
             if(n > 0) return;
@@ -190,6 +199,7 @@ void eGameWidget::paintEvent(ePainter& p) {
             new_->fPos = pos;
             const auto typeId = eObjectsInfo::sObjects.id("portal");
             const auto& info = eObjectsInfo::sObjects.get(typeId);
+            playSound(info.fAppearSound, pos);
             new_->fObjectType = typeId;
             new_->fWidth = info.fWidth;
             new_->fHeight = info.fHeight;

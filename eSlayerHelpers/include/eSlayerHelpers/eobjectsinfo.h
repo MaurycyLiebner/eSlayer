@@ -43,6 +43,9 @@ struct eObjectInfo {
     // for treasures
     std::vector<eItemDrop> fItemDrops;
 
+    int fTriggerSound = -1;
+    int fAppearSound = -1;
+
     int fKey = -1;
 };
 

@@ -2,6 +2,7 @@
 
 #include "eSlayerHelpers/efileloaderbase.h"
 #include "eSlayerHelpers/eitemsdata.h"
+#include "eSlayerHelpers/esoundsbase.h"
 
 bool eObjectsInfo::sLoaded = false;
 eStringIdMapVector<eObjectInfo>
@@ -87,6 +88,19 @@ void eObjectsInfo::load() {
                 info.fKey = keyId;
             }
             info.fTexStr = value.value("texture", "");
+
+            const auto parseSound = [&](const std::string& name) {
+                const auto soundStr = value.value(name, "");
+                if(soundStr.empty()) return -1;
+                const int id = eSoundsBase::sSounds.id(soundStr);
+                if(id < 0) {
+                    eRuntimeThrow("Unrecognized sound \"" + soundStr + "\".");
+                }
+                return id;
+            };
+
+            info.fAppearSound = parseSound("appearSound");
+            info.fTriggerSound = parseSound("triggerSound");
 
             sObjects.add(key, info);
         }
