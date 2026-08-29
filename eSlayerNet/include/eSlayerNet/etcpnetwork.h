@@ -23,6 +23,7 @@ struct eClient {
     int fTimeOut;
     NET_StreamSocket* fSocket;
     std::vector<uint8_t> fRecvBuffer;
+    bool fDisconnected = false;
 };
 
 class ESLAYERNET_API eTCPNetwork {
@@ -35,8 +36,6 @@ public:
 
     void update();
     std::set<int> removeDisconnectedClients();
-    void removeClientByTcpId(const int tcpId);
-    void removeClientByIndex(const int id);
 
     bool sendToServer(const ePacket& p);
     bool sendToClient(const int tcpId, const ePacket& p);

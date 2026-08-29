@@ -394,7 +394,6 @@ bool eTcpIpHost::handleClientDisconnect(const int tcpClientId) {
     const uint32_t charId = it->second;
     mClientIdMap.erase(it);
     eLocalServer::disconnect(charId);
-    mNet.removeClientByTcpId(tcpClientId);
     {
         ePacket p;
         p << ePacketType::userLeft;

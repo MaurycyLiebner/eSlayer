@@ -94,9 +94,13 @@ std::set<int> eTCPNetwork::removeDisconnectedClients() {
 
         const auto status = NET_GetConnectionStatus(c.fSocket);
 
-        if(status != NET_SUCCESS || c.fTimeOut > 100) {
+        if(c.fDisconnected || status != NET_SUCCESS || c.fTimeOut > 100) {
             result.emplace(c.fTcpId);
-            removeClientByIndex(i);
+
+            NET_DestroyStreamSocket(c.fSocket);
+            std::cout << "Client disconnected: " << c.fTcpId << std::endl;
+            mClients.erase(mClients.begin() + i);
+
             continue;
         }
 
@@ -166,22 +170,8 @@ bool eTCPNetwork::sendPacket(NET_StreamSocket* const sock,
     memcpy(buf.data(), &size, sizeof(uint32_t));
     memcpy(buf.data() + sizeof(uint32_t), p.data(), size);
 
-    return NET_WriteToStreamSocket(sock, buf.data(), buf.size());
-}
-
-void eTCPNetwork::removeClientByTcpId(const int tcpId) {
-    for(int i = 0; i < mClients.size(); i++) {
-        const auto& c = mClients[i];
-        if(c.fTcpId != tcpId) continue;
-        return removeClientByIndex(i);
-    }
-}
-
-void eTCPNetwork::removeClientByIndex(const int id) {
-    const auto& c = mClients[id];
-    NET_DestroyStreamSocket(c.fSocket);
-    std::cout << "Client disconnected: " << c.fTcpId << std::endl;
-    mClients.erase(mClients.begin() + id);
+    return NET_WriteToStreamSocket(sock,
+            buf.data(), static_cast<int>(buf.size()));
 }
 
 bool eTCPNetwork::sendToServer(const ePacket& p) {
@@ -194,11 +184,12 @@ bool eTCPNetwork::sendToServer(const ePacket& p) {
 }
 
 bool eTCPNetwork::sendToClient(const int tcpId, const ePacket& p) {
-    for(const auto& c : mClients) {
+    for(auto& c : mClients) {
         if(c.fTcpId == tcpId) {
+            if(c.fDisconnected) return false;
             const bool r = sendPacket(c.fSocket, p);
             if(!r) {
-                removeClientByTcpId(tcpId);
+                c.fDisconnected = true;
                 return false;
             }
         }
@@ -208,10 +199,12 @@ bool eTCPNetwork::sendToClient(const int tcpId, const ePacket& p) {
 
 void eTCPNetwork::broadcast(const ePacket& p) {
     for(int i = 0; i < mClients.size(); i++) {
-        const auto& c = mClients[i];
+        auto& c = mClients[i];
+        if(c.fDisconnected) continue;
+
         const bool r = sendPacket(c.fSocket, p);
         if(!r) {
-            removeClientByIndex(i);
+            c.fDisconnected = true;
             i--;
             continue;
         }
