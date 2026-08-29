@@ -98,7 +98,8 @@ void eServerArea::iniSetupUnit(
 }
 
 bool eServerArea::findPlaceForUnit(
-    const ePointF& pos, ePointF& result) const {
+    const ePointF& pos, ePointF& result,
+    const float minDist) const {
     const float x = pos.fX;
     const float y = pos.fY;
     for(int dist = 0; dist < 5; dist++) {
@@ -107,7 +108,10 @@ bool eServerArea::findPlaceForUnit(
             const float dx = eRand::randF(-dist, dist);
             const float dy = eRand::randF(-dist, dist);
             const ePointF tryPos{x + dx, y + dy};
-            const auto u = unit(tryPos, [](const eServerUnit& u) {
+            const auto u = unit(tryPos, [tryPos, minDist](
+                    const eServerUnit& u) {
+                const float dist = ePointF::distance(u.fPos, tryPos);
+                if(dist > minDist) return false;
                 return u.fHealth > 0 && u.visible();
             });
             if(u) continue;
@@ -124,7 +128,7 @@ std::shared_ptr<eServerUnit> eServerArea::addUnit(
     const uint16_t type, const eUnitType utype,
     std::optional<eEliteModifiers>& mods, ePointF& pos,
     const uint8_t level) {
-    const bool r = findPlaceForUnit(pos, pos);
+    const bool r = findPlaceForUnit(pos, pos, 1.f);
     if(!r) return nullptr;
     const auto& udata = eUnitsInfo::sUnits.get(type);
 

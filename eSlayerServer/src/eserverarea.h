@@ -261,7 +261,8 @@ public:
                            const eMoveToMapData& moveData,
                            ePointF& spawnPos);
     bool findPlaceForUnit(const ePointF& pos,
-                          ePointF& result) const;
+                          ePointF& result,
+                          const float minDist = 0.4f) const;
     bool findPlaceForPortal(const ePointF& pos,
                             ePointF& result) const;
 
