@@ -296,9 +296,11 @@ void eServerArea::consumePotion(
     const uint32_t unitId) {
     const auto u = unit(clientId);
     if(!u) return;
-    const auto p = u->takePotion(itemId);
+    if(u->fHealth <= 0) return;
     const auto tu = unit(unitId);
     if(!tu) return;
+    if(tu->fHealth <= 0) return;
+    const auto p = u->takePotion(itemId);
     tu->consumePotion(p);
 }
 
