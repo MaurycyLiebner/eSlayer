@@ -332,18 +332,24 @@ eGameWorld::eProcessResult eGameWorld::processServerData(
         }
     }
 
+    const auto updateSlayer = [](
+            const uint32_t charId,
+            const eUnitData& u) {
+        auto& ss = eSlayers::sSlayers;
+        const auto it = ss.find(charId);
+        if(it != ss.end()) {
+            auto& s = it->second;
+            s.assign(u);
+            s.fTeamId = u.fTeamId;
+        }
+    };
+
+    updateSlayer(clientId, *mMainChar);
+
     for(const auto& u : mUnits) {
         const uint32_t charId = u->fCharId;
 
-        {
-            auto& ss = eSlayers::sSlayers;
-            const auto it = ss.find(charId);
-            if(it != ss.end()) {
-                auto& s = it->second;
-                s.assign(*u);
-                s.fTeamId = u->fTeamId;
-            }
-        }
+        updateSlayer(charId, *u);
 
         {
             auto& ff = eFollowers::sFollowers;

@@ -107,6 +107,7 @@ void eMainCharAction::initialize(const std::shared_ptr<eServer>& s,
     mMainChar->fUnitInfoId = uinfoId;
     mMainChar->fModelParts = modelParts;
     mMainChar->fTeamId = teamId;
+    mMainChar->fCharId = clientId;
 
     mStats.fClass = classId;
     mStats.fSkills.emplace_back();

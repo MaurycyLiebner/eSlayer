@@ -246,6 +246,8 @@ void eGameWidget::paintEvent(ePainter& p) {
             mMainChar->fHealth = u.fHealth;
             mMainChar->fState = u.fState;
             mMainChar->fBoosts = u.fBoosts;
+            mMainChar->fMapId = u.fMapId;
+            mMainChar->fAreaId = u.fAreaId;
             {
                 auto& stats = eGameWidget::stats();
                 auto& attrs = eGameWidget::attributes();
