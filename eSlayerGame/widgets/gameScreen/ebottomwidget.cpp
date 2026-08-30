@@ -8,6 +8,9 @@
 #include "../ecolors.h"
 #include "../../textures/euitextures.h"
 
+#include "../../audio/esounds.h"
+#include "../../audio/esoundplayer.h"
+
 #include <eSlayerHelpers/estats.h>
 #include <eSlayerHelpers/eattributes.h>
 #include <eSlayerHelpers/eequipment.h>
@@ -311,7 +314,26 @@ void eBottomWidget::paintEvent(ePainter& p) {
         hideBeltExt();
     }
 
-    const bool statsEnabled = mAttrs.fStatPoints > 0;
+    const auto& skills = mStats.fBaseSkillLevels;
+    const int statPoints = mAttrs.fStatPoints;
+    const int skillPoints = skills.fRemainingPoints;
+    const bool statsEnabled = statPoints > 0;
+    bool playSound = false;
+    if(statPoints != mStatsPoints) {
+        playSound = playSound || statPoints > mStatsPoints;
+        mStatsPoints = statPoints;
+    }
+
+    if(skillPoints != mSkillPoints) {
+        playSound = playSound || skillPoints > mSkillPoints;
+        mSkillPoints = skillPoints;
+    }
+
+    if(playSound) {
+        const int soundId = eSounds::sSounds.id("update");
+        if(soundId >= 0) eSoundPlayer::playSound(soundId);
+    }
+
     if(mNewStatsEnabled != statsEnabled) {
         mNewStatsEnabled = statsEnabled;
         if(statsEnabled) {
@@ -322,7 +344,6 @@ void eBottomWidget::paintEvent(ePainter& p) {
                                   eUITextures::sNewFalseSmallIcon);
         }
     }
-    const auto& skills = mStats.fBaseSkillLevels;
     const bool skillEnabled = skills.fRemainingPoints > 0;
     if(mNewSkillEnabled != skillEnabled) {
         mNewSkillEnabled = skillEnabled;

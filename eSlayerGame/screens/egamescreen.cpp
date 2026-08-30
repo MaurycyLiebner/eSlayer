@@ -30,6 +30,9 @@
 #include "../widgets/gameScreen/efollowerportraits.h"
 #include "../widgets/gameScreen/emercwidget.h"
 
+#include "../audio/esounds.h"
+#include "../audio/esoundplayer.h"
+
 #include <eSlayerHelpers/epotiontype.h>
 #include <eSlayerHelpers/echaracter.h>
 #include <eSlayerHelpers/egamedir.h>
@@ -522,6 +525,10 @@ void eGameScreen::paintEvent(ePainter&) {
     mMiniMap->setPos(pos);
 
     const bool v = eQuestsWidget::updated();
+    if(v && !mQuestsButtonW->visible()) {
+        const int soundId = eSounds::sSounds.id("update");
+        if(soundId >= 0) eSoundPlayer::playSound(soundId);
+    }
     mQuestsButtonW->setVisible(v);
 }
 

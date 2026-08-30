@@ -83,7 +83,9 @@ private:
     eTextureCheckButton* mNewSkill = nullptr;
 
     bool mNewStatsEnabled = false;
+    int mStatsPoints = 0;
     bool mNewSkillEnabled = false;
+    int mSkillPoints = 0;
 
     ePlayerHealthIndicator* mExperienceIndicator = nullptr;
     ePlayerHealthIndicator* mHealthIndicator = nullptr;
