@@ -123,7 +123,7 @@ void eBlueprints::load() {
                         terr.fY += dy;
                     }
                     for(const auto& u : b.fUnits) {
-                        auto& unit = bp.fTerrain.emplace_back(u);
+                        auto& unit = bp.fUnits.emplace_back(u);
                         unit.fX += dx;
                         unit.fY += dy;
                     }
