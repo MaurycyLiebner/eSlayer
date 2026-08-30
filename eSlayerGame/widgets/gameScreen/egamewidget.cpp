@@ -14,6 +14,9 @@
 #include "../../textures/eiteminstancetexture.h"
 #include "../../textures/eitemstextures.h"
 
+#include "../../audio/esounds.h"
+#include "../../audio/esoundplayer.h"
+
 #include "../../names/eareanames.h"
 #include "../../names/eobjectnames.h"
 #include "../../names/emonsternames.h"
@@ -406,6 +409,8 @@ bool eGameWidget::consumePotion(
 bool eGameWidget::consumePotion(
     const eItem& p, const uint32_t unitId) {
     if(p.fType != eItemType::potion) return false;
+    const int soundId = eSounds::sSounds.id("swallow");
+    if(soundId >= 0) eSoundPlayer::playSound(soundId);
     return mServer->consumePotion(mClientId, p.fItemId, unitId);
 }
 
