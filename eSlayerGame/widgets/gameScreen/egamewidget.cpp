@@ -415,7 +415,8 @@ bool eGameWidget::consumePotion(
     const bool r = mServer->consumePotion(mClientId, p.fItemId, unitId);
     if(!r) return false;
     auto& eq = equipment();
-    eq.take(p.fItemId);
+    const int x = eq.beltX(p.fItemId);
+    eq.takePotion(x);
     return true;
 }
 
