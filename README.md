@@ -4,9 +4,9 @@ eSlayer is an open-source 2D isometric hack-and-slash video game demo.
 
 ## How To Play
 
-To play eSlayer you can [download the latest release files from GitHub](https://github.com/MaurycyLiebner/eZeus/releases) and build/download the binary files.
+To play eSlayer you can [download the latest release files from GitHub](https://github.com/MaurycyLiebner/eSlayer/releases) and build/download the binary files.
 
-**Windows**: you can download a [prebuilt eSlayer binaries](https://github.com/MaurycyLiebner/eZeus/releases).
+**Windows**: you can download a [prebuilt eSlayer binaries](https://github.com/MaurycyLiebner/eSlayer/releases).
 
 **Linux**: you have to build eSlayer yourself - it should be pretty straightforward.
 
