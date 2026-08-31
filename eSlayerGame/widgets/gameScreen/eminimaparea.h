@@ -10,6 +10,7 @@ class ePainter;
 
 struct eMiniMapArea {
     static const int sAreaDim = 10;
+    static const int sUnknownIni = sAreaDim*sAreaDim;
     eMiniMapArea(const eResolution* res,
                  SDL_Renderer* const r);
 
@@ -36,7 +37,7 @@ struct eMiniMapArea {
     int fTileW;
     int fTileH;
 
-    int fUnknown = sAreaDim*sAreaDim;
+    int fUnknown = sUnknownIni;
     std::vector<std::vector<bool>> fKnown;
     std::shared_ptr<eTexture> fTex;
 

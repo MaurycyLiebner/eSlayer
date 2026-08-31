@@ -39,6 +39,7 @@ eMiniMap::~eMiniMap() {
                 }
             }
             a.fKnown.clear();
+            a.fUnknown = eMiniMapArea::sUnknownIni;
             a.fInitialized = false;
         }
     }
