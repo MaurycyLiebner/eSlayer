@@ -391,7 +391,7 @@ bool eGameWidget::consumePotion(
 bool eGameWidget::consumePotion(
     const int x, const uint32_t unitId) {
     auto& eq = equipment();
-    const auto p = eq.takePotion(x);
+    const auto p = eq.potionAt(x);
     return consumePotion(p, unitId);
 }
 
@@ -409,9 +409,14 @@ bool eGameWidget::consumePotion(
 bool eGameWidget::consumePotion(
     const eItem& p, const uint32_t unitId) {
     if(p.fType != eItemType::potion) return false;
+    if(mMainChar->fHealth <= 0) return false;
     const int soundId = eSounds::sSounds.id("swallow");
     if(soundId >= 0) eSoundPlayer::playSound(soundId);
-    return mServer->consumePotion(mClientId, p.fItemId, unitId);
+    const bool r = mServer->consumePotion(mClientId, p.fItemId, unitId);
+    if(!r) return false;
+    auto& eq = equipment();
+    eq.take(p.fItemId);
+    return true;
 }
 
 void eGameWidget::waypointTeleport(

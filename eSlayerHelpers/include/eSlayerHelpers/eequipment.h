@@ -134,6 +134,7 @@ struct ESLAYERHELPERS_API eEquipment : public eBodyEquipment  {
     void iterateOverAll(const eCIter& iter) const;
 
     eItem takePotion(const int x);
+    eItem potionAt(const int x);
     int beltX(const uint32_t itemId) const;
 
     void moveFromBody(eBodyEquipment& srcEq,

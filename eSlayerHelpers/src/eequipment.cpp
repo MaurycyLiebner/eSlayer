@@ -320,6 +320,14 @@ eItem eEquipment::takePotion(const int x) {
     return at;
 }
 
+eItem eEquipment::potionAt(const int x) {
+    const auto atPtr = fBeltPotions.at(x, 0);
+    if(!atPtr) return eItem();
+    const auto& at = atPtr->fItem;;
+    if(at.fType != eItemType::potion) return eItem();
+    return at;
+}
+
 int eEquipment::beltX(const uint32_t itemId) const {
     for(const auto& it : fBeltPotions) {
         if(it.fItem.fItemId == itemId) return it.fX;
