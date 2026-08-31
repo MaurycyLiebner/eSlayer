@@ -166,7 +166,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     const auto worldResult = mWorld.processServerData(
         mClientId, *mServer, *mMainChar,
         *mMainAction, res, r);
-    if(eInventoryWidget::sBlocked) {
+    {
         const bool r = mServer->receiveEquipment(mClientId, eq);
         if(r) {
             mMainAction->recalculateStats();

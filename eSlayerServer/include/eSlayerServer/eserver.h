@@ -236,6 +236,7 @@ protected:
     std::vector<eEquipmentAction> mEqActions;
     std::optional<eSeller> mSeller;
     std::optional<eReplaceItemId> mReplaceItemId;
+    bool mNewEquipment = false;
 
     uint32_t mClientId = 0;
 private:

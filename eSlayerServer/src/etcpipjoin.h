@@ -138,7 +138,6 @@ private:
     bool mNewData = false;
 
     eEquipment mEquipment;
-    bool mNewEquipment = false;
 
     bool mUnblockEquipment = false;
 

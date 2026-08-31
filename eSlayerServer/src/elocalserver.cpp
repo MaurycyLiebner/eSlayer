@@ -135,9 +135,8 @@ bool eLocalServer::requestData(const uint32_t clientId,
 }
 
 bool eLocalServer::requestEquipment(const uint32_t clientId) {
-    const auto h = clientHandler(clientId);
-    if(!h) return false;
-    return h->requestEquipment();
+    mNewEquipment = true;
+    return true;
 }
 
 std::optional<eSlayerQuests>
@@ -173,9 +172,12 @@ bool eLocalServer::addedSocket(
 bool eLocalServer::receiveEquipment(
     const uint32_t clientId,
     eEquipment& data) {
-    const auto h = clientHandler(clientId);
-    if(!h) return false;
-    return h->receiveEquipment(data);
+    if(clientId != mClientId) return false;
+    if(!mNewEquipment) return false;
+    const bool r = getEquipment(clientId, data);
+    if(!r) return false;
+    mNewEquipment = false;
+    return true;
 }
 
 bool eLocalServer::unblockEquipment(
@@ -286,7 +288,9 @@ bool eLocalServer::dropItem(
     const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->dropItem();
+    const bool r = h->dropItem();
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::dropGold(
@@ -294,14 +298,18 @@ bool eLocalServer::dropGold(
     const uint32_t count) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->dropGold(count);
+    const bool r = h->dropGold(count);
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::rearrangeItems(
     const uint32_t clientId, const eEquipment& eq) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->rearrangeItems(eq);
+    const bool r = h->rearrangeItems(eq);
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::changeAttributes(
@@ -324,7 +332,9 @@ bool eLocalServer::consumePotion(
     const uint32_t unitId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->consumePotion(itemId, unitId);
+    const bool r = h->consumePotion(itemId, unitId);
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::pickupBody(
@@ -455,7 +465,9 @@ bool eLocalServer::equipmentAction(
     const eEquipmentAction& a) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->equipmentAction(a);
+    const bool r = h->equipmentAction(a);
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::buyAction(
@@ -478,7 +490,9 @@ bool eLocalServer::buyActionImpl(
     uint32_t& newItemId) {
     const auto h = clientHandler(clientId);
     if(!h) return false;
-    return h->buyAction(a, newItemId);
+    const bool r = h->buyAction(a, newItemId);
+    if(!r) synchronizeEq(clientId);
+    return r;
 }
 
 bool eLocalServer::sellAction(
@@ -529,6 +543,19 @@ eLocalServer::followersUpdate(const uint32_t clientId) {
     const auto h = clientHandler(clientId);
     if(!h) return std::nullopt;
     return h->followersUpdate();
+}
+
+bool eLocalServer::synchronizeEq(const uint32_t clientId) {
+    if(clientId != mClientId) return false;
+    mNewEquipment = true;
+    return true;
+}
+
+bool eLocalServer::getEquipment(
+    const uint32_t clientId, eEquipment& data) {
+    const auto h = clientHandler(clientId);
+    if(!h) return false;
+    return h->getEquipment(data);
 }
 
 bool eLocalServer::changeTeam(

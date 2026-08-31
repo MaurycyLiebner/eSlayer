@@ -632,8 +632,6 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
                     p << i;
                     mNet.sendToClient(tcpClientId, p);
                 }
-            } else {
-                synchronizeEq(charId, tcpClientId);
             }
         }
     } break;
@@ -688,10 +686,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             eEquipmentAction a;
             a.read(p);
-            const bool r = eLocalServer::equipmentAction(charId, a);
-            if(!r) {
-                synchronizeEq(charId, tcpClientId);
-            }
+            eLocalServer::equipmentAction(charId, a);
         }
     } break;
     case ePacketType::body: {
@@ -915,8 +910,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             const uint32_t charId = it->second;
             eEquipment eq;
             eq.read(p);
-            eLocalServer::rearrangeItems(
-                charId, eq);
+            eLocalServer::rearrangeItems(charId, eq);
         }
     } break;
     case ePacketType::consumePotion: {
@@ -927,8 +921,7 @@ void eTcpIpHost::processPacket(eNetPacket& pkt) {
             p >> itemId;
             uint32_t unitId;
             p >> unitId;
-            eLocalServer::consumePotion(
-                charId, itemId, unitId);
+            eLocalServer::consumePotion(charId, itemId, unitId);
         }
     } break;
     case ePacketType::attributes: {
@@ -994,11 +987,14 @@ void eTcpIpHost::sendToMapClients(
     }
 }
 
-bool eTcpIpHost::synchronizeEq(
-    const uint32_t clientId,
-    const int tcpClientId) {
+bool eTcpIpHost::synchronizeEq(const uint32_t clientId) {
+    if(clientId == mClientId) {
+        return eLocalServer::synchronizeEq(clientId);
+    }
+    const int tcpClientId = clientIdToTcpId(clientId);
+    if(tcpClientId < 0) return false;
     eEquipment data;
-    const bool r = eLocalServer::receiveEquipment(
+    const bool r = eLocalServer::getEquipment(
         clientId, data);
     if(!r) return false;
     ePacket p;
@@ -1006,6 +1002,13 @@ bool eTcpIpHost::synchronizeEq(
     data.write(p);
     mNet.sendToClient(tcpClientId, p);
     return true;
+}
+
+int eTcpIpHost::clientIdToTcpId(const uint32_t clientId) const {
+    for(const auto& it : mClientIdMap) {
+        if(it.second == clientId) return it.first;
+    }
+    return -1;
 }
 
 std::vector<eSlayer>

@@ -22,10 +22,9 @@ class eServerClientHandler {
 public:
     eServerClientHandler(const uint32_t clientId);
 
-    bool requestEquipment();
     bool receiveData(eRequestData& data,
                      float& resultTime);
-    bool receiveEquipment(eEquipment& data);
+    bool getEquipment(eEquipment& data);
 
     std::optional<eSlayerQuests>
     receiveQuests();

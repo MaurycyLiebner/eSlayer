@@ -12,10 +12,6 @@ eServerClientHandler::eServerClientHandler(
     const uint32_t clientId) :
     mClientId(clientId) {}
 
-bool eServerClientHandler::requestEquipment() {
-    return true;
-}
-
 bool eServerClientHandler::receiveData(
     eRequestData& data, float& resultTime) {
     if(!mArea) return false;
@@ -52,7 +48,7 @@ bool eServerClientHandler::receiveData(
     return true;
 }
 
-bool eServerClientHandler::receiveEquipment(eEquipment& data) {
+bool eServerClientHandler::getEquipment(eEquipment& data) {
     if(!mArea) return false;
     const auto unit = mArea->unit(mClientId);
     if(!unit) return false;

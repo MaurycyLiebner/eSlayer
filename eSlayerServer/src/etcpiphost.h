@@ -120,7 +120,10 @@ public:
     std::vector<eEquipmentAction> receiveEqActions() override;
     std::optional<eSeller> receiveSeller() override;
     std::optional<eReplaceItemId> receiveReplaceItemId() override;
+protected:
+    bool synchronizeEq(const uint32_t clientId) override;
 private:
+    int clientIdToTcpId(const uint32_t clientId) const;
     void sendSlain();
     void sendMessageToAll(const uint32_t clientId, const std::string& text);
     bool handleClientDisconnect(const int tcpClientId);
@@ -133,9 +136,6 @@ private:
                               const eServerObject& obj);
 
     void sendToMapClients(const uint8_t mapId, const ePacket& p);
-
-    bool synchronizeEq(const uint32_t clientId,
-                       const int tcpClientId);
 
     std::thread mThread;
     bool mRunning = false;

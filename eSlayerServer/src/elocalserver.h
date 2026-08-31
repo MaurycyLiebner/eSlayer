@@ -147,6 +147,10 @@ public:
     std::optional<eFollowersBase>
     followersUpdate(const uint32_t clientId) override;
 protected:
+    virtual bool synchronizeEq(const uint32_t clientId);
+
+    bool getEquipment(const uint32_t clientId,
+                      eEquipment& data);
     bool changeTeam(const uint32_t clientId,
                     const eTeamId newTeam);
     int clientMapId(const uint32_t clientId);
