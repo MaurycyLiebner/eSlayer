@@ -1,6 +1,8 @@
 #ifndef EITEMPARTSMAP_H
 #define EITEMPARTSMAP_H
 
+#include "eslayerhelpersexport.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -20,7 +22,7 @@ struct eItemPlaceItem {
     int fItemId;
 };
 
-class eItemPartsMap {
+class ESLAYERHELPERS_API eItemPartsMap {
 public:
     static void load();
 

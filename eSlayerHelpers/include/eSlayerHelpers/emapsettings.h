@@ -78,7 +78,7 @@ struct eAreaTemplate {
     std::vector<eBlueprintCount> fBlueprints;
 };
 
-struct eAreaSettings {
+struct ESLAYERHELPERS_API eAreaSettings {
     std::string fName;
     eAreaType fType;
     bool fWaypoint = false;

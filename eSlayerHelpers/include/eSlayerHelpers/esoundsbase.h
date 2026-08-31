@@ -1,9 +1,11 @@
 #ifndef ESOUNDSBASE_H
 #define ESOUNDSBASE_H
 
+#include "eslayerhelpersexport.h"
+
 #include "estringidmapvector.h"
 
-class eSoundsBase {
+class ESLAYERHELPERS_API eSoundsBase {
 public:
     static void load();
 

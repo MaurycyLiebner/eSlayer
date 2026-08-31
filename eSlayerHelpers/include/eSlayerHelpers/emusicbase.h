@@ -1,9 +1,11 @@
 #ifndef EMUSICBASE_H
 #define EMUSICBASE_H
 
+#include "eslayerhelpersexport.h"
+
 #include "estringidmapvector.h"
 
-class eMusicBase {
+class ESLAYERHELPERS_API eMusicBase {
 public:
     static void load();
 
